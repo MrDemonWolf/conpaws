@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ConPaws is an Expo/React Native mobile application — a furry convention companion app. It targets **Android, iOS, and Web**. The app is **local-first** (all core features work offline). Premium features ("Paw Pass") are powered by RevenueCat. Auth and profiles are stored in a self-hosted Supabase instance.
+ConPaws is an Expo/React Native mobile application — a furry convention companion app. It targets **Android, iOS, and Web**. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") are powered by RevenueCat. Auth and profiles are stored in a self-hosted Supabase instance.
 
 It uses app variants (`development`, `preview`, `production`) controlled via the `APP_VARIANT` environment variable, with bundle ID `com.mrdemonwolf.conpaws` (production) / `com.mrdemonwolf.conpaws.dev` (development).
 
@@ -91,3 +91,21 @@ The `APP_VARIANT` env var controls build configuration:
 - Default `.tsx` = iOS/Web rendering
 - `.android.tsx` = Android-specific UI variant (add when UI needs to diverge)
 - React Native resolves the correct file per platform at build time
+
+## Planning Notes
+
+All planning and design documents live in `notes/` — these are **temporary pre-development docs**, not shipped code.
+
+| File | What's Inside |
+|------|--------------|
+| `notes/plan.md` | Full technical blueprint — tech stack, data models, screens, sync architecture, iCal import, dev phases |
+| `notes/marketing.md` | Marketing strategy — website, social media, YouTube, profitability projections |
+| `notes/pitchdeck.md` | Market research — fandom stats, convention data, competitive analysis (Barq), revenue projections |
+| `notes/ideas.md` | Future feature brainstorms + pre-launch gap analysis |
+| `notes/legal.md` | Privacy Policy and Terms of Service templates + App Store compliance checklist |
+
+Each file has a **TL;DR** at the top for quick scanning. `plan.md` also has a table of contents.
+
+Test data for iCal import development lives in `test-data/`:
+- `test-data/indyfurcon2025.ics` — Real convention data (IndyFurCon 2025, 16 events)
+- `test-data/small-test.ics` — Clean test fixture (10 events, 3-day fictional con)
