@@ -24,7 +24,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./src/assets/images/icon.png",
   scheme: "conpaws",
   userInterfaceStyle: "automatic",
-  newArchEnabled: false,
   splash: {
     image: "./src/assets/images/splash-icon.png",
     resizeMode: "contain",
