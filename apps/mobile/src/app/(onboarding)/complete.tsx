@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { Check } from "@/lib/icons";
 import { OnboardingSlide } from "@/components/onboarding-slide";
@@ -25,7 +25,7 @@ export default function CompleteScreen() {
       description="Start by importing a convention schedule or creating one manually."
     >
       <Button onPress={handleComplete}>
-        Let's Go
+        {"Let's Go"}
       </Button>
     </OnboardingSlide>
   );

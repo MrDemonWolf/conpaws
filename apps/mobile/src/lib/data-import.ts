@@ -1,7 +1,7 @@
 import { db } from "@/db/client";
 import { conventions, conventionEvents } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import type { ExportData, Convention, ConventionEvent } from "@/types";
+import type { ExportData } from "@/types";
 
 export interface ImportSummary {
   conventionsAdded: number;

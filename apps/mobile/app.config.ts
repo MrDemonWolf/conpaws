@@ -2,7 +2,6 @@ import type { ExpoConfig, ConfigContext } from "expo/config";
 
 const IS_DEV = process.env.APP_VARIANT === "development" || !process.env.APP_VARIANT;
 const IS_PREVIEW = process.env.APP_VARIANT === "preview";
-const IS_PROD = process.env.APP_VARIANT === "production";
 
 const getAppName = () => {
   if (IS_DEV) return "ConPaws (Dev)";

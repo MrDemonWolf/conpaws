@@ -7,21 +7,18 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
-import { Check, Calendar } from "@/lib/icons";
+import { Check } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { useICalImport } from "@/hooks/use-ical-import";
 import { formatDateRange } from "@/lib/date-utils";
 import { CATEGORY_COLORS } from "@/lib/constants";
-import { useColorScheme } from "@/lib/useColorScheme";
 import type { ParsedCalendar } from "@/lib/ical-parser";
 
 export default function ImportPreviewScreen() {
-  const { data, url } = useLocalSearchParams<{ data: string; url?: string }>();
+  const { data } = useLocalSearchParams<{ data: string; url?: string }>();
   const router = useRouter();
   const { importEvents, isLoading } = useICalImport();
-  const { isDark } = useColorScheme();
 
   const calendar: ParsedCalendar = useMemo(() => JSON.parse(data), [data]);
 

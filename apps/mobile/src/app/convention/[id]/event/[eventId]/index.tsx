@@ -3,15 +3,12 @@ import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import {
   Clock,
   MapPin,
-  Calendar,
   Edit3,
   Trash2,
   ExternalLink,
   Shield,
-  Check,
 } from "@/lib/icons";
 import { useEvent, useToggleSchedule, useSetReminder, useDeleteEvent } from "@/hooks/use-events";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -33,9 +30,6 @@ export default function EventDetailScreen() {
   const { isDark } = useColorScheme();
 
   if (!event) return null;
-
-  const categoryColor =
-    CATEGORY_COLORS[event.category ?? ""] ?? CATEGORY_COLORS.DEFAULT;
 
   const handleDelete = () => {
     Alert.alert("Delete Event", "Are you sure?", [

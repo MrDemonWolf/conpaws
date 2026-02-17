@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Alert, Linking } from "react-native";
+import { Text, ScrollView, Alert, Linking } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -8,7 +8,6 @@ import {
   Download,
   Upload,
   ExternalLink,
-  ChevronRight,
   Trash2,
 } from "@/lib/icons";
 import { useColorScheme } from "@/lib/useColorScheme";

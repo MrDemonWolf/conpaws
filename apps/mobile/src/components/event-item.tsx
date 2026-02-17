@@ -1,5 +1,5 @@
 import { View, Text, Pressable } from "react-native";
-import { Calendar, Check, Clock, MapPin } from "@/lib/icons";
+import { Check, Clock, MapPin } from "@/lib/icons";
 import { formatEventTime } from "@/lib/date-utils";
 import { CATEGORY_COLORS } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
