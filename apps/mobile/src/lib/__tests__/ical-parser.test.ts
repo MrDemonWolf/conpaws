@@ -82,8 +82,8 @@ describe("parseICalContent", () => {
     it("detects start and end dates", () => {
       expect(parsed.startDate).toBeTruthy();
       expect(parsed.endDate).toBeTruthy();
-      expect(new Date(parsed.startDate).getTime()).toBeLessThan(
-        new Date(parsed.endDate).getTime(),
+      expect(new Date(parsed.startDate!).getTime()).toBeLessThan(
+        new Date(parsed.endDate!).getTime(),
       );
     });
 
