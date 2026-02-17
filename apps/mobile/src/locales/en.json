@@ -1,0 +1,153 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "done": "Done",
+    "error": "Error",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "none": "None"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "ConPaws",
+      "description": "Your furry convention companion. Track schedules, discover events, and never miss a moment.",
+      "getStarted": "Get Started"
+    },
+    "features": {
+      "title": "What you can do",
+      "trackSchedules": "Track Schedules",
+      "trackSchedulesDesc": "Import convention schedules and build your personal agenda.",
+      "shareWithFriends": "Share with Friends",
+      "shareWithFriendsDesc": "Export and share your schedule with fellow con-goers.",
+      "yourData": "Your Data, Your Device",
+      "yourDataDesc": "Everything stays on your phone. No account required."
+    },
+    "auth": {
+      "title": "Create an Account",
+      "description": "Sign in to sync your data across devices. Coming soon!",
+      "google": "Continue with Google",
+      "apple": "Continue with Apple",
+      "skip": "Skip for now"
+    },
+    "complete": {
+      "title": "You're all set!",
+      "description": "Start by importing a convention schedule or creating one manually.",
+      "letsGo": "Let's Go"
+    }
+  },
+  "home": {
+    "title": "My Conventions",
+    "empty": {
+      "title": "No conventions yet",
+      "description": "Add your first convention by importing a schedule or creating one manually.",
+      "action": "Add Convention"
+    }
+  },
+  "convention": {
+    "new": "New Convention",
+    "edit": "Edit Convention",
+    "name": "Name",
+    "namePlaceholder": "e.g. Anthrocon 2026",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "create": "Create Convention",
+    "creating": "Creating...",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "deleteTitle": "Delete Convention",
+    "deleteMessage": "Are you sure you want to delete \"{{name}}\"? This will also delete all events.",
+    "noEvents": "No events yet",
+    "noEventsDesc": "Add events manually or import a schedule.",
+    "addEvent": "Add Event",
+    "events": "{{count}} events",
+    "event": "{{count}} event"
+  },
+  "event": {
+    "new": "New Event",
+    "edit": "Edit Event",
+    "details": "Event Details",
+    "title": "Title",
+    "titlePlaceholder": "Event title",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional description",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "location": "Location",
+    "locationPlaceholder": "e.g. Convention Center",
+    "room": "Room",
+    "roomPlaceholder": "e.g. Main Hall",
+    "category": "Category",
+    "categoryPlaceholder": "e.g. GAMING, FURSUITING",
+    "createEvent": "Create Event",
+    "addToSchedule": "Add to My Schedule",
+    "reminder": "Reminder",
+    "contentWarning": "Content Warning",
+    "ageRestricted": "18+ Only",
+    "viewOnSched": "View on Sched",
+    "deleteTitle": "Delete Event",
+    "deleteMessage": "Are you sure?"
+  },
+  "import": {
+    "title": "Import Schedule",
+    "description": "Import events from a .ics file or a Sched convention URL.",
+    "icsFile": "Import .ics File",
+    "icsFileDesc": "Pick a calendar file from your device.",
+    "chooseFile": "Choose File",
+    "schedUrl": "Paste Sched URL",
+    "schedUrlDesc": "Enter a Sched convention URL (e.g. https://mycon2026.sched.com)",
+    "schedUrlPlaceholder": "https://convention.sched.com",
+    "fetchSchedule": "Fetch Schedule",
+    "loading": "Loading schedule...",
+    "preview": "Import Preview",
+    "eventsFound": "{{count}} events found",
+    "events": "Events",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "importCount": "Import {{count}} Events"
+  },
+  "profile": {
+    "title": "Profile",
+    "comingSoon": "Profiles coming soon",
+    "comingSoonDesc": "Create your furry profile and share it with friends. Coming in a future update!"
+  },
+  "settings": {
+    "title": "Settings",
+    "app": "APP",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "about": "About",
+    "data": "DATA",
+    "exportData": "Export My Data",
+    "importData": "Import Data",
+    "legal": "LEGAL",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "dangerZone": "DANGER ZONE",
+    "resetOnboarding": "Reset Onboarding",
+    "resetOnboardingTitle": "Reset Onboarding",
+    "resetOnboardingMessage": "This will show the onboarding screens again on next launch.",
+    "reset": "Reset",
+    "exportFailed": "Could not export data. Please try again.",
+    "importFailed": "Could not import data. Please try again.",
+    "importInvalid": "This file is not a valid ConPaws backup.",
+    "importConfirm": "Found {{conventions}} conventions and {{events}} events. Duplicates will be skipped.",
+    "importComplete": "Added {{conventionsAdded}} conventions and {{eventsAdded}} events. Skipped {{conventionsSkipped}} duplicate conventions and {{eventsSkipped}} duplicate events."
+  },
+  "about": {
+    "builtBy": "Built with care by",
+    "author": "MrDemonWolf"
+  },
+  "reminder": {
+    "none": "None",
+    "5min": "5 minutes before",
+    "15min": "15 minutes before",
+    "30min": "30 minutes before",
+    "1hr": "1 hour before"
+  }
+}
