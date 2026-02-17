@@ -27,9 +27,9 @@ pnpm prebuild:clean       # Clean and regenerate native projects
 
 ## Architecture
 
-- **Framework:** Expo SDK 54 with React Native and React 18
-- **Routing:** Expo Router v4 (file-based routing in `src/app/`)
-- **Styling:** NativeWind v4 (Tailwind CSS v4 for React Native) with `clsx` and `tailwind-merge`
+- **Framework:** Expo SDK 55 (preview) with React Native 0.83 and React 19.2
+- **Routing:** Expo Router v55 (file-based routing in `src/app/`)
+- **Styling:** NativeWind v5 (Tailwind CSS v4 for React Native) with `react-native-css`, `clsx`, and `tailwind-merge`
 - **Local Database:** expo-sqlite with Drizzle ORM
 - **Data Fetching:** TanStack React Query
 - **i18n:** i18next + react-i18next with expo-localization
@@ -39,6 +39,7 @@ pnpm prebuild:clean       # Clean and regenerate native projects
 - **Website:** Next.js on Coolify (same VPS as Supabase) — Phase 4
 - **Language:** TypeScript with strict mode
 - **Package Manager:** pnpm workspaces (monorepo with `nodeLinker: hoisted`)
+- **Animations:** react-native-reanimated v4.2 with react-native-worklets
 - **Entry Point:** `expo-router/entry` (configured in package.json `main`)
 
 ### Monorepo Structure
@@ -66,7 +67,7 @@ conpaws/
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
 - **eas.json** — EAS Build configuration for production builds
-- **metro.config.js** — Metro bundler with NativeWind wrapper
+- **metro.config.js** — Metro bundler with NativeWind v5 wrapper (`withNativewind`, no input arg)
 - **postcss.config.mjs** — PostCSS with `@tailwindcss/postcss` plugin
 - **tsconfig.json** — Extends `expo/tsconfig.base`, path alias `@/*` maps to `./src/*`
 - **drizzle.config.ts** — Drizzle Kit config for migration generation
@@ -84,6 +85,10 @@ Required in `.env.local`:
 
 - `reactCompiler: true` — React Compiler for automatic memoization
 - `typedRoutes: true` — Type-safe routing with Expo Router
+
+### New Architecture
+
+SDK 55 uses the New Architecture by default (the `newArchEnabled` config option has been removed). Legacy architecture is no longer supported.
 
 ### App Variants
 
