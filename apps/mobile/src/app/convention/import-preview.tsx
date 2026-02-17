@@ -82,7 +82,7 @@ export default function ImportPreviewScreen() {
             <View className="mt-4 flex-row flex-wrap gap-2">
               {categories.map(([cat, count]) => (
                 <Badge key={cat} variant="secondary">
-                  {cat} ({count})
+                  {`${cat} (${count})`}
                 </Badge>
               ))}
             </View>

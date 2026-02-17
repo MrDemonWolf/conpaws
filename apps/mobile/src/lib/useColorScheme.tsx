@@ -31,7 +31,8 @@ export function ColorSchemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const systemScheme = useRNColorScheme() ?? "light";
+  const rawScheme = useRNColorScheme();
+  const systemScheme: "light" | "dark" = rawScheme === "dark" ? "dark" : "light";
   const [preference, setPreferenceState] = useState<ColorScheme>("system");
   const [isLoaded, setIsLoaded] = useState(false);
 
