@@ -38,11 +38,15 @@ export default function EventDetailScreen() {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
-          await deleteEvent.mutateAsync({
-            id: eventId,
-            conventionId: id,
-          });
-          router.back();
+          try {
+            await deleteEvent.mutateAsync({
+              id: eventId,
+              conventionId: id,
+            });
+            router.back();
+          } catch {
+            Alert.alert("Error", "Failed to delete event. Please try again.");
+          }
         },
       },
     ]);
@@ -52,15 +56,18 @@ export default function EventDetailScreen() {
     Alert.alert(
       "Set Reminder",
       "Choose when to be reminded",
-      REMINDER_OPTIONS.map((opt) => ({
-        text: opt.label,
-        onPress: () =>
-          setReminder.mutate({
-            id: eventId,
-            conventionId: id,
-            reminderMinutes: opt.value,
-          }),
-      })),
+      [
+        ...REMINDER_OPTIONS.map((opt) => ({
+          text: opt.label,
+          onPress: () =>
+            setReminder.mutate({
+              id: eventId,
+              conventionId: id,
+              reminderMinutes: opt.value,
+            }),
+        })),
+        { text: "Cancel", style: "cancel" as const },
+      ],
     );
   };
 
