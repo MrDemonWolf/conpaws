@@ -20,7 +20,30 @@ export default function ImportPreviewScreen() {
   const router = useRouter();
   const { importEvents, isLoading } = useICalImport();
 
-  const calendar: ParsedCalendar = useMemo(() => JSON.parse(data), [data]);
+  const calendar: ParsedCalendar | null = useMemo(() => {
+    if (!data) return null;
+    try {
+      return JSON.parse(data) as ParsedCalendar;
+    } catch {
+      return null;
+    }
+  }, [data]);
+
+  if (!calendar) {
+    return (
+      <>
+        <Stack.Screen options={{ title: "Import Preview" }} />
+        <View className="flex-1 items-center justify-center bg-background px-8">
+          <Text className="text-base text-muted-foreground">
+            Failed to load import data.
+          </Text>
+          <Button onPress={() => router.back()} className="mt-4">
+            Go Back
+          </Button>
+        </View>
+      </>
+    );
+  }
 
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
     () => new Set(calendar.events.map((_, i) => i)),
@@ -71,9 +94,11 @@ export default function ImportPreviewScreen() {
           <Text className="text-2xl font-bold text-foreground">
             {calendar.name}
           </Text>
-          <Text className="mt-1 text-sm text-muted-foreground">
-            {formatDateRange(calendar.startDate, calendar.endDate)}
-          </Text>
+          {calendar.startDate && calendar.endDate && (
+            <Text className="mt-1 text-sm text-muted-foreground">
+              {formatDateRange(calendar.startDate, calendar.endDate)}
+            </Text>
+          )}
           <Text className="mt-1 text-sm text-muted-foreground">
             {calendar.events.length} events found
           </Text>

@@ -5,8 +5,8 @@ export interface ParsedCalendar {
   name: string;
   description?: string;
   events: ParsedEvent[];
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
 }
 
 export interface ParsedEvent {
@@ -88,7 +88,14 @@ function detectContentWarnings(text: string): string | null {
 }
 
 export function parseICalContent(icsContent: string): ParsedCalendar {
-  const jcal = ICAL.parse(icsContent);
+  let jcal;
+  try {
+    jcal = ICAL.parse(icsContent);
+  } catch (err) {
+    throw new Error(
+      `Invalid ICS content: ${err instanceof Error ? err.message : "parse failed"}`,
+    );
+  }
   const comp = new ICAL.Component(jcal);
 
   const calName =
@@ -146,8 +153,8 @@ export function parseICalContent(icsContent: string): ParsedCalendar {
     name: decodeHtmlEntities(String(calName)),
     description: calDesc ? decodeHtmlEntities(String(calDesc)) : undefined,
     events: events.sort((a, b) => a.startTime.localeCompare(b.startTime)),
-    startDate: earliest?.toISOString() ?? new Date().toISOString(),
-    endDate: latest?.toISOString() ?? new Date().toISOString(),
+    startDate: earliest?.toISOString() ?? null,
+    endDate: latest?.toISOString() ?? null,
   };
 }
 

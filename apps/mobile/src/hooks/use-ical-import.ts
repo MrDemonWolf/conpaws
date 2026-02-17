@@ -82,6 +82,9 @@ export function useICalImport() {
         let conventionId = existingConventionId;
 
         if (!conventionId) {
+          if (!calendar.startDate || !calendar.endDate) {
+            throw new Error("Cannot import a calendar with no events");
+          }
           const convention = await createConvention({
             name: calendar.name,
             startDate: calendar.startDate,

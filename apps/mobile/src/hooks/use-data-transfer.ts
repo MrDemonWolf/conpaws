@@ -63,6 +63,8 @@ export function useImportData() {
             onPress: async () => {
               const summary = await importData(data);
               queryClient.invalidateQueries({ queryKey: ["conventions"] });
+              queryClient.invalidateQueries({ queryKey: ["events"] });
+              queryClient.invalidateQueries({ queryKey: ["event"] });
               Alert.alert(
                 "Import Complete",
                 `Added ${summary.conventionsAdded} conventions and ${summary.eventsAdded} events. Skipped ${summary.conventionsSkipped} duplicate conventions and ${summary.eventsSkipped} duplicate events.`,
