@@ -72,18 +72,18 @@ describe("groupEventsByDay", () => {
     const events = [
       {
         id: "1",
-        startTime: "2026-07-03T14:00:00Z",
-        endTime: "2026-07-03T15:00:00Z",
+        startTime: "2026-07-03T12:00:00Z",
+        endTime: "2026-07-03T13:00:00Z",
       },
       {
         id: "2",
-        startTime: "2026-07-02T10:00:00Z",
-        endTime: "2026-07-02T11:00:00Z",
+        startTime: "2026-07-02T12:00:00Z",
+        endTime: "2026-07-02T13:00:00Z",
       },
       {
         id: "3",
-        startTime: "2026-07-02T14:00:00Z",
-        endTime: "2026-07-02T15:00:00Z",
+        startTime: "2026-07-02T15:00:00Z",
+        endTime: "2026-07-02T16:00:00Z",
       },
     ] as ConventionEvent[];
 

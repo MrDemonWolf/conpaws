@@ -223,7 +223,7 @@ export default function EventDetailScreen() {
           >
             <ExternalLink size={16} color={isDark ? "#8b5cf6" : "#6D28D9"} />
             <Text className="text-sm font-medium text-primary">
-              View on Sched
+              {event.sourceUrl?.includes("sched.") ? "View on Sched" : "View Source"}
             </Text>
           </Pressable>
         )}
