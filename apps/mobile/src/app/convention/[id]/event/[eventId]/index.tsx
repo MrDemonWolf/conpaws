@@ -14,7 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { formatEventTime, formatDayHeader } from "@/lib/date-utils";
-import { CATEGORY_COLORS, REMINDER_OPTIONS } from "@/lib/constants";
+import { REMINDER_OPTIONS } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
 
 export default function EventDetailScreen() {

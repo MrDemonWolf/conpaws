@@ -16,7 +16,8 @@ export function useExportData() {
       const data = await exportAllData();
       const json = serializeExportData(data);
       const filename = `conpaws-backup-${new Date().toISOString().split("T")[0]}.json`;
-      const fileUri = `${FileSystem.documentDirectory}${filename}`;
+      // eslint-disable-next-line import/namespace
+      const fileUri = `${FileSystem.cacheDirectory}${filename}`;
 
       await FileSystem.writeAsStringAsync(fileUri, json);
       await Sharing.shareAsync(fileUri, {
