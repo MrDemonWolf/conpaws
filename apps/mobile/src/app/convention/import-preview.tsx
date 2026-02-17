@@ -29,6 +29,20 @@ export default function ImportPreviewScreen() {
     }
   }, [data]);
 
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    () => new Set((calendar?.events ?? []).map((_, i) => i)),
+  );
+
+  const categories = useMemo(() => {
+    if (!calendar) return [];
+    const counts = new Map<string, number>();
+    for (const event of calendar.events) {
+      const cat = event.category ?? "Other";
+      counts.set(cat, (counts.get(cat) ?? 0) + 1);
+    }
+    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+  }, [calendar]);
+
   if (!calendar) {
     return (
       <>
@@ -44,19 +58,6 @@ export default function ImportPreviewScreen() {
       </>
     );
   }
-
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
-    () => new Set(calendar.events.map((_, i) => i)),
-  );
-
-  const categories = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const event of calendar.events) {
-      const cat = event.category ?? "Other";
-      counts.set(cat, (counts.get(cat) ?? 0) + 1);
-    }
-    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
-  }, [calendar.events]);
 
   const toggleEvent = (index: number) => {
     setSelectedIndices((prev) => {
