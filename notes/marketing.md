@@ -6,7 +6,7 @@
 
 ## TL;DR
 
-- **Website:** Single-page Astro site on Netlify. Dark theme, playful, mobile-first. Hero + features + how it works + ConPaws+ + footer.
+- **Website:** Next.js site on Coolify. Dark theme, playful, mobile-first. Hero + features + how it works + ConPaws+ + footer.
 - **Discord:** Primary channel. Beta program, dev updates, feature polls.
 - **Twitch:** Dev streams when building. Clip cool moments.
 - **Twitter/X:** 2-3 posts/week. Screenshots + short captions win.
@@ -20,7 +20,7 @@
 ## Website (conpaws.com)
 
 ### Purpose
-Single-page marketing site. Convince visitors to download the app. Keep it simple — Astro on Netlify (same stack as sharing pages, zero JS, free hosting).
+Single-page marketing site. Convince visitors to download the app. Keep it simple — Next.js on Coolify (same stack as sharing pages, self-hosted).
 
 ### Sections (top to bottom)
 
@@ -217,7 +217,7 @@ Single-page marketing site. Convince visitors to download the app. Keep it simpl
 
 | Item | Cost |
 |------|------|
-| Website hosting (Netlify) | Free |
+| Website hosting (Coolify) | $0 incremental (same VPS) |
 | Domain (conpaws.com) | ~$12/year |
 | Apple Developer account | $99/year (already have) |
 | Google Play Developer | $25 one-time |

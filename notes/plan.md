@@ -24,7 +24,7 @@ A **free, offline-first convention companion app** for the furry community.
 | Section | What's There |
 |---------|-------------|
 | [Platforms](#platforms) | iOS primary, Android secondary, iPad adaptive |
-| [Tech Stack](#tech-stack) | Expo, NativeWind, Prisma, Supabase, RevenueCat |
+| [Tech Stack](#tech-stack) | Expo, NativeWind, Drizzle, Supabase, RevenueCat |
 | [Monorepo Structure](#monorepo-structure) | Folder layout, domains, env files |
 | [Business Model](#business-model) | Free / Account / ConPaws+ tiers, pricing, promos |
 | [Badge System](#badge-system) | Gold paw, verified, developer badges + pride name effects |
@@ -33,17 +33,17 @@ A **free, offline-first convention companion app** for the furry community.
 | [Auth Flow](#auth-flow) | Apple/Google OAuth via Supabase, RevenueCat linking |
 | [Avatar & Username Rules](#avatar--username-rules) | Icons, uploads, naming rules, blocklist |
 | [Data & Sync Architecture](#data--sync-architecture) | Two-mode system, offline queue, upgrade/downgrade |
-| [Local Database Migrations](#local-database-migrations) | Prisma migrations on device, Drizzle fallback |
+| [Local Database Migrations](#local-database-migrations) | Drizzle migrations on device |
 | [iCal Import](#ical-import-core-feature) | Parser, categories, content warnings, iOS features |
 | [Data Backup & Export](#data-backup--export) | OS backup, JSON export/import |
 | [Crash Reporting](#crash-reporting-sentry) | Sentry setup, what to/not to track |
-| [Sharing & Deep Links](#sharing--deep-links) | Universal links, Astro preview site |
+| [Sharing & Deep Links](#sharing--deep-links) | Universal links, Next.js preview site |
 | [Testing Strategy](#testing-strategy) | Vitest, what to test vs skip |
 | [CI/CD](#cicd-github-actions) | GitHub Actions on PRs |
 | [Localization](#localization) | i18next, English-first, community translations |
 | [Component System](#component-system-shadcncn-inspired) | UI components, design tokens |
 | [App Config](#app-config-appconfigts) | Expo config, EAS, three variants |
-| [Infrastructure](#infrastructure) | Coolify, R2, RevenueCat, Netlify, Sentry |
+| [Infrastructure](#infrastructure) | Coolify, R2, RevenueCat, Sentry |
 | [Development Phases](#development-phases) | Phase 1-5 with checklists |
 
 ---
@@ -101,7 +101,7 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 | Custom UI components | ShadCN/CN-inspired, built with `cn()` (clsx + tailwind-merge) |
 | Lucide React Native | Icons |
 | expo-sqlite | Local-first database |
-| Prisma | Type-safe ORM for expo-sqlite |
+| Drizzle ORM | Type-safe ORM for expo-sqlite (mature mobile support, lightweight) |
 | AsyncStorage | Key-value storage (settings, flags) |
 | TanStack React Query | Data fetching, caching, sync layer |
 | expo-image-manipulator | Avatar resizing/compression before upload |
@@ -129,7 +129,7 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 |------|---------|
 | TypeScript (strict) | Language |
 | pnpm | Package manager + monorepo workspaces |
-| Turborepo | Monorepo task runner |
+| pnpm workspaces | Monorepo structure (no Turborepo — pnpm scripts are sufficient) |
 | ESLint (Expo config) | Linting |
 | EAS Build + Submit | Build pipeline + store submission |
 | Supabase CLI | Local development (runs Supabase locally via Docker for dev only) |
@@ -159,8 +159,9 @@ conpaws/
 │       │   │   ├── utils.ts     # cn() helper
 │       │   │   ├── constants.ts
 │       │   │   └── supabase.ts  # Supabase client
-│       │   ├── prisma/
-│       │   │   └── schema.prisma # Prisma schema for local SQLite
+│       │   ├── db/
+│       │   │   ├── schema.ts    # Drizzle schema for local SQLite
+│       │   │   └── migrations/  # Drizzle migration SQL files
 │       │   ├── types/
 │       │   ├── locales/
 │       │   │   └── en.json      # English strings (primary)
@@ -170,17 +171,18 @@ conpaws/
 │       └── package.json
 │
 ├── apps/
-│   └── share/                    # Astro site for sharing URLs + universal links
+│   └── web/                      # Next.js marketing + sharing site (conpaws.com, hosted on Coolify)
 │       ├── src/
-│       │   ├── pages/
-│       │   │   ├── [@username].astro   # Public profile preview
-│       │   │   └── con/[slug].astro    # Convention preview
-│       │   └── layouts/
-│       │       └── PreviewLayout.astro # Shared OG tags layout
+│       │   └── app/
+│       │       ├── [@username]/page.tsx  # Public profile preview
+│       │       └── con/[slug]/page.tsx   # Convention preview
 │       └── public/
 │           └── .well-known/
 │               ├── apple-app-site-association
 │               └── assetlinks.json
+│
+├── apps/
+│   └── admin/                    # Next.js admin dashboard (admin.conpaws.com, hosted on Coolify) — Future
 │
 ├── packages/
 │   └── supabase/                # Supabase configuration
@@ -189,7 +191,6 @@ conpaws/
 │       └── config.toml          # Supabase project config
 │
 ├── .env.example
-├── turbo.json                   # Turborepo config
 ├── pnpm-workspace.yaml
 ├── package.json
 └── tsconfig.base.json
@@ -205,8 +206,9 @@ conpaws/
 | `api.conpaws.com` | Supabase API (PostgREST, Auth, Edge Functions) |
 | `cdn.conpaws.com` | Cloudflare R2 bucket custom domain (avatar/file delivery, bypasses Supabase proxy, zero egress) |
 | `dev.conpaws.com` | Staging/preview Supabase instance (for testing before production) |
+| `admin.conpaws.com` | Admin dashboard — user management, convention directory CRUD, badge assignments (Future) |
 
-All domains on Cloudflare for DNS + CDN. SSL handled automatically.
+All domains on Cloudflare for DNS + CDN + DDoS protection. SSL handled automatically.
 
 ### Environment Files (Expo App Variants)
 
@@ -827,82 +829,60 @@ Welcome → Features → Get Started → Complete
 
 ## Data Model
 
-### Local Database (expo-sqlite + Prisma) — Everyone Gets This
+### Local Database (expo-sqlite + Drizzle ORM) — Everyone Gets This
 
-```prisma
-// prisma/schema.prisma
+```ts
+// src/db/schema.ts
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
-// --- Enums (Prisma validates at client level, SQLite stores as TEXT) ---
+// --- Conventions ---
 
-enum ConventionStatus {
-  upcoming
-  active
-  ended
-}
+export const conventions = sqliteTable("conventions", {
+  id:        text("id").primaryKey(),         // UUID generated in app
+  name:      text("name").notNull(),
+  startDate: text("start_date").notNull(),    // ISO date
+  endDate:   text("end_date").notNull(),      // ISO date
+  icalUrl:   text("ical_url"),
+  status:    text("status", { enum: ["upcoming", "active", "ended"] }).default("upcoming").notNull(),
+  createdAt: text("created_at").notNull(),    // ISO datetime
+  updatedAt: text("updated_at").notNull(),    // ISO datetime
+  syncedAt:  text("synced_at"),               // null = never synced to cloud
+});
 
-enum EventType {
-  panel
-  custom
-}
+// --- Convention Events ---
 
-enum SyncEntity {
-  convention
-  event
-}
+export const conventionEvents = sqliteTable("convention_events", {
+  id:              text("id").primaryKey(),
+  conventionId:    text("convention_id").notNull().references(() => conventions.id, { onDelete: "cascade" }),
+  title:           text("title").notNull(),
+  description:     text("description").default("").notNull(),
+  startTime:       text("start_time").notNull(),   // ISO datetime
+  endTime:         text("end_time").notNull(),      // ISO datetime
+  location:        text("location").default("").notNull(),   // full location string from iCal
+  room:            text("room").default("").notNull(),       // parsed room name (e.g. "Panel Room 2")
+  category:        text("category").default("").notNull(),   // iCal CATEGORIES value (e.g. "GAMING", "SOCIAL")
+  type:            text("type", { enum: ["panel", "custom"] }).default("panel").notNull(),
+  isShareable:     integer("is_shareable", { mode: "boolean" }).default(true).notNull(),
+  isAgeRestricted: integer("is_age_restricted", { mode: "boolean" }).default(false).notNull(),
+  contentWarning:  text("content_warning"),    // e.g. "strobe_lights" — detected from description
+  sourceUid:       text("source_uid"),         // iCal UID for dedup on re-import
+  sourceUrl:       text("source_url"),         // Sched event URL for "View on Sched"
+  isInSchedule:    integer("is_in_schedule", { mode: "boolean" }).default(false).notNull(),
+  reminderMinutes: integer("reminder_minutes"),  // null = no reminder, 5/15/30 = minutes before
+  createdAt:       text("created_at").notNull(),
+  updatedAt:       text("updated_at").notNull(),
+});
 
-enum SyncAction {
-  create
-  update
-  delete
-}
+// --- Offline Write Queue (premium users only, used when offline) ---
 
-// --- Models ---
-
-model Convention {
-  id        String           @id @default(uuid())
-  name      String
-  startDate String           // ISO date
-  endDate   String           // ISO date
-  icalUrl   String?
-  status    ConventionStatus @default(upcoming)
-  createdAt String           @default(now())
-  updatedAt String           @default(now())
-  syncedAt  String?          // null = never synced to cloud
-  events    ConventionEvent[]
-}
-
-model ConventionEvent {
-  id             String     @id @default(uuid())
-  conventionId   String
-  convention     Convention @relation(fields: [conventionId], references: [id])
-  title          String
-  description    String     @default("")
-  startTime      String     // ISO datetime
-  endTime        String     // ISO datetime
-  location       String     @default("")   // full location string from iCal
-  room           String     @default("")   // parsed room name (e.g. "Panel Room 2")
-  category       String     @default("")   // iCal CATEGORIES value (e.g. "GAMING", "SOCIAL")
-  type           EventType  @default(panel)
-  isShareable    Boolean    @default(true) // panels default true, custom default false
-  isAgeRestricted Boolean   @default(false) // detected from description (18+, ID required)
-  contentWarning String?    // e.g. "strobe_lights" — detected from description
-  sourceUid      String?    // iCal UID for dedup on re-import
-  sourceUrl      String?    // Sched event URL for "View on Sched"
-  isInSchedule   Boolean    @default(false) // user added to personal schedule
-  reminderMinutes Int?      // null = no reminder, 5/15/30 = minutes before
-  createdAt      String     @default(now())
-  updatedAt      String     @default(now())
-}
-
-// Offline write queue — premium users only, used when offline
-model OfflineQueue {
-  id        String     @id @default(uuid())
-  entity    SyncEntity
-  entityId  String
-  action    SyncAction
-  payload   String     // JSON of the full entity data
-  createdAt String     @default(now())
-}
+export const offlineQueue = sqliteTable("offline_queue", {
+  id:        text("id").primaryKey(),
+  entity:    text("entity", { enum: ["convention", "event"] }).notNull(),
+  entityId:  text("entity_id").notNull(),
+  action:    text("action", { enum: ["create", "update", "delete"] }).notNull(),
+  payload:   text("payload").notNull(),    // JSON of the full entity data
+  createdAt: text("created_at").notNull(),
+});
 ```
 
 ### Cloud Database (Supabase PostgreSQL) — Accounts & Premium Users
@@ -989,7 +969,7 @@ CREATE TABLE shared_events (
 
 **Why enums?**
 - PostgreSQL enforces valid values at the database level — no bad data gets in
-- Prisma enums enforce at the client level for SQLite (which doesn't have native enums)
+- Drizzle's `text({ enum: [...] })` enforces at the TypeScript level for SQLite (which doesn't have native enums)
 - Adding a new value (e.g. a new pride flag) is a simple `ALTER TYPE name_effect ADD VALUE 'new_flag'` migration
 - Type-safe all the way from database → Supabase API → TypeScript client
 
@@ -1274,16 +1254,17 @@ useSyncEngine() hook
 
 When the app updates and the local SQLite schema needs to change, migrations must run on the user's device at app launch.
 
-### Strategy: Prisma `$applyPendingMigrations()`
+### Strategy: Drizzle ORM Migrations
 
-Prisma React Native (Early Access) bundles migration SQL files into the app binary. On launch, call `$applyPendingMigrations()` to apply any pending schema changes.
+Drizzle ORM has mature React Native / expo-sqlite migration support. Migrations are generated as SQL files and bundled into the app binary.
 
 **How it works:**
 
-1. During development: `npx prisma migrate dev --name add_whatever` generates migration files
-2. The `@prisma/react-native` Expo plugin bundles migration SQL into the app binary at build time
-3. On app launch: `await prisma.$applyPendingMigrations()` runs any unapplied migrations
-4. App renders only after migrations complete (show splash screen while migrating)
+1. During development: `npx drizzle-kit generate` creates SQL migration files from schema changes
+2. Migration SQL files are bundled into the app via babel `inline-import` plugin
+3. On app launch: `migrate(db, migrations)` runs any unapplied migrations with automatic transaction wrapping
+4. Drizzle tracks applied migrations in a `__drizzle_migrations` table
+5. App renders only after migrations complete (show splash screen while migrating)
 
 **Safety rules:**
 
@@ -1292,19 +1273,6 @@ Prisma React Native (Early Access) bundles migration SQL files into the app bina
 - Each migration runs inside a **transaction** — if it fails, it rolls back cleanly
 - Test all migration paths: fresh install (all migrations) + upgrade from every previous version
 - If a migration fails, the app shows an error screen with a "Contact Support" option
-
-**Fallback plan:** If Prisma's mobile migration support proves unreliable during Phase 1, switch to **Drizzle ORM** which has more mature expo-sqlite migration support (`drizzle-kit generate` + `migrate()` with automatic transaction wrapping).
-
-### Drizzle as Alternative
-
-Drizzle ORM has strong React Native support:
-
-- `drizzle-kit generate` creates SQL migration files
-- `migrate(db, migrations)` runs them with automatic transaction wrapping
-- Tracks applied migrations in a `__drizzle_migrations` table
-- SQL files bundled via babel `inline-import` plugin
-
-If we need to switch, the Prisma schema translates directly to a Drizzle schema — same tables, same types, different syntax.
 
 ---
 
@@ -1452,7 +1420,7 @@ Since ConPaws is offline-first and deeply integrated with iOS:
 | File picking | `expo-document-picker` (select .ics files) |
 | URL fetching | `fetch()` with timeout (Sched URLs are public) |
 | Date handling | `date-fns` (already in stack for formatting) |
-| Local storage | Parsed events → SQLite via Prisma |
+| Local storage | Parsed events → SQLite via Drizzle ORM |
 
 ### Example: Sched URL → Events
 
@@ -1571,36 +1539,37 @@ User shares: conpaws.com/@lunastarfall
 │   → App navigates to profile screen
 │
 └─ Recipient does NOT have app
-    → Astro preview page renders with:
+    → Next.js preview page renders with:
        ├─ Profile info (name, avatar, bio)
        ├─ Open Graph tags (for social sharing cards)
        └─ Smart banner: "Open in ConPaws" / "Get ConPaws"
 ```
 
-### Implementation: Astro on Netlify
+### Implementation: Next.js on Coolify
 
-A lightweight **Astro** static site handles the web preview pages. Astro ships zero JavaScript by default — perfect for fast, SEO-friendly preview pages.
+A **Next.js** app handles the web preview pages, marketing site, and legal pages. Hosted on the same Coolify VPS as Supabase — keeps everything under one roof.
 
-**Why Astro over alternatives:**
+**Why Next.js:**
 
 | Approach | Verdict |
 |----------|---------|
-| WordPress plugin | Too heavy for simple preview pages |
+| WordPress | Too heavy, separate system to manage |
 | Supabase Edge Functions | Can't serve HTML (returns `text/plain`) — dealbreaker |
-| Next.js | Overkill — ships unnecessary JS hydration |
+| Astro | Lightweight but can't share React components or types with the mobile app |
 | Branch.io | Expensive, adds tracking, vendor lock-in |
-| **Astro on Netlify** | Zero JS, free hosting, perfect for static previews |
+| **Next.js on Coolify** | Same React/TypeScript stack, shares types with mobile app, SSR for OG tags, self-hosted |
 
 **How it works:**
 
-1. Astro site lives in `apps/share/` in the monorepo
-2. Dynamic routes (`[@username].astro`, `con/[slug].astro`) fetch data from Supabase at request time (SSR mode on Netlify)
+1. Next.js app lives in `apps/web/` in the monorepo
+2. Dynamic routes (`/[username]/page.tsx`, `/con/[slug]/page.tsx`) fetch data from Supabase at request time (SSR)
 3. Pages render with Open Graph meta tags for social sharing cards
 4. `<meta name="apple-itunes-app">` shows the App Store smart banner
 5. `.well-known/apple-app-site-association` + `assetlinks.json` served from `public/` for universal links
-6. Deployed to Netlify free tier (auto-deploy on push to main)
+6. Also serves: marketing homepage, `/privacy`, `/terms`
+7. Deployed to Coolify (same VPS as Supabase, auto-deploy on push to main)
 
-**Cost:** $0 (Netlify free tier covers this easily)
+**Cost:** $0 incremental (already paying for the VPS)
 
 ### Universal Links Setup
 
@@ -1708,7 +1677,7 @@ jobs:
 ### What CI Does NOT Do
 
 - No EAS builds on CI (use `eas build` manually or from local machine)
-- No deployment (Netlify auto-deploys the Astro site on push to main)
+- No deployment (Coolify auto-deploys the Next.js site on push to main)
 - No Sentry release creation (handled by EAS Build hooks)
 
 ---
@@ -2008,7 +1977,8 @@ All three can be installed on the same device simultaneously (different bundle I
 | Supabase | Self-hosted on Coolify | PostgreSQL + Auth + Real-time + Edge Functions |
 | Cloudflare R2 | Cloudflare | Avatar/file storage via Supabase Storage (S3-compatible, zero egress fees) |
 | RevenueCat | Cloud (their servers) | Subscription management, no self-host option |
-| Astro site | Netlify (free tier) | Sharing preview pages (`conpaws.com/@user`), universal links, OG tags |
+| Next.js site | Coolify (same VPS) | Marketing site, sharing preview pages (`conpaws.com/@user`), universal links, OG tags, legal pages |
+| Next.js admin | Coolify (same VPS) | Admin dashboard (`admin.conpaws.com`) — user management, convention directory, badges (Future) |
 | Sentry | Cloud (their servers) | Crash reporting + error tracking (free tier: 5K errors/month) |
 
 **How it works:**
@@ -2186,14 +2156,14 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 
 The goal: **a usable app you can take to a convention in June.** Local-first convention management with iCal import. No accounts, no cloud — just a tool that works.
 
-- [ ] Monorepo structure (pnpm workspace, Turborepo, tsconfig, eslint)
+- [ ] Monorepo structure (pnpm workspace, tsconfig, eslint)
 - [ ] Expo app scaffolding with NativeWind v5 + Tailwind CSS v4
 - [ ] ShadCN-inspired component library (Button, Card, Input, Avatar, Badge, etc.)
 - [ ] Theme system (light + dark mode via NativeWind CSS variables)
-- [ ] expo-sqlite + Prisma setup for local database
+- [ ] expo-sqlite + Drizzle ORM setup for local database
 - [ ] Onboarding flow (Welcome → Features → Get Started → Complete)
 - [ ] Tab navigation (Home, Profile, Settings)
-- [ ] Local convention management (CRUD with expo-sqlite + Prisma)
+- [ ] Local convention management (CRUD with expo-sqlite + Drizzle ORM)
 - [ ] Convention detail with events (panels + custom items)
 - [ ] Convention status detection (upcoming/active/ended)
 - [ ] iCal import — two methods:
@@ -2265,7 +2235,7 @@ Get ready for the App Store.
 - [ ] Push notifications for convention reminders (optional)
 - [ ] Accessibility pass (VoiceOver, Dynamic Type)
 - [ ] Performance optimization
-- [ ] Sharing URLs — Astro site on Netlify (`conpaws.com/@username`, `conpaws.com/con/slug`)
+- [ ] Sharing URLs — Next.js site on Coolify (`conpaws.com/@username`, `conpaws.com/con/slug`)
 - [ ] Universal links setup (iOS `apple-app-site-association` + Android `assetlinks.json`)
 - [ ] Privacy Policy (hosted at conpaws.com/privacy)
 - [ ] Terms of Service (hosted at conpaws.com/terms)
@@ -2339,7 +2309,7 @@ Built with modern native technologies for a smooth, native-feeling experience on
 - **Framework:** Expo SDK 54 with React Native 0.81 (New Architecture)
 - **Navigation:** Expo Router v6 with native tabs and file-based routing
 - **Styling:** NativeWind v5 (Tailwind CSS v4) with light/dark mode support
-- **Local Database:** expo-sqlite with Prisma ORM
+- **Local Database:** expo-sqlite with Drizzle ORM
 - **Backend:** Supabase (self-hosted on Coolify) -- PostgreSQL, Auth, Storage, Edge Functions
 - **Storage:** Cloudflare R2 via Supabase Storage (S3-compatible, zero egress)
 - **Payments:** RevenueCat for subscription management
@@ -2349,7 +2319,7 @@ Built with modern native technologies for a smooth, native-feeling experience on
 - **CI/CD:** GitHub Actions (lint + type-check + tests)
 - **Crash Reporting:** Sentry
 - **Localization:** i18next (English primary, community translations)
-- **Monorepo:** pnpm workspaces with Turborepo
+- **Monorepo:** pnpm workspaces
 - **Platforms:** iOS, iPadOS, Android
 
 ## Project Structure
@@ -2364,15 +2334,14 @@ conpaws/
 │       │   ├── contexts/    # React contexts
 │       │   ├── hooks/       # Custom hooks
 │       │   ├── lib/         # Utilities, constants, clients
-│       │   ├── prisma/      # Local SQLite schema
+│       │   ├── db/          # Drizzle schema + migrations
 │       │   ├── types/       # TypeScript types
 │       │   └── assets/      # Images, icons
 │       └── app.config.ts
 ├── apps/
-│   └── share/              # Astro sharing preview site
+│   └── web/               # Next.js site (marketing, sharing, legal) — hosted on Coolify
 ├── packages/
 │   └── supabase/            # Supabase config + migrations
-├── turbo.json
 ├── pnpm-workspace.yaml
 └── package.json
 ```
@@ -2453,7 +2422,7 @@ This project uses:
 - **React Compiler** for automatic optimization
 - **Typed Routes** for compile-time route checking
 - **Vitest** for unit testing
-- **Prisma** for type-safe database access
+- **Drizzle ORM** for type-safe database access
 - **PostgreSQL Enums** for database-level type safety
 - **Sentry** for crash reporting and error tracking
 

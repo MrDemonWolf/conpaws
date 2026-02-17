@@ -20,43 +20,57 @@ pnpm ios                  # Run on iOS (development)
 pnpm web                  # Run web version
 pnpm lint                 # Run ESLint
 pnpm type-check           # Run TypeScript type checking
+pnpm test                 # Run tests (Vitest)
 pnpm prebuild             # Generate native projects (development)
 pnpm prebuild:clean       # Clean and regenerate native projects
 ```
 
 ## Architecture
 
-- **Framework:** Expo SDK 54 with React Native 0.81 and React 19
-- **Routing:** Expo Router v6 (file-based routing in `src/app/`)
-- **Styling:** NativeWind v5 (Tailwind CSS v4 for React Native) with `clsx` and `tailwind-merge`
-- **Auth:** Supabase (Google OAuth + Apple Sign-In)
-- **Payments:** RevenueCat (in-app subscriptions for "Paw Pass")
-- **Data:** TanStack React Query with AsyncStorage persistence via `expo-sqlite`
+- **Framework:** Expo SDK 54 with React Native and React 18
+- **Routing:** Expo Router v4 (file-based routing in `src/app/`)
+- **Styling:** NativeWind v4 (Tailwind CSS v4 for React Native) with `clsx` and `tailwind-merge`
+- **Local Database:** expo-sqlite with Drizzle ORM
+- **Data Fetching:** TanStack React Query
+- **i18n:** i18next + react-i18next with expo-localization
+- **Testing:** Vitest
+- **Auth:** Supabase (Google OAuth + Apple Sign-In) — Phase 2
+- **Payments:** RevenueCat (in-app subscriptions for "ConPaws+") — Phase 3
+- **Website:** Next.js on Coolify (same VPS as Supabase) — Phase 4
 - **Language:** TypeScript with strict mode
-- **Package Manager:** pnpm (workspace configured with `nodeLinker: hoisted`)
+- **Package Manager:** pnpm workspaces (monorepo with `nodeLinker: hoisted`)
 - **Entry Point:** `expo-router/entry` (configured in package.json `main`)
 
-### Project Structure
+### Monorepo Structure
 
-All source code lives under `src/`:
-- `src/app/` — File-based routing (Expo Router screens and layouts)
-- `src/app/(onboarding)/` — Onboarding flow (welcome, features, auth, complete)
-- `src/app/(tabs)/` — Main tab navigation (Home, Profile, Settings)
-- `src/components/ui/` — Reusable UI components (Button, Card, Avatar, Badge, Input)
-- `src/contexts/` — React contexts (AuthContext, OnboardingContext, PremiumContext)
-- `src/hooks/` — Custom hooks (useAuth, useOnboarding, usePremium, useConventions)
-- `src/lib/` — Utilities (cn helper, constants, Supabase client)
-- `src/types/` — Shared TypeScript types (Profile, Convention, etc.)
-- `src/assets/` — Images, icons, and static assets
-- `src/global.css` — Tailwind CSS entry point (imported in root layout)
+```
+conpaws/
+├── apps/mobile/        # Expo React Native app (MVP focus)
+│   └── src/
+│       ├── app/        # Expo Router (file-based screens)
+│       ├── components/ # UI components
+│       ├── contexts/   # React contexts
+│       ├── hooks/      # Custom hooks
+│       ├── lib/        # Utilities, constants, i18n, parsers
+│       ├── db/         # Drizzle schema + repositories
+│       ├── types/      # TypeScript types
+│       ├── locales/    # i18n translation files
+│       ├── assets/     # Images, icons
+│       └── global.css  # Tailwind CSS entry point + design tokens
+├── apps/web/           # Next.js site (placeholder until Phase 4)
+├── packages/supabase/  # Supabase config + migrations (Phase 2)
+└── pnpm-workspace.yaml
+```
 
-### Key Configuration
+### Key Configuration (apps/mobile/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
 - **eas.json** — EAS Build configuration for production builds
-- **metro.config.js** — Metro bundler with NativeWind integration
+- **metro.config.js** — Metro bundler with NativeWind wrapper
 - **postcss.config.mjs** — PostCSS with `@tailwindcss/postcss` plugin
 - **tsconfig.json** — Extends `expo/tsconfig.base`, path alias `@/*` maps to `./src/*`
+- **drizzle.config.ts** — Drizzle Kit config for migration generation
+- **vitest.config.ts** — Vitest config with `@/` alias resolution
 
 ### Environment Variables
 
@@ -68,7 +82,6 @@ Required in `.env.local`:
 
 ### Experimental Features Enabled
 
-- `newArchEnabled: true` — React Native New Architecture (TurboModules, Fabric)
 - `reactCompiler: true` — React Compiler for automatic memoization
 - `typedRoutes: true` — Type-safe routing with Expo Router
 
@@ -76,21 +89,71 @@ Required in `.env.local`:
 
 The `APP_VARIANT` env var controls build configuration:
 - `development` (default) — Bundle ID: `com.mrdemonwolf.conpaws.dev`
+- `preview` — Bundle ID: `com.mrdemonwolf.conpaws.preview`
 - `production` — Bundle ID: `com.mrdemonwolf.conpaws`
 
 ### App Flow
 
-1. **Root layout** (`_layout.tsx`) wraps the app in OnboardingProvider > AuthProvider > PremiumProvider
+1. **Root layout** (`_layout.tsx`) wraps the app in ColorSchemeProvider > QueryClientProvider > OnboardingProvider
 2. **Onboarding gate:** If onboarding not complete, redirects to `(onboarding)/welcome`
-3. **Onboarding flow:** welcome → features → auth (sign-in) → complete
-4. **Main app:** Tab navigation with Home (convention list), Profile, Settings
-5. Conventions are stored locally (AsyncStorage). Profiles sync to Supabase.
+3. **Onboarding flow:** welcome → features → auth (skip for now) → complete
+4. **Main app:** Tab navigation with Home (convention list), Profile (placeholder), Settings
+5. Conventions are stored locally (expo-sqlite via Drizzle ORM). Profiles sync to Supabase (Phase 2+).
+
+### Screen Structure
+
+```
+src/app/
+├── _layout.tsx                     # Root: providers, splash, routing
+├── index.tsx                       # Redirect to (tabs)
+├── (onboarding)/
+│   ├── _layout.tsx                 # Stack
+│   ├── welcome.tsx                 # Logo + Get Started
+│   ├── features.tsx                # Feature cards
+│   ├── auth.tsx                    # Placeholder auth + Skip
+│   └── complete.tsx                # Success + Let's Go
+├── (tabs)/
+│   ├── _layout.tsx                 # Tab bar (Home, Profile, Settings)
+│   ├── index.tsx                   # Convention list + empty state
+│   ├── profile.tsx                 # Placeholder
+│   └── settings.tsx                # Theme, export/import, legal, reset
+├── convention/
+│   ├── _layout.tsx                 # Stack
+│   ├── new.tsx                     # Create convention form
+│   ├── import.tsx                  # File picker or Sched URL
+│   ├── import-preview.tsx          # Event selection + import
+│   ├── [id].tsx                    # Convention detail + events
+│   └── [id]/
+│       ├── edit.tsx                # Edit convention
+│       └── event/
+│           ├── new.tsx             # Create event form
+│           └── [eventId]/
+│               ├── index.tsx       # Event detail
+│               └── edit.tsx        # Edit event
+└── settings/
+    ├── _layout.tsx                 # Stack
+    └── about.tsx                   # About screen
+```
 
 ### iOS-First File Convention
 
 - Default `.tsx` = iOS/Web rendering
 - `.android.tsx` = Android-specific UI variant (add when UI needs to diverge)
 - React Native resolves the correct file per platform at build time
+
+### Database Schema
+
+Two main tables in SQLite via Drizzle ORM:
+- **conventions** — id, name, startDate, endDate, icalUrl, status, timestamps
+- **convention_events** — id, conventionId (FK cascade), title, description, times, location, room, category, type, flags (shareable, ageRestricted, contentWarning), schedule state (isInSchedule, reminderMinutes), source tracking (sourceUid, sourceUrl), timestamps
+- **offline_queue** — reserved for Phase 2+ cloud sync
+
+### iCal Import
+
+Core feature: import .ics files and Sched convention URLs.
+- `src/lib/ical-parser.ts` — parses VEVENT components, extracts room/venue from location, detects 18+ content and strobe/flash warnings
+- `src/lib/sched-url.ts` — validates Sched URLs, constructs .ics download URL
+- Re-import matches by `sourceUid` to avoid duplicates, preserves user schedule state
 
 ## Planning Notes
 
