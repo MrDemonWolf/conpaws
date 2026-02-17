@@ -8,7 +8,6 @@ import { exportAllData, serializeExportData } from "@/lib/data-export";
 import {
   importData,
   validateExportData,
-  type ImportSummary,
 } from "@/lib/data-import";
 
 export function useExportData() {
@@ -17,7 +16,7 @@ export function useExportData() {
       const data = await exportAllData();
       const json = serializeExportData(data);
       const filename = `conpaws-backup-${new Date().toISOString().split("T")[0]}.json`;
-      const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+      const fileUri = `${FileSystem.documentDirectory}${filename}`;
 
       await FileSystem.writeAsStringAsync(fileUri, json);
       await Sharing.shareAsync(fileUri, {
@@ -25,7 +24,7 @@ export function useExportData() {
         dialogTitle: "Export ConPaws Data",
         UTI: "public.json",
       });
-    } catch (err) {
+    } catch {
       Alert.alert("Export Failed", "Could not export data. Please try again.");
     }
   }, []);
@@ -72,7 +71,7 @@ export function useImportData() {
           },
         ],
       );
-    } catch (err) {
+    } catch {
       Alert.alert("Import Failed", "Could not import data. Please try again.");
     }
   }, [queryClient]);

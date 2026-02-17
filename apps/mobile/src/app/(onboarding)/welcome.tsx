@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { PawPrint } from "@/lib/icons";
 import { OnboardingSlide } from "@/components/onboarding-slide";

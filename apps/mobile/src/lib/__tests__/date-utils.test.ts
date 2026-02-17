@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   formatDateRange,
   formatTime,
   formatEventTime,
   getConventionStatus,
-  getRelativeDate,
   groupEventsByDay,
 } from "../date-utils";
 import type { ConventionEvent } from "@/types";

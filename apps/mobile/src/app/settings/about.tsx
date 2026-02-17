@@ -2,11 +2,7 @@ import { View, Text } from "react-native";
 import { Stack } from "expo-router";
 import { PawPrint } from "@/lib/icons";
 import { APP_NAME, APP_VERSION, APP_TAGLINE } from "@/lib/constants";
-import { useColorScheme } from "@/lib/useColorScheme";
-
 export default function AboutScreen() {
-  const { isDark } = useColorScheme();
-
   return (
     <>
       <Stack.Screen options={{ title: "About" }} />

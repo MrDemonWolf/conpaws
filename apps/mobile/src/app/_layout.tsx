@@ -28,7 +28,7 @@ function RootNavigator() {
     } else if (isOnboardingComplete && inOnboarding) {
       router.replace("/(tabs)");
     }
-  }, [isOnboardingComplete, isLoading, segments]);
+  }, [isOnboardingComplete, isLoading, segments, router]);
 
   useEffect(() => {
     if (!isLoading) {
