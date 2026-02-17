@@ -111,9 +111,9 @@ export function parseICalContent(icsContent: string): ParsedCalendar {
     const rawLocation = event.location ?? null;
     const { room, venue } = parseLocation(rawLocation);
     const category =
-      vevent.getFirstPropertyValue("categories") ?? null;
+      (vevent.getFirstPropertyValue("categories") as string | null) ?? null;
     const uid = event.uid ?? "";
-    const url = vevent.getFirstPropertyValue("url") ?? null;
+    const url = (vevent.getFirstPropertyValue("url") as string | null) ?? null;
 
     const startDate = event.startDate?.toJSDate();
     const endDate = event.endDate?.toJSDate();
@@ -143,8 +143,8 @@ export function parseICalContent(icsContent: string): ParsedCalendar {
   }
 
   return {
-    name: decodeHtmlEntities(calName),
-    description: calDesc ? decodeHtmlEntities(calDesc) : undefined,
+    name: decodeHtmlEntities(String(calName)),
+    description: calDesc ? decodeHtmlEntities(String(calDesc)) : undefined,
     events: events.sort((a, b) => a.startTime.localeCompare(b.startTime)),
     startDate: earliest?.toISOString() ?? new Date().toISOString(),
     endDate: latest?.toISOString() ?? new Date().toISOString(),

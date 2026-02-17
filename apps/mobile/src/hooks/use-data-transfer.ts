@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Alert } from "react-native";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,7 +16,6 @@ export function useExportData() {
       const data = await exportAllData();
       const json = serializeExportData(data);
       const filename = `conpaws-backup-${new Date().toISOString().split("T")[0]}.json`;
-      // eslint-disable-next-line import/namespace
       const fileUri = `${FileSystem.cacheDirectory}${filename}`;
 
       await FileSystem.writeAsStringAsync(fileUri, json);
