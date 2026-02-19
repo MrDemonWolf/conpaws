@@ -42,3 +42,6 @@ drizzle/meta/
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+
+# Claude Code
+.claude
