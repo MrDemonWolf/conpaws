@@ -1,0 +1,129 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-CALNAME:TestCon 2026
+X-WR-CALDESC:Small test convention for ConPaws development
+METHOD:PUBLISH
+CALSCALE:GREGORIAN
+PRODID:-//ConPaws//Test Data//EN
+X-WR-TIMEZONE:UTC
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260612T160000Z
+DTEND:20260612T170000Z
+SUMMARY:Opening Ceremonies
+DESCRIPTION:Welcome to TestCon 2026! Join us as we kick off an amazing weekend.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Main Stage\, Convention Center
+SEQUENCE:0
+UID:test-opening-001
+URL:https://testcon2026.sched.com/event/test-opening-001
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260612T180000Z
+DTEND:20260612T190000Z
+SUMMARY:Fursuit Parade
+DESCRIPTION:The big parade! Line up at 1:45pm outside Main Hall.
+CATEGORIES:FURSUITING
+LOCATION:Main Hall\, Convention Center
+SEQUENCE:0
+UID:test-parade-002
+URL:https://testcon2026.sched.com/event/test-parade-002
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260612T193000Z
+DTEND:20260612T203000Z
+SUMMARY:Drawing 101
+DESCRIPTION:Learn the basics of drawing your fursona! Bring your own sketchbook and pencils.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Panel Room A\, Convention Center
+SEQUENCE:0
+UID:test-drawing-003
+URL:https://testcon2026.sched.com/event/test-drawing-003
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260612T200000Z
+DTEND:20260612T210000Z
+SUMMARY:Canine Meet & Greet
+DESCRIPTION:Calling all wolves\, dogs\, foxes\, and canines! Come say hi and take a group photo.
+CATEGORIES:MEET & GREET
+LOCATION:Panel Room B\, Convention Center
+SEQUENCE:0
+UID:test-canine-004
+URL:https://testcon2026.sched.com/event/test-canine-004
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260612T210000Z
+DTEND:20260613T010000Z
+SUMMARY:Friday Night Dance
+DESCRIPTION:DJs all night!\n9pm - DJ Pawz\n10pm - BassWolf\n11pm - NeonFox\n\nWarning: This event uses intense strobe effects and bright flashing lights in a dim environment with fog effects\, and may be unsafe for those with epilepsy and light sensitivity.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Main Stage\, Convention Center
+SEQUENCE:0
+UID:test-dance-005
+URL:https://testcon2026.sched.com/event/test-dance-005
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260613T150000Z
+DTEND:20260613T160000Z
+SUMMARY:Board Game Tournament
+DESCRIPTION:Compete in our annual board game tournament! All skill levels welcome.
+CATEGORIES:GAMING
+LOCATION:Gaming Hall\, Convention Center
+SEQUENCE:0
+UID:test-games-006
+URL:https://testcon2026.sched.com/event/test-games-006
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260613T170000Z
+DTEND:20260613T180000Z
+SUMMARY:Fursuit Dance Competition
+DESCRIPTION:Show off your moves! Prizes for best choreography\, best freestyle\, and crowd favorite.\n\nCaution: Moderate strobe effects during performances.
+CATEGORIES:PERFORMANCE
+LOCATION:Main Stage\, Convention Center
+SEQUENCE:0
+UID:test-dancecomp-007
+URL:https://testcon2026.sched.com/event/test-dancecomp-007
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260613T190000Z
+DTEND:20260613T200000Z
+SUMMARY:Writing Workshop
+DESCRIPTION:Bring your WIP and get feedback from published furry authors. All genres welcome.
+CATEGORIES:WRITING
+LOCATION:Panel Room A\, Convention Center
+SEQUENCE:0
+UID:test-writing-008
+URL:https://testcon2026.sched.com/event/test-writing-008
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260613T200000Z
+DTEND:20260613T210000Z
+SUMMARY:After Dark Trivia
+DESCRIPTION:Adults-only trivia night! 18+ ONLY\; ID required at the door. Prizes for top 3 teams.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Panel Room B\, Convention Center
+SEQUENCE:0
+UID:test-trivia-009
+URL:https://testcon2026.sched.com/event/test-trivia-009
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20260601T120000Z
+DTSTART:20260614T160000Z
+DTEND:20260614T170000Z
+SUMMARY:Closing Ceremonies
+DESCRIPTION:Thank you for an amazing TestCon 2026! See you next year!
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Main Stage\, Convention Center
+SEQUENCE:0
+UID:test-closing-010
+URL:https://testcon2026.sched.com/event/test-closing-010
+END:VEVENT
+END:VCALENDAR

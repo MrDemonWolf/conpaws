@@ -1,0 +1,201 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-CALNAME:indyfurcon2025
+X-WR-CALDESC:Event Calendar
+METHOD:PUBLISH
+CALSCALE:GREGORIAN
+PRODID:-//Sched.com IndyFurCon 2025//EN
+X-WR-TIMEZONE:UTC
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T220000Z
+DTEND:20250817T210000Z
+SUMMARY:Tabletop Gaming
+DESCRIPTION:Featuring PawnsGamebag gaming library
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Tabletop Gaming - Golden Ballrooms 2&3\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:c83127984455fab868db8203234971e9
+URL:http://indyfurcon2025.sched.com/event/c83127984455fab868db8203234971e9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T230000Z
+DTEND:20250815T000000Z
+SUMMARY:Opening Ceremonies
+DESCRIPTION:You arrive at the city of Indyfurnapolis. &nbsp\;You have left the trappings of your old life behind in order to start a quest... AN ADVENTURE. This... this is where it begins. &nbsp\;Come join the local Barons who lord over the land to guide you through the next few days. Prepare your spell slots\, grab your rations\, and be ready for things to get.... dicey.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Secondary Events - Golden Ballrooms 4&5\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:84f880539400c2bae31963c9f98f897e
+URL:http://indyfurcon2025.sched.com/event/84f880539400c2bae31963c9f98f897e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T230000Z
+DTEND:20250815T020000Z
+SUMMARY:Ironclaw Intro
+DESCRIPTION:Generate characters and learn how to play the IronClaw Anthropomorphic Fantasy RPG! Choose from dozens of species and careers to create a character and interact with others in an intriguing post-medieval world! Materials provided.
+CATEGORIES:GAMING
+LOCATION:Tabletop Gaming - Golden Ballrooms 2&3\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:de47e30fcc664b9348e5fb9c1b1f3202
+URL:http://indyfurcon2025.sched.com/event/de47e30fcc664b9348e5fb9c1b1f3202
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T000000Z
+DTEND:20250815T010000Z
+SUMMARY:Make-Your-Own Origami Dice
+DESCRIPTION:Have you ever longed to have the coolest dice at the table? &nbsp\;Modular Origami: Just a little folding\, a little patience\, and a little construction and you can build those D4\, D6\, D8s and bigger! &nbsp\;You'll learn to make one unit\, repeat over and over again\, and I'll show you how to build it into a dice to take home. &nbsp\;Basic origami skills suggested.&nbsp\;
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Panel Room 4\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:0c5f953a5b028fcdb712d133d3bbed69
+URL:http://indyfurcon2025.sched.com/event/0c5f953a5b028fcdb712d133d3bbed69
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T000000Z
+DTEND:20250815T010000Z
+SUMMARY:Mental & Emotional Health Support
+DESCRIPTION:An open forum support panel for all\, focusing on neurodivergence and mental health. You can ask your questions openly (or being anonymous via online form)\, learn from others life experiences\, or get insight to help navigate life. Just because we're different\, doesn't mean we can't reach our goals or navigate the world.
+CATEGORIES:SOCIAL
+LOCATION:Panel Room 2\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:b89dca9055d92458a320ef2718239641
+URL:http://indyfurcon2025.sched.com/event/b89dca9055d92458a320ef2718239641
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T160000Z
+SUMMARY:Meet The DJs
+DESCRIPTION:Join us at "Meet the DJs" and connect with the maestros behind the dance floor magic! Chat\, chill\, ask questions\, it's up to you! It's your exclusive backstage pass to DJ awesomeness! Don't miss out!
+CATEGORIES:MUSIC & DANCE
+LOCATION:Tertiary Events - International Boardroom\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:db26473dd39cbbf5912aea7757808176
+URL:http://indyfurcon2025.sched.com/event/db26473dd39cbbf5912aea7757808176
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T180000Z
+DTEND:20250815T190000Z
+SUMMARY:Citrine In Concert
+DESCRIPTION:Come join Citrine the fandom's own blind singing husky for an hour of music and entertainment.
+CATEGORIES:PERFORMANCE
+LOCATION:Main Events - Hall Of Champions\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:8331372bc5e017f9b69b3c177d46078b
+URL:http://indyfurcon2025.sched.com/event/8331372bc5e017f9b69b3c177d46078b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T163000Z
+DTEND:20250815T173000Z
+SUMMARY:So This is Your First Furcon?
+DESCRIPTION:Is this your first furry convention? Well this is the panel for you! Want to know what it will be like? Come chat with us about furry conventions & what to expect!
+CATEGORIES:SOCIAL
+LOCATION:Main Events - Hall Of Champions\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:7787cc9a50aa2117b7f7996d51cfb04f
+URL:http://indyfurcon2025.sched.com/event/7787cc9a50aa2117b7f7996d51cfb04f
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T013000Z
+DTEND:20250815T023000Z
+SUMMARY:Skullies Meet & Greet
+DESCRIPTION:Welcome to the graveyard! This meet and greet is for all the boneheads in the fandom\, or those of you who are interested in becoming one! We will take a group photo\, chat\, and have a little raffle to give away some prizes!
+CATEGORIES:MEET & GREET
+LOCATION:Panel Room 4\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:03837284bf1b5cfab815de31393f7f1d
+URL:http://indyfurcon2025.sched.com/event/03837284bf1b5cfab815de31393f7f1d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T140000Z
+DTEND:20250815T150000Z
+SUMMARY:Fursuiting 202
+DESCRIPTION:Now that you've learned the basics of fursuiting\, it's time to develop a unique character to match! Join Rocky and silent suiter Mel in a demonstration of the creative process of bringing your suit\, sona\, or other OC to life. Physicality\, creative choices\, improv in suit\, and other topics will be discussed with Q&A to follow.
+CATEGORIES:FURSUITING
+LOCATION:Tertiary Events - International Boardroom\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:d04d37867f39702fd66e9769ef2cfef9
+URL:http://indyfurcon2025.sched.com/event/d04d37867f39702fd66e9769ef2cfef9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T163000Z
+SUMMARY:Animal Work Stories
+DESCRIPTION:Many people find the idea of working with animals to be just playing with dogs and cats\, and sometimes other animals\, all day. Come listen to our group of panelist talk about the good\, the bad and the ugly of working with some the creatures we share the planet with.
+CATEGORIES:PRESENTATION
+LOCATION:Secondary Events - Golden Ballrooms 4&5\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:73d9bafe213c88f820a0c26593fae599
+URL:http://indyfurcon2025.sched.com/event/73d9bafe213c88f820a0c26593fae599
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T020000Z
+DTEND:20250815T060000Z
+SUMMARY:Thursday Night Dance
+DESCRIPTION:Description\n10pm - Rocco the Racc\n11pm - DJ Kai\n12am - Nevermourn\n1am - Tasha Nicole\n\nWarning: This event uses intense strobe effects and bright flashing lights in a dim environment with fog effects\, and may be unsafe for those with epilepsy and light sensitivity.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Main Events - Hall Of Champions\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:4a14ddc709a4c55dca16cce094c42906
+URL:http://indyfurcon2025.sched.com/event/4a14ddc709a4c55dca16cce094c42906
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T020000Z
+SUMMARY:The Trans Experience
+DESCRIPTION:This presentation and open discussion of transgender life AFTER surgery is fantastic! Panelists share experiences and post-op milestones to help educate and support the community. They're here to share & will answer ANY questions\, no limits. Learning more for your own journey\, supporting a loved one\, or just trying understand? This is for you!
+CATEGORIES:PRESENTATION
+LOCATION:Tertiary Events - International Boardroom\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:4aa5ab29628dbdffd9e214922ca4c712
+URL:http://indyfurcon2025.sched.com/event/4aa5ab29628dbdffd9e214922ca4c712
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T023000Z
+DTEND:20250816T033000Z
+SUMMARY:Murrsuiting 101: How is it done?
+DESCRIPTION:Ever been curious how the heck this is done? Join Storm for a Q&A as we discuss everything from zippers to heat\, hydration to scenes\, and what it takes to ensure safe consensual in character fun
+CATEGORIES:PRESENTATION
+LOCATION:Panel Room 2\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:b6fcfcf56598bb5458acedde978d125b
+URL:http://indyfurcon2025.sched.com/event/b6fcfcf56598bb5458acedde978d125b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T030000Z
+DTEND:20250816T060000Z
+SUMMARY:Jackbox After Dark
+DESCRIPTION:It's Jackbox after dark! &nbsp\;We pull away the filters and get ready for unadulterated adult games. &nbsp\;Make sure to bring your phone and your ID.
+CATEGORIES:GAMING
+LOCATION:Tertiary Events - International Boardroom\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:72408bbb4c0adb1b36f485f2b7fdb21c
+URL:http://indyfurcon2025.sched.com/event/72408bbb4c0adb1b36f485f2b7fdb21c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T220000Z
+DTEND:20250817T233000Z
+SUMMARY:Closing Ceremonies
+DESCRIPTION:
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Main Events - Hall Of Champions\, Wyndham Indianapolis Airport
+SEQUENCE:0
+UID:75456011f1b383bd1a0c3586d9f19c91
+URL:http://indyfurcon2025.sched.com/event/75456011f1b383bd1a0c3586d9f19c91
+END:VEVENT
+END:VCALENDAR
