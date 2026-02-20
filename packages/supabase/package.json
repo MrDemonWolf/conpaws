@@ -1,0 +1,6 @@
+{
+  "name": "@conpaws/supabase",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Supabase config and migrations — Phase 2"
+}
