@@ -2,7 +2,7 @@ import { View, Text, Pressable } from "react-native";
 import { Check, Clock, MapPin } from "@/lib/icons";
 import { formatEventTime } from "@/lib/date-utils";
 import { CATEGORY_COLORS } from "@/lib/constants";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { ConventionEvent } from "@/types";
 
 interface EventItemProps {
@@ -11,7 +11,7 @@ interface EventItemProps {
 }
 
 export function EventItem({ event, onPress }: EventItemProps) {
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
   const categoryColor =
     CATEGORY_COLORS[event.category ?? ""] ?? CATEGORY_COLORS.DEFAULT;
 
@@ -31,20 +31,20 @@ export function EventItem({ event, onPress }: EventItemProps) {
           </Text>
           {event.isInSchedule && (
             <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
-              <Check size={12} color="#ffffff" />
+              <Check size={12} color={colors.primaryForeground} />
             </View>
           )}
         </View>
         <View className="mt-1 flex-row items-center gap-3">
           <View className="flex-row items-center gap-1">
-            <Clock size={12} color={isDark ? "#a8a29e" : "#78716c"} />
+            <Clock size={12} color={colors.mutedForeground} />
             <Text className="text-xs text-muted-foreground">
               {formatEventTime(event.startTime, event.endTime)}
             </Text>
           </View>
           {event.room && (
             <View className="flex-row items-center gap-1">
-              <MapPin size={12} color={isDark ? "#a8a29e" : "#78716c"} />
+              <MapPin size={12} color={colors.mutedForeground} />
               <Text className="text-xs text-muted-foreground" numberOfLines={1}>
                 {event.room}
               </Text>

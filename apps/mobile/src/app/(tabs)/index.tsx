@@ -6,12 +6,12 @@ import { useConventions } from "@/hooks/use-conventions";
 import { ConventionCard } from "@/components/convention-card";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { data: conventions = [], isLoading } = useConventions();
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
@@ -25,21 +25,21 @@ export default function HomeScreen() {
             size="icon"
             onPress={() => router.push("/convention/import")}
           >
-            <Calendar size={22} color={isDark ? "#fafaf9" : "#0a0a0a"} />
+            <Calendar size={22} color={colors.foreground} />
           </Button>
           <Button
             variant="default"
             size="icon"
             onPress={() => router.push("/convention/new")}
           >
-            <Plus size={22} color="#ffffff" />
+            <Plus size={22} color={colors.primaryForeground} />
           </Button>
         </View>
       </View>
 
       {conventions.length === 0 && !isLoading ? (
         <EmptyState
-          icon={<Calendar size={48} color={isDark ? "#a8a29e" : "#78716c"} />}
+          icon={<Calendar size={48} color={colors.mutedForeground} />}
           title="No conventions yet"
           description="Add your first convention by importing a schedule or creating one manually."
           actionLabel="Add Convention"

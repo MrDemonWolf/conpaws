@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { formatEventTime, formatDayHeader } from "@/lib/date-utils";
 import { REMINDER_OPTIONS } from "@/lib/constants";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export default function EventDetailScreen() {
   const { id, eventId } = useLocalSearchParams<{
@@ -27,7 +27,7 @@ export default function EventDetailScreen() {
   const toggleSchedule = useToggleSchedule();
   const setReminder = useSetReminder();
   const deleteEvent = useDeleteEvent();
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   if (!event) return null;
 
@@ -87,10 +87,10 @@ export default function EventDetailScreen() {
                   }
                   className="p-1"
                 >
-                  <Edit3 size={20} color={isDark ? "#fafaf9" : "#0a0a0a"} />
+                  <Edit3 size={20} color={colors.foreground} />
                 </Pressable>
                 <Pressable onPress={handleDelete} className="p-1">
-                  <Trash2 size={20} color="#ef4444" />
+                  <Trash2 size={20} color={colors.destructive} />
                 </Pressable>
               </View>
             ) : null,
@@ -119,7 +119,7 @@ export default function EventDetailScreen() {
 
           <View className="mt-4 gap-3">
             <View className="flex-row items-center gap-3">
-              <Clock size={18} color={isDark ? "#a8a29e" : "#78716c"} />
+              <Clock size={18} color={colors.mutedForeground} />
               <View>
                 <Text className="text-sm text-muted-foreground">
                   {formatDayHeader(event.startTime)}
@@ -132,7 +132,7 @@ export default function EventDetailScreen() {
 
             {(event.location || event.room) && (
               <View className="flex-row items-center gap-3">
-                <MapPin size={18} color={isDark ? "#a8a29e" : "#78716c"} />
+                <MapPin size={18} color={colors.mutedForeground} />
                 <View>
                   {event.room && (
                     <Text className="text-base text-foreground">
@@ -166,7 +166,7 @@ export default function EventDetailScreen() {
         {event.contentWarning && (
           <>
             <View className="flex-row items-start gap-3 px-6 py-4">
-              <Shield size={18} color="#f59e0b" />
+              <Shield size={18} color={colors.gold} />
               <View className="flex-1">
                 <Text className="text-sm font-medium text-gold">
                   Content Warning
@@ -221,7 +221,7 @@ export default function EventDetailScreen() {
             onPress={() => Linking.openURL(event.sourceUrl!)}
             className="mx-6 mb-8 flex-row items-center justify-center gap-2 rounded-xl border border-border py-3"
           >
-            <ExternalLink size={16} color={isDark ? "#8b5cf6" : "#6D28D9"} />
+            <ExternalLink size={16} color={colors.primary} />
             <Text className="text-sm font-medium text-primary">
               {event.sourceUrl?.includes("sched.") ? "View on Sched" : "View Source"}
             </Text>

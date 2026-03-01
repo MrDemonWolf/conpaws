@@ -1,16 +1,16 @@
 import { Switch as RNSwitch, type SwitchProps } from "react-native";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export function Switch(props: SwitchProps) {
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   return (
     <RNSwitch
       trackColor={{
-        false: isDark ? "#44403c" : "#e7e5e4",
-        true: isDark ? "#8b5cf6" : "#6D28D9",
+        false: colors.input,
+        true: colors.primary,
       }}
-      thumbColor="#ffffff"
+      thumbColor={colors.primaryForeground}
       {...props}
     />
   );
