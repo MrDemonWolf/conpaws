@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  Platform,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { useEvent, useUpdateEvent } from "@/hooks/use-events";
 
 export default function EditEventScreen() {
@@ -30,8 +23,6 @@ export default function EditEventScreen() {
   const [category, setCategory] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
 
   useEffect(() => {
     if (event) {
@@ -96,55 +87,20 @@ export default function EditEventScreen() {
             />
           </View>
 
-          <View>
-            <Text className="mb-1.5 text-sm font-medium text-foreground">
-              Start Time
-            </Text>
-            <Pressable
-              onPress={() => setShowStartPicker(true)}
-              className="h-12 justify-center rounded-xl border border-input bg-background px-4"
-            >
-              <Text className="text-base text-foreground">
-                {format(startTime, "EEE, MMM d 'at' h:mm a")}
-              </Text>
-            </Pressable>
-            {showStartPicker && (
-              <DateTimePicker
-                value={startTime}
-                mode="datetime"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={(_, date) => {
-                  setShowStartPicker(Platform.OS === "ios");
-                  if (date) setStartTime(date);
-                }}
-              />
-            )}
-          </View>
+          <DatePickerField
+            label="Start Time"
+            value={startTime}
+            onChange={setStartTime}
+            mode="datetime"
+          />
 
-          <View>
-            <Text className="mb-1.5 text-sm font-medium text-foreground">
-              End Time
-            </Text>
-            <Pressable
-              onPress={() => setShowEndPicker(true)}
-              className="h-12 justify-center rounded-xl border border-input bg-background px-4"
-            >
-              <Text className="text-base text-foreground">
-                {format(endTime, "EEE, MMM d 'at' h:mm a")}
-              </Text>
-            </Pressable>
-            {showEndPicker && (
-              <DateTimePicker
-                value={endTime}
-                mode="datetime"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={(_, date) => {
-                  setShowEndPicker(Platform.OS === "ios");
-                  if (date) setEndTime(date);
-                }}
-              />
-            )}
-          </View>
+          <DatePickerField
+            label="End Time"
+            value={endTime}
+            onChange={setEndTime}
+            mode="datetime"
+            minimumDate={startTime}
+          />
 
           <View>
             <Text className="mb-1.5 text-sm font-medium text-foreground">
