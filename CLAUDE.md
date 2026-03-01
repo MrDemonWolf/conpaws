@@ -27,7 +27,7 @@ pnpm prebuild:clean       # Clean and regenerate native projects
 
 ## Architecture
 
-- **Framework:** Expo SDK 55 (preview) with React Native 0.83 and React 19.2
+- **Framework:** Expo SDK 55 (stable) with React Native 0.83 and React 19.2
 - **Routing:** Expo Router v55 (file-based routing in `src/app/`)
 - **Styling:** NativeWind v5 (Tailwind CSS v4 for React Native) with `react-native-css`, `clsx`, and `tailwind-merge`
 - **Local Database:** expo-sqlite with Drizzle ORM
