@@ -1,5 +1,6 @@
 import { View, Text, SectionList, Pressable, Alert } from "react-native";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Plus, Edit3, Trash2, Calendar } from "@/lib/icons";
 import { useConvention, useDeleteConvention } from "@/hooks/use-conventions";
 import { useEvents } from "@/hooks/use-events";
@@ -19,6 +20,7 @@ export default function ConventionDetailScreen() {
   const { data: events = [] } = useEvents(id);
   const deleteConvention = useDeleteConvention();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
 
   const sections = groupEventsByDay(events);
 
@@ -109,7 +111,10 @@ export default function ConventionDetailScreen() {
           />
         )}
 
-        <View className="absolute bottom-8 right-6 flex-row gap-3">
+        <View
+          className="absolute right-6 flex-row gap-3"
+          style={{ bottom: Math.max(insets.bottom, 16) + 16 }}
+        >
           <Button
             variant="outline"
             size="icon"
