@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Calendar, Share2, Shield } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 const features = [
   {
@@ -26,7 +26,7 @@ const features = [
 
 export default function FeaturesScreen() {
   const router = useRouter();
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -38,10 +38,7 @@ export default function FeaturesScreen() {
           {features.map((feature) => (
             <Card key={feature.title} className="flex-row items-center gap-4 p-4">
               <View className="h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                <feature.icon
-                  size={24}
-                  color={isDark ? "#8b5cf6" : "#6D28D9"}
-                />
+                <feature.icon size={24} color={colors.primary} />
               </View>
               <View className="flex-1">
                 <Text className="text-base font-semibold text-foreground">

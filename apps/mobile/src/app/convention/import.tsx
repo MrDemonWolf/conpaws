@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useICalImport } from "@/hooks/use-ical-import";
 import { isValidSchedUrl } from "@/lib/sched-url";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export default function ImportScreen() {
   const router = useRouter();
   const { pickAndParseFile, fetchAndParseUrl, isLoading, error } =
     useICalImport();
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
   const [schedUrl, setSchedUrl] = useState("");
 
   const handleFilePick = async () => {
@@ -47,7 +47,7 @@ export default function ImportScreen() {
 
         <Card className="mb-4 p-4">
           <View className="mb-3 flex-row items-center gap-3">
-            <FileText size={22} color={isDark ? "#8b5cf6" : "#6D28D9"} />
+            <FileText size={22} color={colors.primary} />
             <Text className="text-base font-semibold text-foreground">
               Import .ics File
             </Text>
@@ -66,7 +66,7 @@ export default function ImportScreen() {
 
         <Card className="p-4">
           <View className="mb-3 flex-row items-center gap-3">
-            <Calendar size={22} color={isDark ? "#8b5cf6" : "#6D28D9"} />
+            <Calendar size={22} color={colors.primary} />
             <Text className="text-base font-semibold text-foreground">
               Paste Sched URL
             </Text>

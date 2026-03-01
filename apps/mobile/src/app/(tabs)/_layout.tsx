@@ -1,19 +1,19 @@
 import { Tabs } from "expo-router";
 import { PawPrint, User, Settings } from "@/lib/icons";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 
 export default function TabLayout() {
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: isDark ? "#8b5cf6" : "#6D28D9",
-        tabBarInactiveTintColor: isDark ? "#a8a29e" : "#78716c",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.mutedForeground,
         tabBarStyle: {
-          backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
-          borderTopColor: isDark ? "#44403c" : "#e7e5e4",
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
         },
       }}
     >

@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { formatDateRange, groupEventsByDay } from "@/lib/date-utils";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { ConventionStatus } from "@/types";
 
 export default function ConventionDetailScreen() {
@@ -18,7 +18,7 @@ export default function ConventionDetailScreen() {
   const { data: convention } = useConvention(id);
   const { data: events = [] } = useEvents(id);
   const deleteConvention = useDeleteConvention();
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   const sections = groupEventsByDay(events);
 
@@ -53,10 +53,10 @@ export default function ConventionDetailScreen() {
                 onPress={() => router.push(`/convention/${id}/edit`)}
                 className="p-1"
               >
-                <Edit3 size={20} color={isDark ? "#fafaf9" : "#0a0a0a"} />
+                <Edit3 size={20} color={colors.foreground} />
               </Pressable>
               <Pressable onPress={handleDelete} className="p-1">
-                <Trash2 size={20} color="#ef4444" />
+                <Trash2 size={20} color={colors.destructive} />
               </Pressable>
             </View>
           ),
@@ -79,7 +79,7 @@ export default function ConventionDetailScreen() {
         {events.length === 0 ? (
           <EmptyState
             icon={
-              <Calendar size={48} color={isDark ? "#a8a29e" : "#78716c"} />
+              <Calendar size={48} color={colors.mutedForeground} />
             }
             title="No events yet"
             description="Add events manually or import a schedule."
@@ -116,7 +116,7 @@ export default function ConventionDetailScreen() {
             className="h-12 w-12 rounded-full"
             onPress={() => router.push("/convention/import")}
           >
-            <Calendar size={20} color={isDark ? "#fafaf9" : "#0a0a0a"} />
+            <Calendar size={20} color={colors.foreground} />
           </Button>
           <Button
             size="icon"
@@ -125,7 +125,7 @@ export default function ConventionDetailScreen() {
               router.push(`/convention/${id}/event/new`)
             }
           >
-            <Plus size={20} color="#ffffff" />
+            <Plus size={20} color={colors.primaryForeground} />
           </Button>
         </View>
       </View>

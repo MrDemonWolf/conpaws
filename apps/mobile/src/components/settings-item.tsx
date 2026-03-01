@@ -1,6 +1,7 @@
 import { Pressable, Text } from "react-native";
 import { ChevronRight } from "@/lib/icons";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { cn } from "@/lib/utils";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { LucideIcon } from "lucide-react-native";
 
 interface SettingsItemProps {
@@ -18,7 +19,7 @@ export function SettingsItem({
   onPress,
   destructive,
 }: SettingsItemProps) {
-  const { isDark } = useColorScheme();
+  const colors = useThemeColors();
 
   return (
     <Pressable
@@ -27,18 +28,13 @@ export function SettingsItem({
     >
       <Icon
         size={20}
-        color={
-          destructive
-            ? "#ef4444"
-            : isDark
-              ? "#a8a29e"
-              : "#78716c"
-        }
+        color={destructive ? colors.destructive : colors.mutedForeground}
       />
       <Text
-        className={`ml-3 flex-1 text-base ${
-          destructive ? "text-destructive" : "text-foreground"
-        }`}
+        className={cn(
+          "ml-3 flex-1 text-base",
+          destructive ? "text-destructive" : "text-foreground",
+        )}
       >
         {label}
       </Text>
@@ -46,10 +42,7 @@ export function SettingsItem({
         <Text className="mr-1 text-sm text-muted-foreground">{value}</Text>
       )}
       {onPress && (
-        <ChevronRight
-          size={18}
-          color={isDark ? "#44403c" : "#d6d3d1"}
-        />
+        <ChevronRight size={18} color={colors.border} />
       )}
     </Pressable>
   );
