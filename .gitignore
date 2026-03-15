@@ -19,7 +19,7 @@ web-build/
 # Metro
 .metro-health-check*
 
-# Environment
+# Environment files
 .env
 .env.*
 !.env.example
