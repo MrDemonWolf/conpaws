@@ -8,9 +8,32 @@ dist
 build
 *.tsbuildinfo
 
-# Environment variables
+# Expo
+.expo/
+ios/
+android/
+web-build/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.cert
+
+# Metro
+.metro-health-check*
+
+# Environment files
 .env
-.env*.local
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
 
 # IDEs and editors
 .vscode/*
@@ -22,7 +45,6 @@ build
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Logs
 logs
