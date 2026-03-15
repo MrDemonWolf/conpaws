@@ -4,7 +4,7 @@ This project is a modern TypeScript monorepo built for the **ConPaws** conventio
 
 ## Project Overview
 
-- **Architecture:** Monorepo managed by **pnpm workspaces** and **Turborepo**.
+- **Architecture:** Monorepo managed by **bun workspaces** and **Turborepo**.
 - **Mobile App (`apps/native`):** Built with **Expo (SDK 55)** and **React Native (0.83)**. It uses **Expo Router** for file-based navigation and **expo-sqlite** with **Drizzle ORM** for offline-first data management.
 - **Web App (`apps/web`):** A **Next.js** site for marketing, legal pages, and public profile/convention previews.
 - **Shared UI (`packages/ui`):** A collection of shadcn-inspired components using **Tailwind CSS v4** and **NativeWind v5** for cross-platform styling.
@@ -17,25 +17,25 @@ This project is a modern TypeScript monorepo built for the **ConPaws** conventio
 - **State & Data:** TanStack Query v5, Drizzle ORM, expo-sqlite.
 - **Backend:** Supabase (Auth, PostgreSQL, Storage), Cloudflare R2.
 - **Testing:** Vitest.
-- **Monorepo:** pnpm, Turborepo.
+- **Monorepo:** bun, Turborepo.
 
 ## Building and Running
 
 ### Prerequisites
 
-- **pnpm** installed globally.
+- **bun** installed globally.
 - **iOS Simulator** or **Android Emulator** (for mobile development).
 - **Expo Go** app on a physical device (optional).
 
 ### Key Commands
 
-- `pnpm install`: Install all dependencies across the monorepo.
-- `pnpm dev`: Start both the web and native applications in development mode.
-- `pnpm dev:web`: Start only the Next.js application (accessible at `http://localhost:3001`).
-- `pnpm dev:native`: Start the Expo development server.
-- `pnpm build`: Build all applications and packages.
-- `pnpm check-types`: Run TypeScript type-checking across the entire project.
-- `pnpm test`: Run unit tests in `apps/native` using Vitest.
+- `bun install`: Install all dependencies across the monorepo.
+- `bun dev`: Start both the web and native applications in development mode.
+- `bun dev:web`: Start only the Next.js application (accessible at `http://localhost:3001`).
+- `bun dev:native`: Start the Expo development server.
+- `bun build`: Build all applications and packages.
+- `bun check-types`: Run TypeScript type-checking across the entire project.
+- `bun test`: Run unit tests in `apps/native` using Vitest.
 
 ## Project Structure
 
@@ -56,4 +56,4 @@ This project is a modern TypeScript monorepo built for the **ConPaws** conventio
 - **Data Management:** Follow an offline-first approach. All convention data should be stored in the local SQLite database via Drizzle ORM before syncing to the cloud.
 - **Environment Variables:** Use `@conpaws/env` to access validated environment variables. Never hardcode secrets.
 - **Testing:** Add unit tests for business logic (iCal parsing, database operations, sync engine) in `apps/native` using Vitest.
-- **Git:** Follow a feature-branch workflow. Ensure `pnpm check-types` and `pnpm lint` pass before committing.
+- **Git:** Follow a feature-branch workflow. Ensure `bun check-types` and `bun lint` pass before committing.
