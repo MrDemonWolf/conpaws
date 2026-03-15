@@ -1,0 +1,3 @@
+{
+  "extends": "@conpaws/config/tsconfig.base.json"
+}
