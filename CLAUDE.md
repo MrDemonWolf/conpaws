@@ -11,18 +11,18 @@ It uses app variants (`development`, `preview`, `production`) controlled via the
 ## Development Commands
 
 ```bash
-pnpm install              # Install dependencies (uses hoisted node linker)
-pnpm start                # Start dev server (development variant)
-pnpm start:preview        # Start dev server (preview variant)
-pnpm start:prod           # Start dev server (production variant)
-pnpm android              # Run on Android (development)
-pnpm ios                  # Run on iOS (development)
-pnpm web                  # Run web version
-pnpm lint                 # Run ESLint
-pnpm type-check           # Run TypeScript type checking
-pnpm test                 # Run tests (Vitest)
-pnpm prebuild             # Generate native projects (development)
-pnpm prebuild:clean       # Clean and regenerate native projects
+bun install               # Install dependencies
+bun start                 # Start dev server (development variant)
+bun start:preview         # Start dev server (preview variant)
+bun start:prod            # Start dev server (production variant)
+bun android               # Run on Android (development)
+bun ios                   # Run on iOS (development)
+bun web                   # Run web version
+bun lint                  # Run ESLint
+bun type-check            # Run TypeScript type checking
+bun test                  # Run tests (Vitest)
+bun prebuild              # Generate native projects (development)
+bun prebuild:clean        # Clean and regenerate native projects
 ```
 
 ## Architecture
@@ -38,7 +38,7 @@ pnpm prebuild:clean       # Clean and regenerate native projects
 - **Payments:** RevenueCat (in-app subscriptions for "ConPaws+") — Phase 3
 - **Website:** Next.js on Coolify (same VPS as Supabase) — Phase 4
 - **Language:** TypeScript with strict mode
-- **Package Manager:** pnpm workspaces (monorepo with `nodeLinker: hoisted`)
+- **Package Manager:** bun workspaces (monorepo)
 - **Animations:** react-native-reanimated v4.2 with react-native-worklets
 - **Entry Point:** `expo-router/entry` (configured in package.json `main`)
 
@@ -60,7 +60,7 @@ conpaws/
 │       └── global.css  # Tailwind CSS entry point + design tokens
 ├── apps/web/           # Next.js site (placeholder until Phase 4)
 ├── packages/supabase/  # Supabase config + migrations (Phase 2)
-└── pnpm-workspace.yaml
+└── bun.lock
 ```
 
 ### Key Configuration (apps/mobile/)

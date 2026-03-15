@@ -12,26 +12,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      - uses: oven-sh/setup-bun@v2
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: bun run lint
         working-directory: apps/mobile
 
       - name: Type check
-        run: pnpm type-check
+        run: bun run type-check
         working-directory: apps/mobile
 
       - name: Test
-        run: pnpm test
+        run: bun test
         working-directory: apps/mobile
