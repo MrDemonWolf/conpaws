@@ -1,17 +1,27 @@
 {
   "name": "conpaws",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
   "scripts": {
-    "start": "pnpm --filter @conpaws/mobile start",
-    "start:preview": "pnpm --filter @conpaws/mobile start:preview",
-    "start:prod": "pnpm --filter @conpaws/mobile start:prod",
-    "android": "pnpm --filter @conpaws/mobile android",
-    "ios": "pnpm --filter @conpaws/mobile ios",
-    "web": "pnpm --filter @conpaws/mobile web",
-    "lint": "pnpm --filter @conpaws/mobile lint",
-    "type-check": "pnpm --filter @conpaws/mobile type-check",
-    "test": "pnpm --filter @conpaws/mobile test",
-    "prebuild": "pnpm --filter @conpaws/mobile prebuild",
-    "prebuild:clean": "pnpm --filter @conpaws/mobile prebuild:clean"
-  }
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev"
+  },
+  "dependencies": {
+    "@conpaws/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@conpaws/config": "workspace:*",
+    "turbo": "^2.8.12",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@10.30.3"
 }
