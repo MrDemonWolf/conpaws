@@ -6,14 +6,14 @@
 // Showcase: https://www.better-t-stack.dev/showcase
 // Sponsor: https://github.com/sponsors/AmanVarshney01
 //
-// Add new addons with: pnpm dlx create-better-t-stack add
+// Add new addons with: bunx create-better-t-stack add
 // This file is safe to delete
 
 {
   "$schema": "https://r2.better-t-stack.dev/schema.json",
   "version": "3.25.5",
   "createdAt": "2026-03-15T00:17:35.064Z",
-  "reproducibleCommand": "pnpm create better-t-stack@latest conpaws --frontend next native-bare --backend none --runtime none --database none --orm none --api none --auth none --payments none --addons turborepo --examples none --db-setup none --web-deploy none --server-deploy none --no-git --package-manager pnpm --no-install",
+  "reproducibleCommand": "bun create better-t-stack@latest conpaws --frontend next native-bare --backend none --runtime none --database none --orm none --api none --auth none --payments none --addons turborepo --examples none --db-setup none --web-deploy none --server-deploy none --no-git --package-manager bun --no-install",
   "database": "none",
   "orm": "none",
   "backend": "none",
@@ -23,7 +23,7 @@
   "examples": [],
   "auth": "none",
   "payments": "none",
-  "packageManager": "pnpm",
+  "packageManager": "bun",
   "dbSetup": "none",
   "api": "none",
   "webDeploy": "none",
