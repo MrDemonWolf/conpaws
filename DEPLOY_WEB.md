@@ -22,9 +22,9 @@ This guide covers deploying the `apps/web` Next.js site to a Coolify instance.
 |---------|-------|
 | Build Pack | **Nixpacks** (auto-detected) or **Dockerfile** |
 | Base Directory | `apps/web` |
-| Build Command | `pnpm build` |
-| Start Command | `pnpm start` |
-| Install Command | `pnpm install` |
+| Build Command | `bun run build` |
+| Start Command | `bun run start` |
+| Install Command | `bun install` |
 | Port | `3000` |
 
 > **Monorepo note:** Set the **Base Directory** to `apps/web` so Coolify builds from the correct workspace. If Coolify doesn't support base directories natively, use a Dockerfile instead (see below).
@@ -49,8 +49,8 @@ NEXT_PUBLIC_SITE_URL=https://conpaws.app
 Click **Deploy** or push to the configured branch. Coolify will:
 
 1. Clone the repo
-2. Install dependencies (`pnpm install`)
-3. Build the Next.js app (`pnpm build` in `apps/web`)
+2. Install dependencies (`bun install`)
+3. Build the Next.js app (`bun run build` in `apps/web`)
 4. Start the production server on port 3000
 5. Proxy traffic from your domain with SSL
 
@@ -59,14 +59,13 @@ Click **Deploy** or push to the configured branch. Coolify will:
 If Coolify has trouble with the monorepo structure, add this Dockerfile at `apps/web/Dockerfile`:
 
 ```dockerfile
-FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10 --activate
+FROM oven/bun:1 AS base
 
 FROM base AS deps
 WORKDIR /app
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY bun.lock package.json ./
 COPY apps/web/package.json ./apps/web/
-RUN pnpm install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
@@ -74,7 +73,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY . .
 WORKDIR /app/apps/web
-RUN pnpm build
+RUN bun run build
 
 FROM base AS runner
 WORKDIR /app
@@ -115,4 +114,4 @@ export function GET() {
 | Port not accessible | Verify port is set to `3000` in Coolify |
 | SSL not working | Check DNS A record points to your Coolify server IP |
 | Old version deployed | Clear build cache in Coolify and redeploy |
-| pnpm not found | Ensure Nixpacks detects `pnpm-lock.yaml`, or use the Dockerfile |
+| bun not found | Ensure Nixpacks detects `bun.lock`, or use the Dockerfile |

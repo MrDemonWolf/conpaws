@@ -128,8 +128,8 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 | Tool | Purpose |
 |------|---------|
 | TypeScript (strict) | Language |
-| pnpm | Package manager + monorepo workspaces |
-| pnpm workspaces | Monorepo structure (no Turborepo — pnpm scripts are sufficient) |
+| bun | Package manager + monorepo workspaces |
+| bun workspaces | Monorepo structure (no Turborepo — bun scripts are sufficient) |
 | ESLint (Expo config) | Linting |
 | EAS Build + Submit | Build pipeline + store submission |
 | Supabase CLI | Local development (runs Supabase locally via Docker for dev only) |
@@ -191,7 +191,7 @@ conpaws/
 │       └── config.toml          # Supabase project config
 │
 ├── .env.example
-├── pnpm-workspace.yaml
+├── bun.lock
 ├── package.json
 └── tsconfig.base.json
 ```
@@ -1635,7 +1635,7 @@ Focus on testing business logic, not UI. No E2E testing — keep it simple for a
 
 - **Vitest** — Fast, TypeScript-native test runner (works well with Expo projects)
 - Test files live next to source: `foo.ts` → `foo.test.ts`
-- Run with `pnpm test`
+- Run with `bun test`
 
 ---
 
@@ -1647,9 +1647,9 @@ Lightweight CI pipeline on every PR. No deployment automation — EAS handles bu
 
 Every pull request runs:
 
-1. **Lint** — `pnpm lint` (ESLint across all packages)
-2. **Type check** — `pnpm type-check` (TypeScript strict mode)
-3. **Tests** — `pnpm test` (Vitest unit tests)
+1. **Lint** — `bun lint` (ESLint across all packages)
+2. **Type check** — `bun type-check` (TypeScript strict mode)
+3. **Tests** — `bun test` (Vitest unit tests)
 
 ```yaml
 # .github/workflows/ci.yml
@@ -1663,15 +1663,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm type-check
-      - run: pnpm test
+          node-version: 22
+      - run: bun install --frozen-lockfile
+      - run: bun lint
+      - run: bun type-check
+      - run: bun test
 ```
 
 ### What CI Does NOT Do
@@ -2156,7 +2155,7 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 
 The goal: **a usable app you can take to a convention in June.** Local-first convention management with iCal import. No accounts, no cloud — just a tool that works.
 
-- [ ] Monorepo structure (pnpm workspace, tsconfig, eslint)
+- [ ] Monorepo structure (bun workspace, tsconfig, eslint)
 - [ ] Expo app scaffolding with NativeWind v5 + Tailwind CSS v4
 - [ ] ShadCN-inspired component library (Button, Card, Input, Avatar, Badge, etc.)
 - [ ] Theme system (light + dark mode via NativeWind CSS variables)
@@ -2319,7 +2318,7 @@ Built with modern native technologies for a smooth, native-feeling experience on
 - **CI/CD:** GitHub Actions (lint + type-check + tests)
 - **Crash Reporting:** Sentry
 - **Localization:** i18next (English primary, community translations)
-- **Monorepo:** pnpm workspaces
+- **Monorepo:** bun workspaces
 - **Platforms:** iOS, iPadOS, Android
 
 ## Project Structure
@@ -2342,7 +2341,7 @@ conpaws/
 │   └── web/               # Next.js site (marketing, sharing, legal) — hosted on Coolify
 ├── packages/
 │   └── supabase/            # Supabase config + migrations
-├── pnpm-workspace.yaml
+├── bun.lock
 └── package.json
 ```
 
@@ -2351,7 +2350,7 @@ conpaws/
 ### Prerequisites
 
 - Node.js 20.x or later
-- pnpm 9.x
+- bun (latest)
 - Xcode (for iOS development)
 - Android Studio (for Android development)
 - Docker (for local Supabase via Supabase CLI)
@@ -2368,7 +2367,7 @@ conpaws/
 2. Install dependencies:
 
    ```bash
-   pnpm install
+   bun install
    ```
 
 3. Copy environment variables:
@@ -2382,28 +2381,28 @@ conpaws/
 5. Start local Supabase (requires Docker):
 
    ```bash
-   pnpm supabase:start
+   bun supabase:start
    ```
 
 6. Start the development server:
 
    ```bash
-   pnpm dev
+   bun dev
    ```
 
 ### Development Scripts
 
-- `pnpm dev` -- Start Expo dev server
-- `pnpm ios` -- Run on iOS simulator
-- `pnpm android` -- Run on Android emulator
-- `pnpm lint` -- Run ESLint across all packages
-- `pnpm type-check` -- Run TypeScript type checking
-- `pnpm test` -- Run unit tests with Vitest
-- `pnpm supabase:start` -- Start local Supabase instance
-- `pnpm supabase:stop` -- Stop local Supabase instance
-- `pnpm supabase:reset` -- Reset local database with migrations + seed
-- `pnpm prebuild` -- Generate native projects
-- `pnpm prebuild:clean` -- Clean and regenerate native projects
+- `bun dev` -- Start Expo dev server
+- `bun ios` -- Run on iOS simulator
+- `bun android` -- Run on Android emulator
+- `bun lint` -- Run ESLint across all packages
+- `bun type-check` -- Run TypeScript type checking
+- `bun test` -- Run unit tests with Vitest
+- `bun supabase:start` -- Start local Supabase instance
+- `bun supabase:stop` -- Stop local Supabase instance
+- `bun supabase:reset` -- Reset local database with migrations + seed
+- `bun prebuild` -- Generate native projects
+- `bun prebuild:clean` -- Clean and regenerate native projects
 
 ### Environment Files
 
