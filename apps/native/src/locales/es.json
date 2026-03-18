@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Inicio",
+    "profile": "Perfil",
+    "settings": "Ajustes",
+    "back": "Atrás",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "done": "Hecho",
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Reintentar",
+    "close": "Cerrar",
+    "next": "Siguiente",
+    "skip": "Omitir",
+    "getStarted": "Comenzar",
+    "learnMore": "Saber más",
+    "version": "Versión {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Navega, Conecta, Disfruta",
+      "subtitle": "Tu compañero de convenciones furry",
+      "getStarted": "Comenzar"
+    },
+    "features": {
+      "title": "Todo lo que necesitas",
+      "subtitle": "ConPaws mantiene tu experiencia en la convención organizada",
+      "calendar": {
+        "title": "Calendario de Convenciones",
+        "description": "Importa horarios de cualquier convención. Consulta paneles, eventos y actividades de un vistazo."
+      },
+      "share": {
+        "title": "Comparte y Conecta",
+        "description": "Crea tu horario personal y compártelo con amigos que asistan a la misma con."
+      },
+      "offline": {
+        "title": "Funciona sin Conexión",
+        "description": "Todos tus datos se almacenan localmente. No necesitas internet una vez que hayas importado tu horario."
+      },
+      "next": "Siguiente"
+    },
+    "getStarted": {
+      "title": "Únete a ConPaws",
+      "subtitle": "Inicia sesión para sincronizar tu horario entre dispositivos",
+      "signInWithApple": "Iniciar sesión con Apple",
+      "signInWithGoogle": "Iniciar sesión con Google",
+      "skipForNow": "Omitir por ahora",
+      "legal": "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad"
+    },
+    "complete": {
+      "title": "¡Todo listo!",
+      "subtitle": "Bienvenido a ConPaws. Exploremos tu primera convención.",
+      "letsGo": "¡Vamos!"
+    }
+  },
+  "home": {
+    "title": "Mis Convenciones",
+    "addConvention": "Añadir Convención",
+    "empty": {
+      "title": "Sin convenciones aún",
+      "subtitle": "Añade tu primera convención para comenzar.",
+      "cta": "Añadir Convención"
+    },
+    "upcoming": "Próximas",
+    "active": "Activas",
+    "past": "Pasadas"
+  },
+  "convention": {
+    "new": "Nueva Convención",
+    "edit": "Editar Convención",
+    "import": "Importar Horario",
+    "detail": "Detalles de la Convención",
+    "events": "Eventos",
+    "noEvents": "Sin eventos aún",
+    "noEventsSubtitle": "Importa un horario o añade eventos manualmente.",
+    "addEvent": "Añadir Evento",
+    "importSchedule": "Importar Horario",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "name": "Nombre de la Convención",
+    "namePlaceholder": "ej. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Perfil",
+    "signIn": "Iniciar Sesión",
+    "notSignedIn": "No has iniciado sesión",
+    "notSignedInSubtitle": "Inicia sesión para sincronizar tu horario y conectarte con amigos.",
+    "comingSoon": "Funciones de perfil próximamente",
+    "signInWithApple": "Iniciar sesión con Apple",
+    "signInWithGoogle": "Iniciar sesión con Google"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "languages": {
+      "title": "Idioma",
+      "systemDefault": "Usar idioma del dispositivo",
+      "en": "Inglés",
+      "es": "Español",
+      "nl": "Neerlandés",
+      "de": "Alemán",
+      "fr": "Francés",
+      "pt-BR": "Portugués (Brasil)",
+      "sv": "Sueco",
+      "pl": "Polaco"
+    },
+    "account": {
+      "title": "Cuenta",
+      "signIn": "Iniciar Sesión",
+      "signOut": "Cerrar Sesión"
+    },
+    "app": {
+      "title": "Aplicación",
+      "theme": "Tema",
+      "language": "Idioma",
+      "notifications": "Notificaciones"
+    },
+    "data": {
+      "title": "Datos",
+      "exportData": "Exportar Datos",
+      "importData": "Importar Datos",
+      "resetOnboarding": "Restablecer Incorporación"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfService": "Términos de Servicio",
+      "about": "Acerca de ConPaws",
+      "openSourceLicenses": "Licencias de Código Abierto"
+    },
+    "about": {
+      "title": "Acerca de",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Importar Horario",
+    "url": "Importar desde URL",
+    "file": "Importar desde Archivo",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Vista Previa de Eventos",
+    "importing": "Importando...",
+    "success": "Importación completa",
+    "error": "Error al importar"
+  },
+  "reminders": {
+    "title": "Recordatorios",
+    "add": "Añadir Recordatorio",
+    "minutesBefore": "{{minutes}} minutos antes",
+    "atTime": "A la hora del evento",
+    "none": "Sin recordatorio"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Startseite",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "back": "Zurück",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "done": "Fertig",
+    "loading": "Laden...",
+    "error": "Etwas ist schiefgelaufen",
+    "retry": "Erneut versuchen",
+    "close": "Schließen",
+    "next": "Weiter",
+    "skip": "Überspringen",
+    "getStarted": "Los geht's",
+    "learnMore": "Mehr erfahren",
+    "version": "Version {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Navigieren, Verbinden, Genießen",
+      "subtitle": "Dein Furry-Convention-Begleiter",
+      "getStarted": "Los geht's"
+    },
+    "features": {
+      "title": "Alles, was du brauchst",
+      "subtitle": "ConPaws hält dein Convention-Erlebnis organisiert",
+      "calendar": {
+        "title": "Convention-Kalender",
+        "description": "Importiere Zeitpläne von jeder Convention. Sieh Panels, Events und Aktivitäten auf einen Blick."
+      },
+      "share": {
+        "title": "Teilen & Verbinden",
+        "description": "Erstelle deinen persönlichen Zeitplan und teile ihn mit Freunden, die zur gleichen Con gehen."
+      },
+      "offline": {
+        "title": "Funktioniert offline",
+        "description": "Alle deine Daten werden lokal gespeichert. Kein Internet erforderlich, sobald du deinen Zeitplan importiert hast."
+      },
+      "next": "Weiter"
+    },
+    "getStarted": {
+      "title": "ConPaws beitreten",
+      "subtitle": "Melde dich an, um deinen Zeitplan geräteübergreifend zu synchronisieren",
+      "signInWithApple": "Mit Apple anmelden",
+      "signInWithGoogle": "Mit Google anmelden",
+      "skipForNow": "Jetzt überspringen",
+      "legal": "Durch Fortfahren stimmst du unseren Nutzungsbedingungen und der Datenschutzerklärung zu"
+    },
+    "complete": {
+      "title": "Alles bereit!",
+      "subtitle": "Willkommen bei ConPaws. Lass uns deine erste Convention erkunden.",
+      "letsGo": "Los geht's"
+    }
+  },
+  "home": {
+    "title": "Meine Conventions",
+    "addConvention": "Convention hinzufügen",
+    "empty": {
+      "title": "Noch keine Conventions",
+      "subtitle": "Füge deine erste Convention hinzu, um loszulegen.",
+      "cta": "Convention hinzufügen"
+    },
+    "upcoming": "Bevorstehend",
+    "active": "Aktiv",
+    "past": "Vergangen"
+  },
+  "convention": {
+    "new": "Neue Convention",
+    "edit": "Convention bearbeiten",
+    "import": "Zeitplan importieren",
+    "detail": "Convention-Details",
+    "events": "Events",
+    "noEvents": "Noch keine Events",
+    "noEventsSubtitle": "Importiere einen Zeitplan oder füge Events manuell hinzu.",
+    "addEvent": "Event hinzufügen",
+    "importSchedule": "Zeitplan importieren",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "name": "Convention-Name",
+    "namePlaceholder": "z.B. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Profil",
+    "signIn": "Anmelden",
+    "notSignedIn": "Nicht angemeldet",
+    "notSignedInSubtitle": "Melde dich an, um deinen Zeitplan zu synchronisieren und Freunde zu verbinden.",
+    "comingSoon": "Profilfunktionen kommen bald",
+    "signInWithApple": "Mit Apple anmelden",
+    "signInWithGoogle": "Mit Google anmelden"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "languages": {
+      "title": "Sprache",
+      "systemDefault": "Gerätesprache verwenden",
+      "en": "Englisch",
+      "es": "Spanisch",
+      "nl": "Niederländisch",
+      "de": "Deutsch",
+      "fr": "Französisch",
+      "pt-BR": "Portugiesisch (Brasilien)",
+      "sv": "Schwedisch",
+      "pl": "Polnisch"
+    },
+    "account": {
+      "title": "Konto",
+      "signIn": "Anmelden",
+      "signOut": "Abmelden"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Design",
+      "language": "Sprache",
+      "notifications": "Benachrichtigungen"
+    },
+    "data": {
+      "title": "Daten",
+      "exportData": "Daten exportieren",
+      "importData": "Daten importieren",
+      "resetOnboarding": "Onboarding zurücksetzen"
+    },
+    "legal": {
+      "title": "Rechtliches",
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfService": "Nutzungsbedingungen",
+      "about": "Über ConPaws",
+      "openSourceLicenses": "Open-Source-Lizenzen"
+    },
+    "about": {
+      "title": "Über",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Zeitplan importieren",
+    "url": "Von URL importieren",
+    "file": "Von Datei importieren",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Events vorschau",
+    "importing": "Importieren...",
+    "success": "Import abgeschlossen",
+    "error": "Import fehlgeschlagen"
+  },
+  "reminders": {
+    "title": "Erinnerungen",
+    "add": "Erinnerung hinzufügen",
+    "minutesBefore": "{{minutes}} Minuten vorher",
+    "atTime": "Zur Eventzeit",
+    "none": "Keine Erinnerung"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@conpaws/server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.7.12"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250622.0",
+    "typescript": "^5",
+    "wrangler": "^4.23.0"
+  }
+}

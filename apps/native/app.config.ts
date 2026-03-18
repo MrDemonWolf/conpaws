@@ -1,6 +1,8 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
 const APP_VARIANT = process.env.APP_VARIANT ?? "production";
+const IS_PRODUCTION = APP_VARIANT === "production";
+const EAS_PROJECT_ID = "0ad7171c-1b3e-48b2-a806-554aeea30048";
 
 const getAppName = (): string => {
   switch (APP_VARIANT) {
@@ -39,15 +41,29 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: getAppName(),
   slug: "conpaws",
+  owner: "mrdemonwolf-org",
   version: "1.0.0",
-  orientation: "portrait",
+  orientation: "default",
   icon: "./assets/images/icon.png",
   scheme: getScheme(),
   userInterfaceStyle: "automatic",
+  runtimeVersion: { policy: "appVersion" },
+  updates: {
+    url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
+  },
+  extra: {
+    eas: {
+      projectId: EAS_PROJECT_ID,
+    },
+  },
+  ...(IS_PRODUCTION ? {} : { developmentClient: {} }),
   ios: {
     supportsTablet: true,
     bundleIdentifier: getBundleId(),
     associatedDomains: ["applinks:conpaws.app"],
+    config: {
+      usesNonExemptEncryption: false,
+    },
     infoPlist: {
       NSCameraUsageDescription:
         "ConPaws needs access to your camera to take photos.",
@@ -72,7 +88,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "RECEIVE_BOOT_COMPLETED",
       "VIBRATE",
     ],
-    enableEdgeToEdge: true,
   },
   androidStatusBar: {
     translucent: true,
