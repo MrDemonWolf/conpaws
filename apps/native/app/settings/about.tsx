@@ -1,0 +1,88 @@
+import { View, ScrollView, Pressable, Linking } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import Constants from 'expo-constants';
+import { SafeView, Text, Separator } from '@/components/ui';
+import { Github, Globe, Mail, MessageCircle } from 'lucide-react-native';
+
+interface LinkRowProps {
+  icon: React.ReactNode;
+  label: string;
+  onPress: () => void;
+}
+
+function LinkRow({ icon, label, onPress }: LinkRowProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className="flex-row items-center gap-3 py-3.5 active:opacity-70"
+    >
+      {icon}
+      <Text variant="body" className="text-primary flex-1">{label}</Text>
+    </Pressable>
+  );
+}
+
+export default function AboutScreen() {
+  const { t } = useTranslation();
+  const version = Constants.expoConfig?.version ?? '0.0.0';
+
+  return (
+    <SafeView>
+      <ScrollView>
+        {/* Logo + Name */}
+        <View className="items-center gap-4 py-10 px-6">
+          <View className="w-20 h-20 rounded-3xl bg-primary items-center justify-center">
+            <Text className="text-3xl text-primary-foreground font-bold">CP</Text>
+          </View>
+          <View className="items-center gap-1">
+            <Text variant="h2">ConPaws</Text>
+            <Text variant="caption" className="text-muted-foreground">
+              Your furry convention companion
+            </Text>
+          </View>
+          <View className="bg-card px-4 py-1.5 rounded-full">
+            <Text variant="caption">{t('common.version', { version })}</Text>
+          </View>
+        </View>
+
+        <Separator className="mx-6 mb-2" />
+
+        {/* Links */}
+        <View className="px-6">
+          <LinkRow
+            icon={<Github size={20} color="#0FACED" />}
+            label="GitHub (Open Source)"
+            onPress={() => Linking.openURL('https://github.com/mrdemonwolf/conpaws')}
+          />
+          <Separator />
+          <LinkRow
+            icon={<Globe size={20} color="#0FACED" />}
+            label="mrdemonwolf.com"
+            onPress={() => Linking.openURL('https://mrdemonwolf.com')}
+          />
+          <Separator />
+          <LinkRow
+            icon={<Mail size={20} color="#0FACED" />}
+            label="hello@conpaws.com"
+            onPress={() => Linking.openURL('mailto:hello@conpaws.com')}
+          />
+          <Separator />
+          <LinkRow
+            icon={<MessageCircle size={20} color="#0FACED" />}
+            label="Join our Discord"
+            onPress={() => Linking.openURL('https://discord.gg/conpaws')}
+          />
+        </View>
+
+        <View className="py-8 items-center px-6">
+          <Text variant="caption" className="text-center text-muted-foreground">
+            Made with ❤️ for the furry community
+          </Text>
+          <Text variant="caption" className="text-center text-muted-foreground mt-1">
+            © 2026 ConPaws. All rights reserved.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeView>
+  );
+}

@@ -1,0 +1,373 @@
+import { useState, useCallback } from 'react';
+import {
+  View,
+  ScrollView,
+  Pressable,
+  Modal,
+  FlatList,
+  Alert,
+  Linking,
+} from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import * as Haptics from 'expo-haptics';
+import { ChevronLeft, MoreHorizontal, Upload, Plus } from 'lucide-react-native';
+import { SafeView, Text, EmptyState, LoadingSpinner } from '@/components/ui';
+import { EventItem } from '@/components/EventItem';
+import { CategoryPill } from '@/components/CategoryPill';
+import { SectionHeader } from '@/components/SectionHeader';
+import * as conventionsRepo from '@/db/repositories/conventions';
+import * as eventsRepo from '@/db/repositories/events';
+import type { ConventionEvent } from '@/db/schema';
+import { format, isSameDay } from 'date-fns';
+
+interface DayGroup {
+  date: Date;
+  label: string;
+  events: ConventionEvent[];
+}
+
+function groupEventsByDay(events: ConventionEvent[]): DayGroup[] {
+  const groups: DayGroup[] = [];
+
+  for (const event of events) {
+    const startDate = new Date(event.startTime);
+    const existing = groups.find((g) => isSameDay(g.date, startDate));
+    if (existing) {
+      existing.events.push(event);
+    } else {
+      groups.push({
+        date: startDate,
+        label: format(startDate, 'EEEE, MMMM d'),
+        events: [event],
+      });
+    }
+  }
+
+  return groups.sort((a, b) => a.date.getTime() - b.date.getTime());
+}
+
+function formatTime(isoString: string | null): string {
+  if (!isoString) return '';
+  return format(new Date(isoString), 'h:mm a');
+}
+
+interface ActionSheetProps {
+  event: ConventionEvent | null;
+  visible: boolean;
+  onClose: () => void;
+  onToggleSchedule: (event: ConventionEvent) => void;
+  onSetReminder: (event: ConventionEvent) => void;
+}
+
+function EventActionSheet({ event, visible, onClose, onToggleSchedule, onSetReminder }: ActionSheetProps) {
+  if (!event) return null;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <Pressable
+        className="flex-1 bg-black/50 justify-end"
+        onPress={onClose}
+      >
+        <Pressable className="bg-card rounded-t-2xl pb-8">
+          <View className="w-10 h-1 bg-border rounded-full self-center mt-3 mb-4" />
+          <Text variant="label" className="px-4 pb-3 text-muted-foreground" numberOfLines={1}>
+            {event.title}
+          </Text>
+
+          {/* Toggle schedule */}
+          <Pressable
+            onPress={() => { onToggleSchedule(event); onClose(); }}
+            className="px-4 py-3.5 active:opacity-70"
+          >
+            <Text variant="body">
+              {event.isInSchedule ? 'Remove from Schedule' : 'Add to Schedule'}
+            </Text>
+          </Pressable>
+
+          {/* Set reminder */}
+          <Pressable
+            onPress={() => { onSetReminder(event); onClose(); }}
+            className="px-4 py-3.5 active:opacity-70"
+          >
+            <Text variant="body">
+              {event.reminderMinutes !== null ? 'Change Reminder' : 'Set Reminder'}
+            </Text>
+          </Pressable>
+
+          {/* View on Sched */}
+          {event.sourceUrl && (
+            <Pressable
+              onPress={() => { Linking.openURL(event.sourceUrl!); onClose(); }}
+              className="px-4 py-3.5 active:opacity-70"
+            >
+              <Text variant="body">View on Sched</Text>
+            </Pressable>
+          )}
+
+          {/* Cancel */}
+          <Pressable
+            onPress={onClose}
+            className="px-4 py-3.5 active:opacity-70 mt-2 border-t border-border"
+          >
+            <Text variant="body" className="text-muted-foreground text-center">Cancel</Text>
+          </Pressable>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+interface ReminderPickerProps {
+  event: ConventionEvent | null;
+  visible: boolean;
+  onClose: () => void;
+  onSelect: (event: ConventionEvent, minutes: number | null) => void;
+}
+
+const REMINDER_OPTIONS = [
+  { label: 'No reminder', value: null },
+  { label: '5 min before', value: 5 },
+  { label: '15 min before', value: 15 },
+  { label: '30 min before', value: 30 },
+  { label: '1 hour before', value: 60 },
+];
+
+function ReminderPicker({ event, visible, onClose, onSelect }: ReminderPickerProps) {
+  if (!event) return null;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <Pressable
+        className="flex-1 bg-black/50 justify-end"
+        onPress={onClose}
+      >
+        <Pressable className="bg-card rounded-t-2xl pb-8">
+          <View className="w-10 h-1 bg-border rounded-full self-center mt-3 mb-4" />
+          <Text variant="label" className="px-4 pb-3">Set Reminder</Text>
+          {REMINDER_OPTIONS.map((opt) => (
+            <Pressable
+              key={String(opt.value)}
+              onPress={() => { onSelect(event, opt.value); onClose(); }}
+              className="px-4 py-3.5 active:opacity-70 flex-row items-center justify-between"
+            >
+              <Text variant="body">{opt.label}</Text>
+              {event.reminderMinutes === opt.value && (
+                <Text className="text-primary">✓</Text>
+              )}
+            </Pressable>
+          ))}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+export default function ConventionDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [actionSheetEvent, setActionSheetEvent] = useState<ConventionEvent | null>(null);
+  const [reminderEvent, setReminderEvent] = useState<ConventionEvent | null>(null);
+
+  const { data: convention, isLoading: conventionLoading } = useQuery({
+    queryKey: ['convention', id],
+    queryFn: () => conventionsRepo.getById(id!),
+    enabled: !!id,
+  });
+
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ['events', id],
+    queryFn: () => eventsRepo.getByConventionId(id!),
+    enabled: !!id,
+  });
+
+  const toggleScheduleMutation = useMutation({
+    mutationFn: async (event: ConventionEvent) => {
+      await eventsRepo.update(event.id, { isInSchedule: !event.isInSchedule });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events', id] });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    },
+  });
+
+  const setReminderMutation = useMutation({
+    mutationFn: async ({ event, minutes }: { event: ConventionEvent; minutes: number | null }) => {
+      await eventsRepo.update(event.id, { reminderMinutes: minutes });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events', id] });
+    },
+  });
+
+  const categories = Array.from(new Set(events.map((e) => e.category).filter(Boolean) as string[]));
+
+  const filteredEvents = selectedCategory
+    ? events.filter((e) => e.category === selectedCategory)
+    : events;
+
+  const dayGroups = groupEventsByDay(filteredEvents);
+
+  const isLoading = conventionLoading || eventsLoading;
+
+  if (isLoading) {
+    return (
+      <SafeView>
+        <View className="flex-1 items-center justify-center">
+          <LoadingSpinner />
+        </View>
+      </SafeView>
+    );
+  }
+
+  if (!convention) {
+    return (
+      <SafeView>
+        <View className="flex-1 items-center justify-center px-6">
+          <Text variant="body" className="text-muted-foreground text-center">Convention not found.</Text>
+          <Pressable onPress={() => router.back()} className="mt-4 active:opacity-70">
+            <Text className="text-primary">Go back</Text>
+          </Pressable>
+        </View>
+      </SafeView>
+    );
+  }
+
+  return (
+    <SafeView>
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 py-3">
+        <Pressable
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
+          className="active:opacity-70"
+        >
+          <ChevronLeft size={24} color="#94A3B8" />
+        </Pressable>
+        <Text variant="h3" className="flex-1 mx-3" numberOfLines={1}>{convention.name}</Text>
+        <Pressable
+          onPress={() => router.push(`/convention/${id}/import`)}
+          className="active:opacity-70"
+        >
+          <Upload size={20} color="#94A3B8" />
+        </Pressable>
+      </View>
+
+      {/* Category filter pills */}
+      {categories.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="px-4 mb-2"
+          contentContainerStyle={{ gap: 8 }}
+        >
+          <Pressable
+            onPress={() => setSelectedCategory(null)}
+            className={`px-3 py-1.5 rounded-full ${selectedCategory === null ? 'bg-primary' : 'bg-card'}`}
+          >
+            <Text
+              variant="caption"
+              className={selectedCategory === null ? 'text-primary-foreground' : 'text-muted-foreground'}
+            >
+              All
+            </Text>
+          </Pressable>
+          {categories.map((cat) => (
+            <Pressable
+              key={cat}
+              onPress={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+              className={`px-3 py-1.5 rounded-full ${selectedCategory === cat ? 'bg-primary' : 'bg-card'}`}
+            >
+              <Text
+                variant="caption"
+                className={selectedCategory === cat ? 'text-primary-foreground' : 'text-muted-foreground'}
+              >
+                {cat}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
+
+      {/* Events list or empty state */}
+      {events.length === 0 ? (
+        <View className="flex-1 items-center justify-center px-6 gap-6">
+          <EmptyState
+            icon={<Text className="text-5xl">📅</Text>}
+            title={t('convention.noEvents')}
+            subtitle={t('convention.noEventsSubtitle')}
+            ctaLabel={t('convention.importSchedule')}
+            onCta={() => router.push(`/convention/${id}/import`)}
+          />
+          <Pressable
+            onPress={() => {}}
+            className="active:opacity-70"
+          >
+            <Text className="text-primary text-center">+ Add event manually</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <FlatList
+          data={dayGroups}
+          keyExtractor={(item) => item.label}
+          renderItem={({ item: group }) => (
+            <View>
+              <SectionHeader title={group.label} />
+              {group.events.map((event) => (
+                <EventItem
+                  key={event.id}
+                  title={event.title}
+                  startTime={formatTime(event.startTime)}
+                  endTime={formatTime(event.endTime)}
+                  room={event.room ?? undefined}
+                  category={event.category ?? undefined}
+                  isInSchedule={event.isInSchedule}
+                  hasReminder={event.reminderMinutes !== null}
+                  isAgeRestricted={event.isAgeRestricted}
+                  contentWarning={event.contentWarning}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                  onLongPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    setActionSheetEvent(event);
+                  }}
+                />
+              ))}
+            </View>
+          )}
+        />
+      )}
+
+      {/* Action Sheet */}
+      <EventActionSheet
+        event={actionSheetEvent}
+        visible={actionSheetEvent !== null}
+        onClose={() => setActionSheetEvent(null)}
+        onToggleSchedule={(event) => toggleScheduleMutation.mutate(event)}
+        onSetReminder={(event) => setReminderEvent(event)}
+      />
+
+      {/* Reminder Picker */}
+      <ReminderPicker
+        event={reminderEvent}
+        visible={reminderEvent !== null}
+        onClose={() => setReminderEvent(null)}
+        onSelect={(event, minutes) => setReminderMutation.mutate({ event, minutes })}
+      />
+    </SafeView>
+  );
+}
