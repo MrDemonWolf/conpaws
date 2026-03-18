@@ -1,0 +1,38 @@
+name: Update License Year
+
+on:
+  schedule:
+    - cron: '0 6 1 1 *'
+  workflow_dispatch:
+
+jobs:
+  update-license-year:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get current year
+        id: year
+        run: echo "year=$(date +%Y)" >> "$GITHUB_OUTPUT"
+
+      - name: Update year in LICENSE
+        run: sed -i "s/Copyright (c) [0-9]\{4\}/Copyright (c) ${{ steps.year.outputs.year }}/" LICENSE
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet LICENSE; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/update-license-year
+          commit-message: 'chore: update license year to ${{ steps.year.outputs.year }}'
+          title: 'chore: update license year to ${{ steps.year.outputs.year }}'
+          body: Automated annual update of the MIT license copyright year.
+          labels: chore
