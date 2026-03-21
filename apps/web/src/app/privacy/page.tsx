@@ -36,14 +36,19 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-white mb-3">3. Third-Party Services</h2>
           <p>
-            <strong className="text-white">RevenueCat</strong> — used for in-app subscription
-            management (ConPaws+ features). RevenueCat may collect purchase receipts and
-            subscription status. See their privacy policy at revenuecat.com.
+            <strong className="text-white">RevenueCat</strong> — will be used for in-app
+            subscription management (ConPaws+ features) in a future update. When implemented,
+            RevenueCat may collect purchase receipts and subscription status. See their privacy
+            policy at revenuecat.com.
           </p>
           <p className="mt-2">
-            <strong className="text-white">Supabase</strong> — used for optional account sync
-            (Phase 2+). If you create an account, your profile and schedule are synced to our
-            self-hosted Supabase instance.
+            <strong className="text-white">Supabase</strong> — will be used for optional account
+            sync in a future update (Phase 2+). When implemented, if you create an account, your
+            profile and schedule will be synced to our self-hosted Supabase instance.
+          </p>
+          <p className="mt-2 text-slate-500 text-sm">
+            These integrations are not yet active. This section will be updated when they are
+            implemented.
           </p>
         </section>
 

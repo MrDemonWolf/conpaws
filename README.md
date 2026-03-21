@@ -1,97 +1,48 @@
-# conpaws
+# ConPaws
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, and more.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/MrDemonWolf/conpaws/blob/main/LICENSE)
 
-## Features
+ConPaws is an open source furry convention companion app built by [MrDemonWolf](https://github.com/MrDemonWolf), coming soon to the Apple App Store and Google Play Store. Feel free to fork it and adapt it for your own conventions or fandom community.
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **React Native** - Build mobile apps using React
-- **Expo** - Tools for React Native development
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Turborepo** - Optimized monorepo build system
+## What it does
 
-## Getting Started
-
-First, install the dependencies:
-
-```bash
-bun install
-```
-
-Then, run the development server:
-
-```bash
-bun run dev
-```
-
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-Use the Expo Go app to run the mobile application.
-
-## UI Customization
-
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
-
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
-
-### Add more shared components
-
-Run this from the project root to add more primitives to the shared UI package:
-
-```bash
-bunx shadcn@latest add accordion dialog popover sheet table -c packages/ui
-```
-
-Import shared components like this:
-
-```tsx
-import { Button } from "@conpaws/ui/components/button";
-```
-
-### Add app-specific blocks
-
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
+- **Local-first** — all core features work offline on iOS, Android, and Web
+- **Import schedules** — pull in convention events via iCal files or Sched.com URLs
+- **Build your schedule** — mark events you want to attend and get reminders
+- **ConPaws+** — premium features via RevenueCat (Phase 3+)
 
 ## Project Structure
 
 ```
 conpaws/
-├── apps/
-│   ├── web/         # Frontend application (Next.js)
-│   ├── native/      # Mobile application (React Native, Expo)
-├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
+├── apps/mobile/   # Expo React Native app (iOS, Android, Web)
+├── apps/web/      # Next.js static site → conpaws.com
+├── apps/server/   # Hono API → api.conpaws.com (Cloudflare Workers)
+└── apps/docs/     # Fumadocs → docs.conpaws.com
 ```
 
-## Available Scripts
+## Getting Started
 
-### Root (Monorepo)
+```bash
+bun install
+```
 
-- `bun run dev` — Start all applications in development mode
-- `bun run build` — Build all applications
-- `bun run check-types` — Check TypeScript types across all apps
-- `bun run dev:native` — Start the React Native/Expo development server
-- `bun run dev:web` — Start only the web application
+### Mobile app (`apps/mobile`)
 
-### Native App (`apps/native`)
+```bash
+bun start            # Start Expo dev server (development variant)
+bun start:preview    # Start Expo dev server (preview variant)
+bun start:prod       # Start Expo dev server (production variant)
+bun android          # Run on Android
+bun ios              # Run on iOS
+bun web              # Run web version
+bun lint             # Run ESLint
+bun type-check       # Run TypeScript type checking
+bun test             # Run tests (Vitest)
+bun prebuild         # Generate native projects
+bun prebuild:clean   # Clean and regenerate native projects
+```
 
-- `bun start` — Start Expo dev server (development variant)
-- `bun start:preview` — Start Expo dev server (preview variant)
-- `bun start:prod` — Start Expo dev server (production variant)
-- `bun android` — Run on Android
-- `bun ios` — Run on iOS
-- `bun web` — Run web version
-- `bun run lint` — Run ESLint
-- `bun run type-check` — Run TypeScript type checking
-- `bun test` — Run tests (Vitest)
-- `bun run prebuild` — Generate native projects
-- `bun run prebuild:clean` — Clean and regenerate native projects
+## Want to use this for your own fandom?
 
-### Web App (`apps/web`)
-
-- `bun run dev` — Start Next.js dev server
-- `bun run build` — Build for production
-- `bun run start` — Start production server
+Fork it. The app is built to be self-hostable — swap in your own Supabase instance, configure your RevenueCat keys, and point it at your conventions. The iCal import works with any standard `.ics` file, so it should work with most convention schedule tools out of the box.
