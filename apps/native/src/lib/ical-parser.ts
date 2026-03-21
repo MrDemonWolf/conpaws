@@ -192,8 +192,10 @@ export function parseIcs(raw: string): ParseResult {
 
     const uid = props['UID'];
     if (!uid) continue;
-    if (seenUids.has(uid)) continue;
-    seenUids.add(uid);
+    const recurrenceId = props['RECURRENCE-ID'] ?? '';
+    const dedupeKey = recurrenceId ? `${uid}|${recurrenceId}` : uid;
+    if (seenUids.has(dedupeKey)) continue;
+    seenUids.add(dedupeKey);
 
     const rawSummary = props['SUMMARY'] ?? '';
     const title = decodeHtmlEntities(unescapeText(rawSummary)).trim();

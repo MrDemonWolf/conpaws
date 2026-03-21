@@ -19,6 +19,7 @@ import { CategoryPill } from '@/components/CategoryPill';
 import { SectionHeader } from '@/components/SectionHeader';
 import * as conventionsRepo from '@/db/repositories/conventions';
 import * as eventsRepo from '@/db/repositories/events';
+import { scheduleEventReminder, cancelEventReminder } from '@/services/notifications';
 import type { ConventionEvent } from '@/db/schema';
 import { format, isSameDay } from 'date-fns';
 
@@ -208,6 +209,15 @@ export default function ConventionDetailScreen() {
   const setReminderMutation = useMutation({
     mutationFn: async ({ event, minutes }: { event: ConventionEvent; minutes: number | null }) => {
       await eventsRepo.update(event.id, { reminderMinutes: minutes });
+
+      if (minutes !== null && event.startTime) {
+        await scheduleEventReminder(
+          { id: event.id, title: event.title, startTime: event.startTime, room: event.room },
+          minutes,
+        );
+      } else {
+        await cancelEventReminder(event.id);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events', id] });

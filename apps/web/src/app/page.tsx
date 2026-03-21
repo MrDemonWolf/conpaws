@@ -46,7 +46,11 @@ export default function HomePage() {
     setForm({ status: 'loading', message: '' });
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.conpaws.com';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        setForm({ status: 'error', message: 'Signup is not configured yet. Please try again later.' });
+        return;
+      }
       const res = await fetch(`${apiUrl}/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -154,13 +158,19 @@ export default function HomePage() {
             </p>
           </div>
 
-          {form.status === 'success' ? (
-            <div className="text-center py-4">
-              <p className="text-[#0FACED] font-medium">{form.message}</p>
-            </div>
-          ) : (
+          <div aria-live="polite" aria-atomic="true">
+            {form.status === 'success' && (
+              <div className="text-center py-4">
+                <p className="text-[#0FACED] font-medium">{form.message}</p>
+              </div>
+            )}
+            {form.status === 'error' && (
+              <p className="text-red-400 text-sm" role="alert">{form.message}</p>
+            )}
+          </div>
+          {form.status !== 'success' && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              {/* Honeypot — hidden from humans */}
+              {/* Honeypot — hidden from humans and assistive tech */}
               <input
                 type="text"
                 name="website"
@@ -168,9 +178,12 @@ export default function HomePage() {
                 onChange={(e) => setHoneypot(e.target.value)}
                 tabIndex={-1}
                 autoComplete="off"
-                style={{ display: 'none' }}
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-9999px' }}
               />
+              <label htmlFor="signup-name" className="sr-only">Your name</label>
               <input
+                id="signup-name"
                 type="text"
                 placeholder="Your name"
                 value={name}
@@ -178,7 +191,9 @@ export default function HomePage() {
                 required
                 className="bg-[#091533] border border-[#1e3a5f] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#0FACED] transition-colors"
               />
+              <label htmlFor="signup-email" className="sr-only">Email address</label>
               <input
+                id="signup-email"
                 type="email"
                 placeholder="your@email.com"
                 value={email}
@@ -186,9 +201,6 @@ export default function HomePage() {
                 required
                 className="bg-[#091533] border border-[#1e3a5f] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#0FACED] transition-colors"
               />
-              {form.status === 'error' && (
-                <p className="text-red-400 text-sm">{form.message}</p>
-              )}
               <button
                 type="submit"
                 disabled={form.status === 'loading'}
