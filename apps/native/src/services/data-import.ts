@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as conventionsRepo from '@/db/repositories/conventions';
 import * as eventsRepo from '@/db/repositories/events';
+import { db } from '@/db';
 import type { Convention, ConventionEvent } from '@/db/schema';
 import type { ExportPayload } from './data-export';
 
@@ -42,73 +43,72 @@ export async function importData(payload: ExportPayload): Promise<ImportResult> 
   const existingConventions = await conventionsRepo.getAll();
   const existingIds = new Set(existingConventions.map((c) => c.id));
 
-  let conventionsAdded = 0;
-  let eventsAdded = 0;
-  let skipped = 0;
-
-  const now = new Date().toISOString();
-
-  // Track old export ID → new DB ID for newly created conventions
-  const idMap = new Map<string, string>();
-
-  // Import conventions (skip existing IDs)
-  for (const conv of payload.data.conventions) {
-    if (existingIds.has(conv.id)) {
-      idMap.set(conv.id, conv.id);
-      skipped++;
-      continue;
-    }
-    const created = await conventionsRepo.create({
-      name: conv.name,
-      startDate: conv.startDate,
-      endDate: conv.endDate,
-      icalUrl: conv.icalUrl,
-      status: conv.status,
-    });
-    idMap.set(conv.id, created.id);
-    conventionsAdded++;
-  }
-
-  // Import events (skip existing IDs)
-  const existingAllConventions = await conventionsRepo.getAll();
   const allEventIds = new Set<string>();
-  for (const conv of existingAllConventions) {
+  for (const conv of existingConventions) {
     const events = await eventsRepo.getByConventionId(conv.id);
     events.forEach((e) => allEventIds.add(e.id));
   }
 
-  for (const event of payload.data.events) {
-    if (allEventIds.has(event.id)) {
-      skipped++;
-      continue;
+  let conventionsAdded = 0;
+  let eventsAdded = 0;
+  let skipped = 0;
+
+  // Track old export ID → new DB ID for newly created conventions
+  const idMap = new Map<string, string>();
+
+  await db.transaction(async () => {
+    // Import conventions (skip existing IDs)
+    for (const conv of payload.data.conventions) {
+      if (existingIds.has(conv.id)) {
+        idMap.set(conv.id, conv.id);
+        skipped++;
+        continue;
+      }
+      const created = await conventionsRepo.create({
+        name: conv.name,
+        startDate: conv.startDate,
+        endDate: conv.endDate,
+        icalUrl: conv.icalUrl,
+        status: conv.status,
+      });
+      idMap.set(conv.id, created.id);
+      conventionsAdded++;
     }
-    // Resolve the convention ID via the mapping
-    const mappedConventionId = idMap.get(event.conventionId);
-    if (!mappedConventionId) {
-      skipped++;
-      continue;
+
+    // Import events (skip existing IDs)
+    for (const event of payload.data.events) {
+      if (allEventIds.has(event.id)) {
+        skipped++;
+        continue;
+      }
+      // Resolve the convention ID via the mapping
+      const mappedConventionId = idMap.get(event.conventionId);
+      if (!mappedConventionId) {
+        skipped++;
+        continue;
+      }
+      await eventsRepo.batchInsert([
+        {
+          conventionId: mappedConventionId,
+          title: event.title,
+          description: event.description,
+          startTime: event.startTime,
+          endTime: event.endTime,
+          location: event.location,
+          room: event.room,
+          category: event.category,
+          type: event.type,
+          isInSchedule: event.isInSchedule,
+          reminderMinutes: event.reminderMinutes,
+          sourceUid: event.sourceUid,
+          sourceUrl: event.sourceUrl,
+          isAgeRestricted: event.isAgeRestricted,
+          contentWarning: event.contentWarning,
+        },
+      ]);
+      eventsAdded++;
     }
-    await eventsRepo.batchInsert([
-      {
-        conventionId: mappedConventionId,
-        title: event.title,
-        description: event.description,
-        startTime: event.startTime,
-        endTime: event.endTime,
-        location: event.location,
-        room: event.room,
-        category: event.category,
-        type: event.type,
-        isInSchedule: event.isInSchedule,
-        reminderMinutes: event.reminderMinutes,
-        sourceUid: event.sourceUid,
-        sourceUrl: event.sourceUrl,
-        isAgeRestricted: event.isAgeRestricted,
-        contentWarning: event.contentWarning,
-      },
-    ]);
-    eventsAdded++;
-  }
+  });
 
   return { conventionsAdded, eventsAdded, skipped };
 }
@@ -140,12 +140,12 @@ export function useImportData() {
       const convCount = payload.data.conventions.length;
       const eventCount = payload.data.events.length;
 
-      return new Promise<ImportResult>((resolve, reject) => {
+      return new Promise<ImportResult | null>((resolve, reject) => {
         Alert.alert(
           'Import Data',
           `Import ${convCount} convention${convCount !== 1 ? 's' : ''} and ${eventCount} event${eventCount !== 1 ? 's' : ''}?`,
           [
-            { text: 'Cancel', style: 'cancel', onPress: () => resolve({ conventionsAdded: 0, eventsAdded: 0, skipped: 0 }) },
+            { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) },
             {
               text: 'Import',
               onPress: async () => {

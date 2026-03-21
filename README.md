@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/MrDemonWolf/conpaws/blob/main/LICENSE)
 
-ConPaws is an open source furry convention companion app built by [MrDemonWolf](https://github.com/MrDemonWolf), coming soon to the Apple App Store and Google Play Store. Feel free to fork it and adapt it for your own conventions or fandom community.
+ConPaws is an open-source furry convention companion app built by [MrDemonWolf](https://github.com/MrDemonWolf), coming soon to the Apple App Store and Google Play Store. Feel free to fork it and adapt it for your own conventions or fandom community.
 
 ## What it does
 
@@ -13,7 +13,7 @@ ConPaws is an open source furry convention companion app built by [MrDemonWolf](
 
 ## Project Structure
 
-```
+```text
 conpaws/
 ├── apps/mobile/   # Expo React Native app (iOS, Android, Web)
 ├── apps/web/      # Next.js static site → conpaws.com
@@ -45,4 +45,4 @@ bun prebuild:clean   # Clean and regenerate native projects
 
 ## Want to use this for your own fandom?
 
-Fork it. The app is built to be self-hostable — swap in your own Supabase instance, configure your RevenueCat keys, and point it at your conventions. The iCal import works with any standard `.ics` file, so it should work with most convention schedule tools out of the box.
+Fork it. The app is local-first with all core features working offline. Supabase (cloud sync) is optional and planned for Phase 2+, so you can self-host with Supabase if you want cloud sync. Configure your RevenueCat keys for premium features, and point it at your conventions. The iCal import works with any standard `.ics` file, so it should work with most convention schedule tools out of the box.

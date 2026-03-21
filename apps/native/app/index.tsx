@@ -7,9 +7,13 @@ export default function Index() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem("hasCompletedOnboarding").then((value) => {
-      setHasOnboarded(!!value);
-    });
+    AsyncStorage.getItem("hasCompletedOnboarding")
+      .then((value) => {
+        setHasOnboarded(value === "true");
+      })
+      .catch(() => {
+        setHasOnboarded(false);
+      });
   }, []);
 
   if (hasOnboarded === null) return <View className="flex-1 bg-background" />;
