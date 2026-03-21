@@ -48,19 +48,24 @@ export async function importData(payload: ExportPayload): Promise<ImportResult> 
 
   const now = new Date().toISOString();
 
+  // Track old export ID → new DB ID for newly created conventions
+  const idMap = new Map<string, string>();
+
   // Import conventions (skip existing IDs)
   for (const conv of payload.data.conventions) {
     if (existingIds.has(conv.id)) {
+      idMap.set(conv.id, conv.id);
       skipped++;
       continue;
     }
-    await conventionsRepo.create({
+    const created = await conventionsRepo.create({
       name: conv.name,
       startDate: conv.startDate,
       endDate: conv.endDate,
       icalUrl: conv.icalUrl,
       status: conv.status,
     });
+    idMap.set(conv.id, created.id);
     conventionsAdded++;
   }
 
@@ -77,15 +82,15 @@ export async function importData(payload: ExportPayload): Promise<ImportResult> 
       skipped++;
       continue;
     }
-    // Only import if convention exists
-    const convExists = existingAllConventions.some((c) => c.id === event.conventionId);
-    if (!convExists) {
+    // Resolve the convention ID via the mapping
+    const mappedConventionId = idMap.get(event.conventionId);
+    if (!mappedConventionId) {
       skipped++;
       continue;
     }
     await eventsRepo.batchInsert([
       {
-        conventionId: event.conventionId,
+        conventionId: mappedConventionId,
         title: event.title,
         description: event.description,
         startTime: event.startTime,

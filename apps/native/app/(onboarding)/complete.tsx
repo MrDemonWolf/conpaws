@@ -8,8 +8,13 @@ export default function CompleteScreen() {
   const { t } = useTranslation();
 
   async function handleLetsGo() {
-    await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
-    router.replace('/(tabs)');
+    try {
+      await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
+    } catch {
+      // Storage write failed — still navigate so user isn't stuck
+    } finally {
+      router.replace('/(tabs)');
+    }
   }
 
   return (

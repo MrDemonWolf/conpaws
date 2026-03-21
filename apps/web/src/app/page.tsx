@@ -1,7 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Share2, WifiOff, Github } from 'lucide-react';
+import { Calendar, Share2, WifiOff, Github, Smartphone, MonitorSmartphone } from 'lucide-react';
+
+const TESTFLIGHT_URL = process.env.NEXT_PUBLIC_TESTFLIGHT_URL ?? '';
+const GOOGLE_PLAY_BETA_URL = process.env.NEXT_PUBLIC_GOOGLE_PLAY_BETA_URL ?? '';
+const hasBeta = TESTFLIGHT_URL !== '' || GOOGLE_PLAY_BETA_URL !== '';
 
 const FEATURES = [
   {
@@ -75,12 +79,12 @@ export default function HomePage() {
             ConPaws
           </h1>
           <p className="text-lg md:text-xl text-slate-400 max-w-xl">
-            Navigate, Connect, Enjoy — Your furry convention companion
+            An open source furry convention companion app, coming soon to iOS and Android.
           </p>
         </div>
         <div className="flex items-center gap-2 bg-[#0F1D45] border border-[#1e3a5f] px-4 py-2 rounded-full text-sm text-slate-400">
           <span className="w-2 h-2 rounded-full bg-[#0FACED] animate-pulse" />
-          Coming to iOS &amp; Android
+          Coming to App Store &amp; Google Play
         </div>
       </section>
 
@@ -104,7 +108,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Beta signup */}
+      {/* Beta links (shown when env vars are set) */}
+      {hasBeta && (
+        <section className="px-6 py-8 max-w-lg mx-auto w-full">
+          <div className="flex flex-col items-center gap-4">
+            <h2 className="text-2xl font-bold text-center">Join the Beta</h2>
+            <p className="text-slate-400 text-sm text-center">
+              ConPaws is in public beta. Try it now on your device.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {TESTFLIGHT_URL && (
+                <a
+                  href={TESTFLIGHT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 border border-[#0FACED] text-[#0FACED] px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-[#0FACED]/10 transition-colors"
+                >
+                  <Smartphone size={16} />
+                  Join iOS Beta
+                </a>
+              )}
+              {GOOGLE_PLAY_BETA_URL && (
+                <a
+                  href={GOOGLE_PLAY_BETA_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 border border-[#0FACED] text-[#0FACED] px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-[#0FACED]/10 transition-colors"
+                >
+                  <MonitorSmartphone size={16} />
+                  Join Android Beta
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Lead capture signup */}
       <section className="px-6 py-12 max-w-lg mx-auto w-full" id="signup">
         <div className="bg-[#0F1D45] border border-[#1e3a5f] rounded-2xl p-8 flex flex-col gap-6">
           <div className="text-center">

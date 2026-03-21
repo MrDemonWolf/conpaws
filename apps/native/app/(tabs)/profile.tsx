@@ -27,9 +27,7 @@ export default function ProfileScreen() {
               {t('profile.signInWithApple')}
             </Button>
             <View className="absolute right-3 top-0 bottom-0 justify-center">
-              <Badge variant="secondary">
-                <Text variant="caption">Coming Soon</Text>
-              </Badge>
+              <Badge variant="upcoming" label="Coming Soon" />
             </View>
           </View>
 
@@ -39,9 +37,7 @@ export default function ProfileScreen() {
               {t('profile.signInWithGoogle')}
             </Button>
             <View className="absolute right-3 top-0 bottom-0 justify-center">
-              <Badge variant="secondary">
-                <Text variant="caption">Coming Soon</Text>
-              </Badge>
+              <Badge variant="upcoming" label="Coming Soon" />
             </View>
           </View>
         </View>
