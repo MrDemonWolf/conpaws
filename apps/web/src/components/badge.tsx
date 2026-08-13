@@ -44,7 +44,11 @@ export function Badge({ name }: { name: string }) {
 
   return (
     <div aria-hidden="true">
-      {physics ? <BadgePhysics name={name} /> : <BadgeCard name={name} />}
+      {physics ? (
+        <BadgePhysics name={name} onFailed={() => setPhysics(false)} />
+      ) : (
+        <BadgeCard name={name} />
+      )}
       <p className="mt-4 text-center font-tech text-[10px] text-muted-foreground uppercase tracking-[0.22em]">
         {physics
           ? "↑ grab the badge — and type your name"

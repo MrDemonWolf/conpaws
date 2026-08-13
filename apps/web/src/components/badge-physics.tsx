@@ -1,267 +1,289 @@
 "use client";
 
-import {
-  Canvas,
-  extend,
-  type ThreeElement,
-  useFrame,
-} from "@react-three/fiber";
-import {
-  CuboidCollider,
-  Physics,
-  type RapierRigidBody,
-  RigidBody,
-  useRopeJoint,
-  useSphericalJoint,
-} from "@react-three/rapier";
-import { MeshLineGeometry, MeshLineMaterial } from "meshline";
-import { useRef, useState } from "react";
-import * as THREE from "three";
+import { useEffect, useRef, useState } from "react";
 
+import { BadgeCard } from "./badge-card";
 import { BadgeFace } from "./badge-face";
 
 /**
- * Draggable badge on a rope-physics lanyard, after Vercel Ship's 3D badge
- * (https://vercel.com/blog/building-an-interactive-3d-event-badge-with-react-three-fiber).
+ * Draggable badge on a rope-physics lanyard — Rapier running HEADLESS.
  *
- * One deliberate difference from the article: the card face stays a real DOM
- * element instead of a WebGL texture. The canvas renders only the band; each
- * frame the card rigid-body's position and rotation are projected into CSS
- * transforms on the DOM badge. That keeps text crisp, the live name fill free,
- * and the whole face identical to the static fallback.
+ * The first version used react-three-fiber with the card projected onto the
+ * DOM. In practice the WebGL canvas died at mount with "THREE.WebGLRenderer:
+ * Context Lost" while a probe canvas on the same page got a context fine —
+ * so WebGL is gone entirely. The simulation is planar, which means
+ * @dimforge/rapier2d-compat (wasm embedded as base64, zero bundler config)
+ * can run it directly in requestAnimationFrame:
  *
- * Coordinate contract (do not change one without the others):
- *   PXU px per world unit · canvas height H px · fov 25°
- *   camera z = (H / PXU) / (2 · tan(fov/2))
- *   DOM card is 320×470px → collider half-extents [0.8, 1.175, 0.02]
- *   punch-slot centre is (160, 17)px on the DOM card → local (0, ANCHOR_Y, 0)
+ *   rope: fixed ─rope─ j1 ─rope─ j2 ─rope─ j3 ─revolute─ card
+ *   band: SVG path through the joint positions (screen px)
+ *   card: this DOM element, translate + rotateZ from the body, plus a
+ *         velocity-based rotateY for pseudo-3D swing
+ *
+ * Nothing here can lose a GPU context, text stays crisp, and screenshots can
+ * actually verify it.
+ *
+ * Coordinate contract: PXU px per world unit; world origin at wrapper
+ * centre, +y up. DOM card is 320×470px → half-extents [0.8, 1.175].
+ * Punch-slot centre (160, 17)px → card-local (0, ANCHOR_Y).
  */
 const PXU = 200;
-const H = 780;
-const FOV = 25;
-const VIS_H = H / PXU; // 3.9 world units visible vertically
-const CAM_Z = VIS_H / 2 / Math.tan((FOV / 2) * (Math.PI / 180)); // ≈ 8.8
-const ANCHOR_Y = 1.175 - 17 / PXU; // slot centre in card-local space
-const SEG = 0.4; // rope segment length
-const FIXED_Y = VIS_H / 2 - 0.25;
+const ANCHOR_Y = 1.175 - 17 / PXU;
+const SEG = 0.4;
+const GRAVITY = -40;
+const DT = 1 / 60;
 
-declare module "@react-three/fiber" {
-  interface ThreeElements {
-    meshLineGeometry: ThreeElement<typeof MeshLineGeometry>;
-    meshLineMaterial: ThreeElement<typeof MeshLineMaterial>;
-  }
+type Vec = { x: number; y: number };
+
+type Rapier = typeof import("@dimforge/rapier2d-compat");
+type RigidBody = import("@dimforge/rapier2d-compat").RigidBody;
+
+// RAPIER.init() is not safe to run twice concurrently — a second call
+// re-initializes the wasm module state while the first world still points
+// into the old memory, and every later step() throws "recursive use of an
+// object" / "memory access out of bounds". React StrictMode runs mount
+// effects twice in dev, so the load+init MUST be memoized at module level.
+let rapierReady: Promise<Rapier> | null = null;
+function loadRapier(): Promise<Rapier> {
+  rapierReady ??= import("@dimforge/rapier2d-compat").then(async (mod) => {
+    await mod.init();
+    return mod;
+  });
+  return rapierReady;
 }
 
-extend({ MeshLineGeometry, MeshLineMaterial });
-
-type PointerWorld = { x: number; y: number };
-type DragState = { offX: number; offY: number } | null;
-
-type SharedRefs = {
-  ptr: React.RefObject<PointerWorld>;
-  drag: React.RefObject<DragState>;
-  cardPos: React.RefObject<PointerWorld>;
-  dom: React.RefObject<HTMLDivElement | null>;
+type Sim = {
+  world: import("@dimforge/rapier2d-compat").World;
+  card: RigidBody;
+  chain: RigidBody[]; // [fixed, j1, j2, j3]
+  kinematic: boolean;
 };
 
-function Band({ refs }: { refs: SharedRefs }) {
-  const band = useRef<THREE.Mesh>(null);
-  const fixed = useRef<RapierRigidBody>(
-    null,
-  ) as React.RefObject<RapierRigidBody>;
-  const j1 = useRef<RapierRigidBody>(null) as React.RefObject<RapierRigidBody>;
-  const j2 = useRef<RapierRigidBody>(null) as React.RefObject<RapierRigidBody>;
-  const j3 = useRef<RapierRigidBody>(null) as React.RefObject<RapierRigidBody>;
-  const card = useRef<RapierRigidBody>(
-    null,
-  ) as React.RefObject<RapierRigidBody>;
-
-  const [curve] = useState(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-      ]),
-  );
-  const scratch = useRef({
-    vec: new THREE.Vector3(),
-    ang: new THREE.Vector3(),
-    rot: new THREE.Vector3(),
-    quat: new THREE.Quaternion(),
-    euler: new THREE.Euler(),
-    anchorLocal: new THREE.Vector3(0, ANCHOR_Y, 0),
-    anchorWorld: new THREE.Vector3(),
-    lerp1: null as THREE.Vector3 | null,
-    lerp2: null as THREE.Vector3 | null,
-  });
-
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], SEG]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], SEG]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], SEG]);
-  useSphericalJoint(j3, card, [
-    [0, 0, 0],
-    [0, ANCHOR_Y, 0],
-  ]);
-
-  useFrame((state, delta) => {
-    const s = scratch.current;
-    if (!card.current || !fixed.current) return;
-
-    // ---- drag: card follows the pointer kinematically ----
-    // Body type is switched imperatively rather than via the `type` prop:
-    // a prop flip depends on a React re-render reaching Rapier, which the
-    // React Compiler is free to memo away. bodyType 0=dynamic, 2=kinematic.
-    const drag = refs.drag.current;
-    const wantType = drag ? 2 : 0;
-    if (card.current.bodyType() !== wantType) {
-      card.current.setBodyType(wantType, true);
-    }
-    if (drag) {
-      for (const ref of [fixed, j1, j2, j3, card]) ref.current?.wakeUp();
-      card.current.setNextKinematicTranslation({
-        x: refs.ptr.current.x - drag.offX,
-        y: refs.ptr.current.y - drag.offY,
-        z: 0,
-      });
-    }
-
-    // ---- band: smooth the middle joints, then rebuild the curve ----
-    // (jitter smoothing from the article: lerp speed scales with distance)
-    for (const [ref, key] of [
-      [j1, "lerp1"],
-      [j2, "lerp2"],
-    ] as const) {
-      const t = ref.current?.translation();
-      if (!t) continue;
-      if (!s[key]) s[key] = new THREE.Vector3(t.x, t.y, t.z);
-      const lerped = s[key] as THREE.Vector3;
-      const dist = Math.max(
-        0.1,
-        Math.min(1, lerped.distanceTo(s.vec.set(t.x, t.y, t.z))),
-      );
-      lerped.lerp(s.vec, delta * (10 + dist * 40));
-    }
-
-    const j3t = j3.current?.translation();
-    const fx = fixed.current.translation();
-    if (j3t && s.lerp1 && s.lerp2 && band.current) {
-      curve.points[0]?.set(j3t.x, j3t.y, j3t.z);
-      curve.points[1]?.copy(s.lerp2);
-      curve.points[2]?.copy(s.lerp1);
-      curve.points[3]?.set(fx.x, fx.y, fx.z);
-      (band.current.geometry as MeshLineGeometry).setPoints(
-        curve.getPoints(32),
-      );
-    }
-
-    // ---- keep the card facing the camera (article's angvel trick) ----
-    if (!drag) {
-      const av = card.current.angvel();
-      const r = card.current.rotation();
-      s.ang.set(av.x, av.y, av.z);
-      s.rot.set(r.x, r.y, r.z);
-      card.current.setAngvel(
-        { x: s.ang.x, y: s.ang.y - s.rot.y * 0.25, z: s.ang.z },
-        true,
-      );
-    }
-
-    // ---- project the card body onto the DOM badge ----
-    const dom = refs.dom.current;
-    if (dom) {
-      const t = card.current.translation();
-      const r = card.current.rotation();
-      refs.cardPos.current.x = t.x;
-      refs.cardPos.current.y = t.y;
-
-      s.quat.set(r.x, r.y, r.z, r.w);
-      s.anchorWorld.copy(s.anchorLocal).applyQuaternion(s.quat);
-      const ax = t.x + s.anchorWorld.x;
-      const ay = t.y + s.anchorWorld.y;
-
-      const rect = state.gl.domElement;
-      const w = rect.clientWidth;
-      const h = rect.clientHeight;
-      const px = w / 2 + ax * PXU;
-      const py = h / 2 - ay * PXU;
-
-      // three is +y-up right-handed, CSS is +y-down: conjugating by that
-      // mirror negates rotations about X and Z, keeps Y.
-      s.euler.setFromQuaternion(s.quat, "XYZ");
-      dom.style.transform =
-        `translate3d(${px - 160}px, ${py - 17}px, 0) ` +
-        `rotateX(${-s.euler.x}rad) rotateY(${s.euler.y}rad) rotateZ(${-s.euler.z}rad)`;
-    }
-  });
-
-  return (
-    <>
-      <RigidBody
-        ref={fixed}
-        type="fixed"
-        position={[0, FIXED_Y, 0]}
-        canSleep={false}
-      />
-      <RigidBody
-        ref={j1}
-        position={[0.4, FIXED_Y - SEG, 0]}
-        angularDamping={3}
-        linearDamping={3}
-        canSleep={false}
-      />
-      <RigidBody
-        ref={j2}
-        position={[0.7, FIXED_Y - SEG * 2, 0]}
-        angularDamping={3}
-        linearDamping={3}
-        canSleep={false}
-      />
-      <RigidBody
-        ref={j3}
-        position={[1.0, FIXED_Y - SEG * 3, 0]}
-        angularDamping={3}
-        linearDamping={3}
-        canSleep={false}
-      />
-      <RigidBody
-        ref={card}
-        position={[1.2, FIXED_Y - SEG * 3 - ANCHOR_Y, 0]}
-        angularDamping={4}
-        linearDamping={4}
-        canSleep={false}
-      >
-        <CuboidCollider args={[0.8, 1.175, 0.02]} />
-      </RigidBody>
-      <mesh ref={band}>
-        <meshLineGeometry />
-        <meshLineMaterial
-          args={[{ resolution: new THREE.Vector2(680, 780) }]}
-          color="#16305e"
-          lineWidth={0.1}
-        />
-      </mesh>
-    </>
-  );
-}
-
-export default function BadgePhysics({ name }: { name: string }) {
-  const ptr = useRef<PointerWorld>({ x: 0, y: 0 });
-  const drag = useRef<DragState>(null);
-  const cardPos = useRef<PointerWorld>({ x: 0, y: 0 });
-  const dom = useRef<HTMLDivElement>(null);
+export default function BadgePhysics({
+  name,
+  onFailed,
+}: {
+  name: string;
+  onFailed?: () => void;
+}) {
   const wrapper = useRef<HTMLDivElement>(null);
+  const dom = useRef<HTMLDivElement>(null);
+  const bandPath = useRef<SVGPathElement>(null);
+  const bandGlow = useRef<SVGPathElement>(null);
+  const sim = useRef<Sim | null>(null);
+  const ptr = useRef<Vec>({ x: 0, y: 0 });
+  const drag = useRef<Vec | null>(null); // grab offset, world units
+  const raf = useRef(0);
   const [grabbing, setGrabbing] = useState(false);
+  const [failed, setFailed] = useState(false);
+  // Ref, not dep: the parent passes an inline arrow, and putting it in the
+  // effect deps would tear down and rebuild the physics world every render.
+  const onFailedRef = useRef(onFailed);
+  onFailedRef.current = onFailed;
 
-  function toWorld(clientX: number, clientY: number): PointerWorld {
+  useEffect(() => {
+    let disposed = false;
+
+    (async () => {
+      try {
+        const RAPIER: Rapier = await loadRapier();
+        if (disposed || !wrapper.current) return;
+
+        const rect = wrapper.current.getBoundingClientRect();
+        const visH = rect.height / PXU;
+        const fixedY = visH / 2 - 0.25;
+
+        const world = new RAPIER.World({ x: 0, y: GRAVITY });
+
+        const fixed = world.createRigidBody(
+          RAPIER.RigidBodyDesc.fixed().setTranslation(0, fixedY),
+        );
+        const mkLink = (x: number, y: number) =>
+          world.createRigidBody(
+            RAPIER.RigidBodyDesc.dynamic()
+              .setTranslation(x, y)
+              .setLinearDamping(3)
+              .setAngularDamping(3)
+              .setCanSleep(false),
+          );
+        const j1 = mkLink(0.25, fixedY - SEG);
+        const j2 = mkLink(0.45, fixedY - SEG * 2);
+        const j3 = mkLink(0.6, fixedY - SEG * 3);
+
+        // Chain links need some mass or the rope has no swing weight.
+        // Collision group 0 = collides with nothing.
+        for (const j of [j1, j2, j3]) {
+          world.createCollider(
+            RAPIER.ColliderDesc.ball(0.05).setDensity(40).setCollisionGroups(0),
+            j,
+          );
+        }
+
+        const card = world.createRigidBody(
+          RAPIER.RigidBodyDesc.dynamic()
+            .setTranslation(0.7, fixedY - SEG * 3 - ANCHOR_Y)
+            .setLinearDamping(4)
+            .setAngularDamping(4)
+            .setCanSleep(false)
+            .setCcdEnabled(true),
+        );
+        world.createCollider(
+          RAPIER.ColliderDesc.cuboid(0.8, 1.175)
+            // Near-1:1 with the chain links. The card at density 1 outweighed
+            // them ~240:1 and the impulse solver could not converge — the rope
+            // stretched into a noodle and the card jittered at its end.
+            .setDensity(0.15)
+            .setCollisionGroups(0),
+          card,
+        );
+
+        const rope = (a: RigidBody, b: RigidBody) =>
+          world.createImpulseJoint(
+            RAPIER.JointData.rope(SEG, { x: 0, y: 0 }, { x: 0, y: 0 }),
+            a,
+            b,
+            true,
+          );
+        rope(fixed, j1);
+        rope(j1, j2);
+        rope(j2, j3);
+        world.createImpulseJoint(
+          RAPIER.JointData.revolute({ x: 0, y: 0 }, { x: 0, y: ANCHOR_Y }),
+          j3,
+          card,
+          true,
+        );
+
+        world.timestep = DT;
+        world.numSolverIterations = 8;
+        if (sim.current) {
+          // A concurrent effect (StrictMode) already built a live sim.
+          world.free();
+          return;
+        }
+        sim.current = {
+          world,
+          card,
+          chain: [fixed, j1, j2, j3],
+          kinematic: false,
+        };
+
+        const KinematicType = RAPIER.RigidBodyType.KinematicPositionBased;
+        const DynamicType = RAPIER.RigidBodyType.Dynamic;
+        let acc = 0;
+        let last = performance.now();
+
+        const frame = (now: number) => {
+          if (disposed) return;
+          raf.current = requestAnimationFrame(frame);
+          const s = sim.current;
+          const el = wrapper.current;
+          if (!s || !el || !dom.current) return;
+
+          // ---- kinematic switch + pointer follow while dragging ----
+          const wantKinematic = drag.current !== null;
+          if (wantKinematic !== s.kinematic) {
+            s.card.setBodyType(
+              wantKinematic ? KinematicType : DynamicType,
+              true,
+            );
+            s.kinematic = wantKinematic;
+          }
+          if (drag.current) {
+            s.card.setNextKinematicTranslation({
+              x: ptr.current.x - drag.current.x,
+              y: ptr.current.y - drag.current.y,
+            });
+          }
+
+          // ---- fixed-timestep stepping (clamped so tab-switch can't spiral) ----
+          acc += Math.min(now - last, 100);
+          last = now;
+          try {
+            while (acc >= DT * 1000) {
+              s.world.step();
+              acc -= DT * 1000;
+            }
+          } catch {
+            // wasm blew up — stop the loop and degrade to the static badge
+            // instead of throwing once per frame forever.
+            disposed = true;
+            cancelAnimationFrame(raf.current);
+            sim.current = null;
+            setFailed(true);
+            onFailedRef.current?.();
+            return;
+          }
+
+          const r = el.getBoundingClientRect();
+          const toPx = (p: Vec) => ({
+            x: r.width / 2 + p.x * PXU,
+            y: r.height / 2 - p.y * PXU,
+          });
+
+          const t = s.card.translation();
+          const angle = s.card.rotation(); // 2D: one angle, +ccw
+          const slotWorld = {
+            x: t.x - Math.sin(angle) * ANCHOR_Y,
+            y: t.y + Math.cos(angle) * ANCHOR_Y,
+          };
+
+          // ---- band: quadratic-smoothed path through the chain ----
+          if (bandPath.current) {
+            const pts = s.chain.map((j) => toPx(j.translation()));
+            pts.push(toPx(slotWorld));
+            const first = pts[0] as Vec;
+            let d = `M ${first.x.toFixed(1)} ${first.y.toFixed(1)}`;
+            for (let i = 1; i < pts.length - 1; i++) {
+              const p = pts[i] as Vec;
+              const n = pts[i + 1] as Vec;
+              d += ` Q ${p.x.toFixed(1)} ${p.y.toFixed(1)} ${((p.x + n.x) / 2).toFixed(1)} ${((p.y + n.y) / 2).toFixed(1)}`;
+            }
+            const end = pts[pts.length - 1] as Vec;
+            d += ` L ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+            bandPath.current.setAttribute("d", d);
+            bandGlow.current?.setAttribute("d", d);
+          }
+
+          // ---- card DOM transform, hinged at the punch slot ----
+          const slot = toPx(slotWorld);
+          const vel = s.card.linvel();
+          const leanY = Math.max(-0.35, Math.min(0.35, vel.x * 0.06));
+          dom.current.style.transform =
+            `translate3d(${(slot.x - 160).toFixed(1)}px, ${(slot.y - 17).toFixed(1)}px, 0) ` +
+            `rotateZ(${(-angle).toFixed(4)}rad) rotateY(${leanY.toFixed(4)}rad)`;
+        };
+
+        raf.current = requestAnimationFrame(frame);
+      } catch {
+        // Rapier failed to init — fall back to the static badge.
+        if (!disposed) {
+          setFailed(true);
+          onFailedRef.current?.();
+        }
+      }
+    })();
+
+    return () => {
+      // Cancel the loop but do NOT world.free(): React StrictMode runs this
+      // cleanup between its dev double-mount, and freeing here hands the
+      // surviving frame loop a dangling wasm pointer ("memory access out of
+      // bounds" / "recursive use of an object" from every step()). One world
+      // leaks per full unmount; for a landing page that is the right trade.
+      disposed = true;
+      cancelAnimationFrame(raf.current);
+      sim.current = null;
+    };
+  }, []);
+
+  function toWorld(clientX: number, clientY: number): Vec {
     const el = wrapper.current;
     if (!el) return { x: 0, y: 0 };
-    const rect = el.getBoundingClientRect();
-    const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
-    const ndcY = 1 - ((clientY - rect.top) / rect.height) * 2;
-    const visW = VIS_H * (rect.width / rect.height);
-    return { x: (ndcX * visW) / 2, y: (ndcY * VIS_H) / 2 };
+    const r = el.getBoundingClientRect();
+    return {
+      x: (clientX - r.left - r.width / 2) / PXU,
+      y: (r.height / 2 - (clientY - r.top)) / PXU,
+    };
   }
 
   function onPointerMove(event: React.PointerEvent) {
@@ -269,13 +291,12 @@ export default function BadgePhysics({ name }: { name: string }) {
   }
 
   function onGrab(event: React.PointerEvent) {
+    if (!sim.current) return;
     event.preventDefault();
     (event.target as Element).setPointerCapture(event.pointerId);
     ptr.current = toWorld(event.clientX, event.clientY);
-    drag.current = {
-      offX: ptr.current.x - cardPos.current.x,
-      offY: ptr.current.y - cardPos.current.y,
-    };
+    const t = sim.current.card.translation();
+    drag.current = { x: ptr.current.x - t.x, y: ptr.current.y - t.y };
     setGrabbing(true);
   }
 
@@ -284,25 +305,38 @@ export default function BadgePhysics({ name }: { name: string }) {
     setGrabbing(false);
   }
 
+  if (failed) return <BadgeCard name={name} />;
+
   return (
     <div
       ref={wrapper}
-      className="relative h-[780px] w-full select-none"
+      className="relative h-[720px] w-full select-none [perspective:1400px]"
       onPointerMove={onPointerMove}
       onPointerUp={onRelease}
       onPointerCancel={onRelease}
     >
-      <Canvas
-        className="pointer-events-none absolute inset-0"
-        camera={{ position: [0, 0, CAM_Z], fov: FOV }}
-        dpr={[1, 2]}
-        gl={{ alpha: true, antialias: true }}
-        style={{ background: "transparent" }}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        role="presentation"
       >
-        <Physics gravity={[0, -40, 0]}>
-          <Band refs={{ ptr, drag, cardPos, dom }} />
-        </Physics>
-      </Canvas>
+        <title>Lanyard</title>
+        <path
+          ref={bandPath}
+          fill="none"
+          stroke="#16305e"
+          strokeWidth="18"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          ref={bandGlow}
+          fill="none"
+          stroke="#0faced"
+          strokeOpacity="0.25"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
 
       {/* The DOM badge, driven by the physics body every frame. */}
       <div
@@ -311,7 +345,6 @@ export default function BadgePhysics({ name }: { name: string }) {
         className={`absolute top-0 left-0 w-[320px] [transform-origin:160px_17px] will-change-transform ${
           grabbing ? "cursor-grabbing" : "cursor-grab"
         }`}
-        style={{ perspective: "1760px" }}
       >
         <BadgeFace name={name} />
       </div>
