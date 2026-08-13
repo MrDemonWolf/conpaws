@@ -11,7 +11,9 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
-    "lint": "turbo lint",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
     "test": "turbo test",
     "dev:native": "turbo -F @conpaws/native dev",
     "dev:web": "turbo -F web dev",
@@ -31,6 +33,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.8",
     "@conpaws/config": "workspace:*",
     "turbo": "^2.8.12",
     "typescript": "^5"

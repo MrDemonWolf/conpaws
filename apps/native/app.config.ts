@@ -72,7 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "RECEIVE_BOOT_COMPLETED",
       "VIBRATE",
     ],
-    enableEdgeToEdge: true,
+    // `enableEdgeToEdge` was removed in SDK 55 — edge-to-edge is always on.
   },
   androidStatusBar: {
     translucent: true,
