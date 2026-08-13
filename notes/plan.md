@@ -39,10 +39,10 @@ A **free, offline-first convention companion app** for the furry community.
 | [Crash Reporting](#crash-reporting-sentry) | Sentry setup, what to/not to track |
 | [Sharing & Deep Links](#sharing--deep-links) | Universal links, Next.js preview site |
 | [Testing Strategy](#testing-strategy) | Vitest, what to test vs skip |
-| [CI/CD](#cicd-github-actions) | GitHub Actions on PRs |
+| [CI/CD](#cicd-github-actions--eas-workflows) | GitHub Actions PR checks + EAS Workflows |
 | [Localization](#localization) | i18next, English-first, community translations |
 | [Component System](#component-system-shadcncn-inspired) | UI components, design tokens |
-| [App Config](#app-config-appconfigts) | Expo config, EAS, three variants |
+| [App Config](#app-config--production-readiness-eas) | Expo config, EAS production setup, three variants, SDK upgrade path |
 | [Infrastructure](#infrastructure) | Cloudflare (Workers, D1, R2), RevenueCat, Sentry |
 | [Development Phases](#development-phases) | Phase 1-5 with checklists |
 
