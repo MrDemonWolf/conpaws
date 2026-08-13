@@ -47,7 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: getBundleId(),
-    associatedDomains: ["applinks:conpaws.app"],
+    associatedDomains: ["applinks:conpaws.com"],
     infoPlist: {
       NSCameraUsageDescription:
         "ConPaws needs access to your camera to take photos.",
