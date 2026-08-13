@@ -3,7 +3,7 @@
 import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { BadgeCard } from "./badge-card";
+import { Badge } from "./badge";
 
 type Status = "idle" | "submitting" | "done";
 
@@ -176,7 +176,7 @@ export function Waitlist() {
       </div>
 
       <div className="md:order-none -order-1 md:pt-2">
-        <BadgeCard name={name} />
+        <Badge name={name} />
       </div>
     </div>
   );
