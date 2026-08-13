@@ -1,1 +1,43 @@
 @import "@conpaws/ui/globals.css";
+
+/* Atmosphere for the pre-release page: two soft brand-blue glows over the
+   navy field, plus a fine grain overlay so the large flat areas don't band. */
+body {
+  background-image:
+    radial-gradient(
+      900px 520px at 15% -10%,
+      rgb(15 172 237 / 0.2),
+      transparent 62%
+    ),
+    radial-gradient(
+      680px 420px at 92% 6%,
+      rgb(15 172 237 / 0.1),
+      transparent 58%
+    );
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Lanyard sway. Replaced by real Rapier physics in CON-27; this stays as the
+   reduced-motion and low-end-device fallback. */
+@keyframes badge-sway {
+  0%,
+  100% {
+    transform: rotate(-2.2deg);
+  }
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+.badge-sway {
+  transform: rotate(-2.2deg);
+  transform-origin: 50% -34px;
+  animation: badge-sway 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-sway {
+    animation: none;
+  }
+}
