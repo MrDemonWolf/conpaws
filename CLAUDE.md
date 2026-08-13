@@ -46,7 +46,9 @@ bun prebuild:clean        # Clean and regenerate native projects
 - **Monorepo:** bun workspaces + Turborepo (`turbo.json`); CI runs from the root, not per-app
 - **Entry point:** `expo-router/entry` (in `apps/native/package.json` `main`)
 
-### Monorepo Structure (verified against disk)
+### Monorepo Structure
+
+Verified against disk, with one caveat: `biome.json` and `apps/web`'s OpenNext/`wrangler.jsonc` config land from the pre-release-site branch — if they are missing on your checkout, that branch has not merged yet.
 
 ```
 conpaws/
