@@ -4,169 +4,118 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ConPaws is an Expo/React Native mobile application — a furry convention companion app. It targets **Android, iOS, and Web**. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") are powered by RevenueCat. Auth and profiles are stored in a self-hosted Supabase instance.
+ConPaws is a furry convention companion app — an Expo/React Native mobile app plus a Next.js website, in a bun/Turborepo monorepo. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") will be powered by RevenueCat. The cloud backend target is **Cloudflare Workers + D1 + R2 with Hono, tRPC, and Better-Auth** — no Supabase, no VPS, no Docker.
 
-It uses app variants (`development`, `preview`, `production`) controlled via the `APP_VARIANT` environment variable, with bundle ID `com.mrdemonwolf.conpaws` (production) / `com.mrdemonwolf.conpaws.dev` (development).
+**Repo reality check:** this repo is early. The native app is a scaffold (two route files), and there is **no backend code, no Supabase/RevenueCat code, no Drizzle schema, and no test files** yet. The full product design lives in `notes/plan.md`. Anything marked *(planned)* below does not exist on disk — do not reference planned files as if they exist.
 
 ## Development Commands
 
+All commands run from the **repo root** and fan out through Turborepo:
+
 ```bash
-bun install               # Install dependencies
-bun start                 # Start dev server (development variant)
-bun start:preview         # Start dev server (preview variant)
-bun start:prod            # Start dev server (production variant)
-bun android               # Run on Android (development)
-bun ios                   # Run on iOS (development)
-bun web                   # Run web version
-bun lint                  # Run ESLint
-bun type-check            # Run TypeScript type checking
-bun test                  # Run tests (Vitest)
-bun prebuild              # Generate native projects (development)
+bun install               # Install dependencies (bun is pinned via packageManager: bun@1.3.10)
+bun dev                   # Start web + native dev servers
+bun dev:web               # Next.js only (http://localhost:3001)
+bun dev:native            # Expo dev server only
+bun start                 # Expo dev server (development variant)
+bun start:preview         # Expo dev server (preview variant)
+bun start:prod            # Expo dev server (production variant)
+bun android / bun ios     # Run on device/simulator
+bun build                 # turbo build
+bun lint                  # Biome (`biome check .`) — this repo uses Biome, NOT ESLint
+bun check-types           # TypeScript type checking across packages
+bun test                  # turbo test (Vitest — planned; no test files exist yet)
+bun prebuild              # Generate native projects
 bun prebuild:clean        # Clean and regenerate native projects
 ```
 
 ## Architecture
 
-- **Framework:** Expo SDK 55 (stable) with React Native 0.83 and React 19.2
-- **Routing:** Expo Router v55 (file-based routing in `src/app/`)
-- **Styling:** NativeWind v5 (Tailwind CSS v4 for React Native) with `react-native-css`, `clsx`, and `tailwind-merge`
-- **Local Database:** expo-sqlite with Drizzle ORM
-- **Data Fetching:** TanStack React Query
-- **i18n:** i18next + react-i18next with expo-localization
-- **Testing:** Vitest
-- **Auth:** Supabase (Google OAuth + Apple Sign-In) — Phase 2
-- **Payments:** RevenueCat (in-app subscriptions for "ConPaws+") — Phase 3
-- **Website:** Next.js on Coolify (same VPS as Supabase) — Phase 4
-- **Language:** TypeScript with strict mode
-- **Package Manager:** bun workspaces (monorepo)
-- **Animations:** react-native-reanimated v4.2 with react-native-worklets
-- **Entry Point:** `expo-router/entry` (configured in package.json `main`)
+- **Native app:** Expo SDK **55** (React Native 0.83) — upgrade target is SDK **57** (RN 0.86); see the upgrade path in `notes/plan.md`
+- **Known mismatch:** `apps/native/package.json` pins `react: 19.0.0`, but SDK 55 expects React 19.2 — a real bug to fix (`npx expo install --fix`), not a doc typo
+- **Routing:** Expo Router `~55.0.x` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
+  - **Router versioning note:** Expo Router uses SDK-aligned versions (v6 = SDK 54; then 55.x/56.x/57.x). `expo-router@~55.0.5` is correct — do not "fix" it to a single-digit major.
+- **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`)
+- **Local database (planned):** expo-sqlite + Drizzle ORM (`apps/native/src/db/` is empty today; no `drizzle.config.ts` exists)
+- **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
+- **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. Deploys to Cloudflare Workers via `@opennextjs/cloudflare` (1.20.2) — see `apps/web/wrangler.jsonc` and `open-next.config.ts`. Waitlist API: Turnstile → D1 (source of truth) + Brevo (ESP).
+- **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 55+/New Architecture compatibility is unverified; test on a dev build before building on it
+- **Payments (planned):** RevenueCat, entitlement `conpaws_plus`
+- **Language:** TypeScript strict mode
+- **Lint/format:** Biome (`biome.json` at repo root) — there is no ESLint config in this repo
+- **Monorepo:** bun workspaces + Turborepo (`turbo.json`); CI runs from the root, not per-app
+- **Entry point:** `expo-router/entry` (in `apps/native/package.json` `main`)
 
-### Monorepo Structure
+### Monorepo Structure (verified against disk)
 
 ```
 conpaws/
-├── apps/mobile/        # Expo React Native app (MVP focus)
-│   └── src/
-│       ├── app/        # Expo Router (file-based screens)
-│       ├── components/ # UI components
-│       ├── contexts/   # React contexts
-│       ├── hooks/      # Custom hooks
-│       ├── lib/        # Utilities, constants, i18n, parsers
-│       ├── db/         # Drizzle schema + repositories
-│       ├── types/      # TypeScript types
-│       ├── locales/    # i18n translation files
-│       ├── assets/     # Images, icons
-│       └── global.css  # Tailwind CSS entry point + design tokens
-├── apps/web/           # Next.js site (placeholder until Phase 4)
-├── packages/supabase/  # Supabase config + migrations (Phase 2)
-└── bun.lock
+├── apps/
+│   ├── native/              # Expo app
+│   │   ├── app/             # Expo Router routes (only _layout.tsx + index.tsx today)
+│   │   ├── src/
+│   │   │   ├── lib/utils.ts # cn() helper
+│   │   │   ├── global.css   # Tailwind entry point (Metro's NativeWind input)
+│   │   │   └── components/ contexts/ db/ hooks/ locales/ services/ types/ assets/  # empty (.gitkeep)
+│   │   ├── app.config.ts    # Variant-based Expo config
+│   │   ├── eas.json         # NOTE: submit block has placeholder values (tracked as CON-35)
+│   │   ├── metro.config.js
+│   │   ├── postcss.config.mjs
+│   │   └── tsconfig.json
+│   ├── web/                 # Next.js site (Cloudflare Workers via OpenNext)
+│   └── server/              # (planned — does not exist) Hono/tRPC/Better-Auth Worker
+├── packages/
+│   ├── config/              # Shared tsconfig base
+│   ├── env/                 # Zod-validated env schemas (src/native.ts: EXPO_PUBLIC_SERVER_URL; src/web.ts)
+│   └── ui/                  # Shared shadcn/ui primitives (web)
+├── biome.json
+├── turbo.json
+└── package.json
 ```
 
-### Key Configuration (apps/mobile/)
+### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **eas.json** — EAS Build configuration for production builds
-- **metro.config.js** — Metro bundler with NativeWind v5 wrapper (`withNativewind`, no input arg)
-- **postcss.config.mjs** — PostCSS with `@tailwindcss/postcss` plugin
-- **tsconfig.json** — Extends `expo/tsconfig.base`, path alias `@/*` maps to `./src/*`
-- **drizzle.config.ts** — Drizzle Kit config for migration generation
-- **vitest.config.ts** — Vitest config with `@/` alias resolution
+- **eas.json** — `appVersionSource: "remote"`, production `autoIncrement: true`; submit block still has invalid placeholders (CON-35, owned by another branch — do not edit here)
+- **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
+- **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
+- **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
+- There is **no** `drizzle.config.ts` and **no** `vitest.config.ts` — both are planned
 
 ### Environment Variables
 
-Required in `.env.local`:
-- `EXPO_PUBLIC_SUPABASE_URL` — Self-hosted Supabase URL
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous key
-- `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` — RevenueCat Apple API key (optional)
-- `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` — RevenueCat Google API key (optional)
+`.env` files are local-dev-only; EAS builds use **EAS Environment Variables** (`eas env:pull` to materialize locally). Workers use `wrangler.jsonc` bindings + `wrangler secret`, never `.env`.
 
-### Experimental Features Enabled
-
-- `reactCompiler: true` — React Compiler for automatic memoization
-- `typedRoutes: true` — Type-safe routing with Expo Router
-
-### New Architecture
-
-SDK 55 uses the New Architecture by default (the `newArchEnabled` config option has been removed). Legacy architecture is no longer supported.
+- `EXPO_PUBLIC_SERVER_URL` — API Worker URL (validated by `packages/env/src/native.ts`)
+- `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` — RevenueCat (optional; premium disabled without them)
+- `EXPO_PUBLIC_SENTRY_DSN` — crash reporting (preview/production)
 
 ### App Variants
 
-The `APP_VARIANT` env var controls build configuration:
-- `development` (default) — Bundle ID: `com.mrdemonwolf.conpaws.dev`
-- `preview` — Bundle ID: `com.mrdemonwolf.conpaws.preview`
-- `production` — Bundle ID: `com.mrdemonwolf.conpaws`
+`APP_VARIANT` controls build configuration:
+- `development` (default) — `com.mrdemonwolf.conpaws.dev`
+- `preview` — `com.mrdemonwolf.conpaws.preview`
+- `production` — `com.mrdemonwolf.conpaws`
 
-### App Flow
+### Planned Screen Structure (NOT built — 0 of these routes exist)
 
-1. **Root layout** (`_layout.tsx`) wraps the app in ColorSchemeProvider > QueryClientProvider > OnboardingProvider
-2. **Onboarding gate:** If onboarding not complete, redirects to `(onboarding)/welcome`
-3. **Onboarding flow:** welcome → features → auth (skip for now) → complete
-4. **Main app:** Tab navigation with Home (convention list), Profile (placeholder), Settings
-5. Conventions are stored locally (expo-sqlite via Drizzle ORM). Profiles sync to Supabase (Phase 2+).
+The MVP screen plan (onboarding flow, tabs for Home/Profile/Settings, convention CRUD + detail, event CRUD + detail, iCal import + preview, settings/about) is specified in `notes/plan.md` §Screens & Navigation and §Development Phases. Today `apps/native/app/` contains only `_layout.tsx` and `index.tsx`. When building screens, put routes in `apps/native/app/` (top level) and use classic JS tabs — Expo Router Native Tabs is alpha and its API is subject to change.
 
-### Screen Structure
+### Planned Database Schema (NOT built)
 
-```
-src/app/
-├── _layout.tsx                     # Root: providers, splash, routing
-├── index.tsx                       # Redirect to (tabs)
-├── (onboarding)/
-│   ├── _layout.tsx                 # Stack
-│   ├── welcome.tsx                 # Logo + Get Started
-│   ├── features.tsx                # Feature cards
-│   ├── auth.tsx                    # Placeholder auth + Skip
-│   └── complete.tsx                # Success + Let's Go
-├── (tabs)/
-│   ├── _layout.tsx                 # Tab bar (Home, Profile, Settings)
-│   ├── index.tsx                   # Convention list + empty state
-│   ├── profile.tsx                 # Placeholder
-│   └── settings.tsx                # Theme, export/import, legal, reset
-├── convention/
-│   ├── _layout.tsx                 # Stack
-│   ├── new.tsx                     # Create convention form
-│   ├── import.tsx                  # File picker or Sched URL
-│   ├── import-preview.tsx          # Event selection + import
-│   ├── [id].tsx                    # Convention detail + events
-│   └── [id]/
-│       ├── edit.tsx                # Edit convention
-│       └── event/
-│           ├── new.tsx             # Create event form
-│           └── [eventId]/
-│               ├── index.tsx       # Event detail
-│               └── edit.tsx        # Edit event
-└── settings/
-    ├── _layout.tsx                 # Stack
-    └── about.tsx                   # About screen
-```
+Local (expo-sqlite + Drizzle, planned in `apps/native/src/db/`): `conventions`, `convention_events`, `offline_queue`. Cloud (D1 + Drizzle, planned in `apps/server`): `profiles`, `username_blocklist`, `convention_directory`, `shared_conventions`, `shared_events`, `verification_requests`. Full schemas with indexing rationale are in `notes/plan.md` §Data Model. D1 rules that shape the schema: index every queried column (billing counts scanned rows), 100 bound params per query (chunk bulk inserts), `db.batch()` is the only transaction primitive, no RLS.
 
-### iOS-First File Convention
+### iCal Import (planned, core feature)
 
-- Default `.tsx` = iOS/Web rendering
-- `.android.tsx` = Android-specific UI variant (add when UI needs to diverge)
-- React Native resolves the correct file per platform at build time
-
-### Database Schema
-
-Two main tables in SQLite via Drizzle ORM:
-- **conventions** — id, name, startDate, endDate, icalUrl, status, timestamps
-- **convention_events** — id, conventionId (FK cascade), title, description, times, location, room, category, type, flags (shareable, ageRestricted, contentWarning), schedule state (isInSchedule, reminderMinutes), source tracking (sourceUid, sourceUrl), timestamps
-- **offline_queue** — reserved for Phase 2+ cloud sync
-
-### iCal Import
-
-Core feature: import .ics files and Sched convention URLs.
-- `src/lib/ical-parser.ts` — parses VEVENT components, extracts room/venue from location, detects 18+ content and strobe/flash warnings
-- `src/lib/sched-url.ts` — validates Sched URLs, constructs .ics download URL
-- Re-import matches by `sourceUid` to avoid duplicates, preserves user schedule state
+Import .ics files and Sched convention URLs — parser design (VEVENT mapping, category discovery, content-warning detection, `sourceUid` dedup on re-import) is in `notes/plan.md` §iCal Import. Test fixtures already exist in `test-data/`.
 
 ## Planning Notes
 
-All planning and design documents live in `notes/` — these are **temporary pre-development docs**, not shipped code.
+All planning and design documents live in `notes/` — these are **pre-development docs**, not shipped code.
 
 | File | What's Inside |
 |------|--------------|
-| `notes/plan.md` | Full technical blueprint — tech stack, data models, screens, sync architecture, iCal import, dev phases |
+| `notes/plan.md` | Full technical blueprint — tech stack (Cloudflare Workers/D1/R2), data models, screens, polling sync, iCal import, EAS production setup, dev phases |
 | `notes/marketing.md` | Marketing strategy — website, social media, YouTube, profitability projections |
 | `notes/pitchdeck.md` | Market research — fandom stats, convention data, competitive analysis (Barq), revenue projections |
 | `notes/ideas.md` | Future feature brainstorms + pre-launch gap analysis |
@@ -175,5 +124,5 @@ All planning and design documents live in `notes/` — these are **temporary pre
 Each file has a **TL;DR** at the top for quick scanning. `plan.md` also has a table of contents.
 
 Test data for iCal import development lives in `test-data/`:
-- `test-data/indyfurcon2025.ics` — Real convention data (IndyFurCon 2025, 16 events)
+- `test-data/indyfurcon2025.ics` — Real convention data (IndyFurCon 2025)
 - `test-data/small-test.ics` — Clean test fixture (10 events, 3-day fictional con)
