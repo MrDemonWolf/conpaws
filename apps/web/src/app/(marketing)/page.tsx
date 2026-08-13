@@ -99,16 +99,8 @@ export default function Home() {
           <CompassPaw className="h-7 w-7 text-primary" />
           <b className="font-bold text-[18px] tracking-tight">ConPaws</b>
         </span>
-        <span className="flex items-center gap-5">
-          <a
-            href="https://github.com/MrDemonWolf/conpaws"
-            className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em] transition hover:text-primary"
-          >
-            GitHub
-          </a>
-          <span className="rounded-full border border-border px-3 py-1 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-            Coming soon
-          </span>
+        <span className="rounded-full border border-border px-3 py-1 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+          Coming soon
         </span>
       </nav>
 
@@ -198,7 +190,8 @@ export default function Home() {
               <b className="text-[15px] tracking-tight">ConPaws</b>
             </span>
             <p className="mt-2 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
-              © {new Date().getFullYear()} · Made with paws by MrDemonWolf, Inc.
+              © {new Date().getFullYear()} ConPaws by MrDemonWolf, Inc. · Made
+              with paws
             </p>
           </div>
           <nav className="flex gap-5 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
@@ -207,12 +200,6 @@ export default function Home() {
             </a>
             <a href="/terms" className="transition hover:text-primary">
               Terms
-            </a>
-            <a
-              href="https://github.com/MrDemonWolf/conpaws"
-              className="transition hover:text-primary"
-            >
-              GitHub
             </a>
           </nav>
         </div>

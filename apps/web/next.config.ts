@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import createMDX from "@next/mdx";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 import "@conpaws/env/web";
 import type { NextConfig } from "next";
@@ -6,6 +7,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   typedRoutes: true,
   reactCompiler: true,
+  pageExtensions: ["ts", "tsx", "mdx"],
 
   // Pin the workspace root. Without this, Turbopack scans upward, finds the
   // bun.lock of whichever checkout sits above (the main clone when running
@@ -50,4 +52,6 @@ const nextConfig: NextConfig = {
 // Must be called or Cloudflare bindings (D1, secrets) are absent in `next dev`.
 initOpenNextCloudflareForDev();
 
-export default nextConfig;
+const withMDX = createMDX({});
+
+export default withMDX(nextConfig);
