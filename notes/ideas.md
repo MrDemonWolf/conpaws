@@ -108,19 +108,19 @@ Things not yet in the plan that should be addressed before or shortly after laun
 - **Subscription restore** — User gets new phone, ConPaws+ looks "gone." Add "Restore Purchases" button in Settings. RevenueCat handles this but the button needs to exist. Silent restore check on app launch too.
 - **Large file handling** — A big con (200+ events) could take a few seconds to parse. Show progress: "Importing... 142/208 events". Parse in chunks so UI doesn't freeze. Test with the full IndyFurCon file (127 events) as baseline.
 - **Database cleanup** — Conventions that ended 6+ months ago: prompt "Archive old conventions?" Move to archived state (still viewable, not in main list). Never auto-delete — user might want to look back at past cons.
-- **Analytics (lite, privacy-first)** — No PII, no tracking IDs. Just aggregate counts: how many imports (file vs URL), premium conversion rate, which categories are most saved, crash-free session rate. Could use Sentry's session tracking or a simple self-hosted counter. Helps know what to improve without being creepy.
+- **Analytics (lite, privacy-first)** — No PII, no tracking IDs. Just aggregate counts: how many imports (file vs URL), premium conversion rate, which categories are most saved, crash-free session rate. Could use Sentry's session tracking or a tiny counter on the API Worker. Helps know what to improve without being creepy.
 - **Convention data source diversity** — Not every con uses Sched. Research other platforms furry cons use (Guidebook, custom websites, Google Sheets). At minimum, manual .ics file import covers everything since most calendar tools export .ics.
 - **Offline sync queue resilience** — What if a queued sync item permanently fails? (deleted convention on server, schema mismatch). Retry 3x with exponential backoff, then move to dead-letter state. Show user: "1 change couldn't sync — tap to retry or discard."
 
 ### Nice-to-Have (can add later)
 
-- **Admin / support tooling** — Simple web dashboard to look up users, view subscription status, trigger manual account deletion. Even a basic Supabase SQL query cheat sheet helps.
+- **Admin / support tooling** — Simple web dashboard to look up users, view subscription status, trigger manual account deletion. Even a basic `wrangler d1 execute` query cheat sheet helps.
 - **Background sync scheduling** — iOS background fetch to drain offline queue when app isn't open. Battery-friendly, respects low power mode. Not critical if sync happens reliably on app open.
 - **Localization testing** — RTL language support (Arabic, Hebrew), long German text overflow, CJK character handling, plural form testing (English "1 event" vs "2 events" is simple, other languages aren't).
 - **iPad split view edge cases** — Convention list on left, detail on right. What if user deletes the convention showing in detail? Handle gracefully with empty state.
-- **Multi-device session management** — Sign out on one device: revoke just that session or all? Recommendation: just that device. Supabase handles this per-token.
-- **App size budget** — Target under 30MB install size. Monitor with each release. Biggest risks: bundled animal icons, Prisma engine binary, Sentry SDK. Use `npx expo-doctor` to audit.
-- **Version upgrade safety** — What if a Prisma migration fails halfway on a user's device? Show error screen with "Contact Support" + Sentry auto-report. Never leave DB in a half-migrated state (transactions handle this, but test it).
+- **Multi-device session management** — Sign out on one device: revoke just that session or all? Recommendation: just that device. Better-Auth sessions are per-device tokens, so revoking one is natural.
+- **App size budget** — Target under 30MB install size. Monitor with each release. Biggest risks: bundled animal icons, Sentry SDK (Drizzle is pure JS — no engine binary). Use `npx expo-doctor` to audit.
+- **Version upgrade safety** — What if a Drizzle migration fails halfway on a user's device? Show error screen with "Contact Support" + Sentry auto-report. Never leave DB in a half-migrated state (transactions handle this, but test it).
 - **RevenueCat edge cases** — Sandbox vs production certificate mismatches, interrupted purchases (user closes App Store mid-buy), family sharing entitlement sharing, promotional offers setup.
 
 ---
