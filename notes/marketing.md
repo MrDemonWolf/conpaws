@@ -6,7 +6,7 @@
 
 ## TL;DR
 
-- **Website:** Next.js site on Coolify. Dark theme, playful, mobile-first. Hero + features + how it works + ConPaws+ + footer.
+- **Website:** Next.js site on Cloudflare Workers (OpenNext). Dark theme, playful, mobile-first. Hero + features + how it works + ConPaws+ + footer.
 - **Discord:** Primary channel. Beta program, dev updates, feature polls.
 - **Twitch:** Dev streams when building. Clip cool moments.
 - **Twitter/X:** 2-3 posts/week. Screenshots + short captions win.
@@ -20,7 +20,7 @@
 ## Website (conpaws.com)
 
 ### Purpose
-Single-page marketing site. Convince visitors to download the app. Keep it simple — Next.js on Coolify (same stack as sharing pages, self-hosted).
+Single-page marketing site. Convince visitors to download the app. Keep it simple — Next.js on Cloudflare Workers via OpenNext (same app as the sharing pages, `apps/web`).
 
 ### Sections (top to bottom)
 
