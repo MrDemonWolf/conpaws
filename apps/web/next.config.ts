@@ -52,6 +52,11 @@ const nextConfig: NextConfig = {
 // Must be called or Cloudflare bindings (D1, secrets) are absent in `next dev`.
 initOpenNextCloudflareForDev();
 
-const withMDX = createMDX({});
+const withMDX = createMDX({
+  options: {
+    // notes/legal.md uses GFM tables; plain CommonMark drops them.
+    remarkPlugins: [["remark-gfm"]],
+  },
+});
 
 export default withMDX(nextConfig);
