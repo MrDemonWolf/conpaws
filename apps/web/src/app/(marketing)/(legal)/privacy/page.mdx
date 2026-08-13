@@ -1,0 +1,162 @@
+export const metadata = { title: "Privacy Policy" };
+
+# Privacy Policy
+
+**Last updated:** June 30, 2026
+
+## The Short Version
+
+ConPaws is built with privacy at its core. If you use the app without an account, **we collect nothing** — zero data leaves your device. If you create an account or subscribe to ConPaws+, we only collect what's needed to provide those features. We don't run ads. We don't sell your data. We don't use third-party analytics.
+
+---
+
+## 1. Who We Are
+
+ConPaws ("we", "our", "us") is operated by MrDemonWolf, Inc., located at 645 3rd St, Beloit, WI, USA. Contact us at [legal@mrdemonwolf.com](mailto:legal@mrdemonwolf.com).
+
+This Privacy Policy explains how we collect, use, and protect your information when you use the ConPaws mobile application ("the App") and the conpaws.com website.
+
+## 2. What We Collect
+
+### Pre-Release Waitlist (conpaws.com)
+
+The app isn't out yet, but this website has a waitlist — and signing up for it is the one place we collect data today. When you register on conpaws.com, we record:
+
+- **Email address** — so we can email you
+- **Name** — optional; only if you fill it in
+- **IP address, browser info (user agent), and country** — kept as part of the consent record, proof that you (and not a bot) signed up
+- **The page address you signed up from (referrer)** — including any campaign tags (UTM parameters) it carries
+- **Date and time of signup**
+- **The exact consent wording shown at signup** — currently: "iOS and Android at launch. We'll email once to confirm — nothing else until it's ready."
+
+This is stored in Cloudflare D1 (a database hosted in the US) and synced to Brevo, our email service provider (a French company), which sends the double-opt-in confirmation email and any launch updates. That's it — no ads, no tracking pixels beyond what's listed here, and we never share or sell the list.
+
+Want off the list? Click the unsubscribe link in any email we send, or email [legal@mrdemonwolf.com](mailto:legal@mrdemonwolf.com) and we'll delete your record.
+
+### Free (No Account)
+
+When you use ConPaws without creating an account:
+
+- **We collect nothing.** All data (conventions, events, settings) is stored locally on your device.
+- No analytics, no tracking, no cookies, no device fingerprinting.
+- No data is transmitted to any server.
+
+### Free Account
+
+When you create an account, we collect:
+
+| Data | Purpose | Stored Where |
+|------|---------|-------------|
+| Email address | Account identification (via Apple/Google OAuth) | Supabase Auth (self-hosted) |
+| Display name | Shown on your profile | Supabase Database (self-hosted) |
+| Username | Unique identifier (@username) | Supabase Database (self-hosted) |
+| Pronouns | Shown on your profile (optional) | Supabase Database (self-hosted) |
+| Bio | Shown on your profile (optional) | Supabase Database (self-hosted) |
+| Profile avatar | Shown on your profile (optional) | Cloudflare R2 |
+
+### ConPaws+ Subscribers
+
+In addition to the above, ConPaws+ subscribers' data includes:
+
+| Data | Purpose | Stored Where |
+|------|---------|-------------|
+| Convention names and dates | Cloud sync and sharing | Supabase Database (self-hosted) |
+| Event schedules | Cloud sync and sharing | Supabase Database (self-hosted) |
+| Subscription status | Feature access | RevenueCat |
+| Name effect preference | Display name styling | Supabase Database (self-hosted) |
+
+## 3. How We Use Your Data
+
+We use your data **only** to provide the features you've opted into:
+
+- **Waitlist:** Send the confirmation email and let you know when ConPaws launches
+- **Account features:** Display your profile to other users
+- **ConPaws+ features:** Sync your convention data to the cloud, share your schedule publicly
+- **Subscription management:** Verify your ConPaws+ subscription status
+
+We do **not** use your data for:
+
+- Advertising or ad targeting
+- Selling to third parties
+- Behavioral analytics or tracking
+- Training AI or machine learning models
+
+## 4. Third-Party Services
+
+We use the following third-party services:
+
+| Service | Purpose | Their Privacy Policy |
+|---------|---------|---------------------|
+| Apple Sign-In | Authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
+| Google Sign-In | Authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
+| RevenueCat | Subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
+| Cloudflare R2 | Avatar file storage | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Cloudflare D1 | Waitlist storage (US-hosted database) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Brevo | Waitlist confirmation emails and launch updates | [brevo.com/legal/privacypolicy](https://www.brevo.com/legal/privacypolicy/) |
+
+**Note:** Our backend (Supabase) is self-hosted on infrastructure we control. Your data is not stored on Supabase's cloud platform.
+
+## 5. Data Sharing
+
+We do **not** share your personal data with any third party, except:
+
+- **Apple/Google:** For authentication (OAuth sign-in) and subscription billing
+- **RevenueCat:** For subscription management (receives your anonymous user ID and subscription status only)
+- **Brevo:** For sending waitlist confirmation emails and updates (receives your email and name only)
+- **Law enforcement:** If required by law (court order, subpoena)
+
+We do **not** sell, rent, or trade your personal information. Ever.
+
+## 6. Data Retention
+
+| Scenario | What Happens |
+|----------|-------------|
+| **Free (no account)** | All data on your device. We have nothing to retain. |
+| **Waitlist signup** | Kept until launch or until you unsubscribe — whichever comes first. |
+| **Account exists** | Profile data kept until you delete your account. |
+| **ConPaws+ cancelled** | Cloud data retained for 30 days, then permanently deleted. Local data stays on your device. |
+| **Account deleted** | All cloud data (profile, conventions, events, avatar) permanently deleted immediately. |
+
+## 7. Your Rights
+
+You have the right to:
+
+- **Access** your data — View your profile and synced data in the app at any time
+- **Correct** your data — Edit your profile information in the app
+- **Delete** your data — Self-service account deletion in Settings (immediate, no support ticket needed)
+- **Export** your data — Download your cloud data to your device when cancelling ConPaws+
+- **Withdraw consent** — Sign out or delete your account at any time; for the waitlist, use any email's unsubscribe link or email us
+
+These rights apply to all users, regardless of location. We comply with:
+
+- **GDPR** (European Union)
+- **CCPA/CPRA** (California, USA)
+- **PIPEDA** (Canada)
+
+## 8. Data Security
+
+- All data in transit is encrypted via TLS/HTTPS
+- Database access is controlled via Row Level Security (RLS) — users can only access their own data
+- Authentication is handled by industry-standard OAuth providers (Apple, Google)
+- Avatar storage uses signed URLs with limited validity
+- Our backend is self-hosted on infrastructure we control
+
+## 9. Children's Privacy
+
+ConPaws is not directed at children under 13 (or under 16 in the EU). We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us at [legal@mrdemonwolf.com](mailto:legal@mrdemonwolf.com) and we will delete it.
+
+## 10. Changes to This Policy
+
+We may update this Privacy Policy from time to time. We will notify you of significant changes by:
+
+- Displaying a notice in the app
+- Updating the "Last updated" date above
+
+Continued use of the app after changes constitutes acceptance of the updated policy.
+
+## 11. Contact Us
+
+For privacy questions, data requests, or concerns:
+
+- **Email:** [legal@mrdemonwolf.com](mailto:legal@mrdemonwolf.com)
+- **Website:** [conpaws.com/privacy](https://conpaws.com/privacy)
