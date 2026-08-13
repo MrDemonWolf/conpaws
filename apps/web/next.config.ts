@@ -18,11 +18,15 @@ const nextConfig: NextConfig = {
   // Dev is served from a devbox and reached over the VPC, not localhost.
   // Next 16 rejects cross-origin dev asset/HMR requests unless the origin is
   // listed here, which shows up as a broken-looking page with no obvious cause.
+  // `*.trycloudflare.com` covers quick tunnels (scripts/tunnel.sh style) for
+  // previewing on a phone — the hostname is random every run, so it has to be
+  // a wildcard. Dev-only; production never reads this.
   allowedDevOrigins: [
     "chicago-il-vpc-01.mrdemonwolf.com",
     "10.0.0.184",
     "localhost",
     "127.0.0.1",
+    "*.trycloudflare.com",
   ],
 
   // Next streams metadata by default: body first, <meta> tags appended after.

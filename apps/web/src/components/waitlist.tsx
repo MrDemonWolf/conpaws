@@ -7,6 +7,9 @@ import { BadgeCard } from "./badge-card";
 
 type Status = "idle" | "submitting" | "done";
 
+const INPUT_CLASS =
+  "w-full rounded-xl border border-input bg-card/70 px-4 py-3.5 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
+
 export function Waitlist() {
   const nameId = useId();
   const emailId = useId();
@@ -58,39 +61,48 @@ export function Waitlist() {
   }
 
   return (
-    <div className="grid items-center gap-14 md:grid-cols-[1.05fr_0.95fr]">
-      <div>
-        <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10.5px] text-primary uppercase tracking-[0.24em]">
-          ● Beta signups open
+    <div className="grid items-start gap-16 md:grid-cols-[1fr_380px]">
+      <div className="pt-6 md:pt-14">
+        <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[10px] text-primary uppercase tracking-[0.28em]">
+          <span className="relative flex h-[7px] w-[7px]">
+            <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+            <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
+          </span>
+          Beta signups open
         </span>
 
-        <h1 className="mt-5 font-bold text-[clamp(34px,5.6vw,58px)] leading-[1.02] tracking-[-0.04em]">
+        <h1 className="motion-safe:animate-rise mt-6 font-bold text-[clamp(42px,6.2vw,76px)] leading-[0.95] tracking-[-0.03em] [animation-delay:80ms]">
           Your con
           <br />
-          <em className="text-primary not-italic">schedule</em>, sorted.
+          <span className="text-primary">schedule</span>,
+          <br />
+          sorted.
         </h1>
 
-        <p className="mt-4 max-w-[44ch] text-[15px] text-muted-foreground">
+        <p className="motion-safe:animate-rise mt-6 max-w-[42ch] text-[16px] text-muted-foreground leading-relaxed [animation-delay:160ms]">
           Import a convention schedule, build your own, get reminders — all of
           it working offline, because con WiFi never does.
         </p>
 
         {status === "done" ? (
-          <div className="mt-7 max-w-[430px] rounded-xl border border-primary/40 bg-primary/10 p-5">
-            <p className="font-semibold">You&rsquo;re on the list.</p>
-            <p className="mt-1.5 text-[13px] text-muted-foreground">
+          <div className="mt-8 max-w-[440px] rounded-2xl border border-primary/40 bg-primary/10 p-6">
+            <p className="font-bold text-[17px]">You&rsquo;re on the list.</p>
+            <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed">
               We sent a confirmation link to your inbox. Click it and your spot
               is locked in — we won&rsquo;t email you again until there&rsquo;s
               something worth opening.
             </p>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="mt-7 max-w-[430px]">
-            <div className="grid gap-3.5">
+          <form
+            onSubmit={onSubmit}
+            className="motion-safe:animate-rise mt-8 max-w-[440px] [animation-delay:240ms]"
+          >
+            <div className="grid gap-4">
               <div>
                 <label
                   htmlFor={nameId}
-                  className="mb-1.5 block text-[10px] text-muted-foreground uppercase tracking-[0.18em]"
+                  className="mb-1.5 block font-tech text-[10px] text-muted-foreground uppercase tracking-[0.24em]"
                 >
                   Your name or fursona
                 </label>
@@ -102,14 +114,14 @@ export function Waitlist() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={60}
-                  className="w-full rounded-[10px] border border-input bg-card px-4 py-3 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                  className={INPUT_CLASS}
                 />
               </div>
 
               <div>
                 <label
                   htmlFor={emailId}
-                  className="mb-1.5 block text-[10px] text-muted-foreground uppercase tracking-[0.18em]"
+                  className="mb-1.5 block font-tech text-[10px] text-muted-foreground uppercase tracking-[0.24em]"
                 >
                   Email
                 </label>
@@ -120,7 +132,7 @@ export function Waitlist() {
                   required
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="w-full rounded-[10px] border border-input bg-card px-4 py-3 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20"
+                  className={INPUT_CLASS}
                 />
               </div>
             </div>
@@ -145,14 +157,14 @@ export function Waitlist() {
             <button
               type="submit"
               disabled={status === "submitting"}
-              className="mt-3.5 w-full rounded-[10px] bg-primary px-4 py-3.5 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.1em] transition hover:brightness-110 disabled:opacity-60"
+              className="mt-5 w-full rounded-xl bg-primary px-5 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             >
               {status === "submitting"
                 ? "Registering…"
-                : "Register for the beta"}
+                : "Register for the beta →"}
             </button>
 
-            <p className="mt-3 text-[11.5px] text-muted-foreground leading-relaxed">
+            <p className="mt-3.5 text-[12px] text-muted-foreground leading-relaxed">
               iOS and Android at launch. We&rsquo;ll email once to confirm —
               nothing else until it&rsquo;s ready.{" "}
               <a href="/privacy" className="text-primary hover:underline">
@@ -163,7 +175,7 @@ export function Waitlist() {
         )}
       </div>
 
-      <div className="md:order-none -order-1">
+      <div className="md:order-none -order-1 md:pt-2">
         <BadgeCard name={name} />
       </div>
     </div>
