@@ -47,7 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: getBundleId(),
-    associatedDomains: ["applinks:conpaws.app"],
+    associatedDomains: ["applinks:conpaws.com"],
     infoPlist: {
       NSCameraUsageDescription:
         "ConPaws needs access to your camera to take photos.",
@@ -72,7 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "RECEIVE_BOOT_COMPLETED",
       "VIBRATE",
     ],
-    enableEdgeToEdge: true,
+    // `enableEdgeToEdge` was removed in SDK 55 — edge-to-edge is always on.
   },
   androidStatusBar: {
     translucent: true,
