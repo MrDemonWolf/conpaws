@@ -11,10 +11,10 @@ A **free, offline-first convention companion app** for the furry community.
 
 - **What:** Browse schedules, track panels, set reminders. Import any con's schedule via iCal.
 - **Who:** Furry convention-goers. All ages. Privacy-first.
-- **How:** Expo + React Native + SQLite (local) + Supabase (cloud for premium).
+- **How:** Expo + React Native + SQLite (local) + Cloudflare Workers/D1 (cloud for premium).
 - **Money:** Free tier is fully functional. ConPaws+ ($3.99/mo or $24.99/yr) adds cloud sync + social.
 - **Killer feature:** Works without WiFi. Con WiFi is terrible. We win there.
-- **Target:** MVP by June 2026 for convention season.
+- **Target:** MVP for the winter 2026 con season (the original June 2026 target has passed — see Development Phases).
 - **Competitor:** Barq added convention schedules (Feb 2026) but needs internet and is 18+ only.
 
 ---
@@ -24,13 +24,13 @@ A **free, offline-first convention companion app** for the furry community.
 | Section | What's There |
 |---------|-------------|
 | [Platforms](#platforms) | iOS primary, Android secondary, iPad adaptive |
-| [Tech Stack](#tech-stack) | Expo, NativeWind, Drizzle, Supabase, RevenueCat |
+| [Tech Stack](#tech-stack) | Expo, NativeWind, Drizzle, Cloudflare Workers, RevenueCat |
 | [Monorepo Structure](#monorepo-structure) | Folder layout, domains, env files |
 | [Business Model](#business-model) | Free / Account / ConPaws+ tiers, pricing, promos |
 | [Badge System](#badge-system) | Gold paw, verified, developer badges + pride name effects |
 | [Screens & Navigation](#screens--navigation) | Onboarding, tabs, all screen mockups |
-| [Data Model](#data-model) | SQLite schema (local) + PostgreSQL schema (cloud) |
-| [Auth Flow](#auth-flow) | Apple/Google OAuth via Supabase, RevenueCat linking |
+| [Data Model](#data-model) | SQLite schema (local) + D1 schema (cloud) |
+| [Auth Flow](#auth-flow) | Apple/Google OAuth via Better-Auth, RevenueCat linking |
 | [Avatar & Username Rules](#avatar--username-rules) | Icons, uploads, naming rules, blocklist |
 | [Data & Sync Architecture](#data--sync-architecture) | Two-mode system, offline queue, upgrade/downgrade |
 | [Local Database Migrations](#local-database-migrations) | Drizzle migrations on device |
@@ -39,11 +39,11 @@ A **free, offline-first convention companion app** for the furry community.
 | [Crash Reporting](#crash-reporting-sentry) | Sentry setup, what to/not to track |
 | [Sharing & Deep Links](#sharing--deep-links) | Universal links, Next.js preview site |
 | [Testing Strategy](#testing-strategy) | Vitest, what to test vs skip |
-| [CI/CD](#cicd-github-actions) | GitHub Actions on PRs |
+| [CI/CD](#cicd-github-actions--eas-workflows) | GitHub Actions PR checks + EAS Workflows |
 | [Localization](#localization) | i18next, English-first, community translations |
 | [Component System](#component-system-shadcncn-inspired) | UI components, design tokens |
-| [App Config](#app-config-appconfigts) | Expo config, EAS, three variants |
-| [Infrastructure](#infrastructure) | Coolify, R2, RevenueCat, Sentry |
+| [App Config](#app-config--production-readiness-eas) | Expo config, EAS production setup, three variants, SDK upgrade path |
+| [Infrastructure](#infrastructure) | Cloudflare (Workers, D1, R2), RevenueCat, Sentry |
 | [Development Phases](#development-phases) | Phase 1-5 with checklists |
 
 ---
@@ -94,27 +94,52 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 
 | Tool | Purpose |
 |------|---------|
-| Expo SDK 54 | App framework |
-| React Native 0.81 + React 19 | UI runtime |
-| Expo Router v6 | File-based routing (typed routes) |
+| Expo SDK 57 (target — repo is currently on SDK 55) | App framework |
+| React Native 0.86 + React 19.2 (SDK 57) | UI runtime |
+| Expo Router (SDK-aligned versioning — see note below) | File-based routing (typed routes) |
 | NativeWind v5 | Tailwind CSS v4 for React Native |
 | Custom UI components | ShadCN/CN-inspired, built with `cn()` (clsx + tailwind-merge) |
 | Lucide React Native | Icons |
 | expo-sqlite | Local-first database |
 | Drizzle ORM | Type-safe ORM for expo-sqlite (mature mobile support, lightweight) |
 | AsyncStorage | Key-value storage (settings, flags) |
-| TanStack React Query | Data fetching, caching, sync layer |
+| TanStack React Query | Server-state fetching + caching for the tRPC API |
 | expo-image-manipulator | Avatar resizing/compression before upload |
 | expo-image-picker | Photo selection from camera roll |
 | i18next + react-i18next | Localization (English primary, i18n-ready for community translations) |
 | expo-localization | Device language detection |
 
-### Backend
+**Version notes (read before "fixing" anything):**
+
+- **Expo Router versioning is SDK-aligned.** Router v6 shipped with SDK 54; from SDK 55 onward the Router major matches the SDK (`~55.0.x`, `56.x`, `57.x`). The `expo-router@~55.0.5` pin in `apps/native` is correct — do not "fix" it back to a single-digit major.
+- `apps/native/package.json` pins `react: 19.0.0`, but Expo SDK 55 ships React 19.2 — this is a real mismatch to fix (run `npx expo install --fix` or align during the SDK upgrade).
+- **Open risk:** Expo Router **Native Tabs is alpha** ("API subject to change") even though it appears in the SDK 55 default template. Adopting it in production means accepting refactor risk on every SDK bump — prefer classic JS tabs until it stabilizes.
+
+### Backend (Cloudflare Workers)
+
+The backend is a Cloudflare Worker (planned as `apps/server`, scaffolded Better-T-Stack style). No VPS, no Docker, no self-hosted services.
 
 | Tool | Purpose |
 |------|---------|
-| Supabase (self-hosted on Coolify) | Database (PostgreSQL), auth, real-time, edge functions — all-in-one |
-| Cloudflare R2 (via Supabase Storage) | Avatar & file storage (S3-compatible, zero egress fees) |
+| Cloudflare Workers | API runtime (Workers Paid plan, $5/mo floor) |
+| Hono | HTTP framework the Worker runs |
+| tRPC | Typed API layer, types shared end-to-end with the app |
+| Better-Auth (pin >=1.6.x) | Auth — Apple + Google OAuth, sessions |
+| Cloudflare D1 | SQLite database (Drizzle ORM — same dialect as the app's local DB) |
+| Cloudflare R2 | Avatar & file storage (zero egress fees, served via `cdn.conpaws.com`) |
+| Cloudflare KV | Cache (60-second minimum TTL floor) |
+| Cloudflare Queues | Background jobs (push fan-out, cleanup) — free tier: 10k ops/day |
+
+**Platform constraints — design around these, they are not optional:**
+
+- **No RLS.** D1 has no row-level security. Every authorization check lives in the Worker/tRPC layer: middleware asserts ownership before any query runs.
+- **No interactive transactions.** D1 auto-commits each statement; `db.batch()` is the only transaction primitive. Design writes to be batched or idempotent.
+- **100 bound parameters per query.** This bites ORM bulk inserts — chunk them (a 9-column insert fits at most 11 rows per statement).
+- **Billing counts scanned rows, not returned rows.** An unindexed D1 query bills every row it scans. Index every column a query filters or joins on, at definition time.
+- **Size limits:** 500 MB per database on the free tier (10 GB is paid-tier); 100 columns per table; 2 MB max row.
+- **D1 supports FTS5** (plus the JSON extension and math functions) — full-text search needs no external service.
+- **Construct Better-Auth per request** via a factory — never a module-level singleton (Workers isolates share module scope across requests).
+- **`ctx.waitUntil()`** for background work after the response is sent (webhook side effects, cache warming).
 
 ### Payments
 
@@ -128,130 +153,93 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 | Tool | Purpose |
 |------|---------|
 | TypeScript (strict) | Language |
-| bun | Package manager + monorepo workspaces |
-| bun workspaces | Monorepo structure (no Turborepo — bun scripts are sufficient) |
-| ESLint (Expo config) | Linting |
-| EAS Build + Submit | Build pipeline + store submission |
-| Supabase CLI | Local development (runs Supabase locally via Docker for dev only) |
-| Vitest | Unit testing (fast, TypeScript-native) |
+| bun | Package manager + workspaces (pinned via `packageManager` in root `package.json`) |
+| Turborepo | Monorepo task runner — `turbo.json` at root, all root scripts fan out through `turbo` |
+| Biome | Lint + format (`bun lint` = `biome check .`; there is no ESLint in this repo) |
+| Wrangler | Cloudflare deploys (`apps/web` via OpenNext today; `apps/server` when scaffolded) |
+| EAS Build + Submit + Update | Build pipeline, store submission, OTA updates |
+| Vitest | Unit testing (planned — no test files exist yet) |
 | Sentry (via `@sentry/react-native`) | Crash reporting + error tracking |
-| GitHub Actions | CI/CD (lint + type-check + tests on PRs) |
+| GitHub Actions + EAS Workflows | PR checks (lint + type-check + tests) and build/submit automation |
 
 ---
 
 ## Monorepo Structure
 
+What exists today vs. what is planned. Anything marked *(planned)* does not exist on disk yet.
+
 ```
 conpaws/
 ├── apps/
-│   └── mobile/                  # Expo React Native app
-│       ├── src/
-│       │   ├── app/             # Expo Router (file-based screens)
-│       │   │   ├── _layout.tsx
-│       │   │   ├── index.tsx
-│       │   │   ├── (onboarding)/
-│       │   │   └── (tabs)/
-│       │   ├── components/
-│       │   │   └── ui/          # ShadCN-inspired components
-│       │   ├── contexts/
-│       │   ├── hooks/
-│       │   ├── lib/
-│       │   │   ├── utils.ts     # cn() helper
-│       │   │   ├── constants.ts
-│       │   │   └── supabase.ts  # Supabase client
-│       │   ├── db/
-│       │   │   ├── schema.ts    # Drizzle schema for local SQLite
-│       │   │   └── migrations/  # Drizzle migration SQL files
-│       │   ├── types/
-│       │   ├── locales/
-│       │   │   └── en.json      # English strings (primary)
-│       │   ├── assets/
-│       │   └── global.css       # Tailwind entry point
-│       ├── app.config.ts
-│       └── package.json
-│
-├── apps/
-│   └── web/                      # Next.js marketing + sharing site (conpaws.com, hosted on Coolify)
-│       ├── src/
-│       │   └── app/
-│       │       ├── [@username]/page.tsx  # Public profile preview
-│       │       └── con/[slug]/page.tsx   # Convention preview
-│       └── public/
-│           └── .well-known/
-│               ├── apple-app-site-association
-│               └── assetlinks.json
-│
-├── apps/
-│   └── admin/                    # Next.js admin dashboard (admin.conpaws.com, hosted on Coolify) — Future
-│
+│   ├── native/                  # Expo React Native app
+│   │   ├── app/                 # Expo Router routes — top-level, NOT src/app
+│   │   │   ├── _layout.tsx
+│   │   │   └── index.tsx
+│   │   ├── src/
+│   │   │   ├── lib/utils.ts     # cn() helper
+│   │   │   ├── global.css       # Tailwind entry point (Metro's NativeWind input)
+│   │   │   ├── components/ui/   # (empty — planned component library)
+│   │   │   ├── db/              # (empty — planned Drizzle schema + migrations)
+│   │   │   ├── contexts/ hooks/ locales/ services/ types/   # (empty — planned)
+│   │   │   └── assets/images/
+│   │   ├── app.config.ts        # Variant-based Expo config (APP_VARIANT)
+│   │   ├── eas.json
+│   │   ├── metro.config.js      # withNativeWind(config, { input: "./src/global.css" })
+│   │   ├── postcss.config.mjs   # plugins: { tailwindcss: {} }
+│   │   └── tsconfig.json        # path alias "@/*" -> "./*"
+│   ├── web/                     # Next.js site — Cloudflare Workers via OpenNext
+│   │   ├── src/app/             # Marketing/waitlist page + /api/waitlist (Turnstile -> D1 + Brevo)
+│   │   ├── open-next.config.ts  # OpenNext adapter config
+│   │   └── wrangler.jsonc       # Worker definition + bindings (deploy notes live here as comments)
+│   └── server/                  # (planned) Hono + tRPC + Better-Auth Worker with D1/R2/KV/Queues bindings
 ├── packages/
-│   └── supabase/                # Supabase configuration
-│       ├── migrations/          # SQL migration files
-│       ├── seed.sql             # Seed data (optional)
-│       └── config.toml          # Supabase project config
-│
-├── .env.example
+│   ├── config/                  # Shared tsconfig base
+│   ├── env/                     # Zod-validated env schemas (src/native.ts, src/web.ts)
+│   └── ui/                      # Shared shadcn/ui primitives + styles (web)
+├── biome.json
+├── turbo.json
 ├── bun.lock
-├── package.json
-└── tsconfig.base.json
+└── package.json                 # bun workspaces; every root script fans out through turbo
 ```
 
-**Local development:** Supabase CLI runs a local Supabase instance via Docker on your machine for development. This is the only Docker usage — production runs on Coolify which handles deployment for you.
+**Local development:** `bun dev` runs everything through Turbo; `bun dev:web` / `bun dev:native` scope to one app. The backend Worker (once scaffolded) runs locally with `wrangler dev`, which emulates D1/R2/KV/Queues on your machine. No Docker anywhere in the stack.
 
 ### Domains
 
 | Domain | Purpose |
 |--------|---------|
-| `conpaws.com` | Marketing website, legal pages (`/privacy`, `/terms`) |
-| `api.conpaws.com` | Supabase API (PostgREST, Auth, Edge Functions) |
-| `cdn.conpaws.com` | Cloudflare R2 bucket custom domain (avatar/file delivery, bypasses Supabase proxy, zero egress) |
-| `dev.conpaws.com` | Staging/preview Supabase instance (for testing before production) |
+| `conpaws.com` | Marketing site, waitlist, sharing previews, legal pages — `apps/web` Worker (OpenNext) |
+| `api.conpaws.com` | API Worker — `apps/server` (Hono + tRPC + Better-Auth) |
+| `cdn.conpaws.com` | R2 public bucket custom domain (avatar/file delivery, zero egress) |
 | `admin.conpaws.com` | Admin dashboard — user management, convention directory CRUD, badge assignments (Future) |
 
-All domains on Cloudflare for DNS + CDN + DDoS protection. SSL handled automatically.
+All domains on Cloudflare for DNS + CDN + DDoS protection. SSL handled automatically. Staging is a separate Worker environment / preview deployment — not a separate server.
 
-### Environment Files (Expo App Variants)
+### Environment Variables
 
-Expo supports `.env` files per app variant. Three environments:
+Two separate systems. Do not mix them up:
 
-**`.env.development`** — Local dev, points at Supabase CLI instance
-```
-EXPO_PUBLIC_SUPABASE_URL=http://localhost:54321
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<local-anon-key>
-EXPO_PUBLIC_CDN_URL=http://localhost:54321/storage/v1
-EXPO_PUBLIC_REVENUECAT_APPLE_KEY=<sandbox-key>
-EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY=<sandbox-key>
-EXPO_PUBLIC_APP_ENV=development
-```
+**1. App builds — EAS Environment Variables, not `.env` files.**
 
-**`.env.preview`** — Staging builds (TestFlight, internal testing), points at dev Supabase
-```
-EXPO_PUBLIC_SUPABASE_URL=https://dev.conpaws.com
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<dev-anon-key>
-EXPO_PUBLIC_CDN_URL=https://cdn.conpaws.com
-EXPO_PUBLIC_REVENUECAT_APPLE_KEY=<sandbox-key>
-EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY=<sandbox-key>
-EXPO_PUBLIC_SENTRY_DSN=<sentry-dsn>
-EXPO_PUBLIC_APP_ENV=preview
-```
+`.env` files are local-dev-only: remote EAS builders never see them. Every value a build needs lives in **EAS Environment Variables**:
 
-**`.env.production`** — App Store / Play Store releases
-```
-EXPO_PUBLIC_SUPABASE_URL=https://api.conpaws.com
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<prod-anon-key>
-EXPO_PUBLIC_CDN_URL=https://cdn.conpaws.com
-EXPO_PUBLIC_REVENUECAT_APPLE_KEY=<prod-apple-key>
-EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY=<prod-google-key>
-EXPO_PUBLIC_SENTRY_DSN=<sentry-dsn>
-EXPO_PUBLIC_APP_ENV=production
-```
+- Scoped per environment: `development`, `preview`, `production` (mapped from build profiles)
+- Visibility levels: **plain** (readable anywhere), **sensitive** (hidden in the UI, available to builds), **secret** (never readable after creation)
+- **String and file** types — file type carries things like a Play service-account JSON
+- `eas env:pull --environment development` writes a local `.env` for dev; that file is the *output* of the system, not the source of truth
 
-**How it works in Expo:**
-- `npx expo start` → loads `.env.development`
-- `eas build --profile preview` → loads `.env.preview`
-- `eas build --profile production` → loads `.env.production`
-- Access in code via `process.env.EXPO_PUBLIC_*`
-- Never commit `.env.*` files — only `.env.example`
+| Variable | Notes |
+|----------|-------|
+| `EXPO_PUBLIC_SERVER_URL` | API Worker URL — validated by `packages/env/src/native.ts` |
+| `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` | RevenueCat SDK keys (sandbox in dev/preview, live in production) |
+| `EXPO_PUBLIC_SENTRY_DSN` | Crash reporting (preview + production only) |
+| `SENTRY_AUTH_TOKEN` | Secret — source map uploads during EAS builds |
+
+**2. Workers — bindings and secrets, not `.env` files.**
+
+The web and server Workers read configuration from `wrangler.jsonc` bindings (D1, R2, KV, Queues, plain vars) and `wrangler secret put` for anything sensitive. Local `wrangler dev` reads `.dev.vars`. Build-time vs runtime env for `apps/web` is documented in `packages/env/src/web.ts`.
+
+Never commit `.env*` or `.dev.vars` — only `.env.example`.
 
 ---
 
@@ -278,7 +266,7 @@ EXPO_PUBLIC_APP_ENV=production
 
 **3. ConPaws+ (paid subscription)**
 - Monthly + Yearly via RevenueCat
-- Cloud sync: conventions & schedule backed up to Supabase
+- Cloud sync: conventions & schedule backed up to the cloud
 - Share your convention schedule publicly
 - "Next Conventions" showcase on profile
 - Gold paw print badge on profile
@@ -419,7 +407,7 @@ This is a great monetization feature because:
 - Purely cosmetic (doesn't gate functionality)
 - Socially visible (others see it = motivation to subscribe)
 - Identity-affirming (huge in the furry community)
-- Easy to add more flags over time without app updates (store flag definitions in Supabase)
+- Easy to add more flags over time (flag keys ship in code; the tRPC layer validates them)
 
 ### Badge Roles in Database
 
@@ -832,7 +820,7 @@ Welcome → Features → Get Started → Complete
 ### Local Database (expo-sqlite + Drizzle ORM) — Everyone Gets This
 
 ```ts
-// src/db/schema.ts
+// apps/native/src/db/schema.ts (planned — the db/ directory is empty today)
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 // --- Conventions ---
@@ -885,129 +873,148 @@ export const offlineQueue = sqliteTable("offline_queue", {
 });
 ```
 
-### Cloud Database (Supabase PostgreSQL) — Accounts & Premium Users
+### Cloud Database (Cloudflare D1) — Accounts & Premium Users
 
-```sql
--- === Enums ===
+D1 is SQLite, so the cloud schema uses the **same Drizzle SQLite dialect** as the on-device database — one ORM, one dialect, shared types across app and server.
 
-CREATE TYPE badge_role AS ENUM ('user', 'verified', 'developer');
+Two rules are baked into the schema below:
 
-CREATE TYPE name_effect AS ENUM (
-  'rainbow', 'trans', 'bi', 'pan', 'nonbinary',
-  'lesbian', 'ace', 'aro', 'genderfluid',
-  'genderqueer', 'intersex', 'progress'
-);
+1. **Index every column a query filters or joins on, at definition time.** D1 bills every row a query *scans*, not the rows it returns — an unindexed lookup against a 100k-row table bills 100k reads. Indexes here are a cost control, not just a performance nicety.
+2. **There is no RLS.** Nothing in the database protects one user's rows from another. Every tRPC procedure asserts ownership (`where eq(table.userId, ctx.user.id)`) — the Worker is the authorization layer, full stop.
 
-CREATE TYPE event_type AS ENUM ('panel', 'custom');
+```ts
+// apps/server/src/db/schema.ts (planned)
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
--- === Tables ===
+// Better-Auth owns its own tables (user, session, account, verification),
+// generated via the Better-Auth CLI. `profiles` extends its `user` table.
 
--- profiles (linked to auth.users via id)
-CREATE TABLE profiles (
-  id           UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username     TEXT UNIQUE NOT NULL CHECK (char_length(username) BETWEEN 3 AND 20),
-  display_name TEXT NOT NULL,
-  bio          TEXT DEFAULT '' CHECK (char_length(bio) <= 256),
-  pronouns     TEXT,
-  avatar_url   TEXT,              -- custom photo URL (ConPaws+ only, stored on R2 via cdn.conpaws.com)
-  avatar_icon  TEXT,              -- built-in animal icon key (e.g. 'wolf', 'fox', 'dragon')
-  avatar_color TEXT,              -- initials background color hex (e.g. '#3B82F6')
-  badge_role   badge_role  DEFAULT 'user',
-  name_effect  name_effect,            -- pride flag gradient — ConPaws+ only
-  is_premium   BOOLEAN DEFAULT false,
-  created_at   TIMESTAMPTZ DEFAULT now(),
-  updated_at   TIMESTAMPTZ DEFAULT now()
-);
+export const profiles = sqliteTable("profiles", {
+  id:              text("id").primaryKey(),          // = Better-Auth user.id
+  username:        text("username").notNull(),        // 3-20 chars, validated in tRPC (SQLite has no CHECK-by-default culture; Zod owns it)
+  displayName:     text("display_name").notNull(),
+  bio:             text("bio").default("").notNull(),
+  pronouns:        text("pronouns"),
+  avatarUrl:       text("avatar_url"),                // custom photo (ConPaws+), R2 via cdn.conpaws.com
+  avatarIcon:      text("avatar_icon"),               // built-in animal icon key ('wolf', 'fox', ...)
+  avatarColor:     text("avatar_color"),              // initials background hex
+  badgeRole:       text("badge_role", { enum: ["user", "verified", "developer"] }).default("user").notNull(),
+  nameEffect:      text("name_effect"),               // pride flag key — ConPaws+ only
+  isPremium:       integer("is_premium", { mode: "boolean" }).default(false).notNull(),
+  verifiedCreator: integer("verified_creator", { mode: "boolean" }).default(false).notNull(),
+  createdAt:       text("created_at").notNull(),
+  updatedAt:       text("updated_at").notNull(),
+}, (t) => [
+  uniqueIndex("profiles_username_idx").on(t.username),        // username lookups + uniqueness
+]);
 
--- username blocklist (checked on profile creation)
-CREATE TABLE username_blocklist (
-  id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  pattern TEXT NOT NULL UNIQUE -- exact match or regex pattern
-);
+export const usernameBlocklist = sqliteTable("username_blocklist", {
+  id:      text("id").primaryKey(),
+  pattern: text("pattern").notNull(),                 // exact match or regex pattern
+}, (t) => [
+  uniqueIndex("username_blocklist_pattern_idx").on(t.pattern),
+]);
 
--- convention directory (admin-curated, browsable by all users)
-CREATE TABLE convention_directory (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name        TEXT NOT NULL,
-  start_date  DATE NOT NULL,
-  end_date    DATE NOT NULL,
-  location    TEXT,              -- city/venue
-  website_url TEXT,
-  ical_url    TEXT,              -- Sched or other iCal feed URL
-  year        INT NOT NULL,
-  is_active   BOOLEAN DEFAULT true, -- hide cancelled/past cons from browse
-  created_at  TIMESTAMPTZ DEFAULT now(),
-  updated_at  TIMESTAMPTZ DEFAULT now()
-);
+export const conventionDirectory = sqliteTable("convention_directory", {
+  id:         text("id").primaryKey(),
+  name:       text("name").notNull(),
+  startDate:  text("start_date").notNull(),           // ISO date
+  endDate:    text("end_date").notNull(),
+  location:   text("location"),
+  websiteUrl: text("website_url"),
+  icalUrl:    text("ical_url"),                       // Sched or other iCal feed URL
+  year:       integer("year").notNull(),
+  isActive:   integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  createdAt:  text("created_at").notNull(),
+  updatedAt:  text("updated_at").notNull(),
+}, (t) => [
+  index("convention_directory_active_year_idx").on(t.isActive, t.year),  // the browse-screen filter
+]);
 
--- shared_conventions (premium users — cloud-synced conventions)
-CREATE TABLE shared_conventions (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  name       TEXT NOT NULL,
-  start_date DATE NOT NULL,
-  end_date   DATE NOT NULL,
-  ical_url   TEXT,
-  synced_at  TIMESTAMPTZ DEFAULT now(),
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+export const sharedConventions = sqliteTable("shared_conventions", {
+  id:        text("id").primaryKey(),
+  userId:    text("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  name:      text("name").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate:   text("end_date").notNull(),
+  icalUrl:   text("ical_url"),
+  updatedAt: text("updated_at").notNull(),            // doubles as the change-polling cursor
+  createdAt: text("created_at").notNull(),
+}, (t) => [
+  index("shared_conventions_user_idx").on(t.userId),                       // every read is owner-scoped
+  index("shared_conventions_user_updated_idx").on(t.userId, t.updatedAt), // ?since= polling
+]);
 
--- shared_events (premium users — shareable events within conventions)
-CREATE TABLE shared_events (
-  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  shared_convention_id  UUID NOT NULL REFERENCES shared_conventions(id) ON DELETE CASCADE,
-  title                 TEXT NOT NULL,
-  description           TEXT,
-  start_time            TIMESTAMPTZ NOT NULL,
-  end_time              TIMESTAMPTZ NOT NULL,
-  location              TEXT,
-  type                  event_type DEFAULT 'panel',
-  synced_at             TIMESTAMPTZ DEFAULT now(),
-  created_at            TIMESTAMPTZ DEFAULT now()
-);
+export const sharedEvents = sqliteTable("shared_events", {
+  id:                 text("id").primaryKey(),
+  sharedConventionId: text("shared_convention_id").notNull().references(() => sharedConventions.id, { onDelete: "cascade" }),
+  title:              text("title").notNull(),
+  description:        text("description"),
+  startTime:          text("start_time").notNull(),
+  endTime:            text("end_time").notNull(),
+  location:           text("location"),
+  type:               text("type", { enum: ["panel", "custom"] }).default("panel").notNull(),
+  updatedAt:          text("updated_at").notNull(),
+  createdAt:          text("created_at").notNull(),
+}, (t) => [
+  index("shared_events_convention_idx").on(t.sharedConventionId),                        // join/fan-out path
+  index("shared_events_convention_updated_idx").on(t.sharedConventionId, t.updatedAt),  // ?since= polling
+]);
+
+// Verified-creator applications (blue-check pipeline)
+export const verificationRequests = sqliteTable("verification_requests", {
+  id:         text("id").primaryKey(),
+  userId:     text("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  links:      text("links").notNull(),                // JSON array of proof links
+  status:     text("status", { enum: ["pending", "approved", "rejected"] }).default("pending").notNull(),
+  reviewedAt: text("reviewed_at"),
+  createdAt:  text("created_at").notNull(),
+}, (t) => [
+  index("verification_requests_user_idx").on(t.userId),
+  index("verification_requests_status_idx").on(t.status),  // admin review queue
+]);
 ```
 
-**Why enums?**
-- PostgreSQL enforces valid values at the database level — no bad data gets in
-- Drizzle's `text({ enum: [...] })` enforces at the TypeScript level for SQLite (which doesn't have native enums)
-- Adding a new value (e.g. a new pride flag) is a simple `ALTER TYPE name_effect ADD VALUE 'new_flag'` migration
-- Type-safe all the way from database → Supabase API → TypeScript client
+**Why `text({ enum })` instead of database enums?** SQLite (and therefore D1) has no native enum type. Drizzle's `text({ enum: [...] })` enforces values at the TypeScript level on both the local and cloud databases, and the tRPC layer re-validates with Zod at the boundary. Adding a new pride flag is a code change, not a migration.
 
-**Row Level Security (RLS):**
-- `profiles`: Users can read any profile, but only update their own
-- `convention_directory`: Public read for everyone, insert/update/delete restricted to admin (you)
-- `shared_conventions`: Users can only read/write their own; public read for premium users who share
-- `shared_events`: Same as shared_conventions — scoped by user, public read when shared
+**Bulk-insert rule:** D1 caps a statement at **100 bound parameters**. A 9-column insert fits at most 11 rows per statement — chunk the upgrade migration accordingly and wrap chunks in `db.batch()`, which is the only transaction primitive D1 offers (no interactive transactions).
 
-Supabase auto-generates a REST API (PostgREST) from these tables — no custom API endpoints needed.
+**Full-text search:** when user/convention search needs it, D1 supports **FTS5** natively (plus the JSON extension and math functions) — no external search service required.
 
 ---
 
 ## Auth Flow
 
+Better-Auth runs inside the API Worker; the app uses the `@better-auth/expo` client plugin.
+
 ```
 1. User taps "Sign In" (profile or settings)
-2. App opens Supabase Auth OAuth (Apple or Google)
-3. Supabase handles OAuth redirect + callback
-4. Supabase creates/finds user, issues session
-5. @supabase/supabase-js stores session automatically (AsyncStorage)
-6. All Supabase queries now include auth context
-7. RLS policies control data access at the database level
+2. App calls the Better-Auth endpoints on api.conpaws.com (Apple or Google OAuth)
+3. Worker handles the OAuth redirect + callback, creates/finds the user in D1
+4. Session token stored on device (SecureStore via the Expo plugin)
+5. tRPC requests carry the session; protectedProcedure middleware resolves ctx.user
+6. Every query is ownership-scoped in the Worker — there is no RLS to fall back on
 ```
 
-No separate auth server. No JWTs to manage manually. No JWKS endpoints. Supabase handles it all.
+**Three Workers-specific rules:**
+
+1. **Construct Better-Auth per request.** A factory (`createAuth(env)`) called inside the fetch handler — never a module-level singleton. Workers isolates share module scope across requests; a singleton leaks env/bindings between them.
+2. **Pin `better-auth@>=1.6.x`.** The 2025-era Expo blockers (#4203, #7124, #5452) are all closed as of Jan-May 2026, and the old "disable `cookieCache`" workaround is stale advice. Leave `cookieCache` on — but test session persistence across the cache-expiry boundary on a real device before shipping.
+3. **Use `ctx.waitUntil()`** for after-response work (webhook side effects, cache warming) so responses aren't held hostage.
+
+**Open risk (recorded, not resolved):** `@better-auth/expo` compatibility with Expo SDK 55+/New Architecture is **unverified** — no authoritative statement exists either way. Empirically test sign-in, session persistence, and sign-out on a development build *before* the backend work goes deep.
 
 **Key rule:** Account creation is free. Premium features check RevenueCat entitlement status, not just auth status.
 
-**Profile creation trigger:**
-- Supabase database trigger on `auth.users` insert → auto-creates a `profiles` row
-- User completes profile setup (username, display name, etc.) after first sign-in
+**Profile creation:**
+- Better-Auth `databaseHooks.user.create.after` inserts the `profiles` row
+- User completes profile setup (username, display name, etc.) after first sign-in; the username blocklist check runs in the tRPC procedure
 
 **RevenueCat integration:**
 - App checks entitlement `conpaws_plus` via RevenueCat SDK
-- RevenueCat webhook → Supabase Edge Function → updates `profiles.is_premium`
-- This keeps Supabase in sync with subscription status
-- `Purchases.logIn(supabaseUserId)` links RevenueCat customer to Supabase user
+- RevenueCat webhook → Hono route on the Worker (verify the webhook auth header) → updates `profiles.is_premium`; side effects run via `ctx.waitUntil()`
+- This keeps D1 in sync with subscription status
+- `Purchases.logIn(userId)` links the RevenueCat customer to the Better-Auth user id
 - **No free trial.** Users either subscribe or they don't.
 - **Developer bypass:** The app owner (you) always has full premium access without paying. Done via **RevenueCat Promotional Entitlements** — grant yourself the `conpaws_plus` entitlement from the RevenueCat dashboard with a far-future expiry (e.g. December 31, 2030). Your app's existing entitlement check just works — no separate code path, no hardcoded user IDs, no extra logic. Two minutes in the dashboard, zero code changes. Works for beta testers too.
 
@@ -1066,10 +1073,10 @@ Users can pick from a preset palette of background colors (stored in profile, no
 | Output dimensions | 512x512 px (square, 1:1 ratio — crisp at 4x retina) |
 | Target output size | <100 KB per avatar |
 | Resize library | `expo-image-manipulator` (native Expo, no config plugins) |
-| Storage backend | Cloudflare R2 via Supabase Storage (S3-compatible, zero egress fees) |
-| Delivery | Direct via `cdn.conpaws.com` (R2 custom domain, bypasses Supabase proxy) |
+| Storage backend | Cloudflare R2 (zero egress fees) |
+| Delivery | Direct via `cdn.conpaws.com` (R2 bucket custom domain) |
 
-**Upload flow:** User picks image via `expo-image-picker` (square crop enforced) → `expo-image-manipulator` resizes to 512x512 JPEG at 0.8 quality → upload to R2 via Supabase Storage → profile updated with `cdn.conpaws.com` URL.
+**Upload flow:** User picks image via `expo-image-picker` (square crop enforced) → `expo-image-manipulator` resizes to 512x512 JPEG at 0.8 quality → upload to R2 via a presigned URL issued by the API Worker → profile updated with the `cdn.conpaws.com` URL.
 
 If subscription expires, the custom photo stays visible (already stored) but they can't upload a new one until they re-subscribe. They can switch back to a built-in icon anytime.
 
@@ -1093,7 +1100,7 @@ A server-side blocklist checked on registration. Blocks:
 - **Impersonation risks** — brand names, convention names (e.g., `anthrocon`, `mff`)
 - **Homoglyph protection** — Reject usernames that visually mimic others (e.g., `rn` → `m`)
 
-Blocklist is stored in Supabase and checked via a database function or Edge Function on profile creation. Easy to update without app releases.
+Blocklist is stored in D1 and checked inside the profile-creation tRPC procedure. Easy to update without app releases.
 
 ---
 
@@ -1101,13 +1108,15 @@ Blocklist is stored in Supabase and checked via a database function or Edge Func
 
 The app runs in two distinct modes depending on subscription status. The key principle: **free users own their data locally, premium users own their data in the cloud.**
 
+There is **no realtime layer** — no WebSockets, no Durable Objects, no server push for data. Sync is **foreground polling + local mirror**, which is cheaper, simpler, and plenty for schedule data that changes a few times a day.
+
 ### Two Modes
 
 | | Free | Premium |
 |---|---|---|
-| **Source of truth** | SQLite (full database) | Supabase (cloud) |
-| **SQLite role** | Full database | Cache + offline queue |
-| **Storage footprint** | Full (all data on device) | Minimal (recent/active data only) |
+| **Source of truth** | SQLite (full database) | D1, behind the tRPC API |
+| **SQLite role** | Full database | Full local mirror + offline queue |
+| **Network** | None (zero data calls) | Foreground polling + mutations |
 
 ### Free Mode (Local-Primary)
 
@@ -1117,54 +1126,44 @@ SQLite is everything. No cloud, no sync, no network calls for data.
 - **Writes:** SQLite directly
 - **Storage:** All conventions + events live on device
 
-### Premium Mode (Cloud-Primary)
+### Premium Mode (Cloud-Primary, Polling)
 
-Supabase is the source of truth. SQLite is a lightweight cache for performance and offline access.
+The cloud copy in D1 is the source of truth. The device keeps a full mirror in expo-sqlite and reconciles it by polling for changes.
 
-**Reads (online):**
+**Change polling:**
+
 ```
-UI needs data
-  → TanStack Query has it in memory? → use it
-  → No? → fetch from Supabase → cache in TanStack Query + SQLite
+GET /api/conventions/:id/changes?since=<cursor>
 ```
 
-**Reads (offline):**
-```
-UI needs data
-  → TanStack Query has it in memory? → use it
-  → No? → read from SQLite cache (may be stale)
-```
+- Polled every **60-120 seconds while the app is foregrounded** — never in the background (battery + Workers request cost)
+- `since` is the newest `updated_at` cursor the device has seen; the response contains only rows changed after it — this is exactly why `(user_id, updated_at)` and `(convention_id, updated_at)` are indexed in the D1 schema
+- Changed rows are merged into expo-sqlite via Drizzle; screens read the local DB through Drizzle's `useLiveQuery`, so the UI updates automatically when the merge lands
+- Also poll once on app foreground and after every queue drain
+
+**Reads:** always from the local mirror (SQLite via `useLiveQuery`). Online or offline, the read path is identical — that's the point.
 
 **Writes (online):**
 ```
 User creates/edits/deletes
-  → Optimistic UI update (TanStack Query)
-  → Push to Supabase immediately
-  → Success → cache updated, done
+  → Write to SQLite immediately (optimistic — useLiveQuery updates the UI)
+  → Push through the tRPC mutation
+  → Server stamps updated_at; next poll confirms convergence
 ```
 
 **Writes (offline):**
 ```
 User creates/edits/deletes
-  → Optimistic UI update (TanStack Query)
-  → Write to SQLite OfflineQueue
-  → When back online → drain queue to Supabase → clear queue
+  → Write to SQLite immediately
+  → Row into offline_queue
+  → When back online → drain queue → poll
 ```
 
-### What Gets Cached Locally (Premium)
-
-Not everything — just enough to work offline without bloating device storage:
-
-- Conventions they've viewed recently
-- Events for upcoming/active conventions
-- Their own profile data
-- The offline write queue (pending changes)
-
-Old ended conventions? Don't cache those unless they open them.
+**Push notifications:** server-initiated notices (e.g. "a shared schedule you follow changed") flow: event on the Worker → enqueue to a **Cloudflare Queue** → queue consumer calls the Expo Push API. Queues' free tier (10k ops/day) is far beyond launch-scale needs. Personal event reminders stay 100% local via `expo-notifications` — no server involved.
 
 ### Offline Queue Drain
 
-The `OfflineQueue` table (in local SQLite) holds pending writes when premium users are offline.
+The `offline_queue` table (in local SQLite) holds pending writes made while offline.
 
 **Drain triggers:**
 - App returns to foreground
@@ -1173,10 +1172,10 @@ The `OfflineQueue` table (in local SQLite) holds pending writes when premium use
 - Manual pull-to-refresh
 
 **Drain cycle:**
-1. Read all `OfflineQueue` rows, oldest first
-2. For each: push to Supabase (`upsert` for create/update, `delete` for delete)
+1. Read all `offline_queue` rows, oldest first
+2. Push each through the same tRPC mutations as online writes; bulk payloads are **chunked to respect D1's 100-bound-parameter limit** and applied server-side inside `db.batch()`
 3. On success: remove from queue
-4. On failure: leave in queue, retry next cycle
+4. On failure: leave in queue, retry next cycle (3 attempts with backoff, then dead-letter — surface "1 change couldn't sync" to the user)
 
 ### Conflict Resolution (Multi-Device)
 
@@ -1184,7 +1183,7 @@ Since this is single-user data, conflicts are rare. They only happen if the same
 
 **Strategy: Last-write-wins** using `updatedAt` timestamps.
 
-- Supabase has a newer `updatedAt` than local → cloud wins
+- Cloud has a newer `updatedAt` than local → cloud wins
 - Local has a newer `updatedAt` → local wins
 - Deletes always win (if either side deleted it, it's gone)
 
@@ -1196,10 +1195,9 @@ When a user subscribes to ConPaws+:
 
 1. RevenueCat confirms `conpaws_plus` entitlement
 2. Read all conventions + events from SQLite
-3. Bulk insert into Supabase (`shared_conventions` + `shared_events`)
-4. Confirm everything landed in the cloud
-5. Clear full SQLite data (it's all in Supabase now)
-6. Switch to cloud-primary mode — SQLite is now just a cache
+3. Bulk upsert to the API in chunks (≤100 bound params per statement, `db.batch()` per chunk server-side)
+4. Confirm everything landed in D1
+5. Keep the local data as the mirror and start polling — nothing is deleted from the device
 
 ### Downgrade Migration (Premium → Free)
 
@@ -1207,20 +1205,19 @@ When a subscription expires:
 
 1. App detects entitlement loss on launch/foreground
 2. Show the cancellation screen (see below) with a clear summary
-3. Pull all their cloud data down into SQLite (auto-start + manual trigger)
-4. Confirm download complete
-5. Switch to local-primary mode — SQLite is now the full database again
-6. Shared schedule goes private immediately
-7. Badge removed, premium features gated off
-8. **30-day grace period** — cloud data stays in Supabase
-9. After 30 days — Supabase Edge Function cron job deletes their `shared_conventions` + `shared_events`
-10. Account + profile stay forever (free tier)
+3. Run one final poll so the local mirror is current (the device already holds everything)
+4. Switch to local-primary mode — stop polling, stop draining
+5. Shared schedule goes private immediately
+6. Badge removed, premium features gated off
+7. **30-day grace period** — cloud data stays in D1
+8. After 30 days — a **scheduled Worker (Cron Trigger)** deletes their `shared_conventions` + `shared_events`
+9. Account + profile stay forever (free tier)
 
 ### Re-subscribe Scenarios
 
-**Within 30 days:** Cloud data still exists. Skip migration, just flip back to cloud-primary mode. Fast and seamless.
+**Within 30 days:** Cloud data still exists. Skip migration, resume polling. Fast and seamless.
 
-**After 30 days:** Cloud data is gone. Same as a fresh upgrade — migrate local SQLite data back up to Supabase.
+**After 30 days:** Cloud data is gone. Same as a fresh upgrade — chunked bulk upsert from the device back into D1.
 
 ### Why 30-Day Grace Period
 
@@ -1234,18 +1231,18 @@ When a subscription expires:
 ```
 useSyncEngine() hook
   ├── watches: RevenueCat entitlement status
-  ├── watches: network connectivity (NetInfo)
+  ├── watches: network connectivity (NetInfo) + AppState (foreground)
   ├── on entitlement gained: runUpgradeMigration()
   ├── on entitlement lost: runDowngradeMigration()
-  ├── on app foreground: drainQueue()
-  ├── on network restored: drainQueue()
-  ├── on local write (debounced): drainQueue()
+  ├── foreground interval (60-120s): pollChanges(sinceCursor)
+  ├── on app foreground / network restored / local write (debounced):
+  │     drainQueue() then pollChanges()
   └── drainQueue():
        ├── if !premium || !online → return
-       ├── read OfflineQueue rows
-       ├── for each: supabase.from('shared_...').upsert(...)
+       ├── read offline_queue rows (oldest first)
+       ├── push each through the tRPC mutation (chunked)
        ├── on success: delete queue row
-       └── on error: log, retry next cycle
+       └── on error: retry next cycle (3x, then dead-letter)
 ```
 
 ---
@@ -1334,7 +1331,7 @@ User taps "Add Convention" → "Import from iCal"
   │   └── System file picker → select .ics file → parse → preview
   ├── Option B: "Paste Sched URL"
   │   └── Text input → extract iCal URL → fetch → parse → preview
-  └── Option C: "Browse Convention Directory" (Phase 2, requires Supabase)
+  └── Option C: "Browse Convention Directory" (Phase 2, requires the backend)
       └── Select con → auto-import if ical_url exists
 
 Preview Screen:
@@ -1495,7 +1492,7 @@ Use `@sentry/react-native` for crash reporting and error tracking. Sentry's free
 - **Crashes:** Unhandled exceptions, native crashes
 - **Migration failures:** If `$applyPendingMigrations()` fails, report the error with the migration name
 - **Sync failures:** If the offline queue drain fails repeatedly
-- **API errors:** Supabase request failures (not individual 404s, just patterns)
+- **API errors:** tRPC/Worker request failures (not individual 404s, just patterns)
 
 ### What NOT to Track
 
@@ -1545,31 +1542,31 @@ User shares: conpaws.com/@lunastarfall
        └─ Smart banner: "Open in ConPaws" / "Get ConPaws"
 ```
 
-### Implementation: Next.js on Coolify
+### Implementation: Next.js on Cloudflare Workers (OpenNext)
 
-A **Next.js** app handles the web preview pages, marketing site, and legal pages. Hosted on the same Coolify VPS as Supabase — keeps everything under one roof.
+The **Next.js** app in `apps/web` handles the web preview pages, marketing/waitlist site, and legal pages. It deploys to **Cloudflare Workers via OpenNext** — same platform as the API, no server to manage.
 
-**Why Next.js:**
+**Why Next.js on Workers:**
 
 | Approach | Verdict |
 |----------|---------|
-| WordPress | Too heavy, separate system to manage |
-| Supabase Edge Functions | Can't serve HTML (returns `text/plain`) — dealbreaker |
+| WordPress (SeedProd landing page) | Being retired — a separate system to manage |
 | Astro | Lightweight but can't share React components or types with the mobile app |
 | Branch.io | Expensive, adds tracking, vendor lock-in |
-| **Next.js on Coolify** | Same React/TypeScript stack, shares types with mobile app, SSR for OG tags, self-hosted |
+| **Next.js via OpenNext on Workers** | Same React/TypeScript stack, shares `packages/ui` + types, SSR for OG tags, zero-server infra |
 
 **How it works:**
 
-1. Next.js app lives in `apps/web/` in the monorepo
-2. Dynamic routes (`/[username]/page.tsx`, `/con/[slug]/page.tsx`) fetch data from Supabase at request time (SSR)
-3. Pages render with Open Graph meta tags for social sharing cards
-4. `<meta name="apple-itunes-app">` shows the App Store smart banner
-5. `.well-known/apple-app-site-association` + `assetlinks.json` served from `public/` for universal links
-6. Also serves: marketing homepage, `/privacy`, `/terms`
-7. Deployed to Coolify (same VPS as Supabase, auto-deploy on push to main)
+1. `apps/web` runs Next.js **16.2.12 — pinned exactly.** Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334); the pin is a workaround, not a suggestion. Do not bump Next until that issue is resolved upstream.
+2. `@opennextjs/cloudflare` (1.20.2) adapts the Next build into a Worker; `open-next.config.ts` + `wrangler.jsonc` define the Worker and its bindings — deploy steps live as comments in those files
+3. Dynamic routes (`/[username]/page.tsx`, `/con/[slug]/page.tsx`) fetch from the API Worker at request time (SSR) and render Open Graph meta tags for social sharing cards
+4. `/api/waitlist` powers the pre-release waitlist: Turnstile verification, subscriber stored in **Cloudflare D1** (source of truth), mirrored to **Brevo** (the ESP)
+5. `<meta name="apple-itunes-app">` shows the App Store smart banner
+6. `.well-known/apple-app-site-association` + `assetlinks.json` served from `public/` for universal links
+7. Also serves: marketing homepage, `/privacy`, `/terms`
+8. Deploy: `opennextjs-cloudflare build` → `wrangler deploy`
 
-**Cost:** $0 incremental (already paying for the VPS)
+**Cost:** covered by the $5/mo Workers Paid plan (shared with the API Worker)
 
 ### Universal Links Setup
 
@@ -1618,7 +1615,7 @@ Focus on testing business logic, not UI. No E2E testing — keep it simple for a
 | Category | What | How |
 |----------|------|-----|
 | **Database operations** | Convention/event CRUD, migration paths | Unit tests with in-memory SQLite |
-| **Sync engine** | Offline queue drain, upgrade/downgrade migration | Unit tests with mocked Supabase |
+| **Sync engine** | Offline queue drain, change-poll merge, upgrade/downgrade migration | Unit tests with a mocked tRPC client |
 | **iCal parser** | Parsing .ics files, extracting events from Sched URLs | Unit tests with fixture files |
 | **Username validation** | Blocklist check, character rules, length limits | Unit tests |
 | **Data export** | JSON export format, completeness | Unit tests |
@@ -1628,7 +1625,7 @@ Focus on testing business logic, not UI. No E2E testing — keep it simple for a
 
 - UI rendering (too brittle, changes often)
 - Navigation flows (trust Expo Router)
-- Third-party SDK behavior (RevenueCat, Supabase Auth)
+- Third-party SDK behavior (RevenueCat, Better-Auth)
 - Visual appearance (manual QA is faster)
 
 ### Tooling
@@ -1636,23 +1633,27 @@ Focus on testing business logic, not UI. No E2E testing — keep it simple for a
 - **Vitest** — Fast, TypeScript-native test runner (works well with Expo projects)
 - Test files live next to source: `foo.ts` → `foo.test.ts`
 - Run with `bun test`
+- **Status: planned.** No test files or `vitest.config.ts` exist yet — the Vitest setup is a Phase 1 task.
 
 ---
 
-## CI/CD (GitHub Actions)
+## CI/CD (GitHub Actions + EAS Workflows)
 
-Lightweight CI pipeline on every PR. No deployment automation — EAS handles builds and submissions.
+Two pipelines: GitHub Actions for PR checks, EAS Workflows for app builds + store submission.
 
 ### PR Checks (GitHub Actions)
 
+CI runs **from the repo root and fans out through Turborepo** — no per-app `working-directory`. bun is pinned (1.3.10) to match the root `packageManager` field.
+
 Every pull request runs:
 
-1. **Lint** — `bun lint` (ESLint across all packages)
-2. **Type check** — `bun type-check` (TypeScript strict mode)
-3. **Tests** — `bun test` (Vitest unit tests)
+1. **Lint** — `bun lint` (Biome — `biome check .`)
+2. **Type check** — `bun check-types` (Turbo → per-package `tsc`)
+3. **Tests** — `bun test` (Turbo → Vitest, once tests exist)
+4. **Expo doctor** — `npx expo-doctor` in `apps/native` (catches dependency/SDK mismatches before they cost a build)
 
 ```yaml
-# .github/workflows/ci.yml
+# .github/workflows/ci.yml (intended shape)
 name: CI
 on:
   pull_request:
@@ -1664,19 +1665,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          bun-version: 1.3.10
       - run: bun install --frozen-lockfile
       - run: bun lint
-      - run: bun type-check
+      - run: bun check-types
       - run: bun test
+      - run: cd apps/native && npx expo-doctor
+```
+
+### App Builds & Store Submission (EAS Workflows)
+
+Build + submit automation lives in **`.eas/workflows/*.yml`** (EAS Workflows), not GitHub Actions. EAS Workflows have first-party job types for `build`, `testflight`, and `submit`, plus fingerprint-aware jobs that skip native rebuilds when only JS changed.
+
+```yaml
+# .eas/workflows/release.yml (planned)
+name: Release
+on:
+  push:
+    branches: [main]
+jobs:
+  build_ios:
+    type: build
+    params:
+      platform: ios
+      profile: production
+  submit_ios:
+    needs: [build_ios]
+    type: submit
+    params:
+      platform: ios
+      build_id: ${{ needs.build_ios.outputs.build_id }}
 ```
 
 ### What CI Does NOT Do
 
-- No EAS builds on CI (use `eas build` manually or from local machine)
-- No deployment (Coolify auto-deploys the Next.js site on push to main)
+- No EAS builds inside GitHub Actions — EAS Workflows own that path
+- Web deploys go through OpenNext + Wrangler for `apps/web`, separate from PR checks
 - No Sentry release creation (handled by EAS Build hooks)
 
 ---
@@ -1781,230 +1806,131 @@ Light + dark mode support. Primary color TBD (match logo).
 
 ---
 
-## App Config (`app.config.ts`)
+## App Config & Production Readiness (EAS)
 
-Based on the MrDemonWolf app pattern, adapted for ConPaws with three variants.
+The app config is code, not docs: **`apps/native/app.config.ts` is the source of truth.** It is variant-driven (`APP_VARIANT` = `development` / `preview` / `production`) with per-variant bundle IDs (`com.mrdemonwolf.conpaws`, `.preview`, `.dev`), names, and icons; scheme `conpaws` for deep links; `supportsTablet` for iPad. This section documents the production decisions layered on top of it.
 
-```ts
-import { ConfigContext, ExpoConfig } from "expo/config";
+### Versioning: remote source + auto-increment
 
-const APP_VARIANT = process.env.APP_VARIANT || "development";
-const IS_PRODUCTION = APP_VARIANT === "production";
-const IS_PREVIEW = APP_VARIANT === "preview";
-
-const getBundleId = () => {
-  if (IS_PRODUCTION) return "com.mrdemonwolf.conpaws";
-  if (IS_PREVIEW) return "com.mrdemonwolf.conpaws.preview";
-  return "com.mrdemonwolf.conpaws.dev";
-};
-
-const getAppName = () => {
-  if (IS_PRODUCTION || IS_PREVIEW) return "ConPaws";
-  return "ConPaws (Dev)";
-};
-
-const getIcon = () => {
-  return "./src/assets/images/icon.png";
-};
-
-const getAndroidForegroundIcon = () => {
-  return "./src/assets/images/android-icon-foreground.png";
-};
-
-export default ({ config }: ConfigContext): ExpoConfig => ({
-  ...config,
-  owner: "mrdemonwolf-org",
-  name: getAppName(),
-  slug: "conpaws",
-  version: "1.0.0",
-  orientation: "default",
-  icon: getIcon(),
-  scheme: "conpaws",
-  userInterfaceStyle: "automatic",
-  newArchEnabled: true,
-  ios: {
-    supportsTablet: true,
-    bundleIdentifier: getBundleId(),
-    buildNumber: "1",
-    config: {
-      usesNonExemptEncryption: false,
-    },
-    infoPlist: {
-      NSMotionUsageDescription:
-        "This app uses haptic feedback to enhance your experience.",
-    },
-  },
-  android: {
-    package: getBundleId(),
-    versionCode: 1,
-    adaptiveIcon: {
-      backgroundColor: "#ffffff",
-      foregroundImage: getAndroidForegroundIcon(),
-      backgroundImage: "./src/assets/images/android-icon-background.png",
-      monochromeImage: "./src/assets/images/android-icon-monochrome.png",
-    },
-    edgeToEdgeEnabled: true,
-  },
-  web: {
-    output: "static",
-    favicon: "./src/assets/images/favicon.png",
-  },
-  plugins: [
-    "expo-router",
-    "expo-sqlite",
-    [
-      "expo-splash-screen",
-      {
-        image: "./src/assets/images/splash-icon.png",
-        imageWidth: 200,
-        resizeMode: "contain",
-        backgroundColor: "#ffffff",
-        dark: {
-          backgroundColor: "#000000",
-        },
-      },
-    ],
-    [
-      "expo-document-picker",
-      {
-        iCloudContainerEnvironment: "Production",
-      },
-    ],
-    [
-      "@sentry/react-native/expo",
-      {
-        organization: "mrdemonwolf",
-        project: "conpaws",
-      },
-    ],
-  ],
-  extra: {
-    eas: {
-      projectId: "",
-    },
-    appVariant: APP_VARIANT,
-  },
-  experiments: {
-    typedRoutes: true,
-    reactCompiler: true,
-  },
-});
-```
-
-### Changes From MrDemonWolf App
-
-| What | MrDemonWolf App | ConPaws |
-|------|----------------|---------|
-| Variants | 2 (dev/prod) | 3 (dev/preview/prod) |
-| Bundle ID | `com.mrdemonwolf.OfficialApp` | `com.mrdemonwolf.conpaws` |
-| App name | `MrDemonWolf` / `MDW (Dev)` | `ConPaws` / `ConPaws (Dev)` (preview + prod share the same name) |
-| Slug | `official-app` | `conpaws` |
-| Scheme | `mrdemonwolf` | `conpaws` (deep links: `conpaws://`) |
-| Orientation | `portrait` | `default` (allows landscape on iPad for split-view) |
-| Plugins | router, splash | + `expo-sqlite`, `expo-document-picker` |
-| Extra | just EAS ID | + `appVariant` exposed to code |
-
-### EAS Config (`eas.json`)
+`apps/native/eas.json` already sets:
 
 ```json
 {
-  "cli": {
-    "version": ">= 16.28.0",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "channel": "development",
-      "env": { "APP_VARIANT": "development" },
-      "ios": { "buildConfiguration": "Debug" },
-      "local": true
-    },
-    "preview": {
-      "distribution": "internal",
-      "channel": "preview",
-      "env": { "APP_VARIANT": "preview" },
-      "local": true
-    },
-    "production": {
-      "distribution": "store",
-      "channel": "production",
-      "autoIncrement": true,
-      "env": { "APP_VARIANT": "production" }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
-      }
-    }
-  }
+  "cli": { "appVersionSource": "remote" },
+  "build": { "production": { "autoIncrement": true } }
 }
 ```
 
-**Build strategy:**
+- With `appVersionSource: "remote"`, EAS owns `buildNumber`/`versionCode` — any values in `app.config.ts` are **ignored**. Never hand-bump them.
+- `autoIncrement: true` on the production profile bumps the store-facing build number on every production build.
+
+### EAS Environment Variables (not `.env`)
+
+`.env` files are invisible to remote EAS builders — they are local-dev-only. Every value a build needs lives in **EAS Environment Variables**: scoped per environment (development/preview/production), with **plain / sensitive / secret** visibility and **string / file** types (file type carries the Play service-account JSON and similar). `eas env:pull --environment <env>` materializes a local `.env` for development. See the Environment Variables section under Monorepo Structure for the variable list.
+
+### EAS Update: fingerprint runtime policy
+
+```ts
+// app.config.ts
+updates: { /* ... */ },
+runtimeVersion: { policy: "fingerprint" },
+```
+
+Use the **`fingerprint`** policy, not `appVersion`. Fingerprint hashes the native container, so an OTA update can never land on an incompatible binary — it is the only policy that cannot be defeated by forgetting to bump a version after a native dependency change. Update channels map 1:1 to build profiles (`development` / `preview` / `production`). Note: on SDK 55, `eas update` requires an explicit `--environment` flag.
+
+### EAS Submit
+
+- **iOS:** `submit.production.ios` needs the real `ascAppId`; authenticate with an **App Store Connect API Key** configured via `eas credentials` (no Apple ID password in automation).
+- **Android:** a Google Play **service-account JSON** (stored as an EAS file-type secret). The **first submission always lands on the internal track**, and Play requires the very first AAB of a new app to go through the Console UI regardless.
+- **Do upload #1 manually on both stores** to de-risk the pipeline; automate from upload #2 onward.
+- **Known issue:** the current `apps/native/eas.json` submit block still contains invalid placeholders (`your-apple-id@example.com`, `your-asc-app-id`, `your-team-id`). Tracked as **CON-35** (owned by another branch) — do not run a submit through it until that lands.
+
+### Release build hardening (`expo-build-properties`)
+
+```ts
+// app.config.ts plugins
+["expo-build-properties", {
+  android: {
+    enableMinifyInReleaseBuilds: true,     // R8 — the modern shrinker, not legacy ProGuard
+    enablePngCrunchInReleaseBuilds: true,
+  },
+}]
+```
+
+Plus `npx expo-doctor` in CI (see CI/CD) to catch dependency/config drift before it costs a cloud build.
+
+### SDK Upgrade Path: 55 → 56 → 57
+
+The repo is on SDK 55; the target is **SDK 57** (current since Jun 30 2026 — RN 0.86, React 19.2). Upgrade one major at a time, running `npx expo install --fix` and `npx expo-doctor` after each hop.
+
+**Before starting:** `grep -r "@react-navigation" apps/native` — SDK 56's Expo Router decoupled from React Navigation, so any direct `@react-navigation/*` usage must migrate. The codemod:
+
+```bash
+npx expo-codemod sdk-56-expo-router-react-navigation-replace
+```
+
+**55 → 56:**
+- **Hermes v1 becomes the default.** On SDK 55 it is opt-in *and requires building Hermes from source* — explicitly not recommended in monorepos, so do not chase it early. Getting Hermes v1 for free is the concrete argument for this upgrade.
+- Expo Router version follows the SDK (56.x).
+
+**56 → 57:**
+- `expo prebuild` now **clears `ios/` and `android/` by default** (pass `--no-clean` for the old incremental behavior). Harmless under CNG with gitignored native dirs, but any script assuming incremental prebuild will notice.
+- RN 0.86 / React 19.2 — this hop also retires the current `react: 19.0.0` pin mismatch.
+
+### Build Strategy
 
 | Profile | Built where | Why |
 |---------|------------|-----|
-| `development` | **Local** (`local: true`) | Fast iteration, no build credits used |
-| `preview` | **Local** (`local: true`) | TestFlight/internal testing, no build credits used |
-| `production` | **EAS Cloud** | Store submission, `autoIncrement` handles version bumps |
+| `development` | **Local** (`eas build --local`) | Fast iteration, no build credits used |
+| `preview` | **Local** (`eas build --local`) | TestFlight/internal testing, no build credits used |
+| `production` | **EAS Cloud** (via EAS Workflows) | Store submission; `autoIncrement` handles version bumps |
 
 Run locally: `eas build --profile development --local` or `eas build --profile preview --local`
-Run on EAS: `eas build --profile production` (cloud) → `eas submit --profile production`
+Production: EAS Workflows (`.eas/workflows/*.yml`) run build → submit — see CI/CD.
 
-This keeps you on the EAS free plan — only production store builds use cloud credits.
+This keeps the project on the EAS free plan — only production store builds use cloud credits.
 
 ### Why Three Variants
 
 All three can be installed on the same device simultaneously (different bundle IDs):
 
-- **Development** (`conpaws.dev`) — Local Supabase, sandbox RevenueCat, debug tools
-- **Preview** (`conpaws.preview`) — Staging Supabase (`dev.conpaws.com`), TestFlight/internal builds
-- **Production** (`conpaws`) — Live Supabase (`api.conpaws.com`), App Store release
+- **Development** (`conpaws.dev`) — local API Worker (`wrangler dev`), sandbox RevenueCat, debug tools
+- **Preview** (`conpaws.preview`) — staging Worker environment, TestFlight/internal builds
+- **Production** (`conpaws`) — `api.conpaws.com`, App Store release
 
 ---
 
 ## Infrastructure
 
+Everything server-side runs on Cloudflare. No VPS, no Docker, no self-hosted services.
+
 | Service | Where | Notes |
 |---------|-------|-------|
-| Supabase | Self-hosted on Coolify | PostgreSQL + Auth + Real-time + Edge Functions |
-| Cloudflare R2 | Cloudflare | Avatar/file storage via Supabase Storage (S3-compatible, zero egress fees) |
+| API (`apps/server`, planned) | Cloudflare Workers | Hono + tRPC + Better-Auth |
+| Database | Cloudflare D1 | SQLite; 500 MB/database on free tier, 10 GB on paid; billed per **scanned** row — index every queried column |
+| File storage | Cloudflare R2 | Avatars on `cdn.conpaws.com` (bucket custom domain), zero egress fees |
+| Cache | Cloudflare KV | 60-second minimum TTL floor — not for sub-minute freshness |
+| Background jobs | Cloudflare Queues | Push fan-out, deletion jobs; free tier 10k ops/day |
+| Scheduled jobs | Workers Cron Triggers | 30-day grace-period cleanup |
+| Website | Cloudflare Workers (OpenNext) | `apps/web` — marketing, waitlist (D1 + Brevo), sharing previews, universal links, legal pages |
+| Admin dashboard | Cloudflare Workers (Future) | `admin.conpaws.com` — user management, directory CRUD, badges, verification queue |
 | RevenueCat | Cloud (their servers) | Subscription management, no self-host option |
-| Next.js site | Coolify (same VPS) | Marketing site, sharing preview pages (`conpaws.com/@user`), universal links, OG tags, legal pages |
-| Next.js admin | Coolify (same VPS) | Admin dashboard (`admin.conpaws.com`) — user management, convention directory, badges (Future) |
 | Sentry | Cloud (their servers) | Crash reporting + error tracking (free tier: 5K errors/month) |
 
-**How it works:**
-- **Production:** Coolify deploys and manages Supabase for you. No manual Docker setup — Coolify handles the deployment, SSL, and updates.
-- **Local development:** Supabase CLI (`supabase start`) runs a local instance via Docker on your dev machine. This is the only time Docker is used directly.
-- **No separate backend services.** No auth server, no API server, no additional databases. Just Supabase + your Expo app.
+**Cost model:** the **$5/mo Workers Paid plan** is the infrastructure floor. It covers the API Worker, the web Worker, paid-tier D1 limits, and baseline R2/KV/Queues usage. RevenueCat and Sentry ride their free tiers at launch scale.
+
+**Local development:** `wrangler dev` emulates Workers, D1, R2, KV, and Queues on the dev machine (Miniflare). No Docker anywhere in the stack.
 
 ### Storage (Cloudflare R2)
 
-Supabase Storage is S3-compatible. When self-hosted, you point it at R2 via env vars:
-
-```
-STORAGE_BACKEND=s3
-STORAGE_S3_BUCKET=conpaws-avatars
-STORAGE_S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
-STORAGE_S3_FORCE_PATH_STYLE=true
-STORAGE_S3_REGION=auto
-AWS_ACCESS_KEY_ID=<r2-access-key>
-AWS_SECRET_ACCESS_KEY=<r2-secret-key>
-```
+The API Worker talks to R2 through its binding; uploads happen via presigned URLs so avatar bytes never pass through the Worker.
 
 **Why R2:**
 - Zero egress fees (serving avatars costs nothing)
-- S3-compatible (drop-in replacement, no code changes)
+- Native Workers binding (no SDK keys in app code)
 - Cloudflare CDN built in (fast delivery worldwide)
 
-**Direct access via `cdn.conpaws.com`:** R2 bucket has a custom domain (`cdn.conpaws.com`) so avatar URLs point directly to R2, bypassing the Supabase proxy entirely. Faster delivery, no server bandwidth consumed.
+**Direct access via `cdn.conpaws.com`:** the R2 bucket has a custom domain, so avatar URLs point straight at R2 — no proxy in front, no server bandwidth consumed.
 
 ---
 
@@ -2072,8 +1998,8 @@ Must cover:
 | **Data collected (free, no account)** | Nothing. All data stays on device. No analytics, no tracking, no ads. |
 | **Data collected (free account)** | Email (via Apple/Google OAuth), display name, username, pronouns, bio, avatar |
 | **Data collected (ConPaws+)** | Same as above + convention schedules synced to cloud |
-| **Third-party services** | Supabase (auth, database, storage), RevenueCat (subscriptions), Cloudflare R2 (file storage), Apple/Google (OAuth + payments) |
-| **Data storage** | Self-hosted Supabase (you control the server), Cloudflare R2 for avatars |
+| **Third-party services** | Cloudflare (Workers API, D1 database, R2 file storage), RevenueCat (subscriptions), Apple/Google (OAuth + payments) |
+| **Data storage** | Cloudflare D1 (database) and R2 (avatars), under our Cloudflare account |
 | **Data sharing** | No data sold, no ads, no third-party analytics. Shared schedules are opt-in and user-controlled. |
 | **Data deletion** | Self-service account deletion in Settings. Immediate removal of all cloud data (profile, conventions, events, avatar). No need to contact support. |
 | **Children (COPPA)** | App is not directed at children under 13. No age-gating needed unless targeting kids. |
@@ -2113,13 +2039,13 @@ User taps "Delete Account" in Settings
 
     [Cancel]  [Delete My Account (red)]
   → User confirms
-  → Supabase Edge Function or client call:
-    1. Delete avatar from R2 storage
+  → tRPC `account.delete` mutation on the API Worker:
+    1. Delete avatar object from R2
     2. Delete shared_events (CASCADE from shared_conventions)
     3. Delete shared_conventions
     4. Delete profile row
-    5. Delete auth.users row (CASCADE handles profile)
-    6. RevenueCat: anonymous-ize customer record
+    5. Delete the Better-Auth user row in D1 (CASCADE handles profile)
+    6. RevenueCat: anonymous-ize customer record (via ctx.waitUntil)
     7. Sign user out locally
     8. Clear local cache (SQLite premium data)
   → Show confirmation: "Account deleted."
@@ -2130,7 +2056,7 @@ User taps "Delete Account" in Settings
 - Profile (username, display name, bio, avatar, badges, name effect)
 - All cloud convention data + shared events
 - Avatar file in R2
-- Auth record in Supabase
+- Auth user record (Better-Auth tables in D1)
 - RevenueCat customer link (subscription still managed by Apple/Google directly)
 
 **What stays:**
@@ -2151,53 +2077,53 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 
 ## Development Phases
 
-### Phase 1: MVP (Target: June 2026)
+> **Reality check:** the original "MVP by June 2026" target has passed. The phases below are re-cut around the Cloudflare backend and the actual repo state: the monorepo scaffold and the pre-release website exist; the app screens, local database, and backend do not.
 
-The goal: **a usable app you can take to a convention in June.** Local-first convention management with iCal import. No accounts, no cloud — just a tool that works.
+### Phase 0: Foundation — DONE
 
-- [ ] Monorepo structure (bun workspace, tsconfig, eslint)
-- [ ] Expo app scaffolding with NativeWind v5 + Tailwind CSS v4
-- [ ] ShadCN-inspired component library (Button, Card, Input, Avatar, Badge, etc.)
+- [x] Monorepo scaffold (Better-T-Stack: bun workspaces + Turborepo + Biome)
+- [x] `apps/native` Expo SDK 55 scaffold (NativeWind v5, app variants, EAS config)
+- [x] `apps/web` marketing/waitlist site on Cloudflare Workers via OpenNext (Turnstile + D1 + Brevo)
+- [x] Root CI (lint + type-check fanning out through Turbo)
+
+### Phase 1: MVP (local-first app)
+
+The goal: **a usable app you can take to a convention.** Local-first convention management with iCal import. No accounts, no cloud — just a tool that works. Realistic flag in the ground: the winter 2026 con season (MFF in December).
+
+- [ ] SDK upgrade 55 → 56 → 57 (see the upgrade path — do this before screens multiply)
+- [ ] Fix the `react: 19.0.0` pin mismatch (`npx expo install --fix`)
+- [ ] ShadCN-inspired native component library (Button, Card, Input, Avatar, Badge, etc.)
 - [ ] Theme system (light + dark mode via NativeWind CSS variables)
-- [ ] expo-sqlite + Drizzle ORM setup for local database
+- [ ] expo-sqlite + Drizzle ORM setup (`apps/native/src/db/` — empty today)
 - [ ] Onboarding flow (Welcome → Features → Get Started → Complete)
-- [ ] Tab navigation (Home, Profile, Settings)
-- [ ] Local convention management (CRUD with expo-sqlite + Drizzle ORM)
-- [ ] Convention detail with events (panels + custom items)
-- [ ] Convention status detection (upcoming/active/ended)
+- [ ] Tab navigation (Home, Profile, Settings — classic JS tabs; Native Tabs is alpha)
+- [ ] Local convention management (CRUD), detail with events, status detection
 - [ ] iCal import — two methods:
-  - [ ] Import .ics file from device (primary — user downloads from Sched/con website, imports into app)
-  - [ ] Paste Sched URL → app extracts iCal link and parses events (secondary — convenience feature)
+  - [ ] Import .ics file from device (primary)
+  - [ ] Paste Sched URL → app extracts iCal link and parses events (secondary)
 - [ ] Settings screen (reset onboarding, about, legal links)
-- [ ] App variants (development, preview, production) + .env files
+- [ ] JSON data export/import (share sheet)
+- [ ] i18next setup (English strings, `useTranslation()` from day one)
+- [ ] Vitest setup + initial unit tests (iCal parser, utility functions) — none exist yet
 - [ ] App icons and splash screen
-- [ ] JSON data export/import (Settings → Export/Import My Data, cross-platform via share sheet)
-- [ ] i18next setup (English strings in `src/locales/en.json`, `useTranslation()` from day one)
-- [ ] Vitest setup + initial unit tests (iCal parser, utility functions)
-- [ ] GitHub Actions CI (lint + type-check + test on PRs)
 
-**Milestone:** App works 100% offline with iCal import. Ready to use at a con in June.
+**Milestone:** App works 100% offline with iCal import.
 
-### Phase 2: Auth & Accounts
+### Phase 2: Backend & Accounts
 
-Deploy Supabase on Coolify, add accounts and profiles, browse convention directory.
+Scaffold the Cloudflare backend, add accounts and profiles, browse the convention directory.
 
-- [ ] Supabase deployment on Coolify (+ R2 storage config)
-- [ ] Supabase database schema + migrations (profiles, convention_directory, RLS policies)
-- [ ] Supabase Auth config (Apple Sign-In + Google OAuth)
-- [ ] Supabase local dev setup (Supabase CLI)
+- [ ] **Spike first:** verify `@better-auth/expo` against SDK 55+/New Architecture on a dev build — compatibility is unverified and this gates the rest of the phase
+- [ ] Scaffold `apps/server` (Hono + tRPC + Better-Auth on Workers; D1/R2/KV/Queues bindings in `wrangler.jsonc`)
+- [ ] D1 schema + Drizzle migrations (every queried column indexed at definition time)
+- [ ] Better-Auth config (Apple Sign-In + Google OAuth; per-request factory; pin `>=1.6.x`; test session persistence across the cookieCache boundary)
 - [ ] Auth flow in mobile app (sign in, session management, sign out)
-- [ ] Database trigger: auto-create profile row on auth.users insert
-- [ ] Profile creation screen (display name, @username, pronouns, bio, avatar picker)
-- [ ] Built-in animal icon avatar picker (bundled assets, no network needed)
-- [ ] 2-letter initials fallback avatar (color derived from username hash)
-- [ ] Username validation + blocklist (server-side check)
-- [ ] Profile screen (view your own profile)
-- [ ] Account section in Settings
-- [ ] Self-service account deletion (GDPR/CCPA compliant, also required by App Store)
-- [ ] Convention directory table + admin seeding (curated list of furry cons)
-- [ ] "Browse Conventions" screen (search/filter the directory, add to your list)
-
+- [ ] Profile creation via Better-Auth database hook + setup screen (display name, @username, pronouns, bio, avatar picker)
+- [ ] Built-in animal icon avatar picker + 2-letter initials fallback
+- [ ] Username validation + blocklist (tRPC-side check against D1)
+- [ ] Profile screen, Account section in Settings
+- [ ] Self-service account deletion (GDPR/CCPA compliant, required by App Store)
+- [ ] Convention directory table + admin seeding; "Browse Conventions" screen
 - [ ] Sentry crash reporting setup (`@sentry/react-native`, preview + production only)
 
 **Milestone:** Users can create accounts, have profiles, and browse the convention directory.
@@ -2207,21 +2133,18 @@ Deploy Supabase on Coolify, add accounts and profiles, browse convention directo
 Add RevenueCat and all premium features.
 
 - [ ] RevenueCat SDK integration
-- [ ] Developer premium access (grant `conpaws_plus` via RevenueCat Promotional Entitlements dashboard — no code needed)
+- [ ] Developer premium access (RevenueCat Promotional Entitlements — no code needed)
 - [ ] Paywall UI (monthly + yearly options)
-- [ ] `Purchases.logIn(supabaseUserId)` after auth
-- [ ] RevenueCat webhook → Supabase Edge Function (sync subscription status)
-- [ ] Cloud sync: two-mode architecture (cloud-primary for premium, local-primary for free)
-- [ ] Offline queue + drain engine
-- [ ] Custom photo avatar upload (ConPaws+ only, R2 storage, resized with expo-image-manipulator)
-- [ ] Share convention schedule (public profile feature)
-- [ ] "Next Conventions" on profile
-- [ ] ConPaws+ gold paw badge on profile
-- [ ] Developer gold checkmark badge
-- [ ] Privacy controls (shareable toggle on events)
+- [ ] `Purchases.logIn(userId)` after auth
+- [ ] RevenueCat webhook → Hono route on the Worker (verify auth header; `is_premium` sync; side effects via `ctx.waitUntil`)
+- [ ] Polling sync: `changes?since=` endpoint + local mirror merge (`useLiveQuery`)
+- [ ] Offline queue + drain engine (chunked ≤100 bound params, `db.batch()` server-side)
+- [ ] Cron Trigger: 30-day grace-period deletion job
+- [ ] Custom photo avatar upload (ConPaws+ only — R2 presigned upload, resized with expo-image-manipulator)
+- [ ] Share convention schedule, "Next Conventions" on profile
+- [ ] Gold paw + developer badges; privacy controls (shareable toggle)
 - [ ] Entitlement gating throughout the app
-- [ ] "Find Friends" — search users by username, discover who's attending same conventions (premium)
-- [ ] Name effects — pride flag gradient picker for display names (premium)
+- [ ] Name effects — pride flag gradient picker (premium)
 - [ ] Subscription cancellation flow (30-day grace period, data download)
 
 **Milestone:** Full free-to-paid funnel working end to end.
@@ -2230,14 +2153,15 @@ Add RevenueCat and all premium features.
 
 Get ready for the App Store.
 
-- [ ] Verified badge system (admin panel or manual for now)
-- [ ] Push notifications for convention reminders (optional)
+- [ ] Verification requests pipeline (`verification_requests` + `verified_creator`; manual review for now)
+- [ ] Push notifications via Cloudflare Queue → Expo Push API (optional)
 - [ ] Accessibility pass (VoiceOver, Dynamic Type)
 - [ ] Performance optimization
-- [ ] Sharing URLs — Next.js site on Coolify (`conpaws.com/@username`, `conpaws.com/con/slug`)
+- [ ] Sharing preview pages live in `apps/web` (`conpaws.com/@username`, `conpaws.com/con/slug` — SSR against the API Worker)
 - [ ] Universal links setup (iOS `apple-app-site-association` + Android `assetlinks.json`)
-- [ ] Privacy Policy (hosted at conpaws.com/privacy)
-- [ ] Terms of Service (hosted at conpaws.com/terms)
+- [ ] Privacy Policy + Terms of Service (conpaws.com/privacy, /terms)
+- [ ] Fix `eas.json` submit placeholders (CON-35), ASC API Key via `eas credentials`, Play service-account JSON
+- [ ] First store upload done **manually** on both stores; EAS Workflows automate from #2 on
 - [ ] App Store assets (screenshots, description, keywords)
 - [ ] TestFlight beta → gather feedback → iterate
 - [ ] App Store submission (iOS first, then Android)
@@ -2263,201 +2187,23 @@ Not committed, just possibilities.
 Things to decide before or during development:
 
 1. ~~**Exact pricing**~~ — **Decided: $3.99/mo + $24.99/yr** with convention season promos
-2. ~~**Backend stack**~~ — **Decided: Supabase (self-hosted on Coolify)** — auth, database, storage, API all-in-one
+2. ~~**Backend stack**~~ — **Decided: Cloudflare Workers + D1 + R2, with Hono + tRPC + Better-Auth** — one platform for API, database, storage, and the website
 3. ~~**Premium plan name**~~ — **Decided: ConPaws+** with gold paw badge + blue check verified badge
 4. ~~**Free trial**~~ — **Decided: No free trial.** Users either subscribe or they don't.
-5. ~~**Avatar limits**~~ — **Decided: 5 MB max.** JPEG/PNG/WebP. Stored on Cloudflare R2 via Supabase Storage (S3-compatible, zero egress fees).
+5. ~~**Avatar limits**~~ — **Decided: 5 MB max.** JPEG/PNG/WebP. Stored on Cloudflare R2 (zero egress fees), served via `cdn.conpaws.com`.
 6. ~~**Username rules**~~ — **Decided: 3-20 chars, lowercase alphanumeric + underscores.** Changes require contacting support. Server-side blocklist for profanity, reserved words, and impersonation.
 7. ~~**Verification criteria**~~ — **Decided: Notable community members only** — big content creators, well-known artists, popular fursuiters. Admin-assigned blue checkmark. Developer gets gold checkmark (same icon, gold background).
 8. ~~**iCal priority**~~ — **Decided: Phase 1 (MVP).** Most furry cons use Sched which provides iCal links. Import is core functionality, not a nice-to-have. Two methods: .ics file import + Sched URL parser.
 9. ~~**Theme colors**~~ — **Decided: Dark mode + light mode only.** Brand colors TBD to match the logo.
 10. ~~**watchOS scope**~~ — **Decided: No watchOS app.** Use Live Activities instead — they show on iPhone lock screen AND Apple Watch Smart Stack automatically. Shows next event countdown, name, location, and time. Updates as events pass throughout the day.
-11. ~~**Offline → Online sync**~~ — **Decided: Two-mode architecture** — free = local-primary (SQLite is full DB), premium = cloud-primary (Supabase is source of truth, SQLite is cache). Last-write-wins conflict resolution. 30-day grace period on cancellation.
-12. ~~**Convention data source**~~ — **Decided: Hybrid.** Admin-curated convention directory in Supabase (browse & add), plus user self-import via iCal/Sched URLs, plus manual entry. Most furry cons use Sched which provides iCal feeds.
+11. ~~**Offline → Online sync**~~ — **Decided: Two-mode architecture** — free = local-primary (SQLite is the full DB), premium = cloud-primary (D1 is the source of truth; the device keeps a polled local mirror). Last-write-wins conflict resolution. 30-day grace period on cancellation. No realtime layer — polling only.
+12. ~~**Convention data source**~~ — **Decided: Hybrid.** Admin-curated convention directory in D1 (browse & add), plus user self-import via iCal/Sched URLs, plus manual entry. Most furry cons use Sched which provides iCal feeds.
 
 ---
 
-## README.md Template
+## README.md
 
-Copy this into `README.md` after initializing the Expo project.
-
-````markdown
-# ConPaws
-
-Navigate, Connect, Enjoy.
-
-A convention companion app for the furry community -- manage your convention schedule, track panels, set reminders for meetups, and share it all with friends. Built with a local-first approach: everything works offline with zero login required. Pay only when you want cloud sync and social features.
-
-Built with modern native technologies for a smooth, native-feeling experience on every platform.
-
-## Features
-
-- **Conventions** -- Add and manage conventions with start/end dates, status tracking (upcoming/active/ended), and iCal import from Sched or .ics files.
-- **Events** -- Track panels, meetups, and custom events within each convention with type indicators and shareable toggles.
-- **Convention Directory** -- Browse an admin-curated list of furry conventions and add them to your schedule with one tap.
-- **Profiles** -- Display name, @username, pronouns, bio, and avatar. Choose from 30+ built-in animal icons or upload a custom photo (ConPaws+).
-- **ConPaws+** -- Premium subscription for cloud sync, schedule sharing, pride flag name effects, Find Friends, and the gold paw badge.
-- **Badges** -- Gold paw (subscriber), blue checkmark (verified), and gold checkmark (developer).
-- **Name Effects** -- Pride flag gradients on your display name with 12 flags to choose from (ConPaws+).
-- **Offline First** -- Full functionality with no internet connection. Local SQLite database is the source of truth for free users.
-- **Dark Mode** -- Automatic light/dark mode support across the entire app.
-- **iPad Optimized** -- Responsive layouts with master-detail split view on larger screens.
-
-## Tech Stack
-
-- **Framework:** Expo SDK 54 with React Native 0.81 (New Architecture)
-- **Navigation:** Expo Router v6 with native tabs and file-based routing
-- **Styling:** NativeWind v5 (Tailwind CSS v4) with light/dark mode support
-- **Local Database:** expo-sqlite with Drizzle ORM
-- **Backend:** Supabase (self-hosted on Coolify) -- PostgreSQL, Auth, Storage, Edge Functions
-- **Storage:** Cloudflare R2 via Supabase Storage (S3-compatible, zero egress)
-- **Payments:** RevenueCat for subscription management
-- **Data Fetching:** TanStack React Query
-- **Icons:** Lucide React Native
-- **Testing:** Vitest
-- **CI/CD:** GitHub Actions (lint + type-check + tests)
-- **Crash Reporting:** Sentry
-- **Localization:** i18next (English primary, community translations)
-- **Monorepo:** bun workspaces
-- **Platforms:** iOS, iPadOS, Android
-
-## Project Structure
-
-```
-conpaws/
-├── apps/
-│   └── mobile/              # Expo React Native app
-│       ├── src/
-│       │   ├── app/         # Expo Router (file-based screens)
-│       │   ├── components/  # UI components
-│       │   ├── contexts/    # React contexts
-│       │   ├── hooks/       # Custom hooks
-│       │   ├── lib/         # Utilities, constants, clients
-│       │   ├── db/          # Drizzle schema + migrations
-│       │   ├── types/       # TypeScript types
-│       │   └── assets/      # Images, icons
-│       └── app.config.ts
-├── apps/
-│   └── web/               # Next.js site (marketing, sharing, legal) — hosted on Coolify
-├── packages/
-│   └── supabase/            # Supabase config + migrations
-├── bun.lock
-└── package.json
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 20.x or later
-- bun (latest)
-- Xcode (for iOS development)
-- Android Studio (for Android development)
-- Docker (for local Supabase via Supabase CLI)
-
-### Setup
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/MrDemonWolf/conpaws.git
-   cd conpaws
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   bun install
-   ```
-
-3. Copy environment variables:
-
-   ```bash
-   cp .env.example .env.development
-   ```
-
-4. Configure your environment variables in `.env.development`
-
-5. Start local Supabase (requires Docker):
-
-   ```bash
-   bun supabase:start
-   ```
-
-6. Start the development server:
-
-   ```bash
-   bun dev
-   ```
-
-### Development Scripts
-
-- `bun dev` -- Start Expo dev server
-- `bun ios` -- Run on iOS simulator
-- `bun android` -- Run on Android emulator
-- `bun lint` -- Run ESLint across all packages
-- `bun type-check` -- Run TypeScript type checking
-- `bun test` -- Run unit tests with Vitest
-- `bun supabase:start` -- Start local Supabase instance
-- `bun supabase:stop` -- Stop local Supabase instance
-- `bun supabase:reset` -- Reset local database with migrations + seed
-- `bun prebuild` -- Generate native projects
-- `bun prebuild:clean` -- Clean and regenerate native projects
-
-### Environment Files
-
-| File | Purpose |
-|------|---------|
-| `.env.development` | Local dev (Supabase CLI, sandbox RevenueCat) |
-| `.env.preview` | Staging builds (dev.conpaws.com) |
-| `.env.production` | App Store releases (api.conpaws.com) |
-
-### Code Quality
-
-This project uses:
-
-- **ESLint** for code linting
-- **TypeScript** (strict mode) for type safety
-- **React Compiler** for automatic optimization
-- **Typed Routes** for compile-time route checking
-- **Vitest** for unit testing
-- **Drizzle ORM** for type-safe database access
-- **PostgreSQL Enums** for database-level type safety
-- **Sentry** for crash reporting and error tracking
-
-## Building
-
-Development and preview builds run locally to conserve EAS build credits. Production builds use [EAS Build](https://docs.expo.dev/build/introduction/).
-
-```bash
-# Development (local)
-eas build --profile development --local
-
-# Preview / TestFlight (local)
-eas build --profile preview --local
-
-# Production (EAS cloud)
-eas build --profile production
-
-# Submit to App Store
-eas submit --platform ios --profile production
-
-# Submit to Play Store
-eas submit --platform android --profile production
-```
-
-## License
-
-![GitHub license](https://img.shields.io/github/license/MrDemonWolf/conpaws.svg?style=for-the-badge&logo=github)
-
-## Contact
-
-If you have any questions, suggestions, or feedback, feel free to reach out!
-
-- Discord: [Join my server](https://mrdwolf.net/discord)
-
-Made with <3 by <a href="https://www.mrdemonwolf.com">MrDemonWolf, Inc.</a>
-````
+The repo root `README.md` is the canonical README, maintained in the MrDemonWolf house format (generated with the `mrdw-readme` skill). It is written from the real repo state — this plan deliberately carries no inline README template, because a duplicated template drifts from reality.
 
 ---
 
