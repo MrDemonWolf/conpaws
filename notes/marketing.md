@@ -6,7 +6,7 @@
 
 ## TL;DR
 
-- **Website:** Next.js site on Coolify. Dark theme, playful, mobile-first. Hero + features + how it works + ConPaws+ + footer.
+- **Website:** Next.js site on Cloudflare Workers (OpenNext). Dark theme, playful, mobile-first. Hero + features + how it works + ConPaws+ + footer.
 - **Discord:** Primary channel. Beta program, dev updates, feature polls.
 - **Twitch:** Dev streams when building. Clip cool moments.
 - **Twitter/X:** 2-3 posts/week. Screenshots + short captions win.
@@ -20,7 +20,7 @@
 ## Website (conpaws.com)
 
 ### Purpose
-Single-page marketing site. Convince visitors to download the app. Keep it simple — Next.js on Coolify (same stack as sharing pages, self-hosted).
+Single-page marketing site. Convince visitors to download the app. Keep it simple — Next.js on Cloudflare Workers via OpenNext (same app as the sharing pages, `apps/web`).
 
 ### Sections (top to bottom)
 
@@ -217,13 +217,13 @@ Single-page marketing site. Convince visitors to download the app. Keep it simpl
 
 | Item | Cost |
 |------|------|
-| Website hosting (Coolify) | $0 incremental (same VPS) |
+| Cloudflare Workers Paid (website + API + D1 + R2) | $5/mo = $60/year |
 | Domain (conpaws.com) | ~$12/year |
 | Apple Developer account | $99/year (already have) |
 | Google Play Developer | $25 one-time |
 | YouTube music | Free (royalty-free) |
 | Paid ads | $0 (organic only to start) |
-| **Total year 1** | **~$136** |
+| **Total year 1** | **~$196** |
 
 ---
 
@@ -238,8 +238,8 @@ Single-page marketing site. Convince visitors to download the app. Keep it simpl
 | Apple/Google cut (Small Business Program) | 15% |
 | **Net per monthly sub** | **$3.39/mo** |
 | **Net per yearly sub** | **$21.24/yr ($1.77/mo)** |
-| Year 1 costs | $136 |
-| Year 2+ costs | $111/yr |
+| Year 1 costs | $196 |
+| Year 2+ costs | $171/yr |
 
 ### Scenario A: 1 New Subscriber/Month (Conservative)
 
@@ -248,44 +248,44 @@ Assumes all monthly subs, no churn (best case). Subscribers accumulate.
 ```
 Month   Active Subs   Monthly Rev   Cumulative Rev   Costs    Profit
 ─────   ───────────   ───────────   ──────────────   ──────   ──────
-  1         1            $3.39          $3.39         $136    -$132.61
-  2         2            $6.78         $10.17         $136    -$125.83
-  3         3           $10.17         $20.34         $136    -$115.66
-  4         4           $13.56         $33.90         $136    -$102.10
-  5         5           $16.95         $50.85         $136     -$85.15
-  6         6           $20.34         $71.19         $136     -$64.81
-  7         7           $23.73         $94.92         $136     -$41.08
-  8         8           $27.12        $122.04         $136     -$13.96
-  9         9           $30.51        $152.55         $136     +$16.55  ← BREAK EVEN
- 10        10           $33.90        $186.45         $136     +$50.45
- 11        11           $37.29        $223.74         $136     +$87.74
- 12        12           $40.68        $264.42         $136    +$128.42
+  1         1            $3.39          $3.39         $196    -$192.61
+  2         2            $6.78         $10.17         $196    -$185.83
+  3         3           $10.17         $20.34         $196    -$175.66
+  4         4           $13.56         $33.90         $196    -$162.10
+  5         5           $16.95         $50.85         $196    -$145.15
+  6         6           $20.34         $71.19         $196    -$124.81
+  7         7           $23.73         $94.92         $196    -$101.08
+  8         8           $27.12        $122.04         $196     -$73.96
+  9         9           $30.51        $152.55         $196     -$43.45
+ 10        10           $33.90        $186.45         $196      -$9.55
+ 11        11           $37.29        $223.74         $196     +$27.74  ← BREAK EVEN
+ 12        12           $40.68        $264.42         $196     +$68.42
 ```
 
-**Break even: ~9 months**
-**Year 1 profit: ~$128**
+**Break even: ~11 months**
+**Year 1 profit: ~$68**
 
 ### Scenario B: 2 New Subscribers/Month (Optimistic)
 
 ```
 Month   Active Subs   Monthly Rev   Cumulative Rev   Costs    Profit
 ─────   ───────────   ───────────   ──────────────   ──────   ──────
-  1         2            $6.78          $6.78         $136    -$129.22
-  2         4           $13.56         $20.34         $136    -$115.66
-  3         6           $20.34         $40.68         $136     -$95.32
-  4         8           $27.12         $67.80         $136     -$68.20
-  5        10           $33.90        $101.70         $136     -$34.30
-  6        12           $40.68        $142.38         $136      +$6.38  ← BREAK EVEN
-  7        14           $47.46        $189.84         $136     +$53.84
-  8        16           $54.24        $244.08         $136    +$108.08
-  9        18           $61.02        $305.10         $136    +$169.10
- 10        20           $67.80        $372.90         $136    +$236.90
- 11        22           $74.58        $447.48         $136    +$311.48
- 12        24           $81.36        $528.84         $136    +$392.84
+  1         2            $6.78          $6.78         $196    -$189.22
+  2         4           $13.56         $20.34         $196    -$175.66
+  3         6           $20.34         $40.68         $196    -$155.32
+  4         8           $27.12         $67.80         $196    -$128.20
+  5        10           $33.90        $101.70         $196     -$94.30
+  6        12           $40.68        $142.38         $196     -$53.62
+  7        14           $47.46        $189.84         $196      -$6.16
+  8        16           $54.24        $244.08         $196     +$48.08  ← BREAK EVEN
+  9        18           $61.02        $305.10         $196    +$109.10
+ 10        20           $67.80        $372.90         $196    +$176.90
+ 11        22           $74.58        $447.48         $196    +$251.48
+ 12        24           $81.36        $528.84         $196    +$332.84
 ```
 
-**Break even: ~6 months**
-**Year 1 profit: ~$393**
+**Break even: ~8 months**
+**Year 1 profit: ~$333**
 
 ### Visual: Cumulative Revenue vs Costs
 
@@ -306,7 +306,7 @@ $250 ┤                                    ╱         ╱
      │                                  ╱         ╱
 $200 ┤                                ╱         ╱
      │                              ╱         ╱
-$150 ┤─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─╱─ ─ ─ ─╱─ ─ ─ ─  ← $136 cost line
+$200 ┤─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─╱─ ─ ─ ─╱─ ─ ─ ─  ← $196 cost line
      │                          ╱      ╱
 $100 ┤                        ╱      ╱
      │                      ╱     ╱
@@ -315,19 +315,19 @@ $100 ┤                        ╱      ╱
   $0 ┤─────────────╱──╱──────────────────────────────
      └──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──
         1  2  3  4  5  6  7  8  9  10 11 12  months
-                       ↑        ↑
-                    6 months  9 months
-                    (2/mo)    (1/mo)
+                             ↑        ↑
+                          8 months  11 months
+                          (2/mo)    (1/mo)
 ```
 
 ### Year 2 and Beyond
 
-By month 12 you have 12-24 active subscribers. Year 2 costs drop to $111 (no Google Play fee). If growth continues:
+By month 12 you have 12-24 active subscribers. Year 2 costs drop to $171 (no Google Play fee; Cloudflare + domain + Apple continue). If growth continues:
 
 | Scenario | End of Year 2 Subs | Year 2 Revenue | Year 2 Profit |
 |----------|-------------------|----------------|---------------|
-| 1/mo | 24 active | ~$740 | ~$629 |
-| 2/mo | 48 active | ~$1,480 | ~$1,369 |
+| 1/mo | 24 active | ~$753 | ~$582 |
+| 2/mo | 48 active | ~$1,505 | ~$1,334 |
 
 ### Reality Check
 

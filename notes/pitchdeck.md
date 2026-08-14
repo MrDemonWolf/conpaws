@@ -135,8 +135,8 @@ Anthrocon economic impact on Pittsburgh alone: **$21.7 million** (2025).
 | Apple Developer | $99 | $99 |
 | Google Play Developer | $25 | $0 |
 | Domain | $12 | $12 |
-| Hosting (Netlify + Supabase) | $0 | $0 |
-| **Total** | **$136** | **$111** |
+| Cloudflare Workers Paid (API + website + D1 + R2) | $60 | $60 |
+| **Total** | **$196** | **$171** |
 
 ### Conservative Projection (1 new sub/month)
 
@@ -153,16 +153,16 @@ $500 ┤                               ╱
 $400 ┤                         ╱
      │                      ╱
 $300 ┤                   ╱
-     │                ╱              Year 1: +$128
-$200 ┤             ╱                 Year 2: +$629
-     │─ ─ ─ ─ ─╱─ ─ ← $136 cost    Year 3: +$1,200+
+     │                ╱              Year 1: +$68
+$200 ┤             ╱                 Year 2: +$582
+     │─ ─ ─ ─ ─╱─ ─ ← $196 cost    Year 3: +$1,100+
 $100 ┤       ╱
      │    ╱
   $0 ┤─╱──────────────────────────
      └──┬─────┬─────┬─────┬─────
         3     6     9     12    months
-                    ↑
-              break even (~9 mo)
+                       ↑
+              break even (~11 mo)
 ```
 
 ### Optimistic Projection (2 new subs/month)
@@ -174,22 +174,22 @@ $800 ┤
 $700 ┤                                      ╱
      │                                   ╱
 $600 ┤                                ╱
-     │                             ╱         Year 1: +$393
-$500 ┤                          ╱            Year 2: +$1,369
-     │                       ╱               Year 3: +$2,800+
+     │                             ╱         Year 1: +$333
+$500 ┤                          ╱            Year 2: +$1,334
+     │                       ╱               Year 3: +$2,700+
 $400 ┤                    ╱
      │                 ╱
 $300 ┤              ╱
      │           ╱
 $200 ┤        ╱
-     │─ ─ ─╱─ ─ ─ ← $136 cost
+     │─ ─ ─╱─ ─ ─ ← $196 cost
 $100 ┤   ╱
      │╱
   $0 ┤────────────────────────────
      └──┬─────┬─────┬─────┬─────
         3     6     9     12    months
-              ↑
-        break even (~6 mo)
+                  ↑
+        break even (~8 mo)
 ```
 
 ### Addressable Market Math
@@ -200,7 +200,7 @@ $100 ┤   ╱
 | Free-to-paid conversion rate | 2% | 3% | 5% |
 | Paying subscribers | 10 | 60 | 250 |
 | Annual revenue (avg $30/yr) | $300 | $1,800 | $7,500 |
-| Annual profit | $189 | $1,689 | $7,389 |
+| Annual profit (after $171/yr costs) | $129 | $1,629 | $7,329 |
 
 With 170+ conventions and combined attendance in the hundreds of thousands, even capturing a small fraction of the market makes ConPaws self-sustaining.
 
@@ -240,6 +240,8 @@ With 170+ conventions and combined attendance in the hundreds of thousands, even
 | **Messaging/chat** | No (lean, no moderation burden) | Yes |
 | **Fursona profiles** | Yes (1 per user) | Yes (multiple) |
 | **Find Friends** | Premium, at-con only | Free, real-time map |
+
+> **⚠️ DECISION NEEDED (Nathanial):** the friend map / at-con "Find Friends" feature is **cut from ConPaws' scope** (all realtime work was dropped in the backend pivot). The "Find Friends" row above and the friend-map comparison against Barq are the differentiator claim this deck leans on — it needs a replacement GTM hook or removal. Nothing else in the repo references the friend map; do not build marketing on it until this is resolved.
 
 ### Honest Assessment
 
@@ -288,14 +290,14 @@ With 170+ conventions and combined attendance in the hundreds of thousands, even
 |-------|-----------|
 | App framework | Expo (React Native) — iOS + Android from one codebase |
 | Styling | NativeWind (Tailwind CSS for mobile) |
-| Local database | SQLite via Prisma ORM |
-| Cloud backend | Supabase (self-hosted) — PostgreSQL, Auth, Storage |
-| File storage | Cloudflare R2 (S3-compatible) |
+| Local database | SQLite via Drizzle ORM |
+| Cloud backend | Cloudflare Workers — Hono + tRPC + Better-Auth, D1 (SQLite) database |
+| File storage | Cloudflare R2 (zero egress fees) |
 | Payments | RevenueCat (handles Apple + Google subscriptions) |
 | Crash reporting | Sentry |
-| Website | Astro on Netlify (static, zero JS) |
+| Website | Next.js on Cloudflare Workers via OpenNext |
 
-**Key architecture:** Offline-first. Free users = local SQLite. Premium users = cloud sync via Supabase. The app works without internet by design.
+**Key architecture:** Offline-first. Free users = local SQLite. Premium users = cloud sync (polling) via the Cloudflare API. The app works without internet by design.
 
 ---
 
