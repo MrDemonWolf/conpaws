@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Strona główna",
+    "profile": "Profil",
+    "settings": "Ustawienia",
+    "back": "Wstecz",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "done": "Gotowe",
+    "loading": "Ładowanie...",
+    "error": "Coś poszło nie tak",
+    "retry": "Spróbuj ponownie",
+    "close": "Zamknij",
+    "next": "Dalej",
+    "skip": "Pomiń",
+    "getStarted": "Zacznij",
+    "learnMore": "Dowiedz się więcej",
+    "version": "Wersja {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Nawiguj, Łącz się, Ciesz się",
+      "subtitle": "Twój furry towarzysz konwentów",
+      "getStarted": "Zacznij"
+    },
+    "features": {
+      "title": "Wszystko, czego potrzebujesz",
+      "subtitle": "ConPaws utrzymuje Twoje doświadczenie z konwentu w porządku",
+      "calendar": {
+        "title": "Kalendarz Konwentów",
+        "description": "Importuj harmonogramy z dowolnego konwentu. Przeglądaj panele, wydarzenia i aktywności na pierwszy rzut oka."
+      },
+      "share": {
+        "title": "Udostępnij & Połącz się",
+        "description": "Utwórz swój osobisty harmonogram i udostępnij go przyjaciołom uczestniczącym w tym samym konie."
+      },
+      "offline": {
+        "title": "Działa Offline",
+        "description": "Wszystkie Twoje dane są przechowywane lokalnie. Internet nie jest wymagany po zaimportowaniu harmonogramu."
+      },
+      "next": "Dalej"
+    },
+    "getStarted": {
+      "title": "Dołącz do ConPaws",
+      "subtitle": "Zaloguj się, aby synchronizować harmonogram między urządzeniami",
+      "signInWithApple": "Zaloguj się przez Apple",
+      "signInWithGoogle": "Zaloguj się przez Google",
+      "skipForNow": "Pomiń na razie",
+      "legal": "Kontynuując, akceptujesz nasze Warunki korzystania z usługi i Politykę prywatności"
+    },
+    "complete": {
+      "title": "Wszystko gotowe!",
+      "subtitle": "Witaj w ConPaws. Poznajmy Twój pierwszy konwent.",
+      "letsGo": "Zaczynamy"
+    }
+  },
+  "home": {
+    "title": "Moje Konwenty",
+    "addConvention": "Dodaj Konwent",
+    "empty": {
+      "title": "Brak konwentów",
+      "subtitle": "Dodaj swój pierwszy konwent, aby zacząć.",
+      "cta": "Dodaj Konwent"
+    },
+    "upcoming": "Nadchodzące",
+    "active": "Aktywne",
+    "past": "Minione"
+  },
+  "convention": {
+    "new": "Nowy Konwent",
+    "edit": "Edytuj Konwent",
+    "import": "Importuj Harmonogram",
+    "detail": "Szczegóły Konwentu",
+    "events": "Wydarzenia",
+    "noEvents": "Brak wydarzeń",
+    "noEventsSubtitle": "Zaimportuj harmonogram lub dodaj wydarzenia ręcznie.",
+    "addEvent": "Dodaj Wydarzenie",
+    "importSchedule": "Importuj Harmonogram",
+    "startDate": "Data Rozpoczęcia",
+    "endDate": "Data Zakończenia",
+    "name": "Nazwa Konwentu",
+    "namePlaceholder": "np. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Profil",
+    "signIn": "Zaloguj się",
+    "notSignedIn": "Niezalogowany",
+    "notSignedInSubtitle": "Zaloguj się, aby synchronizować harmonogram i łączyć się z przyjaciółmi.",
+    "comingSoon": "Funkcje profilu wkrótce",
+    "signInWithApple": "Zaloguj się przez Apple",
+    "signInWithGoogle": "Zaloguj się przez Google"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "languages": {
+      "title": "Język",
+      "systemDefault": "Użyj języka urządzenia",
+      "en": "Angielski",
+      "es": "Hiszpański",
+      "nl": "Niderlandzki",
+      "de": "Niemiecki",
+      "fr": "Francuski",
+      "pt-BR": "Portugalski (Brazylia)",
+      "sv": "Szwedzki",
+      "pl": "Polski"
+    },
+    "account": {
+      "title": "Konto",
+      "signIn": "Zaloguj się",
+      "signOut": "Wyloguj się"
+    },
+    "app": {
+      "title": "Aplikacja",
+      "theme": "Motyw",
+      "language": "Język",
+      "notifications": "Powiadomienia"
+    },
+    "data": {
+      "title": "Dane",
+      "exportData": "Eksportuj Dane",
+      "importData": "Importuj Dane",
+      "resetOnboarding": "Zresetuj Wdrożenie"
+    },
+    "legal": {
+      "title": "Prawne",
+      "privacyPolicy": "Polityka Prywatności",
+      "termsOfService": "Warunki Korzystania",
+      "about": "O ConPaws",
+      "openSourceLicenses": "Licencje Open Source"
+    },
+    "about": {
+      "title": "O aplikacji",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Importuj Harmonogram",
+    "url": "Importuj z URL",
+    "file": "Importuj z Pliku",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Podgląd Wydarzeń",
+    "importing": "Importowanie...",
+    "success": "Import zakończony",
+    "error": "Import nie powiódł się"
+  },
+  "reminders": {
+    "title": "Przypomnienia",
+    "add": "Dodaj Przypomnienie",
+    "minutesBefore": "{{minutes}} minut wcześniej",
+    "atTime": "O czasie wydarzenia",
+    "none": "Brak przypomnienia"
+  }
+}

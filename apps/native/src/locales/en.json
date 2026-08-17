@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Home",
+    "profile": "Profile",
+    "settings": "Settings",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "done": "Done",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "close": "Close",
+    "next": "Next",
+    "skip": "Skip",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "version": "Version {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Navigate, Connect, Enjoy",
+      "subtitle": "Your furry convention companion",
+      "getStarted": "Get Started"
+    },
+    "features": {
+      "title": "Everything you need",
+      "subtitle": "ConPaws keeps your convention experience organized",
+      "calendar": {
+        "title": "Convention Calendar",
+        "description": "Import schedules from any convention. Browse panels, events, and activities at a glance."
+      },
+      "share": {
+        "title": "Share & Connect",
+        "description": "Build your personal schedule and share it with friends attending the same con."
+      },
+      "offline": {
+        "title": "Works Offline",
+        "description": "All your data is stored locally. No internet required once you've imported your schedule."
+      },
+      "next": "Next"
+    },
+    "getStarted": {
+      "title": "Join ConPaws",
+      "subtitle": "Sign in to sync your schedule across devices",
+      "signInWithApple": "Sign in with Apple",
+      "signInWithGoogle": "Sign in with Google",
+      "skipForNow": "Skip for now",
+      "legal": "By continuing, you agree to our Terms of Service and Privacy Policy"
+    },
+    "complete": {
+      "title": "You're all set!",
+      "subtitle": "Welcome to ConPaws. Let's explore your first convention.",
+      "letsGo": "Let's Go"
+    }
+  },
+  "home": {
+    "title": "My Conventions",
+    "addConvention": "Add Convention",
+    "empty": {
+      "title": "No conventions yet",
+      "subtitle": "Add your first convention to get started.",
+      "cta": "Add Convention"
+    },
+    "upcoming": "Upcoming",
+    "active": "Active",
+    "past": "Past"
+  },
+  "convention": {
+    "new": "New Convention",
+    "edit": "Edit Convention",
+    "import": "Import Schedule",
+    "detail": "Convention Details",
+    "events": "Events",
+    "noEvents": "No events yet",
+    "noEventsSubtitle": "Import a schedule or add events manually.",
+    "addEvent": "Add Event",
+    "importSchedule": "Import Schedule",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "name": "Convention Name",
+    "namePlaceholder": "e.g. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Profile",
+    "signIn": "Sign In",
+    "notSignedIn": "Not signed in",
+    "notSignedInSubtitle": "Sign in to sync your schedule and connect with friends.",
+    "comingSoon": "Profile features coming soon",
+    "signInWithApple": "Sign in with Apple",
+    "signInWithGoogle": "Sign in with Google"
+  },
+  "settings": {
+    "title": "Settings",
+    "languages": {
+      "title": "Language",
+      "systemDefault": "Use device language",
+      "en": "English",
+      "es": "Spanish",
+      "nl": "Dutch",
+      "de": "German",
+      "fr": "French",
+      "pt-BR": "Portuguese (Brazil)",
+      "sv": "Swedish",
+      "pl": "Polish"
+    },
+    "account": {
+      "title": "Account",
+      "signIn": "Sign In",
+      "signOut": "Sign Out"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Theme",
+      "language": "Language",
+      "notifications": "Notifications"
+    },
+    "data": {
+      "title": "Data",
+      "exportData": "Export Data",
+      "importData": "Import Data",
+      "resetOnboarding": "Reset Onboarding"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "about": "About ConPaws",
+      "openSourceLicenses": "Open Source Licenses"
+    },
+    "about": {
+      "title": "About",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Import Schedule",
+    "url": "Import from URL",
+    "file": "Import from File",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Preview Events",
+    "importing": "Importing...",
+    "success": "Import complete",
+    "error": "Import failed"
+  },
+  "reminders": {
+    "title": "Reminders",
+    "add": "Add Reminder",
+    "minutesBefore": "{{minutes}} minutes before",
+    "atTime": "At event time",
+    "none": "No reminder"
+  }
+}
