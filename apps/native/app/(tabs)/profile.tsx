@@ -23,12 +23,7 @@ export default function ProfileScreen() {
         <View className="w-full gap-3">
           {/* Apple Sign In */}
           <View className="relative">
-            <Button
-              variant="default"
-              size="lg"
-              onPress={() => {}}
-              className="w-full opacity-50"
-            >
+            <Button variant="default" size="lg" disabled className="w-full">
               {t("profile.signInWithApple")}
             </Button>
             <View className="absolute right-3 top-0 bottom-0 justify-center">
@@ -38,12 +33,7 @@ export default function ProfileScreen() {
 
           {/* Google Sign In */}
           <View className="relative">
-            <Button
-              variant="outline"
-              size="lg"
-              onPress={() => {}}
-              className="w-full opacity-50"
-            >
+            <Button variant="outline" size="lg" disabled className="w-full">
               {t("profile.signInWithGoogle")}
             </Button>
             <View className="absolute right-3 top-0 bottom-0 justify-center">
