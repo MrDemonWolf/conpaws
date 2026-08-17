@@ -5,7 +5,7 @@ import { Alert } from "react-native";
 import { db } from "@/db";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
-import type { Convention, ConventionEvent } from "@/db/schema";
+import { isValidTimeZone } from "@/lib/convention-time";
 import type { ExportPayload } from "./data-export";
 
 export interface ImportResult {
@@ -72,6 +72,7 @@ export async function importData(
         name: conv.name,
         startDate: conv.startDate,
         endDate: conv.endDate,
+        timeZone: isValidTimeZone(conv.timeZone) ? conv.timeZone : null,
         icalUrl: conv.icalUrl,
         status: conv.status,
       });
@@ -103,7 +104,8 @@ export async function importData(
           category: event.category,
           type: event.type,
           isInSchedule: event.isInSchedule,
-          reminderMinutes: event.reminderMinutes,
+          // Restored reminders must be explicitly re-enabled so the OS schedule matches SQLite.
+          reminderMinutes: null,
           sourceUid: event.sourceUid,
           sourceUrl: event.sourceUrl,
           isAgeRestricted: event.isAgeRestricted,
