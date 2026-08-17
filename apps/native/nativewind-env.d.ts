@@ -7,3 +7,5 @@
 // so TypeScript cannot resolve it either way.
 /// <reference types="react-native-css/types" />
 /// <reference types="react-native-css/components/react-native-safe-area-context" />
+
+declare module "*.css";
