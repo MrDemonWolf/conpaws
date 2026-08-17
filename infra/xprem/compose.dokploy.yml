@@ -1,0 +1,91 @@
+name: mrdemonwolf-xprem
+
+services:
+  xprem:
+    image: ghcr.io/mercuretechnologies/xprem:v3.1.1@sha256:dcfa04bf2acaec20461c5af17419e3b184f4a53b86930ab7b0f75aa23f4b02c4
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: "3000"
+      BASE_URL: ${BASE_URL:?Set BASE_URL in Dokploy}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in Dokploy}
+      DB_URL: ${DB_URL:?Set DB_URL in Dokploy}
+      DB_KEYS_MASTER_KEY_B64: ${DB_KEYS_MASTER_KEY_B64:?Set DB_KEYS_MASTER_KEY_B64 in Dokploy}
+      STORAGE_MODE: s3
+      AWS_REGION: ${AWS_REGION:-auto}
+      AWS_BASE_ENDPOINT: ${AWS_BASE_ENDPOINT:?Set AWS_BASE_ENDPOINT in Dokploy}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:?Set S3_BUCKET_NAME in Dokploy}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?Set AWS_ACCESS_KEY_ID in Dokploy}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?Set AWS_SECRET_ACCESS_KEY in Dokploy}
+      CACHE_MODE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Dokploy}
+      CACHE_KEY_PREFIX: ${CACHE_KEY_PREFIX:-mrdemonwolf-xprem}
+      USE_DASHBOARD: "true"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      DISABLE_DEVICE_TELEMETRY: "true"
+      PROMETHEUS_ENABLED: "false"
+      TRUST_PROXY_HEADERS: "true"
+      TRUST_PROXY_DEPTH: ${TRUST_PROXY_DEPTH:?Set TRUST_PROXY_DEPTH to the verified proxy hop count}
+    expose:
+      - "3000"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=32m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -T
+        - "5"
+        - -O
+        - /dev/null
+        - http://127.0.0.1:3000/ready
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7.4.10-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
+    restart: unless-stopped
+    user: "999:1000"
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+      - --requirepass
+      - ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Dokploy}
+      - --maxmemory
+      - 24mb
+      - --maxmemory-policy
+      - allkeys-lru
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Dokploy}
+    read_only: true
+    tmpfs:
+      - /data:rw,nosuid,nodev,size=32m,uid=999,gid=1000,mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
