@@ -3,6 +3,10 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 const APP_VARIANT = process.env.APP_VARIANT ?? "production";
 const EAS_PROJECT_ID = "0ad7171c-1b3e-48b2-a806-554aeea30048";
 
+if (!["development", "preview", "production"].includes(APP_VARIANT)) {
+  throw new Error(`Invalid APP_VARIANT: ${APP_VARIANT}`);
+}
+
 const getAppName = (): string => {
   switch (APP_VARIANT) {
     case "development":
@@ -51,6 +55,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   ios: {
+    appleTeamId: "HBB7T99U79",
     supportsTablet: true,
     bundleIdentifier: getBundleId(),
     associatedDomains: ["applinks:conpaws.com"],
