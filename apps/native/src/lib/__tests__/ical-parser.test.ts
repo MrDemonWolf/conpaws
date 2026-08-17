@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseIcs } from "../ical-parser";
 
@@ -18,6 +18,88 @@ describe("parseIcs", () => {
     expect(result.events).toHaveLength(0);
     expect(result.categories).toHaveLength(0);
     expect(result.timezone).toBeNull();
+    expect(result.requiresTimeZone).toBe(false);
+  });
+
+  it("uses event TZID with daylight-saving offsets", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20260115T090000
+SUMMARY:Winter Event
+UID:winter-event
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20260715T090000
+SUMMARY:Summer Event
+UID:summer-event
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics);
+
+    expect(result.timezone).toBe("America/Chicago");
+    expect(result.requiresTimeZone).toBe(false);
+    expect(result.events[0].startTime.toISOString()).toBe(
+      "2026-01-15T15:00:00.000Z",
+    );
+    expect(result.events[1].startTime.toISOString()).toBe(
+      "2026-07-15T14:00:00.000Z",
+    );
+  });
+
+  it("uses X-WR-TIMEZONE for floating timestamps", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-TIMEZONE:America/Denver
+BEGIN:VEVENT
+DTSTART:20260715T090000
+SUMMARY:Mountain Time Event
+UID:mountain-event
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics);
+
+    expect(result.timezone).toBe("America/Denver");
+    expect(result.events[0].startTime.toISOString()).toBe(
+      "2026-07-15T15:00:00.000Z",
+    );
+  });
+
+  it("keeps UTC timestamps absolute when the convention zone changes", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260715T140000Z
+SUMMARY:Absolute Event
+UID:absolute-event
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "America/Chicago" });
+
+    expect(result.timezone).toBe("America/Chicago");
+    expect(result.events[0].startTime.toISOString()).toBe(
+      "2026-07-15T14:00:00.000Z",
+    );
+  });
+
+  it("requires a convention zone when the calendar has none", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260715T140000Z
+SUMMARY:Absolute Event
+UID:absolute-event
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics);
+
+    expect(result.events).toHaveLength(1);
+    expect(result.timezone).toBeNull();
+    expect(result.requiresTimeZone).toBe(true);
   });
 
   it("parses all events from small-test.ics", () => {
@@ -237,11 +319,9 @@ SUMMARY:All Day Event
 UID:test-allday
 END:VEVENT
 END:VCALENDAR`;
-    const result = parseIcs(ics);
+    const result = parseIcs(ics, { timeZone: "UTC" });
     expect(result.events).toHaveLength(1);
     const ev = result.events[0];
-    expect(ev.startTime.getFullYear()).toBe(2026);
-    expect(ev.startTime.getMonth()).toBe(5);
-    expect(ev.startTime.getDate()).toBe(12);
+    expect(ev.startTime.toISOString()).toBe("2026-06-12T00:00:00.000Z");
   });
 });

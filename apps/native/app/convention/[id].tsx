@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, isSameDay } from "date-fns";
 import * as Haptics from "expo-haptics";
+import { getCalendars } from "expo-localization";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, MoreHorizontal, Plus, Upload } from "lucide-react-native";
 import { useCallback, useState } from "react";
@@ -22,39 +22,51 @@ import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import {
+  conventionDayKey,
+  formatInConventionTime,
+  isValidTimeZone,
+} from "@/lib/convention-time";
+import {
   cancelEventReminder,
   scheduleEventReminder,
 } from "@/services/notifications";
 
 interface DayGroup {
-  date: Date;
+  key: string;
   label: string;
   events: ConventionEvent[];
 }
 
-function groupEventsByDay(events: ConventionEvent[]): DayGroup[] {
+function groupEventsByDay(
+  events: ConventionEvent[],
+  timeZone: string,
+): DayGroup[] {
   const groups: DayGroup[] = [];
 
   for (const event of events) {
-    const startDate = new Date(event.startTime);
-    const existing = groups.find((g) => isSameDay(g.date, startDate));
+    const key = conventionDayKey(event.startTime, timeZone);
+    const existing = groups.find((group) => group.key === key);
     if (existing) {
       existing.events.push(event);
     } else {
       groups.push({
-        date: startDate,
-        label: format(startDate, "EEEE, MMMM d"),
+        key,
+        label: formatInConventionTime(
+          event.startTime,
+          timeZone,
+          "EEEE, MMMM d",
+        ),
         events: [event],
       });
     }
   }
 
-  return groups.sort((a, b) => a.date.getTime() - b.date.getTime());
+  return groups.sort((a, b) => a.key.localeCompare(b.key));
 }
 
-function formatTime(isoString: string | null): string {
+function formatTime(isoString: string | null, timeZone: string): string {
   if (!isoString) return "";
-  return format(new Date(isoString), "h:mm a");
+  return formatInConventionTime(isoString, timeZone, "h:mm a");
 }
 
 interface ActionSheetProps {
@@ -247,24 +259,67 @@ export default function ConventionDetailScreen() {
       event: ConventionEvent;
       minutes: number | null;
     }) => {
-      await eventsRepo.update(event.id, { reminderMinutes: minutes });
+      const reminderEvent = {
+        id: event.id,
+        title: event.title,
+        startTime: event.startTime,
+        room: event.room ?? event.location,
+      };
 
       if (minutes !== null && event.startTime) {
-        await scheduleEventReminder(
-          {
-            id: event.id,
-            title: event.title,
-            startTime: event.startTime,
-            room: event.room ?? event.location,
-          },
-          minutes,
-        );
+        let notificationId: string | null = null;
+        try {
+          notificationId = await scheduleEventReminder(reminderEvent, minutes);
+        } catch {
+          await eventsRepo.update(event.id, { reminderMinutes: null });
+          throw new Error("The operating system rejected the reminder");
+        }
+        if (!notificationId) {
+          await eventsRepo.update(event.id, { reminderMinutes: null });
+          throw new Error(
+            "Reminder permission denied or event already started",
+          );
+        }
+
+        try {
+          await eventsRepo.update(event.id, { reminderMinutes: minutes });
+        } catch (error) {
+          await cancelEventReminder(event.id);
+          if (event.reminderMinutes !== null) {
+            try {
+              await scheduleEventReminder(reminderEvent, event.reminderMinutes);
+            } catch {
+              // Best-effort rollback after a database failure.
+            }
+          }
+          throw error;
+        }
       } else {
-        await cancelEventReminder(event.id);
+        if (!(await cancelEventReminder(event.id))) {
+          throw new Error("The operating system could not cancel the reminder");
+        }
+        try {
+          await eventsRepo.update(event.id, { reminderMinutes: null });
+        } catch (error) {
+          if (event.reminderMinutes !== null) {
+            try {
+              await scheduleEventReminder(reminderEvent, event.reminderMinutes);
+            } catch {
+              // Best-effort rollback after a database failure.
+            }
+          }
+          throw error;
+        }
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events", id] });
+    },
+    onError: () => {
+      Alert.alert(
+        "Reminder Not Set",
+        "Enable notifications in Settings and choose a future event.",
+      );
     },
   });
 
@@ -276,7 +331,11 @@ export default function ConventionDetailScreen() {
     ? events.filter((e) => e.category === selectedCategory)
     : events;
 
-  const dayGroups = groupEventsByDay(filteredEvents);
+  const storedTimeZone = convention?.timeZone;
+  const conventionTimeZone = isValidTimeZone(storedTimeZone)
+    ? storedTimeZone
+    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const dayGroups = groupEventsByDay(filteredEvents, conventionTimeZone);
 
   const isLoading = conventionLoading || eventsLoading;
 
@@ -331,6 +390,12 @@ export default function ConventionDetailScreen() {
           <Upload size={20} color="#94A3B8" />
         </Pressable>
       </View>
+      <Text
+        variant="caption"
+        className="px-4 pb-2 text-center text-muted-foreground"
+      >
+        Times shown in {conventionTimeZone}
+      </Text>
 
       {/* Category filter pills */}
       {categories.length > 0 && (
@@ -397,7 +462,7 @@ export default function ConventionDetailScreen() {
       ) : (
         <FlatList
           data={dayGroups}
-          keyExtractor={(item) => item.label}
+          keyExtractor={(item) => item.key}
           renderItem={({ item: group }) => (
             <View>
               <SectionHeader title={group.label} />
@@ -405,8 +470,8 @@ export default function ConventionDetailScreen() {
                 <EventItem
                   key={event.id}
                   title={event.title}
-                  startTime={formatTime(event.startTime)}
-                  endTime={formatTime(event.endTime)}
+                  startTime={formatTime(event.startTime, conventionTimeZone)}
+                  endTime={formatTime(event.endTime, conventionTimeZone)}
                   room={event.room ?? event.location ?? undefined}
                   category={event.category ?? undefined}
                   isInSchedule={event.isInSchedule}

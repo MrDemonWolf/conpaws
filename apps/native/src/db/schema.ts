@@ -1,11 +1,12 @@
 import { sql } from "drizzle-orm";
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const conventions = sqliteTable("conventions", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   startDate: text("start_date").notNull(),
   endDate: text("end_date").notNull(),
+  timeZone: text("time_zone"),
   icalUrl: text("ical_url"),
   status: text("status", { enum: ["upcoming", "active", "ended"] })
     .notNull()
