@@ -151,6 +151,45 @@ jobs:
           compression-level: 0
           retention-days: 7
 
+  infrastructure:
+    name: Validate deployment descriptors
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate hardened xprem Compose
+        env:
+          TRUST_PROXY_DEPTH: "1"
+        run: |
+          compose_json="${RUNNER_TEMP}/xprem-compose.json"
+          docker compose \
+            --env-file infra/xprem/.env.example \
+            --file infra/xprem/compose.dokploy.yml \
+            config --format json > "$compose_json"
+
+          jq --exit-status '
+            (.services.xprem.image == "ghcr.io/mercuretechnologies/xprem:v3.1.1@sha256:dcfa04bf2acaec20461c5af17419e3b184f4a53b86930ab7b0f75aa23f4b02c4") and
+            (.services.redis.image == "redis:7.4.10-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2") and
+            (.services.xprem.read_only == true) and
+            (.services.redis.read_only == true) and
+            (.services.redis.user == "999:1000") and
+            (.services.xprem.cap_drop | index("ALL") != null) and
+            (.services.redis.cap_drop | index("ALL") != null) and
+            (.services.xprem.security_opt | index("no-new-privileges:true") != null) and
+            (.services.redis.security_opt | index("no-new-privileges:true") != null) and
+            (((.services.xprem.ports // []) | length) == 0) and
+            (((.services.redis.ports // []) | length) == 0) and
+            (((.services.redis.volumes // []) | length) == 0) and
+            (.services.xprem.environment.DISABLE_DEVICE_TELEMETRY == "true") and
+            (.services.xprem.environment.PROMETHEUS_ENABLED == "false") and
+            (.services.xprem.environment.TRUST_PROXY_HEADERS == "true") and
+            (.services.xprem.environment.TRUST_PROXY_DEPTH == "1") and
+            (.services.xprem.healthcheck.test | index("http://127.0.0.1:3000/ready") != null)
+          ' "$compose_json" >/dev/null
   native:
     name: Validate production native bundle
     runs-on: ubuntu-24.04
@@ -202,7 +241,7 @@ jobs:
   verify:
     name: CI / Verify
     if: always()
-    needs: [quality, web, native]
+    needs: [quality, web, infrastructure, native]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
@@ -210,9 +249,10 @@ jobs:
         env:
           QUALITY_RESULT: ${{ needs.quality.result }}
           WEB_RESULT: ${{ needs.web.result }}
+          INFRASTRUCTURE_RESULT: ${{ needs.infrastructure.result }}
           NATIVE_RESULT: ${{ needs.native.result }}
         run: |
-          if [[ "$QUALITY_RESULT" != "success" || "$WEB_RESULT" != "success" || "$NATIVE_RESULT" != "success" ]]; then
-            echo "::error title=CI failed::quality=$QUALITY_RESULT web=$WEB_RESULT native=$NATIVE_RESULT"
+          if [[ "$QUALITY_RESULT" != "success" || "$WEB_RESULT" != "success" || "$INFRASTRUCTURE_RESULT" != "success" || "$NATIVE_RESULT" != "success" ]]; then
+            echo "::error title=CI failed::quality=$QUALITY_RESULT web=$WEB_RESULT infrastructure=$INFRASTRUCTURE_RESULT native=$NATIVE_RESULT"
             exit 1
           fi

@@ -83,7 +83,7 @@ conpaws/
 - **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
 - **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
-- **OTA is required for the MVP but remains fail-closed:** the chosen host is signed xprem **3.1.1** on Dokploy, not EAS Update. The SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before any production OTA path. See `notes/ota-updates.md`.
+- **OTA is required for the MVP but remains fail-closed:** the chosen host is one shared MrDemonWolf, Inc. xprem **3.1.1** control plane on Dokploy at `updates.mrdemonwolf.com`, not EAS Update. Do not create a ConPaws-only duplicate. Every product needs an isolated xprem app UUID, signing material, branches/channels, publisher token, and runtime; ConPaws client configuration must use only its record. The runtime MCP at `/mcp` is unavailable until deployment, authenticates dashboard users through OAuth rather than publisher tokens, and can reach multiple apps: list apps and confirm the exact app UUID before any mutation. The hardened descriptor and runbook are in `infra/xprem/`, but no service is deployed and the SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before production. See `notes/ota-updates.md`.
 
 ### Environment Variables
 
