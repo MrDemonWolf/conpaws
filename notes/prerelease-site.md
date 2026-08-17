@@ -10,8 +10,9 @@ Decision record for the pre-release marketing site. This captures what was settl
 - **Architecture:** One Cloudflare Worker, one domain, `apps/web`. No `app.` split. Future `/@handle` profiles are Next.js SSR, not Expo Web.
 - **Stack:** Next `16.2.12` (EXACT pin), `@opennextjs/cloudflare@1.20.2` (EXACT pin), `wrangler 4.86.0`. Never `@cloudflare/next-on-pages` (archived).
 - **Deploy:** GitHub Actions gated on lint/type-check/test; hand-written `wrangler.jsonc`. Alchemy rejected.
-- **ESP:** Brevo, with a mandatory unsubscribe-scope test before building on it. Mailjet is the fallback.
+- **ESP:** Brevo — but its blocklist is **account-wide, not per-list** (confirmed from Brevo's docs, 2026-08-15). A shared account means a ConPaws unsubscribe also blocklists that address on `mrdemonwolf.com`. Recommended fix: a separate free Brevo account for `conpaws.com`. **Decision open.**
 - **Waitlist:** D1 is the source of truth with full consent-record columns; Brevo's DOI endpoint owns confirmation tokens; `ctx.waitUntil` + a cron reconciler are both required.
+- **Outbound vs inbound:** Cloudflare Email Routing is **inbound only** — it forwards mail to `conpaws.com` addresses and can never send the DOI or the launch email. Separate job from the ESP; `conpaws.com` has no MX today.
 - **Badge:** headless Rapier2D physics + SVG + DOM. WebGL removed after real context-loss failures.
 - **CMS:** none in Phase 1; Sveltia in Phase 2 (remember `skip_ci: false`).
 
@@ -63,7 +64,9 @@ Deploy gotchas that will bite again if forgotten: `--keep-vars` on every deploy 
 
 ## ESP: Brevo
 
-One account serves `mrdemonwolf.com` and `conpaws.com`. Hard requirement: separate lists, per-list unsubscribe scope, no double-counting. Brevo won on zero ops burden, managed deliverability, a **dedicated DOI endpoint** (`POST /v3/contacts/doubleOptinConfirmation` — removes token/expiry/confirm-route logic from the Worker), 100k-contact free tier, and Divi 5 native support.
+Brevo won on zero ops burden, managed deliverability, a **dedicated DOI endpoint** (`POST /v3/contacts/doubleOptinConfirmation` — removes token/expiry/confirm-route logic from the Worker), 100k-contact free tier, and Divi 5 native support.
+
+The original plan put `mrdemonwolf.com` and `conpaws.com` in **one** account, on the hard requirement of per-list unsubscribe scope. **That requirement is not satisfiable in a single Brevo account** — see below.
 
 **Why the others lost:**
 
@@ -72,11 +75,29 @@ One account serves `mrdemonwolf.com` and `conpaws.com`. Hard requirement: separa
 - **Omnisend** — not in Divi's 21-provider dropdown (which has no webhook escape hatch); its REST API bypasses double opt-in entirely.
 - **FluentCRM** — strong runner-up (no caps, free API), but it couples conpaws.com to mrdemonwolf.com's WordPress uptime and hands over cron reliability, WAF, plugin patching, SES sandbox, and deliverability ownership.
 
-**MANDATORY pre-build test (~20 min):** send a campaign to List A → unsubscribe → confirm the contact is still subscribed on List B and not account-blocklisted. **Then repeat via Gmail's one-click unsubscribe (RFC 8058)** — the real risk, since a one-click header can't render a preference UI and typically forces global suppression. Brevo's default unsubscribe IS global; the fix is a Profile Update form with a multi-list subscriptions block as the unsubscribe destination (community-sourced workaround, not Brevo-official). **If the one-click test fails, fall back to Mailjet** — the only platform where per-list unsubscribe is the default (costs: 200 emails/day, 1,000-contact cap, no Divi, hand-built DOI).
+### Unsubscribe scope — RESOLVED from Brevo's docs (2026-08-15)
 
-**Setup requirements:** disable (or CIDR-allowlist) Brevo's IP authorization before its 30-day learning phase arms — Workers egress from rotating IPs would silently drop signups a month post-launch. Create the DOI template first (the endpoint requires one); confirm `{{ params.DOIurl }}` renders.
+The planned empirical test was **cancelled as unnecessary**: Brevo documents the behaviour outright, so there was nothing left to discover.
 
-**Revisit at ~500 subscribers:** the shared 300-emails/day pool forces manual daily Requeue clicking past ~500-600 contacts, and paid tiers price by contact count (~$29/mo at 3,000 contacts vs FluentCRM's ~$114/yr). The zero-ops premium grows with the list.
+**Brevo's blocklist is account-wide per channel, not per-list.** Verbatim from [FAQs - What are the different types of blocklisted contacts?](https://help.brevo.com/hc/en-us/articles/209458705-FAQs-What-are-the-different-types-of-blocklisted-contacts): "When a contact is blocklisted from your email campaigns, they **won't receive any of your email campaigns anymore**. That means that if you send an email campaign to a list that contains a blocklisted contact, **they will not be included as a recipient**." Any list, whole account. Sender domain is irrelevant — the blocklist is a property of the contact, not of the list or the From address.
+
+Brevo's own workaround — a Profile Update form carrying a [multi-list subscriptions block](https://help.brevo.com/hc/en-us/articles/360000545200-Enable-your-contacts-to-subscribe-or-unsubscribe-from-specific-lists-using-a-form-multi-list-subscriptions) as the unsubscribe destination — **only fires when the recipient clicks the link in the email body.** It cannot cover Gmail's and Apple Mail's one-click button (RFC 8058 `List-Unsubscribe-Post`), which POSTs directly to Brevo's endpoint and is processed as a blocklist. Google's implementation deadline for commercial and promotional messages from bulk senders was June 1, 2024; Yahoo began enforcing its one-click policy in June 2024. That path cannot be designed away.
+
+**Consequence:** in a shared account, one person unsubscribing from the ConPaws waitlist is silently blocklisted from `mrdemonwolf.com` mail as well. The failure is invisible — D1 stays correct, Brevo reports a normal unsubscribe, and the other list just quietly stops reaching that address.
+
+### The three routes out
+
+**A. Separate Brevo account for `conpaws.com` — recommended.** The blocklist boundary *is* the account boundary, so isolation is total and one-click behaves correctly (a ConPaws unsubscribe means ConPaws only). Free tier, so $0. The apparent cost — "another account" — is mostly illusory: `conpaws.com` needs its own DKIM records, sender verification, and DMARC alignment regardless of which account it lives in, and it has **none** of them today. The true delta is one extra login.
+
+**B. One account, ConPaws owns unsubscribe in D1.** D1 is already the source of truth; this flips the token decision (ConPaws issues confirm *and* unsubscribe tokens) and demotes Brevo to a transactional pipe via `POST /v3/smtp/email` with our own `List-Unsubscribe` / `List-Unsubscribe-Post` headers pointing at `conpaws.com/unsubscribe`. Brevo maintains blocked and unsubscribed transactional contacts, so D1-only unsubscribe ownership cannot be guaranteed. This also costs ~150 lines (token table, two routes, two templates) and forfeits the DOI endpoint that was a main reason to pick Brevo. **The real objection is not the code: it routes a bulk marketing blast through a transactional channel, against Brevo's AUP.** A suspension there takes `mrdemonwolf.com` sending down with it — strictly worse than a second login.
+
+**C. Mailjet.** Per-list unsubscribe is the default. But it is a new vendor and a new API to write against, still needs `conpaws.com` sender auth, and carries a 200 emails/day and 1,000-contact cap with no Divi integration and hand-built DOI. Only worth it for a single dashboard across both brands.
+
+> **OPEN — Nathanial's call.** Recommendation is **A**. The analysis is done; this is a pick, not a research task.
+
+**Setup requirements** (unchanged under A or B): disable (or CIDR-allowlist) Brevo's IP authorization before its 30-day learning phase arms — Workers egress from rotating IPs would silently drop signups a month post-launch. Create the DOI template first (the endpoint requires one); confirm `{{ params.DOIurl }}` renders.
+
+**Revisit at ~500 subscribers:** a 300-emails/day pool forces a manual daily resume past ~500-600 contacts: Marketing > Campaigns > Email, filter for Suspended, choose Resume campaign, and confirm. Send to new contacts is only for a completed campaign and reaches contacts added after that campaign. Paid tiers price by contact count (~$29/mo at 3,000 contacts vs FluentCRM's ~$114/yr), so the zero-ops premium grows with the list. Minor point in A's favour: a separate account gets its own 300/day rather than sharing one pool with `mrdemonwolf.com`.
 
 ## Waitlist
 
@@ -106,4 +127,28 @@ The draggable lanyard badge is **headless Rapier2D + SVG + DOM** — no three.js
 
 ## Cloudflare Email Service
 
-Workers Paid includes Cloudflare Email Service (3,000 sends/month). It is **transactional only** — Cloudflare's FAQ explicitly excludes marketing and bulk mail. Its role: magic links and password resets when Supabase auth lands in Phase 2. It is **never the newsletter** — Brevo owns both the DOI confirmation and all list email.
+Workers Paid includes Cloudflare Email Service (3,000 sends/month). It is **transactional only** — Cloudflare's FAQ explicitly excludes marketing and bulk mail. Its role: magic links and password resets when Better-Auth lands in Phase 2. It is **never the newsletter** — Brevo owns both the DOI confirmation and all list email.
+
+## Inbound mail on conpaws.com (Email Routing)
+
+**Cloudflare Email Routing forwards; it does not send.** It cannot deliver the DOI confirmation or the launch announcement, and it has no bearing on the unsubscribe-scope problem above. Do not let it stand in for an ESP. What it *is* for: giving `conpaws.com` working `hello@` / `privacy@` / `support@` addresses that forward into the existing Google Workspace mailbox. The privacy policy and both app-store listings name a contact address, so this is required before launch, not optional polish.
+
+### DNS as it actually stands (measured 2026-08-15)
+
+| | `conpaws.com` | `mrdemonwolf.com` |
+|---|---|---|
+| Nameservers | `sima` / `skip.ns.cloudflare.com` | Cloudflare |
+| MX | **none** | Google Workspace (`aspmx.l.google.com` et al.) |
+| SPF | `v=spf1 include:_spf.mx.cloudflare.net ~all` | `include:spf.sendinblue.com include:_spf.google.com ~all` |
+| DMARC | `p=quarantine`, Cloudflare `rua` | `p=quarantine`, Cloudflare `rua` |
+| Brevo DKIM | **none** | **unverified** (SPF authorization is not DKIM evidence) |
+
+Two things fall out of this:
+
+1. **`conpaws.com` is already on Cloudflare nameservers.** The `routes` block in `apps/web/wrangler.jsonc` was commented out pending that migration — the precondition is met and the block can be uncommented whenever the site is ready to take the apex.
+2. **Email Routing is not operational.** Before describing `hello@`, `privacy@`, or `support@` as working, confirm the Cloudflare Email Routing MX, SPF, and DKIM records; a verified destination address; and an active routing rule for each alias.
+3. **`conpaws.com` cannot send through Brevo today** — no DKIM, no sender verification. This work is identical whichever ESP account the domain ends up in, which is why option A above costs so little.
+
+### Terraform
+
+There is **no Terraform in this repo** and no `.tf` files anywhere in the tree. If the Cloudflare DNS/Email-Routing config is to be managed as code, decide first whether it belongs here or in a separate infra repo alongside `mrdemonwolf.com` — a `cloudflare_email_routing_rule` / `cloudflare_record` module split across two repos while one Cloudflare account owns both zones is a drift trap. **Open question, deliberately not answered here.** Note that the Worker itself stays on `wrangler.jsonc` regardless; Alchemy was rejected (see Deployment) and Terraform would own DNS and Email Routing only, not the Worker.
