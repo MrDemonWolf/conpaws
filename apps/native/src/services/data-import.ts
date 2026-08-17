@@ -3,8 +3,12 @@ import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { Alert } from "react-native";
 import { db } from "@/db";
-import * as conventionsRepo from "@/db/repositories/conventions";
-import * as eventsRepo from "@/db/repositories/events";
+import {
+  type Convention,
+  type ConventionEvent,
+  conventionEvents,
+  conventions,
+} from "@/db/schema";
 import { isValidTimeZone } from "@/lib/convention-time";
 import type { ExportPayload } from "./data-export";
 
@@ -39,84 +43,97 @@ export function validateImportFile(payload: unknown): ExportPayload {
   return payload as ExportPayload;
 }
 
-export async function importData(
-  payload: ExportPayload,
-): Promise<ImportResult> {
-  const existingConventions = await conventionsRepo.getAll();
-  const existingIds = new Set(existingConventions.map((c) => c.id));
+export interface DataImportPlan {
+  conventions: Convention[];
+  events: ConventionEvent[];
+  result: ImportResult;
+}
 
-  const allEventIds = new Set<string>();
-  for (const conv of existingConventions) {
-    const events = await eventsRepo.getByConventionId(conv.id);
-    events.forEach((event) => {
-      allEventIds.add(event.id);
+export function planDataImport(
+  payload: ExportPayload,
+  existingConventionIds: ReadonlySet<string>,
+  existingEventIds: ReadonlySet<string>,
+): DataImportPlan {
+  const knownConventionIds = new Set(existingConventionIds);
+  const knownEventIds = new Set(existingEventIds);
+  const conventionsToInsert: Convention[] = [];
+  const eventsToInsert: ConventionEvent[] = [];
+  let skipped = 0;
+
+  for (const convention of payload.data.conventions) {
+    if (knownConventionIds.has(convention.id)) {
+      skipped++;
+      continue;
+    }
+    knownConventionIds.add(convention.id);
+    conventionsToInsert.push({
+      ...convention,
+      timeZone: isValidTimeZone(convention.timeZone)
+        ? convention.timeZone
+        : null,
     });
   }
 
-  let conventionsAdded = 0;
-  let eventsAdded = 0;
-  let skipped = 0;
+  for (const event of payload.data.events) {
+    if (
+      knownEventIds.has(event.id) ||
+      !knownConventionIds.has(event.conventionId)
+    ) {
+      skipped++;
+      continue;
+    }
+    knownEventIds.add(event.id);
+    eventsToInsert.push({
+      ...event,
+      // Restored reminders must be explicitly re-enabled so the OS schedule matches SQLite.
+      reminderMinutes: null,
+    });
+  }
 
-  // Track old export ID → new DB ID for newly created conventions
-  const idMap = new Map<string, string>();
+  return {
+    conventions: conventionsToInsert,
+    events: eventsToInsert,
+    result: {
+      conventionsAdded: conventionsToInsert.length,
+      eventsAdded: eventsToInsert.length,
+      skipped,
+    },
+  };
+}
 
-  await db.transaction(async () => {
-    // Import conventions (skip existing IDs)
-    for (const conv of payload.data.conventions) {
-      if (existingIds.has(conv.id)) {
-        idMap.set(conv.id, conv.id);
-        skipped++;
-        continue;
-      }
-      const created = await conventionsRepo.create({
-        name: conv.name,
-        startDate: conv.startDate,
-        endDate: conv.endDate,
-        timeZone: isValidTimeZone(conv.timeZone) ? conv.timeZone : null,
-        icalUrl: conv.icalUrl,
-        status: conv.status,
-      });
-      idMap.set(conv.id, created.id);
-      conventionsAdded++;
+export async function importData(
+  payload: ExportPayload,
+): Promise<ImportResult> {
+  return db.transaction((tx) => {
+    const existingConventionIds = new Set(
+      tx
+        .select({ id: conventions.id })
+        .from(conventions)
+        .all()
+        .map((row) => row.id),
+    );
+    const existingEventIds = new Set(
+      tx
+        .select({ id: conventionEvents.id })
+        .from(conventionEvents)
+        .all()
+        .map((row) => row.id),
+    );
+    const plan = planDataImport(
+      payload,
+      existingConventionIds,
+      existingEventIds,
+    );
+
+    for (const convention of plan.conventions) {
+      tx.insert(conventions).values(convention).run();
+    }
+    for (const event of plan.events) {
+      tx.insert(conventionEvents).values(event).run();
     }
 
-    // Import events (skip existing IDs)
-    for (const event of payload.data.events) {
-      if (allEventIds.has(event.id)) {
-        skipped++;
-        continue;
-      }
-      // Resolve the convention ID via the mapping
-      const mappedConventionId = idMap.get(event.conventionId);
-      if (!mappedConventionId) {
-        skipped++;
-        continue;
-      }
-      await eventsRepo.batchInsert([
-        {
-          conventionId: mappedConventionId,
-          title: event.title,
-          description: event.description,
-          startTime: event.startTime,
-          endTime: event.endTime,
-          location: event.location,
-          room: event.room,
-          category: event.category,
-          type: event.type,
-          isInSchedule: event.isInSchedule,
-          // Restored reminders must be explicitly re-enabled so the OS schedule matches SQLite.
-          reminderMinutes: null,
-          sourceUid: event.sourceUid,
-          sourceUrl: event.sourceUrl,
-          isAgeRestricted: event.isAgeRestricted,
-          contentWarning: event.contentWarning,
-        },
-      ]);
-      eventsAdded++;
-    }
+    return plan.result;
   });
-
-  return { conventionsAdded, eventsAdded, skipped };
 }
 
 export function useImportData() {

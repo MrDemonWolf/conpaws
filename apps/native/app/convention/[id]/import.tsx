@@ -1,10 +1,10 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { CalendarX, ChevronLeft, FileX, WifiOff } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,13 +15,16 @@ import {
 } from "react-native";
 import { Button, SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
 import { conventionDayKey, isValidTimeZone } from "@/lib/convention-time";
 import {
   type CategoryMeta,
   type ParsedEvent,
   parseIcs,
+  UnsupportedRecurrenceError,
 } from "@/lib/ical-parser";
+import { canApplyScheduleImport } from "@/lib/import-policy";
 import {
   fetchSchedIcs,
   InvalidResponseError,
@@ -41,18 +44,64 @@ interface PreviewState {
   icsContent: string;
   events: ParsedEvent[];
   categories: CategoryMeta[];
+  cancelledSourceUids: string[];
   selectedCategories: Set<string>;
+  sourceUrl: string | null;
 }
 
 interface PendingCalendar {
   name: string;
   icsContent: string;
+  sourceUrl: string | null;
+}
+
+function normalizeSchedUrl(value: string): string {
+  const parsed = new URL(value.trim());
+  return `https://${parsed.hostname.toLowerCase()}`;
+}
+
+function confirmEmptyScheduleUpdate(removalCount: number): Promise<boolean> {
+  const eventWord = removalCount === 1 ? "event" : "events";
+
+  return new Promise((resolve) => {
+    Alert.alert(
+      "Apply empty schedule update?",
+      `This Sched update has no active events. Applying it will remove exactly ${removalCount} imported ${eventWord} from this convention and cancel their local reminders. Manually added events will stay.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => resolve(false),
+        },
+        {
+          text: "Apply Schedule Update",
+          style: "destructive",
+          onPress: () => resolve(true),
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () => resolve(false),
+      },
+    );
+  });
 }
 
 export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
+  const didPrefill = useRef(false);
+  const requestGeneration = useRef(0);
+
+  const { data: existingConvention } = useQuery({
+    queryKey: ["convention", id],
+    queryFn: () => conventionsRepo.getById(id ?? ""),
+    enabled: !!id && id !== "new",
+  });
+  const storedTimeZone = isValidTimeZone(existingConvention?.timeZone)
+    ? existingConvention.timeZone
+    : null;
 
   const [activeTab, setActiveTab] = useState<Tab>("file");
   const [url, setUrl] = useState("");
@@ -63,25 +112,76 @@ export default function ImportScreen() {
     useState<PendingCalendar | null>(null);
   const [timeZone, setTimeZone] = useState("");
 
+  useEffect(() => {
+    if (!existingConvention || didPrefill.current) return;
+    didPrefill.current = true;
+    if (storedTimeZone) setTimeZone(storedTimeZone);
+    if (existingConvention.icalUrl) {
+      setUrl(existingConvention.icalUrl);
+      setActiveTab("url");
+    }
+  }, [existingConvention, storedTimeZone]);
+
   function clearState() {
     setError(null);
     setPreview(null);
     setPendingCalendar(null);
-    setTimeZone("");
+    setTimeZone(storedTimeZone ?? "");
+  }
+
+  function beginRequest(): number {
+    requestGeneration.current += 1;
+    didPrefill.current = true;
+    clearState();
+    setLoading(true);
+    return requestGeneration.current;
+  }
+
+  function isCurrentRequest(generation: number): boolean {
+    return requestGeneration.current === generation;
+  }
+
+  function handleTabChange(tab: Tab) {
+    if (loading || importMutation.isPending) return;
+    requestGeneration.current += 1;
+    didPrefill.current = true;
+    setLoading(false);
+    setActiveTab(tab);
+    clearState();
+  }
+
+  function handleUrlChange(value: string) {
+    didPrefill.current = true;
+    setUrl(value);
   }
 
   function processIcs(
     icsContent: string,
     name: string,
     selectedTimeZone?: string,
+    sourceUrl: string | null = null,
   ) {
-    const result = parseIcs(
-      icsContent,
-      selectedTimeZone ? { timeZone: selectedTimeZone } : undefined,
-    );
+    let result: ReturnType<typeof parseIcs>;
+    try {
+      result = parseIcs(
+        icsContent,
+        selectedTimeZone ? { timeZone: selectedTimeZone } : undefined,
+      );
+    } catch (parseError) {
+      setPreview(null);
+      setPendingCalendar(null);
+      setError({
+        type: "parse",
+        message:
+          parseError instanceof UnsupportedRecurrenceError
+            ? parseError.message
+            : "This calendar could not be parsed safely.",
+      });
+      return;
+    }
 
     if (result.requiresTimeZone) {
-      setPendingCalendar({ name, icsContent });
+      setPendingCalendar({ name, icsContent, sourceUrl });
       setTimeZone(selectedTimeZone ?? "");
       setError({
         type: "timezone",
@@ -91,7 +191,15 @@ export default function ImportScreen() {
       return;
     }
 
-    if (result.events.length === 0) {
+    if (
+      !canApplyScheduleImport({
+        conventionId: id,
+        sourceUrl,
+        selectedEventCount: result.events.length,
+        sourceEventCount: result.events.length,
+        cancelledEventCount: result.cancelledSourceUids.length,
+      })
+    ) {
       setError({
         type: "no-events",
         message: "No events found in this calendar file.",
@@ -99,16 +207,20 @@ export default function ImportScreen() {
       return;
     }
 
-    const allCategories = new Set(result.categories.map((c) => c.name));
+    const allCategories = new Set(
+      result.categories.map((category) => category.name),
+    );
     setPreview({
       name,
       icsContent,
       events: result.events,
       categories: result.categories,
+      cancelledSourceUids: result.cancelledSourceUids,
       selectedCategories: allCategories,
+      sourceUrl,
     });
     setPendingCalendar(null);
-    setTimeZone(result.timezone ?? selectedTimeZone ?? "");
+    setTimeZone(result.timezone ?? selectedTimeZone ?? storedTimeZone ?? "");
   }
 
   function handleTimeZoneSubmit() {
@@ -118,17 +230,19 @@ export default function ImportScreen() {
       pendingCalendar.icsContent,
       pendingCalendar.name,
       timeZone.trim(),
+      pendingCalendar.sourceUrl,
     );
   }
 
   async function handleFilePick() {
-    clearState();
+    const generation = beginRequest();
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: ["text/calendar", "application/octet-stream", "*/*"],
         copyToCacheDirectory: true,
       });
 
+      if (!isCurrentRequest(generation)) return;
       if (result.canceled) return;
 
       const file = result.assets[0];
@@ -140,27 +254,41 @@ export default function ImportScreen() {
         return;
       }
 
-      setLoading(true);
       const content = await new File(file.uri).text();
-      processIcs(content, file.name.replace(/\.ics$/i, ""));
+      if (!isCurrentRequest(generation)) return;
+      processIcs(
+        content,
+        file.name.replace(/\.ics$/i, ""),
+        storedTimeZone ?? undefined,
+      );
     } catch {
-      setError({ type: "parse", message: "Failed to read the file." });
+      if (isCurrentRequest(generation)) {
+        setError({ type: "parse", message: "Failed to read the file." });
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentRequest(generation)) setLoading(false);
     }
   }
 
   async function handleUrlFetch() {
-    clearState();
-    if (!url.trim()) return;
-    setLoading(true);
+    const scheduleUrl = url.trim();
+    if (!scheduleUrl) return;
+    const generation = beginRequest();
 
     try {
-      const scheduleUrl = url.trim();
       const content = await fetchSchedIcs(scheduleUrl);
-      const name = new URL(scheduleUrl).hostname.split(".")[0];
-      processIcs(content, name || "Imported Convention");
+      if (!isCurrentRequest(generation)) return;
+      const normalizedUrl = normalizeSchedUrl(scheduleUrl);
+      const name = new URL(normalizedUrl).hostname.split(".")[0];
+      setUrl(normalizedUrl);
+      processIcs(
+        content,
+        name || "Imported Convention",
+        storedTimeZone ?? undefined,
+        normalizedUrl,
+      );
     } catch (err) {
+      if (!isCurrentRequest(generation)) return;
       if (err instanceof InvalidSchedUrlError) {
         setError({
           type: "file-type",
@@ -183,7 +311,7 @@ export default function ImportScreen() {
         });
       }
     } finally {
-      setLoading(false);
+      if (isCurrentRequest(generation)) setLoading(false);
     }
   }
 
@@ -210,67 +338,180 @@ export default function ImportScreen() {
       return;
     }
 
-    const reparsed = parseIcs(preview.icsContent, {
-      timeZone: selectedTimeZone,
-    });
+    let reparsed: ReturnType<typeof parseIcs>;
+    try {
+      reparsed = parseIcs(preview.icsContent, {
+        timeZone: selectedTimeZone,
+      });
+    } catch (parseError) {
+      Alert.alert(
+        "Import Not Applied",
+        parseError instanceof UnsupportedRecurrenceError
+          ? parseError.message
+          : "This calendar could not be parsed safely. Nothing was changed.",
+      );
+      return;
+    }
 
     const eventsToImport =
       preview.selectedCategories.size === preview.categories.length
         ? reparsed.events
         : reparsed.events.filter(
-            (e) =>
-              e.category === null || preview.selectedCategories.has(e.category),
+            (event) =>
+              event.category === null ||
+              preview.selectedCategories.has(event.category),
           );
+    if (
+      !canApplyScheduleImport({
+        conventionId: id,
+        sourceUrl: preview.sourceUrl,
+        selectedEventCount: eventsToImport.length,
+        sourceEventCount: reparsed.events.length,
+        cancelledEventCount: reparsed.cancelledSourceUids.length,
+      })
+    ) {
+      Alert.alert("Nothing to Import", "Choose at least one event.");
+      return;
+    }
 
-    const timestamps = eventsToImport.map((event) => event.startTime.getTime());
-    const startDate = conventionDayKey(
-      new Date(Math.min(...timestamps)),
-      selectedTimeZone,
+    const isEmptyAuthoritativeUpdate =
+      id !== "new" &&
+      preview.sourceUrl !== null &&
+      reparsed.events.length === 0;
+    if (isEmptyAuthoritativeUpdate) {
+      let removalCount: number;
+      try {
+        const existingEvents = await eventsRepo.getByConventionId(id);
+        removalCount = existingEvents.filter(
+          (event) => event.sourceUid !== null,
+        ).length;
+      } catch {
+        Alert.alert(
+          "Schedule Update Not Applied",
+          "The app could not verify which imported events would be removed. Nothing was changed.",
+        );
+        return;
+      }
+
+      if (!(await confirmEmptyScheduleUpdate(removalCount))) return;
+    }
+
+    const timestamps = reparsed.events.map((event) =>
+      event.startTime.getTime(),
     );
-    const endDate = conventionDayKey(
-      new Date(Math.max(...timestamps)),
-      selectedTimeZone,
-    );
+    const dateRange =
+      timestamps.length > 0
+        ? {
+            startDate: conventionDayKey(
+              new Date(Math.min(...timestamps)),
+              selectedTimeZone,
+            ),
+            endDate: conventionDayKey(
+              new Date(Math.max(...timestamps)),
+              selectedTimeZone,
+            ),
+          }
+        : null;
     const today = conventionDayKey(new Date(), selectedTimeZone);
-    const status =
-      today < startDate ? "upcoming" : today > endDate ? "ended" : "active";
+    const status = dateRange
+      ? today < dateRange.startDate
+        ? "upcoming"
+        : today > dateRange.endDate
+          ? "ended"
+          : "active"
+      : null;
 
     let createdConventionId: string | null = null;
+    let shouldRollbackCreatedConvention = false;
 
     try {
       let conventionId = id;
       if (id === "new") {
+        if (!dateRange || !status) {
+          throw new Error("A new convention needs at least one active event");
+        }
         const convention = await conventionsRepo.create({
           name: preview.name,
-          startDate,
-          endDate,
+          ...dateRange,
           timeZone: selectedTimeZone,
-          icalUrl: null,
+          icalUrl: preview.sourceUrl,
           status,
         });
         conventionId = convention.id;
         createdConventionId = convention.id;
+        shouldRollbackCreatedConvention = true;
       }
 
       const result = await importMutation.mutateAsync({
         parsedEvents: eventsToImport,
         conventionId,
+        sourceSnapshot: {
+          authoritative: preview.sourceUrl !== null,
+          activeOccurrences: reparsed.events.map((event) => ({
+            sourceUid: event.sourceUid,
+            legacySourceUid: event.legacySourceUid,
+            startTime: event.startTime.toISOString(),
+            recurrenceTime: event.recurrenceTime?.toISOString() ?? null,
+            title: event.title,
+            sourceUrl: event.sourceUrl,
+          })),
+          cancelledOccurrences: reparsed.cancelledEvents.map((event) => ({
+            sourceUid: event.sourceUid,
+            legacySourceUid: event.legacySourceUid,
+            startTime: event.startTime?.toISOString() ?? null,
+            recurrenceTime: event.recurrenceTime?.toISOString() ?? null,
+            title: event.title,
+            sourceUrl: event.sourceUrl,
+          })),
+        },
       });
+      shouldRollbackCreatedConvention = false;
+      let conventionDetailsUpdated = true;
       if (!createdConventionId) {
-        await conventionsRepo.update(conventionId, {
-          startDate,
-          endDate,
-          timeZone: selectedTimeZone,
-          status,
-        });
+        const sourceUpdate = preview.sourceUrl
+          ? { icalUrl: preview.sourceUrl }
+          : {};
+        try {
+          if (dateRange && status) {
+            await conventionsRepo.update(conventionId, {
+              ...dateRange,
+              ...sourceUpdate,
+              timeZone: selectedTimeZone,
+              status,
+            });
+          } else {
+            await conventionsRepo.update(conventionId, {
+              ...sourceUpdate,
+              timeZone: selectedTimeZone,
+            });
+          }
+        } catch {
+          conventionDetailsUpdated = false;
+        }
       }
-      await queryClient.invalidateQueries({ queryKey: ["conventions"] });
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["convention", conventionId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["events", conventionId] }),
+      ]);
 
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      await Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      ).catch(() => undefined);
 
       Alert.alert(
         "Import Complete",
-        `${result.added} added, ${result.updated} updated`,
+        `${result.added} added, ${result.updated} updated, ${result.removed} removed.${
+          result.unresolved > 0
+            ? ` ${result.unresolved} recurring series left unchanged because its older saved events could not be matched safely.`
+            : ""
+        }${
+          conventionDetailsUpdated
+            ? ""
+            : " Events were saved, but the convention dates or saved Sched URL could not be refreshed."
+        }`,
         [
           {
             text: "Done",
@@ -282,8 +523,12 @@ export default function ImportScreen() {
         ],
       );
     } catch {
-      if (createdConventionId) {
-        await conventionsRepo.remove(createdConventionId);
+      if (createdConventionId && shouldRollbackCreatedConvention) {
+        try {
+          await conventionsRepo.remove(createdConventionId);
+        } catch {
+          // The original import error is still the useful failure to report.
+        }
       }
       Alert.alert("Import Failed", "Something went wrong. Please try again.");
     }
@@ -295,29 +540,58 @@ export default function ImportScreen() {
           e.category === null || preview.selectedCategories.has(e.category),
       ).length
     : 0;
+  const canApplyPreview = preview
+    ? canApplyScheduleImport({
+        conventionId: id,
+        sourceUrl: preview.sourceUrl,
+        selectedEventCount: selectedCount,
+        sourceEventCount: preview.events.length,
+        cancelledEventCount: preview.cancelledSourceUids.length,
+      })
+    : false;
+  const isEmptyAuthoritativeUpdate =
+    !!preview &&
+    !!id &&
+    id !== "new" &&
+    preview.sourceUrl !== null &&
+    preview.events.length === 0;
+  const controlsDisabled = loading || importMutation.isPending;
 
   return (
     <SafeView>
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 gap-3">
-        <Pressable onPress={() => router.back()} className="active:opacity-70">
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Returns to the convention"
+          hitSlop={12}
+          className="active:opacity-70"
+        >
           <ChevronLeft size={24} color="#94A3B8" />
         </Pressable>
-        <Text variant="h2">Import Schedule</Text>
+        <Text variant="h2" accessibilityRole="header">
+          Import Schedule
+        </Text>
       </View>
 
       {/* Tabs */}
-      <View className="flex-row px-4 gap-2 mb-4">
+      <View className="flex-row px-4 gap-2 mb-4" accessibilityRole="tablist">
         {(["file", "url"] as Tab[]).map((tab) => (
           <Pressable
             key={tab}
-            onPress={() => {
-              setActiveTab(tab);
-              clearState();
+            onPress={() => handleTabChange(tab)}
+            disabled={controlsDisabled}
+            accessibilityRole="tab"
+            accessibilityLabel={tab === "file" ? "From File" : "From URL"}
+            accessibilityState={{
+              selected: activeTab === tab,
+              disabled: controlsDisabled,
             }}
             className={`flex-1 py-2 rounded-lg items-center ${
               activeTab === tab ? "bg-primary" : "bg-card"
-            }`}
+            } ${controlsDisabled ? "opacity-50" : ""}`}
           >
             <Text
               variant="label"
@@ -336,22 +610,33 @@ export default function ImportScreen() {
       <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">
         {/* Tab content */}
         {activeTab === "file" ? (
-          <Button variant="outline" onPress={handleFilePick} className="mb-4">
+          <Button
+            variant="outline"
+            onPress={handleFilePick}
+            disabled={controlsDisabled}
+            className="mb-4"
+          >
             Choose .ics File
           </Button>
         ) : (
           <View className="gap-3 mb-4">
             <TextInput
               value={url}
-              onChangeText={setUrl}
+              onChangeText={handleUrlChange}
               placeholder="https://yourcon.sched.com"
               placeholderTextColor="#94A3B8"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="url"
+              editable={!controlsDisabled}
+              accessibilityLabel="Sched schedule URL"
+              accessibilityState={{ disabled: controlsDisabled }}
               className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
             />
-            <Button onPress={handleUrlFetch} disabled={!url.trim() || loading}>
+            <Button
+              onPress={handleUrlFetch}
+              disabled={!url.trim() || controlsDisabled}
+            >
               Fetch Schedule
             </Button>
           </View>
@@ -359,7 +644,13 @@ export default function ImportScreen() {
 
         {/* Loading */}
         {loading && (
-          <View className="items-center py-8">
+          <View
+            className="items-center py-8"
+            accessibilityRole="progressbar"
+            accessibilityLabel="Loading schedule"
+            accessibilityLiveRegion="polite"
+            accessibilityState={{ busy: true }}
+          >
             <ActivityIndicator color="#0FACED" />
             <Text variant="caption" className="mt-2">
               Loading...
@@ -377,7 +668,13 @@ export default function ImportScreen() {
             ) : (
               <FileX size={40} color="#94A3B8" />
             )}
-            <Text variant="body" className="text-center text-muted-foreground">
+            <Text
+              variant="body"
+              className="text-center text-muted-foreground"
+              accessibilityRole="alert"
+              accessibilityLiveRegion="assertive"
+              selectable
+            >
               {error.message}
             </Text>
             {error.type === "timezone" ? (
@@ -402,10 +699,7 @@ export default function ImportScreen() {
             ) : (
               <Button
                 variant="outline"
-                onPress={() => {
-                  setError(null);
-                  if (activeTab === "url") handleUrlFetch();
-                }}
+                onPress={activeTab === "url" ? handleUrlFetch : handleFilePick}
               >
                 Retry
               </Button>
@@ -416,7 +710,31 @@ export default function ImportScreen() {
         {/* Preview */}
         {preview && !loading && !error && (
           <View className="gap-4">
-            <Text variant="h3">{preview.events.length} events found</Text>
+            <Text
+              variant="h3"
+              accessibilityRole="header"
+              accessibilityLiveRegion="polite"
+            >
+              {preview.events.length} active event
+              {preview.events.length === 1 ? "" : "s"} found
+            </Text>
+            {preview.cancelledSourceUids.length > 0 ? (
+              <Text variant="caption" className="text-muted-foreground">
+                {preview.cancelledSourceUids.length} cancellation
+                {preview.cancelledSourceUids.length === 1 ? "" : "s"} will be
+                reconciled.
+              </Text>
+            ) : null}
+            {isEmptyAuthoritativeUpdate ? (
+              <Text
+                variant="body"
+                className="text-destructive"
+                accessibilityRole="alert"
+              >
+                This update has no active events. You will review the exact
+                removal count before anything changes.
+              </Text>
+            ) : null}
 
             <View className="gap-2">
               <Text variant="label">Convention time zone</Text>
@@ -426,6 +744,8 @@ export default function ImportScreen() {
                 placeholder="America/Chicago"
                 placeholderTextColor="#94A3B8"
                 autoCapitalize="none"
+                editable={!importMutation.isPending}
+                accessibilityState={{ disabled: importMutation.isPending }}
                 autoCorrect={false}
                 accessibilityLabel="Convention time zone"
                 className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
@@ -442,6 +762,13 @@ export default function ImportScreen() {
                 <Pressable
                   key={cat.name}
                   onPress={() => toggleCategory(cat.name)}
+                  accessibilityRole="checkbox"
+                  accessibilityLabel={`${cat.name}, ${cat.count} event${cat.count === 1 ? "" : "s"}`}
+                  accessibilityState={{
+                    checked,
+                    disabled: importMutation.isPending,
+                  }}
+                  disabled={importMutation.isPending}
                   className="flex-row items-center gap-3 py-2"
                 >
                   <View
@@ -472,13 +799,17 @@ export default function ImportScreen() {
                 onPress={handleImport}
                 disabled={
                   importMutation.isPending ||
-                  selectedCount === 0 ||
+                  !canApplyPreview ||
                   !isValidTimeZone(timeZone.trim())
                 }
               >
                 {importMutation.isPending
-                  ? "Importing..."
-                  : `Import ${selectedCount} Event${selectedCount !== 1 ? "s" : ""}`}
+                  ? isEmptyAuthoritativeUpdate
+                    ? "Applying..."
+                    : "Importing..."
+                  : isEmptyAuthoritativeUpdate
+                    ? "Apply Schedule Update"
+                    : `Import ${selectedCount} Event${selectedCount !== 1 ? "s" : ""}`}
               </Button>
             </View>
           </View>

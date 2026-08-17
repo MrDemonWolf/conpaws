@@ -35,11 +35,29 @@ export function EventItem({
   onLongPress,
   className,
 }: EventItemProps) {
+  const accessibilityDetails = [
+    title,
+    endTime ? `${startTime} to ${endTime}` : startTime,
+    room,
+    category,
+    isInSchedule ? "In My Schedule" : "Not in My Schedule",
+    hasReminder ? "Reminder set" : null,
+    hasConflict ? "Schedule conflict" : null,
+    isAgeRestricted ? "Age restricted" : null,
+    contentWarning ? "Content warning" : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={400}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityDetails}
+      accessibilityHint="Opens event details, schedule, and reminder actions"
+      accessibilityState={{ selected: isInSchedule }}
       className={cn(
         "flex-row items-start gap-3 py-3 px-4 active:opacity-70",
         className,

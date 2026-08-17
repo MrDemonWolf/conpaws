@@ -60,4 +60,31 @@ describe("database bootstrap", () => {
     expect(convention).toEqual({ name: "Legacy Con", time_zone: null });
     database.close();
   });
+
+  it("repairs an interrupted v2 migration without retrying ADD COLUMN", () => {
+    const database = new DatabaseSync(":memory:");
+    database.exec(MIGRATION_1_SQL);
+    database.exec(`
+      INSERT INTO conventions (id, name, start_date, end_date)
+      VALUES ('legacy-con', 'Legacy Con', '2026-01-01', '2026-01-02');
+      ALTER TABLE conventions ADD COLUMN time_zone TEXT;
+    `);
+
+    expect(database.prepare("PRAGMA user_version").get()).toEqual({
+      user_version: 1,
+    });
+
+    initializeDatabase(migrationAdapter(database));
+    initializeDatabase(migrationAdapter(database));
+
+    expect(database.prepare("PRAGMA user_version").get()).toEqual({
+      user_version: 2,
+    });
+    expect(
+      database
+        .prepare("SELECT id, name, time_zone FROM conventions WHERE id = ?")
+        .get("legacy-con"),
+    ).toEqual({ id: "legacy-con", name: "Legacy Con", time_zone: null });
+    database.close();
+  });
 });

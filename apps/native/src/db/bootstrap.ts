@@ -49,8 +49,16 @@ PRAGMA user_version = 1;
 `;
 
 export const MIGRATION_2_SQL = `
+BEGIN IMMEDIATE;
 ALTER TABLE conventions ADD COLUMN time_zone TEXT;
 PRAGMA user_version = 2;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_2_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 2;
+COMMIT;
 `;
 
 interface MigrationDatabase {
@@ -65,5 +73,23 @@ export function initializeDatabase(database: MigrationDatabase): void {
       ?.user_version ?? 0;
 
   if (version < 1) database.execSync(MIGRATION_1_SQL);
-  if (version < 2) database.execSync(MIGRATION_2_SQL);
+  if (version < 2) {
+    const alreadyHasTimeZone =
+      database.getFirstSync<{ present: number }>(
+        "SELECT 1 AS present FROM pragma_table_info('conventions') WHERE name = 'time_zone'",
+      )?.present === 1;
+
+    // A previous process may have stopped after ALTER TABLE but before the
+    // version bump. Repair that state instead of retrying the ALTER forever.
+    try {
+      database.execSync(
+        alreadyHasTimeZone ? COMPLETE_MIGRATION_2_SQL : MIGRATION_2_SQL,
+      );
+    } catch (error) {
+      try {
+        database.execSync("ROLLBACK;");
+      } catch {}
+      throw error;
+    }
+  }
 }

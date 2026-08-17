@@ -2,11 +2,11 @@ export const metadata = { title: "Privacy Policy" };
 
 # Privacy Policy
 
-**Last updated:** June 30, 2026
+**Last updated:** August 17, 2026
 
 ## The Short Version
 
-ConPaws is built with privacy at its core. If you use the app without an account, **we collect nothing** — zero data leaves your device. If you create an account or subscribe to ConPaws+, we only collect what's needed to provide those features. We don't run ads. We don't sell your data. We don't use third-party analytics.
+ConPaws is built with privacy at its core. The current pre-release website does not accept signup submissions. If you use the app without an account, your schedules, choices, and settings stay on your device and are not sent to us. If you choose to import from a Sched link, your device contacts Sched to download that public calendar. Account and ConPaws+ features are planned; if you choose them once they are available, we will collect only what's needed to provide them. We don't run ads. We don't sell your data. We don't use third-party analytics.
 
 ---
 
@@ -20,56 +20,58 @@ This Privacy Policy explains how we collect, use, and protect your information w
 
 ### Pre-Release Waitlist (conpaws.com)
 
-The app isn't out yet, but this website has a waitlist — and signing up for it is the one place we collect data today. When you register on conpaws.com, we record:
+The app isn't out yet, and beta registration is not open. The current website does not accept or store signup submissions. When registration opens, we plan to record:
 
 - **Email address** — so we can email you
 - **Name** — optional; only if you fill it in
 - **IP address, browser info (user agent), and country** — kept as part of the consent record, proof that you (and not a bot) signed up
 - **The page address you signed up from (referrer)** — including any campaign tags (UTM parameters) it carries
 - **Date and time of signup**
-- **The exact consent wording shown at signup** — currently: "iOS and Android at launch. We'll email once to confirm — nothing else until it's ready."
+- **The exact consent wording shown when you submit the form**
 
-This is stored in Cloudflare D1 (a database hosted in the US) and synced to Brevo, our email service provider (a French company), which sends the double-opt-in confirmation email and any launch updates. That's it — no ads, no tracking pixels beyond what's listed here, and we never share or sell the list.
+When registration opens, this information will be stored in Cloudflare D1 (a database hosted in the US) and synced to Brevo, our email service provider (a French company), which will send the double-opt-in confirmation email and launch updates. We will not enable registration until storage, confirmation, unsubscribe, and deletion paths are working.
 
-Want off the list? Click the unsubscribe link in any email we send, or email [legal@mrdemonwolf.com](mailto:legal@mrdemonwolf.com) and we'll delete your record.
+Once registration opens, you can leave the list through any email's unsubscribe link or by emailing [legal@mrdemonwolf.com](mailto:legal@mrdemonwolf.com) to request deletion.
 
 ### Free (No Account)
 
 When you use ConPaws without creating an account:
 
 - **We collect nothing.** All data (conventions, events, settings) is stored locally on your device.
+- If you choose **Import from Sched**, your device requests the public calendar directly from Sched. Sched receives ordinary network request information under its [privacy policy](https://sched.com/privacy/); ConPaws does not send Sched your saved schedule choices or reminders.
 - No analytics, no tracking, no cookies, no device fingerprinting.
-- No data is transmitted to any server.
 
 ### Free Account
 
-When you create an account, we collect:
+Accounts and ConPaws+ are planned features and are not currently available.
+
+If you create an account once the feature is available, we plan to collect:
 
 | Data | Purpose | Stored Where |
 |------|---------|-------------|
-| Email address | Account identification (via Apple/Google OAuth) | Supabase Auth (self-hosted) |
-| Display name | Shown on your profile | Supabase Database (self-hosted) |
-| Username | Unique identifier (@username) | Supabase Database (self-hosted) |
-| Pronouns | Shown on your profile (optional) | Supabase Database (self-hosted) |
-| Bio | Shown on your profile (optional) | Supabase Database (self-hosted) |
+| Email address | Account identification (via Apple/Google OAuth) | Cloudflare D1 |
+| Display name | Shown on your profile | Cloudflare D1 |
+| Username | Unique identifier (@username) | Cloudflare D1 |
+| Pronouns | Shown on your profile (optional) | Cloudflare D1 |
+| Bio | Shown on your profile (optional) | Cloudflare D1 |
 | Profile avatar | Shown on your profile (optional) | Cloudflare R2 |
 
 ### ConPaws+ Subscribers
 
-In addition to the above, ConPaws+ subscribers' data includes:
+Once ConPaws+ is available, subscriber data is planned to include:
 
 | Data | Purpose | Stored Where |
 |------|---------|-------------|
-| Convention names and dates | Cloud sync and sharing | Supabase Database (self-hosted) |
-| Event schedules | Cloud sync and sharing | Supabase Database (self-hosted) |
+| Convention names and dates | Cloud sync and sharing | Cloudflare D1 |
+| Event schedules | Cloud sync and sharing | Cloudflare D1 |
 | Subscription status | Feature access | RevenueCat |
-| Name effect preference | Display name styling | Supabase Database (self-hosted) |
+| Name effect preference | Display name styling | Cloudflare D1 |
 
 ## 3. How We Use Your Data
 
-We use your data **only** to provide the features you've opted into:
+When the optional online features become available, we will use your data **only** to provide the features you've opted into:
 
-- **Waitlist:** Send the confirmation email and let you know when ConPaws launches
+- **Waitlist:** Once registration opens, send the confirmation email and let you know when ConPaws launches
 - **Account features:** Display your profile to other users
 - **ConPaws+ features:** Sync your convention data to the cloud, share your schedule publicly
 - **Subscription management:** Verify your ConPaws+ subscription status
@@ -83,26 +85,29 @@ We do **not** use your data for:
 
 ## 4. Third-Party Services
 
-We use the following third-party services:
+Cloudflare Workers currently hosts this website. Sched is contacted only when you choose its link-import option. The remaining integrations are planned for features that are not live yet.
 
 | Service | Purpose | Their Privacy Policy |
 |---------|---------|---------------------|
-| Apple Sign-In | Authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
-| Google Sign-In | Authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
-| RevenueCat | Subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
-| Cloudflare R2 | Avatar file storage | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
-| Cloudflare D1 | Waitlist storage (US-hosted database) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
-| Brevo | Waitlist confirmation emails and launch updates | [brevo.com/legal/privacypolicy](https://www.brevo.com/legal/privacypolicy/) |
+| Cloudflare Workers | Current website hosting | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Sched | Optional public-calendar download you request | [sched.com/privacy](https://sched.com/privacy/) |
+| Apple Sign-In | Planned authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
+| Google Sign-In | Planned authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
+| RevenueCat | Planned subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
+| Cloudflare R2 | Planned avatar file storage | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Cloudflare D1 | Planned waitlist and account storage (US-hosted database) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Brevo | Planned waitlist confirmation emails and launch updates | [brevo.com/legal/privacypolicy](https://www.brevo.com/legal/privacypolicy/) |
 
-**Note:** Our backend (Supabase) is self-hosted on infrastructure we control. Your data is not stored on Supabase's cloud platform.
+**Note:** Cloudflare does not currently receive waitlist or account records because those features are closed.
 
 ## 5. Data Sharing
 
-We do **not** share your personal data with any third party, except:
+We do **not** currently collect or share waitlist signup data. If the optional online features open, the planned sharing is limited to:
 
 - **Apple/Google:** For authentication (OAuth sign-in) and subscription billing
 - **RevenueCat:** For subscription management (receives your anonymous user ID and subscription status only)
-- **Brevo:** For sending waitlist confirmation emails and updates (receives your email and name only)
+- **Brevo:** Once the waitlist opens, for confirmation emails and updates (receives your email and name only)
+- **Cloudflare:** For hosting and processing the online features you choose to use
 - **Law enforcement:** If required by law (court order, subpoena)
 
 We do **not** sell, rent, or trade your personal information. Ever.
@@ -112,20 +117,20 @@ We do **not** sell, rent, or trade your personal information. Ever.
 | Scenario | What Happens |
 |----------|-------------|
 | **Free (no account)** | All data on your device. We have nothing to retain. |
-| **Waitlist signup** | Kept until launch or until you unsubscribe — whichever comes first. |
+| **Waitlist signup (once open)** | Kept until launch or until you unsubscribe — whichever comes first. |
 | **Account exists** | Profile data kept until you delete your account. |
 | **ConPaws+ cancelled** | Cloud data retained for 30 days, then permanently deleted. Local data stays on your device. |
 | **Account deleted** | All cloud data (profile, conventions, events, avatar) permanently deleted immediately. |
 
 ## 7. Your Rights
 
-You have the right to:
+If we begin holding your data, you have the right to:
 
-- **Access** your data — View your profile and synced data in the app at any time
-- **Correct** your data — Edit your profile information in the app
-- **Delete** your data — Self-service account deletion in Settings (immediate, no support ticket needed)
-- **Export** your data — Download your cloud data to your device when cancelling ConPaws+
-- **Withdraw consent** — Sign out or delete your account at any time; for the waitlist, use any email's unsubscribe link or email us
+- **Access** your data — Request a copy of the information we hold about you
+- **Correct** your data — Ask us to correct inaccurate information
+- **Delete** your data — Ask us to delete it; self-service account deletion is planned
+- **Export** your data — Download your cloud data once account sync is available
+- **Withdraw consent** — Sign out or delete your account at any time; once the waitlist opens, use any email's unsubscribe link or email us
 
 These rights apply to all users, regardless of location. We comply with:
 
@@ -135,11 +140,11 @@ These rights apply to all users, regardless of location. We comply with:
 
 ## 8. Data Security
 
-- All data in transit is encrypted via TLS/HTTPS
-- Database access is controlled via Row Level Security (RLS) — users can only access their own data
-- Authentication is handled by industry-standard OAuth providers (Apple, Google)
-- Avatar storage uses signed URLs with limited validity
-- Our backend is self-hosted on infrastructure we control
+- Traffic to the current website is encrypted via TLS/HTTPS
+- The planned Worker API will verify ownership before every D1 query; D1 does not provide Row Level Security
+- Authentication will be handled by OAuth providers (Apple and Google)
+- Avatar storage will use signed URLs with limited validity
+- Cloudflare currently hosts the website and will host the planned D1 databases and R2 storage
 
 ## 9. Children's Privacy
 
