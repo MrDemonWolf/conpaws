@@ -12,6 +12,7 @@ interface EventItemProps {
   category?: string;
   isInSchedule?: boolean;
   hasReminder?: boolean;
+  hasConflict?: boolean;
   isAgeRestricted?: boolean;
   contentWarning?: boolean;
   onPress?: () => void;
@@ -27,6 +28,7 @@ export function EventItem({
   category,
   isInSchedule = false,
   hasReminder = false,
+  hasConflict = false,
   isAgeRestricted = false,
   contentWarning = false,
   onPress,
@@ -61,6 +63,11 @@ export function EventItem({
           {endTime ? ` – ${endTime}` : ""}
           {room ? ` · ${room}` : ""}
         </Text>
+        {hasConflict ? (
+          <Text variant="caption" className="text-destructive">
+            Schedule conflict
+          </Text>
+        ) : null}
         {category ? (
           <CategoryPill label={category} className="self-start mt-1" />
         ) : null}

@@ -25,6 +25,7 @@ import {
   conventionDayKey,
   formatInConventionTime,
   isValidTimeZone,
+  overlappingEventIds,
 } from "@/lib/convention-time";
 import {
   cancelEventReminder,
@@ -330,6 +331,9 @@ export default function ConventionDetailScreen() {
   const filteredEvents = selectedCategory
     ? events.filter((e) => e.category === selectedCategory)
     : events;
+  const conflictingEventIds = overlappingEventIds(
+    events.filter((event) => event.isInSchedule),
+  );
 
   const storedTimeZone = convention?.timeZone;
   const conventionTimeZone = isValidTimeZone(storedTimeZone)
@@ -396,6 +400,16 @@ export default function ConventionDetailScreen() {
       >
         Times shown in {conventionTimeZone}
       </Text>
+      {conflictingEventIds.size > 0 ? (
+        <Text
+          variant="caption"
+          className="px-4 pb-2 text-center text-destructive"
+          accessibilityRole="alert"
+        >
+          {conflictingEventIds.size} selected event
+          {conflictingEventIds.size === 1 ? "" : "s"} overlap
+        </Text>
+      ) : null}
 
       {/* Category filter pills */}
       {categories.length > 0 && (
@@ -476,6 +490,7 @@ export default function ConventionDetailScreen() {
                   category={event.category ?? undefined}
                   isInSchedule={event.isInSchedule}
                   hasReminder={event.reminderMinutes !== null}
+                  hasConflict={conflictingEventIds.has(event.id)}
                   isAgeRestricted={event.isAgeRestricted}
                   contentWarning={event.contentWarning}
                   onPress={() => {
