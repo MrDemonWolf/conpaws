@@ -6,6 +6,9 @@
     "packages/*"
   ],
   "packageManager": "bun@1.3.10",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "turbo dev",

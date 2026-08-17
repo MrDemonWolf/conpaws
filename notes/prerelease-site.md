@@ -28,7 +28,7 @@ No browser app exists, and profile pages want the apex domain for OG unfurls and
 
 **Profile pages will be Next.js SSR, not Expo Web** (scored 48/60 vs 25/60):
 
-- Expo SDK 55's `web.output: "server"` is alpha, and per-request `generateMetadata` is SDK 56+. `output: "static"` can't render per-request tags — a rebuild per signup.
+- Expo Router web would duplicate the established Next/OpenNext SSR stack and offers almost no useful UI sharing; profile pages also need per-request metadata rather than the native app's static web output.
 - Almost nothing would be shared anyway: create-t3-turbo (the canonical Expo+Next monorepo, on our exact NativeWind preview) shares zero UI between apps.
 - NativeWind v5 exports only `./babel` and `./metro` — unusable from Next; react-native-web is in maintenance mode.
 - What to share instead: extract `packages/core` (iCal parser + Sched URL helpers are pure functions) and a shared Tailwind v4 `@theme` token file.

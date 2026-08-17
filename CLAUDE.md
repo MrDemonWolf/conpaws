@@ -31,14 +31,14 @@ bun prebuild:clean        # Clean and regenerate native projects
 
 ## Architecture
 
-- **Native app:** Expo SDK **55** (React Native 0.83) — upgrade directly to SDK **57** (RN 0.86), with Expo `>=57.0.9`; skip SDK 56 and see `notes/plan.md`
-- **Routing:** Expo Router `~55.0.x` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
-  - **Router versioning note:** Expo Router uses SDK-aligned versions (v6 = SDK 54; then 55.x/56.x/57.x). The current `expo-router@~55.0.18` major is correct — do not "fix" it to a single-digit major.
+- **Native app:** Expo SDK **57.0.14** (React Native 0.86.2, React 19.2.3). Keep Expo at `>=57.0.9`; earlier SDK 57 patches contain the Hermes/Reanimated/Worklets memory regression.
+- **Routing:** Expo Router `~57.0.14` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
+  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~57.0.14` major is correct — do not "fix" it to a single-digit major.
 - **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`)
 - **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
 - **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
 - **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. It is prepared for Cloudflare Workers through `@opennextjs/cloudflare` (1.20.2), but production routes are intentionally disabled and the site has not launched. See `apps/web/wrangler.jsonc` and `open-next.config.ts`. The intended waitlist flow is Turnstile → D1 → Brevo; valid submissions currently fail closed with HTTP 503 until those dependencies and route logic are implemented.
-- **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 55+/New Architecture compatibility is unverified; test on a dev build before building on it
+- **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 57/New Architecture compatibility is unverified; test on a dev build before building on it
 - **Payments (planned):** RevenueCat, entitlement `conpaws_plus`
 - **Language:** TypeScript strict mode
 - **Lint/format:** Biome (`biome.json` at repo root) — there is no ESLint config in this repo
@@ -83,7 +83,7 @@ conpaws/
 - **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
 - **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
-- **OTA is required for the MVP but remains fail-closed:** the chosen host is signed xprem **3.1.1** on Dokploy, not EAS Update. No OTA service is deployed and the SDK 55 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Upgrade directly to Expo SDK 57 (`>=57.0.9`), then enable staging only and pass physical iOS/Android cold-start, offline-start, and rollback tests before any production OTA path. See `notes/ota-updates.md`.
+- **OTA is required for the MVP but remains fail-closed:** the chosen host is signed xprem **3.1.1** on Dokploy, not EAS Update. The SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before any production OTA path. See `notes/ota-updates.md`.
 
 ### Environment Variables
 
