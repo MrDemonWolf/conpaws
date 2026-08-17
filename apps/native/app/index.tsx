@@ -1,7 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Redirect } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Index() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);

@@ -1,12 +1,12 @@
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
-import { Alert } from 'react-native';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import * as conventionsRepo from '@/db/repositories/conventions';
-import * as eventsRepo from '@/db/repositories/events';
-import { db } from '@/db';
-import type { Convention, ConventionEvent } from '@/db/schema';
-import type { ExportPayload } from './data-export';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import * as DocumentPicker from "expo-document-picker";
+import { File } from "expo-file-system";
+import { Alert } from "react-native";
+import { db } from "@/db";
+import * as conventionsRepo from "@/db/repositories/conventions";
+import * as eventsRepo from "@/db/repositories/events";
+import type { Convention, ConventionEvent } from "@/db/schema";
+import type { ExportPayload } from "./data-export";
 
 export interface ImportResult {
   conventionsAdded: number;
@@ -15,38 +15,42 @@ export interface ImportResult {
 }
 
 export function validateImportFile(payload: unknown): ExportPayload {
-  if (typeof payload !== 'object' || payload === null) {
-    throw new Error('Invalid file: not a JSON object');
+  if (typeof payload !== "object" || payload === null) {
+    throw new Error("Invalid file: not a JSON object");
   }
 
   const obj = payload as Record<string, unknown>;
 
   if (obj.version !== 1) {
-    throw new Error('Invalid file: unsupported version');
+    throw new Error("Invalid file: unsupported version");
   }
-  if (obj.app !== 'ConPaws') {
-    throw new Error('Invalid file: not a ConPaws export');
+  if (obj.app !== "ConPaws") {
+    throw new Error("Invalid file: not a ConPaws export");
   }
-  if (typeof obj.data !== 'object' || obj.data === null) {
-    throw new Error('Invalid file: missing data');
+  if (typeof obj.data !== "object" || obj.data === null) {
+    throw new Error("Invalid file: missing data");
   }
 
   const data = obj.data as Record<string, unknown>;
   if (!Array.isArray(data.conventions) || !Array.isArray(data.events)) {
-    throw new Error('Invalid file: missing conventions or events array');
+    throw new Error("Invalid file: missing conventions or events array");
   }
 
   return payload as ExportPayload;
 }
 
-export async function importData(payload: ExportPayload): Promise<ImportResult> {
+export async function importData(
+  payload: ExportPayload,
+): Promise<ImportResult> {
   const existingConventions = await conventionsRepo.getAll();
   const existingIds = new Set(existingConventions.map((c) => c.id));
 
   const allEventIds = new Set<string>();
   for (const conv of existingConventions) {
     const events = await eventsRepo.getByConventionId(conv.id);
-    events.forEach((e) => allEventIds.add(e.id));
+    events.forEach((event) => {
+      allEventIds.add(event.id);
+    });
   }
 
   let conventionsAdded = 0;
@@ -119,20 +123,20 @@ export function useImportData() {
   const mutation = useMutation({
     mutationFn: async () => {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ['application/json', 'text/plain', '*/*'],
+        type: ["application/json", "text/plain", "*/*"],
         copyToCacheDirectory: true,
       });
 
       if (result.canceled) return null;
 
       const file = result.assets[0];
-      const content = await FileSystem.readAsStringAsync(file.uri);
+      const content = await new File(file.uri).text();
 
       let parsed: unknown;
       try {
         parsed = JSON.parse(content);
       } catch {
-        throw new Error('Invalid file: could not parse JSON');
+        throw new Error("Invalid file: could not parse JSON");
       }
 
       const payload = validateImportFile(parsed);
@@ -142,12 +146,12 @@ export function useImportData() {
 
       return new Promise<ImportResult | null>((resolve, reject) => {
         Alert.alert(
-          'Import Data',
-          `Import ${convCount} convention${convCount !== 1 ? 's' : ''} and ${eventCount} event${eventCount !== 1 ? 's' : ''}?`,
+          "Import Data",
+          `Import ${convCount} convention${convCount !== 1 ? "s" : ""} and ${eventCount} event${eventCount !== 1 ? "s" : ""}?`,
           [
-            { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) },
+            { text: "Cancel", style: "cancel", onPress: () => resolve(null) },
             {
-              text: 'Import',
+              text: "Import",
               onPress: async () => {
                 try {
                   const importResult = await importData(payload);
@@ -163,14 +167,17 @@ export function useImportData() {
     },
     onSuccess: (result) => {
       if (!result) return;
-      queryClient.invalidateQueries({ queryKey: ['conventions'] });
+      queryClient.invalidateQueries({ queryKey: ["conventions"] });
       Alert.alert(
-        'Import Complete',
+        "Import Complete",
         `${result.conventionsAdded} conventions and ${result.eventsAdded} events imported. ${result.skipped} skipped.`,
       );
     },
     onError: (error) => {
-      Alert.alert('Import Failed', (error as Error).message ?? 'Something went wrong.');
+      Alert.alert(
+        "Import Failed",
+        (error as Error).message ?? "Something went wrong.",
+      );
     },
   });
 

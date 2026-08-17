@@ -47,11 +47,11 @@ When you create an account, we collect:
 
 | Data | Purpose | Stored Where |
 |------|---------|-------------|
-| Email address | Account identification (via Apple/Google OAuth) | Supabase Auth (self-hosted) |
-| Display name | Shown on your profile | Supabase Database (self-hosted) |
-| Username | Unique identifier (@username) | Supabase Database (self-hosted) |
-| Pronouns | Shown on your profile (optional) | Supabase Database (self-hosted) |
-| Bio | Shown on your profile (optional) | Supabase Database (self-hosted) |
+| Email address | Account identification (via Apple/Google OAuth) | Cloudflare D1 (auth database) |
+| Display name | Shown on your profile | Cloudflare D1 |
+| Username | Unique identifier (@username) | Cloudflare D1 |
+| Pronouns | Shown on your profile (optional) | Cloudflare D1 |
+| Bio | Shown on your profile (optional) | Cloudflare D1 |
 | Profile avatar | Shown on your profile (optional) | Cloudflare R2 |
 
 #### ConPaws+ Subscribers
@@ -60,10 +60,10 @@ In addition to the above, ConPaws+ subscribers' data includes:
 
 | Data | Purpose | Stored Where |
 |------|---------|-------------|
-| Convention names and dates | Cloud sync and sharing | Supabase Database (self-hosted) |
-| Event schedules | Cloud sync and sharing | Supabase Database (self-hosted) |
+| Convention names and dates | Cloud sync and sharing | Cloudflare D1 |
+| Event schedules | Cloud sync and sharing | Cloudflare D1 |
 | Subscription status | Feature access | RevenueCat |
-| Name effect preference | Display name styling | Supabase Database (self-hosted) |
+| Name effect preference | Display name styling | Cloudflare D1 |
 
 ### 3. How We Use Your Data
 
@@ -88,9 +88,9 @@ We use the following third-party services:
 | Apple Sign-In | Authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
 | Google Sign-In | Authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
 | RevenueCat | Subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
-| Cloudflare R2 | Avatar file storage | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Cloudflare | API hosting (Workers), database (D1), avatar file storage (R2) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
 
-**Note:** Our backend (Supabase) is self-hosted on infrastructure we control. Your data is not stored on Supabase's cloud platform.
+**Note:** Our backend runs on Cloudflare's developer platform (Workers, D1, R2) under our own account. Cloudflare is our infrastructure provider; we control the application and your data — no other company has access to it.
 
 ### 5. Data Sharing
 
@@ -129,10 +129,10 @@ These rights apply to all users, regardless of location. We comply with:
 ### 8. Data Security
 
 - All data in transit is encrypted via TLS/HTTPS
-- Database access is controlled via Row Level Security (RLS) — users can only access their own data
+- Every API request is authenticated and authorized in our application layer — each database query is scoped to the signed-in user, so users can only access their own data
 - Authentication is handled by industry-standard OAuth providers (Apple, Google)
-- Avatar storage uses signed URLs with limited validity
-- Our backend is self-hosted on infrastructure we control
+- Avatar uploads use signed URLs with limited validity
+- Our backend runs on Cloudflare infrastructure under our own account; data is encrypted at rest by Cloudflare D1 and R2
 
 ### 9. Children's Privacy
 

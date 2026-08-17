@@ -1,6 +1,6 @@
-import { View, TextInput, type TextInputProps } from 'react-native';
-import { Text } from './Text';
-import { cn } from '@/lib/utils';
+import { TextInput, type TextInputProps, View } from "react-native";
+import { cn } from "@/lib/utils";
+import { Text } from "./Text";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -18,8 +18,8 @@ export function Input({ label, error, className, ...props }: InputProps) {
       ) : null}
       <TextInput
         className={cn(
-          'border rounded-xl px-3 py-2.5 text-foreground bg-background',
-          error ? 'border-destructive' : 'border-input',
+          "border rounded-xl px-3 py-2.5 text-foreground bg-background",
+          error ? "border-destructive" : "border-input",
           className,
         )}
         placeholderTextColor="#94A3B8"

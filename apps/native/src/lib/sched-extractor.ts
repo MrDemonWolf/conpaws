@@ -1,21 +1,23 @@
 export class InvalidSchedUrlError extends Error {
   constructor(url: string) {
-    super(`Invalid Sched URL: "${url}". Expected format: https://yourcon.sched.com`);
-    this.name = 'InvalidSchedUrlError';
+    super(
+      `Invalid Sched URL: "${url}". Expected format: https://yourcon.sched.com`,
+    );
+    this.name = "InvalidSchedUrlError";
   }
 }
 
 export class NetworkError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'NetworkError';
+    this.name = "NetworkError";
   }
 }
 
 export class InvalidResponseError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'InvalidResponseError';
+    this.name = "InvalidResponseError";
   }
 }
 
@@ -42,8 +44,8 @@ export async function fetchSchedIcs(url: string): Promise<string> {
       throw new NetworkError(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const contentType = response.headers.get('content-type') ?? '';
-    if (!contentType.startsWith('text/calendar')) {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.startsWith("text/calendar")) {
       throw new InvalidResponseError(
         `Expected text/calendar response, got: ${contentType}`,
       );
@@ -51,11 +53,14 @@ export async function fetchSchedIcs(url: string): Promise<string> {
 
     return await response.text();
   } catch (err) {
-    if (err instanceof InvalidSchedUrlError || err instanceof InvalidResponseError) {
+    if (
+      err instanceof InvalidSchedUrlError ||
+      err instanceof InvalidResponseError
+    ) {
       throw err;
     }
-    if ((err as Error).name === 'AbortError') {
-      throw new NetworkError('Request timed out after 30 seconds');
+    if ((err as Error).name === "AbortError") {
+      throw new NetworkError("Request timed out after 30 seconds");
     }
     throw new NetworkError(`Network request failed: ${(err as Error).message}`);
   } finally {

@@ -1,27 +1,30 @@
-import { useState, useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format, isSameDay } from "date-fns";
+import * as Haptics from "expo-haptics";
+import { router, useLocalSearchParams } from "expo-router";
+import { ChevronLeft, MoreHorizontal, Plus, Upload } from "lucide-react-native";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
-  ScrollView,
-  Pressable,
-  Modal,
-  FlatList,
   Alert,
+  FlatList,
   Linking,
-} from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-import * as Haptics from 'expo-haptics';
-import { ChevronLeft, MoreHorizontal, Upload, Plus } from 'lucide-react-native';
-import { SafeView, Text, EmptyState, LoadingSpinner } from '@/components/ui';
-import { EventItem } from '@/components/EventItem';
-import { CategoryPill } from '@/components/CategoryPill';
-import { SectionHeader } from '@/components/SectionHeader';
-import * as conventionsRepo from '@/db/repositories/conventions';
-import * as eventsRepo from '@/db/repositories/events';
-import { scheduleEventReminder, cancelEventReminder } from '@/services/notifications';
-import type { ConventionEvent } from '@/db/schema';
-import { format, isSameDay } from 'date-fns';
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+} from "react-native";
+import { CategoryPill } from "@/components/CategoryPill";
+import { EventItem } from "@/components/EventItem";
+import { SectionHeader } from "@/components/SectionHeader";
+import { EmptyState, LoadingSpinner, SafeView, Text } from "@/components/ui";
+import * as conventionsRepo from "@/db/repositories/conventions";
+import * as eventsRepo from "@/db/repositories/events";
+import type { ConventionEvent } from "@/db/schema";
+import {
+  cancelEventReminder,
+  scheduleEventReminder,
+} from "@/services/notifications";
 
 interface DayGroup {
   date: Date;
@@ -40,7 +43,7 @@ function groupEventsByDay(events: ConventionEvent[]): DayGroup[] {
     } else {
       groups.push({
         date: startDate,
-        label: format(startDate, 'EEEE, MMMM d'),
+        label: format(startDate, "EEEE, MMMM d"),
         events: [event],
       });
     }
@@ -50,8 +53,8 @@ function groupEventsByDay(events: ConventionEvent[]): DayGroup[] {
 }
 
 function formatTime(isoString: string | null): string {
-  if (!isoString) return '';
-  return format(new Date(isoString), 'h:mm a');
+  if (!isoString) return "";
+  return format(new Date(isoString), "h:mm a");
 }
 
 interface ActionSheetProps {
@@ -62,7 +65,13 @@ interface ActionSheetProps {
   onSetReminder: (event: ConventionEvent) => void;
 }
 
-function EventActionSheet({ event, visible, onClose, onToggleSchedule, onSetReminder }: ActionSheetProps) {
+function EventActionSheet({
+  event,
+  visible,
+  onClose,
+  onToggleSchedule,
+  onSetReminder,
+}: ActionSheetProps) {
   if (!event) return null;
 
   return (
@@ -72,40 +81,52 @@ function EventActionSheet({ event, visible, onClose, onToggleSchedule, onSetRemi
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable
-        className="flex-1 bg-black/50 justify-end"
-        onPress={onClose}
-      >
+      <Pressable className="flex-1 bg-black/50 justify-end" onPress={onClose}>
         <Pressable className="bg-card rounded-t-2xl pb-8">
           <View className="w-10 h-1 bg-border rounded-full self-center mt-3 mb-4" />
-          <Text variant="label" className="px-4 pb-3 text-muted-foreground" numberOfLines={1}>
+          <Text
+            variant="label"
+            className="px-4 pb-3 text-muted-foreground"
+            numberOfLines={1}
+          >
             {event.title}
           </Text>
 
           {/* Toggle schedule */}
           <Pressable
-            onPress={() => { onToggleSchedule(event); onClose(); }}
+            onPress={() => {
+              onToggleSchedule(event);
+              onClose();
+            }}
             className="px-4 py-3.5 active:opacity-70"
           >
             <Text variant="body">
-              {event.isInSchedule ? 'Remove from Schedule' : 'Add to Schedule'}
+              {event.isInSchedule ? "Remove from Schedule" : "Add to Schedule"}
             </Text>
           </Pressable>
 
           {/* Set reminder */}
           <Pressable
-            onPress={() => { onSetReminder(event); onClose(); }}
+            onPress={() => {
+              onSetReminder(event);
+              onClose();
+            }}
             className="px-4 py-3.5 active:opacity-70"
           >
             <Text variant="body">
-              {event.reminderMinutes !== null ? 'Change Reminder' : 'Set Reminder'}
+              {event.reminderMinutes !== null
+                ? "Change Reminder"
+                : "Set Reminder"}
             </Text>
           </Pressable>
 
           {/* View on Sched */}
           {event.sourceUrl && (
             <Pressable
-              onPress={() => { Linking.openURL(event.sourceUrl!); onClose(); }}
+              onPress={() => {
+                Linking.openURL(event.sourceUrl!);
+                onClose();
+              }}
               className="px-4 py-3.5 active:opacity-70"
             >
               <Text variant="body">View on Sched</Text>
@@ -117,7 +138,9 @@ function EventActionSheet({ event, visible, onClose, onToggleSchedule, onSetRemi
             onPress={onClose}
             className="px-4 py-3.5 active:opacity-70 mt-2 border-t border-border"
           >
-            <Text variant="body" className="text-muted-foreground text-center">Cancel</Text>
+            <Text variant="body" className="text-muted-foreground text-center">
+              Cancel
+            </Text>
           </Pressable>
         </Pressable>
       </Pressable>
@@ -133,14 +156,19 @@ interface ReminderPickerProps {
 }
 
 const REMINDER_OPTIONS = [
-  { label: 'No reminder', value: null },
-  { label: '5 min before', value: 5 },
-  { label: '15 min before', value: 15 },
-  { label: '30 min before', value: 30 },
-  { label: '1 hour before', value: 60 },
+  { label: "No reminder", value: null },
+  { label: "5 min before", value: 5 },
+  { label: "15 min before", value: 15 },
+  { label: "30 min before", value: 30 },
+  { label: "1 hour before", value: 60 },
 ];
 
-function ReminderPicker({ event, visible, onClose, onSelect }: ReminderPickerProps) {
+function ReminderPicker({
+  event,
+  visible,
+  onClose,
+  onSelect,
+}: ReminderPickerProps) {
   if (!event) return null;
 
   return (
@@ -150,17 +178,19 @@ function ReminderPicker({ event, visible, onClose, onSelect }: ReminderPickerPro
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable
-        className="flex-1 bg-black/50 justify-end"
-        onPress={onClose}
-      >
+      <Pressable className="flex-1 bg-black/50 justify-end" onPress={onClose}>
         <Pressable className="bg-card rounded-t-2xl pb-8">
           <View className="w-10 h-1 bg-border rounded-full self-center mt-3 mb-4" />
-          <Text variant="label" className="px-4 pb-3">Set Reminder</Text>
+          <Text variant="label" className="px-4 pb-3">
+            Set Reminder
+          </Text>
           {REMINDER_OPTIONS.map((opt) => (
             <Pressable
               key={String(opt.value)}
-              onPress={() => { onSelect(event, opt.value); onClose(); }}
+              onPress={() => {
+                onSelect(event, opt.value);
+                onClose();
+              }}
               className="px-4 py-3.5 active:opacity-70 flex-row items-center justify-between"
             >
               <Text variant="body">{opt.label}</Text>
@@ -181,17 +211,20 @@ export default function ConventionDetailScreen() {
   const queryClient = useQueryClient();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [actionSheetEvent, setActionSheetEvent] = useState<ConventionEvent | null>(null);
-  const [reminderEvent, setReminderEvent] = useState<ConventionEvent | null>(null);
+  const [actionSheetEvent, setActionSheetEvent] =
+    useState<ConventionEvent | null>(null);
+  const [reminderEvent, setReminderEvent] = useState<ConventionEvent | null>(
+    null,
+  );
 
   const { data: convention, isLoading: conventionLoading } = useQuery({
-    queryKey: ['convention', id],
+    queryKey: ["convention", id],
     queryFn: () => conventionsRepo.getById(id!),
     enabled: !!id,
   });
 
   const { data: events = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['events', id],
+    queryKey: ["events", id],
     queryFn: () => eventsRepo.getByConventionId(id!),
     enabled: !!id,
   });
@@ -201,18 +234,29 @@ export default function ConventionDetailScreen() {
       await eventsRepo.update(event.id, { isInSchedule: !event.isInSchedule });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events', id] });
+      queryClient.invalidateQueries({ queryKey: ["events", id] });
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     },
   });
 
   const setReminderMutation = useMutation({
-    mutationFn: async ({ event, minutes }: { event: ConventionEvent; minutes: number | null }) => {
+    mutationFn: async ({
+      event,
+      minutes,
+    }: {
+      event: ConventionEvent;
+      minutes: number | null;
+    }) => {
       await eventsRepo.update(event.id, { reminderMinutes: minutes });
 
       if (minutes !== null && event.startTime) {
         await scheduleEventReminder(
-          { id: event.id, title: event.title, startTime: event.startTime, room: event.room },
+          {
+            id: event.id,
+            title: event.title,
+            startTime: event.startTime,
+            room: event.room,
+          },
           minutes,
         );
       } else {
@@ -220,11 +264,13 @@ export default function ConventionDetailScreen() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events', id] });
+      queryClient.invalidateQueries({ queryKey: ["events", id] });
     },
   });
 
-  const categories = Array.from(new Set(events.map((e) => e.category).filter(Boolean) as string[]));
+  const categories = Array.from(
+    new Set(events.map((e) => e.category).filter(Boolean) as string[]),
+  );
 
   const filteredEvents = selectedCategory
     ? events.filter((e) => e.category === selectedCategory)
@@ -248,8 +294,13 @@ export default function ConventionDetailScreen() {
     return (
       <SafeView>
         <View className="flex-1 items-center justify-center px-6">
-          <Text variant="body" className="text-muted-foreground text-center">Convention not found.</Text>
-          <Pressable onPress={() => router.back()} className="mt-4 active:opacity-70">
+          <Text variant="body" className="text-muted-foreground text-center">
+            Convention not found.
+          </Text>
+          <Pressable
+            onPress={() => router.back()}
+            className="mt-4 active:opacity-70"
+          >
             <Text className="text-primary">Go back</Text>
           </Pressable>
         </View>
@@ -262,12 +313,17 @@ export default function ConventionDetailScreen() {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3">
         <Pressable
-          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.back();
+          }}
           className="active:opacity-70"
         >
           <ChevronLeft size={24} color="#94A3B8" />
         </Pressable>
-        <Text variant="h3" className="flex-1 mx-3" numberOfLines={1}>{convention.name}</Text>
+        <Text variant="h3" className="flex-1 mx-3" numberOfLines={1}>
+          {convention.name}
+        </Text>
         <Pressable
           onPress={() => router.push(`/convention/${id}/import`)}
           className="active:opacity-70"
@@ -286,11 +342,15 @@ export default function ConventionDetailScreen() {
         >
           <Pressable
             onPress={() => setSelectedCategory(null)}
-            className={`px-3 py-1.5 rounded-full ${selectedCategory === null ? 'bg-primary' : 'bg-card'}`}
+            className={`px-3 py-1.5 rounded-full ${selectedCategory === null ? "bg-primary" : "bg-card"}`}
           >
             <Text
               variant="caption"
-              className={selectedCategory === null ? 'text-primary-foreground' : 'text-muted-foreground'}
+              className={
+                selectedCategory === null
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground"
+              }
             >
               All
             </Text>
@@ -298,12 +358,18 @@ export default function ConventionDetailScreen() {
           {categories.map((cat) => (
             <Pressable
               key={cat}
-              onPress={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-              className={`px-3 py-1.5 rounded-full ${selectedCategory === cat ? 'bg-primary' : 'bg-card'}`}
+              onPress={() =>
+                setSelectedCategory(selectedCategory === cat ? null : cat)
+              }
+              className={`px-3 py-1.5 rounded-full ${selectedCategory === cat ? "bg-primary" : "bg-card"}`}
             >
               <Text
                 variant="caption"
-                className={selectedCategory === cat ? 'text-primary-foreground' : 'text-muted-foreground'}
+                className={
+                  selectedCategory === cat
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground"
+                }
               >
                 {cat}
               </Text>
@@ -317,16 +383,15 @@ export default function ConventionDetailScreen() {
         <View className="flex-1 items-center justify-center px-6 gap-6">
           <EmptyState
             icon={<Text className="text-5xl">📅</Text>}
-            title={t('convention.noEvents')}
-            subtitle={t('convention.noEventsSubtitle')}
-            ctaLabel={t('convention.importSchedule')}
+            title={t("convention.noEvents")}
+            subtitle={t("convention.noEventsSubtitle")}
+            ctaLabel={t("convention.importSchedule")}
             onCta={() => router.push(`/convention/${id}/import`)}
           />
-          <Pressable
-            onPress={() => {}}
-            className="active:opacity-70"
-          >
-            <Text className="text-primary text-center">+ Add event manually</Text>
+          <Pressable onPress={() => {}} className="active:opacity-70">
+            <Text className="text-primary text-center">
+              + Add event manually
+            </Text>
           </Pressable>
         </View>
       ) : (
@@ -376,7 +441,9 @@ export default function ConventionDetailScreen() {
         event={reminderEvent}
         visible={reminderEvent !== null}
         onClose={() => setReminderEvent(null)}
-        onSelect={(event, minutes) => setReminderMutation.mutate({ event, minutes })}
+        onSelect={(event, minutes) =>
+          setReminderMutation.mutate({ event, minutes })
+        }
       />
     </SafeView>
   );

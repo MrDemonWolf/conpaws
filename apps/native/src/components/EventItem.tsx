@@ -1,8 +1,8 @@
-import { View, Pressable } from 'react-native';
-import { Bell, AlertTriangle, ShieldAlert } from 'lucide-react-native';
-import { Text } from '@/components/ui';
-import { CategoryPill } from './CategoryPill';
-import { cn } from '@/lib/utils';
+import { AlertTriangle, Bell, ShieldAlert } from "lucide-react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { CategoryPill } from "./CategoryPill";
 
 interface EventItemProps {
   title: string;
@@ -38,7 +38,10 @@ export function EventItem({
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={400}
-      className={cn('flex-row items-start gap-3 py-3 px-4 active:opacity-70', className)}
+      className={cn(
+        "flex-row items-start gap-3 py-3 px-4 active:opacity-70",
+        className,
+      )}
     >
       <View className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
       <View className="flex-1 gap-1">
@@ -55,10 +58,12 @@ export function EventItem({
         </View>
         <Text variant="caption">
           {startTime}
-          {endTime ? ` – ${endTime}` : ''}
-          {room ? ` · ${room}` : ''}
+          {endTime ? ` – ${endTime}` : ""}
+          {room ? ` · ${room}` : ""}
         </Text>
-        {category ? <CategoryPill label={category} className="self-start mt-1" /> : null}
+        {category ? (
+          <CategoryPill label={category} className="self-start mt-1" />
+        ) : null}
       </View>
     </Pressable>
   );

@@ -1,15 +1,15 @@
-import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { SafeView, Text, Button, Badge } from '@/components/ui';
-import { UserCircle } from 'lucide-react-native';
+import { UserCircle } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import { Badge, Button, SafeView, Text } from "@/components/ui";
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
 
   return (
-    <SafeView edges={['top', 'bottom']}>
+    <SafeView edges={["top", "bottom"]}>
       <View className="px-4 py-3">
-        <Text variant="h2">{t('profile.title')}</Text>
+        <Text variant="h2">{t("profile.title")}</Text>
       </View>
       <View className="flex-1 items-center justify-center px-6 gap-8">
         <UserCircle size={80} color="#94A3B8" />
@@ -23,8 +23,13 @@ export default function ProfileScreen() {
         <View className="w-full gap-3">
           {/* Apple Sign In */}
           <View className="relative">
-            <Button variant="default" size="lg" onPress={() => {}} className="w-full opacity-50">
-              {t('profile.signInWithApple')}
+            <Button
+              variant="default"
+              size="lg"
+              onPress={() => {}}
+              className="w-full opacity-50"
+            >
+              {t("profile.signInWithApple")}
             </Button>
             <View className="absolute right-3 top-0 bottom-0 justify-center">
               <Badge variant="upcoming" label="Coming Soon" />
@@ -33,8 +38,13 @@ export default function ProfileScreen() {
 
           {/* Google Sign In */}
           <View className="relative">
-            <Button variant="outline" size="lg" onPress={() => {}} className="w-full opacity-50">
-              {t('profile.signInWithGoogle')}
+            <Button
+              variant="outline"
+              size="lg"
+              onPress={() => {}}
+              className="w-full opacity-50"
+            >
+              {t("profile.signInWithGoogle")}
             </Button>
             <View className="absolute right-3 top-0 bottom-0 justify-center">
               <Badge variant="upcoming" label="Coming Soon" />
@@ -43,7 +53,8 @@ export default function ProfileScreen() {
         </View>
 
         <Text variant="caption" className="text-center text-muted-foreground">
-          Account sync is coming in Phase 2. Your data is safely stored locally for now.
+          Account sync is coming in Phase 2. Your data is safely stored locally
+          for now.
         </Text>
       </View>
     </SafeView>

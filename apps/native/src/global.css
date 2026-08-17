@@ -4,38 +4,38 @@
 @import "nativewind/theme";
 
 @theme {
-  --color-primary: #0FACED;
-  --color-primary-foreground: #FFFFFF;
-  --color-background: #FFFFFF;
-  --color-foreground: #0F172A;
-  --color-card: #F8FAFC;
-  --color-card-foreground: #0F172A;
-  --color-secondary: #F1F5F9;
-  --color-secondary-foreground: #0F172A;
-  --color-muted: #F1F5F9;
-  --color-muted-foreground: #64748B;
-  --color-accent: #F1F5F9;
-  --color-accent-foreground: #0F172A;
-  --color-destructive: #EF4444;
-  --color-destructive-foreground: #FFFFFF;
-  --color-border: #E2E8F0;
-  --color-input: #E2E8F0;
-  --color-ring: #0FACED;
+  --color-primary: #0faced;
+  --color-primary-foreground: #ffffff;
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-card: #f8fafc;
+  --color-card-foreground: #0f172a;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0f172a;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #0faced;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: #091533;
-    --color-foreground: #F8FAFC;
-    --color-card: #0F1D45;
-    --color-card-foreground: #F8FAFC;
-    --color-secondary: #1E293B;
-    --color-secondary-foreground: #F8FAFC;
-    --color-muted: #1E293B;
-    --color-muted-foreground: #94A3B8;
-    --color-accent: #1E293B;
-    --color-accent-foreground: #F8FAFC;
-    --color-border: #1E3A5F;
-    --color-input: #1E3A5F;
+    --color-foreground: #f8fafc;
+    --color-card: #0f1d45;
+    --color-card-foreground: #f8fafc;
+    --color-secondary: #1e293b;
+    --color-secondary-foreground: #f8fafc;
+    --color-muted: #1e293b;
+    --color-muted-foreground: #94a3b8;
+    --color-accent: #1e293b;
+    --color-accent-foreground: #f8fafc;
+    --color-border: #1e3a5f;
+    --color-input: #1e3a5f;
   }
 }

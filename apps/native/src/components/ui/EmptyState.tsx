@@ -1,7 +1,7 @@
-import { View } from 'react-native';
-import { Text } from './Text';
-import { Button } from './Button';
-import { cn } from '@/lib/utils';
+import { View } from "react-native";
+import { cn } from "@/lib/utils";
+import { Button } from "./Button";
+import { Text } from "./Text";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -21,7 +21,9 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <View className={cn('flex-1 items-center justify-center px-6 gap-4', className)}>
+    <View
+      className={cn("flex-1 items-center justify-center px-6 gap-4", className)}
+    >
       {icon ? <View className="mb-2">{icon}</View> : null}
       <View className="items-center gap-2">
         <Text variant="h3" className="text-center">

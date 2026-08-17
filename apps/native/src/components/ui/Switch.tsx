@@ -1,4 +1,7 @@
-import { Switch as RNSwitch, type SwitchProps as RNSwitchProps } from 'react-native';
+import {
+  Switch as RNSwitch,
+  type SwitchProps as RNSwitchProps,
+} from "react-native";
 
 interface SwitchProps extends RNSwitchProps {
   value: boolean;
@@ -10,7 +13,7 @@ export function Switch({ value, onValueChange, ...props }: SwitchProps) {
     <RNSwitch
       value={value}
       onValueChange={onValueChange}
-      trackColor={{ false: '#E2E8F0', true: '#0FACED' }}
+      trackColor={{ false: "#E2E8F0", true: "#0FACED" }}
       thumbColor="#FFFFFF"
       {...props}
     />

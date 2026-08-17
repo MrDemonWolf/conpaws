@@ -1,7 +1,6 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
 const APP_VARIANT = process.env.APP_VARIANT ?? "production";
-const IS_PRODUCTION = APP_VARIANT === "production";
 const EAS_PROJECT_ID = "0ad7171c-1b3e-48b2-a806-554aeea30048";
 
 const getAppName = (): string => {
@@ -46,31 +45,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "default",
   icon: "./assets/images/icon.png",
   scheme: getScheme(),
-  userInterfaceStyle: "automatic",
-  runtimeVersion: { policy: "appVersion" },
-  updates: {
-    url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
-  },
   extra: {
     eas: {
       projectId: EAS_PROJECT_ID,
     },
   },
-  ...(IS_PRODUCTION ? {} : { developmentClient: {} }),
   ios: {
     supportsTablet: true,
     bundleIdentifier: getBundleId(),
-    associatedDomains: ["applinks:conpaws.app"],
+    associatedDomains: ["applinks:conpaws.com"],
     config: {
       usesNonExemptEncryption: false,
-    },
-    infoPlist: {
-      NSCameraUsageDescription:
-        "ConPaws needs access to your camera to take photos.",
-      NSPhotoLibraryUsageDescription:
-        "ConPaws needs access to your photo library to select photos.",
-      NSPhotoLibraryAddUsageDescription:
-        "ConPaws needs permission to save photos to your library.",
     },
   },
   android: {
@@ -81,16 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
     package: getBundleId(),
-    permissions: [
-      "CAMERA",
-      "READ_EXTERNAL_STORAGE",
-      "WRITE_EXTERNAL_STORAGE",
-      "RECEIVE_BOOT_COMPLETED",
-      "VIBRATE",
-    ],
-  },
-  androidStatusBar: {
-    translucent: true,
+    // `enableEdgeToEdge` was removed in SDK 55 — edge-to-edge is always on.
   },
   web: {
     output: "static",
