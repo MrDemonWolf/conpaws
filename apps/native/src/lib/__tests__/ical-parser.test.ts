@@ -198,6 +198,35 @@ END:VCALENDAR`;
     expect(result.events[0].title).toBe("Duplicate Event");
   });
 
+  it("keeps simultaneous events in different rooms", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+DTEND:20260612T170000Z
+SUMMARY:Costume Workshop
+LOCATION:Room A
+UID:test-concurrent-a
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+DTEND:20260612T170000Z
+SUMMARY:Art Panel
+LOCATION:Room B, Convention Center
+UID:test-concurrent-b
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics);
+
+    expect(result.events).toHaveLength(2);
+    expect(result.events.map((event) => event.room ?? event.location)).toEqual([
+      "Room A",
+      "Room B",
+    ]);
+    expect(result.events[0].startTime).toEqual(result.events[1].startTime);
+  });
+
   it("parses all-day event without time component", () => {
     const ics = `BEGIN:VCALENDAR
 VERSION:2.0

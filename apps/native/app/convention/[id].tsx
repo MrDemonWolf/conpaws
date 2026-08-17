@@ -255,7 +255,7 @@ export default function ConventionDetailScreen() {
             id: event.id,
             title: event.title,
             startTime: event.startTime,
-            room: event.room,
+            room: event.room ?? event.location,
           },
           minutes,
         );
@@ -407,7 +407,7 @@ export default function ConventionDetailScreen() {
                   title={event.title}
                   startTime={formatTime(event.startTime)}
                   endTime={formatTime(event.endTime)}
-                  room={event.room ?? undefined}
+                  room={event.room ?? event.location ?? undefined}
                   category={event.category ?? undefined}
                   isInSchedule={event.isInSchedule}
                   hasReminder={event.reminderMinutes !== null}
