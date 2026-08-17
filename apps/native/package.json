@@ -4,8 +4,8 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "dev": "APP_VARIANT=development expo start --dev-client",
-    "start": "APP_VARIANT=development expo start --dev-client",
+    "dev": "APP_VARIANT=development expo start --dev-client --scheme conpaws-dev",
+    "start": "APP_VARIANT=development expo start --dev-client --scheme conpaws-dev",
     "start:preview": "APP_VARIANT=preview expo start",
     "start:prod": "APP_VARIANT=production expo start",
     "android": "expo run:android",
