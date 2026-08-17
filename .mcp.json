@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "xprem-docs": {
+      "type": "http",
+      "url": "https://mercure-technologies.gitbook.io/xprem/~gitbook/mcp"
+    }
+  }
+}

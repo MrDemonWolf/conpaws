@@ -2,18 +2,23 @@
 
 ## Decision now
 
-OTA updates are **required for the MVP**. The selected service is signed
-[xprem 3.1.1](https://github.com/mercuretechnologies/xprem), self-hosted on
-Dokploy. ConPaws will not use EAS Update.
+OTA updates are **required for the MVP**. The selected service is one shared,
+signed [xprem 3.1.1](https://github.com/mercuretechnologies/xprem) control plane
+for MrDemonWolf, Inc., self-hosted on Dokploy at `updates.mrdemonwolf.com`.
+ConPaws will not use EAS Update.
+
+The hardened, digest-pinned deployment package and operator steps are in the
+[Dokploy xprem runbook](../infra/xprem/README.md). This is configuration only;
+it has not deployed a service or published an update.
 
 The feature remains fail-closed while it is built. The Expo SDK 57 app has no
-`expo-updates` dependency, `updates.url`, `runtimeVersion`, or update channels,
-and no xprem service has been deployed yet. Do not enable production OTA until
-signed xprem staging is available and physical iOS and Android devices pass
-downloaded-update cold-start, offline-start, and rollback tests.
+`expo-updates` dependency, `updates.url`, `runtimeVersion`, or update channels.
+Do not enable production OTA until signed xprem staging is available and
+physical iOS and Android devices pass downloaded-update cold-start,
+offline-start, and rollback tests.
 
-The configured update URL is embedded in each store binary, so use a long-lived
-hostname and prove the staging topology before making a production binary.
+The organization-owned `updates.mrdemonwolf.com` URL is embedded in each store
+binary. Prove its staging topology before making a production binary.
 
 **Release path while the OTA gate is closed:** CI passes -> make a signed store
 build -> test it in TestFlight and Play Internal Testing -> release that exact
@@ -39,20 +44,25 @@ plus the full release smoke test on physical iOS and Android devices.
 | Option | Fit now | Cost and work | Verdict |
 | --- | --- | --- | --- |
 | Store builds only | Safe temporary path while the OTA gate is closed | More build/store turnaround; almost no OTA operations | **Use until staging passes** |
-| Self-host [xprem 3.1.1](https://github.com/mercuretechnologies/xprem) on Dokploy | Selected MVP OTA path | We operate the service, storage, backups, signing, monitoring, and recovery | **Chosen; setup not completed** |
+| Self-host [xprem 3.1.1](https://github.com/mercuretechnologies/xprem) on Dokploy | Selected MVP OTA path | We operate the service, storage, backups, signing, monitoring, and recovery | **Chosen; deployment package ready, service not deployed** |
 | EAS Update | Managed alternative | Usage limits and pricing do not match this project | **Do not use** |
 | Community Vercel server | Easy-looking deployment | Too little production evidence; the candidate below lacks signing | Do not use for production |
 
 ### Selected self-hosted shape
 
-Build the signed xprem 3.1.1 staging deployment on Dokploy with:
+Build the signed xprem 3.1.1 deployment from the committed runbook with:
 
-- a dedicated hostname such as `updates.conpaws.com`;
-- xprem's Docker image;
-- Cloudflare R2 or another S3-compatible bucket for immutable bundles and assets;
-- PostgreSQL when we want the dashboard, channels, progressive rollouts, and control-plane history;
-- separate staging and production publishing credentials;
-- update code signing, health checks, logs, Prometheus metrics, and tested backups.
+- the long-lived, organization-owned hostname `updates.mrdemonwolf.com`;
+- digest-pinned xprem and Redis images with no published host ports;
+- one private `mrdemonwolf-ota-assets` R2 bucket shared by product app records;
+- a separate Dokploy PostgreSQL service plus a separate `mrdemonwolf-ota-backups` R2 bucket for database backups and an immutable daily asset copy, using backup-only credentials;
+- one isolated app record per product, with its own UUID, signing material, branches/channels, publisher token, and runtime;
+- one ConPaws publisher token stored only in its protected GitHub environment, because community xprem cannot enforce per-branch credentials;
+- standard update signing, readiness plus manifest/asset checks, and tested database/object recovery. Device telemetry and Prometheus stay off for the MVP.
+
+One xprem endpoint and one private asset bucket serve all products, but app records and publishing authority must never be reused between products.
+
+The public [xprem docs MCP](https://mercure-technologies.gitbook.io/xprem/~gitbook/mcp) is available now. The deployed `https://updates.mrdemonwolf.com/mcp` control plane is available only after deployment and authenticates an xprem dashboard user with OAuth, never a publisher token. The runbook has exact Codex/Claude commands and mandatory app-UUID checks before mutations.
 
 xprem implements the official [Expo Updates protocol](https://docs.expo.dev/technical-specs/expo-updates-1/), supports Docker, R2/S3 storage, signing, channels, staged rollouts, and rollback/republish operations. It is an independent open-core project, not Expo-supported software. Its update pipeline and core rollout tooling are MIT, while RBAC, SSO, and branch protection are commercial features. We must review its license boundary and security model before production.
 
@@ -80,11 +90,11 @@ store artifacts; using EAS Build does not require using EAS Update.
 Every OTA publish must follow these rules:
 
 1. CI must pass before publishing anything.
-2. Publish an immutable update to `staging` first.
-3. Test that exact update on physical iOS and Android store-style builds, including cold starts, offline starts, database upgrades, reminders, and rollback.
-4. Promote or republish the exact tested artifact to production. Do not rebuild JavaScript from a different checkout.
+2. Publish once to a unique immutable release branch, then point only `staging` at it.
+3. Test that exact stored update on physical iOS and Android store-style builds, including cold starts, offline starts, database upgrades, reminders, and rollback.
+4. Repoint `production` to the exact tested branch. Never rebuild or republish it for promotion.
 5. Start with a small deterministic rollout, observe crash/startup health, then increase it deliberately.
-6. Keep the prior known-good update immediately republishable. Practice rollback before launch.
+6. Keep the prior known-good branch immediately remappable. Practice rollback before launch.
 7. Record the Git commit, update ID/content hash, runtime version, publisher, rollout percentage, and test result.
 
 An OTA rollback changes the JavaScript bundle; it does **not** undo a SQLite migration. Database changes must use expand/contract sequencing:
@@ -124,17 +134,18 @@ Production OTA stays disabled until all boxes are checked. A staging-only
 client may be configured after the direct SDK 57 upgrade and the signed staging
 endpoint are ready.
 
-- [x] Self-hosted project, version, and host selected: xprem 3.1.1 on Dokploy.
+- [x] Shared organization host selected: xprem 3.1.1 on Dokploy at `updates.mrdemonwolf.com`.
 - [x] EAS Update excluded from the implementation path.
 - [x] Upgrade directly from Expo SDK 55 to SDK 57 with Expo `>=57.0.9`; do not land SDK 56.
-- [ ] Deploy xprem 3.1.1 to staging with a pinned image reference, PostgreSQL, object storage, TLS, and health checks.
+- [x] Add a hardened, digest-pinned Dokploy deployment package and recovery runbook.
+- [ ] Deploy xprem 3.1.1 to staging with PostgreSQL, private R2 storage, TLS, and health checks.
 - [ ] Record the exact iOS and Android client package versions.
 - [ ] Staging and production channels cannot be confused accidentally.
 - [ ] Production publishing credentials are unavailable to pull-request CI.
 - [ ] Update signing succeeds on physical iOS and Android release builds.
 - [ ] Downloaded updates pass cold starts and offline starts on physical iOS and Android devices.
 - [ ] A bad update is rejected or rolled back without bricking cold or offline launch.
-- [ ] Staged rollout, pause, republish, and rollback are rehearsed.
+- [ ] Staged rollout, pause, channel remap, and rollback are rehearsed.
 - [ ] PostgreSQL and object-storage backup/restore are tested.
 - [ ] Health, latency, disk/storage, certificate expiry, and failed publishes alert someone.
 - [ ] Database migrations follow expand/contract rules.
@@ -142,13 +153,13 @@ endpoint are ready.
 
 ## Inputs still needed for setup
 
-The product, version, and host decisions are complete. Setup still needs:
+The shared service version, organization hostname, and deployment shape are complete. Actual deployment and the ConPaws app record now need:
 
-1. The long-lived OTA hostname, recommended as `updates.conpaws.com`, and the target Dokploy server/region.
-2. The PostgreSQL database and R2/S3 bucket, region, endpoint, and backup destinations.
-3. The staging and production publisher identities and where their credentials are stored.
-4. The signing-key custodian, restricted production access, rotation plan, and encrypted recovery copy.
+1. Authenticated access to the existing Dokploy instance, through its URL and an interactive session or a narrowly scoped API token.
+2. The target Dokploy project, environment, server, and installed Dokploy version.
+3. Authenticated Cloudflare access for the `mrdemonwolf.com` DNS zone and private `mrdemonwolf-ota-assets` and `mrdemonwolf-ota-backups` R2 buckets, or the owner completing those runbook steps.
+4. The bootstrap administrator email. Generate and enter every secret directly in Dokploy or Cloudflare.
 5. The TestFlight and Play Internal Testing devices/testers used for staging approval.
 6. The destination for health, latency, storage, certificate-expiry, backup, and failed-publish alerts.
 
-Do not paste signing keys, tokens, or store credentials into chat. We can configure secret names and access boundaries after those choices are made.
+Do not paste signing keys, tokens, database URLs, or store credentials into chat.
