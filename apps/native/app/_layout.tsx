@@ -30,6 +30,7 @@ import "@formatjs/intl-datetimeformat/locale-data/sv.js";
 import "@formatjs/intl-datetimeformat/add-all-tz.js";
 import "../src/global.css";
 
+import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
@@ -40,11 +41,19 @@ import {
   setupNotificationHandler,
 } from "@/services/notifications";
 
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+Sentry.init({
+  dsn: sentryDsn,
+  enabled: !__DEV__ && Boolean(sentryDsn),
+  sendDefaultPii: false,
+});
+
 setupNotificationHandler();
 
 const queryClient = new QueryClient();
 
-export default function RootLayout() {
+function RootLayout() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -63,3 +72,5 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);
