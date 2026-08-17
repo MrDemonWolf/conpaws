@@ -14,16 +14,20 @@ Never miss a panel again.
 - **Offline First** - Full convention management with no internet
   connection. The local SQLite database is the source of truth for free
   users.
-- **iCal Import** - Import any convention's schedule from a `.ics` file
-  or a Sched URL. No convention partnership required (planned).
+- **iCal Import** - Import a convention schedule from a `.ics` file or a
+  Sched URL, then safely re-import updates and cancellations.
 - **Conventions and Events** - Track conventions with status detection
-  (upcoming/active/ended), panels, meetups, and custom events (planned).
+  (upcoming/active/ended), pick simultaneous or overlapping events, and
+  view the schedule in the convention's timezone.
+- **Local Reminders** - Schedule per-event reminders that work without a
+  ConPaws account or push server.
 - **ConPaws+** - Premium subscription via RevenueCat for cloud sync,
   schedule sharing, badges, and pride flag name effects (planned).
 - **Cloud Sync** - Polling-based sync against a Cloudflare Workers API
   with D1 storage — no accounts required for core features (planned).
-- **Website and Waitlist** - Marketing site and pre-release waitlist at
-  [conpaws.com](https://conpaws.com), deployed to Cloudflare Workers.
+- **Website and Waitlist** - The marketing site and waitlist are prepared
+  for Cloudflare Workers, but production routes are intentionally disabled.
+  The website has not launched yet.
 - **Dark Mode** - Automatic light/dark theme support across the app.
 
 ## Getting Started
@@ -54,9 +58,9 @@ Never miss a panel again.
 
 | Layer            | Technology                                                       |
 | ---------------- | ---------------------------------------------------------------- |
-| Mobile app       | Expo SDK 55 (target: SDK 57), React Native, Expo Router          |
-| Styling          | NativeWind v5 (Tailwind CSS v4), shared shadcn/ui primitives     |
-| Local database   | expo-sqlite with Drizzle ORM (planned)                           |
+| Mobile app       | Expo SDK 55, React Native 0.83, React 19.2, Expo Router; direct SDK 57 upgrade planned |
+| Styling          | NativeWind v5 (Tailwind CSS v4), native component primitives     |
+| Local database   | expo-sqlite with Drizzle ORM                                     |
 | Backend (target) | Cloudflare Workers — Hono, tRPC, Better-Auth                     |
 | Cloud database   | Cloudflare D1 (SQLite) with Drizzle ORM                          |
 | File storage     | Cloudflare R2 (zero egress)                                      |
@@ -111,15 +115,34 @@ All scripts run from the repo root and fan out through Turborepo:
 - `bun build` - Build all applications and packages
 - `bun lint` - Run Biome (`biome check .`)
 - `bun check-types` - TypeScript type checking across all packages
-- `bun test` - Run unit tests (Vitest — planned, no tests yet)
+- `bun test` - Run the Vitest suites across the workspace
 - `bun prebuild` / `bun prebuild:clean` - Generate native projects
 
 ### Code Quality
 
 - TypeScript in strict mode across every package
 - Biome for linting and formatting (no ESLint in this repo)
-- Turborepo-driven CI: lint + type-check on every pull request
-- Vitest for unit tests (planned alongside the first business logic)
+- CI gates pull requests with lint, type checks, unit tests, web build
+  checks, Expo Doctor, native prebuild, and native export checks
+- Vitest coverage for database migration/reconciliation, ICS and timezone
+  behavior, reminders, backup import, schedule selection, and web APIs
+
+### Mobile Releases and OTA Updates
+
+Store releases remain operator-controlled. EAS creates signed production
+IPA/AAB artifacts, then the exact tested artifacts are uploaded to TestFlight
+and Play Internal Testing and promoted manually. There is no auto-submit.
+
+- [Mobile release guide](apps/native/RELEASING.md)
+- [Self-hosted OTA decision guide](notes/ota-updates.md)
+
+OTA updates are required for the MVP. The selected path is signed
+[xprem 3.1.1](https://github.com/mercuretechnologies/xprem) hosted on Dokploy,
+not EAS Update. OTA remains fail-closed for now: the app must first upgrade
+directly from Expo SDK 55 to SDK 57 (`>=57.0.9`), then the signed staging path
+must pass cold-start, offline-start, and rollback tests on physical iOS and
+Android devices. No OTA service has been deployed or enabled in a production
+binary yet.
 
 ## Project Structure
 

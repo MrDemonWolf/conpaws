@@ -2,6 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "conpaws-web",
   "main": ".open-next/worker.js",
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2025-05-05",
 
   // nodejs_compat is required by OpenNext. global_fetch_strictly_public makes

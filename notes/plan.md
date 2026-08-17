@@ -39,7 +39,7 @@ A **free, offline-first convention companion app** for the furry community.
 | [Crash Reporting](#crash-reporting-sentry) | Sentry setup, what to/not to track |
 | [Sharing & Deep Links](#sharing--deep-links) | Universal links, Next.js preview site |
 | [Testing Strategy](#testing-strategy) | Vitest, what to test vs skip |
-| [CI/CD](#cicd-github-actions--eas-workflows) | GitHub Actions PR checks + EAS Workflows |
+| [CI/CD](#cicd-github-actions--manual-store-releases) | Gated GitHub Actions + manual store releases |
 | [Localization](#localization) | i18next, English-first, community translations |
 | [Component System](#component-system-shadcncn-inspired) | UI components, design tokens |
 | [App Config](#app-config--production-readiness-eas) | Expo config, EAS production setup, three variants, SDK upgrade path |
@@ -112,12 +112,12 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 **Version notes (read before "fixing" anything):**
 
 - **Expo Router versioning is SDK-aligned.** Router v6 shipped with SDK 54; from SDK 55 onward the Router major matches the SDK (`~55.0.x`, `56.x`, `57.x`). The `expo-router@~55.0.5` pin in `apps/native` is correct — do not "fix" it back to a single-digit major.
-- `apps/native/package.json` pins `react: 19.0.0`, but Expo SDK 55 ships React 19.2 — this is a real mismatch to fix (run `npx expo install --fix` or align during the SDK upgrade).
+- `apps/native/package.json` is aligned to Expo SDK 55's React 19.2 dependency set. Keep Expo-managed packages aligned with `expo install --check` and the pinned Expo Doctor in CI.
 - **Open risk:** Expo Router **Native Tabs is alpha** ("API subject to change") even though it appears in the SDK 55 default template. Adopting it in production means accepting refactor risk on every SDK bump — prefer classic JS tabs until it stabilizes.
 
 ### Backend (Cloudflare Workers)
 
-The backend is a Cloudflare Worker (planned as `apps/server`, scaffolded Better-T-Stack style). No VPS, no Docker, no self-hosted services.
+The core backend is a Cloudflare Worker (planned as `apps/server`, scaffolded Better-T-Stack style). A future OTA update service may run separately on Dokploy; see `notes/ota-updates.md`.
 
 | Tool | Purpose |
 |------|---------|
@@ -157,10 +157,10 @@ The backend is a Cloudflare Worker (planned as `apps/server`, scaffolded Better-
 | Turborepo | Monorepo task runner — `turbo.json` at root, all root scripts fan out through `turbo` |
 | Biome | Lint + format (`bun lint` = `biome check .`; there is no ESLint in this repo) |
 | Wrangler | Cloudflare deploys (`apps/web` via OpenNext today; `apps/server` when scaffolded) |
-| EAS Build + Submit + Update | Build pipeline, store submission, OTA updates |
-| Vitest | Unit testing (planned — no test files exist yet) |
+| EAS Build | Signed store binaries; upload and release stay manual |
+| Vitest | Unit testing for native and web behavior |
 | Sentry (via `@sentry/react-native`) | Crash reporting + error tracking |
-| GitHub Actions + EAS Workflows | PR checks (lint + type-check + tests) and build/submit automation |
+| GitHub Actions | Required lint, types, tests, web Worker smoke test, and native production exports |
 
 ---
 
@@ -820,7 +820,7 @@ Welcome → Features → Get Started → Complete
 ### Local Database (expo-sqlite + Drizzle ORM) — Everyone Gets This
 
 ```ts
-// apps/native/src/db/schema.ts (planned — the db/ directory is empty today)
+// apps/native/src/db/schema.ts (implemented; this excerpt remains the design reference)
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 // --- Conventions ---
@@ -1564,7 +1564,7 @@ The **Next.js** app in `apps/web` handles the web preview pages, marketing/waitl
 5. `<meta name="apple-itunes-app">` shows the App Store smart banner
 6. `.well-known/apple-app-site-association` + `assetlinks.json` served from `public/` for universal links
 7. Also serves: marketing homepage, `/privacy`, `/terms`
-8. Deploy: `opennextjs-cloudflare build` → `wrangler deploy`
+8. Deploy: CI builds and smoke-tests OpenNext, then a separate protected workflow uploads and promotes that exact artifact after approval
 
 **Cost:** covered by the $5/mo Workers Paid plan (shared with the API Worker)
 
@@ -1637,71 +1637,35 @@ Focus on testing business logic, not UI. No E2E testing — keep it simple for a
 
 ---
 
-## CI/CD (GitHub Actions + EAS Workflows)
+## CI/CD (GitHub Actions + manual store releases)
 
-Two pipelines: GitHub Actions for PR checks, EAS Workflows for app builds + store submission.
+CI proves the source can produce the web Worker and both native JavaScript bundles. Store binaries are built on demand with EAS Build, then uploaded and released manually so no merge can publish an app automatically.
 
 ### PR Checks (GitHub Actions)
 
 CI runs **from the repo root and fans out through Turborepo** — no per-app `working-directory`. bun is pinned (1.3.10) to match the root `packageManager` field.
 
-Every pull request runs:
+Every pull request runs three parallel gates and one stable required result:
 
 1. **Lint** — `bun lint` (Biome — `biome check .`)
 2. **Type check** — `bun check-types` (Turbo → per-package `tsc`)
-3. **Tests** — `bun test` (Turbo → Vitest, once tests exist)
-4. **Expo doctor** — `npx expo-doctor` in `apps/native` (catches dependency/SDK mismatches before they cost a build)
+3. **Tests** — `bun test` (Turbo → the workspace Vitest suites)
+4. **Web production build** — OpenNext build plus local Worker smoke tests
+5. **Native production check** — Expo dependency validation, Expo Doctor, config-plugin prebuild, and iOS/Android bundle exports
+6. **`CI / Verify`** — fails unless every gate above passed
 
-```yaml
-# .github/workflows/ci.yml (intended shape)
-name: CI
-on:
-  pull_request:
-    branches: [main]
+The pinned, executable workflow lives at `.github/workflows/ci.yml`.
 
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.10
-      - run: bun install --frozen-lockfile
-      - run: bun lint
-      - run: bun check-types
-      - run: bun test
-      - run: cd apps/native && npx expo-doctor
-```
+### App builds and store submission
 
-### App Builds & Store Submission (EAS Workflows)
+There is deliberately no automatic EAS Workflow and no `--auto-submit` path. From a clean, pulled `main` whose exact commit has a green `CI / Verify`, create separate `production` EAS builds for iOS and Android. Download and record those exact build IDs, upload the IPA with Apple Transporter and the AAB in Play Console, test the store-delivered builds on physical devices, then promote those same artifacts.
 
-Build + submit automation lives in **`.eas/workflows/*.yml`** (EAS Workflows), not GitHub Actions. EAS Workflows have first-party job types for `build`, `testflight`, and `submit`, plus fingerprint-aware jobs that skip native rebuilds when only JS changed.
-
-```yaml
-# .eas/workflows/release.yml (planned)
-name: Release
-on:
-  push:
-    branches: [main]
-jobs:
-  build_ios:
-    type: build
-    params:
-      platform: ios
-      profile: production
-  submit_ios:
-    needs: [build_ios]
-    type: submit
-    params:
-      platform: ios
-      build_id: ${{ needs.build_ios.outputs.build_id }}
-```
+The full ADHD-friendly runbook, build-number rules, smoke checklist, and release record live in [`apps/native/RELEASING.md`](../apps/native/RELEASING.md).
 
 ### What CI Does NOT Do
 
-- No EAS builds inside GitHub Actions — EAS Workflows own that path
-- Web deploys go through OpenNext + Wrangler for `apps/web`, separate from PR checks
+- No EAS builds, store submissions, or OTA publishes run from GitHub Actions
+- Web release uses `.github/workflows/deploy-web.yml` after successful `main` CI and promotes the exact CI artifact; it never rebuilds during deploy
 - No Sentry release creation (handled by EAS Build hooks)
 
 ---
@@ -1821,88 +1785,65 @@ The app config is code, not docs: **`apps/native/app.config.ts` is the source of
 }
 ```
 
-- With `appVersionSource: "remote"`, EAS owns `buildNumber`/`versionCode` — any values in `app.config.ts` are **ignored**. Never hand-bump them.
-- `autoIncrement: true` on the production profile bumps the store-facing build number on every production build.
+- With `appVersionSource: "remote"`, EAS owns the internal iOS `buildNumber` and Android `versionCode`. Never hand-bump those counters in app config.
+- `autoIncrement: true` bumps the appropriate counter on every production build. The two platform counters may differ, and gaps from discarded release candidates are normal.
+- The public `version` in `app.config.ts` is still chosen manually. Many candidates can share `1.0.0`; change it only when starting a new customer-facing version.
 
 ### EAS Environment Variables (not `.env`)
 
 `.env` files are invisible to remote EAS builders — they are local-dev-only. Every value a build needs lives in **EAS Environment Variables**: scoped per environment (development/preview/production), with **plain / sensitive / secret** visibility and **string / file** types (file type carries the Play service-account JSON and similar). `eas env:pull --environment <env>` materializes a local `.env` for development. See the Environment Variables section under Monorepo Structure for the variable list.
 
-### EAS Update: fingerprint runtime policy
+### OTA updates: MVP-required, production-gated
+
+Self-hosted OTA is required for the MVP, but production OTA stays disabled until the safety gate passes. First upgrade directly from SDK 55 to SDK 57 (`>=57.0.9`), then deploy the chosen xprem `3.1.1` service on Dokploy. Configure signed staging updates and prove update installation, rollback, and offline launch on physical iOS and Android release builds before enabling the production channel. ConPaws will not use EAS Update. The update URL is embedded in each store binary, so the production build must target the verified service. See [`notes/ota-updates.md`](ota-updates.md) for the deployment, signing, rollback, and go/no-go runbook.
+
+### Manual store submission
+
+- **iOS:** upload the exact tested production IPA with Apple Transporter, manage TestFlight groups in App Store Connect, and release that same build manually.
+- **Android:** upload the exact tested production AAB to Play Internal Testing, then promote that same release through Play Console.
+- Never submit `--latest`. Record the EAS build ID, Git SHA, public version, iOS build number, and Android version code.
+- `eas.json` contains no automatic iOS submit profile. Its optional Android `internal` profile is draft-only; the documented default remains manual console upload.
+
+Expo package compatibility, Expo Doctor, clean config-plugin prebuild, and production bundle exports run in CI before a signed build is allowed. A physical-device smoke pass of the signed store build remains mandatory.
+
+### SDK Upgrade Path: direct 55 → 57
+
+Take one deliberate hop from SDK 55 to the current aligned set: Expo `~57.0.14`, React Native `0.86.2`, and React `19.2.3`. Do not land on an earlier SDK 57 patch: Expo `57.0.9` is the hard minimum because it contains the fix for the Hermes/Reanimated/Worklets regression.
+
+There are no direct `@react-navigation/*` imports in `apps/native`, so the SDK 56 Router codemod is not needed. Keep navigation behind Expo Router and do not add direct React Navigation imports during the upgrade.
+
+NativeWind v5 still needs the TypeScript declarations supplied by `react-native-css`. Keep both references in `apps/native/nativewind-env.d.ts`; `nativewind/types` is not a valid replacement for the installed preview release:
 
 ```ts
-// app.config.ts
-updates: { /* ... */ },
-runtimeVersion: { policy: "fingerprint" },
+/// <reference types="react-native-css/types" />
+/// <reference types="react-native-css/components/react-native-safe-area-context" />
+declare module "*.css";
 ```
 
-Use the **`fingerprint`** policy, not `appVersion`. Fingerprint hashes the native container, so an OTA update can never land on an incompatible binary — it is the only policy that cannot be defeated by forgetting to bump a version after a native dependency change. Update channels map 1:1 to build profiles (`development` / `preview` / `production`). Note: on SDK 55, `eas update` requires an explicit `--environment` flag.
-
-### EAS Submit
-
-- **iOS:** `submit.production.ios` needs the real `ascAppId`; authenticate with an **App Store Connect API Key** configured via `eas credentials` (no Apple ID password in automation).
-- **Android:** a Google Play **service-account JSON** (stored as an EAS file-type secret). The **first submission always lands on the internal track**, and Play requires the very first AAB of a new app to go through the Console UI regardless.
-- **Do upload #1 manually on both stores** to de-risk the pipeline; automate from upload #2 onward.
-- **Known issue:** the current `apps/native/eas.json` submit block still contains invalid placeholders (`your-apple-id@example.com`, `your-asc-app-id`, `your-team-id`). Tracked as **CON-35** (owned by another branch) — do not run a submit through it until that lands.
-
-### Release build hardening (`expo-build-properties`)
-
-```ts
-// app.config.ts plugins
-["expo-build-properties", {
-  android: {
-    enableMinifyInReleaseBuilds: true,     // R8 — the modern shrinker, not legacy ProGuard
-    enablePngCrunchInReleaseBuilds: true,
-  },
-}]
-```
-
-Plus `npx expo-doctor` in CI (see CI/CD) to catch dependency/config drift before it costs a cloud build.
-
-### SDK Upgrade Path: 55 → 56 → 57
-
-The repo is on SDK 55; the target is **SDK 57** (current since Jun 30 2026 — RN 0.86, React 19.2). Upgrade one major at a time, running `npx expo install --fix` and `npx expo-doctor` after each hop.
-
-**Before starting:** `grep -r "@react-navigation" apps/native` — SDK 56's Expo Router decoupled from React Navigation, so any direct `@react-navigation/*` usage must migrate. The codemod:
-
-```bash
-npx expo-codemod sdk-56-expo-router-react-navigation-replace
-```
-
-**55 → 56:**
-- **Hermes v1 becomes the default.** On SDK 55 it is opt-in *and requires building Hermes from source* — explicitly not recommended in monorepos, so do not chase it early. Getting Hermes v1 for free is the concrete argument for this upgrade.
-- Expo Router version follows the SDK (56.x).
-
-**56 → 57:**
-- `expo prebuild` now **clears `ios/` and `android/` by default** (pass `--no-clean` for the old incremental behavior). Harmless under CNG with gitignored native dirs, but any script assuming incremental prebuild will notice.
-- RN 0.86 / React 19.2 — this hop also retires the current `react: 19.0.0` pin mismatch.
+The upgrade is complete only when dependency alignment, Expo Doctor, clean CNG generation, workspace type checks and tests, and both production bundle exports pass from a clean install. Run `expo install --check`, the pinned Expo Doctor, and `expo prebuild --clean` after the direct hop; do not accept a locally cached `node_modules` result as proof.
 
 ### Build Strategy
 
 | Profile | Built where | Why |
 |---------|------------|-----|
-| `development` | **Local** (`eas build --local`) | Fast iteration, no build credits used |
-| `preview` | **Local** (`eas build --local`) | TestFlight/internal testing, no build credits used |
-| `production` | **EAS Cloud** (via EAS Workflows) | Store submission; `autoIncrement` handles version bumps |
+| `preview` | EAS internal distribution or local build | Private sideload testing with the preview bundle ID; never TestFlight or Play |
+| `production` | Manually triggered EAS Build | Store-signed IPA/AAB; remote `autoIncrement` handles internal counters |
 
-Run locally: `eas build --profile development --local` or `eas build --profile preview --local`
-Production: EAS Workflows (`.eas/workflows/*.yml`) run build → submit — see CI/CD.
-
-This keeps the project on the EAS free plan — only production store builds use cloud credits.
+No build profile submits automatically. See `apps/native/RELEASING.md` before creating a production build.
 
 ### Why Three Variants
 
 All three can be installed on the same device simultaneously (different bundle IDs):
 
 - **Development** (`conpaws.dev`) — local API Worker (`wrangler dev`), sandbox RevenueCat, debug tools
-- **Preview** (`conpaws.preview`) — staging Worker environment, TestFlight/internal builds
-- **Production** (`conpaws`) — `api.conpaws.com`, App Store release
+- **Preview** (`conpaws.preview`) — private sideload testing, isolated from the store app
+- **Production** (`conpaws`) — the only variant used for TestFlight, Play Internal Testing, and public store release
 
 ---
 
 ## Infrastructure
 
-Everything server-side runs on Cloudflare. No VPS, no Docker, no self-hosted services.
+Core server-side product services run on Cloudflare. Self-hosted OTA uses the chosen separate xprem `3.1.1` service on Dokploy. Deployment and physical-device safety proof are still pending, so production OTA remains gated.
 
 | Service | Where | Notes |
 |---------|-------|-------|
@@ -2077,7 +2018,7 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 
 ## Development Phases
 
-> **Reality check:** the original "MVP by June 2026" target has passed. The phases below are re-cut around the Cloudflare backend and the actual repo state: the monorepo scaffold and the pre-release website exist; the app screens, local database, and backend do not.
+> **Reality check:** the original "MVP by June 2026" target has passed. The offline schedule MVP, local database, import flow, reminders, tests, and pre-release website now exist. The account/cloud backend and premium system remain future work.
 
 ### Phase 0: Foundation — DONE
 
@@ -2090,22 +2031,22 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 
 The goal: **a usable app you can take to a convention.** Local-first convention management with iCal import. No accounts, no cloud — just a tool that works. Realistic flag in the ground: the winter 2026 con season (MFF in December).
 
-- [ ] SDK upgrade 55 → 56 → 57 (see the upgrade path — do this before screens multiply)
-- [ ] Fix the `react: 19.0.0` pin mismatch (`npx expo install --fix`)
-- [ ] ShadCN-inspired native component library (Button, Card, Input, Avatar, Badge, etc.)
-- [ ] Theme system (light + dark mode via NativeWind CSS variables)
-- [ ] expo-sqlite + Drizzle ORM setup (`apps/native/src/db/` — empty today)
-- [ ] Onboarding flow (Welcome → Features → Get Started → Complete)
-- [ ] Tab navigation (Home, Profile, Settings — classic JS tabs; Native Tabs is alpha)
-- [ ] Local convention management (CRUD), detail with events, status detection
-- [ ] iCal import — two methods:
-  - [ ] Import .ics file from device (primary)
-  - [ ] Paste Sched URL → app extracts iCal link and parses events (secondary)
-- [ ] Settings screen (reset onboarding, about, legal links)
-- [ ] JSON data export/import (share sheet)
-- [ ] i18next setup (English strings, `useTranslation()` from day one)
-- [ ] Vitest setup + initial unit tests (iCal parser, utility functions) — none exist yet
-- [ ] App icons and splash screen
+- [ ] SDK upgrade 55 → 57 (see the upgrade path — do this before screens multiply)
+- [x] Align React and Expo-managed SDK 55 dependencies
+- [x] ShadCN-inspired native component library (Button, Card, Input, Avatar, Badge, etc.)
+- [x] Theme system (light + dark mode via NativeWind CSS variables)
+- [x] expo-sqlite + Drizzle ORM setup with tested migrations
+- [x] Onboarding flow (Welcome → Features → Get Started → Complete)
+- [x] Tab navigation (Home, Profile, Settings — classic JS tabs; Native Tabs is alpha)
+- [x] Local convention management, schedule selection, conflicts, and manual events
+- [x] iCal import — two methods:
+  - [x] Import .ics file from device (primary)
+  - [x] Paste Sched URL → app extracts iCal link and parses events (secondary)
+- [x] Settings screen (reset onboarding, about, legal links)
+- [x] JSON data export/import (share sheet)
+- [x] i18next setup and locale files
+- [x] Vitest coverage for imports, migrations, schedules, reminders, and backup restore
+- [x] App icons and splash screen
 
 **Milestone:** App works 100% offline with iCal import.
 
@@ -2160,8 +2101,9 @@ Get ready for the App Store.
 - [ ] Sharing preview pages live in `apps/web` (`conpaws.com/@username`, `conpaws.com/con/slug` — SSR against the API Worker)
 - [ ] Universal links setup (iOS `apple-app-site-association` + Android `assetlinks.json`)
 - [ ] Privacy Policy + Terms of Service (conpaws.com/privacy, /terms)
-- [ ] Fix `eas.json` submit placeholders (CON-35), ASC API Key via `eas credentials`, Play service-account JSON
-- [ ] First store upload done **manually** on both stores; EAS Workflows automate from #2 on
+- [ ] Create the App Store Connect and Play Console app records for `com.mrdemonwolf.conpaws`
+- [ ] Configure signing credentials privately; never commit credentials or service-account files
+- [ ] Follow `apps/native/RELEASING.md` for every candidate and keep all uploads/releases manual
 - [ ] App Store assets (screenshots, description, keywords)
 - [ ] TestFlight beta → gather feedback → iterate
 - [ ] App Store submission (iOS first, then Android)
