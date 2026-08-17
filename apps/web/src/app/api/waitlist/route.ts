@@ -6,10 +6,10 @@ import { z } from "zod";
  * Order of operations (CON-28):
  *   honeypot + timing gate → Turnstile → D1 insert → Brevo DOI in waitUntil
  *
- * D1 and Brevo are not wired yet — CON-24 installs the Cloudflare adapter,
- * CON-25 creates the database, CON-32 sets up Brevo. Until then this validates
- * and logs, so the form flow is real end to end but nothing is persisted.
- * It deliberately does NOT pretend to store anything.
+ * D1 and Brevo are not wired yet. Until they are, bot-shaped requests receive
+ * the usual decoy success while valid human submissions receive 503. This keeps
+ * the public endpoint honest and prevents email addresses from being logged or
+ * silently discarded.
  */
 
 const Body = z.object({
@@ -39,25 +39,14 @@ export async function POST(request: Request) {
     return Response.json({ ok: true });
   }
 
-  // The consent record — this row, not a checkbox, is what proves consent
-  // under GDPR Art. 7(1) and CASL. Captured now so it is never backfilled.
-  const signup = {
-    email: parsed.email.toLowerCase(),
-    name: parsed.name,
-    createdAt: new Date().toISOString(),
-    ip: request.headers.get("cf-connecting-ip") ?? null,
-    userAgent: request.headers.get("user-agent") ?? null,
-    country: request.headers.get("cf-ipcountry") ?? null,
-    referer: request.headers.get("referer") ?? null,
-    consentCopy:
-      "iOS and Android at launch. We'll email once to confirm — nothing else until it's ready.",
-    source: "web" as const,
-  };
-
   // TODO(CON-25): insert into D1 via Drizzle, with `synced_at` NULL.
   // TODO(CON-28): ctx.waitUntil(brevoDoubleOptinConfirmation(signup)).
   // TODO(CON-29): cron reconciler replays rows where synced_at IS NULL.
-  console.info("[waitlist] signup (not yet persisted)", signup);
-
-  return Response.json({ ok: true });
+  return Response.json(
+    { error: "Beta registration is not open yet. Please check back soon." },
+    {
+      status: 503,
+      headers: { "Retry-After": "86400" },
+    },
+  );
 }

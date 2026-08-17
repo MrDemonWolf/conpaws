@@ -16,7 +16,7 @@ const LINEUP = [
   {
     time: "13:30",
     title: "Smart reminders",
-    body: "Nudges before the panels you actually starred. Nothing else, ever.",
+    body: "Nudges before the events you choose. Nothing else, ever.",
     tag: "QoL",
     room: "Panel Room 2",
   },

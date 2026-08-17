@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { parseIcs } from "../ical-parser";
+import { parseIcs, UnsupportedRecurrenceError } from "../ical-parser";
 
 const SMALL_ICS_PATH = path.resolve(
   __dirname,
@@ -16,6 +16,7 @@ describe("parseIcs", () => {
   it("returns empty result for empty input", () => {
     const result = parseIcs("");
     expect(result.events).toHaveLength(0);
+    expect(result.cancelledSourceUids).toEqual([]);
     expect(result.categories).toHaveLength(0);
     expect(result.timezone).toBeNull();
     expect(result.requiresTimeZone).toBe(false);
@@ -307,6 +308,134 @@ END:VCALENDAR`;
       "Room B",
     ]);
     expect(result.events[0].startTime).toEqual(result.events[1].startTime);
+  });
+
+  it.each([
+    ["RRULE", "RRULE:FREQ=DAILY;COUNT=3"],
+    ["RDATE", "RDATE:20260613T160000Z,20260614T160000Z"],
+    ["EXDATE", "EXDATE:20260613T160000Z"],
+  ])(
+    "rejects unsupported active %s recurrence definitions",
+    (propertyName, recurrenceLine) => {
+      const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Repeating Event
+UID:repeating-event
+${recurrenceLine}
+END:VEVENT
+END:VCALENDAR`;
+
+      expect(() => parseIcs(ics, { timeZone: "UTC" })).toThrow(
+        UnsupportedRecurrenceError,
+      );
+      expect(() => parseIcs(ics, { timeZone: "UTC" })).toThrow(propertyName);
+      expect(() => parseIcs(ics, { timeZone: "UTC" })).toThrow(
+        "Export an expanded .ics file",
+      );
+    },
+  );
+
+  it("allows recurrence definitions on cancellation tombstones", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:cancelled-series
+STATUS:CANCELLED
+RRULE:FREQ=DAILY;COUNT=3
+RDATE:20260613T160000Z
+EXDATE:20260614T160000Z
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(result.events).toEqual([]);
+    expect(result.cancelledSourceUids).toEqual(["cancelled-series"]);
+    expect(result.cancelledEvents).toEqual([
+      {
+        sourceUid: "cancelled-series",
+        legacySourceUid: null,
+        startTime: null,
+        recurrenceTime: null,
+        title: null,
+        sourceUrl: null,
+      },
+    ]);
+  });
+
+  it("returns cancellation tombstones even when they omit event details", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:cancelled-series
+RECURRENCE-ID;TZID=America/Chicago:20260612T160000
+STATUS:CANCELLED
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics);
+
+    expect(result.events).toEqual([]);
+    expect(result.requiresTimeZone).toBe(false);
+    expect(result.cancelledSourceUids).toEqual([
+      "cancelled-series|20260612T160000",
+    ]);
+    expect(result.cancelledEvents).toEqual([
+      {
+        sourceUid: "cancelled-series|20260612T160000",
+        legacySourceUid: "cancelled-series",
+        startTime: null,
+        recurrenceTime: new Date("2026-06-12T21:00:00.000Z"),
+        title: null,
+        sourceUrl: null,
+      },
+    ]);
+  });
+
+  it("lets a cancellation tombstone override a duplicate active occurrence", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Old occurrence
+UID:recurring-event
+RECURRENCE-ID:20260612T160000Z
+END:VEVENT
+BEGIN:VEVENT
+UID:recurring-event
+RECURRENCE-ID:20260612T160000Z
+STATUS:CANCELLED
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "America/Chicago" });
+
+    expect(result.events).toEqual([]);
+    expect(result.cancelledSourceUids).toEqual([
+      "recurring-event|20260612T160000Z",
+    ]);
+  });
+
+  it("exposes the legacy bare UID for recurrence migration", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Moved occurrence
+UID:recurring-event
+RECURRENCE-ID:20260612T160000Z
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "America/Chicago" });
+
+    expect(result.events[0].sourceUid).toBe("recurring-event|20260612T160000Z");
+    expect(result.events[0].legacySourceUid).toBe("recurring-event");
+    expect(result.events[0].recurrenceTime).toEqual(
+      new Date("2026-06-12T16:00:00.000Z"),
+    );
   });
 
   it("parses all-day event without time component", () => {
