@@ -35,9 +35,17 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.8",
     "@conpaws/config": "workspace:*",
+    "expo-doctor": "1.20.2",
     "turbo": "^2.8.12",
     "typescript": "^5"
   },
+  "trustedDependencies": [
+    "@sentry/cli",
+    "esbuild",
+    "msw",
+    "sharp",
+    "workerd"
+  ],
   "overrides": {
     "lightningcss": "1.30.1"
   }
