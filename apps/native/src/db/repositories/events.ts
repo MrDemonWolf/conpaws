@@ -19,7 +19,12 @@ export async function getByConventionId(
     .select()
     .from(conventionEvents)
     .where(eq(conventionEvents.conventionId, conventionId))
-    .orderBy(conventionEvents.startTime);
+    .orderBy(
+      conventionEvents.startTime,
+      conventionEvents.room,
+      conventionEvents.title,
+      conventionEvents.id,
+    );
 }
 
 export async function getById(
