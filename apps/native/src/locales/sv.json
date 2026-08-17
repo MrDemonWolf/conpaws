@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Hem",
+    "profile": "Profil",
+    "settings": "Inställningar",
+    "back": "Tillbaka",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "delete": "Ta bort",
+    "edit": "Redigera",
+    "done": "Klar",
+    "loading": "Laddar...",
+    "error": "Något gick fel",
+    "retry": "Försök igen",
+    "close": "Stäng",
+    "next": "Nästa",
+    "skip": "Hoppa över",
+    "getStarted": "Kom igång",
+    "learnMore": "Läs mer",
+    "version": "Version {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Navigera, Anslut, Njut",
+      "subtitle": "Din furry-konvents följeslagare",
+      "getStarted": "Kom igång"
+    },
+    "features": {
+      "title": "Allt du behöver",
+      "subtitle": "ConPaws håller din konventionsupplevelse organiserad",
+      "calendar": {
+        "title": "Konventskalender",
+        "description": "Importera scheman från vilket konvent som helst. Bläddra bland paneler, evenemang och aktiviteter på ett ögonblick."
+      },
+      "share": {
+        "title": "Dela & Anslut",
+        "description": "Bygg ditt personliga schema och dela det med vänner som deltar i samma con."
+      },
+      "offline": {
+        "title": "Fungerar Offline",
+        "description": "All din data lagras lokalt. Ingen internet krävs när du har importerat ditt schema."
+      },
+      "next": "Nästa"
+    },
+    "getStarted": {
+      "title": "Gå med i ConPaws",
+      "subtitle": "Logga in för att synkronisera ditt schema mellan enheter",
+      "signInWithApple": "Logga in med Apple",
+      "signInWithGoogle": "Logga in med Google",
+      "skipForNow": "Hoppa över för nu",
+      "legal": "Genom att fortsätta godkänner du våra Användarvillkor och Integritetspolicy"
+    },
+    "complete": {
+      "title": "Du är redo!",
+      "subtitle": "Välkommen till ConPaws. Låt oss utforska ditt första konvent.",
+      "letsGo": "Kör igång"
+    }
+  },
+  "home": {
+    "title": "Mina Konvent",
+    "addConvention": "Lägg till Konvent",
+    "empty": {
+      "title": "Inga konvent ännu",
+      "subtitle": "Lägg till ditt första konvent för att komma igång.",
+      "cta": "Lägg till Konvent"
+    },
+    "upcoming": "Kommande",
+    "active": "Aktiva",
+    "past": "Avslutade"
+  },
+  "convention": {
+    "new": "Nytt Konvent",
+    "edit": "Redigera Konvent",
+    "import": "Importera Schema",
+    "detail": "Konventdetaljer",
+    "events": "Evenemang",
+    "noEvents": "Inga evenemang ännu",
+    "noEventsSubtitle": "Importera ett schema eller lägg till evenemang manuellt.",
+    "addEvent": "Lägg till Evenemang",
+    "importSchedule": "Importera Schema",
+    "startDate": "Startdatum",
+    "endDate": "Slutdatum",
+    "name": "Konventnamn",
+    "namePlaceholder": "t.ex. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Profil",
+    "signIn": "Logga In",
+    "notSignedIn": "Inte inloggad",
+    "notSignedInSubtitle": "Logga in för att synkronisera ditt schema och ansluta med vänner.",
+    "comingSoon": "Profilfunktioner kommer snart",
+    "signInWithApple": "Logga in med Apple",
+    "signInWithGoogle": "Logga in med Google"
+  },
+  "settings": {
+    "title": "Inställningar",
+    "languages": {
+      "title": "Språk",
+      "systemDefault": "Använd enhetsspråk",
+      "en": "Engelska",
+      "es": "Spanska",
+      "nl": "Nederländska",
+      "de": "Tyska",
+      "fr": "Franska",
+      "pt-BR": "Portugisiska (Brasilien)",
+      "sv": "Svenska",
+      "pl": "Polska"
+    },
+    "account": {
+      "title": "Konto",
+      "signIn": "Logga In",
+      "signOut": "Logga Ut"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Tema",
+      "language": "Språk",
+      "notifications": "Aviseringar"
+    },
+    "data": {
+      "title": "Data",
+      "exportData": "Exportera Data",
+      "importData": "Importera Data",
+      "resetOnboarding": "Återställ Introduktion"
+    },
+    "legal": {
+      "title": "Juridiskt",
+      "privacyPolicy": "Integritetspolicy",
+      "termsOfService": "Användarvillkor",
+      "about": "Om ConPaws",
+      "openSourceLicenses": "Öppen källkodslicenser"
+    },
+    "about": {
+      "title": "Om",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Importera Schema",
+    "url": "Importera från URL",
+    "file": "Importera från Fil",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Förhandsgranska Evenemang",
+    "importing": "Importerar...",
+    "success": "Import klar",
+    "error": "Importen misslyckades"
+  },
+  "reminders": {
+    "title": "Påminnelser",
+    "add": "Lägg till Påminnelse",
+    "minutesBefore": "{{minutes}} minuter innan",
+    "atTime": "Vid evenemangstid",
+    "none": "Ingen påminnelse"
+  }
+}

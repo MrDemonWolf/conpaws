@@ -1,15 +1,22 @@
-import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Redirect } from "expo-router";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
 
-export default function HomeScreen() {
-  return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-4xl font-bold text-primary mb-4">ConPaws</Text>
-        <Text className="text-lg text-muted-foreground text-center">
-          Navigate, Connect, Enjoy
-        </Text>
-      </View>
-    </SafeAreaView>
-  );
+export default function Index() {
+  const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem("hasCompletedOnboarding")
+      .then((value) => {
+        setHasOnboarded(value === "true");
+      })
+      .catch(() => {
+        setHasOnboarded(false);
+      });
+  }, []);
+
+  if (hasOnboarded === null) return <View className="flex-1 bg-background" />;
+  if (hasOnboarded) return <Redirect href="/(tabs)" />;
+  return <Redirect href="/(onboarding)/welcome" />;
 }

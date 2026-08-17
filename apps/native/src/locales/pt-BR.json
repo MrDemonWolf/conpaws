@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Início",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "back": "Voltar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "done": "Concluído",
+    "loading": "Carregando...",
+    "error": "Algo deu errado",
+    "retry": "Tentar novamente",
+    "close": "Fechar",
+    "next": "Próximo",
+    "skip": "Pular",
+    "getStarted": "Começar",
+    "learnMore": "Saiba mais",
+    "version": "Versão {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Navegue, Conecte, Aproveite",
+      "subtitle": "Seu companheiro de convenções furry",
+      "getStarted": "Começar"
+    },
+    "features": {
+      "title": "Tudo que você precisa",
+      "subtitle": "O ConPaws mantém sua experiência na convenção organizada",
+      "calendar": {
+        "title": "Calendário de Convenções",
+        "description": "Importe programações de qualquer convenção. Veja painéis, eventos e atividades de relance."
+      },
+      "share": {
+        "title": "Compartilhe & Conecte",
+        "description": "Crie sua programação pessoal e compartilhe com amigos que vão à mesma con."
+      },
+      "offline": {
+        "title": "Funciona Offline",
+        "description": "Todos os seus dados são armazenados localmente. Sem internet necessária após importar sua programação."
+      },
+      "next": "Próximo"
+    },
+    "getStarted": {
+      "title": "Junte-se ao ConPaws",
+      "subtitle": "Faça login para sincronizar sua programação em todos os dispositivos",
+      "signInWithApple": "Entrar com Apple",
+      "signInWithGoogle": "Entrar com Google",
+      "skipForNow": "Pular por agora",
+      "legal": "Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade"
+    },
+    "complete": {
+      "title": "Tudo pronto!",
+      "subtitle": "Bem-vindo ao ConPaws. Vamos explorar sua primeira convenção.",
+      "letsGo": "Vamos lá"
+    }
+  },
+  "home": {
+    "title": "Minhas Convenções",
+    "addConvention": "Adicionar Convenção",
+    "empty": {
+      "title": "Nenhuma convenção ainda",
+      "subtitle": "Adicione sua primeira convenção para começar.",
+      "cta": "Adicionar Convenção"
+    },
+    "upcoming": "Próximas",
+    "active": "Ativas",
+    "past": "Passadas"
+  },
+  "convention": {
+    "new": "Nova Convenção",
+    "edit": "Editar Convenção",
+    "import": "Importar Programação",
+    "detail": "Detalhes da Convenção",
+    "events": "Eventos",
+    "noEvents": "Nenhum evento ainda",
+    "noEventsSubtitle": "Importe uma programação ou adicione eventos manualmente.",
+    "addEvent": "Adicionar Evento",
+    "importSchedule": "Importar Programação",
+    "startDate": "Data de Início",
+    "endDate": "Data de Término",
+    "name": "Nome da Convenção",
+    "namePlaceholder": "ex. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Perfil",
+    "signIn": "Entrar",
+    "notSignedIn": "Não conectado",
+    "notSignedInSubtitle": "Faça login para sincronizar sua programação e conectar com amigos.",
+    "comingSoon": "Recursos de perfil em breve",
+    "signInWithApple": "Entrar com Apple",
+    "signInWithGoogle": "Entrar com Google"
+  },
+  "settings": {
+    "title": "Configurações",
+    "languages": {
+      "title": "Idioma",
+      "systemDefault": "Usar idioma do dispositivo",
+      "en": "Inglês",
+      "es": "Espanhol",
+      "nl": "Holandês",
+      "de": "Alemão",
+      "fr": "Francês",
+      "pt-BR": "Português (Brasil)",
+      "sv": "Sueco",
+      "pl": "Polonês"
+    },
+    "account": {
+      "title": "Conta",
+      "signIn": "Entrar",
+      "signOut": "Sair"
+    },
+    "app": {
+      "title": "Aplicativo",
+      "theme": "Tema",
+      "language": "Idioma",
+      "notifications": "Notificações"
+    },
+    "data": {
+      "title": "Dados",
+      "exportData": "Exportar Dados",
+      "importData": "Importar Dados",
+      "resetOnboarding": "Redefinir Integração"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfService": "Termos de Serviço",
+      "about": "Sobre o ConPaws",
+      "openSourceLicenses": "Licenças Open Source"
+    },
+    "about": {
+      "title": "Sobre",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Importar Programação",
+    "url": "Importar da URL",
+    "file": "Importar do Arquivo",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Prévia dos Eventos",
+    "importing": "Importando...",
+    "success": "Importação concluída",
+    "error": "Falha na importação"
+  },
+  "reminders": {
+    "title": "Lembretes",
+    "add": "Adicionar Lembrete",
+    "minutesBefore": "{{minutes}} minutos antes",
+    "atTime": "No horário do evento",
+    "none": "Sem lembrete"
+  }
+}

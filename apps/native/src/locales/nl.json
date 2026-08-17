@@ -1,0 +1,155 @@
+{
+  "common": {
+    "home": "Home",
+    "profile": "Profiel",
+    "settings": "Instellingen",
+    "back": "Terug",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "done": "Klaar",
+    "loading": "Laden...",
+    "error": "Er ging iets mis",
+    "retry": "Opnieuw proberen",
+    "close": "Sluiten",
+    "next": "Volgende",
+    "skip": "Overslaan",
+    "getStarted": "Aan de slag",
+    "learnMore": "Meer informatie",
+    "version": "Versie {{version}}"
+  },
+  "onboarding": {
+    "welcome": {
+      "tagline": "Navigeer, Verbind, Geniet",
+      "subtitle": "Jouw furry conventie metgezel",
+      "getStarted": "Aan de slag"
+    },
+    "features": {
+      "title": "Alles wat je nodig hebt",
+      "subtitle": "ConPaws houdt jouw conventie-ervaring georganiseerd",
+      "calendar": {
+        "title": "Conventiekalender",
+        "description": "Importeer roosters van elke conventie. Bekijk panels, evenementen en activiteiten in één oogopslag."
+      },
+      "share": {
+        "title": "Delen & Verbinden",
+        "description": "Maak je persoonlijke rooster en deel het met vrienden die naar dezelfde con gaan."
+      },
+      "offline": {
+        "title": "Werkt Offline",
+        "description": "Al je gegevens worden lokaal opgeslagen. Geen internet nodig nadat je je rooster hebt geïmporteerd."
+      },
+      "next": "Volgende"
+    },
+    "getStarted": {
+      "title": "Sluit je aan bij ConPaws",
+      "subtitle": "Log in om je rooster op alle apparaten te synchroniseren",
+      "signInWithApple": "Inloggen met Apple",
+      "signInWithGoogle": "Inloggen met Google",
+      "skipForNow": "Nu overslaan",
+      "legal": "Door verder te gaan, ga je akkoord met onze Servicevoorwaarden en het Privacybeleid"
+    },
+    "complete": {
+      "title": "Je bent er klaar voor!",
+      "subtitle": "Welkom bij ConPaws. Laten we jouw eerste conventie verkennen.",
+      "letsGo": "Laten we gaan"
+    }
+  },
+  "home": {
+    "title": "Mijn Conventies",
+    "addConvention": "Conventie toevoegen",
+    "empty": {
+      "title": "Nog geen conventies",
+      "subtitle": "Voeg je eerste conventie toe om te beginnen.",
+      "cta": "Conventie toevoegen"
+    },
+    "upcoming": "Aankomend",
+    "active": "Actief",
+    "past": "Verleden"
+  },
+  "convention": {
+    "new": "Nieuwe Conventie",
+    "edit": "Conventie bewerken",
+    "import": "Rooster importeren",
+    "detail": "Conventiedetails",
+    "events": "Evenementen",
+    "noEvents": "Nog geen evenementen",
+    "noEventsSubtitle": "Importeer een rooster of voeg evenementen handmatig toe.",
+    "addEvent": "Evenement toevoegen",
+    "importSchedule": "Rooster importeren",
+    "startDate": "Begindatum",
+    "endDate": "Einddatum",
+    "name": "Conventienaam",
+    "namePlaceholder": "bijv. IndyFurCon 2025"
+  },
+  "profile": {
+    "title": "Profiel",
+    "signIn": "Inloggen",
+    "notSignedIn": "Niet ingelogd",
+    "notSignedInSubtitle": "Log in om je rooster te synchroniseren en vrienden te verbinden.",
+    "comingSoon": "Profielfuncties komen binnenkort",
+    "signInWithApple": "Inloggen met Apple",
+    "signInWithGoogle": "Inloggen met Google"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "languages": {
+      "title": "Taal",
+      "systemDefault": "Apparaattaal gebruiken",
+      "en": "Engels",
+      "es": "Spaans",
+      "nl": "Nederlands",
+      "de": "Duits",
+      "fr": "Frans",
+      "pt-BR": "Portugees (Brazilië)",
+      "sv": "Zweeds",
+      "pl": "Pools"
+    },
+    "account": {
+      "title": "Account",
+      "signIn": "Inloggen",
+      "signOut": "Uitloggen"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Thema",
+      "language": "Taal",
+      "notifications": "Meldingen"
+    },
+    "data": {
+      "title": "Gegevens",
+      "exportData": "Gegevens exporteren",
+      "importData": "Gegevens importeren",
+      "resetOnboarding": "Onboarding resetten"
+    },
+    "legal": {
+      "title": "Juridisch",
+      "privacyPolicy": "Privacybeleid",
+      "termsOfService": "Servicevoorwaarden",
+      "about": "Over ConPaws",
+      "openSourceLicenses": "Open Source-licenties"
+    },
+    "about": {
+      "title": "Over",
+      "contact": "hello@conpaws.com"
+    }
+  },
+  "import": {
+    "title": "Rooster importeren",
+    "url": "Importeren via URL",
+    "file": "Importeren via bestand",
+    "urlPlaceholder": "https://yourcon.sched.com",
+    "preview": "Evenementen bekijken",
+    "importing": "Importeren...",
+    "success": "Import voltooid",
+    "error": "Import mislukt"
+  },
+  "reminders": {
+    "title": "Herinneringen",
+    "add": "Herinnering toevoegen",
+    "minutesBefore": "{{minutes}} minuten van tevoren",
+    "atTime": "Op het tijdstip van het evenement",
+    "none": "Geen herinnering"
+  }
+}
