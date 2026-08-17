@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   reactCompiler: true,
   pageExtensions: ["ts", "tsx", "mdx"],
+  env: {
+    CONPAWS_RELEASE_SHA: process.env.GITHUB_SHA ?? "local",
+  },
 
   // Pin the workspace root. Without this, Turbopack scans upward, finds the
   // bun.lock of whichever checkout sits above (the main clone when running

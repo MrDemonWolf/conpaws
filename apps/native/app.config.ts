@@ -91,6 +91,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     "expo-document-picker",
+    "expo-sharing",
     "@sentry/react-native/expo",
   ],
   experiments: {

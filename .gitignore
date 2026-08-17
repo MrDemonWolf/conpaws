@@ -19,6 +19,11 @@ web-build/
 *.key
 *.mobileprovision
 *.cert
+apps/native/credentials.json
+apps/native/google-service-account*.json
+
+# Tool-owned worktrees are not source or EAS build input
+.claude/worktrees/
 
 # Metro
 .metro-health-check*
