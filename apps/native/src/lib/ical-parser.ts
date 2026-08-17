@@ -1,3 +1,5 @@
+import { fromConventionTime, isValidTimeZone } from "./convention-time";
+
 export interface ParsedEvent {
   title: string;
   description: string | null;
@@ -20,8 +22,13 @@ export interface CategoryMeta {
 
 export interface ParseResult {
   timezone: string | null;
+  requiresTimeZone: boolean;
   events: ParsedEvent[];
   categories: CategoryMeta[];
+}
+
+export interface ParseOptions {
+  timeZone?: string;
 }
 
 const CATEGORY_PALETTE = [
@@ -84,7 +91,7 @@ function decodeHtmlEntities(text: string): string {
 /** Parse iCal datetime string to Date.
  * Handles: YYYYMMDDTHHMMSSZ (UTC), YYYYMMDDTHHMMSS (local), YYYYMMDD (all-day)
  */
-function parseDateTime(value: string): Date | null {
+function parseDateTime(value: string, timeZone: string | null): Date | null {
   // Strip any TZID parameter prefix if present in the value (rare but possible)
   const val = value.split(":").pop() ?? value;
 
@@ -98,15 +105,27 @@ function parseDateTime(value: string): Date | null {
   // Local datetime: 20260612T160000
   const localMatch = val.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/);
   if (localMatch) {
+    if (!timeZone) return null;
     const [, y, mo, d, h, mi, s] = localMatch;
-    return new Date(+y, +mo - 1, +d, +h, +mi, +s);
+    return fromConventionTime(
+      {
+        year: +y,
+        month: +mo,
+        day: +d,
+        hour: +h,
+        minute: +mi,
+        second: +s,
+      },
+      timeZone,
+    );
   }
 
   // All-day: 20260612
   const dateMatch = val.match(/^(\d{4})(\d{2})(\d{2})$/);
   if (dateMatch) {
+    if (!timeZone) return null;
     const [, y, mo, d] = dateMatch;
-    return new Date(+y, +mo - 1, +d, 0, 0, 0);
+    return fromConventionTime({ year: +y, month: +mo, day: +d }, timeZone);
   }
 
   return null;
@@ -153,22 +172,50 @@ function extractPropName(line: string): string {
   return end !== -1 ? line.slice(0, end) : line;
 }
 
-export function parseIcs(raw: string): ParseResult {
+function extractParameter(line: string, name: string): string | null {
+  const colon = line.indexOf(":");
+  const header = colon === -1 ? line : line.slice(0, colon);
+
+  for (const parameter of header.split(";").slice(1)) {
+    const [key, ...valueParts] = parameter.split("=");
+    if (key?.toUpperCase() !== name.toUpperCase()) continue;
+    return valueParts.join("=").replace(/^"|"$/g, "").trim() || null;
+  }
+
+  return null;
+}
+
+export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   if (!raw || raw.trim().length === 0) {
-    return { timezone: null, events: [], categories: [] };
+    return {
+      timezone: null,
+      requiresTimeZone: false,
+      events: [],
+      categories: [],
+    };
   }
 
   const unfolded = unfold(raw);
   const lines = unfolded.split(/\r?\n/);
 
   // Extract calendar-level timezone
-  let timezone: string | null = null;
+  let calendarTimeZone: string | null = null;
   for (const line of lines) {
     if (line.startsWith("X-WR-TIMEZONE:")) {
-      timezone = line.slice("X-WR-TIMEZONE:".length).trim();
+      calendarTimeZone = line.slice("X-WR-TIMEZONE:".length).trim();
       break;
     }
   }
+
+  const firstEventTimeZone = lines
+    .filter((line) => line.startsWith("DTSTART;"))
+    .map((line) => extractParameter(line, "TZID"))
+    .find(isValidTimeZone);
+  const requestedTimeZone = options.timeZone?.trim() || null;
+  const timezone =
+    [requestedTimeZone, calendarTimeZone, firstEventTimeZone].find(
+      isValidTimeZone,
+    ) ?? null;
 
   // Split into VEVENT blocks
   const eventBlocks: string[][] = [];
@@ -193,13 +240,19 @@ export function parseIcs(raw: string): ParseResult {
 
   for (const block of eventBlocks) {
     const props: Record<string, string> = {};
+    const timeZones: Record<string, string | null> = {};
 
     for (const line of block) {
       if (!line) continue;
       const propName = extractPropName(line);
       const value = extractValue(line);
-      // For DTSTART/DTEND, keep the whole line name (may include TZID param)
       props[propName] = value;
+      if (propName === "DTSTART" || propName === "DTEND") {
+        const eventTimeZone = extractParameter(line, "TZID");
+        timeZones[propName] = isValidTimeZone(eventTimeZone)
+          ? eventTimeZone
+          : null;
+      }
     }
 
     const uid = props["UID"];
@@ -218,10 +271,15 @@ export function parseIcs(raw: string): ParseResult {
       ? decodeHtmlEntities(unescapeText(rawDesc)).trim() || null
       : null;
 
-    const startTime = parseDateTime(props["DTSTART"] ?? "");
+    const startTimeZone = timeZones["DTSTART"] ?? timezone;
+    const startTime = parseDateTime(props["DTSTART"] ?? "", startTimeZone);
     if (!startTime) continue;
 
-    const endTime = parseDateTime(props["DTEND"] ?? "") ?? null;
+    const endTime =
+      parseDateTime(
+        props["DTEND"] ?? "",
+        timeZones["DTEND"] ?? startTimeZone,
+      ) ?? null;
 
     const rawLocation = props["LOCATION"] ?? null;
     let location: string | null = null;
@@ -258,7 +316,7 @@ export function parseIcs(raw: string): ParseResult {
       location,
       room,
       category,
-      sourceUid: uid,
+      sourceUid: dedupeKey,
       sourceUrl,
       isAgeRestricted,
       contentWarning,
@@ -276,5 +334,10 @@ export function parseIcs(raw: string): ParseResult {
     }),
   );
 
-  return { timezone, events: parsedEvents, categories };
+  return {
+    timezone,
+    requiresTimeZone: timezone === null && eventBlocks.length > 0,
+    events: parsedEvents,
+    categories,
+  };
 }

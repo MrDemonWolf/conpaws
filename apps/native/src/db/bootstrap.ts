@@ -1,8 +1,9 @@
-// ponytail: one v0 schema; replace with versioned migrations before schema v2.
-export const BOOTSTRAP_SQL = `
+export const CONNECTION_SQL = `
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
+`;
 
+export const MIGRATION_1_SQL = `
 CREATE TABLE IF NOT EXISTS conventions (
   id TEXT PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
@@ -47,8 +48,22 @@ CREATE TABLE IF NOT EXISTS offline_queue (
 PRAGMA user_version = 1;
 `;
 
-export function initializeDatabase(database: {
+export const MIGRATION_2_SQL = `
+ALTER TABLE conventions ADD COLUMN time_zone TEXT;
+PRAGMA user_version = 2;
+`;
+
+interface MigrationDatabase {
   execSync(source: string): void;
-}): void {
-  database.execSync(BOOTSTRAP_SQL);
+  getFirstSync<T>(source: string): T | null;
+}
+
+export function initializeDatabase(database: MigrationDatabase): void {
+  database.execSync(CONNECTION_SQL);
+  const version =
+    database.getFirstSync<{ user_version: number }>("PRAGMA user_version")
+      ?.user_version ?? 0;
+
+  if (version < 1) database.execSync(MIGRATION_1_SQL);
+  if (version < 2) database.execSync(MIGRATION_2_SQL);
 }

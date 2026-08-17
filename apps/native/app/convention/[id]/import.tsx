@@ -5,7 +5,6 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { CalendarX, ChevronLeft, FileX, WifiOff } from "lucide-react-native";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
@@ -17,6 +16,7 @@ import {
 import { Button, SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
+import { conventionDayKey, isValidTimeZone } from "@/lib/convention-time";
 import {
   type CategoryMeta,
   type ParsedEvent,
@@ -32,20 +32,25 @@ import {
 type Tab = "file" | "url";
 
 interface ErrorState {
-  type: "file-type" | "network" | "no-events" | "parse";
+  type: "file-type" | "network" | "no-events" | "parse" | "timezone";
   message: string;
 }
 
 interface PreviewState {
   name: string;
+  icsContent: string;
   events: ParsedEvent[];
   categories: CategoryMeta[];
   selectedCategories: Set<string>;
 }
 
+interface PendingCalendar {
+  name: string;
+  icsContent: string;
+}
+
 export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
 
@@ -54,14 +59,37 @@ export default function ImportScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
+  const [pendingCalendar, setPendingCalendar] =
+    useState<PendingCalendar | null>(null);
+  const [timeZone, setTimeZone] = useState("");
 
   function clearState() {
     setError(null);
     setPreview(null);
+    setPendingCalendar(null);
+    setTimeZone("");
   }
 
-  function processIcs(icsContent: string, name: string) {
-    const result = parseIcs(icsContent);
+  function processIcs(
+    icsContent: string,
+    name: string,
+    selectedTimeZone?: string,
+  ) {
+    const result = parseIcs(
+      icsContent,
+      selectedTimeZone ? { timeZone: selectedTimeZone } : undefined,
+    );
+
+    if (result.requiresTimeZone) {
+      setPendingCalendar({ name, icsContent });
+      setTimeZone(selectedTimeZone ?? "");
+      setError({
+        type: "timezone",
+        message:
+          "Choose the furcon's IANA time zone so event times stay correct when you travel.",
+      });
+      return;
+    }
 
     if (result.events.length === 0) {
       setError({
@@ -74,10 +102,23 @@ export default function ImportScreen() {
     const allCategories = new Set(result.categories.map((c) => c.name));
     setPreview({
       name,
+      icsContent,
       events: result.events,
       categories: result.categories,
       selectedCategories: allCategories,
     });
+    setPendingCalendar(null);
+    setTimeZone(result.timezone ?? selectedTimeZone ?? "");
+  }
+
+  function handleTimeZoneSubmit() {
+    if (!pendingCalendar || !isValidTimeZone(timeZone.trim())) return;
+    setError(null);
+    processIcs(
+      pendingCalendar.icsContent,
+      pendingCalendar.name,
+      timeZone.trim(),
+    );
   }
 
   async function handleFilePick() {
@@ -160,40 +201,52 @@ export default function ImportScreen() {
   async function handleImport() {
     if (!preview || !id) return;
 
+    const selectedTimeZone = timeZone.trim();
+    if (!isValidTimeZone(selectedTimeZone)) {
+      Alert.alert(
+        "Invalid Time Zone",
+        "Use an IANA time zone such as America/Chicago.",
+      );
+      return;
+    }
+
+    const reparsed = parseIcs(preview.icsContent, {
+      timeZone: selectedTimeZone,
+    });
+
     const eventsToImport =
       preview.selectedCategories.size === preview.categories.length
-        ? preview.events
-        : preview.events.filter(
+        ? reparsed.events
+        : reparsed.events.filter(
             (e) =>
               e.category === null || preview.selectedCategories.has(e.category),
           );
+
+    const timestamps = eventsToImport.map((event) => event.startTime.getTime());
+    const startDate = conventionDayKey(
+      new Date(Math.min(...timestamps)),
+      selectedTimeZone,
+    );
+    const endDate = conventionDayKey(
+      new Date(Math.max(...timestamps)),
+      selectedTimeZone,
+    );
+    const today = conventionDayKey(new Date(), selectedTimeZone);
+    const status =
+      today < startDate ? "upcoming" : today > endDate ? "ended" : "active";
 
     let createdConventionId: string | null = null;
 
     try {
       let conventionId = id;
       if (id === "new") {
-        const timestamps = eventsToImport.map((event) =>
-          event.startTime.getTime(),
-        );
-        const startDate = new Date(Math.min(...timestamps))
-          .toISOString()
-          .slice(0, 10);
-        const endDate = new Date(Math.max(...timestamps))
-          .toISOString()
-          .slice(0, 10);
-        const today = new Date().toISOString().slice(0, 10);
         const convention = await conventionsRepo.create({
           name: preview.name,
           startDate,
           endDate,
+          timeZone: selectedTimeZone,
           icalUrl: null,
-          status:
-            today < startDate
-              ? "upcoming"
-              : today > endDate
-                ? "ended"
-                : "active",
+          status,
         });
         conventionId = convention.id;
         createdConventionId = convention.id;
@@ -203,6 +256,14 @@ export default function ImportScreen() {
         parsedEvents: eventsToImport,
         conventionId,
       });
+      if (!createdConventionId) {
+        await conventionsRepo.update(conventionId, {
+          startDate,
+          endDate,
+          timeZone: selectedTimeZone,
+          status,
+        });
+      }
       await queryClient.invalidateQueries({ queryKey: ["conventions"] });
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -311,7 +372,7 @@ export default function ImportScreen() {
           <View className="items-center py-8 gap-3">
             {error.type === "network" ? (
               <WifiOff size={40} color="#94A3B8" />
-            ) : error.type === "no-events" ? (
+            ) : error.type === "no-events" || error.type === "timezone" ? (
               <CalendarX size={40} color="#94A3B8" />
             ) : (
               <FileX size={40} color="#94A3B8" />
@@ -319,15 +380,36 @@ export default function ImportScreen() {
             <Text variant="body" className="text-center text-muted-foreground">
               {error.message}
             </Text>
-            <Button
-              variant="outline"
-              onPress={() => {
-                setError(null);
-                if (activeTab === "url") handleUrlFetch();
-              }}
-            >
-              Retry
-            </Button>
+            {error.type === "timezone" ? (
+              <View className="w-full gap-3">
+                <TextInput
+                  value={timeZone}
+                  onChangeText={setTimeZone}
+                  placeholder="America/Chicago"
+                  placeholderTextColor="#94A3B8"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  accessibilityLabel="Convention time zone"
+                  className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
+                />
+                <Button
+                  onPress={handleTimeZoneSubmit}
+                  disabled={!isValidTimeZone(timeZone.trim())}
+                >
+                  Use Time Zone
+                </Button>
+              </View>
+            ) : (
+              <Button
+                variant="outline"
+                onPress={() => {
+                  setError(null);
+                  if (activeTab === "url") handleUrlFetch();
+                }}
+              >
+                Retry
+              </Button>
+            )}
           </View>
         )}
 
@@ -335,6 +417,23 @@ export default function ImportScreen() {
         {preview && !loading && !error && (
           <View className="gap-4">
             <Text variant="h3">{preview.events.length} events found</Text>
+
+            <View className="gap-2">
+              <Text variant="label">Convention time zone</Text>
+              <TextInput
+                value={timeZone}
+                onChangeText={setTimeZone}
+                placeholder="America/Chicago"
+                placeholderTextColor="#94A3B8"
+                autoCapitalize="none"
+                autoCorrect={false}
+                accessibilityLabel="Convention time zone"
+                className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
+              />
+              <Text variant="caption" className="text-muted-foreground">
+                Use the furcon location, not your phone location.
+              </Text>
+            </View>
 
             {/* Category checkboxes */}
             {preview.categories.map((cat) => {
@@ -371,7 +470,11 @@ export default function ImportScreen() {
             <View className="pt-2 pb-8 gap-3">
               <Button
                 onPress={handleImport}
-                disabled={importMutation.isPending || selectedCount === 0}
+                disabled={
+                  importMutation.isPending ||
+                  selectedCount === 0 ||
+                  !isValidTimeZone(timeZone.trim())
+                }
               >
                 {importMutation.isPending
                   ? "Importing..."

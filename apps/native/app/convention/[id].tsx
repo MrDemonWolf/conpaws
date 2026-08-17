@@ -1,17 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, isSameDay } from "date-fns";
 import * as Haptics from "expo-haptics";
+import { getCalendars } from "expo-localization";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, MoreHorizontal, Plus, Upload } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
-  FlatList,
   Linking,
   Modal,
   Pressable,
   ScrollView,
+  SectionList,
   View,
 } from "react-native";
 import { CategoryPill } from "@/components/CategoryPill";
@@ -22,39 +22,52 @@ import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import {
+  conventionDayKey,
+  formatInConventionTime,
+  isValidTimeZone,
+  overlappingEventIds,
+} from "@/lib/convention-time";
+import {
   cancelEventReminder,
   scheduleEventReminder,
 } from "@/services/notifications";
 
 interface DayGroup {
-  date: Date;
+  key: string;
   label: string;
-  events: ConventionEvent[];
+  data: ConventionEvent[];
 }
 
-function groupEventsByDay(events: ConventionEvent[]): DayGroup[] {
+function groupEventsByDay(
+  events: ConventionEvent[],
+  timeZone: string,
+): DayGroup[] {
   const groups: DayGroup[] = [];
 
   for (const event of events) {
-    const startDate = new Date(event.startTime);
-    const existing = groups.find((g) => isSameDay(g.date, startDate));
+    const key = conventionDayKey(event.startTime, timeZone);
+    const existing = groups.find((group) => group.key === key);
     if (existing) {
-      existing.events.push(event);
+      existing.data.push(event);
     } else {
       groups.push({
-        date: startDate,
-        label: format(startDate, "EEEE, MMMM d"),
-        events: [event],
+        key,
+        label: formatInConventionTime(
+          event.startTime,
+          timeZone,
+          "EEEE, MMMM d",
+        ),
+        data: [event],
       });
     }
   }
 
-  return groups.sort((a, b) => a.date.getTime() - b.date.getTime());
+  return groups.sort((a, b) => a.key.localeCompare(b.key));
 }
 
-function formatTime(isoString: string | null): string {
+function formatTime(isoString: string | null, timeZone: string): string {
   if (!isoString) return "";
-  return format(new Date(isoString), "h:mm a");
+  return formatInConventionTime(isoString, timeZone, "h:mm a");
 }
 
 interface ActionSheetProps {
@@ -247,24 +260,67 @@ export default function ConventionDetailScreen() {
       event: ConventionEvent;
       minutes: number | null;
     }) => {
-      await eventsRepo.update(event.id, { reminderMinutes: minutes });
+      const reminderEvent = {
+        id: event.id,
+        title: event.title,
+        startTime: event.startTime,
+        room: event.room ?? event.location,
+      };
 
       if (minutes !== null && event.startTime) {
-        await scheduleEventReminder(
-          {
-            id: event.id,
-            title: event.title,
-            startTime: event.startTime,
-            room: event.room,
-          },
-          minutes,
-        );
+        let notificationId: string | null = null;
+        try {
+          notificationId = await scheduleEventReminder(reminderEvent, minutes);
+        } catch {
+          await eventsRepo.update(event.id, { reminderMinutes: null });
+          throw new Error("The operating system rejected the reminder");
+        }
+        if (!notificationId) {
+          await eventsRepo.update(event.id, { reminderMinutes: null });
+          throw new Error(
+            "Reminder permission denied or event already started",
+          );
+        }
+
+        try {
+          await eventsRepo.update(event.id, { reminderMinutes: minutes });
+        } catch (error) {
+          await cancelEventReminder(event.id);
+          if (event.reminderMinutes !== null) {
+            try {
+              await scheduleEventReminder(reminderEvent, event.reminderMinutes);
+            } catch {
+              // Best-effort rollback after a database failure.
+            }
+          }
+          throw error;
+        }
       } else {
-        await cancelEventReminder(event.id);
+        if (!(await cancelEventReminder(event.id))) {
+          throw new Error("The operating system could not cancel the reminder");
+        }
+        try {
+          await eventsRepo.update(event.id, { reminderMinutes: null });
+        } catch (error) {
+          if (event.reminderMinutes !== null) {
+            try {
+              await scheduleEventReminder(reminderEvent, event.reminderMinutes);
+            } catch {
+              // Best-effort rollback after a database failure.
+            }
+          }
+          throw error;
+        }
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events", id] });
+    },
+    onError: () => {
+      Alert.alert(
+        "Reminder Not Set",
+        "Enable notifications in Settings and choose a future event.",
+      );
     },
   });
 
@@ -275,8 +331,15 @@ export default function ConventionDetailScreen() {
   const filteredEvents = selectedCategory
     ? events.filter((e) => e.category === selectedCategory)
     : events;
+  const conflictingEventIds = overlappingEventIds(
+    events.filter((event) => event.isInSchedule),
+  );
 
-  const dayGroups = groupEventsByDay(filteredEvents);
+  const storedTimeZone = convention?.timeZone;
+  const conventionTimeZone = isValidTimeZone(storedTimeZone)
+    ? storedTimeZone
+    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const dayGroups = groupEventsByDay(filteredEvents, conventionTimeZone);
 
   const isLoading = conventionLoading || eventsLoading;
 
@@ -331,6 +394,22 @@ export default function ConventionDetailScreen() {
           <Upload size={20} color="#94A3B8" />
         </Pressable>
       </View>
+      <Text
+        variant="caption"
+        className="px-4 pb-2 text-center text-muted-foreground"
+      >
+        Times shown in {conventionTimeZone}
+      </Text>
+      {conflictingEventIds.size > 0 ? (
+        <Text
+          variant="caption"
+          className="px-4 pb-2 text-center text-destructive"
+          accessibilityRole="alert"
+        >
+          {conflictingEventIds.size} selected event
+          {conflictingEventIds.size === 1 ? "" : "s"} overlap
+        </Text>
+      ) : null}
 
       {/* Category filter pills */}
       {categories.length > 0 && (
@@ -395,34 +474,33 @@ export default function ConventionDetailScreen() {
           </Pressable>
         </View>
       ) : (
-        <FlatList
-          data={dayGroups}
-          keyExtractor={(item) => item.label}
-          renderItem={({ item: group }) => (
-            <View>
-              <SectionHeader title={group.label} />
-              {group.events.map((event) => (
-                <EventItem
-                  key={event.id}
-                  title={event.title}
-                  startTime={formatTime(event.startTime)}
-                  endTime={formatTime(event.endTime)}
-                  room={event.room ?? undefined}
-                  category={event.category ?? undefined}
-                  isInSchedule={event.isInSchedule}
-                  hasReminder={event.reminderMinutes !== null}
-                  isAgeRestricted={event.isAgeRestricted}
-                  contentWarning={event.contentWarning}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }}
-                  onLongPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    setActionSheetEvent(event);
-                  }}
-                />
-              ))}
-            </View>
+        <SectionList
+          sections={dayGroups}
+          keyExtractor={(event) => event.id}
+          contentInsetAdjustmentBehavior="automatic"
+          renderSectionHeader={({ section }) => (
+            <SectionHeader title={section.label} />
+          )}
+          renderItem={({ item: event }) => (
+            <EventItem
+              title={event.title}
+              startTime={formatTime(event.startTime, conventionTimeZone)}
+              endTime={formatTime(event.endTime, conventionTimeZone)}
+              room={event.room ?? event.location ?? undefined}
+              category={event.category ?? undefined}
+              isInSchedule={event.isInSchedule}
+              hasReminder={event.reminderMinutes !== null}
+              hasConflict={conflictingEventIds.has(event.id)}
+              isAgeRestricted={event.isAgeRestricted}
+              contentWarning={event.contentWarning}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              onLongPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                setActionSheetEvent(event);
+              }}
+            />
           )}
         />
       )}
