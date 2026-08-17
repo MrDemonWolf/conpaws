@@ -51,3 +51,42 @@ export function conventionDayKey(
 ): string {
   return formatInConventionTime(value, timeZone, "yyyy-MM-dd");
 }
+
+export function overlappingEventIds(
+  events: readonly {
+    id: string;
+    startTime: string;
+    endTime: string | null;
+  }[],
+): Set<string> {
+  const conflicting = new Set<string>();
+
+  // ponytail: personal schedules are small; replace with a sweep line if that changes.
+  for (let index = 0; index < events.length; index++) {
+    const event = events[index];
+    if (!event?.endTime) continue;
+    const start = Date.parse(event.startTime);
+    const end = Date.parse(event.endTime);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start)
+      continue;
+
+    for (let otherIndex = index + 1; otherIndex < events.length; otherIndex++) {
+      const other = events[otherIndex];
+      if (!other?.endTime) continue;
+      const otherStart = Date.parse(other.startTime);
+      const otherEnd = Date.parse(other.endTime);
+      if (
+        Number.isFinite(otherStart) &&
+        Number.isFinite(otherEnd) &&
+        otherEnd > otherStart &&
+        start < otherEnd &&
+        otherStart < end
+      ) {
+        conflicting.add(event.id);
+        conflicting.add(other.id);
+      }
+    }
+  }
+
+  return conflicting;
+}
