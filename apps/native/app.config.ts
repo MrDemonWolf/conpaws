@@ -67,7 +67,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
     package: getBundleId(),
-    // `enableEdgeToEdge` was removed in SDK 55 — edge-to-edge is always on.
+    // Edge-to-edge is always enabled in Expo SDK 57.
   },
   web: {
     output: "static",

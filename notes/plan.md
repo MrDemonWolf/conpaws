@@ -94,7 +94,7 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 
 | Tool | Purpose |
 |------|---------|
-| Expo SDK 57 (target — repo is currently on SDK 55) | App framework |
+| Expo SDK 57 (`57.0.14`) | App framework |
 | React Native 0.86 + React 19.2 (SDK 57) | UI runtime |
 | Expo Router (SDK-aligned versioning — see note below) | File-based routing (typed routes) |
 | NativeWind v5 | Tailwind CSS v4 for React Native |
@@ -111,9 +111,9 @@ This doesn't require a separate codebase — just responsive classes in NativeWi
 
 **Version notes (read before "fixing" anything):**
 
-- **Expo Router versioning is SDK-aligned.** Router v6 shipped with SDK 54; from SDK 55 onward the Router major matches the SDK (`~55.0.x`, `56.x`, `57.x`). The `expo-router@~55.0.5` pin in `apps/native` is correct — do not "fix" it back to a single-digit major.
-- `apps/native/package.json` is aligned to Expo SDK 55's React 19.2 dependency set. Keep Expo-managed packages aligned with `expo install --check` and the pinned Expo Doctor in CI.
-- **Open risk:** Expo Router **Native Tabs is alpha** ("API subject to change") even though it appears in the SDK 55 default template. Adopting it in production means accepting refactor risk on every SDK bump — prefer classic JS tabs until it stabilizes.
+- **Expo Router versioning is SDK-aligned.** From SDK 55 onward the Router major matches the SDK. The `expo-router@~57.0.14` pin in `apps/native` is correct — do not "fix" it back to a single-digit major.
+- `apps/native/package.json` is aligned to Expo SDK 57's React 19.2.3 and React Native 0.86.2 dependency set. Keep Expo-managed packages aligned with `expo install --check` and the pinned Expo Doctor in CI.
+- ConPaws deliberately keeps classic JS tabs. Do not combine a Native Tabs migration with SDK maintenance; evaluate that navigation change separately.
 
 ### Backend (Cloudflare Workers)
 
@@ -1002,7 +1002,7 @@ Better-Auth runs inside the API Worker; the app uses the `@better-auth/expo` cli
 2. **Pin `better-auth@>=1.6.x`.** The 2025-era Expo blockers (#4203, #7124, #5452) are all closed as of Jan-May 2026, and the old "disable `cookieCache`" workaround is stale advice. Leave `cookieCache` on — but test session persistence across the cache-expiry boundary on a real device before shipping.
 3. **Use `ctx.waitUntil()`** for after-response work (webhook side effects, cache warming) so responses aren't held hostage.
 
-**Open risk (recorded, not resolved):** `@better-auth/expo` compatibility with Expo SDK 55+/New Architecture is **unverified** — no authoritative statement exists either way. Empirically test sign-in, session persistence, and sign-out on a development build *before* the backend work goes deep.
+**Open risk (recorded, not resolved):** `@better-auth/expo` compatibility with Expo SDK 57/New Architecture is **unverified** — no authoritative statement exists either way. Empirically test sign-in, session persistence, and sign-out on a development build *before* the backend work goes deep.
 
 **Key rule:** Account creation is free. Premium features check RevenueCat entitlement status, not just auth status.
 
@@ -1795,7 +1795,7 @@ The app config is code, not docs: **`apps/native/app.config.ts` is the source of
 
 ### OTA updates: MVP-required, production-gated
 
-Self-hosted OTA is required for the MVP, but production OTA stays disabled until the safety gate passes. First upgrade directly from SDK 55 to SDK 57 (`>=57.0.9`), then deploy the chosen xprem `3.1.1` service on Dokploy. Configure signed staging updates and prove update installation, rollback, and offline launch on physical iOS and Android release builds before enabling the production channel. ConPaws will not use EAS Update. The update URL is embedded in each store binary, so the production build must target the verified service. See [`notes/ota-updates.md`](ota-updates.md) for the deployment, signing, rollback, and go/no-go runbook.
+Self-hosted OTA is required for the MVP, but production OTA stays disabled until the safety gate passes. The SDK 57 prerequisite is complete; next deploy the chosen xprem `3.1.1` service on Dokploy. Configure signed staging updates and prove update installation, rollback, and offline launch on physical iOS and Android release builds before enabling the production channel. ConPaws will not use EAS Update. The update URL is embedded in each store binary, so the production build must target the verified service. See [`notes/ota-updates.md`](ota-updates.md) for the deployment, signing, rollback, and go/no-go runbook.
 
 ### Manual store submission
 
@@ -1806,11 +1806,11 @@ Self-hosted OTA is required for the MVP, but production OTA stays disabled until
 
 Expo package compatibility, Expo Doctor, clean config-plugin prebuild, and production bundle exports run in CI before a signed build is allowed. A physical-device smoke pass of the signed store build remains mandatory.
 
-### SDK Upgrade Path: direct 55 → 57
+### SDK Baseline: direct 55 → 57 complete
 
-Take one deliberate hop from SDK 55 to the current aligned set: Expo `~57.0.14`, React Native `0.86.2`, and React `19.2.3`. Do not land on an earlier SDK 57 patch: Expo `57.0.9` is the hard minimum because it contains the fix for the Hermes/Reanimated/Worklets regression.
+The repo moved directly from SDK 55 to Expo `~57.0.14`, React Native `0.86.2`, and React `19.2.3`. Do not downgrade to an earlier SDK 57 patch: Expo `57.0.9` is the hard minimum because it contains the fix for the Hermes/Reanimated/Worklets regression.
 
-There are no direct `@react-navigation/*` imports in `apps/native`, so the SDK 56 Router codemod is not needed. Keep navigation behind Expo Router and do not add direct React Navigation imports during the upgrade.
+No Router codemod was needed because `apps/native` has no direct `@react-navigation/*` imports. Keep navigation behind Expo Router and do not add direct React Navigation imports.
 
 NativeWind v5 still needs the TypeScript declarations supplied by `react-native-css`. Keep both references in `apps/native/nativewind-env.d.ts`; `nativewind/types` is not a valid replacement for the installed preview release:
 
@@ -1820,7 +1820,7 @@ NativeWind v5 still needs the TypeScript declarations supplied by `react-native-
 declare module "*.css";
 ```
 
-The upgrade is complete only when dependency alignment, Expo Doctor, clean CNG generation, workspace type checks and tests, and both production bundle exports pass from a clean install. Run `expo install --check`, the pinned Expo Doctor, and `expo prebuild --clean` after the direct hop; do not accept a locally cached `node_modules` result as proof.
+Keep the SDK baseline green with dependency alignment, Expo Doctor, clean CNG generation, workspace type checks and tests, and both production bundle exports from a clean install. Run `expo install --check`, the pinned Expo Doctor, and `expo prebuild --clean`; do not accept a locally cached `node_modules` result as proof.
 
 ### Build Strategy
 
@@ -2023,7 +2023,7 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 ### Phase 0: Foundation — DONE
 
 - [x] Monorepo scaffold (Better-T-Stack: bun workspaces + Turborepo + Biome)
-- [x] `apps/native` Expo SDK 55 scaffold (NativeWind v5, app variants, EAS config)
+- [x] `apps/native` Expo scaffold, upgraded from SDK 55 to SDK 57 (NativeWind v5, app variants, EAS config)
 - [x] `apps/web` marketing/waitlist site on Cloudflare Workers via OpenNext (Turnstile + D1 + Brevo)
 - [x] Root CI (lint + type-check fanning out through Turbo)
 
@@ -2031,8 +2031,8 @@ Phase 4 (before App Store submission). Full templates with App Store compliance 
 
 The goal: **a usable app you can take to a convention.** Local-first convention management with iCal import. No accounts, no cloud — just a tool that works. Realistic flag in the ground: the winter 2026 con season (MFF in December).
 
-- [ ] SDK upgrade 55 → 57 (see the upgrade path — do this before screens multiply)
-- [x] Align React and Expo-managed SDK 55 dependencies
+- [x] SDK upgrade 55 → 57
+- [x] Align React and Expo-managed SDK 57 dependencies
 - [x] ShadCN-inspired native component library (Button, Card, Input, Avatar, Badge, etc.)
 - [x] Theme system (light + dark mode via NativeWind CSS variables)
 - [x] expo-sqlite + Drizzle ORM setup with tested migrations
@@ -2054,7 +2054,7 @@ The goal: **a usable app you can take to a convention.** Local-first convention 
 
 Scaffold the Cloudflare backend, add accounts and profiles, browse the convention directory.
 
-- [ ] **Spike first:** verify `@better-auth/expo` against SDK 55+/New Architecture on a dev build — compatibility is unverified and this gates the rest of the phase
+- [ ] **Spike first:** verify `@better-auth/expo` against SDK 57/New Architecture on a dev build — compatibility is unverified and this gates the rest of the phase
 - [ ] Scaffold `apps/server` (Hono + tRPC + Better-Auth on Workers; D1/R2/KV/Queues bindings in `wrangler.jsonc`)
 - [ ] D1 schema + Drizzle migrations (every queried column indexed at definition time)
 - [ ] Better-Auth config (Apple Sign-In + Google OAuth; per-request factory; pin `>=1.6.x`; test session persistence across the cookieCache boundary)

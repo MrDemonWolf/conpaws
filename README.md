@@ -58,7 +58,7 @@ Never miss a panel again.
 
 | Layer            | Technology                                                       |
 | ---------------- | ---------------------------------------------------------------- |
-| Mobile app       | Expo SDK 55, React Native 0.83, React 19.2, Expo Router; direct SDK 57 upgrade planned |
+| Mobile app       | Expo SDK 57, React Native 0.86, React 19.2, Expo Router             |
 | Styling          | NativeWind v5 (Tailwind CSS v4), native component primitives     |
 | Local database   | expo-sqlite with Drizzle ORM                                     |
 | Backend (target) | Cloudflare Workers — Hono, tRPC, Better-Auth                     |
@@ -74,6 +74,7 @@ Never miss a panel again.
 ### Prerequisites
 
 - bun (repo pins `bun@1.3.10`)
+- Node.js `22.13.1` (pinned in `.node-version`)
 - Xcode (for iOS development)
 - Android Studio (for Android development)
 
@@ -138,11 +139,10 @@ and Play Internal Testing and promoted manually. There is no auto-submit.
 
 OTA updates are required for the MVP. The selected path is signed
 [xprem 3.1.1](https://github.com/mercuretechnologies/xprem) hosted on Dokploy,
-not EAS Update. OTA remains fail-closed for now: the app must first upgrade
-directly from Expo SDK 55 to SDK 57 (`>=57.0.9`), then the signed staging path
-must pass cold-start, offline-start, and rollback tests on physical iOS and
-Android devices. No OTA service has been deployed or enabled in a production
-binary yet.
+not EAS Update. The app now meets the Expo SDK 57 prerequisite, but OTA remains
+fail-closed until the signed staging path passes cold-start, offline-start, and
+rollback tests on physical iOS and Android devices. No OTA service has been
+deployed or enabled in a production binary yet.
 
 ## Project Structure
 
