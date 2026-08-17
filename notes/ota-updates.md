@@ -6,11 +6,10 @@ OTA updates are **required for the MVP**. The selected service is signed
 [xprem 3.1.1](https://github.com/mercuretechnologies/xprem), self-hosted on
 Dokploy. ConPaws will not use EAS Update.
 
-The feature remains fail-closed while it is built. The current Expo SDK 55 app
-has no `expo-updates` dependency, `updates.url`, `runtimeVersion`, or update
-channels, and no xprem service has been deployed yet. Do not enable production
-OTA until the app has upgraded directly to Expo SDK 57 (`>=57.0.9`), signed
-xprem staging is available, and physical iOS and Android devices pass
+The feature remains fail-closed while it is built. The Expo SDK 57 app has no
+`expo-updates` dependency, `updates.url`, `runtimeVersion`, or update channels,
+and no xprem service has been deployed yet. Do not enable production OTA until
+signed xprem staging is available and physical iOS and Android devices pass
 downloaded-update cold-start, offline-start, and rollback tests.
 
 The configured update URL is embedded in each store binary, so use a long-lived
@@ -20,7 +19,7 @@ hostname and prove the staging topology before making a production binary.
 build -> test it in TestFlight and Play Internal Testing -> release that exact
 build manually.
 
-## Current blocker: SDK 55 Android startup deadlock
+## Historical blocker: SDK 55 Android startup deadlock
 
 **Do not enable `expo-updates` in ConPaws on Expo SDK 55.**
 
@@ -28,11 +27,10 @@ As of 2026-08-17, [Expo issue #47920](https://github.com/expo/expo/issues/47920)
 
 This is a client-side `expo-updates`/`expo-modules-core` risk. Changing the server does not remove it: xprem, Xavia, OTAShip, EAS Update, and any other server using the standard Expo Updates client all reach the same native startup path.
 
-ConPaws must remain store-build-only until it upgrades directly from SDK 55 to
-SDK 57 with Expo `>=57.0.9`. Do not ship an intermediate SDK 56 build. After the
-upgrade, make signed store-style clients and pass the targeted downloaded-update
-cold-start regression plus the full release smoke test on physical iOS and
-Android devices.
+ConPaws now uses SDK 57 with Expo `~57.0.14`, so the affected SDK 55 client is
+no longer in the repository. It must still remain store-build-only until signed
+store-style clients pass the targeted downloaded-update cold-start regression
+plus the full release smoke test on physical iOS and Android devices.
 
 [Hot Updater](https://github.com/gronxb/hot-updater) and [Codemagic Patch](https://github.com/codemagic-ci-cd/codemagic-patch) use their own native update clients, so this exact `expo-updates` queue defect does not apply to them. They are not a quick workaround: either choice changes the native client, update/runtime model, security boundary, release tooling, and future migration path. Treat both as research candidates, not the current recommendation.
 
@@ -128,7 +126,7 @@ endpoint are ready.
 
 - [x] Self-hosted project, version, and host selected: xprem 3.1.1 on Dokploy.
 - [x] EAS Update excluded from the implementation path.
-- [ ] Upgrade directly from Expo SDK 55 to SDK 57 with Expo `>=57.0.9`; do not land SDK 56.
+- [x] Upgrade directly from Expo SDK 55 to SDK 57 with Expo `>=57.0.9`; do not land SDK 56.
 - [ ] Deploy xprem 3.1.1 to staging with a pinned image reference, PostgreSQL, object storage, TLS, and health checks.
 - [ ] Record the exact iOS and Android client package versions.
 - [ ] Staging and production channels cannot be confused accidentally.

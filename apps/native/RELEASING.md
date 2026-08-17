@@ -29,7 +29,8 @@ Do these once before the first production build.
 
 ### Expo and signing
 
-- Install Bun `1.3.10`, then run all commands below from `apps/native`.
+- Install Node.js `22.13.1` from `.node-version` and Bun `1.3.10`, then run all commands below from `apps/native`.
+- Use Xcode 26.4 or newer. Expo SDK 57 targets iOS 16.4 or newer, so older devices cannot install this app baseline.
 - Sign in with `npx eas-cli@22.0.0 login` and confirm the account with `npx eas-cli@22.0.0 whoami`.
 - Confirm access to the `mrdemonwolf-org/conpaws` EAS project. The project ID is already in `app.config.ts`; do not relink it casually.
 - Let the first interactive production build configure EAS-managed iOS and Android signing credentials, or select credentials that already belong to this app.
