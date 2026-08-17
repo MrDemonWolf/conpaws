@@ -55,10 +55,11 @@ jobs:
         id: creds
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Preview skipped::CLOUDFLARE_API_TOKEN is not set. Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to repository secrets to enable preview deploys."
+            echo "::warning title=Preview skipped::Add both CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to repository secrets to enable preview deploys."
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
@@ -102,10 +103,11 @@ jobs:
         id: creds
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Deploy skipped::CLOUDFLARE_API_TOKEN is not set. Add CLOUDFLARE_API_TOKEN (Workers Scripts:Edit + D1:Edit) and CLOUDFLARE_ACCOUNT_ID to repository secrets to enable deploys."
+            echo "::warning title=Deploy skipped::Add both CLOUDFLARE_API_TOKEN (Workers Scripts:Edit + D1:Edit) and CLOUDFLARE_ACCOUNT_ID to repository secrets to enable deploys."
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
@@ -122,25 +124,60 @@ jobs:
         if: steps.creds.outputs.configured == 'true'
         run: bun install --frozen-lockfile
 
-      # Migrations run BEFORE the deploy so the schema is never behind the code
-      # that queries it. Skipped until the d1_databases binding is uncommented
-      # in wrangler.jsonc (CON-25) — `wrangler d1 migrations apply` errors out
-      # with no binding, and that would block deploying the rest of the site.
-      - name: Apply D1 migrations
+      # Parse wrangler.jsonc through Wrangler itself so the commented D1 example
+      # cannot satisfy this gate. Brevo settings are checked on the deployed
+      # Worker by name; values never enter the build or Actions logs.
+      - name: Check waitlist launch prerequisites
+        id: launch
         if: steps.creds.outputs.configured == 'true'
         run: |
-          if grep -q '"d1_databases"' wrangler.jsonc; then
-            bunx wrangler d1 migrations apply conpaws-db --remote
-          else
-            echo "::notice title=No D1 binding::wrangler.jsonc has no d1_databases block yet — skipping migrations (CON-25)."
+          worker_types="$RUNNER_TEMP/conpaws-worker-types.d.ts"
+          bunx wrangler types "$worker_types" --include-runtime=false --env-interface=CloudflareEnv
+
+          ready=true
+          if ! grep -Eq '^[[:space:]]*DB:[[:space:]]*D1Database;' "$worker_types"; then
+            ready=false
+            echo "::warning title=Deploy skipped::wrangler.jsonc has no enabled DB D1 binding."
           fi
+
+          if ! grep -Eq '^[[:space:]]*"database_id"[[:space:]]*:[[:space:]]*"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"' wrangler.jsonc; then
+            ready=false
+            echo "::warning title=Deploy skipped::The enabled D1 binding needs a real database UUID."
+          fi
+
+          if [ "$ready" = true ]; then
+            if secret_json="$(bunx wrangler secret list --format json)"; then
+              for secret_name in BREVO_API_KEY BREVO_LIST_ID BREVO_DOI_TEMPLATE_ID; do
+                if ! jq -e --arg name "$secret_name" 'any(.[]; .name == $name)' <<< "$secret_json" >/dev/null; then
+                  ready=false
+                  echo "::warning title=Deploy skipped::Worker secret $secret_name is not configured."
+                fi
+              done
+            else
+              ready=false
+              echo "::warning title=Deploy skipped::Could not verify Worker secrets."
+            fi
+          fi
+
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Migrations run BEFORE the deploy so the schema is never behind the code
+      # that queries it. The launch-prerequisite step prevents both this and the
+      # deploy from running until the durable waitlist dependencies are real.
+      - name: Apply D1 migrations
+        if: steps.launch.outputs.ready == 'true'
+        run: bunx wrangler d1 migrations apply conpaws-db --remote
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Build (OpenNext)
-        if: steps.creds.outputs.configured == 'true'
+        if: steps.launch.outputs.ready == 'true'
         run: bunx opennextjs-cloudflare build
         working-directory: apps/web
 
@@ -149,7 +186,7 @@ jobs:
       # incremental cache). A plain run step with the two env vars is simpler —
       # the adapter shells out to wrangler, which reads them.
       - name: Deploy
-        if: steps.creds.outputs.configured == 'true'
+        if: steps.launch.outputs.ready == 'true'
         run: bunx opennextjs-cloudflare deploy -- --keep-vars
         working-directory: apps/web
         env:

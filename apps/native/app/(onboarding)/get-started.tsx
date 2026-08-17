@@ -18,22 +18,15 @@ export default function GetStartedScreen() {
           </Text>
         </View>
         <View className="w-full gap-3">
-          <Button
-            variant="default"
-            size="lg"
-            onPress={() => {}}
-            className="w-full"
-          >
+          <Button variant="default" size="lg" disabled className="w-full">
             {t("onboarding.getStarted.signInWithApple")}
           </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onPress={() => {}}
-            className="w-full"
-          >
+          <Button variant="outline" size="lg" disabled className="w-full">
             {t("onboarding.getStarted.signInWithGoogle")}
           </Button>
+          <Text variant="caption" className="text-center text-muted-foreground">
+            {t("profile.comingSoon")}
+          </Text>
         </View>
         <Separator className="w-full" />
         <Button

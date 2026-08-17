@@ -9,9 +9,20 @@ export interface ParsedEvent {
   room: string | null;
   category: string | null;
   sourceUid: string;
+  legacySourceUid: string | null;
+  recurrenceTime: Date | null;
   sourceUrl: string | null;
   isAgeRestricted: boolean;
   contentWarning: boolean;
+}
+
+export interface CancelledEvent {
+  sourceUid: string;
+  legacySourceUid: string | null;
+  startTime: Date | null;
+  recurrenceTime: Date | null;
+  title: string | null;
+  sourceUrl: string | null;
 }
 
 export interface CategoryMeta {
@@ -24,11 +35,28 @@ export interface ParseResult {
   timezone: string | null;
   requiresTimeZone: boolean;
   events: ParsedEvent[];
+  cancelledEvents: CancelledEvent[];
+  cancelledSourceUids: string[];
   categories: CategoryMeta[];
 }
 
 export interface ParseOptions {
   timeZone?: string;
+}
+
+const UNSUPPORTED_RECURRENCE_PROPERTIES = new Set(["RRULE", "RDATE", "EXDATE"]);
+
+export class UnsupportedRecurrenceError extends Error {
+  readonly properties: string[];
+
+  constructor(properties: string[]) {
+    const uniqueProperties = Array.from(new Set(properties)).sort();
+    super(
+      `This calendar uses unsupported active recurrence definitions (${uniqueProperties.join(", ")}). ConPaws cannot safely expand them yet. Export an expanded .ics file with each occurrence as its own event, then try again.`,
+    );
+    this.name = "UnsupportedRecurrenceError";
+    this.properties = uniqueProperties;
+  }
 }
 
 const CATEGORY_PALETTE = [
@@ -191,6 +219,8 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       timezone: null,
       requiresTimeZone: false,
       events: [],
+      cancelledEvents: [],
+      cancelledSourceUids: [],
       categories: [],
     };
   }
@@ -235,8 +265,80 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   }
 
   const seenUids = new Set<string>();
+  const cancelledEvents = new Map<string, CancelledEvent>();
   const parsedEvents: ParsedEvent[] = [];
   const categoryCountMap = new Map<string, number>();
+
+  for (const block of eventBlocks) {
+    const uidLine = block.find((line) => extractPropName(line) === "UID");
+    const statusLine = block.find((line) => extractPropName(line) === "STATUS");
+    if (
+      !uidLine ||
+      extractValue(statusLine ?? "")
+        .trim()
+        .toUpperCase() !== "CANCELLED"
+    ) {
+      continue;
+    }
+
+    const uid = extractValue(uidLine);
+    const recurrenceLine = block.find(
+      (line) => extractPropName(line) === "RECURRENCE-ID",
+    );
+    const recurrenceId = recurrenceLine ? extractValue(recurrenceLine) : "";
+    const sourceUid = recurrenceId ? `${uid}|${recurrenceId}` : uid;
+    const startLine = block.find((line) => extractPropName(line) === "DTSTART");
+    const titleLine = block.find((line) => extractPropName(line) === "SUMMARY");
+    const sourceUrlLine = block.find((line) => extractPropName(line) === "URL");
+    const startTimeZone = startLine
+      ? extractParameter(startLine, "TZID")
+      : null;
+    const recurrenceTimeZone = recurrenceLine
+      ? extractParameter(recurrenceLine, "TZID")
+      : null;
+
+    cancelledEvents.set(sourceUid, {
+      sourceUid,
+      legacySourceUid: recurrenceId ? uid : null,
+      startTime: startLine
+        ? parseDateTime(
+            extractValue(startLine),
+            isValidTimeZone(startTimeZone) ? startTimeZone : timezone,
+          )
+        : null,
+      recurrenceTime: recurrenceId
+        ? parseDateTime(
+            recurrenceId,
+            isValidTimeZone(recurrenceTimeZone) ? recurrenceTimeZone : timezone,
+          )
+        : null,
+      title: titleLine
+        ? decodeHtmlEntities(unescapeText(extractValue(titleLine))).trim() ||
+          null
+        : null,
+      sourceUrl: sourceUrlLine ? extractValue(sourceUrlLine) || null : null,
+    });
+  }
+  const cancelledSourceUids = new Set(cancelledEvents.keys());
+  const hasActiveEventBlock = eventBlocks.some((block) => {
+    const uidLine = block.find((line) => extractPropName(line) === "UID");
+    const statusLine = block.find((line) => extractPropName(line) === "STATUS");
+    if (
+      !uidLine ||
+      extractValue(statusLine ?? "")
+        .trim()
+        .toUpperCase() === "CANCELLED"
+    ) {
+      return false;
+    }
+    const uid = extractValue(uidLine);
+    const recurrenceLine = block.find(
+      (line) => extractPropName(line) === "RECURRENCE-ID",
+    );
+    const recurrenceId = recurrenceLine ? extractValue(recurrenceLine) : "";
+    const sourceUid = recurrenceId ? `${uid}|${recurrenceId}` : uid;
+    return !cancelledSourceUids.has(sourceUid) && !cancelledSourceUids.has(uid);
+  });
 
   for (const block of eventBlocks) {
     const props: Record<string, string> = {};
@@ -247,7 +349,11 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       const propName = extractPropName(line);
       const value = extractValue(line);
       props[propName] = value;
-      if (propName === "DTSTART" || propName === "DTEND") {
+      if (
+        propName === "DTSTART" ||
+        propName === "DTEND" ||
+        propName === "RECURRENCE-ID"
+      ) {
         const eventTimeZone = extractParameter(line, "TZID");
         timeZones[propName] = isValidTimeZone(eventTimeZone)
           ? eventTimeZone
@@ -259,6 +365,19 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     if (!uid) continue;
     const recurrenceId = props["RECURRENCE-ID"] ?? "";
     const dedupeKey = recurrenceId ? `${uid}|${recurrenceId}` : uid;
+    if (cancelledSourceUids.has(dedupeKey) || cancelledSourceUids.has(uid)) {
+      continue;
+    }
+
+    const unsupportedRecurrenceProperties = block
+      .map((line) => extractPropName(line).toUpperCase())
+      .filter((propertyName) =>
+        UNSUPPORTED_RECURRENCE_PROPERTIES.has(propertyName),
+      );
+    if (unsupportedRecurrenceProperties.length > 0) {
+      throw new UnsupportedRecurrenceError(unsupportedRecurrenceProperties);
+    }
+
     if (seenUids.has(dedupeKey)) continue;
     seenUids.add(dedupeKey);
 
@@ -273,6 +392,10 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
 
     const startTimeZone = timeZones["DTSTART"] ?? timezone;
     const startTime = parseDateTime(props["DTSTART"] ?? "", startTimeZone);
+    const recurrenceTime = recurrenceId
+      ? parseDateTime(recurrenceId, timeZones["RECURRENCE-ID"] ?? startTimeZone)
+      : null;
+
     if (!startTime) continue;
 
     const endTime =
@@ -317,6 +440,8 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       room,
       category,
       sourceUid: dedupeKey,
+      recurrenceTime,
+      legacySourceUid: recurrenceId ? uid : null,
       sourceUrl,
       isAgeRestricted,
       contentWarning,
@@ -336,8 +461,10 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
 
   return {
     timezone,
-    requiresTimeZone: timezone === null && eventBlocks.length > 0,
+    requiresTimeZone: timezone === null && hasActiveEventBlock,
+    cancelledEvents: Array.from(cancelledEvents.values()),
     events: parsedEvents,
+    cancelledSourceUids: Array.from(cancelledSourceUids),
     categories,
   };
 }

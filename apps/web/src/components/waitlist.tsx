@@ -7,6 +7,9 @@ import { Badge } from "./badge";
 
 type Status = "idle" | "submitting" | "done";
 
+// Keep the public form closed until D1 persistence, DOI, and retries land.
+const WAITLIST_ACCEPTING_SIGNUPS = false;
+
 const INPUT_CLASS =
   "w-full rounded-xl border border-input bg-card/70 px-4 py-3.5 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
 
@@ -25,7 +28,7 @@ export function Waitlist() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === "submitting") return;
+    if (!WAITLIST_ACCEPTING_SIGNUPS || status === "submitting") return;
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
@@ -65,10 +68,10 @@ export function Waitlist() {
       <div className="pt-6 md:pt-14">
         <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[10px] text-primary uppercase tracking-[0.28em]">
           <span className="relative flex h-[7px] w-[7px]">
-            <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
           </span>
-          Beta signups open
+          Beta waitlist coming soon
         </span>
 
         <h1 className="motion-safe:animate-rise mt-6 font-bold text-[clamp(42px,6.2vw,76px)] leading-[0.95] tracking-[-0.03em] [animation-delay:80ms]">
@@ -111,6 +114,7 @@ export function Waitlist() {
                   name="name"
                   autoComplete="name"
                   placeholder="Luna Starfall"
+                  disabled={!WAITLIST_ACCEPTING_SIGNUPS}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={60}
@@ -130,6 +134,7 @@ export function Waitlist() {
                   name="email"
                   type="email"
                   required
+                  disabled={!WAITLIST_ACCEPTING_SIGNUPS}
                   autoComplete="email"
                   placeholder="you@example.com"
                   className={INPUT_CLASS}
@@ -156,17 +161,19 @@ export function Waitlist() {
 
             <button
               type="submit"
-              disabled={status === "submitting"}
+              disabled={!WAITLIST_ACCEPTING_SIGNUPS || status === "submitting"}
               className="mt-5 w-full rounded-xl bg-primary px-5 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             >
-              {status === "submitting"
-                ? "Registering…"
-                : "Register for the beta →"}
+              {!WAITLIST_ACCEPTING_SIGNUPS
+                ? "Registration opening soon"
+                : status === "submitting"
+                  ? "Registering…"
+                  : "Register for the beta →"}
             </button>
 
             <p className="mt-3.5 text-[12px] text-muted-foreground leading-relaxed">
-              iOS and Android at launch. We&rsquo;ll email once to confirm —
-              nothing else until it&rsquo;s ready.{" "}
+              We&rsquo;re finishing secure signup and email confirmation. No
+              addresses are being accepted yet.{" "}
               <a href="/privacy" className="text-primary hover:underline">
                 Privacy
               </a>
