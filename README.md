@@ -136,13 +136,16 @@ and Play Internal Testing and promoted manually. There is no auto-submit.
 
 - [Mobile release guide](apps/native/RELEASING.md)
 - [Self-hosted OTA decision guide](notes/ota-updates.md)
+- [Dokploy xprem deployment runbook](infra/xprem/README.md)
 
 OTA updates are required for the MVP. The selected path is signed
-[xprem 3.1.1](https://github.com/mercuretechnologies/xprem) hosted on Dokploy,
-not EAS Update. The app now meets the Expo SDK 57 prerequisite, but OTA remains
-fail-closed until the signed staging path passes cold-start, offline-start, and
-rollback tests on physical iOS and Android devices. No OTA service has been
-deployed or enabled in a production binary yet.
+[xprem 3.1.1](https://github.com/mercuretechnologies/xprem) hosted once for
+MrDemonWolf, Inc. at `updates.mrdemonwolf.com`, not EAS Update. ConPaws receives
+its own xprem app UUID, signing material, branches/channels, publisher token,
+and runtime inside that shared control plane. The app meets the Expo SDK 57
+prerequisite, but OTA remains fail-closed until signed staging passes cold-start,
+offline-start, and rollback tests on physical iOS and Android devices. The
+deployment bundle is ready, but no service is deployed or enabled in a store binary.
 
 ## Project Structure
 
