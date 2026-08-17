@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Haptics from 'expo-haptics';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Haptics from "expo-haptics";
+import { useEffect, useState } from "react";
+import * as eventsRepo from "@/db/repositories/events";
+import type { ConventionEvent } from "@/db/schema";
 import {
-  requestNotificationPermission,
-  getNotificationPermissionStatus,
-  scheduleEventReminder,
   cancelEventReminder,
-} from '@/services/notifications';
-import * as eventsRepo from '@/db/repositories/events';
-import type { ConventionEvent } from '@/db/schema';
+  getNotificationPermissionStatus,
+  requestNotificationPermission,
+  scheduleEventReminder,
+} from "@/services/notifications";
 
-const NOTIFICATIONS_REQUESTED_KEY = 'hasRequestedNotifications';
+const NOTIFICATIONS_REQUESTED_KEY = "hasRequestedNotifications";
 
 export function useEventReminder(event: ConventionEvent) {
   const [showPrePrompt, setShowPrePrompt] = useState(false);
@@ -22,7 +22,9 @@ export function useEventReminder(event: ConventionEvent) {
       return {};
     }
 
-    const hasRequested = await AsyncStorage.getItem(NOTIFICATIONS_REQUESTED_KEY);
+    const hasRequested = await AsyncStorage.getItem(
+      NOTIFICATIONS_REQUESTED_KEY,
+    );
 
     if (!hasRequested) {
       // Show custom pre-prompt
@@ -34,16 +36,18 @@ export function useEventReminder(event: ConventionEvent) {
     return _doSetReminder(minutes);
   }
 
-  async function _doSetReminder(minutes: number): Promise<{ denied?: boolean }> {
+  async function _doSetReminder(
+    minutes: number,
+  ): Promise<{ denied?: boolean }> {
     const permission = await getNotificationPermissionStatus();
 
-    if (permission === 'undetermined') {
-      await AsyncStorage.setItem(NOTIFICATIONS_REQUESTED_KEY, 'true');
+    if (permission === "undetermined") {
+      await AsyncStorage.setItem(NOTIFICATIONS_REQUESTED_KEY, "true");
       const result = await requestNotificationPermission();
-      if (result !== 'granted') {
+      if (result !== "granted") {
         return { denied: true };
       }
-    } else if (permission === 'denied') {
+    } else if (permission === "denied") {
       return { denied: true };
     }
 
@@ -71,7 +75,7 @@ export function useEventReminder(event: ConventionEvent) {
 
   async function handlePrePromptEnable() {
     setShowPrePrompt(false);
-    await AsyncStorage.setItem(NOTIFICATIONS_REQUESTED_KEY, 'true');
+    await AsyncStorage.setItem(NOTIFICATIONS_REQUESTED_KEY, "true");
     if (pendingMinutes !== null) {
       await _doSetReminder(pendingMinutes);
       setPendingMinutes(null);

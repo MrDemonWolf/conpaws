@@ -1,31 +1,43 @@
-import { useState, useCallback } from 'react';
+import { useQueryClient } from "@tanstack/react-query";
+import * as DocumentPicker from "expo-document-picker";
+import { File } from "expo-file-system";
+import * as Haptics from "expo-haptics";
+import { router, useLocalSearchParams } from "expo-router";
+import { CalendarX, ChevronLeft, FileX, WifiOff } from "lucide-react-native";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
-  ScrollView,
-  TextInput,
-  Pressable,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
-import * as Haptics from 'expo-haptics';
-import { useTranslation } from 'react-i18next';
-import { SafeView, Text, Button } from '@/components/ui';
-import { parseIcs, type ParsedEvent, type CategoryMeta } from '@/lib/ical-parser';
-import { fetchSchedIcs, InvalidSchedUrlError, NetworkError, InvalidResponseError } from '@/lib/sched-extractor';
-import { useImportSchedule } from '@/hooks/useImportSchedule';
-import { FileX, WifiOff, CalendarX, ChevronLeft } from 'lucide-react-native';
+  Pressable,
+  ScrollView,
+  TextInput,
+  View,
+} from "react-native";
+import { Button, SafeView, Text } from "@/components/ui";
+import * as conventionsRepo from "@/db/repositories/conventions";
+import { useImportSchedule } from "@/hooks/useImportSchedule";
+import {
+  type CategoryMeta,
+  type ParsedEvent,
+  parseIcs,
+} from "@/lib/ical-parser";
+import {
+  fetchSchedIcs,
+  InvalidResponseError,
+  InvalidSchedUrlError,
+  NetworkError,
+} from "@/lib/sched-extractor";
 
-type Tab = 'file' | 'url';
+type Tab = "file" | "url";
 
 interface ErrorState {
-  type: 'file-type' | 'network' | 'no-events' | 'parse';
+  type: "file-type" | "network" | "no-events" | "parse";
   message: string;
 }
 
 interface PreviewState {
+  name: string;
   events: ParsedEvent[];
   categories: CategoryMeta[];
   selectedCategories: Set<string>;
@@ -34,10 +46,11 @@ interface PreviewState {
 export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
 
-  const [activeTab, setActiveTab] = useState<Tab>('file');
-  const [url, setUrl] = useState('');
+  const [activeTab, setActiveTab] = useState<Tab>("file");
+  const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
@@ -47,16 +60,20 @@ export default function ImportScreen() {
     setPreview(null);
   }
 
-  function processIcs(icsContent: string) {
+  function processIcs(icsContent: string, name: string) {
     const result = parseIcs(icsContent);
 
     if (result.events.length === 0) {
-      setError({ type: 'no-events', message: 'No events found in this calendar file.' });
+      setError({
+        type: "no-events",
+        message: "No events found in this calendar file.",
+      });
       return;
     }
 
     const allCategories = new Set(result.categories.map((c) => c.name));
     setPreview({
+      name,
       events: result.events,
       categories: result.categories,
       selectedCategories: allCategories,
@@ -67,23 +84,26 @@ export default function ImportScreen() {
     clearState();
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ['text/calendar', 'application/octet-stream', '*/*'],
+        type: ["text/calendar", "application/octet-stream", "*/*"],
         copyToCacheDirectory: true,
       });
 
       if (result.canceled) return;
 
       const file = result.assets[0];
-      if (!file.name.endsWith('.ics')) {
-        setError({ type: 'file-type', message: 'Please select a .ics calendar file.' });
+      if (!file.name.endsWith(".ics")) {
+        setError({
+          type: "file-type",
+          message: "Please select a .ics calendar file.",
+        });
         return;
       }
 
       setLoading(true);
-      const content = await FileSystem.readAsStringAsync(file.uri);
-      processIcs(content);
+      const content = await new File(file.uri).text();
+      processIcs(content, file.name.replace(/\.ics$/i, ""));
     } catch {
-      setError({ type: 'parse', message: 'Failed to read the file.' });
+      setError({ type: "parse", message: "Failed to read the file." });
     } finally {
       setLoading(false);
     }
@@ -95,17 +115,31 @@ export default function ImportScreen() {
     setLoading(true);
 
     try {
-      const content = await fetchSchedIcs(url.trim());
-      processIcs(content);
+      const scheduleUrl = url.trim();
+      const content = await fetchSchedIcs(scheduleUrl);
+      const name = new URL(scheduleUrl).hostname.split(".")[0];
+      processIcs(content, name || "Imported Convention");
     } catch (err) {
       if (err instanceof InvalidSchedUrlError) {
-        setError({ type: 'file-type', message: 'Enter a valid Sched URL (e.g. https://yourcon.sched.com).' });
+        setError({
+          type: "file-type",
+          message: "Enter a valid Sched URL (e.g. https://yourcon.sched.com).",
+        });
       } else if (err instanceof NetworkError) {
-        setError({ type: 'network', message: 'Network error. Check your connection and try again.' });
+        setError({
+          type: "network",
+          message: "Network error. Check your connection and try again.",
+        });
       } else if (err instanceof InvalidResponseError) {
-        setError({ type: 'no-events', message: 'URL did not return a valid calendar file.' });
+        setError({
+          type: "no-events",
+          message: "URL did not return a valid calendar file.",
+        });
       } else {
-        setError({ type: 'parse', message: 'Something went wrong. Please try again.' });
+        setError({
+          type: "parse",
+          message: "Something went wrong. Please try again.",
+        });
       }
     } finally {
       setLoading(false);
@@ -126,33 +160,78 @@ export default function ImportScreen() {
   async function handleImport() {
     if (!preview || !id) return;
 
-    const eventsToImport = preview.selectedCategories.size === preview.categories.length
-      ? preview.events
-      : preview.events.filter((e) =>
-          e.category === null || preview.selectedCategories.has(e.category),
-        );
+    const eventsToImport =
+      preview.selectedCategories.size === preview.categories.length
+        ? preview.events
+        : preview.events.filter(
+            (e) =>
+              e.category === null || preview.selectedCategories.has(e.category),
+          );
+
+    let createdConventionId: string | null = null;
 
     try {
+      let conventionId = id;
+      if (id === "new") {
+        const timestamps = eventsToImport.map((event) =>
+          event.startTime.getTime(),
+        );
+        const startDate = new Date(Math.min(...timestamps))
+          .toISOString()
+          .slice(0, 10);
+        const endDate = new Date(Math.max(...timestamps))
+          .toISOString()
+          .slice(0, 10);
+        const today = new Date().toISOString().slice(0, 10);
+        const convention = await conventionsRepo.create({
+          name: preview.name,
+          startDate,
+          endDate,
+          icalUrl: null,
+          status:
+            today < startDate
+              ? "upcoming"
+              : today > endDate
+                ? "ended"
+                : "active",
+        });
+        conventionId = convention.id;
+        createdConventionId = convention.id;
+      }
+
       const result = await importMutation.mutateAsync({
         parsedEvents: eventsToImport,
-        conventionId: id,
+        conventionId,
       });
+      await queryClient.invalidateQueries({ queryKey: ["conventions"] });
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       Alert.alert(
-        'Import Complete',
+        "Import Complete",
         `${result.added} added, ${result.updated} updated`,
-        [{ text: 'Done', onPress: () => router.back() }],
+        [
+          {
+            text: "Done",
+            onPress: () =>
+              createdConventionId
+                ? router.replace(`/convention/${createdConventionId}`)
+                : router.back(),
+          },
+        ],
       );
     } catch {
-      Alert.alert('Import Failed', 'Something went wrong. Please try again.');
+      if (createdConventionId) {
+        await conventionsRepo.remove(createdConventionId);
+      }
+      Alert.alert("Import Failed", "Something went wrong. Please try again.");
     }
   }
 
   const selectedCount = preview
     ? preview.events.filter(
-        (e) => e.category === null || preview.selectedCategories.has(e.category),
+        (e) =>
+          e.category === null || preview.selectedCategories.has(e.category),
       ).length
     : 0;
 
@@ -168,19 +247,26 @@ export default function ImportScreen() {
 
       {/* Tabs */}
       <View className="flex-row px-4 gap-2 mb-4">
-        {(['file', 'url'] as Tab[]).map((tab) => (
+        {(["file", "url"] as Tab[]).map((tab) => (
           <Pressable
             key={tab}
-            onPress={() => { setActiveTab(tab); clearState(); }}
+            onPress={() => {
+              setActiveTab(tab);
+              clearState();
+            }}
             className={`flex-1 py-2 rounded-lg items-center ${
-              activeTab === tab ? 'bg-primary' : 'bg-card'
+              activeTab === tab ? "bg-primary" : "bg-card"
             }`}
           >
             <Text
               variant="label"
-              className={activeTab === tab ? 'text-primary-foreground' : 'text-muted-foreground'}
+              className={
+                activeTab === tab
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground"
+              }
             >
-              {tab === 'file' ? 'From File' : 'From URL'}
+              {tab === "file" ? "From File" : "From URL"}
             </Text>
           </Pressable>
         ))}
@@ -188,7 +274,7 @@ export default function ImportScreen() {
 
       <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">
         {/* Tab content */}
-        {activeTab === 'file' ? (
+        {activeTab === "file" ? (
           <Button variant="outline" onPress={handleFilePick} className="mb-4">
             Choose .ics File
           </Button>
@@ -214,16 +300,18 @@ export default function ImportScreen() {
         {loading && (
           <View className="items-center py-8">
             <ActivityIndicator color="#0FACED" />
-            <Text variant="caption" className="mt-2">Loading...</Text>
+            <Text variant="caption" className="mt-2">
+              Loading...
+            </Text>
           </View>
         )}
 
         {/* Error state */}
         {error && !loading && (
           <View className="items-center py-8 gap-3">
-            {error.type === 'network' ? (
+            {error.type === "network" ? (
               <WifiOff size={40} color="#94A3B8" />
-            ) : error.type === 'no-events' ? (
+            ) : error.type === "no-events" ? (
               <CalendarX size={40} color="#94A3B8" />
             ) : (
               <FileX size={40} color="#94A3B8" />
@@ -235,7 +323,7 @@ export default function ImportScreen() {
               variant="outline"
               onPress={() => {
                 setError(null);
-                if (activeTab === 'url') handleUrlFetch();
+                if (activeTab === "url") handleUrlFetch();
               }}
             >
               Retry
@@ -259,16 +347,22 @@ export default function ImportScreen() {
                 >
                   <View
                     className={`w-5 h-5 rounded border-2 items-center justify-center ${
-                      checked ? 'bg-primary border-primary' : 'border-border'
+                      checked ? "bg-primary border-primary" : "border-border"
                     }`}
                   >
-                    {checked && <Text className="text-primary-foreground text-xs font-bold">✓</Text>}
+                    {checked && (
+                      <Text className="text-primary-foreground text-xs font-bold">
+                        ✓
+                      </Text>
+                    )}
                   </View>
                   <View
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: cat.color }}
                   />
-                  <Text variant="body" className="flex-1">{cat.name}</Text>
+                  <Text variant="body" className="flex-1">
+                    {cat.name}
+                  </Text>
                   <Text variant="caption">{cat.count}</Text>
                 </Pressable>
               );
@@ -280,8 +374,8 @@ export default function ImportScreen() {
                 disabled={importMutation.isPending || selectedCount === 0}
               >
                 {importMutation.isPending
-                  ? 'Importing...'
-                  : `Import ${selectedCount} Event${selectedCount !== 1 ? 's' : ''}`}
+                  ? "Importing..."
+                  : `Import ${selectedCount} Event${selectedCount !== 1 ? "s" : ""}`}
               </Button>
             </View>
           </View>

@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import * as eventsRepo from '@/db/repositories/events';
-import type { ParsedEvent } from '@/lib/ical-parser';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import * as eventsRepo from "@/db/repositories/events";
+import type { ParsedEvent } from "@/lib/ical-parser";
 
 export interface ImportInput {
   parsedEvents: ParsedEvent[];
@@ -38,7 +38,7 @@ export function useImportSchedule() {
       return eventsRepo.upsertBySourceUid(mapped, conventionId);
     },
     onSuccess: (_data, { conventionId }) => {
-      queryClient.invalidateQueries({ queryKey: ['events', conventionId] });
+      queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
     },
   });
 }

@@ -1,8 +1,8 @@
-import { View, ScrollView, Pressable, Linking } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import Constants from 'expo-constants';
-import { SafeView, Text, Separator } from '@/components/ui';
-import { Github, Globe, Mail, MessageCircle } from 'lucide-react-native';
+import Constants from "expo-constants";
+import { Github, Globe, Mail, MessageCircle } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Linking, Pressable, ScrollView, View } from "react-native";
+import { SafeView, Separator, Text } from "@/components/ui";
 
 interface LinkRowProps {
   icon: React.ReactNode;
@@ -17,14 +17,16 @@ function LinkRow({ icon, label, onPress }: LinkRowProps) {
       className="flex-row items-center gap-3 py-3.5 active:opacity-70"
     >
       {icon}
-      <Text variant="body" className="text-primary flex-1">{label}</Text>
+      <Text variant="body" className="text-primary flex-1">
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
 export default function AboutScreen() {
   const { t } = useTranslation();
-  const version = Constants.expoConfig?.version ?? '0.0.0';
+  const version = Constants.expoConfig?.version ?? "0.0.0";
 
   return (
     <SafeView>
@@ -32,7 +34,9 @@ export default function AboutScreen() {
         {/* Logo + Name */}
         <View className="items-center gap-4 py-10 px-6">
           <View className="w-20 h-20 rounded-3xl bg-primary items-center justify-center">
-            <Text className="text-3xl text-primary-foreground font-bold">CP</Text>
+            <Text className="text-3xl text-primary-foreground font-bold">
+              CP
+            </Text>
           </View>
           <View className="items-center gap-1">
             <Text variant="h2">ConPaws</Text>
@@ -41,7 +45,7 @@ export default function AboutScreen() {
             </Text>
           </View>
           <View className="bg-card px-4 py-1.5 rounded-full">
-            <Text variant="caption">{t('common.version', { version })}</Text>
+            <Text variant="caption">{t("common.version", { version })}</Text>
           </View>
         </View>
 
@@ -52,25 +56,27 @@ export default function AboutScreen() {
           <LinkRow
             icon={<Github size={20} color="#0FACED" />}
             label="GitHub (Open Source)"
-            onPress={() => Linking.openURL('https://github.com/mrdemonwolf/conpaws')}
+            onPress={() =>
+              Linking.openURL("https://github.com/mrdemonwolf/conpaws")
+            }
           />
           <Separator />
           <LinkRow
             icon={<Globe size={20} color="#0FACED" />}
             label="mrdemonwolf.com"
-            onPress={() => Linking.openURL('https://mrdemonwolf.com')}
+            onPress={() => Linking.openURL("https://mrdemonwolf.com")}
           />
           <Separator />
           <LinkRow
             icon={<Mail size={20} color="#0FACED" />}
             label="hello@conpaws.com"
-            onPress={() => Linking.openURL('mailto:hello@conpaws.com')}
+            onPress={() => Linking.openURL("mailto:hello@conpaws.com")}
           />
           <Separator />
           <LinkRow
             icon={<MessageCircle size={20} color="#0FACED" />}
             label="Join our Discord"
-            onPress={() => Linking.openURL('https://discord.gg/conpaws')}
+            onPress={() => Linking.openURL("https://discord.gg/conpaws")}
           />
         </View>
 
@@ -78,7 +84,10 @@ export default function AboutScreen() {
           <Text variant="caption" className="text-center text-muted-foreground">
             Made with ❤️ for the furry community
           </Text>
-          <Text variant="caption" className="text-center text-muted-foreground mt-1">
+          <Text
+            variant="caption"
+            className="text-center text-muted-foreground mt-1"
+          >
             © 2026 ConPaws. All rights reserved.
           </Text>
         </View>

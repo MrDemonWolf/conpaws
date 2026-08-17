@@ -4,54 +4,22 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "bun": "latest",
-      "ios": {
-        "simulator": true
-      },
-      "env": {
-        "APP_VARIANT": "development"
-      },
-      "channel": "development",
-      "local": true
-    },
-    "development:device": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "bun": "latest",
-      "env": {
-        "APP_VARIANT": "development"
-      },
-      "channel": "development",
-      "local": true
-    },
     "preview": {
       "distribution": "internal",
-      "bun": "latest",
       "env": {
         "APP_VARIANT": "preview"
-      },
-      "channel": "preview",
-      "local": true
+      }
     },
     "production": {
       "autoIncrement": true,
-      "bun": "latest",
       "env": {
         "APP_VARIANT": "production"
-      },
-      "channel": "production"
+      }
     }
   },
   "submit": {
     "production": {
-      "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-asc-app-id",
-        "appleTeamId": "your-team-id"
-      }
+      "android": { "track": "internal" }
     }
   }
 }

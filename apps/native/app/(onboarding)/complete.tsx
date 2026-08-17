@@ -1,19 +1,19 @@
-import { View } from 'react-native';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeView, Text, Button } from '@/components/ui';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import { Button, SafeView, Text } from "@/components/ui";
 
 export default function CompleteScreen() {
   const { t } = useTranslation();
 
   async function handleLetsGo() {
     try {
-      await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
+      await AsyncStorage.setItem("hasCompletedOnboarding", "true");
     } catch {
       // Storage write failed — still navigate so user isn't stuck
     } finally {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     }
   }
 
@@ -25,16 +25,16 @@ export default function CompleteScreen() {
         </View>
         <View className="items-center gap-2">
           <Text variant="h2" className="text-center">
-            {t('onboarding.complete.title')}
+            {t("onboarding.complete.title")}
           </Text>
           <Text variant="caption" className="text-center">
-            {t('onboarding.complete.subtitle')}
+            {t("onboarding.complete.subtitle")}
           </Text>
         </View>
       </View>
       <View className="px-6 pb-8">
         <Button size="lg" onPress={handleLetsGo} className="w-full">
-          {t('onboarding.complete.letsGo')}
+          {t("onboarding.complete.letsGo")}
         </Button>
       </View>
     </SafeView>

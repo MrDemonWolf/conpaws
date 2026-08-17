@@ -1,6 +1,6 @@
-import { View } from 'react-native';
-import { Text } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { View } from "react-native";
+import { Text } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 interface OnboardingSlideProps {
   icon: React.ReactNode;
@@ -18,7 +18,7 @@ export function OnboardingSlide({
   className,
 }: OnboardingSlideProps) {
   return (
-    <View className={cn('items-center gap-4 px-6', className)}>
+    <View className={cn("items-center gap-4 px-6", className)}>
       <View className="w-16 h-16 rounded-2xl bg-primary/10 items-center justify-center">
         {icon}
       </View>

@@ -1,12 +1,20 @@
-import { eq, inArray } from 'drizzle-orm';
-import { db } from '../index';
-import { conventionEvents, type ConventionEvent, type NewConventionEvent } from '../schema';
+import { eq, inArray } from "drizzle-orm";
+import { db } from "../index";
+import {
+  type ConventionEvent,
+  conventionEvents,
+  type NewConventionEvent,
+} from "../schema";
 
 function generateId(): string {
-  return 'evt_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  return (
+    "evt_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
+  );
 }
 
-export async function getByConventionId(conventionId: string): Promise<ConventionEvent[]> {
+export async function getByConventionId(
+  conventionId: string,
+): Promise<ConventionEvent[]> {
   return db
     .select()
     .from(conventionEvents)
@@ -14,17 +22,27 @@ export async function getByConventionId(conventionId: string): Promise<Conventio
     .orderBy(conventionEvents.startTime);
 }
 
-export async function getById(id: string): Promise<ConventionEvent | undefined> {
-  const results = await db.select().from(conventionEvents).where(eq(conventionEvents.id, id));
+export async function getById(
+  id: string,
+): Promise<ConventionEvent | undefined> {
+  const results = await db
+    .select()
+    .from(conventionEvents)
+    .where(eq(conventionEvents.id, id));
   return results[0];
 }
 
 export async function batchInsert(
-  events: Omit<NewConventionEvent, 'id' | 'createdAt' | 'updatedAt'>[],
+  events: Omit<NewConventionEvent, "id" | "createdAt" | "updatedAt">[],
 ): Promise<void> {
   if (events.length === 0) return;
   const now = new Date().toISOString();
-  const rows = events.map((e) => ({ ...e, id: generateId(), createdAt: now, updatedAt: now }));
+  const rows = events.map((e) => ({
+    ...e,
+    id: generateId(),
+    createdAt: now,
+    updatedAt: now,
+  }));
   await db.insert(conventionEvents).values(rows);
 }
 
@@ -34,7 +52,7 @@ export interface UpsertResult {
 }
 
 export async function upsertBySourceUid(
-  events: Omit<NewConventionEvent, 'id' | 'createdAt' | 'updatedAt'>[],
+  events: Omit<NewConventionEvent, "id" | "createdAt" | "updatedAt">[],
   conventionId: string,
 ): Promise<UpsertResult> {
   if (events.length === 0) return { added: 0, updated: 0 };
@@ -92,14 +110,19 @@ export async function remove(id: string): Promise<void> {
   await db.delete(conventionEvents).where(eq(conventionEvents.id, id));
 }
 
-export async function update(id: string, data: Partial<Omit<NewConventionEvent, 'id' | 'createdAt'>>): Promise<void> {
+export async function update(
+  id: string,
+  data: Partial<Omit<NewConventionEvent, "id" | "createdAt">>,
+): Promise<void> {
   await db
     .update(conventionEvents)
     .set({ ...data, updatedAt: new Date().toISOString() })
     .where(eq(conventionEvents.id, id));
 }
 
-export async function getIdsByConventionId(conventionId: string): Promise<string[]> {
+export async function getIdsByConventionId(
+  conventionId: string,
+): Promise<string[]> {
   const rows = await db
     .select({ id: conventionEvents.id })
     .from(conventionEvents)

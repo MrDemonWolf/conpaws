@@ -1,6 +1,6 @@
-import * as ExpoNotifications from 'expo-notifications';
+import * as ExpoNotifications from "expo-notifications";
 
-export type PermissionStatus = 'granted' | 'denied' | 'undetermined';
+export type PermissionStatus = "granted" | "denied" | "undetermined";
 
 export function setupNotificationHandler(): void {
   ExpoNotifications.setNotificationHandler({
@@ -16,7 +16,7 @@ export function setupNotificationHandler(): void {
 
 export async function requestNotificationPermission(): Promise<PermissionStatus> {
   const { status: existing } = await ExpoNotifications.getPermissionsAsync();
-  if (existing === 'granted') return 'granted';
+  if (existing === "granted") return "granted";
 
   const { status } = await ExpoNotifications.requestPermissionsAsync();
   return status as PermissionStatus;
@@ -76,12 +76,16 @@ export async function scheduleEventReminder(
 
 export async function cancelEventReminder(eventId: string): Promise<void> {
   try {
-    await ExpoNotifications.cancelScheduledNotificationAsync(`reminder-${eventId}`);
+    await ExpoNotifications.cancelScheduledNotificationAsync(
+      `reminder-${eventId}`,
+    );
   } catch {
     // Ignore
   }
 }
 
-export async function cancelConventionReminders(eventIds: string[]): Promise<void> {
+export async function cancelConventionReminders(
+  eventIds: string[],
+): Promise<void> {
   await Promise.all(eventIds.map((id) => cancelEventReminder(id)));
 }

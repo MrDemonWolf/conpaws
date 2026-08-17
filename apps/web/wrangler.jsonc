@@ -1,0 +1,54 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "conpaws-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-05-05",
+
+  // nodejs_compat is required by OpenNext. global_fetch_strictly_public makes
+  // the Worker's own fetch() behave like a public request rather than looping
+  // back internally, which OpenNext relies on.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // OpenNext needs to call back into this same Worker for on-demand
+  // revalidation. Without the self-reference the call has nowhere to land.
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "conpaws-web"
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  }
+
+  // Added in CON-25 once `wrangler d1 create conpaws-db` has been run — the
+  // binding needs a real database_id and is invalid with a placeholder:
+  //
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "conpaws-db",
+  //     "database_id": "<uuid from wrangler d1 create>",
+  //     "migrations_dir": "drizzle/migrations",
+  //     "migrations_table": "drizzle_migrations"
+  //   }
+  // ],
+  //
+  // Added in CON-29 with the reconciler that replays rows where
+  // synced_at IS NULL:
+  //
+  // "triggers": { "crons": ["0 * * * *"] },
+  //
+  // Added at launch, once DNS for conpaws.com is on Cloudflare nameservers:
+  //
+  // "routes": [
+  //   { "pattern": "conpaws.com", "custom_domain": true },
+  //   { "pattern": "www.conpaws.com", "custom_domain": true }
+  // ]
+}

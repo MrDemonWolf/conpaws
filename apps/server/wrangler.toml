@@ -1,9 +1,0 @@
-name = "conpaws-api"
-main = "src/index.ts"
-compatibility_date = "2025-06-01"
-compatibility_flags = ["nodejs_compat"]
-
-[vars]
-BREVO_LIST_ID = "1"
-
-# BREVO_API_KEY is a secret — set with: wrangler secret put BREVO_API_KEY

@@ -25,9 +25,21 @@ export interface ParseResult {
 }
 
 const CATEGORY_PALETTE = [
-  '#FF6B6B', '#FFA500', '#FFD700', '#7ED321', '#4CAF50',
-  '#0FACED', '#5B9BD5', '#9B59B6', '#E91E63', '#00BCD4',
-  '#FF5722', '#795548', '#607D8B', '#3F51B5', '#009688',
+  "#FF6B6B",
+  "#FFA500",
+  "#FFD700",
+  "#7ED321",
+  "#4CAF50",
+  "#0FACED",
+  "#5B9BD5",
+  "#9B59B6",
+  "#E91E63",
+  "#00BCD4",
+  "#FF5722",
+  "#795548",
+  "#607D8B",
+  "#3F51B5",
+  "#009688",
 ];
 
 function hashString(str: string): number {
@@ -45,27 +57,27 @@ function categoryColor(name: string): string {
 
 /** Unfold RFC 5545 line continuations (CRLF/LF followed by space/tab) */
 function unfold(raw: string): string {
-  return raw.replace(/\r?\n[ \t]/g, '');
+  return raw.replace(/\r?\n[ \t]/g, "");
 }
 
 /** Unescape iCal text: \n → newline, \, → comma, \; → semicolon, \\ → backslash */
 function unescapeText(text: string): string {
   return text
-    .replace(/\\n/gi, '\n')
-    .replace(/\\,/g, ',')
-    .replace(/\\;/g, ';')
-    .replace(/\\\\/g, '\\');
+    .replace(/\\n/gi, "\n")
+    .replace(/\\,/g, ",")
+    .replace(/\\;/g, ";")
+    .replace(/\\\\/g, "\\");
 }
 
 /** Decode common HTML entities */
 function decodeHtmlEntities(text: string): string {
   return text
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
-    .replace(/&nbsp;/gi, ' ')
+    .replace(/&nbsp;/gi, " ")
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)));
 }
 
@@ -74,7 +86,7 @@ function decodeHtmlEntities(text: string): string {
  */
 function parseDateTime(value: string): Date | null {
   // Strip any TZID parameter prefix if present in the value (rare but possible)
-  const val = value.split(':').pop() ?? value;
+  const val = value.split(":").pop() ?? value;
 
   // UTC: 20260612T160000Z
   const utcMatch = val.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
@@ -104,7 +116,7 @@ function parseDateTime(value: string): Date | null {
  * Split on LAST comma so "Panel Room A, Convention Center" → room="Panel Room A", location="Convention Center"
  */
 function splitLocation(raw: string): { location: string; room: string | null } {
-  const lastComma = raw.lastIndexOf(',');
+  const lastComma = raw.lastIndexOf(",");
   if (lastComma === -1) return { location: raw.trim(), room: null };
   const room = raw.slice(0, lastComma).trim();
   const location = raw.slice(lastComma + 1).trim();
@@ -128,15 +140,15 @@ function extractValue(line: string): string {
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
     if (ch === '"') inQuote = !inQuote;
-    if (ch === ':' && !inQuote) return line.slice(i + 1);
+    if (ch === ":" && !inQuote) return line.slice(i + 1);
   }
-  return '';
+  return "";
 }
 
 /** Extract just the property name (before any ; or :) */
 function extractPropName(line: string): string {
-  const semi = line.indexOf(';');
-  const colon = line.indexOf(':');
+  const semi = line.indexOf(";");
+  const colon = line.indexOf(":");
   const end = semi !== -1 && semi < colon ? semi : colon;
   return end !== -1 ? line.slice(0, end) : line;
 }
@@ -152,8 +164,8 @@ export function parseIcs(raw: string): ParseResult {
   // Extract calendar-level timezone
   let timezone: string | null = null;
   for (const line of lines) {
-    if (line.startsWith('X-WR-TIMEZONE:')) {
-      timezone = line.slice('X-WR-TIMEZONE:'.length).trim();
+    if (line.startsWith("X-WR-TIMEZONE:")) {
+      timezone = line.slice("X-WR-TIMEZONE:".length).trim();
       break;
     }
   }
@@ -163,9 +175,9 @@ export function parseIcs(raw: string): ParseResult {
   let currentBlock: string[] | null = null;
 
   for (const line of lines) {
-    if (line === 'BEGIN:VEVENT') {
+    if (line === "BEGIN:VEVENT") {
       currentBlock = [];
-    } else if (line === 'END:VEVENT') {
+    } else if (line === "END:VEVENT") {
       if (currentBlock) {
         eventBlocks.push(currentBlock);
         currentBlock = null;
@@ -190,44 +202,47 @@ export function parseIcs(raw: string): ParseResult {
       props[propName] = value;
     }
 
-    const uid = props['UID'];
+    const uid = props["UID"];
     if (!uid) continue;
-    const recurrenceId = props['RECURRENCE-ID'] ?? '';
+    const recurrenceId = props["RECURRENCE-ID"] ?? "";
     const dedupeKey = recurrenceId ? `${uid}|${recurrenceId}` : uid;
     if (seenUids.has(dedupeKey)) continue;
     seenUids.add(dedupeKey);
 
-    const rawSummary = props['SUMMARY'] ?? '';
+    const rawSummary = props["SUMMARY"] ?? "";
     const title = decodeHtmlEntities(unescapeText(rawSummary)).trim();
     if (!title) continue;
 
-    const rawDesc = props['DESCRIPTION'] ?? null;
+    const rawDesc = props["DESCRIPTION"] ?? null;
     const description = rawDesc
       ? decodeHtmlEntities(unescapeText(rawDesc)).trim() || null
       : null;
 
-    const startTime = parseDateTime(props['DTSTART'] ?? '');
+    const startTime = parseDateTime(props["DTSTART"] ?? "");
     if (!startTime) continue;
 
-    const endTime = parseDateTime(props['DTEND'] ?? '') ?? null;
+    const endTime = parseDateTime(props["DTEND"] ?? "") ?? null;
 
-    const rawLocation = props['LOCATION'] ?? null;
+    const rawLocation = props["LOCATION"] ?? null;
     let location: string | null = null;
     let room: string | null = null;
     if (rawLocation) {
-      const split = splitLocation(decodeHtmlEntities(unescapeText(rawLocation)));
+      const split = splitLocation(
+        decodeHtmlEntities(unescapeText(rawLocation)),
+      );
       location = split.location;
       room = split.room;
     }
 
-    const rawCategory = props['CATEGORIES'] ?? null;
+    const rawCategory = props["CATEGORIES"] ?? null;
     const category = rawCategory
-      ? decodeHtmlEntities(unescapeText(rawCategory)).split(',')[0].trim() || null
+      ? decodeHtmlEntities(unescapeText(rawCategory)).split(",")[0].trim() ||
+        null
       : null;
 
-    const sourceUrl = props['URL'] ?? null;
+    const sourceUrl = props["URL"] ?? null;
 
-    const checkText = `${title} ${description ?? ''}`;
+    const checkText = `${title} ${description ?? ""}`;
     const isAgeRestricted = detectAgeRestricted(checkText);
     const contentWarning = detectContentWarning(checkText);
 
@@ -253,11 +268,13 @@ export function parseIcs(raw: string): ParseResult {
   // Sort by start time
   parsedEvents.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
-  const categories: CategoryMeta[] = Array.from(categoryCountMap.entries()).map(([name, count]) => ({
-    name,
-    count,
-    color: categoryColor(name),
-  }));
+  const categories: CategoryMeta[] = Array.from(categoryCountMap.entries()).map(
+    ([name, count]) => ({
+      name,
+      count,
+      color: categoryColor(name),
+    }),
+  );
 
   return { timezone, events: parsedEvents, categories };
 }

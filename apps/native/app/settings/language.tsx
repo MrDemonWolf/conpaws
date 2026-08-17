@@ -1,14 +1,13 @@
-import { View, ScrollView, Pressable } from 'react-native';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { SafeView, Text, Separator } from '@/components/ui';
-import {
-  SUPPORTED_LANGUAGES,
-  LANGUAGE_META,
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { Pressable, ScrollView, View } from "react-native";
+import { SafeView, Separator, Text } from "@/components/ui";
+import i18n, {
   changeLanguage,
+  LANGUAGE_META,
+  SUPPORTED_LANGUAGES,
   type SupportedLanguage,
-} from '@/lib/i18n';
-import i18n from '@/lib/i18n';
+} from "@/lib/i18n";
 
 export default function LanguageScreen() {
   const { t } = useTranslation();
@@ -20,14 +19,17 @@ export default function LanguageScreen() {
   }
 
   return (
-    <SafeView edges={['top', 'bottom']}>
+    <SafeView edges={["top", "bottom"]}>
       <View className="px-4 py-3 flex-row items-center">
-        <Pressable onPress={() => router.back()} className="mr-3 active:opacity-70">
+        <Pressable
+          onPress={() => router.back()}
+          className="mr-3 active:opacity-70"
+        >
           <Text variant="body" className="text-primary">
-            ‹ {t('common.back')}
+            ‹ {t("common.back")}
           </Text>
         </Pressable>
-        <Text variant="h2">{t('settings.languages.title')}</Text>
+        <Text variant="h2">{t("settings.languages.title")}</Text>
       </View>
 
       <ScrollView className="flex-1">
@@ -45,11 +47,20 @@ export default function LanguageScreen() {
                 <View className="flex-row items-center gap-3">
                   <Text variant="body">{flag}</Text>
                   <View>
-                    <Text variant="body" className={isSelected ? 'text-primary font-medium' : 'text-foreground'}>
+                    <Text
+                      variant="body"
+                      className={
+                        isSelected
+                          ? "text-primary font-medium"
+                          : "text-foreground"
+                      }
+                    >
                       {nativeName}
                     </Text>
                     <Text variant="caption" className="text-muted-foreground">
-                      {t(`settings.languages.${code}`, { defaultValue: nativeName })}
+                      {t(`settings.languages.${code}`, {
+                        defaultValue: nativeName,
+                      })}
                     </Text>
                   </View>
                 </View>
