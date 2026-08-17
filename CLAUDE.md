@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ConPaws is a furry convention companion app — an Expo/React Native mobile app plus a Next.js website, in a bun/Turborepo monorepo. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") will be powered by RevenueCat. The cloud backend target is **Cloudflare Workers + D1 + R2 with Hono, tRPC, and Better-Auth** — no Supabase, no VPS, no Docker.
 
-**Repo reality check:** this repo is early. The native app is a scaffold (two route files), and there is **no backend code, no Supabase/RevenueCat code, no Drizzle schema, and no test files** yet. The full product design lives in `notes/plan.md`. Anything marked *(planned)* below does not exist on disk — do not reference planned files as if they exist.
+**Repo reality check:** the native MVP is in active development. It has Expo Router screens, a SQLite/Drizzle schema and repositories, ICS/Sched import, convention-timezone handling, local reminders, backup import/export, and Vitest coverage. The premium/cloud backend, RevenueCat integration, and `apps/server` remain planned. Do not reference planned backend files as if they exist.
 
 ## Development Commands
 
@@ -24,21 +24,20 @@ bun android / bun ios     # Run on device/simulator
 bun build                 # turbo build
 bun lint                  # Biome (`biome check .`) — this repo uses Biome, NOT ESLint
 bun check-types           # TypeScript type checking across packages
-bun test                  # turbo test (Vitest — planned; no test files exist yet)
+bun test                  # Run the workspace Vitest suites
 bun prebuild              # Generate native projects
 bun prebuild:clean        # Clean and regenerate native projects
 ```
 
 ## Architecture
 
-- **Native app:** Expo SDK **55** (React Native 0.83) — upgrade target is SDK **57** (RN 0.86); see the upgrade path in `notes/plan.md`
-- **Known mismatch:** `apps/native/package.json` pins `react: 19.0.0`, but SDK 55 expects React 19.2 — a real bug to fix (`npx expo install --fix`), not a doc typo
+- **Native app:** Expo SDK **55** (React Native 0.83) — upgrade directly to SDK **57** (RN 0.86), with Expo `>=57.0.9`; skip SDK 56 and see `notes/plan.md`
 - **Routing:** Expo Router `~55.0.x` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
-  - **Router versioning note:** Expo Router uses SDK-aligned versions (v6 = SDK 54; then 55.x/56.x/57.x). `expo-router@~55.0.5` is correct — do not "fix" it to a single-digit major.
+  - **Router versioning note:** Expo Router uses SDK-aligned versions (v6 = SDK 54; then 55.x/56.x/57.x). The current `expo-router@~55.0.18` major is correct — do not "fix" it to a single-digit major.
 - **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`)
-- **Local database (planned):** expo-sqlite + Drizzle ORM (`apps/native/src/db/` is empty today; no `drizzle.config.ts` exists)
+- **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
 - **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
-- **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. Deploys to Cloudflare Workers via `@opennextjs/cloudflare` (1.20.2) — see `apps/web/wrangler.jsonc` and `open-next.config.ts`. Waitlist API: Turnstile → D1 (source of truth) + Brevo (ESP).
+- **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. It is prepared for Cloudflare Workers through `@opennextjs/cloudflare` (1.20.2), but production routes are intentionally disabled and the site has not launched. See `apps/web/wrangler.jsonc` and `open-next.config.ts`. The intended waitlist flow is Turnstile → D1 → Brevo; valid submissions currently fail closed with HTTP 503 until those dependencies and route logic are implemented.
 - **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 55+/New Architecture compatibility is unverified; test on a dev build before building on it
 - **Payments (planned):** RevenueCat, entitlement `conpaws_plus`
 - **Language:** TypeScript strict mode
@@ -48,19 +47,21 @@ bun prebuild:clean        # Clean and regenerate native projects
 
 ### Monorepo Structure
 
-Verified against disk, with one caveat: `biome.json` and `apps/web`'s OpenNext/`wrangler.jsonc` config land from the pre-release-site branch — if they are missing on your checkout, that branch has not merged yet.
+Verified against disk:
 
 ```
 conpaws/
 ├── apps/
 │   ├── native/              # Expo app
-│   │   ├── app/             # Expo Router routes (only _layout.tsx + index.tsx today)
+│   │   ├── app/             # Expo Router routes: onboarding, tabs, conventions, import, settings
 │   │   ├── src/
-│   │   │   ├── lib/utils.ts # cn() helper
+│   │   │   ├── db/          # SQLite/Drizzle schema, bootstrap, migrations, repositories
+│   │   │   ├── lib/         # ICS parsing, timezone, import policy, schedule selectors
+│   │   │   ├── services/    # Local reminders and backup import/export
 │   │   │   ├── global.css   # Tailwind entry point (Metro's NativeWind input)
-│   │   │   └── components/ contexts/ db/ hooks/ locales/ services/ types/ assets/  # empty (.gitkeep)
+│   │   │   └── components/ hooks/ locales/ assets/
 │   │   ├── app.config.ts    # Variant-based Expo config
-│   │   ├── eas.json         # NOTE: submit block has placeholder values (tracked as CON-35)
+│   │   ├── eas.json         # Preview sideload and production store-build profiles
 │   │   ├── metro.config.js
 │   │   ├── postcss.config.mjs
 │   │   └── tsconfig.json
@@ -78,11 +79,11 @@ conpaws/
 ### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **eas.json** — `appVersionSource: "remote"`, production `autoIncrement: true`; submit block still has invalid placeholders (CON-35, owned by another branch — do not edit here)
+- **eas.json** — EAS CLI 22.x, committed-tree guard, remote app-version counters, and production `autoIncrement`. `preview` creates private sideload artifacts; `production` creates store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md`.
 - **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
 - **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
-- There is **no** `drizzle.config.ts` and **no** `vitest.config.ts` — both are planned
+- **OTA is required for the MVP but remains fail-closed:** the chosen host is signed xprem **3.1.1** on Dokploy, not EAS Update. No OTA service is deployed and the SDK 55 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Upgrade directly to Expo SDK 57 (`>=57.0.9`), then enable staging only and pass physical iOS/Android cold-start, offline-start, and rollback tests before any production OTA path. See `notes/ota-updates.md`.
 
 ### Environment Variables
 
@@ -99,21 +100,21 @@ conpaws/
 - `preview` — `com.mrdemonwolf.conpaws.preview`
 - `production` — `com.mrdemonwolf.conpaws`
 
-### Planned Screen Structure (NOT built — 0 of these routes exist)
+### Native MVP Screens
 
-The MVP screen plan (onboarding flow, tabs for Home/Profile/Settings, convention CRUD + detail, event CRUD + detail, iCal import + preview, settings/about) is specified in `notes/plan.md` §Screens & Navigation and §Development Phases. Today `apps/native/app/` contains only `_layout.tsx` and `index.tsx`. When building screens, put routes in `apps/native/app/` (top level) and use classic JS tabs — Expo Router Native Tabs is alpha and its API is subject to change.
+The current routes cover onboarding, Home/Profile/Settings tabs, convention detail and schedule import, About, and language settings. Put new routes in `apps/native/app/` (top level) and use classic JS tabs — Expo Router Native Tabs is alpha and its API is subject to change. `notes/plan.md` remains the source for unfinished MVP and later product scope.
 
-### Planned Database Schema (NOT built)
+### Database Schema
 
-Local (expo-sqlite + Drizzle, planned in `apps/native/src/db/`): `conventions`, `convention_events`, `offline_queue`. Cloud (D1 + Drizzle, planned in `apps/server`): `profiles`, `username_blocklist`, `convention_directory`, `shared_conventions`, `shared_events`, `verification_requests`. Full schemas with indexing rationale are in `notes/plan.md` §Data Model. D1 rules that shape the schema: index every queried column (billing counts scanned rows), 100 bound params per query (chunk bulk inserts), `db.batch()` is the only transaction primitive, no RLS.
+The local expo-sqlite/Drizzle schema in `apps/native/src/db/` contains `conventions`, `convention_events`, and `offline_queue`, plus versioned bootstrap/migration and repository tests. The planned cloud D1 schema includes `profiles`, `username_blocklist`, `convention_directory`, `shared_conventions`, `shared_events`, and `verification_requests`. Full cloud indexing rationale is in `notes/plan.md` §Data Model. D1 rules that shape the planned schema: index every queried column (billing counts scanned rows), 100 bound params per query (chunk bulk imports), `db.batch()` is the only transaction primitive, no RLS.
 
-### iCal Import (planned, core feature)
+### Schedule Import
 
-Import .ics files and Sched convention URLs — parser design (VEVENT mapping, category discovery, content-warning detection, `sourceUid` dedup on re-import) is in `notes/plan.md` §iCal Import. Test fixtures already exist in `test-data/`.
+ICS files and Sched convention URLs are implemented. The importer handles convention IANA timezones/DST, recurring-event identities, cancellations and re-import reconciliation, simultaneous events, categories, rooms, and content warnings. Keep re-import behavior covered with fixtures in `test-data/` and tests next to the parser, import policy, repositories, and services.
 
 ## Planning Notes
 
-All planning and design documents live in `notes/` — these are **pre-development docs**, not shipped code.
+Planning and design documents live in `notes/`. They mix implemented decisions with future scope; verify claims against the current code before changing behavior.
 
 | File | What's Inside |
 |------|--------------|

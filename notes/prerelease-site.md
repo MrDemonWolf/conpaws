@@ -56,11 +56,15 @@ No browser app exists, and profile pages want the apex domain for OG unfurls and
 
 ## Deployment
 
-**GitHub Actions**, gated: deploy only runs after lint/type-check/test pass — the deciding factor over Workers Builds, which structurally cannot gate on checks. (Cost was a wash: public repo = free unlimited Actions minutes.) `wrangler.jsonc` is **hand-written and version-controlled**; Cloudflare's API is the state.
+**GitHub Actions**, gated: unprivileged CI runs lint, types, tests, an OpenNext build with local Worker smoke tests, and Expo production-bundle checks. Production release is a separate `workflow_run` that accepts only the SHA-stamped Worker artifact from successful `main` CI. `wrangler.jsonc` is **hand-written and version-controlled**; Cloudflare's API is the state.
 
 **Alchemy (Better-T-Stack's IaC path) rejected.** The decisive evidence is BTS's own `docs/alchemy-v2-beta-findings.md` — a 13-row confirmed-defect log from published betas (unresolved values serialized into build env, dropped `_headers`, MIME fallthrough, broken local D1 migrations, one that crashed on `--help`; defect A5 — stale deploys from sibling-workspace edits — unfixed). Twenty betas in 68 days, one maintainer at ~66% of commits, and **no wrangler escape hatch** — exiting later means writing the wrangler config by hand anyway, with live data in D1. Revisit only after 2.0 ships stable *and* multi-environment previews become a need.
 
-Deploy gotchas that will bite again if forgotten: `--keep-vars` on every deploy (or Cloudflare-side secrets are deleted), never set `"build": "opennextjs-cloudflare build"` in package.json (infinite recursion — the adapter calls the `build` script), `turbo build --filter=web` is NOT the deploy build (skips the OpenNext transform), and the deploy job must not be a required status check (path filters would block native-only PRs forever).
+Release safety rules: PR code never receives Cloudflare credentials. `PRODUCTION_DEPLOY_ENABLED`, the protected `production` environment, and a required human approval gate any release; `PRODUCTION_ROUTES_ENABLED` independently controls whether domain routes may change. Both switches default to `false`, and `workers_dev` plus preview URLs stay disabled.
+
+The first verified deployment must run with routes disabled so Cloudflare has a known-good rollback version without exposing the site. At launch, enable the checked-in routes block and the routes switch: the workflow keeps the old version at 100%, applies triggers explicitly, probes the new version through Cloudflare's version-override header at 0% traffic, then promotes the exact tested version. A normal production health check follows; failure rolls back to the captured stable version. D1 migrations must always use expand/contract sequencing because schema changes outlive a Worker rollback. A newer `main` commit stops the release before and after migration.
+
+Before the first launch, verify in the Cloudflare dashboard that the remote Worker also has `workers.dev` and preview URLs disabled; local config cannot prove historic remote trigger state while Wrangler is unauthenticated. Never set `"build": "opennextjs-cloudflare build"` in package.json (the adapter calls the build script), and do not use `turbo build --filter=web` as a deploy build because it skips the OpenNext transform. Cloudflare secrets survive version uploads; `--keep-vars` is not valid for `wrangler versions upload`.
 
 ## ESP: Brevo
 

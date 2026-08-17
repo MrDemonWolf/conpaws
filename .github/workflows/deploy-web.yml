@@ -1,0 +1,273 @@
+name: Deploy web
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  deployments: write
+
+concurrency:
+  group: web-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Promote verified Worker
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: production
+    env:
+      RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+      ROUTES_ENABLED: ${{ vars.PRODUCTION_ROUTES_ENABLED }}
+    steps:
+      - name: Check out verified commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          persist-credentials: false
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.10
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download verified Worker
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: conpaws-web-${{ env.RELEASE_SHA }}
+          path: ${{ runner.temp }}/conpaws-web-artifact
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify and unpack Worker
+        run: |
+          artifact_dir="${RUNNER_TEMP}/conpaws-web-artifact"
+          if [[ "$(tr -d '\n' < "$artifact_dir/commit-sha")" != "$RELEASE_SHA" ]]; then
+            echo "::error title=Artifact mismatch::Artifact commit does not match the verified CI commit."
+            exit 1
+          fi
+          (
+            cd "$artifact_dir"
+            sha256sum --check conpaws-web.tgz.sha256
+          )
+          tar -C apps/web -xzf "$artifact_dir/conpaws-web.tgz"
+          test -s apps/web/.open-next/worker.js
+
+      - name: Reject stale release
+        run: |
+          git fetch --no-tags origin main
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$RELEASE_SHA" ]]; then
+            echo "::notice title=Stale release skipped::A newer main commit exists."
+            exit 1
+          fi
+
+      - name: Require production credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+            echo "::error title=Missing production credentials::Configure Cloudflare credentials in the production environment."
+            exit 1
+          fi
+
+      - name: Require waitlist launch dependencies
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          worker_types="${RUNNER_TEMP}/conpaws-worker-types.d.ts"
+          bunx wrangler types "$worker_types" --include-runtime=false --env-interface=CloudflareEnv
+
+          if ! grep -Eq '^[[:space:]]*DB:[[:space:]]*D1Database;' "$worker_types"; then
+            echo "::error title=Missing D1 binding::wrangler.jsonc must contain an enabled DB binding."
+            exit 1
+          fi
+
+          if ! grep -Eq '^[[:space:]]*"database_id"[[:space:]]*:[[:space:]]*"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"' wrangler.jsonc; then
+            echo "::error title=Missing D1 database::The DB binding must use a real database UUID."
+            exit 1
+          fi
+
+          secret_json="$(bunx wrangler secret list --format json)"
+          for secret_name in BREVO_API_KEY BREVO_LIST_ID BREVO_DOI_TEMPLATE_ID; do
+            if ! jq -e --arg name "$secret_name" 'any(.[]; .name == $name)' <<< "$secret_json" >/dev/null; then
+              echo "::error title=Missing Worker secret::$secret_name is not configured."
+              exit 1
+            fi
+          done
+
+          if [[ "$ROUTES_ENABLED" == "true" ]]; then
+            if ! grep -Eq '^[[:space:]]*"routes"[[:space:]]*:' wrangler.jsonc; then
+              echo "::error title=Production routes disabled::Enable the routes block before enabling production traffic."
+              exit 1
+            fi
+            if ! grep -Eq '^[[:space:]]*"workers_dev"[[:space:]]*:[[:space:]]*false' wrangler.jsonc ||
+              ! grep -Eq '^[[:space:]]*"preview_urls"[[:space:]]*:[[:space:]]*false' wrangler.jsonc; then
+              echo "::error title=Public preview disabled::workers.dev and preview URLs must stay disabled."
+              exit 1
+            fi
+          fi
+
+      - name: Capture current stable Worker
+        id: stable
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          stable_version=""
+          if deployment_json="$(bunx wrangler deployments status --json 2>/dev/null)"; then
+            stable_version="$(
+              jq -r '[.versions[] | select(.percentage == 100)][0].version_id // empty' \
+                <<< "$deployment_json"
+            )"
+          fi
+
+          if [[ "$ROUTES_ENABLED" == "true" && -z "$stable_version" ]]; then
+            echo "::error title=No rollback target::Run one verified deployment with production routes disabled before enabling routes."
+            exit 1
+          fi
+          echo "version_id=$stable_version" >> "$GITHUB_OUTPUT"
+
+      - name: Upload verified Worker version
+        id: worker
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
+        run: |
+          bunx opennextjs-cloudflare upload -- \
+            --tag "$RELEASE_SHA" \
+            --message "Verified commit $RELEASE_SHA"
+
+          version_id="$(
+            jq -r 'select(.type == "version-upload") | .version_id // empty' \
+              "$WRANGLER_OUTPUT_FILE_PATH" |
+              tail -n 1
+          )"
+          if [[ -z "$version_id" ]]; then
+            echo "::error title=Worker upload failed::Wrangler did not report a version ID."
+            exit 1
+          fi
+          echo "version_id=$version_id" >> "$GITHUB_OUTPUT"
+
+      - name: Recheck main before durable changes
+        run: |
+          git fetch --no-tags origin main
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$RELEASE_SHA" ]]; then
+            echo "::error title=Stale release stopped::A newer main commit arrived before migration."
+            exit 1
+          fi
+
+      - name: Apply backward-compatible D1 migrations
+        run: bunx wrangler d1 migrations apply DB --remote
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Recheck main after migration
+        run: |
+          git fetch --no-tags origin main
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$RELEASE_SHA" ]]; then
+            echo "::error title=Stale release stopped::A newer main commit arrived after migration; compatible schema changes remain in place."
+            exit 1
+          fi
+
+      - name: Stage production routes on the stable Worker
+        if: vars.PRODUCTION_ROUTES_ENABLED == 'true'
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          bunx wrangler versions deploy \
+            "${{ steps.stable.outputs.version_id }}@100" \
+            "${{ steps.worker.outputs.version_id }}@0" \
+            --message "Stage verified commit $RELEASE_SHA" \
+            --yes
+          bunx wrangler triggers deploy
+
+      - name: Canary exact Worker version
+        if: vars.PRODUCTION_ROUTES_ENABLED == 'true'
+        env:
+          CANARY_VERSION: ${{ steps.worker.outputs.version_id }}
+        run: |
+          canary_ok=false
+          for attempt in {1..20}; do
+            response="$(
+              curl --fail --silent --show-error --max-time 10 \
+                --header "Cloudflare-Workers-Version-Overrides: conpaws-web=\"$CANARY_VERSION\"" \
+                https://conpaws.com/api/health || true
+            )"
+            if jq -e --arg sha "$RELEASE_SHA" '.ok == true and .release == $sha' \
+              <<< "$response" >/dev/null 2>&1; then
+              canary_ok=true
+              break
+            fi
+            sleep 3
+          done
+
+          if [[ "$canary_ok" != "true" ]]; then
+            echo "::error title=Canary failed::The exact uploaded Worker did not pass its production-origin health check."
+            exit 1
+          fi
+
+      - name: Promote exact Worker version
+        run: >-
+          bunx wrangler versions deploy
+          --version-id "${{ steps.worker.outputs.version_id }}"
+          --percentage 100
+          --message "Verified commit $RELEASE_SHA"
+          --yes
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify production or roll back
+        if: vars.PRODUCTION_ROUTES_ENABLED == 'true'
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIOUS_VERSION: ${{ steps.stable.outputs.version_id }}
+        run: |
+          production_ok=false
+          for attempt in {1..20}; do
+            response="$(curl --fail --silent --show-error --max-time 10 https://conpaws.com/api/health || true)"
+            if jq -e --arg sha "$RELEASE_SHA" '.ok == true and .release == $sha' \
+              <<< "$response" >/dev/null 2>&1; then
+              production_ok=true
+              break
+            fi
+            sleep 3
+          done
+
+          if [[ "$production_ok" == "true" ]]; then
+            exit 0
+          fi
+
+          echo "::error title=Production health failed::Rolling back to $PREVIOUS_VERSION."
+          bunx wrangler rollback "$PREVIOUS_VERSION" \
+            --message "Automatic rollback after failed health check for $RELEASE_SHA" \
+            --yes
+          exit 1
