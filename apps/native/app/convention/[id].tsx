@@ -7,11 +7,11 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
-  FlatList,
   Linking,
   Modal,
   Pressable,
   ScrollView,
+  SectionList,
   View,
 } from "react-native";
 import { CategoryPill } from "@/components/CategoryPill";
@@ -35,7 +35,7 @@ import {
 interface DayGroup {
   key: string;
   label: string;
-  events: ConventionEvent[];
+  data: ConventionEvent[];
 }
 
 function groupEventsByDay(
@@ -48,7 +48,7 @@ function groupEventsByDay(
     const key = conventionDayKey(event.startTime, timeZone);
     const existing = groups.find((group) => group.key === key);
     if (existing) {
-      existing.events.push(event);
+      existing.data.push(event);
     } else {
       groups.push({
         key,
@@ -57,7 +57,7 @@ function groupEventsByDay(
           timeZone,
           "EEEE, MMMM d",
         ),
-        events: [event],
+        data: [event],
       });
     }
   }
@@ -474,35 +474,33 @@ export default function ConventionDetailScreen() {
           </Pressable>
         </View>
       ) : (
-        <FlatList
-          data={dayGroups}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item: group }) => (
-            <View>
-              <SectionHeader title={group.label} />
-              {group.events.map((event) => (
-                <EventItem
-                  key={event.id}
-                  title={event.title}
-                  startTime={formatTime(event.startTime, conventionTimeZone)}
-                  endTime={formatTime(event.endTime, conventionTimeZone)}
-                  room={event.room ?? event.location ?? undefined}
-                  category={event.category ?? undefined}
-                  isInSchedule={event.isInSchedule}
-                  hasReminder={event.reminderMinutes !== null}
-                  hasConflict={conflictingEventIds.has(event.id)}
-                  isAgeRestricted={event.isAgeRestricted}
-                  contentWarning={event.contentWarning}
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }}
-                  onLongPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    setActionSheetEvent(event);
-                  }}
-                />
-              ))}
-            </View>
+        <SectionList
+          sections={dayGroups}
+          keyExtractor={(event) => event.id}
+          contentInsetAdjustmentBehavior="automatic"
+          renderSectionHeader={({ section }) => (
+            <SectionHeader title={section.label} />
+          )}
+          renderItem={({ item: event }) => (
+            <EventItem
+              title={event.title}
+              startTime={formatTime(event.startTime, conventionTimeZone)}
+              endTime={formatTime(event.endTime, conventionTimeZone)}
+              room={event.room ?? event.location ?? undefined}
+              category={event.category ?? undefined}
+              isInSchedule={event.isInSchedule}
+              hasReminder={event.reminderMinutes !== null}
+              hasConflict={conflictingEventIds.has(event.id)}
+              isAgeRestricted={event.isAgeRestricted}
+              contentWarning={event.contentWarning}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              onLongPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                setActionSheetEvent(event);
+              }}
+            />
           )}
         />
       )}
