@@ -1,7 +1,14 @@
 import Constants from "expo-constants";
 import { Github, Globe, Mail, MessageCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Linking, Pressable, ScrollView, View } from "react-native";
+import {
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  useColorScheme,
+  View,
+} from "react-native";
 import { SafeView, Separator, Text } from "@/components/ui";
 
 interface LinkRowProps {
@@ -14,6 +21,7 @@ function LinkRow({ icon, label, onPress }: LinkRowProps) {
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="link"
       className="flex-row items-center gap-3 py-3.5 active:opacity-70"
     >
       {icon}
@@ -26,6 +34,8 @@ function LinkRow({ icon, label, onPress }: LinkRowProps) {
 
 export default function AboutScreen() {
   const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === "dark" ? "#18B7F2" : "#006F91";
   const version = Constants.expoConfig?.version ?? "0.0.0";
 
   return (
@@ -33,11 +43,12 @@ export default function AboutScreen() {
       <ScrollView>
         {/* Logo + Name */}
         <View className="items-center gap-4 py-10 px-6">
-          <View className="w-20 h-20 rounded-3xl bg-primary items-center justify-center">
-            <Text className="text-3xl text-primary-foreground font-bold">
-              CP
-            </Text>
-          </View>
+          <Image
+            source={require("../../assets/images/icon.png")}
+            className="h-24 w-24 rounded-[1.75rem]"
+            accessible
+            accessibilityLabel="ConPaws"
+          />
           <View className="items-center gap-1">
             <Text variant="h2">ConPaws</Text>
             <Text variant="caption" className="text-muted-foreground">
@@ -54,7 +65,7 @@ export default function AboutScreen() {
         {/* Links */}
         <View className="px-6">
           <LinkRow
-            icon={<Github size={20} color="#0FACED" />}
+            icon={<Github size={20} color={iconColor} />}
             label="GitHub (Open Source)"
             onPress={() =>
               Linking.openURL("https://github.com/mrdemonwolf/conpaws")
@@ -62,19 +73,19 @@ export default function AboutScreen() {
           />
           <Separator />
           <LinkRow
-            icon={<Globe size={20} color="#0FACED" />}
+            icon={<Globe size={20} color={iconColor} />}
             label="mrdemonwolf.com"
             onPress={() => Linking.openURL("https://mrdemonwolf.com")}
           />
           <Separator />
           <LinkRow
-            icon={<Mail size={20} color="#0FACED" />}
+            icon={<Mail size={20} color={iconColor} />}
             label="hello@conpaws.com"
             onPress={() => Linking.openURL("mailto:hello@conpaws.com")}
           />
           <Separator />
           <LinkRow
-            icon={<MessageCircle size={20} color="#0FACED" />}
+            icon={<MessageCircle size={20} color={iconColor} />}
             label="Join our Discord"
             onPress={() => Linking.openURL("https://discord.gg/conpaws")}
           />

@@ -4,7 +4,7 @@
 @import "nativewind/theme";
 
 @theme {
-  --color-primary: #0faced;
+  --color-primary: #006f91;
   --color-primary-foreground: #ffffff;
   --color-background: #ffffff;
   --color-foreground: #0f172a;
@@ -16,15 +16,17 @@
   --color-muted-foreground: #64748b;
   --color-accent: #f1f5f9;
   --color-accent-foreground: #0f172a;
-  --color-destructive: #ef4444;
+  --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --color-border: #e2e8f0;
   --color-input: #e2e8f0;
-  --color-ring: #0faced;
+  --color-ring: #006f91;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --color-primary: #18b7f2;
+    --color-primary-foreground: #091533;
     --color-background: #091533;
     --color-foreground: #f8fafc;
     --color-card: #0f1d45;
@@ -37,5 +39,8 @@
     --color-accent-foreground: #f8fafc;
     --color-border: #1e3a5f;
     --color-input: #1e3a5f;
+    --color-ring: #18b7f2;
+    --color-destructive: #f87171;
+    --color-destructive-foreground: #091533;
   }
 }
