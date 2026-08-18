@@ -60,31 +60,19 @@ A convention companion app for the furry community. Manage your convention sched
 
 | Platform | Priority | Notes |
 |----------|----------|-------|
-| iOS | Primary | Main development target |
-| iPadOS | Primary | Universal iOS app with adaptive layouts for larger screens |
+| iOS (iPhone) | Primary | Portrait-only main development target |
+| iPadOS | Compatibility | Run the iPhone app in compatibility mode; no native tablet layout |
 | Android | Secondary | React Native gives us this for free |
-| watchOS | Not needed | Live Activities on iPhone show on Apple Watch automatically |
+| watchOS | Deferred | Live Activities first; evaluate a companion after the MVP |
 | Web | Maybe | Nice to have the option, not a priority |
 
-### iPad Support
+### Orientation and iPad
 
-Expo supports iPad natively via `supportsTablet: true` in `app.config.ts`. The app is a universal iOS binary — one build for both iPhone and iPad.
+ConPaws v1 is portrait-only on iOS and Android. Expo owns this through `orientation: "portrait"` in `app.config.ts`.
 
-**How we make it look good on iPad:**
+The iOS app uses `supportsTablet: false`. iPad users can run the iPhone app in compatibility mode, but ConPaws does not claim native iPad layouts, multitasking, or landscape support.
 
-- **NativeWind breakpoints** — Tailwind's `md:` and `lg:` prefixes work with NativeWind. Use them to adjust layouts at iPad screen widths (e.g. side-by-side panels instead of stacked, wider cards, multi-column grids)
-- **`useWindowDimensions()`** — React Native hook to get screen width, use for layout decisions
-- **Split view** — On iPad, convention list on the left + detail on the right (master-detail pattern) instead of push navigation
-- **Larger touch targets** — iPad has more space, so cards/buttons can be roomier
-- **Multitasking** — Support Slide Over and Split View (Expo handles this if we respond to window size changes)
-
-This doesn't require a separate codebase — just responsive classes in NativeWind. Example:
-
-```tsx
-<View className="flex-col md:flex-row md:gap-6">
-  {/* Stacked on iPhone, side-by-side on iPad */}
-</View>
-```
+No watchOS app is planned for the MVP. Use Live Activities first, then evaluate a separate companion after the iPhone MVP is stable.
 
 ---
 

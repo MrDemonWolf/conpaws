@@ -17,6 +17,6 @@ export default function Index() {
   }, []);
 
   if (hasOnboarded === null) return <View className="flex-1 bg-background" />;
-  if (hasOnboarded) return <Redirect href="/(tabs)" />;
+  if (hasOnboarded) return <Redirect href="/(tabs)/(home)" />;
   return <Redirect href="/(onboarding)/welcome" />;
 }

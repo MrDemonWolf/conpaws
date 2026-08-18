@@ -1,13 +1,14 @@
+import UploadIcon from "@expo/material-symbols/upload.xml";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
-import { router, useLocalSearchParams } from "expo-router";
-import { ChevronLeft, Plus, Upload } from "lucide-react-native";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { Plus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
-  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -197,7 +198,9 @@ function EventActionSheet({
                 timeZone,
                 "EEEE, MMMM d · h:mm a",
               )}
-              {event.endTime ? ` – ${formatTime(event.endTime, timeZone)}` : ""}
+              {event.endTime
+                ? ` to ${formatTime(event.endTime, timeZone)}`
+                : ""}
               {room ? ` · ${room}` : ""}
             </Text>
             {event.description ? (
@@ -247,7 +250,7 @@ function EventActionSheet({
             {sourceUrl && (
               <Pressable
                 onPress={() => {
-                  Linking.openURL(sourceUrl);
+                  WebBrowser.openBrowserAsync(sourceUrl);
                   onClose();
                 }}
                 accessibilityRole="link"
@@ -776,17 +779,17 @@ export default function ConventionDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeView>
+      <View className="flex-1 bg-background">
         <View className="flex-1 items-center justify-center">
           <LoadingSpinner />
         </View>
-      </SafeView>
+      </View>
     );
   }
 
   if (!convention) {
     return (
-      <SafeView>
+      <View className="flex-1 bg-background">
         <View className="flex-1 items-center justify-center px-6">
           <Text variant="body" className="text-muted-foreground text-center">
             Convention not found.
@@ -798,7 +801,7 @@ export default function ConventionDetailScreen() {
             <Text className="text-primary">Go back</Text>
           </Pressable>
         </View>
-      </SafeView>
+      </View>
     );
   }
 
@@ -829,44 +832,23 @@ export default function ConventionDetailScreen() {
   }
 
   return (
-    <SafeView>
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3">
-        <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.back();
-          }}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          accessibilityHint="Returns to conventions"
-          hitSlop={12}
-          className="active:opacity-70"
-        >
-          <ChevronLeft size={24} color="#94A3B8" />
-        </Pressable>
-        <Text
-          variant="h3"
-          className="flex-1 mx-3"
-          numberOfLines={1}
-          accessibilityRole="header"
-        >
-          {convention.name}
-        </Text>
-        <Pressable
+    <View className="flex-1 bg-background">
+      <Stack.Screen options={{ title: convention.name }} />
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon={
+            process.env.EXPO_OS === "ios" ? "square.and.arrow.down" : UploadIcon
+          }
           onPress={() => router.push(`/convention/${id}/import`)}
-          accessibilityRole="button"
           accessibilityLabel="Import schedule"
           accessibilityHint="Opens file and Sched URL import options"
-          hitSlop={12}
-          className="active:opacity-70"
         >
-          <Upload size={20} color="#94A3B8" />
-        </Pressable>
-      </View>
+          Import
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
       <Text
         variant="caption"
-        className="px-4 pb-2 text-center text-muted-foreground"
+        className="px-4 pt-2 pb-2 text-center text-muted-foreground"
       >
         Times shown in {conventionTimeZone}
       </Text>
@@ -1081,6 +1063,6 @@ export default function ConventionDetailScreen() {
         onClose={() => setManualEventVisible(false)}
         onSave={(event) => addManualEventMutation.mutateAsync(event)}
       />
-    </SafeView>
+    </View>
   );
 }

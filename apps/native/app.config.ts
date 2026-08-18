@@ -46,11 +46,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "conpaws",
   owner: "mrdemonwolf-org",
   version: "1.0.0",
-  orientation: "default",
+  orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/images/icon.png",
   scheme: getScheme(),
   extra: {
+    appVariant: APP_VARIANT,
     eas: {
       projectId: EAS_PROJECT_ID,
     },
@@ -58,7 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     appleTeamId: "HBB7T99U79",
     icon: "./assets/images/ConPaws.icon",
-    supportsTablet: true,
+    supportsTablet: false,
     bundleIdentifier: getBundleId(),
     config: {
       usesNonExemptEncryption: false,
@@ -104,6 +105,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     "expo-document-picker",
     "expo-sharing",
+    "expo-web-browser",
     ...(APP_VARIANT === "development" ? [] : ["@sentry/react-native/expo"]),
   ],
   experiments: {
