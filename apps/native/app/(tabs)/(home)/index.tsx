@@ -1,10 +1,11 @@
+import AddIcon from "@expo/material-symbols/add.xml";
 import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { FlatList, Pressable, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { ConventionCard } from "@/components/ConventionCard";
-import { EmptyState, LoadingSpinner, SafeView, Text } from "@/components/ui";
+import { EmptyState, LoadingSpinner, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 
 export default function HomeScreen() {
@@ -21,33 +22,37 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeView edges={["top", "bottom"]}>
-      <View className="flex-row items-center justify-between px-4 py-3">
-        <Text variant="h2">{t("home.title")}</Text>
-        <Pressable
+    <>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
           onPress={handleAddConvention}
-          className="w-10 h-10 rounded-full bg-primary items-center justify-center active:opacity-80"
+          accessibilityLabel={t("home.empty.cta")}
+          accessibilityHint="Opens schedule import"
+          variant="prominent"
         >
-          <Text className="text-primary-foreground text-2xl font-light leading-none">
-            +
-          </Text>
-        </Pressable>
-      </View>
+          {t("home.empty.cta")}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
+        <View className="flex-1 items-center justify-center bg-background">
           <LoadingSpinner />
         </View>
       ) : conventions.length === 0 ? (
-        <EmptyState
-          icon={<Text className="text-5xl">🐾</Text>}
-          title={t("home.empty.title")}
-          subtitle={t("home.empty.subtitle")}
-          ctaLabel={t("home.empty.cta")}
-          onCta={handleAddConvention}
-        />
+        <View className="flex-1 bg-background">
+          <EmptyState
+            icon={<Text className="text-5xl">🐾</Text>}
+            title={t("home.empty.title")}
+            subtitle={t("home.empty.subtitle")}
+            ctaLabel={t("home.empty.cta")}
+            onCta={handleAddConvention}
+          />
+        </View>
       ) : (
         <FlatList
+          className="bg-background"
+          contentInsetAdjustmentBehavior="automatic"
           data={conventions}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{
@@ -69,6 +74,6 @@ export default function HomeScreen() {
           )}
         />
       )}
-    </SafeView>
+    </>
   );
 }

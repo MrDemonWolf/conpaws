@@ -4,7 +4,8 @@ import { CalendarPlus, ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, useColorScheme, View } from "react-native";
 import { OnboardingBackground } from "@/components/OnboardingBackground";
-import { Button, SafeView, Text } from "@/components/ui";
+import { OnboardingButton } from "@/components/OnboardingButton";
+import { SafeView, Text } from "@/components/ui";
 
 export default function GetStartedScreen() {
   const { t } = useTranslation();
@@ -12,7 +13,7 @@ export default function GetStartedScreen() {
   const iconColor = colorScheme === "dark" ? "#18B7F2" : "#006F91";
 
   async function finishOnboarding(
-    destination: "/convention/new/import" | "/(tabs)",
+    destination: "/convention/new/import" | "/(tabs)/(home)",
   ) {
     await AsyncStorage.setItem("hasCompletedOnboarding", "true").catch(
       () => undefined,
@@ -51,21 +52,15 @@ export default function GetStartedScreen() {
           </View>
         </View>
         <View className="gap-3 px-6 pb-8">
-          <Button
-            size="lg"
+          <OnboardingButton
+            label={t("onboarding.getStarted.importSchedule")}
             onPress={() => finishOnboarding("/convention/new/import")}
-            className="w-full"
-          >
-            {t("onboarding.getStarted.importSchedule")}
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onPress={() => finishOnboarding("/(tabs)")}
-            className="w-full"
-          >
-            {t("onboarding.getStarted.exploreFirst")}
-          </Button>
+          />
+          <OnboardingButton
+            label={t("onboarding.getStarted.exploreFirst")}
+            variant="secondary"
+            onPress={() => finishOnboarding("/(tabs)/(home)")}
+          />
         </View>
       </ScrollView>
     </SafeView>

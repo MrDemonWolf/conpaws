@@ -33,6 +33,7 @@ import "../src/global.css";
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -51,6 +52,7 @@ Sentry.init({
 });
 
 setupNotificationHandler();
+void SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
@@ -87,6 +89,10 @@ function RootLayout() {
       setReady(true),
     );
   }, []);
+
+  useEffect(() => {
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
 
   if (!ready) return null;
 

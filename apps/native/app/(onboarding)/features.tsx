@@ -9,8 +9,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { ScrollView, useColorScheme, View } from "react-native";
 import { OnboardingBackground } from "@/components/OnboardingBackground";
+import { OnboardingButton } from "@/components/OnboardingButton";
 import { OnboardingSlide } from "@/components/OnboardingSlide";
-import { Button, SafeView, Text } from "@/components/ui";
+import { SafeView, Text } from "@/components/ui";
 
 export default function FeaturesScreen() {
   const { t } = useTranslation();
@@ -124,13 +125,10 @@ export default function FeaturesScreen() {
         </View>
       </ScrollView>
       <View className="px-6 pb-8">
-        <Button
-          size="lg"
+        <OnboardingButton
+          label={t("onboarding.features.next")}
           onPress={() => router.push("/(onboarding)/get-started")}
-          className="w-full"
-        >
-          {t("onboarding.features.next")}
-        </Button>
+        />
       </View>
     </SafeView>
   );

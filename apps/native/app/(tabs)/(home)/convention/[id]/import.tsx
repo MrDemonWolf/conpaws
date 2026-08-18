@@ -1,9 +1,10 @@
+import SegmentedControl from "@expo/ui/community/segmented-control";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
-import { CalendarX, ChevronLeft, FileX, WifiOff } from "lucide-react-native";
+import { CalendarX, FileX, WifiOff } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -561,53 +562,35 @@ export default function ImportScreen() {
   const controlsDisabled = loading || importMutation.isPending;
 
   return (
-    <SafeView>
-      {/* Header */}
-      <View className="flex-row items-center px-4 py-3 gap-3">
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          accessibilityHint="Returns to the convention"
-          hitSlop={12}
-          className="active:opacity-70"
-        >
-          <ChevronLeft size={24} color="#94A3B8" />
-        </Pressable>
+    <SafeView edges={["bottom"]}>
+      <View className="flex-row items-center justify-between px-4 py-2">
         <Text variant="h2" accessibilityRole="header">
           Import Schedule
         </Text>
+        <Button
+          variant="ghost"
+          size="sm"
+          onPress={() => router.back()}
+          accessibilityHint="Closes the import sheet"
+        >
+          Cancel
+        </Button>
       </View>
 
-      {/* Tabs */}
-      <View className="flex-row px-4 gap-2 mb-4" accessibilityRole="tablist">
-        {(["file", "url"] as Tab[]).map((tab) => (
-          <Pressable
-            key={tab}
-            onPress={() => handleTabChange(tab)}
-            disabled={controlsDisabled}
-            accessibilityRole="tab"
-            accessibilityLabel={tab === "file" ? "From File" : "From URL"}
-            accessibilityState={{
-              selected: activeTab === tab,
-              disabled: controlsDisabled,
-            }}
-            className={`flex-1 py-2 rounded-lg items-center ${
-              activeTab === tab ? "bg-primary" : "bg-card"
-            } ${controlsDisabled ? "opacity-50" : ""}`}
-          >
-            <Text
-              variant="label"
-              className={
-                activeTab === tab
-                  ? "text-primary-foreground"
-                  : "text-muted-foreground"
-              }
-            >
-              {tab === "file" ? "From File" : "From URL"}
-            </Text>
-          </Pressable>
-        ))}
+      <View className="px-4 mb-4">
+        <SegmentedControl
+          values={["File", "Sched URL"]}
+          selectedIndex={activeTab === "file" ? 0 : 1}
+          enabled={!controlsDisabled}
+          appearance={colorScheme === "dark" ? "dark" : "light"}
+          tintColor={colorScheme === "dark" ? "#18B7F2" : "#006F91"}
+          onChange={({ nativeEvent }) =>
+            handleTabChange(
+              nativeEvent.selectedSegmentIndex === 0 ? "file" : "url",
+            )
+          }
+          testID="import-source-segmented-control"
+        />
       </View>
 
       <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">

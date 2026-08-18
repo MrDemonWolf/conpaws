@@ -3,7 +3,8 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Image, ScrollView, View } from "react-native";
 import { OnboardingBackground } from "@/components/OnboardingBackground";
-import { Button, SafeView, Text } from "@/components/ui";
+import { OnboardingButton } from "@/components/OnboardingButton";
+import { SafeView, Text } from "@/components/ui";
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
@@ -12,7 +13,7 @@ export default function WelcomeScreen() {
     await AsyncStorage.setItem("hasCompletedOnboarding", "true").catch(
       () => undefined,
     );
-    router.replace("/(tabs)");
+    router.replace("/(tabs)/(home)");
   }
 
   return (
@@ -26,9 +27,9 @@ export default function WelcomeScreen() {
         <View className="flex-1 items-center justify-center gap-8 px-6 py-8">
           <View className="items-center gap-4">
             <Image
-              source={require("../../assets/images/icon.png")}
-              className="h-32 w-32 rounded-[2rem]"
-              resizeMode="cover"
+              source={require("../../assets/images/splash-icon.png")}
+              className="h-40 w-40"
+              resizeMode="contain"
               accessible={false}
               accessibilityIgnoresInvertColors
             />
@@ -47,16 +48,15 @@ export default function WelcomeScreen() {
           </View>
         </View>
         <View className="gap-2 px-6 pb-8">
-          <Button
-            size="lg"
+          <OnboardingButton
+            label={t("onboarding.welcome.continue")}
             onPress={() => router.push("/(onboarding)/features")}
-            className="w-full"
-          >
-            {t("onboarding.welcome.continue")}
-          </Button>
-          <Button variant="ghost" onPress={handleSkip} className="w-full">
-            {t("onboarding.welcome.skip")}
-          </Button>
+          />
+          <OnboardingButton
+            label={t("onboarding.welcome.skip")}
+            variant="text"
+            onPress={handleSkip}
+          />
         </View>
       </ScrollView>
     </SafeView>
