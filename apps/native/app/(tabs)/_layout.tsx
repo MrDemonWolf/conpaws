@@ -1,17 +1,22 @@
 import { Tabs } from "expo-router";
+import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
+import { useColorScheme } from "react-native";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const colorScheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#0FACED",
-        tabBarInactiveTintColor: "#94A3B8",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colorScheme === "dark" ? "#94A3B8" : "#64748B",
         tabBarStyle: {
-          borderTopColor: "#E2E8F0",
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
         },
       }}
     >
@@ -19,12 +24,6 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: t("common.home"),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: t("common.profile"),
         }}
       />
       <Tabs.Screen

@@ -31,6 +31,9 @@ function SettingsRow({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={`${label}${subtitle ? `. ${subtitle}` : ""}${badge ? `. ${badge}` : ""}`}
+      accessibilityState={{ disabled }}
       className={`px-4 py-3.5 flex-row items-center justify-between active:opacity-70 bg-card ${disabled ? "opacity-50" : ""}`}
     >
       <View className="flex-1">
@@ -84,24 +87,12 @@ export default function SettingsScreen() {
     );
   }
 
-  function handleSignIn() {
-    Alert.alert("Coming Soon", "Account sync is coming in a future update.");
-  }
-
   return (
     <SafeView edges={["top", "bottom"]}>
       <View className="px-4 py-3">
         <Text variant="h2">{t("settings.title")}</Text>
       </View>
       <ScrollView className="flex-1">
-        {/* Account */}
-        <SectionHeader title={t("settings.account.title")} />
-        <SettingsRow
-          label={t("settings.account.signIn")}
-          badge="Coming Soon"
-          onPress={handleSignIn}
-        />
-
         {/* App */}
         <SectionHeader title={t("settings.app.title")} />
         <SettingsRow

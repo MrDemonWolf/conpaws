@@ -11,6 +11,7 @@ import {
   Pressable,
   ScrollView,
   TextInput,
+  useColorScheme,
   View,
 } from "react-native";
 import { Button, SafeView, Text } from "@/components/ui";
@@ -89,6 +90,8 @@ function confirmEmptyScheduleUpdate(removalCount: number): Promise<boolean> {
 
 export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const colorScheme = useColorScheme();
+  const placeholderColor = colorScheme === "dark" ? "#94A3B8" : "#64748B";
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
   const didPrefill = useRef(false);
@@ -623,8 +626,8 @@ export default function ImportScreen() {
             <TextInput
               value={url}
               onChangeText={handleUrlChange}
-              placeholder="https://yourcon.sched.com"
-              placeholderTextColor="#94A3B8"
+              placeholder="Paste a Sched event URL"
+              placeholderTextColor={placeholderColor}
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="url"
@@ -683,7 +686,7 @@ export default function ImportScreen() {
                   value={timeZone}
                   onChangeText={setTimeZone}
                   placeholder="America/Chicago"
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={placeholderColor}
                   autoCapitalize="none"
                   autoCorrect={false}
                   accessibilityLabel="Convention time zone"
@@ -742,7 +745,7 @@ export default function ImportScreen() {
                 value={timeZone}
                 onChangeText={setTimeZone}
                 placeholder="America/Chicago"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={placeholderColor}
                 autoCapitalize="none"
                 editable={!importMutation.isPending}
                 accessibilityState={{ disabled: importMutation.isPending }}

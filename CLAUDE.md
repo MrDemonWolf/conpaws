@@ -102,7 +102,7 @@ conpaws/
 
 ### Native MVP Screens
 
-The current routes cover onboarding, Home/Profile/Settings tabs, convention detail and schedule import, About, and language settings. Put new routes in `apps/native/app/` (top level) and use classic JS tabs — Expo Router Native Tabs is alpha and its API is subject to change. `notes/plan.md` remains the source for unfinished MVP and later product scope.
+The current routes cover onboarding, Home and Settings tabs, convention detail and schedule import, About, and language settings. Put new routes in `apps/native/app/` (top level) and use classic JS tabs. Expo Router Native Tabs is alpha and its API is subject to change. `notes/plan.md` remains the source for unfinished MVP and later product scope.
 
 ### Database Schema
 
