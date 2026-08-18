@@ -428,91 +428,34 @@ The ConPaws+ gold paw is separate — it's driven by `is_premium` (RevenueCat en
 ### Onboarding (first launch only)
 
 ```
-Welcome → Features → Get Started → Complete
+Welcome → Plan → Start
 ```
+
+Keep onboarding optional, value-first, and limited to features available in
+the local-only MVP. Do not request notification permission here; ask when the
+user creates their first reminder.
 
 **Screen 1: Welcome**
-```
-┌──────────────────────────────┐
-│                              │
-│                              │
-│         [ConPaws Logo]       │
-│                              │
-│      Navigate, Connect,      │
-│           Enjoy.             │
-│                              │
-│   Your convention companion  │
-│                              │
-│                              │
-│                              │
-│       [ Get Started ]        │
-│                              │
-└──────────────────────────────┘
-```
 
-**Screen 2: Features**
-```
-┌──────────────────────────────┐
-│                              │
-│   [Calendar Icon]            │
-│   Track Your Schedule        │
-│   Add conventions, panels,   │
-│   and meetups — all offline.  │
-│                              │
-│   [Share Icon]               │
-│   Share With Friends         │
-│   Let others see your con    │
-│   schedule with ConPaws+.    │
-│                              │
-│   [Lock Icon]                │
-│   Your Data, Your Device     │
-│   Everything stays local     │
-│   unless you choose to sync. │
-│                              │
-│         [ Next ]             │
-└──────────────────────────────┘
-```
+- Real ConPaws logo with no decorative frame.
+- Promise: "Your convention schedule, ready offline."
+- Continue opens Plan; Skip completes onboarding and opens Home.
 
-**Screen 3: Get Started**
-```
-┌──────────────────────────────┐
-│                              │
-│      Create an Account       │
-│                              │
-│   Sign in to unlock your     │
-│   profile and social         │
-│   features.                  │
-│                              │
-│   [  Sign in with Apple  ]   │
-│   [  Sign in with Google ]   │
-│                              │
-│   By signing in you agree    │
-│   to our Terms of Service    │
-│   and Privacy Policy.        │
-│                              │
-│         Skip for now         │
-│                              │
-└──────────────────────────────┘
-```
+**Screen 2: Plan**
 
-**Screen 4: Complete**
-```
-┌──────────────────────────────┐
-│                              │
-│                              │
-│         [Checkmark]          │
-│                              │
-│       You're all set!        │
-│                              │
-│   Start adding conventions   │
-│   and planning your next     │
-│   adventure.                 │
-│                              │
-│                              │
-│     [ Let's Go ]             │
-│                              │
-└──────────────────────────────┘
-```
+- Show a small, non-interactive My Schedule preview with Now and Next events.
+- Explain `.ics`/Sched import, Now & Next/overlap detection, and private offline
+  storage.
+- Show ConPaws+ in a visually separate "Coming soon" callout. Cloud backup,
+  sync, and social features are planned, optional, and not required for the
+  offline app.
+
+**Screen 3: Start**
+
+- Primary action: Import a schedule → `/convention/new/import`.
+- Secondary action: Explore first → Home.
+- Mark onboarding complete before either route.
+- No account or legal-consent step until authentication actually ships.
 
 ### Main App (tab navigation)
 

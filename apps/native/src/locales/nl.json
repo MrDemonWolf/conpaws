@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Navigeer, Verbind, Geniet",
-      "subtitle": "Jouw furry conventie metgezel",
-      "getStarted": "Aan de slag"
+      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
+      "subtitle": "Plan vooruit, ook met slechte wifi op de con. Je programma blijft op je apparaat.",
+      "continue": "Doorgaan",
+      "skip": "Overslaan"
     },
     "features": {
-      "title": "Alles wat je nodig hebt",
-      "subtitle": "ConPaws houdt jouw conventie-ervaring georganiseerd",
-      "calendar": {
-        "title": "Conventiekalender",
-        "description": "Importeer roosters van elke conventie. Bekijk panels, evenementen en activiteiten in één oogopslag."
+      "title": "Plan je hele con",
+      "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
+      "demo": {
+        "now": "Nu",
+        "next": "Hierna",
+        "eventOne": "Openingsceremonie",
+        "eventTwo": "Fursuitparade",
+        "saved": "Mijn planning"
       },
-      "share": {
-        "title": "Delen & Verbinden",
-        "description": "Maak je persoonlijke rooster en deel het met vrienden die naar dezelfde con gaan."
+      "import": {
+        "title": "Importeer elk programma",
+        "description": "Voeg een .ics-bestand toe of plak een Sched-link."
+      },
+      "plan": {
+        "title": "Mis nooit een panel",
+        "description": "Maak je planning, zie wat er nu en hierna komt en ontdek overlap."
       },
       "offline": {
-        "title": "Werkt Offline",
-        "description": "Al je gegevens worden lokaal opgeslagen. Geen internet nodig nadat je je rooster hebt geïmporteerd."
+        "title": "Privé en offline",
+        "description": "Je conventiegegevens blijven op dit apparaat."
       },
-      "next": "Volgende"
+      "plus": {
+        "eyebrow": "Binnenkort",
+        "title": "ConPaws+",
+        "description": "Optionele premiumfuncties voor cloudback-ups, synchronisatie en sociale functies staan op de planning. ConPaws werkt nu al offline, zonder account."
+      },
+      "next": "Doorgaan"
     },
     "getStarted": {
-      "title": "Sluit je aan bij ConPaws",
-      "subtitle": "Log in om je rooster op alle apparaten te synchroniseren",
-      "signInWithApple": "Inloggen met Apple",
-      "signInWithGoogle": "Inloggen met Google",
-      "skipForNow": "Nu overslaan",
-      "legal": "Door verder te gaan, ga je akkoord met onze Servicevoorwaarden en het Privacybeleid"
-    },
-    "complete": {
-      "title": "Je bent er klaar voor!",
-      "subtitle": "Welkom bij ConPaws. Laten we jouw eerste conventie verkennen.",
-      "letsGo": "Laten we gaan"
+      "title": "Klaar voor je volgende con?",
+      "subtitle": "Importeer nu een programma of verken eerst ConPaws.",
+      "importSchedule": "Programma importeren",
+      "exploreFirst": "Eerst verkennen",
+      "localPrivacy": "Geen account nodig. Je gegevens blijven lokaal."
     }
   },
   "home": {

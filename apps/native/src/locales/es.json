@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Navega, Conecta, Disfruta",
-      "subtitle": "Tu compañero de convenciones furry",
-      "getStarted": "Comenzar"
+      "tagline": "Tu agenda de la convención, disponible sin conexión.",
+      "subtitle": "Organízate aunque falle el Wi-Fi de la convención: tu agenda se queda en tu dispositivo.",
+      "continue": "Continuar",
+      "skip": "Omitir"
     },
     "features": {
-      "title": "Todo lo que necesitas",
-      "subtitle": "ConPaws mantiene tu experiencia en la convención organizada",
-      "calendar": {
-        "title": "Calendario de Convenciones",
-        "description": "Importa horarios de cualquier convención. Consulta paneles, eventos y actividades de un vistazo."
+      "title": "Planifica toda la convención",
+      "subtitle": "Todo lo que necesitas cuando falla el Wi-Fi del recinto.",
+      "demo": {
+        "now": "Ahora",
+        "next": "Después",
+        "eventOne": "Ceremonia de apertura",
+        "eventTwo": "Desfile de fursuits",
+        "saved": "Mi agenda"
       },
-      "share": {
-        "title": "Comparte y Conecta",
-        "description": "Crea tu horario personal y compártelo con amigos que asistan a la misma con."
+      "import": {
+        "title": "Importa cualquier agenda",
+        "description": "Añade un archivo .ics o pega un enlace de Sched."
+      },
+      "plan": {
+        "title": "No te pierdas ningún panel",
+        "description": "Crea tu agenda, consulta qué hay ahora y después, y detecta solapamientos."
       },
       "offline": {
-        "title": "Funciona sin Conexión",
-        "description": "Todos tus datos se almacenan localmente. No necesitas internet una vez que hayas importado tu horario."
+        "title": "Privado y sin conexión",
+        "description": "Los datos de la convención se quedan en este dispositivo."
       },
-      "next": "Siguiente"
+      "plus": {
+        "eyebrow": "Próximamente",
+        "title": "ConPaws+",
+        "description": "Está previsto añadir copias de seguridad en la nube, sincronización y funciones sociales prémium opcionales. ConPaws ya funciona sin conexión y no necesita una cuenta."
+      },
+      "next": "Continuar"
     },
     "getStarted": {
-      "title": "Únete a ConPaws",
-      "subtitle": "Inicia sesión para sincronizar tu horario entre dispositivos",
-      "signInWithApple": "Iniciar sesión con Apple",
-      "signInWithGoogle": "Iniciar sesión con Google",
-      "skipForNow": "Omitir por ahora",
-      "legal": "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad"
-    },
-    "complete": {
-      "title": "¡Todo listo!",
-      "subtitle": "Bienvenido a ConPaws. Exploremos tu primera convención.",
-      "letsGo": "¡Vamos!"
+      "title": "¿Todo listo para tu próxima convención?",
+      "subtitle": "Importa una agenda ahora o explora ConPaws primero.",
+      "importSchedule": "Importar una agenda",
+      "exploreFirst": "Explorar primero",
+      "localPrivacy": "No necesitas una cuenta. Tus datos se guardan localmente."
     }
   },
   "home": {
