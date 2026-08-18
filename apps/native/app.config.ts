@@ -47,6 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   owner: "mrdemonwolf-org",
   version: "1.0.0",
   orientation: "default",
+  userInterfaceStyle: "automatic",
   icon: "./assets/images/icon.png",
   scheme: getScheme(),
   extra: {
@@ -56,17 +57,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     appleTeamId: "HBB7T99U79",
+    icon: "./assets/images/ConPaws.icon",
     supportsTablet: true,
     bundleIdentifier: getBundleId(),
-    associatedDomains: ["applinks:conpaws.com"],
     config: {
       usesNonExemptEncryption: false,
     },
   },
   android: {
+    icon: "./assets/images/icon.png",
     permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
       foregroundImage: "./assets/images/android-icon-foreground.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -82,7 +83,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-sqlite",
     "expo-localization",
-    "expo-notifications",
+    [
+      "expo-notifications",
+      {
+        icon: "./assets/images/notification-icon.png",
+        color: "#0FACED",
+      },
+    ],
     [
       "expo-splash-screen",
       {
@@ -91,7 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         resizeMode: "contain",
         backgroundColor: "#ffffff",
         dark: {
-          backgroundColor: "#000000",
+          backgroundColor: "#091533",
         },
       },
     ],
