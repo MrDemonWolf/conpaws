@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Navigate, Connect, Enjoy",
-      "subtitle": "Your furry convention companion",
-      "getStarted": "Get Started"
+      "tagline": "Your convention schedule, ready offline.",
+      "subtitle": "Plan around bad con Wi-Fi. Your schedule stays on your device.",
+      "continue": "Continue",
+      "skip": "Skip"
     },
     "features": {
-      "title": "Everything you need",
-      "subtitle": "ConPaws keeps your convention experience organized",
-      "calendar": {
-        "title": "Convention Calendar",
-        "description": "Import schedules from any convention. Browse panels, events, and activities at a glance."
+      "title": "Plan the whole con",
+      "subtitle": "Everything you need when the venue Wi-Fi gives up.",
+      "demo": {
+        "now": "Now",
+        "next": "Next",
+        "eventOne": "Opening Ceremonies",
+        "eventTwo": "Fursuit Parade",
+        "saved": "My Schedule"
       },
-      "share": {
-        "title": "Share & Connect",
-        "description": "Build your personal schedule and share it with friends attending the same con."
+      "import": {
+        "title": "Import any schedule",
+        "description": "Add an .ics file or paste a Sched link."
+      },
+      "plan": {
+        "title": "Never miss a panel",
+        "description": "Build My Schedule, see Now & Next, and catch overlaps."
       },
       "offline": {
-        "title": "Works Offline",
-        "description": "All your data is stored locally. No internet required once you've imported your schedule."
+        "title": "Private and offline",
+        "description": "Your convention data stays on this device."
       },
-      "next": "Next"
+      "plus": {
+        "eyebrow": "Coming soon",
+        "title": "ConPaws+",
+        "description": "We plan to add optional premium cloud backup, sync, and social features. ConPaws works offline now and does not need an account."
+      },
+      "next": "Continue"
     },
     "getStarted": {
-      "title": "Join ConPaws",
-      "subtitle": "Sign in to sync your schedule across devices",
-      "signInWithApple": "Sign in with Apple",
-      "signInWithGoogle": "Sign in with Google",
-      "skipForNow": "Skip for now",
-      "legal": "By continuing, you agree to our Terms of Service and Privacy Policy"
-    },
-    "complete": {
-      "title": "You're all set!",
-      "subtitle": "Welcome to ConPaws. Let's explore your first convention.",
-      "letsGo": "Let's Go"
+      "title": "Ready for your next con?",
+      "subtitle": "Import a schedule now, or explore ConPaws first.",
+      "importSchedule": "Import a schedule",
+      "exploreFirst": "Explore first",
+      "localPrivacy": "No account required. Your data stays local."
     }
   },
   "home": {

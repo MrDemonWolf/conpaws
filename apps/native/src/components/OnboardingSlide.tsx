@@ -6,7 +6,6 @@ interface OnboardingSlideProps {
   icon: React.ReactNode;
   title: string;
   description: string;
-  action?: React.ReactNode;
   className?: string;
 }
 
@@ -14,23 +13,26 @@ export function OnboardingSlide({
   icon,
   title,
   description,
-  action,
   className,
 }: OnboardingSlideProps) {
   return (
-    <View className={cn("items-center gap-4 px-6", className)}>
-      <View className="w-16 h-16 rounded-2xl bg-primary/10 items-center justify-center">
+    <View
+      className={cn(
+        "flex-row items-center gap-4 rounded-2xl border border-border bg-card/90 p-4",
+        className,
+      )}
+    >
+      <View className="h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
         {icon}
       </View>
-      <View className="items-center gap-2">
-        <Text variant="h3" className="text-center">
+      <View className="flex-1 gap-1">
+        <Text variant="body" className="font-semibold">
           {title}
         </Text>
-        <Text variant="caption" className="text-center leading-5">
+        <Text variant="caption" className="leading-5 text-foreground/80">
           {description}
         </Text>
       </View>
-      {action ? <View className="mt-2">{action}</View> : null}
     </View>
   );
 }

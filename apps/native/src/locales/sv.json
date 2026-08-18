@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Navigera, Anslut, Njut",
-      "subtitle": "Din furry-konvents följeslagare",
-      "getStarted": "Kom igång"
+      "tagline": "Ditt konventsschema, även offline.",
+      "subtitle": "Planera även när konventets wifi är dåligt. Schemat stannar på din enhet.",
+      "continue": "Fortsätt",
+      "skip": "Hoppa över"
     },
     "features": {
-      "title": "Allt du behöver",
-      "subtitle": "ConPaws håller din konventionsupplevelse organiserad",
-      "calendar": {
-        "title": "Konventskalender",
-        "description": "Importera scheman från vilket konvent som helst. Bläddra bland paneler, evenemang och aktiviteter på ett ögonblick."
+      "title": "Planera hela konventet",
+      "subtitle": "Allt du behöver när lokalens wifi ger upp.",
+      "demo": {
+        "now": "Nu",
+        "next": "Härnäst",
+        "eventOne": "Invigningsceremoni",
+        "eventTwo": "Fursuitparad",
+        "saved": "Mitt schema"
       },
-      "share": {
-        "title": "Dela & Anslut",
-        "description": "Bygg ditt personliga schema och dela det med vänner som deltar i samma con."
+      "import": {
+        "title": "Importera vilket schema som helst",
+        "description": "Lägg till en .ics-fil eller klistra in en Sched-länk."
+      },
+      "plan": {
+        "title": "Missa aldrig en panel",
+        "description": "Skapa ditt schema, se vad som händer nu och härnäst och upptäck krockar."
       },
       "offline": {
-        "title": "Fungerar Offline",
-        "description": "All din data lagras lokalt. Ingen internet krävs när du har importerat ditt schema."
+        "title": "Privat och offline",
+        "description": "Dina konventsdata stannar på den här enheten."
       },
-      "next": "Nästa"
+      "plus": {
+        "eyebrow": "Kommer snart",
+        "title": "ConPaws+",
+        "description": "Valfri premiumbackup i molnet, synkronisering och sociala funktioner planeras. ConPaws fungerar offline redan idag. Inget konto krävs."
+      },
+      "next": "Fortsätt"
     },
     "getStarted": {
-      "title": "Gå med i ConPaws",
-      "subtitle": "Logga in för att synkronisera ditt schema mellan enheter",
-      "signInWithApple": "Logga in med Apple",
-      "signInWithGoogle": "Logga in med Google",
-      "skipForNow": "Hoppa över för nu",
-      "legal": "Genom att fortsätta godkänner du våra Användarvillkor och Integritetspolicy"
-    },
-    "complete": {
-      "title": "Du är redo!",
-      "subtitle": "Välkommen till ConPaws. Låt oss utforska ditt första konvent.",
-      "letsGo": "Kör igång"
+      "title": "Redo för nästa konvent?",
+      "subtitle": "Importera ett schema nu eller utforska ConPaws först.",
+      "importSchedule": "Importera ett schema",
+      "exploreFirst": "Utforska först",
+      "localPrivacy": "Inget konto krävs. Dina data lagras lokalt."
     }
   },
   "home": {

@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Naviguer, Connecter, Profiter",
-      "subtitle": "Votre compagnon de convention furry",
-      "getStarted": "Commencer"
+      "tagline": "Votre programme de convention, disponible hors ligne.",
+      "subtitle": "Organisez-vous malgré un mauvais Wi-Fi : votre programme reste sur votre appareil.",
+      "continue": "Continuer",
+      "skip": "Passer"
     },
     "features": {
-      "title": "Tout ce dont vous avez besoin",
-      "subtitle": "ConPaws organise votre expérience de convention",
-      "calendar": {
-        "title": "Calendrier de Convention",
-        "description": "Importez les programmes de n'importe quelle convention. Parcourez les panels, événements et activités en un coup d'œil."
+      "title": "Planifiez toute la convention",
+      "subtitle": "Tout ce qu’il vous faut quand le Wi-Fi du lieu abandonne.",
+      "demo": {
+        "now": "Maintenant",
+        "next": "Ensuite",
+        "eventOne": "Cérémonie d’ouverture",
+        "eventTwo": "Défilé de fursuits",
+        "saved": "Mon programme"
       },
-      "share": {
-        "title": "Partager & Connecter",
-        "description": "Créez votre programme personnel et partagez-le avec des amis qui participent à la même con."
+      "import": {
+        "title": "Importez n’importe quel programme",
+        "description": "Ajoutez un fichier .ics ou collez un lien Sched."
+      },
+      "plan": {
+        "title": "Ne manquez aucun panel",
+        "description": "Créez votre programme, voyez ce qui se passe maintenant et ensuite, et repérez les chevauchements."
       },
       "offline": {
-        "title": "Fonctionne Hors Ligne",
-        "description": "Toutes vos données sont stockées localement. Pas d'internet requis une fois votre programme importé."
+        "title": "Privé et hors ligne",
+        "description": "Vos données de convention restent sur cet appareil."
       },
-      "next": "Suivant"
+      "plus": {
+        "eyebrow": "Bientôt",
+        "title": "ConPaws+",
+        "description": "Des fonctions premium facultatives de sauvegarde dans le cloud, de synchronisation et de partage social sont prévues. ConPaws fonctionne déjà hors ligne, sans compte."
+      },
+      "next": "Continuer"
     },
     "getStarted": {
-      "title": "Rejoindre ConPaws",
-      "subtitle": "Connectez-vous pour synchroniser votre programme sur tous vos appareils",
-      "signInWithApple": "Se connecter avec Apple",
-      "signInWithGoogle": "Se connecter avec Google",
-      "skipForNow": "Passer pour l'instant",
-      "legal": "En continuant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité"
-    },
-    "complete": {
-      "title": "Vous êtes prêt !",
-      "subtitle": "Bienvenue sur ConPaws. Explorons votre première convention.",
-      "letsGo": "Allons-y"
+      "title": "Prêt pour votre prochaine convention ?",
+      "subtitle": "Importez un programme maintenant ou explorez d’abord ConPaws.",
+      "importSchedule": "Importer un programme",
+      "exploreFirst": "Explorer d’abord",
+      "localPrivacy": "Aucun compte requis. Vos données restent en local."
     }
   },
   "home": {

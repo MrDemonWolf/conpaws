@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Navegue, Conecte, Aproveite",
-      "subtitle": "Seu companheiro de convenções furry",
-      "getStarted": "Começar"
+      "tagline": "Sua programação do evento, disponível offline.",
+      "subtitle": "Planeje mesmo com o Wi-Fi ruim do evento. Sua programação fica no seu dispositivo.",
+      "continue": "Continuar",
+      "skip": "Pular"
     },
     "features": {
-      "title": "Tudo que você precisa",
-      "subtitle": "O ConPaws mantém sua experiência na convenção organizada",
-      "calendar": {
-        "title": "Calendário de Convenções",
-        "description": "Importe programações de qualquer convenção. Veja painéis, eventos e atividades de relance."
+      "title": "Planeje o evento inteiro",
+      "subtitle": "Tudo de que você precisa quando o Wi-Fi do local para de funcionar.",
+      "demo": {
+        "now": "Agora",
+        "next": "A seguir",
+        "eventOne": "Cerimônia de abertura",
+        "eventTwo": "Desfile de fursuits",
+        "saved": "Minha programação"
       },
-      "share": {
-        "title": "Compartilhe & Conecte",
-        "description": "Crie sua programação pessoal e compartilhe com amigos que vão à mesma con."
+      "import": {
+        "title": "Importe qualquer programação",
+        "description": "Adicione um arquivo .ics ou cole um link do Sched."
+      },
+      "plan": {
+        "title": "Não perca nenhum painel",
+        "description": "Monte sua programação, veja o que acontece agora e em seguida e identifique conflitos."
       },
       "offline": {
-        "title": "Funciona Offline",
-        "description": "Todos os seus dados são armazenados localmente. Sem internet necessária após importar sua programação."
+        "title": "Privado e offline",
+        "description": "Os dados do evento ficam neste dispositivo."
       },
-      "next": "Próximo"
+      "plus": {
+        "eyebrow": "Em breve",
+        "title": "ConPaws+",
+        "description": "Recursos premium opcionais de backup na nuvem, sincronização e interação social estão nos planos. ConPaws já funciona offline, sem precisar de conta."
+      },
+      "next": "Continuar"
     },
     "getStarted": {
-      "title": "Junte-se ao ConPaws",
-      "subtitle": "Faça login para sincronizar sua programação em todos os dispositivos",
-      "signInWithApple": "Entrar com Apple",
-      "signInWithGoogle": "Entrar com Google",
-      "skipForNow": "Pular por agora",
-      "legal": "Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade"
-    },
-    "complete": {
-      "title": "Tudo pronto!",
-      "subtitle": "Bem-vindo ao ConPaws. Vamos explorar sua primeira convenção.",
-      "letsGo": "Vamos lá"
+      "title": "Tudo pronto para o próximo evento?",
+      "subtitle": "Importe uma programação agora ou explore o ConPaws primeiro.",
+      "importSchedule": "Importar uma programação",
+      "exploreFirst": "Explorar primeiro",
+      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente."
     }
   },
   "home": {

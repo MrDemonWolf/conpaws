@@ -21,39 +21,46 @@
   },
   "onboarding": {
     "welcome": {
-      "tagline": "Nawiguj, Łącz się, Ciesz się",
-      "subtitle": "Twój furry towarzysz konwentów",
-      "getStarted": "Zacznij"
+      "tagline": "Program konwentu zawsze pod ręką, także offline.",
+      "subtitle": "Planuj mimo słabego Wi-Fi na konwencie. Harmonogram zostaje na twoim urządzeniu.",
+      "continue": "Dalej",
+      "skip": "Pomiń"
     },
     "features": {
-      "title": "Wszystko, czego potrzebujesz",
-      "subtitle": "ConPaws utrzymuje Twoje doświadczenie z konwentu w porządku",
-      "calendar": {
-        "title": "Kalendarz Konwentów",
-        "description": "Importuj harmonogramy z dowolnego konwentu. Przeglądaj panele, wydarzenia i aktywności na pierwszy rzut oka."
+      "title": "Zaplanuj cały konwent",
+      "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
+      "demo": {
+        "now": "Teraz",
+        "next": "Następnie",
+        "eventOne": "Ceremonia otwarcia",
+        "eventTwo": "Parada fursuitów",
+        "saved": "Mój harmonogram"
       },
-      "share": {
-        "title": "Udostępnij & Połącz się",
-        "description": "Utwórz swój osobisty harmonogram i udostępnij go przyjaciołom uczestniczącym w tym samym konie."
+      "import": {
+        "title": "Importuj dowolny harmonogram",
+        "description": "Dodaj plik .ics lub wklej link z Sched."
+      },
+      "plan": {
+        "title": "Nie przegap żadnego panelu",
+        "description": "Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje."
       },
       "offline": {
-        "title": "Działa Offline",
-        "description": "Wszystkie Twoje dane są przechowywane lokalnie. Internet nie jest wymagany po zaimportowaniu harmonogramu."
+        "title": "Prywatnie i offline",
+        "description": "Dane konwentu zostają na tym urządzeniu."
+      },
+      "plus": {
+        "eyebrow": "Wkrótce",
+        "title": "ConPaws+",
+        "description": "Planowane są opcjonalne funkcje premium: kopie zapasowe w chmurze, synchronizacja i funkcje społecznościowe. ConPaws już teraz działa offline bez konta."
       },
       "next": "Dalej"
     },
     "getStarted": {
-      "title": "Dołącz do ConPaws",
-      "subtitle": "Zaloguj się, aby synchronizować harmonogram między urządzeniami",
-      "signInWithApple": "Zaloguj się przez Apple",
-      "signInWithGoogle": "Zaloguj się przez Google",
-      "skipForNow": "Pomiń na razie",
-      "legal": "Kontynuując, akceptujesz nasze Warunki korzystania z usługi i Politykę prywatności"
-    },
-    "complete": {
-      "title": "Wszystko gotowe!",
-      "subtitle": "Witaj w ConPaws. Poznajmy Twój pierwszy konwent.",
-      "letsGo": "Zaczynamy"
+      "title": "Wszystko gotowe na kolejny konwent?",
+      "subtitle": "Zaimportuj harmonogram już teraz albo najpierw poznaj ConPaws.",
+      "importSchedule": "Importuj harmonogram",
+      "exploreFirst": "Najpierw poznaj aplikację",
+      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
     }
   },
   "home": {
