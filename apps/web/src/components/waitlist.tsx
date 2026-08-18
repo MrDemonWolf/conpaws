@@ -1,8 +1,11 @@
 "use client";
 
+import { env } from "@conpaws/env/web";
+import Script from "next/script";
 import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
 
 type Status = "idle" | "submitting" | "done";
@@ -17,6 +20,8 @@ export function Waitlist() {
   const nameId = useId();
   const emailId = useId();
   const hpId = useId();
+
+  const turnstileSiteKey = env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const [name, setName] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -33,6 +38,12 @@ export function Waitlist() {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
 
+    // Turnstile's implicit rendering writes the token into this hidden field.
+    // It is verified server-side only; a token here proves nothing on its own.
+    const turnstileToken = String(form.get("cf-turnstile-response") ?? "");
+
+    const params = new URLSearchParams(window.location.search);
+
     setStatus("submitting");
     try {
       const res = await fetch("/api/waitlist", {
@@ -43,6 +54,10 @@ export function Waitlist() {
           name: name.trim(),
           honeypot,
           elapsedMs: Date.now() - mountedAt.current,
+          turnstileToken,
+          utmSource: params.get("utm_source") ?? undefined,
+          utmMedium: params.get("utm_medium") ?? undefined,
+          utmCampaign: params.get("utm_campaign") ?? undefined,
         }),
       });
 
@@ -159,6 +174,20 @@ export function Waitlist() {
               />
             </div>
 
+            {WAITLIST_ACCEPTING_SIGNUPS && turnstileSiteKey ? (
+              <>
+                <Script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                  strategy="lazyOnload"
+                />
+                <div
+                  className="cf-turnstile mt-5"
+                  data-sitekey={turnstileSiteKey}
+                  data-theme="auto"
+                />
+              </>
+            ) : null}
+
             <button
               type="submit"
               disabled={!WAITLIST_ACCEPTING_SIGNUPS || status === "submitting"}
@@ -172,8 +201,14 @@ export function Waitlist() {
             </button>
 
             <p className="mt-3.5 text-[12px] text-muted-foreground leading-relaxed">
-              We&rsquo;re finishing secure signup and email confirmation. No
-              addresses are being accepted yet.{" "}
+              {WAITLIST_ACCEPTING_SIGNUPS ? (
+                CONSENT_COPY
+              ) : (
+                <>
+                  We&rsquo;re finishing secure signup and email confirmation. No
+                  addresses are being accepted yet.
+                </>
+              )}{" "}
               <a href="/privacy" className="text-primary hover:underline">
                 Privacy
               </a>
