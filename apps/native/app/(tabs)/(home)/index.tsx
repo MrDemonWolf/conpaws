@@ -28,8 +28,6 @@ export default function HomeScreen() {
           icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
           onPress={handleAddConvention}
           accessibilityLabel={t("home.empty.cta")}
-          accessibilityHint="Opens schedule import"
-          variant="prominent"
         >
           {t("home.empty.cta")}
         </Stack.Toolbar.Button>
