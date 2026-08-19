@@ -77,7 +77,20 @@
     "dateRange": "{{start}} to {{end}}",
     "upcoming": "Upcoming",
     "active": "Active",
-    "past": "Past"
+    "past": "Past",
+    "moreActions": "More actions for {{name}}",
+    "sortBy": "Sort By",
+    "sort": {
+      "upcoming": "Upcoming First",
+      "name": "Name"
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "message": "This permanently deletes the convention, its schedule, and reminders.",
+      "success": "Deleted {{name}}.",
+      "errorTitle": "Could Not Delete Convention",
+      "errorMessage": "Nothing was deleted. Try again."
+    }
   },
   "convention": {
     "new": "New Convention",

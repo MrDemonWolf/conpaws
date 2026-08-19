@@ -77,7 +77,20 @@
     "dateRange": "{{start}} till {{end}}",
     "upcoming": "Kommande",
     "active": "Aktiva",
-    "past": "Avslutade"
+    "past": "Avslutade",
+    "moreActions": "Fler åtgärder för {{name}}",
+    "sortBy": "Sortera efter",
+    "sort": {
+      "upcoming": "Kommande först",
+      "name": "Namn"
+    },
+    "delete": {
+      "title": "Ta bort {{name}}?",
+      "message": "Detta tar permanent bort konventet, dess schema och påminnelser.",
+      "success": "{{name}} har tagits bort.",
+      "errorTitle": "Det gick inte att ta bort konventet",
+      "errorMessage": "Inget togs bort. Försök igen."
+    }
   },
   "convention": {
     "new": "Nytt Konvent",

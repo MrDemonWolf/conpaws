@@ -138,8 +138,11 @@ export async function cancelEventReminder(eventId: string): Promise<boolean> {
 
 export async function cancelConventionReminders(
   eventIds: string[],
-): Promise<void> {
-  await Promise.all(eventIds.map((id) => cancelEventReminder(id)));
+): Promise<boolean> {
+  const results = await Promise.all(
+    eventIds.map((id) => cancelEventReminder(id)),
+  );
+  return results.every(Boolean);
 }
 
 export interface ReminderReconciliationResult {

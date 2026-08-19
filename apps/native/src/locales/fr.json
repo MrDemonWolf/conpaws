@@ -77,7 +77,20 @@
     "dateRange": "Du {{start}} au {{end}}",
     "upcoming": "À venir",
     "active": "Active",
-    "past": "Passée"
+    "past": "Passée",
+    "moreActions": "Plus d’actions pour {{name}}",
+    "sortBy": "Trier par",
+    "sort": {
+      "upcoming": "À venir en premier",
+      "name": "Nom"
+    },
+    "delete": {
+      "title": "Supprimer {{name}} ?",
+      "message": "Cette action supprime définitivement la convention, son programme et ses rappels.",
+      "success": "{{name}} a été supprimée.",
+      "errorTitle": "Impossible de supprimer la convention",
+      "errorMessage": "Rien n’a été supprimé. Réessayez."
+    }
   },
   "convention": {
     "new": "Nouvelle Convention",

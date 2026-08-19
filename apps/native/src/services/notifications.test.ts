@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
-import { reconcileEventReminders } from "./notifications";
+import {
+  cancelConventionReminders,
+  reconcileEventReminders,
+} from "./notifications";
 
 const notificationMocks = vi.hoisted(() => ({
   cancelScheduledNotificationAsync: vi.fn(),
@@ -170,5 +173,27 @@ describe("startup reminder reconciliation", () => {
         }),
       }),
     );
+  });
+});
+
+describe("convention reminder cleanup", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("reports a partial failure without rejecting cleanup", async () => {
+    notificationMocks.cancelScheduledNotificationAsync
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("notification store unavailable"));
+
+    await expect(
+      cancelConventionReminders(["event-1", "event-2"]),
+    ).resolves.toBe(false);
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-event-1");
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-event-2");
   });
 });
