@@ -136,6 +136,19 @@ Brevo's own workaround — a Profile Update form carrying a [multi-list subscrip
 
 > **DECIDED 2026-08-18: Route A.** A separate free Brevo account for `conpaws.com`. Isolation is total, one-click unsubscribe behaves correctly, the DOI endpoint is kept, and the true cost is one extra login — `conpaws.com` needs its own DKIM and sender verification either way, and has neither today.
 
+#### The portfolio question — RAISED AND CLOSED 2026-08-19
+
+Route A's honest weakness is that it does not scale: Brevo's blocklist boundary is the account boundary, so every future MrDemonWolf product with a waitlist means another Brevo account, another login, another API key to rotate, another IP-authorization trap to disarm. That objection is correct, and it is worth knowing it is **specific to Brevo**, not to email:
+
+- **Mailgun** keeps bounces, complaints, and unsubscribes per *sending domain* and has no account-level list at all. One account, N products, isolated by construction.
+- **Amazon SES** has tenant-level suppression lists built for exactly this shape, with per-configuration-set overrides on top. Roughly $0.10/1k sends.
+
+**Staying on Brevo anyway.** Both alternatives drop double opt-in on our side of the line: Brevo's DOI endpoint owns token generation, expiry, and the confirmation click, which is why there is deliberately no `confirm_token` column. Moving means building and owning that — token column, confirm route, expiry, replay protection — plus extracting it into something shareable across repos, plus SES's sandbox (200/day, verified recipients only, 1-3 business days for production access) sitting directly on the launch path.
+
+What makes deferring cheap rather than reckless: **D1 is already the source of truth and the row is the consent record.** The ESP is a replaceable sink behind `apps/web/src/lib/brevo.ts` and one route. A later switch costs DKIM verification on the new provider and nothing else — the consent history does not move and nobody gets re-confirmed.
+
+**Revisit trigger:** the second product that needs a waitlist. Do it then, as a shared package, not under launch pressure. SES tenants is the target if the answer is still "one account for everything".
+
 **Setup requirements** (unchanged under A or B): disable (or CIDR-allowlist) Brevo's IP authorization before its 30-day learning phase arms — Workers egress from rotating IPs would silently drop signups a month post-launch. Create the DOI template first (the endpoint requires one); confirm `{{ params.DOIurl }}` renders.
 
 **Revisit at ~500 subscribers:** a 300-emails/day pool forces a manual daily resume past ~500-600 contacts: Marketing > Campaigns > Email, filter for Suspended, choose Resume campaign, and confirm. Send to new contacts is only for a completed campaign and reaches contacts added after that campaign. Paid tiers price by contact count (~$29/mo at 3,000 contacts vs FluentCRM's ~$114/yr), so the zero-ops premium grows with the list. Minor point in A's favour: a separate account gets its own 300/day rather than sharing one pool with `mrdemonwolf.com`.
