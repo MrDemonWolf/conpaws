@@ -1,12 +1,18 @@
 import AddIcon from "@expo/material-symbols/add.xml";
+import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
+import { Icon } from "@expo/ui";
 import { useQuery } from "@tanstack/react-query";
-import * as Haptics from "expo-haptics";
 import { router, Stack } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { FlatList, View } from "react-native";
+import { FlatList, ScrollView, View } from "react-native";
 import { ConventionCard } from "@/components/ConventionCard";
-import { EmptyState, LoadingSpinner, Text } from "@/components/ui";
+import { EmptyState, LoadingSpinner } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+
+const EMPTY_ICON = Icon.select({
+  ios: "calendar.badge.plus",
+  android: CalendarAddIcon,
+});
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -17,7 +23,6 @@ export default function HomeScreen() {
   });
 
   function handleAddConvention() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/convention/new/import");
   }
 
@@ -38,15 +43,19 @@ export default function HomeScreen() {
           <LoadingSpinner />
         </View>
       ) : conventions.length === 0 ? (
-        <View className="flex-1 bg-background">
+        <ScrollView
+          className="flex-1 bg-background"
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
           <EmptyState
-            icon={<Text className="text-5xl">🐾</Text>}
+            icon={EMPTY_ICON}
             title={t("home.empty.title")}
             subtitle={t("home.empty.subtitle")}
             ctaLabel={t("home.empty.cta")}
             onCta={handleAddConvention}
           />
-        </View>
+        </ScrollView>
       ) : (
         <FlatList
           className="bg-background"
@@ -65,7 +74,6 @@ export default function HomeScreen() {
               endDate={item.endDate}
               status={item.status}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push(`/convention/${item.id}`);
               }}
             />

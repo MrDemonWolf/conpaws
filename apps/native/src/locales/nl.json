@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "Mijn Conventies",
+    "title": "Conventies",
     "addConvention": "Conventie toevoegen",
     "empty": {
       "title": "Nog geen conventies",
@@ -83,6 +83,10 @@
     "events": "Evenementen",
     "noEvents": "Nog geen evenementen",
     "noEventsSubtitle": "Importeer een rooster of voeg evenementen handmatig toe.",
+    "myScheduleEmpty": "Mijn programma is leeg",
+    "myScheduleNowNextSubtitle": "Kies evenementen bij Alles om te zien wat er nu en hierna gebeurt.",
+    "myScheduleSubtitle": "Open Alles en voeg evenementen toe die je niet wilt missen.",
+    "showAllEvents": "Alle evenementen tonen",
     "addEvent": "Evenement toevoegen",
     "importSchedule": "Rooster importeren",
     "startDate": "Begindatum",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "Over",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
+      "resources": "Bronnen",
+      "sourceCode": "Broncode",
+      "website": "Website",
+      "support": "Ondersteuning",
+      "email": "E-mail",
+      "discordDescription": "Word lid van de community",
+      "copyright": "© {{year}} ConPaws. Alle rechten voorbehouden."
     }
   },
   "import": {

@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "Mis Convenciones",
+    "title": "Convenciones",
     "addConvention": "Añadir Convención",
     "empty": {
       "title": "Sin convenciones aún",
@@ -83,6 +83,10 @@
     "events": "Eventos",
     "noEvents": "Sin eventos aún",
     "noEventsSubtitle": "Importa un horario o añade eventos manualmente.",
+    "myScheduleEmpty": "Mi horario está vacío",
+    "myScheduleNowNextSubtitle": "Elige eventos en Todos para ver qué está pasando ahora y después.",
+    "myScheduleSubtitle": "Abre Todos y añade los eventos que no quieres perderte.",
+    "showAllEvents": "Mostrar todos los eventos",
     "addEvent": "Añadir Evento",
     "importSchedule": "Importar Horario",
     "startDate": "Fecha de Inicio",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "Acerca de",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Tu horario de convenciones, disponible sin conexión.",
+      "resources": "Recursos",
+      "sourceCode": "Código fuente",
+      "website": "Sitio web",
+      "support": "Soporte",
+      "email": "Correo electrónico",
+      "discordDescription": "Únete a la comunidad",
+      "copyright": "© {{year}} ConPaws. Todos los derechos reservados."
     }
   },
   "import": {

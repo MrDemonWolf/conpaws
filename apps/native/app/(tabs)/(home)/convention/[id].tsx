@@ -1,4 +1,6 @@
+import EventIcon from "@expo/material-symbols/event.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
+import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
@@ -42,6 +44,11 @@ interface DayGroup {
 }
 
 type ScheduleView = "all" | "mine" | "now-next";
+
+const EMPTY_SCHEDULE_ICON = Icon.select({
+  ios: "calendar",
+  android: EventIcon,
+});
 
 interface ManualEventValues {
   title: string;
@@ -962,10 +969,10 @@ export default function ConventionDetailScreen() {
         >
           {scheduledEvents.length === 0 ? (
             <EmptyState
-              icon={<Text className="text-5xl">📅</Text>}
-              title="My Schedule is empty"
-              subtitle="Choose events from All to see what is happening now and next."
-              ctaLabel="Show All Events"
+              icon={EMPTY_SCHEDULE_ICON}
+              title={t("convention.myScheduleEmpty")}
+              subtitle={t("convention.myScheduleNowNextSubtitle")}
+              ctaLabel={t("convention.showAllEvents")}
               onCta={() => setScheduleView("all")}
             />
           ) : (
@@ -1017,15 +1024,15 @@ export default function ConventionDetailScreen() {
           ListEmptyComponent={
             scheduleView === "mine" ? (
               <EmptyState
-                icon={<Text className="text-5xl">📅</Text>}
-                title="My Schedule is empty"
-                subtitle="Open All and add the events you do not want to miss."
-                ctaLabel="Show All Events"
+                icon={EMPTY_SCHEDULE_ICON}
+                title={t("convention.myScheduleEmpty")}
+                subtitle={t("convention.myScheduleSubtitle")}
+                ctaLabel={t("convention.showAllEvents")}
                 onCta={() => setScheduleView("all")}
               />
             ) : (
               <EmptyState
-                icon={<Text className="text-5xl">📅</Text>}
+                icon={EMPTY_SCHEDULE_ICON}
                 title={t("convention.noEvents")}
                 subtitle={t("convention.noEventsSubtitle")}
                 ctaLabel={t("convention.importSchedule")}

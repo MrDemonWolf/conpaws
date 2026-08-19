@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "Mina Konvent",
+    "title": "Konvent",
     "addConvention": "Lägg till Konvent",
     "empty": {
       "title": "Inga konvent ännu",
@@ -83,6 +83,10 @@
     "events": "Evenemang",
     "noEvents": "Inga evenemang ännu",
     "noEventsSubtitle": "Importera ett schema eller lägg till evenemang manuellt.",
+    "myScheduleEmpty": "Mitt schema är tomt",
+    "myScheduleNowNextSubtitle": "Välj evenemang under Alla för att se vad som händer nu och härnäst.",
+    "myScheduleSubtitle": "Öppna Alla och lägg till de evenemang du inte vill missa.",
+    "showAllEvents": "Visa alla evenemang",
     "addEvent": "Lägg till Evenemang",
     "importSchedule": "Importera Schema",
     "startDate": "Startdatum",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "Om",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Ditt konventsschema, tillgängligt offline.",
+      "resources": "Resurser",
+      "sourceCode": "Källkod",
+      "website": "Webbplats",
+      "support": "Support",
+      "email": "E-post",
+      "discordDescription": "Gå med i communityn",
+      "copyright": "© {{year}} ConPaws. Med ensamrätt."
     }
   },
   "import": {

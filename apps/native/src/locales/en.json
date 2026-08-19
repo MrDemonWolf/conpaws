@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "My Conventions",
+    "title": "Conventions",
     "addConvention": "Add Convention",
     "empty": {
       "title": "No conventions yet",
@@ -83,6 +83,10 @@
     "events": "Events",
     "noEvents": "No events yet",
     "noEventsSubtitle": "Import a schedule or add events manually.",
+    "myScheduleEmpty": "My Schedule is empty",
+    "myScheduleNowNextSubtitle": "Choose events from All to see what is happening now and next.",
+    "myScheduleSubtitle": "Open All and add the events you do not want to miss.",
+    "showAllEvents": "Show All Events",
     "addEvent": "Add Event",
     "importSchedule": "Import Schedule",
     "startDate": "Start Date",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "About",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Your convention schedule, ready offline.",
+      "resources": "Resources",
+      "sourceCode": "Source Code",
+      "website": "Website",
+      "support": "Support",
+      "email": "Email",
+      "discordDescription": "Join the community",
+      "copyright": "© {{year}} ConPaws. All rights reserved."
     }
   },
   "import": {
