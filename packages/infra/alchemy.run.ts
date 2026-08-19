@@ -22,6 +22,11 @@ config({ path: "../../apps/web/.env" });
 
 export const db = Cloudflare.D1.Database("database", {
   migrationsDir: "../../apps/web/drizzle/migrations",
+  // Must match `migrations_table` in apps/web/wrangler.jsonc. Alchemy defaults
+  // to `d1_migrations`; a laptop applying migrations under one bookkeeping
+  // table while production uses another is how the same migration gets applied
+  // twice, and D1 drift does not come back with a Worker rollback.
+  migrationsTable: "drizzle_migrations",
 });
 
 /**
@@ -54,6 +59,11 @@ const waitlistSecrets = {
  * re-bundling it breaks the OpenNext runtime.
  */
 export const web = Cloudflare.Website.StaticSite("web", {
+  // Pinned, not generated. Without it Alchemy derives a physical name from the
+  // stack, stage, and logical id, which would not be `conpaws-web` — the name
+  // `wrangler rollback` and apps/web/wrangler.jsonc's WORKER_SELF_REFERENCE
+  // both expect. Rollback is manual now, so the name has to be predictable.
+  name: "conpaws-web",
   cwd: "../../apps/web",
   command: "bun run build:cloudflare",
   // Rebuild shared workspace dependencies until Alchemy has a workspace-aware
@@ -88,6 +98,7 @@ export const web = Cloudflare.Website.StaticSite("web", {
  * re-bundling a bundle that must not be re-bundled.
  */
 export const reconciler = Cloudflare.Worker("reconciler", {
+  name: "conpaws-reconciler",
   main: "../../apps/web/workers/reconcile.ts",
   crons: ["0 * * * *"],
   compatibility: {
