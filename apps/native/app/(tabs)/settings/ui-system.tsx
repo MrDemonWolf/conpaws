@@ -18,10 +18,14 @@ import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { Redirect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { useColorScheme, useWindowDimensions, View } from "react-native";
 import { EmptyState } from "@/components/ui";
+import {
+  getAppearancePreference,
+  subscribeAppearancePreference,
+} from "@/lib/appearance-storage";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 
 const CHEVRON_ICON = Icon.select({
@@ -44,6 +48,11 @@ export default function UiSystemScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const systemColorScheme = useColorScheme();
+  const appearancePreference = useSyncExternalStore(
+    subscribeAppearancePreference,
+    getAppearancePreference,
+    getAppearancePreference,
+  );
   const { fontScale, width } = useWindowDimensions();
   const [switchValue, setSwitchValue] = useState(true);
   const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);
@@ -65,7 +74,11 @@ export default function UiSystemScreen() {
     >
       <FieldGroup>
         <FieldGroup.Section title="Environment">
-          <ListItem supportingText={systemAppearance}>Appearance</ListItem>
+          <ListItem
+            supportingText={`${appearancePreference} · renders ${systemAppearance}`}
+          >
+            Appearance
+          </ListItem>
           <ListItem supportingText={`${fontScale.toFixed(2)}x system scale`}>
             Dynamic Type
           </ListItem>

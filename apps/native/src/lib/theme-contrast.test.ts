@@ -74,6 +74,6 @@ describe.each([
 });
 
 it("keeps the brand heading readable over the strongest onboarding glow", () => {
-  expect(contrast("#006f91", "#d4f0fc")).toBeGreaterThanOrEqual(4.5);
+  expect(contrast("#00729c", "#d4f0fc")).toBeGreaterThanOrEqual(4.5);
   expect(contrast("#18b7f2", "#0b3c63")).toBeGreaterThanOrEqual(4.5);
 });

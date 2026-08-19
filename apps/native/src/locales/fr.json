@@ -215,6 +215,13 @@
       "selected": "Sélectionné",
       "changeError": "ConPaws n'a pas pu changer la langue. Réessayez."
     },
+    "appearance": {
+      "system": "Système",
+      "light": "Clair",
+      "dark": "Sombre",
+      "description": "Choisissez l'apparence de ConPaws sur cet appareil.",
+      "changeError": "ConPaws n'a pas pu modifier l'apparence. Réessayez."
+    },
     "account": {
       "title": "Compte",
       "signIn": "Se Connecter",

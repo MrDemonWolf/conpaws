@@ -12,8 +12,13 @@ import Constants from "expo-constants";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
+import { useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, useColorScheme } from "react-native";
+import {
+  getAppearancePreference,
+  subscribeAppearancePreference,
+} from "@/lib/appearance-storage";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
 import { useExportData } from "@/services/data-export";
@@ -41,6 +46,10 @@ const PRIVACY = Icon.select({ ios: "hand.raised", android: PrivacyIcon });
 const TERMS = Icon.select({ ios: "doc.text", android: DescriptionIcon });
 const DEBUG = Icon.select({ ios: "ladybug", android: BugReportIcon });
 const UI_SYSTEM = Icon.select({ ios: "paintpalette", android: PaletteIcon });
+const APPEARANCE = Icon.select({
+  ios: "circle.lefthalf.filled",
+  android: PaletteIcon,
+});
 
 function LeadingIcon({ name }: { name: ReturnType<typeof Icon.select> }) {
   return <Icon name={name} size={22} />;
@@ -61,6 +70,11 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const appearance = useSyncExternalStore(
+    subscribeAppearancePreference,
+    getAppearancePreference,
+    getAppearancePreference,
+  );
 
   const showDeveloperTools = developerToolsEnabled(
     __DEV__,
@@ -83,6 +97,14 @@ export default function SettingsScreen() {
     >
       <FieldGroup>
         <FieldGroup.Section title={t("settings.app.title")}>
+          <ListItem
+            leading={<LeadingIcon name={APPEARANCE} />}
+            supportingText={t(`settings.appearance.${appearance}`)}
+            trailing={<NavigationIndicator />}
+            onPress={() => router.push("/settings/appearance")}
+          >
+            {t("settings.app.theme")}
+          </ListItem>
           <ListItem
             leading={<LeadingIcon name={LANGUAGE} />}
             supportingText={t(

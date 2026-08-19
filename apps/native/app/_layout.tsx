@@ -37,6 +37,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  applyAppearancePreference,
+  loadAppearancePreference,
+} from "@/lib/appearance-storage";
 import { initI18n } from "@/lib/i18n";
 import {
   reconcileEventReminders,
@@ -60,7 +64,7 @@ const lightNavigationTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#006F91",
+    primary: "#00729C",
   },
 };
 
@@ -78,6 +82,10 @@ function RootLayout() {
 
   useEffect(() => {
     void (async () => {
+      const appearance = await loadAppearancePreference().catch(
+        () => "system" as const,
+      );
+      applyAppearancePreference(appearance);
       await initI18n().catch(() => undefined);
       await reconcileEventReminders().catch(() => undefined);
       setReady(true);
