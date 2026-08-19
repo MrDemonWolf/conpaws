@@ -1,5 +1,7 @@
 import AddIcon from "@expo/material-symbols/add.xml";
 import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
+import DownloadIcon from "@expo/material-symbols/download.xml";
+import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
 import { Icon } from "@expo/ui";
 import { useQuery } from "@tanstack/react-query";
 import { router, Stack } from "expo-router";
@@ -22,21 +24,45 @@ export default function HomeScreen() {
     queryFn: conventionsRepo.getAll,
   });
 
-  function handleAddConvention() {
+  function handleImportConvention() {
     router.push("/convention/new/import");
+  }
+
+  function handleCreateConvention() {
+    router.push("/convention/create");
   }
 
   return (
     <>
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
-          onPress={handleAddConvention}
-          accessibilityLabel={t("home.empty.cta")}
-        >
-          {t("home.empty.cta")}
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
+      {!isLoading && conventions.length > 0 ? (
+        <Stack.Toolbar placement="right">
+          <Stack.Toolbar.Menu
+            icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
+            accessibilityLabel={t("home.addConvention")}
+          >
+            <Stack.Toolbar.MenuAction
+              icon={
+                process.env.EXPO_OS === "ios"
+                  ? "calendar.badge.plus"
+                  : EditCalendarIcon
+              }
+              onPress={handleCreateConvention}
+            >
+              {t("convention.create")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              icon={
+                process.env.EXPO_OS === "ios"
+                  ? "square.and.arrow.down"
+                  : DownloadIcon
+              }
+              onPress={handleImportConvention}
+            >
+              {t("convention.importSchedule")}
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
+        </Stack.Toolbar>
+      ) : null}
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center bg-background">
@@ -46,14 +72,22 @@ export default function HomeScreen() {
         <ScrollView
           className="flex-1 bg-background"
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            paddingTop: 24,
+            paddingBottom: 144,
+          }}
         >
           <EmptyState
+            className="flex-none"
             icon={EMPTY_ICON}
             title={t("home.empty.title")}
             subtitle={t("home.empty.subtitle")}
             ctaLabel={t("home.empty.cta")}
-            onCta={handleAddConvention}
+            onCta={handleCreateConvention}
+            secondaryCtaLabel={t("convention.importSchedule")}
+            onSecondaryCta={handleImportConvention}
           />
         </ScrollView>
       ) : (

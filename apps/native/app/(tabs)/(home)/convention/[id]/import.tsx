@@ -1,25 +1,31 @@
-import SegmentedControl from "@expo/ui/community/segmented-control";
+import {
+  Checkbox,
+  FieldGroup,
+  Host,
+  ListItem,
+  Button as NativeButton,
+  Text as NativeText,
+  TextInput as NativeTextInput,
+  Picker,
+  useNativeState,
+} from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import * as Haptics from "expo-haptics";
-import { router, useLocalSearchParams } from "expo-router";
-import { CalendarX, FileX, WifiOff } from "lucide-react-native";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  TextInput,
-  useColorScheme,
-  View,
-} from "react-native";
-import { Button, SafeView, Text } from "@/components/ui";
+import { useTranslation } from "react-i18next";
+import { AccessibilityInfo, Alert, useColorScheme } from "react-native";
+import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
-import { conventionDayKey, isValidTimeZone } from "@/lib/convention-time";
+import {
+  conventionDayKey,
+  conventionStatusForDay,
+  isValidTimeZone,
+} from "@/lib/convention-time";
 import {
   type CategoryMeta,
   type ParsedEvent,
@@ -62,41 +68,18 @@ function normalizeSchedUrl(value: string): string {
   return `https://${parsed.hostname.toLowerCase()}`;
 }
 
-function confirmEmptyScheduleUpdate(removalCount: number): Promise<boolean> {
-  const eventWord = removalCount === 1 ? "event" : "events";
-
-  return new Promise((resolve) => {
-    Alert.alert(
-      "Apply empty schedule update?",
-      `This Sched update has no active events. Applying it will remove exactly ${removalCount} imported ${eventWord} from this convention and cancel their local reminders. Manually added events will stay.`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-          onPress: () => resolve(false),
-        },
-        {
-          text: "Apply Schedule Update",
-          style: "destructive",
-          onPress: () => resolve(true),
-        },
-      ],
-      {
-        cancelable: true,
-        onDismiss: () => resolve(false),
-      },
-    );
-  });
-}
-
 export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useTranslation();
   const colorScheme = useColorScheme();
-  const placeholderColor = colorScheme === "dark" ? "#94A3B8" : "#64748B";
+  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const seedColor = resolvedColorScheme === "dark" ? "#18B7F2" : "#006F91";
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
   const didPrefill = useRef(false);
   const requestGeneration = useRef(0);
+  const urlInput = useNativeState("");
+  const timeZoneInput = useNativeState("");
 
   const { data: existingConvention } = useQuery({
     queryKey: ["convention", id],
@@ -119,18 +102,32 @@ export default function ImportScreen() {
   useEffect(() => {
     if (!existingConvention || didPrefill.current) return;
     didPrefill.current = true;
-    if (storedTimeZone) setTimeZone(storedTimeZone);
+    if (storedTimeZone) {
+      timeZoneInput.value = storedTimeZone;
+      setTimeZone(storedTimeZone);
+    }
     if (existingConvention.icalUrl) {
+      urlInput.value = existingConvention.icalUrl;
       setUrl(existingConvention.icalUrl);
       setActiveTab("url");
     }
-  }, [existingConvention, storedTimeZone]);
+  }, [existingConvention, storedTimeZone, timeZoneInput, urlInput]);
+
+  function setUrlValue(value: string) {
+    urlInput.value = value;
+    setUrl(value);
+  }
+
+  function setTimeZoneValue(value: string) {
+    timeZoneInput.value = value;
+    setTimeZone(value);
+  }
 
   function clearState() {
     setError(null);
     setPreview(null);
     setPendingCalendar(null);
-    setTimeZone(storedTimeZone ?? "");
+    setTimeZoneValue(storedTimeZone ?? "");
   }
 
   function beginRequest(): number {
@@ -156,7 +153,37 @@ export default function ImportScreen() {
 
   function handleUrlChange(value: string) {
     didPrefill.current = true;
-    setUrl(value);
+    setUrlValue(value);
+  }
+
+  function confirmEmptyScheduleUpdate(removalCount: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      Alert.alert(
+        t("import.alerts.emptyUpdateTitle"),
+        t(
+          removalCount === 1
+            ? "import.alerts.emptyUpdateEvent"
+            : "import.alerts.emptyUpdateEvents",
+          { count: removalCount },
+        ),
+        [
+          {
+            text: t("common.cancel"),
+            style: "cancel",
+            onPress: () => resolve(false),
+          },
+          {
+            text: t("import.applyUpdate"),
+            style: "destructive",
+            onPress: () => resolve(true),
+          },
+        ],
+        {
+          cancelable: true,
+          onDismiss: () => resolve(false),
+        },
+      );
+    });
   }
 
   function processIcs(
@@ -178,19 +205,20 @@ export default function ImportScreen() {
         type: "parse",
         message:
           parseError instanceof UnsupportedRecurrenceError
-            ? parseError.message
-            : "This calendar could not be parsed safely.",
+            ? t("import.errors.unsupportedRecurrence", {
+                properties: parseError.properties.join(", "),
+              })
+            : t("import.errors.parse"),
       });
       return;
     }
 
     if (result.requiresTimeZone) {
       setPendingCalendar({ name, icsContent, sourceUrl });
-      setTimeZone(selectedTimeZone ?? "");
+      setTimeZoneValue(selectedTimeZone ?? "");
       setError({
         type: "timezone",
-        message:
-          "Choose the furcon's IANA time zone so event times stay correct when you travel.",
+        message: t("import.timeZone.requiredMessage"),
       });
       return;
     }
@@ -206,7 +234,7 @@ export default function ImportScreen() {
     ) {
       setError({
         type: "no-events",
-        message: "No events found in this calendar file.",
+        message: t("import.errors.noEvents"),
       });
       return;
     }
@@ -224,7 +252,9 @@ export default function ImportScreen() {
       sourceUrl,
     });
     setPendingCalendar(null);
-    setTimeZone(result.timezone ?? selectedTimeZone ?? storedTimeZone ?? "");
+    setTimeZoneValue(
+      result.timezone ?? selectedTimeZone ?? storedTimeZone ?? "",
+    );
   }
 
   function handleTimeZoneSubmit() {
@@ -253,7 +283,7 @@ export default function ImportScreen() {
       if (!file.name.endsWith(".ics")) {
         setError({
           type: "file-type",
-          message: "Please select a .ics calendar file.",
+          message: t("import.errors.fileType"),
         });
         return;
       }
@@ -267,7 +297,7 @@ export default function ImportScreen() {
       );
     } catch {
       if (isCurrentRequest(generation)) {
-        setError({ type: "parse", message: "Failed to read the file." });
+        setError({ type: "parse", message: t("import.errors.fileRead") });
       }
     } finally {
       if (isCurrentRequest(generation)) setLoading(false);
@@ -284,10 +314,10 @@ export default function ImportScreen() {
       if (!isCurrentRequest(generation)) return;
       const normalizedUrl = normalizeSchedUrl(scheduleUrl);
       const name = new URL(normalizedUrl).hostname.split(".")[0];
-      setUrl(normalizedUrl);
+      setUrlValue(normalizedUrl);
       processIcs(
         content,
-        name || "Imported Convention",
+        name || t("import.importedConvention"),
         storedTimeZone ?? undefined,
         normalizedUrl,
       );
@@ -296,22 +326,22 @@ export default function ImportScreen() {
       if (err instanceof InvalidSchedUrlError) {
         setError({
           type: "file-type",
-          message: "Enter a valid Sched URL (e.g. https://yourcon.sched.com).",
+          message: t("import.errors.invalidUrl"),
         });
       } else if (err instanceof NetworkError) {
         setError({
           type: "network",
-          message: "Network error. Check your connection and try again.",
+          message: t("import.errors.network"),
         });
       } else if (err instanceof InvalidResponseError) {
         setError({
           type: "no-events",
-          message: "URL did not return a valid calendar file.",
+          message: t("import.errors.invalidResponse"),
         });
       } else {
         setError({
           type: "parse",
-          message: "Something went wrong. Please try again.",
+          message: t("import.errors.generic"),
         });
       }
     } finally {
@@ -336,8 +366,8 @@ export default function ImportScreen() {
     const selectedTimeZone = timeZone.trim();
     if (!isValidTimeZone(selectedTimeZone)) {
       Alert.alert(
-        "Invalid Time Zone",
-        "Use an IANA time zone such as America/Chicago.",
+        t("import.alerts.invalidTimeZoneTitle"),
+        t("import.alerts.invalidTimeZoneMessage"),
       );
       return;
     }
@@ -349,10 +379,12 @@ export default function ImportScreen() {
       });
     } catch (parseError) {
       Alert.alert(
-        "Import Not Applied",
+        t("import.alerts.notAppliedTitle"),
         parseError instanceof UnsupportedRecurrenceError
-          ? parseError.message
-          : "This calendar could not be parsed safely. Nothing was changed.",
+          ? t("import.errors.unsupportedRecurrence", {
+              properties: parseError.properties.join(", "),
+            })
+          : t("import.alerts.parseNotApplied"),
       );
       return;
     }
@@ -374,7 +406,10 @@ export default function ImportScreen() {
         cancelledEventCount: reparsed.cancelledSourceUids.length,
       })
     ) {
-      Alert.alert("Nothing to Import", "Choose at least one event.");
+      Alert.alert(
+        t("import.alerts.nothingTitle"),
+        t("import.alerts.nothingMessage"),
+      );
       return;
     }
 
@@ -391,8 +426,8 @@ export default function ImportScreen() {
         ).length;
       } catch {
         Alert.alert(
-          "Schedule Update Not Applied",
-          "The app could not verify which imported events would be removed. Nothing was changed.",
+          t("import.alerts.updateNotAppliedTitle"),
+          t("import.alerts.updateNotAppliedMessage"),
         );
         return;
       }
@@ -418,11 +453,7 @@ export default function ImportScreen() {
         : null;
     const today = conventionDayKey(new Date(), selectedTimeZone);
     const status = dateRange
-      ? today < dateRange.startDate
-        ? "upcoming"
-        : today > dateRange.endDate
-          ? "ended"
-          : "active"
+      ? conventionStatusForDay(dateRange.startDate, dateRange.endDate, today)
       : null;
 
     let createdConventionId: string | null = null;
@@ -506,23 +537,31 @@ export default function ImportScreen() {
       ).catch(() => undefined);
 
       Alert.alert(
-        "Import Complete",
-        `${result.added} added, ${result.updated} updated, ${result.removed} removed.${
+        t("import.alerts.successTitle"),
+        [
+          t("import.alerts.successSummary", {
+            added: result.added,
+            updated: result.updated,
+            removed: result.removed,
+          }),
           result.unresolved > 0
-            ? ` ${result.unresolved} recurring series left unchanged because its older saved events could not be matched safely.`
-            : ""
-        }${
+            ? t("import.alerts.unresolvedSeries", {
+                count: result.unresolved,
+              })
+            : null,
           conventionDetailsUpdated
-            ? ""
-            : " Events were saved, but the convention dates or saved Sched URL could not be refreshed."
-        }`,
+            ? null
+            : t("import.alerts.detailsNotUpdated"),
+        ]
+          .filter(Boolean)
+          .join(" "),
         [
           {
-            text: "Done",
+            text: t("common.done"),
             onPress: () =>
               createdConventionId
                 ? router.replace(`/convention/${createdConventionId}`)
-                : router.back(),
+                : closeImport(),
           },
         ],
       );
@@ -534,7 +573,7 @@ export default function ImportScreen() {
           // The original import error is still the useful failure to report.
         }
       }
-      Alert.alert("Import Failed", "Something went wrong. Please try again.");
+      Alert.alert(t("import.alerts.failedTitle"), t("import.errors.generic"));
     }
   }
 
@@ -544,6 +583,26 @@ export default function ImportScreen() {
           e.category === null || preview.selectedCategories.has(e.category),
       ).length
     : 0;
+  const accessibilityAnnouncement = loading
+    ? `${t("import.loading")}. ${t("import.loadingDescription")}`
+    : error?.message ||
+      (preview
+        ? t(
+            preview.events.length === 1
+              ? "import.eventFound"
+              : "import.eventsFound",
+            {
+              count: preview.events.length,
+            },
+          )
+        : "");
+
+  useEffect(() => {
+    if (accessibilityAnnouncement) {
+      AccessibilityInfo.announceForAccessibility(accessibilityAnnouncement);
+    }
+  }, [accessibilityAnnouncement]);
+
   const canApplyPreview = preview
     ? canApplyScheduleImport({
         conventionId: id,
@@ -559,248 +618,241 @@ export default function ImportScreen() {
     id !== "new" &&
     preview.sourceUrl !== null &&
     preview.events.length === 0;
+  const closeImport = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else if (id === "new") {
+      router.replace("/(tabs)/(home)");
+    } else {
+      router.replace(`/convention/${id}`);
+    }
+  };
+
   const controlsDisabled = loading || importMutation.isPending;
+  const importActionLabel = importMutation.isPending
+    ? isEmptyAuthoritativeUpdate
+      ? t("import.applying")
+      : t("import.importing")
+    : isEmptyAuthoritativeUpdate
+      ? t("import.applyUpdate")
+      : t(selectedCount === 1 ? "import.importEvent" : "import.importEvents", {
+          count: selectedCount,
+        });
 
   return (
     <SafeView edges={["bottom"]}>
-      <View className="flex-row items-center justify-between px-4 py-2">
-        <Text variant="h2" accessibilityRole="header">
-          Import Schedule
-        </Text>
-        <Button
-          variant="ghost"
-          size="sm"
-          onPress={() => router.back()}
-          accessibilityHint="Closes the import sheet"
-        >
-          Cancel
-        </Button>
-      </View>
+      {process.env.EXPO_OS === "ios" ? (
+        <Stack.Toolbar placement="left">
+          <Stack.Toolbar.Button onPress={closeImport}>
+            {t("common.cancel")}
+          </Stack.Toolbar.Button>
+        </Stack.Toolbar>
+      ) : null}
 
-      <View className="px-4 mb-4">
-        <SegmentedControl
-          values={["File", "Sched URL"]}
-          selectedIndex={activeTab === "file" ? 0 : 1}
-          enabled={!controlsDisabled}
-          appearance={colorScheme === "dark" ? "dark" : "light"}
-          tintColor={colorScheme === "dark" ? "#18B7F2" : "#006F91"}
-          onChange={({ nativeEvent }) =>
-            handleTabChange(
-              nativeEvent.selectedSegmentIndex === 0 ? "file" : "url",
-            )
-          }
-          testID="import-source-segmented-control"
-        />
-      </View>
-
-      <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">
-        {/* Tab content */}
-        {activeTab === "file" ? (
-          <Button
-            variant="outline"
-            onPress={handleFilePick}
-            disabled={controlsDisabled}
-            className="mb-4"
-          >
-            Choose .ics File
-          </Button>
-        ) : (
-          <View className="gap-3 mb-4">
-            <TextInput
-              value={url}
-              onChangeText={handleUrlChange}
-              placeholder="Paste a Sched event URL"
-              placeholderTextColor={placeholderColor}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="url"
-              editable={!controlsDisabled}
-              accessibilityLabel="Sched schedule URL"
-              accessibilityState={{ disabled: controlsDisabled }}
-              className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-            />
-            <Button
-              onPress={handleUrlFetch}
-              disabled={!url.trim() || controlsDisabled}
+      <Host
+        colorScheme={resolvedColorScheme}
+        seedColor={seedColor}
+        style={{ flex: 1 }}
+        useViewportSizeMeasurement
+      >
+        <FieldGroup>
+          <FieldGroup.Section title={t("import.source")}>
+            <ListItem
+              trailing={
+                <Picker
+                  selectedValue={activeTab}
+                  onValueChange={(value) => handleTabChange(value as Tab)}
+                  appearance="menu"
+                  enabled={!controlsDisabled}
+                  testID="import-source-picker"
+                >
+                  <Picker.Item label={t("import.file")} value="file" />
+                  <Picker.Item label={t("import.url")} value="url" />
+                </Picker>
+              }
             >
-              Fetch Schedule
-            </Button>
-          </View>
-        )}
+              {t("import.sourceLabel")}
+            </ListItem>
 
-        {/* Loading */}
-        {loading && (
-          <View
-            className="items-center py-8"
-            accessibilityRole="progressbar"
-            accessibilityLabel="Loading schedule"
-            accessibilityLiveRegion="polite"
-            accessibilityState={{ busy: true }}
-          >
-            <ActivityIndicator color="#0FACED" />
-            <Text variant="caption" className="mt-2">
-              Loading...
-            </Text>
-          </View>
-        )}
-
-        {/* Error state */}
-        {error && !loading && (
-          <View className="items-center py-8 gap-3">
-            {error.type === "network" ? (
-              <WifiOff size={40} color="#94A3B8" />
-            ) : error.type === "no-events" || error.type === "timezone" ? (
-              <CalendarX size={40} color="#94A3B8" />
+            {activeTab === "file" ? (
+              <ListItem
+                onPress={controlsDisabled ? undefined : handleFilePick}
+                supportingText={t("import.fileDescription")}
+                trailing={t("import.chooseFile")}
+              >
+                {t("import.file")}
+              </ListItem>
             ) : (
-              <FileX size={40} color="#94A3B8" />
-            )}
-            <Text
-              variant="body"
-              className="text-center text-muted-foreground"
-              accessibilityRole="alert"
-              accessibilityLiveRegion="assertive"
-              selectable
-            >
-              {error.message}
-            </Text>
-            {error.type === "timezone" ? (
-              <View className="w-full gap-3">
-                <TextInput
-                  value={timeZone}
-                  onChangeText={setTimeZone}
-                  placeholder="America/Chicago"
-                  placeholderTextColor={placeholderColor}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  accessibilityLabel="Convention time zone"
-                  className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
+              <>
+                <ListItem
+                  supportingText={
+                    <NativeTextInput
+                      value={urlInput}
+                      onChangeText={handleUrlChange}
+                      placeholder={t("import.urlPlaceholder")}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="url"
+                      returnKeyType="go"
+                      onSubmitEditing={handleUrlFetch}
+                      editable={!controlsDisabled}
+                      testID="sched-url-input"
+                    />
+                  }
+                >
+                  {t("import.url")}
+                </ListItem>
+                <NativeButton
+                  label={t("import.fetchSchedule")}
+                  onPress={handleUrlFetch}
+                  disabled={!url.trim() || controlsDisabled}
+                  style={{ height: 48 }}
                 />
-                <Button
-                  onPress={handleTimeZoneSubmit}
-                  disabled={!isValidTimeZone(timeZone.trim())}
-                >
-                  Use Time Zone
-                </Button>
-              </View>
-            ) : (
-              <Button
-                variant="outline"
-                onPress={activeTab === "url" ? handleUrlFetch : handleFilePick}
-              >
-                Retry
-              </Button>
+              </>
             )}
-          </View>
-        )}
+          </FieldGroup.Section>
 
-        {/* Preview */}
-        {preview && !loading && !error && (
-          <View className="gap-4">
-            <Text
-              variant="h3"
-              accessibilityRole="header"
-              accessibilityLiveRegion="polite"
-            >
-              {preview.events.length} active event
-              {preview.events.length === 1 ? "" : "s"} found
-            </Text>
-            {preview.cancelledSourceUids.length > 0 ? (
-              <Text variant="caption" className="text-muted-foreground">
-                {preview.cancelledSourceUids.length} cancellation
-                {preview.cancelledSourceUids.length === 1 ? "" : "s"} will be
-                reconciled.
-              </Text>
-            ) : null}
-            {isEmptyAuthoritativeUpdate ? (
-              <Text
-                variant="body"
-                className="text-destructive"
-                accessibilityRole="alert"
-              >
-                This update has no active events. You will review the exact
-                removal count before anything changes.
-              </Text>
-            ) : null}
+          {loading ? (
+            <FieldGroup.Section>
+              <ListItem supportingText={t("import.loadingDescription")}>
+                {t("import.loading")}
+              </ListItem>
+            </FieldGroup.Section>
+          ) : null}
 
-            <View className="gap-2">
-              <Text variant="label">Convention time zone</Text>
-              <TextInput
-                value={timeZone}
-                onChangeText={setTimeZone}
-                placeholder="America/Chicago"
-                placeholderTextColor={placeholderColor}
-                autoCapitalize="none"
-                editable={!importMutation.isPending}
-                accessibilityState={{ disabled: importMutation.isPending }}
-                autoCorrect={false}
-                accessibilityLabel="Convention time zone"
-                className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-              />
-              <Text variant="caption" className="text-muted-foreground">
-                Use the furcon location, not your phone location.
-              </Text>
-            </View>
-
-            {/* Category checkboxes */}
-            {preview.categories.map((cat) => {
-              const checked = preview.selectedCategories.has(cat.name);
-              return (
-                <Pressable
-                  key={cat.name}
-                  onPress={() => toggleCategory(cat.name)}
-                  accessibilityRole="checkbox"
-                  accessibilityLabel={`${cat.name}, ${cat.count} event${cat.count === 1 ? "" : "s"}`}
-                  accessibilityState={{
-                    checked,
-                    disabled: importMutation.isPending,
-                  }}
-                  disabled={importMutation.isPending}
-                  className="flex-row items-center gap-3 py-2"
-                >
-                  <View
-                    className={`w-5 h-5 rounded border-2 items-center justify-center ${
-                      checked ? "bg-primary border-primary" : "border-border"
-                    }`}
+          {error && !loading ? (
+            <FieldGroup.Section title={t("import.needsAttention")}>
+              <ListItem supportingText={error.message}>
+                {error.type === "timezone"
+                  ? t("import.timeZone.requiredTitle")
+                  : t("import.couldNotLoad")}
+              </ListItem>
+              {error.type === "timezone" ? (
+                <>
+                  <ListItem
+                    supportingText={
+                      <NativeTextInput
+                        value={timeZoneInput}
+                        onChangeText={setTimeZoneValue}
+                        placeholder={t("import.timeZone.placeholder")}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        returnKeyType="done"
+                        onSubmitEditing={handleTimeZoneSubmit}
+                        testID="required-time-zone-input"
+                      />
+                    }
                   >
-                    {checked && (
-                      <Text className="text-primary-foreground text-xs font-bold">
-                        ✓
-                      </Text>
-                    )}
-                  </View>
-                  <View
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: cat.color }}
+                    {t("import.timeZone.label")}
+                  </ListItem>
+                  <NativeButton
+                    label={t("import.timeZone.use")}
+                    onPress={handleTimeZoneSubmit}
+                    disabled={!isValidTimeZone(timeZone.trim())}
+                    style={{ height: 48 }}
                   />
-                  <Text variant="body" className="flex-1">
-                    {cat.name}
-                  </Text>
-                  <Text variant="caption">{cat.count}</Text>
-                </Pressable>
-              );
-            })}
+                </>
+              ) : (
+                <NativeButton
+                  label={t("common.retry")}
+                  variant="outlined"
+                  onPress={
+                    activeTab === "url" ? handleUrlFetch : handleFilePick
+                  }
+                  style={{ height: 48 }}
+                />
+              )}
+            </FieldGroup.Section>
+          ) : null}
 
-            <View className="pt-2 pb-8 gap-3">
-              <Button
-                onPress={handleImport}
-                disabled={
-                  importMutation.isPending ||
-                  !canApplyPreview ||
-                  !isValidTimeZone(timeZone.trim())
-                }
-              >
-                {importMutation.isPending
-                  ? isEmptyAuthoritativeUpdate
-                    ? "Applying..."
-                    : "Importing..."
-                  : isEmptyAuthoritativeUpdate
-                    ? "Apply Schedule Update"
-                    : `Import ${selectedCount} Event${selectedCount !== 1 ? "s" : ""}`}
-              </Button>
-            </View>
-          </View>
-        )}
-      </ScrollView>
+          {preview && !loading && !error ? (
+            <>
+              <FieldGroup.Section title={t("import.preview")}>
+                <ListItem
+                  supportingText={t(
+                    preview.events.length === 1
+                      ? "import.eventFound"
+                      : "import.eventsFound",
+                    { count: preview.events.length },
+                  )}
+                >
+                  {preview.name}
+                </ListItem>
+                {preview.cancelledSourceUids.length > 0 ? (
+                  <ListItem>
+                    {t(
+                      preview.cancelledSourceUids.length === 1
+                        ? "import.cancellation"
+                        : "import.cancellations",
+                      { count: preview.cancelledSourceUids.length },
+                    )}
+                  </ListItem>
+                ) : null}
+                {isEmptyAuthoritativeUpdate ? (
+                  <ListItem supportingText={t("import.emptyUpdateMessage")}>
+                    {t("import.emptyUpdateTitle")}
+                  </ListItem>
+                ) : null}
+              </FieldGroup.Section>
+
+              <FieldGroup.Section title={t("import.timeZone.sectionTitle")}>
+                <ListItem
+                  supportingText={
+                    <NativeTextInput
+                      value={timeZoneInput}
+                      onChangeText={setTimeZoneValue}
+                      placeholder={t("import.timeZone.placeholder")}
+                      autoCapitalize="none"
+                      editable={!importMutation.isPending}
+                      autoCorrect={false}
+                      returnKeyType="done"
+                      testID="preview-time-zone-input"
+                    />
+                  }
+                >
+                  {t("import.timeZone.label")}
+                </ListItem>
+                <FieldGroup.SectionFooter>
+                  <NativeText>{t("import.timeZone.help")}</NativeText>
+                </FieldGroup.SectionFooter>
+              </FieldGroup.Section>
+
+              {preview.categories.length > 0 ? (
+                <FieldGroup.Section title={t("import.categories")}>
+                  {preview.categories.map((category) => (
+                    <Checkbox
+                      key={category.name}
+                      value={preview.selectedCategories.has(category.name)}
+                      onValueChange={() => toggleCategory(category.name)}
+                      label={t(
+                        category.count === 1
+                          ? "import.categoryEvent"
+                          : "import.categoryEvents",
+                        { name: category.name, count: category.count },
+                      )}
+                      disabled={importMutation.isPending}
+                      testID={`category-${category.name}`}
+                    />
+                  ))}
+                </FieldGroup.Section>
+              ) : null}
+
+              <FieldGroup.Section>
+                <NativeButton
+                  label={importActionLabel}
+                  onPress={handleImport}
+                  disabled={
+                    importMutation.isPending ||
+                    !canApplyPreview ||
+                    !isValidTimeZone(timeZone.trim())
+                  }
+                  style={{ height: 48 }}
+                />
+              </FieldGroup.Section>
+            </>
+          ) : null}
+        </FieldGroup>
+      </Host>
     </SafeView>
   );
 }

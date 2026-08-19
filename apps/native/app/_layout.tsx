@@ -61,10 +61,6 @@ const lightNavigationTheme = {
   colors: {
     ...DefaultTheme.colors,
     primary: "#006F91",
-    background: "#FFFFFF",
-    card: "#F8FAFC",
-    text: "#0F172A",
-    border: "#E2E8F0",
   },
 };
 
@@ -73,10 +69,6 @@ const darkNavigationTheme = {
   colors: {
     ...DarkTheme.colors,
     primary: "#18B7F2",
-    background: "#091533",
-    card: "#0F1D45",
-    text: "#F8FAFC",
-    border: "#1E3A5F",
   },
 };
 

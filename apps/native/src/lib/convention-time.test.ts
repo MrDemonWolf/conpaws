@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   conventionDayKey,
+  conventionStatusForDay,
   formatInConventionTime,
   isValidTimeZone,
   overlappingEventIds,
@@ -16,6 +17,21 @@ describe("convention time", () => {
     );
     expect(isValidTimeZone("America/Chicago")).toBe(true);
     expect(isValidTimeZone("Not/A_Time_Zone")).toBe(false);
+  });
+
+  it("classifies convention dates including both boundary days", () => {
+    expect(
+      conventionStatusForDay("2026-08-20", "2026-08-22", "2026-08-19"),
+    ).toBe("upcoming");
+    expect(
+      conventionStatusForDay("2026-08-20", "2026-08-22", "2026-08-20"),
+    ).toBe("active");
+    expect(
+      conventionStatusForDay("2026-08-20", "2026-08-22", "2026-08-22"),
+    ).toBe("active");
+    expect(
+      conventionStatusForDay("2026-08-20", "2026-08-22", "2026-08-23"),
+    ).toBe("ended");
   });
 
   it("finds arbitrary overlaps without flagging back-to-back events", () => {

@@ -1,5 +1,6 @@
 import { Button, Host, Text } from "@expo/ui/swift-ui";
 import {
+  accessibilityLabel,
   buttonBorderShape,
   buttonStyle,
   controlSize,
@@ -29,7 +30,13 @@ export function OnboardingButton({
     <View className="w-full">
       <Host
         colorScheme={resolvedColorScheme}
-        seedColor={resolvedColorScheme === "dark" ? "#18B7F2" : "#006F91"}
+        seedColor={
+          variant === "primary"
+            ? "#006F91"
+            : resolvedColorScheme === "dark"
+              ? "#18B7F2"
+              : "#006F91"
+        }
         matchContents={{ vertical: true }}
         style={{ alignSelf: "stretch" }}
       >
@@ -37,13 +44,14 @@ export function OnboardingButton({
           onPress={onPress}
           testID={testID}
           modifiers={[
+            accessibilityLabel(label),
             buttonStyle(buttonStyles[variant]),
             controlSize("large"),
             buttonBorderShape("roundedRectangle", 12),
             disabledModifier(disabled),
           ]}
         >
-          <Text modifiers={[frame({ maxWidth: Infinity, minHeight: 44 })]}>
+          <Text modifiers={[frame({ maxWidth: Infinity, minHeight: 48 })]}>
             {label}
           </Text>
         </Button>

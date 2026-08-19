@@ -17,37 +17,50 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeView>
+    <SafeView className="overflow-hidden">
       <OnboardingBackground />
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          paddingTop: 16,
+          paddingBottom: 24,
+        }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 items-center justify-center gap-8 px-6 py-8">
-          <View className="items-center gap-4">
-            <Image
-              source={require("../../assets/images/splash-icon.png")}
-              className="h-40 w-40"
-              resizeMode="contain"
-              accessible={false}
-              accessibilityIgnoresInvertColors
-            />
-            <Text variant="h1" className="text-4xl tracking-tight text-primary">
-              ConPaws
-            </Text>
-            <Text variant="body" className="text-center font-semibold">
-              {t("onboarding.welcome.tagline")}
-            </Text>
-            <Text
-              variant="caption"
-              className="text-center leading-5 text-foreground/80"
-            >
-              {t("onboarding.welcome.subtitle")}
-            </Text>
+        <View className="flex-grow items-center justify-center py-8">
+          <View className="max-w-sm items-center gap-6">
+            <View className="items-center gap-1">
+              <Image
+                source={require("../../assets/images/splash-icon.png")}
+                className="h-40 w-40"
+                resizeMode="contain"
+                accessible={false}
+                accessibilityIgnoresInvertColors
+              />
+              <Text
+                variant="h1"
+                className="text-4xl tracking-tight text-primary"
+              >
+                ConPaws
+              </Text>
+            </View>
+            <View className="items-center gap-2">
+              <Text variant="body" className="text-center font-semibold">
+                {t("onboarding.welcome.tagline")}
+              </Text>
+              <Text
+                variant="caption"
+                className="text-center leading-5 text-muted-foreground"
+              >
+                {t("onboarding.welcome.subtitle")}
+              </Text>
+            </View>
           </View>
         </View>
-        <View className="gap-2 px-6 pb-8">
+        <View className="gap-2 pt-4">
           <OnboardingButton
             label={t("onboarding.welcome.continue")}
             onPress={() => router.push("/(onboarding)/features")}

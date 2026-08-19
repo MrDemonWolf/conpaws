@@ -1035,8 +1035,10 @@ export default function ConventionDetailScreen() {
                 icon={EMPTY_SCHEDULE_ICON}
                 title={t("convention.noEvents")}
                 subtitle={t("convention.noEventsSubtitle")}
-                ctaLabel={t("convention.importSchedule")}
-                onCta={() => router.push(`/convention/${id}/import`)}
+                ctaLabel={t("convention.addEvent")}
+                onCta={() => setManualEventVisible(true)}
+                secondaryCtaLabel={t("convention.importSchedule")}
+                onSecondaryCta={() => router.push(`/convention/${id}/import`)}
               />
             )
           }
