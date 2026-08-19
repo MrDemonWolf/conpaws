@@ -2,25 +2,36 @@ import { FieldGroup, Host, ListItem, Button as NativeButton } from "@expo/ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Alert, useColorScheme } from "react-native";
 import {
   BLANK_PREVIEW_CONVENTION_ID,
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import {
+  resetPresentationLock,
+  tryAcquirePresentationLock,
+} from "@/lib/presentation-lock";
 import { resetPreviewConventions } from "@/lib/preview-convention";
 
 export default function DebugScreen() {
   const queryClient = useQueryClient();
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const presentationLock = useRef(false);
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const enabled = developerToolsEnabled(__DEV__, appVariant);
+
+  useFocusEffect(
+    useCallback(() => {
+      resetPresentationLock(presentationLock);
+    }, []),
+  );
 
   if (!enabled) return <Redirect href="/(tabs)/settings" />;
 
@@ -42,24 +53,28 @@ export default function DebugScreen() {
   }
 
   async function loadPreviewConvention(id: string) {
+    if (!tryAcquirePresentationLock(presentationLock)) return;
     setIsLoadingPreview(true);
     try {
       const installed = await resetPreviewConventions(__DEV__, appVariant);
-      if (!installed) return;
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-        queryClient.invalidateQueries({ queryKey: ["convention"] }),
-        queryClient.invalidateQueries({ queryKey: ["events"] }),
-      ]);
-      router.push(`/convention/${id}`);
+      if (!installed) {
+        resetPresentationLock(presentationLock);
+      } else {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+          queryClient.invalidateQueries({ queryKey: ["convention"] }),
+          queryClient.invalidateQueries({ queryKey: ["events"] }),
+        ]);
+        router.push(`/convention/${id}`);
+      }
     } catch {
+      resetPresentationLock(presentationLock);
       Alert.alert(
         "Preview Con could not be loaded",
         "Your existing conventions were not changed. Try again.",
       );
-    } finally {
-      setIsLoadingPreview(false);
     }
+    setIsLoadingPreview(false);
   }
 
   return (
