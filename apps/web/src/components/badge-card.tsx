@@ -50,16 +50,22 @@ export function BadgeCard({ name }: { name: string }) {
     >
       {/* Everything below sways together, hinged where the clip sits. */}
       <div className="motion-safe:animate-sway flex origin-[50%_-30px] flex-col items-center">
-        {/* ---- lanyard straps ---- */}
-        <div className="relative h-[150px] w-[300px]">
-          <div className="strap-fabric -rotate-[15deg] absolute top-[-34px] left-[46px] flex h-[190px] w-[26px] origin-bottom items-center justify-center overflow-hidden rounded-[3px]">
+        {/* ---- lanyard straps ----
+            Anchored at the BOTTOM and much taller than their visible area, so
+            their top ends always sit above the viewport edge — a strap that
+            visibly ends mid-air reads as a rendering bug (and did, on mobile).
+            The container height is what tunes how much lanyard shows. */}
+        <div className="relative h-[110px] w-[300px] md:h-[150px]">
+          <div className="strap-fabric -rotate-[12deg] absolute bottom-[-40px] left-[52px] flex h-[560px] w-[26px] origin-bottom items-center justify-center overflow-hidden rounded-[3px]">
             <span className="whitespace-nowrap font-tech text-[7px] text-primary/50 uppercase tracking-[0.35em] [writing-mode:vertical-rl]">
-              CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS
+              CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦
+              CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS
             </span>
           </div>
-          <div className="strap-fabric absolute top-[-34px] right-[46px] flex h-[190px] w-[26px] origin-bottom rotate-[15deg] items-center justify-center overflow-hidden rounded-[3px]">
+          <div className="strap-fabric absolute right-[52px] bottom-[-40px] flex h-[560px] w-[26px] origin-bottom rotate-[12deg] items-center justify-center overflow-hidden rounded-[3px]">
             <span className="whitespace-nowrap font-tech text-[7px] text-primary/50 uppercase tracking-[0.35em] [writing-mode:vertical-rl]">
-              ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦
+              ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦
+              CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦ CONPAWS ✦
             </span>
           </div>
 
