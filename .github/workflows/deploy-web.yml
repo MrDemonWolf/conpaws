@@ -85,6 +85,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           BREVO_LIST_ID: ${{ vars.BREVO_LIST_ID }}
           BREVO_DOI_TEMPLATE_ID: ${{ vars.BREVO_DOI_TEMPLATE_ID }}
@@ -93,10 +94,16 @@ jobs:
           # Alchemy reads these at deploy time and binds them onto the Workers.
           # A missing one would deploy a site whose waitlist silently 503s, so
           # fail here instead.
+          #
+          # NEXT_PUBLIC_TURNSTILE_SITE_KEY is the odd one out: it is a public,
+          # build-time client var (packages/env/src/web.ts) that the deploy step
+          # inlines into the bundle, not a Worker binding. Without it the widget
+          # never renders, the client posts an empty token, and every real signup
+          # gets a 400. Hence a variable, not a secret.
           missing=()
           for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_PASSWORD \
-            TURNSTILE_SECRET_KEY BREVO_API_KEY BREVO_LIST_ID \
-            BREVO_DOI_TEMPLATE_ID BREVO_DOI_REDIRECT_URL; do
+            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY BREVO_API_KEY \
+            BREVO_LIST_ID BREVO_DOI_TEMPLATE_ID BREVO_DOI_REDIRECT_URL; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
             fi
@@ -114,6 +121,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           BREVO_LIST_ID: ${{ vars.BREVO_LIST_ID }}
           BREVO_DOI_TEMPLATE_ID: ${{ vars.BREVO_DOI_TEMPLATE_ID }}

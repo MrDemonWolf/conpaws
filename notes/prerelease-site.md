@@ -188,4 +188,104 @@ Two things fall out of this:
 
 ### Terraform
 
-There is **no Terraform in this repo** and no `.tf` files anywhere in the tree. If the Cloudflare DNS/Email-Routing config is to be managed as code, decide first whether it belongs here or in a separate infra repo alongside `mrdemonwolf.com` — a `cloudflare_email_routing_rule` / `cloudflare_record` module split across two repos while one Cloudflare account owns both zones is a drift trap. **Open question, deliberately not answered here.** Note that the Worker itself stays on `wrangler.jsonc` regardless; Alchemy was rejected (see Deployment) and Terraform would own DNS and Email Routing only, not the Worker.
+There is **no Terraform in this repo** and no `.tf` files anywhere in the tree. If the Cloudflare DNS/Email-Routing config is to be managed as code, decide first whether it belongs here or in a separate infra repo alongside `mrdemonwolf.com` — a `cloudflare_email_routing_rule` / `cloudflare_record` module split across two repos while one Cloudflare account owns both zones is a drift trap. **Open question, deliberately not answered here.** Note that `apps/web/wrangler.jsonc` is local-dev/CI-preview only now; Terraform would own DNS and Email Routing only; the Worker stack itself belongs to Alchemy (see Deployment).
+
+## Going live: config runbook
+
+Nothing below can run until the accounts exist. As of 2026-08-19 the repo has
+**zero secrets**; `PRODUCTION_DEPLOY_ENABLED` and `PRODUCTION_ROUTES_ENABLED`
+both exist and are `false`. Merging the site code deploys nothing — the deploy
+job's `if:` fails on the enable switch, and `Require deploy configuration`
+fails the run rather than shipping a site whose waitlist silently 503s.
+
+Order matters. Steps 1-3 are account work; step 4 is paste-and-go once they're done.
+
+### 1. Brevo — separate account owned by `conpaws.com`
+
+Route A (see ESP section): the blocklist is account-wide, so sharing the
+MrDemonWolf account would let a ConPaws unsubscribe silently blocklist that
+address on `mrdemonwolf.com` too.
+
+1. Create the account, add `conpaws.com` as a sender domain.
+2. **DKIM + sender verification.** The domain has neither today (see DNS table)
+   and cannot send at all until it does.
+3. **Disable IP authorization, or allowlist Brevo's published CIDRs, before the
+   30-day learning phase arms.** Workers egress from rotating IPs. Skip this and
+   sends start failing roughly a month after launch, long after anyone connects
+   the two events.
+4. Create the double-opt-in template; confirm `{{ params.DOIurl }}` renders.
+   Note the list id and template id — they are identifiers, not credentials, and
+   go in as variables.
+
+### 2. Turnstile
+
+Create the widget for `conpaws.com`. Keep both keys: the **site** key is public
+and build-time; the **secret** key is a repo secret.
+
+### 3. Cloudflare API token
+
+Scopes: Workers Scripts:Edit and D1:Edit. Also grab the account id. Alchemy
+creates `conpaws-db` on first deploy — do not pre-create it, and never put a
+real `database_id` in `apps/web/wrangler.jsonc` (local dev and CI preview only).
+
+`ALCHEMY_PASSWORD` is the state-encryption passphrase. Generate a long random
+one and store it somewhere durable — losing it orphans the stack state.
+
+### 4. Set the config
+
+```bash
+gh secret set CLOUDFLARE_API_TOKEN
+gh secret set CLOUDFLARE_ACCOUNT_ID
+gh secret set ALCHEMY_PASSWORD
+gh secret set BREVO_API_KEY
+gh secret set TURNSTILE_SECRET_KEY
+
+gh variable set BREVO_LIST_ID --body '<list id>'
+gh variable set BREVO_DOI_TEMPLATE_ID --body '<template id>'
+gh variable set BREVO_DOI_REDIRECT_URL --body 'https://conpaws.com/confirmed'
+gh variable set NEXT_PUBLIC_TURNSTILE_SITE_KEY --body '<site key>'
+```
+
+**`BREVO_DOI_REDIRECT_URL` has no page behind it yet.** `apps/web/src/app/`
+currently holds only `(marketing)/page.tsx`, `privacy`, `terms`, and the two API
+routes — there is no `/confirmed`. Brevo sends every confirming subscriber there
+after they click the link, so the page must exist before the waitlist opens or
+the last step of the signup flow is a 404. Build it with step 6, not step 4.
+
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` is deliberately a **variable, not a secret**.
+It is a build-time client var (`packages/env/src/web.ts`) that the deploy step
+inlines into the bundle; it ships to every visitor by design. Masking it in logs
+buys nothing and invites treating it as sensitive.
+
+Enable the deploy **last**, once everything above is set:
+
+```bash
+gh variable set PRODUCTION_DEPLOY_ENABLED --body true
+```
+
+### 5. First deploy, routes still disabled
+
+Leave `PRODUCTION_ROUTES_ENABLED=false`. Automatic rollback died with the
+wrangler pipeline, so Cloudflare needs a known-good version parked before
+`conpaws.com` points at anything. Verify the Worker and D1 came up, then flip
+routes on. Manual rollback:
+
+```bash
+cd apps/web && bunx wrangler rollback
+```
+
+### 6. Open the waitlist
+
+End-to-end test on the deployed site first: submit, confirm the D1 row lands
+with `synced_at` stamped, confirm the DOI email actually arrives. Then flip
+`WAITLIST_ACCEPTING_SIGNUPS` to `true` in `apps/web/src/components/waitlist.tsx`.
+
+The CI smoke test asserting HTTP 503 does **not** change — it exercises the
+unconfigured local preview, not production.
+
+### 7. Migrate the 6 SeedProd subscribers
+
+Needs the CSV export from WordPress. Preserve `created_at` from the CSV; those
+timestamps are the only consent evidence those six people have. Use
+`source: 'seedprod-import'`, `status: 'confirmed'`. Send a "we moved" note,
+never a re-confirmation. Take the WordPress page down only after that.
