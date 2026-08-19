@@ -80,7 +80,7 @@ export function Waitlist() {
 
   return (
     <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-16">
-      <div className="pt-6 md:pt-14">
+      <div className="relative z-10 pt-6 md:pt-14">
         <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[11px] text-primary uppercase tracking-[0.24em]">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
@@ -219,7 +219,7 @@ export function Waitlist() {
         )}
       </div>
 
-      <div className="md:order-none -order-1 md:pt-2">
+      <div className="md:order-none -order-1 relative z-0 md:pt-2">
         <Badge name={name} />
       </div>
     </div>
