@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { Separator, Text } from "@/components/ui";
+import { Text } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 interface SectionHeaderProps {
@@ -9,14 +9,8 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ title, className }: SectionHeaderProps) {
   return (
-    <View className={cn("px-4 pt-4 pb-2", className)}>
-      <Text
-        variant="label"
-        className="text-muted-foreground uppercase tracking-wide text-xs"
-      >
-        {title}
-      </Text>
-      <Separator className="mt-2" />
+    <View className={cn("bg-background px-4 pt-5 pb-2", className)}>
+      <Text variant="h3">{title}</Text>
     </View>
   );
 }

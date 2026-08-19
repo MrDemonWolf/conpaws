@@ -4,6 +4,7 @@
     "profile": "Profil",
     "settings": "Ustawienia",
     "back": "Wstecz",
+    "add": "Dodaj",
     "save": "Zapisz",
     "cancel": "Anuluj",
     "delete": "Usuń",
@@ -20,68 +21,173 @@
     "version": "Wersja {{version}}"
   },
   "onboarding": {
+    "progress": "Krok {{step}} z {{total}}",
     "welcome": {
-      "tagline": "Nawiguj, Łącz się, Ciesz się",
-      "subtitle": "Twój furry towarzysz konwentów",
-      "getStarted": "Zacznij"
+      "tagline": "Program konwentu zawsze pod ręką, także offline.",
+      "subtitle": "Planuj mimo słabego Wi-Fi na konwencie. Harmonogram zostaje na twoim urządzeniu.",
+      "continue": "Dalej",
+      "skip": "Pomiń"
     },
     "features": {
-      "title": "Wszystko, czego potrzebujesz",
-      "subtitle": "ConPaws utrzymuje Twoje doświadczenie z konwentu w porządku",
-      "calendar": {
-        "title": "Kalendarz Konwentów",
-        "description": "Importuj harmonogramy z dowolnego konwentu. Przeglądaj panele, wydarzenia i aktywności na pierwszy rzut oka."
+      "title": "Zaplanuj cały konwent",
+      "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
+      "demo": {
+        "now": "Teraz",
+        "next": "Następnie",
+        "eventOne": "Ceremonia otwarcia",
+        "eventTwo": "Parada fursuitów",
+        "saved": "Mój harmonogram"
       },
-      "share": {
-        "title": "Udostępnij & Połącz się",
-        "description": "Utwórz swój osobisty harmonogram i udostępnij go przyjaciołom uczestniczącym w tym samym konie."
+      "import": {
+        "title": "Importuj dowolny harmonogram",
+        "description": "Dodaj plik .ics lub wklej link z Sched."
+      },
+      "plan": {
+        "title": "Nie przegap żadnego panelu",
+        "description": "Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje."
       },
       "offline": {
-        "title": "Działa Offline",
-        "description": "Wszystkie Twoje dane są przechowywane lokalnie. Internet nie jest wymagany po zaimportowaniu harmonogramu."
+        "title": "Prywatnie i offline",
+        "description": "Dane konwentu zostają na tym urządzeniu."
+      },
+      "plus": {
+        "eyebrow": "Wkrótce",
+        "title": "ConPaws+",
+        "description": "Planowane są opcjonalne funkcje premium: kopie zapasowe w chmurze, synchronizacja i funkcje społecznościowe. ConPaws już teraz działa offline bez konta."
       },
       "next": "Dalej"
     },
     "getStarted": {
-      "title": "Dołącz do ConPaws",
-      "subtitle": "Zaloguj się, aby synchronizować harmonogram między urządzeniami",
-      "signInWithApple": "Zaloguj się przez Apple",
-      "signInWithGoogle": "Zaloguj się przez Google",
-      "skipForNow": "Pomiń na razie",
-      "legal": "Kontynuując, akceptujesz nasze Warunki korzystania z usługi i Politykę prywatności"
-    },
-    "complete": {
-      "title": "Wszystko gotowe!",
-      "subtitle": "Witaj w ConPaws. Poznajmy Twój pierwszy konwent.",
-      "letsGo": "Zaczynamy"
+      "title": "Wszystko gotowe na kolejny konwent?",
+      "subtitle": "Zaimportuj harmonogram już teraz albo najpierw poznaj ConPaws.",
+      "importSchedule": "Importuj harmonogram",
+      "exploreFirst": "Najpierw poznaj aplikację",
+      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
     }
   },
   "home": {
-    "title": "Moje Konwenty",
+    "title": "Konwenty",
     "addConvention": "Dodaj Konwent",
     "empty": {
       "title": "Brak konwentów",
-      "subtitle": "Dodaj swój pierwszy konwent, aby zacząć.",
-      "cta": "Dodaj Konwent"
+      "subtitle": "Utwórz konwent lub zaimportuj istniejący harmonogram.",
+      "cta": "Utwórz konwent"
     },
+    "loadError": "Nie udało się wczytać konwentów.",
+    "dateRange": "{{start}} do {{end}}",
     "upcoming": "Nadchodzące",
     "active": "Aktywne",
-    "past": "Minione"
+    "past": "Minione",
+    "moreActions": "Więcej działań dla {{name}}",
+    "sortBy": "Sortuj według",
+    "sort": {
+      "upcoming": "Nadchodzące najpierw",
+      "name": "Nazwa"
+    },
+    "delete": {
+      "title": "Usunąć {{name}}?",
+      "message": "To trwale usunie konwent, jego harmonogram i przypomnienia.",
+      "success": "Usunięto {{name}}.",
+      "errorTitle": "Nie udało się usunąć konwentu",
+      "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
+    }
   },
   "convention": {
     "new": "Nowy Konwent",
+    "create": "Utwórz konwent",
     "edit": "Edytuj Konwent",
     "import": "Importuj Harmonogram",
     "detail": "Szczegóły Konwentu",
     "events": "Wydarzenia",
+    "searchEvents": "Szukaj wydarzeń",
+    "filterEvents": "Filtruj wydarzenia",
+    "scheduleActions": "Akcje harmonogramu",
+    "allEvents": "Wszystkie wydarzenia",
+    "mySchedule": "Mój harmonogram",
+    "nowAndNext": "Teraz i następne",
+    "categories": "Kategorie",
+    "allCategories": "Wszystkie kategorie",
+    "noMatchingEvents": "Brak pasujących wydarzeń",
+    "noMatchingEventsSubtitle": "Spróbuj innego wyszukiwania lub filtra.",
+    "timesShownIn": "Godziny są wyświetlane w strefie {{timeZone}}",
+    "nowCount": "Teraz ({{eventCount}})",
+    "nextAtCount": "Następne o {{time}} ({{eventCount}})",
+    "nextCount": "Następne ({{eventCount}})",
+    "nothingHappeningNow": "W tej chwili nic z mojego harmonogramu się nie odbywa.",
+    "noMoreUpcomingEvents": "W moim harmonogramie nie ma więcej nadchodzących wydarzeń.",
     "noEvents": "Brak wydarzeń",
     "noEventsSubtitle": "Zaimportuj harmonogram lub dodaj wydarzenia ręcznie.",
+    "myScheduleEmpty": "Mój harmonogram jest pusty",
+    "myScheduleNowNextSubtitle": "Wybierz wydarzenia w sekcji Wszystkie, aby zobaczyć, co trwa teraz i co będzie następne.",
+    "myScheduleSubtitle": "Otwórz Wszystkie i dodaj wydarzenia, których nie chcesz przegapić.",
+    "overlapSummary": "Zapisane panele z nakładającymi się godzinami: {{count}}",
+    "overlapHelp": "Możesz zachować je wszystkie. Ustaw przypomnienie o wyjściu dla późniejszego panelu, aby mieć czas na zmianę sali.",
+    "overlapLabel": "Nakłada się na inny zapisany panel",
+    "showAllEvents": "Pokaż wszystkie wydarzenia",
     "addEvent": "Dodaj Wydarzenie",
     "importSchedule": "Importuj Harmonogram",
     "startDate": "Data Rozpoczęcia",
     "endDate": "Data Zakończenia",
+    "timeZone": "Strefa czasowa",
+    "timeZonePlaceholder": "America/Chicago",
+    "timeZoneSearch": "Wyszukaj strefy czasowe",
+    "timeZoneSearchPlaceholder": "Miasto lub region",
+    "timeZoneHelp": "Użyj lokalnej strefy czasowej konwentu, na przykład America/Chicago.",
     "name": "Nazwa Konwentu",
-    "namePlaceholder": "np. IndyFurCon 2025"
+    "namePlaceholder": "np. ConPaws Preview Con",
+    "nameRequired": "Wpisz nazwę konwentu.",
+    "timeZoneInvalid": "Wpisz prawidłową strefę czasową IANA, na przykład America/Chicago.",
+    "createError": "Nie udało się utworzyć konwentu. Spróbuj ponownie.",
+    "notFound": "Nie znaleziono konwentu.",
+    "goBack": "Wróć",
+    "addToSchedule": "Dodaj do Mojego harmonogramu",
+    "removeFromSchedule": "Usuń z Mojego harmonogramu",
+    "scheduleActionHint": "Aktualizuje to wydarzenie w Moim harmonogramie.",
+    "scheduleAddedAnnouncement": "Dodano {{event}} do Mojego harmonogramu.",
+    "scheduleRemovedAnnouncement": "Usunięto {{event}} z Mojego harmonogramu.",
+    "scheduleUpdateErrorTitle": "Harmonogram nie został zaktualizowany",
+    "scheduleUpdateErrorMessage": "Nie udało się zmienić wydarzenia. Twój harmonogram pozostał bez zmian.",
+    "viewOnSched": "Zobacz w Sched",
+    "viewOnSchedLabel": "Zobacz {{event}} w Sched",
+    "openExternalHint": "Otwiera stronę wydarzenia w przeglądarce.",
+    "closeEventDetails": "Zamknij szczegóły wydarzenia",
+    "timeRangeTo": "do {{time}}",
+    "eventTimeRange": "{{start}} do {{end}}",
+    "inMySchedule": "W Moim harmonogramie",
+    "notInMySchedule": "Poza Moim harmonogramem",
+    "reminderSet": "Przypomnienie ustawione",
+    "ageRestricted": "Ograniczenie wiekowe",
+    "contentWarning": "Ostrzeżenie o treści",
+    "eventActionsHint": "Otwiera szczegóły wydarzenia oraz akcje harmonogramu i przypomnień.",
+    "manualEvent": {
+      "cancelLabel": "Anuluj dodawanie wydarzenia",
+      "saveLabel": "Zapisz wydarzenie",
+      "saving": "Zapisywanie...",
+      "titleLabel": "Tytuł *",
+      "titlePlaceholder": "Tytuł wydarzenia",
+      "titleAccessibility": "Tytuł wydarzenia, wymagany",
+      "dateLabel": "Data *",
+      "dateAccessibility": "Data wydarzenia, wymagana, RRRR-MM-DD",
+      "startLabel": "Początek *",
+      "startAccessibility": "Czas rozpoczęcia, wymagany, format 24-godzinny HH:mm",
+      "endLabel": "Koniec",
+      "endAccessibility": "Czas zakończenia, opcjonalny, format 24-godzinny HH:mm",
+      "roomLabel": "Sala",
+      "roomPlaceholder": "Opcjonalnie",
+      "roomAccessibility": "Sala wydarzenia, opcjonalna",
+      "timeZoneHelp": "Data i godziny używają strefy {{timeZone}}. Czas zakończenia przypada tego samego dnia.",
+      "savedAnnouncement": "Zapisano {{event}} i dodano do Mojego harmonogramu.",
+      "errors": {
+        "title": "Tytuł jest wymagany.",
+        "date": "Data musi mieć format RRRR-MM-DD i być prawidłową datą kalendarzową.",
+        "startTime": "Czas rozpoczęcia musi mieć 24-godzinny format HH:mm, na przykład 09:30.",
+        "endTime": "Czas zakończenia musi mieć 24-godzinny format HH:mm, na przykład 10:30.",
+        "startTimeZone": "Ten czas rozpoczęcia nie istnieje w strefie czasowej konwentu.",
+        "endTimeZone": "Ten czas zakończenia nie istnieje w strefie czasowej konwentu.",
+        "order": "Czas zakończenia musi być późniejszy niż rozpoczęcia tego samego dnia.",
+        "save": "Nie udało się zapisać wydarzenia. Inne wydarzenia nie zostały zmienione."
+      }
+    }
   },
   "profile": {
     "title": "Profil",
@@ -104,7 +210,17 @@
       "fr": "Francuski",
       "pt-BR": "Portugalski (Brazylia)",
       "sv": "Szwedzki",
-      "pl": "Polski"
+      "pl": "Polski",
+      "description": "Wybierz język używany w ConPaws.",
+      "selected": "Wybrano",
+      "changeError": "ConPaws nie mógł zmienić języka. Spróbuj ponownie."
+    },
+    "appearance": {
+      "system": "Systemowy",
+      "light": "Jasny",
+      "dark": "Ciemny",
+      "description": "Wybierz wygląd ConPaws na tym urządzeniu.",
+      "changeError": "Nie udało się zmienić wyglądu ConPaws. Spróbuj ponownie."
     },
     "account": {
       "title": "Konto",
@@ -120,7 +236,12 @@
     "data": {
       "title": "Dane",
       "exportData": "Eksportuj Dane",
+      "exportDescription": "Zapisz kopię zapasową konwentów i harmonogramów.",
+      "exporting": "Przygotowywanie kopii",
+      "exportError": "ConPaws nie mógł wyeksportować danych. Spróbuj ponownie.",
       "importData": "Importuj Dane",
+      "importDescription": "Przywróć konwenty i harmonogramy z kopii zapasowej.",
+      "importing": "Otwieranie kopii",
       "resetOnboarding": "Zresetuj Wdrożenie"
     },
     "legal": {
@@ -132,24 +253,107 @@
     },
     "about": {
       "title": "O aplikacji",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Twój plan konwentu, dostępny offline.",
+      "resources": "Zasoby",
+      "sourceCode": "Kod źródłowy",
+      "website": "Witryna",
+      "support": "Pomoc",
+      "email": "E-mail",
+      "discordDescription": "Dołącz do społeczności",
+      "copyright": "© {{year}} ConPaws. Wszelkie prawa zastrzeżone."
     }
   },
   "import": {
     "title": "Importuj Harmonogram",
-    "url": "Importuj z URL",
-    "file": "Importuj z Pliku",
+    "source": "Źródło",
+    "sourceLabel": "Importuj z",
+    "url": "URL Sched",
+    "file": "Plik kalendarza",
     "urlPlaceholder": "https://yourcon.sched.com",
-    "preview": "Podgląd Wydarzeń",
+    "fileDescription": "Wybierz plik .ics wyeksportowany przez konwent.",
+    "chooseFile": "Wybierz plik",
+    "fetchSchedule": "Pobierz harmonogram",
+    "loading": "Ładowanie harmonogramu",
+    "loadingDescription": "Odczytywanie i sprawdzanie wydarzeń...",
+    "needsAttention": "Wymaga uwagi",
+    "couldNotLoad": "Nie udało się wczytać harmonogramu",
+    "importedConvention": "Zaimportowany konwent",
+    "preview": "Podgląd",
+    "eventFound": "Znaleziono {{count}} aktywne wydarzenie",
+    "eventsFound": "Liczba znalezionych aktywnych wydarzeń: {{count}}",
+    "cancellation": "Zostanie uzgodnione {{count}} anulowanie",
+    "cancellations": "Liczba anulowań do uzgodnienia: {{count}}",
+    "emptyUpdateTitle": "Brak aktywnych wydarzeń",
+    "emptyUpdateMessage": "Przed wprowadzeniem zmian sprawdzisz dokładną liczbę usuwanych wydarzeń.",
+    "categories": "Kategorie",
+    "categoryEvent": "{{name}}, {{count}} wydarzenie",
+    "categoryEvents": "{{name}}, wydarzenia: {{count}}",
+    "importEvent": "Importuj {{count}} wydarzenie",
+    "importEvents": "Importuj wydarzenia ({{count}})",
     "importing": "Importowanie...",
+    "applying": "Stosowanie...",
+    "applyUpdate": "Zastosuj aktualizację harmonogramu",
     "success": "Import zakończony",
-    "error": "Import nie powiódł się"
+    "error": "Import nie powiódł się",
+    "timeZone": {
+      "sectionTitle": "Strefa czasowa",
+      "label": "Strefa czasowa konwentu",
+      "placeholder": "America/Chicago",
+      "help": "Użyj lokalizacji konwentu, a nie bieżącej lokalizacji telefonu.",
+      "requiredTitle": "Wymagana strefa czasowa",
+      "requiredMessage": "Wybierz strefę czasową IANA konwentu, aby godziny wydarzeń pozostały prawidłowe podczas podróży.",
+      "choose": "Wybierz strefę czasową",
+      "use": "Użyj strefy czasowej"
+    },
+    "errors": {
+      "fileType": "Wybierz plik kalendarza .ics.",
+      "fileRead": "Nie udało się odczytać pliku.",
+      "invalidUrl": "Wpisz prawidłowy adres URL Sched, na przykład https://yourcon.sched.com.",
+      "network": "Sprawdź połączenie i spróbuj ponownie.",
+      "invalidResponse": "Adres URL nie zwrócił prawidłowego pliku kalendarza.",
+      "noEvents": "W tym pliku kalendarza nie znaleziono wydarzeń.",
+      "parse": "Nie udało się bezpiecznie przetworzyć tego kalendarza.",
+      "unsupportedRecurrence": "Ten kalendarz używa nieobsługiwanych aktywnych definicji cykliczności ({{properties}}). ConPaws nie potrafi jeszcze bezpiecznie ich rozwinąć. Wyeksportuj rozwinięty plik .ics, w którym każde wystąpienie jest osobnym wydarzeniem, i spróbuj ponownie.",
+      "generic": "Coś poszło nie tak. Spróbuj ponownie."
+    },
+    "alerts": {
+      "emptyUpdateTitle": "Zastosować pustą aktualizację harmonogramu?",
+      "emptyUpdateEvent": "Ta aktualizacja Sched nie zawiera aktywnych wydarzeń. Jej zastosowanie usunie z tego konwentu dokładnie {{count}} zaimportowane wydarzenie i anuluje jego lokalne przypomnienie. Ręcznie dodane wydarzenia pozostaną bez zmian.",
+      "emptyUpdateEvents": "Ta aktualizacja Sched nie zawiera aktywnych wydarzeń. Liczba importowanych wydarzeń do usunięcia: {{count}}. Ich lokalne przypomnienia zostaną anulowane. Ręcznie dodane wydarzenia pozostaną bez zmian.",
+      "invalidTimeZoneTitle": "Nieprawidłowa strefa czasowa",
+      "invalidTimeZoneMessage": "Użyj strefy czasowej IANA, na przykład America/Chicago.",
+      "notAppliedTitle": "Import nie został zastosowany",
+      "parseNotApplied": "Nie udało się bezpiecznie przetworzyć tego kalendarza. Niczego nie zmieniono.",
+      "nothingTitle": "Brak danych do importu",
+      "nothingMessage": "Wybierz co najmniej jedno wydarzenie.",
+      "updateNotAppliedTitle": "Aktualizacja harmonogramu nie została zastosowana",
+      "updateNotAppliedMessage": "Aplikacja nie mogła sprawdzić, które zaimportowane wydarzenia zostałyby usunięte. Niczego nie zmieniono.",
+      "successTitle": "Import zakończony",
+      "successSummary": "Dodano: {{added}} • Zaktualizowano: {{updated}} • Usunięto: {{removed}}.",
+      "unresolvedSeries": "Serie cykliczne pozostawione bez zmian: {{count}}. Nie udało się bezpiecznie dopasować starszych zapisanych wydarzeń.",
+      "detailsNotUpdated": "Wydarzenia zostały zapisane, ale nie udało się odświeżyć dat konwentu lub zapisanego adresu URL Sched.",
+      "failedTitle": "Import nie powiódł się"
+    }
   },
   "reminders": {
     "title": "Przypomnienia",
     "add": "Dodaj Przypomnienie",
-    "minutesBefore": "{{minutes}} minut wcześniej",
+    "minutesBefore": "{{minutes}} min wcześniej",
     "atTime": "O czasie wydarzenia",
-    "none": "Brak przypomnienia"
+    "none": "Brak przypomnienia o wyjściu",
+    "hourBefore": "1 godzinę wcześniej",
+    "setLeave": "Ustaw przypomnienie o wyjściu",
+    "changeLeave": "Zmień przypomnienie o wyjściu",
+    "pickerTitle": "Kiedy ConPaws ma Ci przypomnieć?",
+    "pickerDescription": "Wybierz, jak wcześnie wyjść na {{event}}.",
+    "notificationTitle": "Czas wyjść na {{event}}",
+    "notificationBody": "Zaczyna się za {{minutes}} min",
+    "notificationBodyWithRoom": "Zaczyna się za {{minutes}} min · {{room}}",
+    "channelName": "Przypomnienia o wydarzeniach",
+    "setAnnouncement": "Ustawiono przypomnienie o wyjściu na {{event}}.",
+    "clearedAnnouncement": "Usunięto przypomnienie o wyjściu na {{event}}.",
+    "errorTitle": "Nie ustawiono przypomnienia",
+    "errorMessage": "Włącz powiadomienia w Ustawieniach i wybierz przyszłe wydarzenie."
   }
 }

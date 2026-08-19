@@ -32,9 +32,15 @@ import "../src/global.css";
 
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
+import { StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  applyAppearancePreference,
+  loadAppearancePreference,
+} from "@/lib/appearance-storage";
 import { initI18n } from "@/lib/i18n";
 import {
   reconcileEventReminders,
@@ -50,26 +56,63 @@ Sentry.init({
 });
 
 setupNotificationHandler();
+void SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+const lightNavigationTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: "#00729C",
+  },
+};
+
+const darkNavigationTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: "#18B7F2",
+  },
+};
+
 function RootLayout() {
   const [ready, setReady] = useState(false);
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
-    void Promise.allSettled([initI18n(), reconcileEventReminders()]).then(() =>
-      setReady(true),
-    );
+    void (async () => {
+      const appearance = await loadAppearancePreference().catch(
+        () => "system" as const,
+      );
+      applyAppearancePreference(appearance);
+      await initI18n().catch(() => undefined);
+      await reconcileEventReminders().catch(() => undefined);
+      setReady(true);
+    })();
   }, []);
+
+  useEffect(() => {
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
 
   if (!ready) return null;
 
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <ThemeProvider
+      value={
+        colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme
+      }
+    >
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar
+            barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
+          />
+          <Stack screenOptions={{ headerShown: false }} />
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
 

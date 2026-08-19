@@ -1,4 +1,9 @@
-import { TextInput, type TextInputProps, View } from "react-native";
+import {
+  TextInput,
+  type TextInputProps,
+  useColorScheme,
+  View,
+} from "react-native";
 import { cn } from "@/lib/utils";
 import { Text } from "./Text";
 
@@ -8,11 +13,20 @@ interface InputProps extends TextInputProps {
   className?: string;
 }
 
-export function Input({ label, error, className, ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  className,
+  accessibilityLabel,
+  placeholderTextColor,
+  ...props
+}: InputProps) {
+  const colorScheme = useColorScheme();
+
   return (
     <View className="gap-1.5">
       {label ? (
-        <Text variant="label" className="text-foreground">
+        <Text variant="label" className="text-foreground" accessible={false}>
           {label}
         </Text>
       ) : null}
@@ -22,11 +36,19 @@ export function Input({ label, error, className, ...props }: InputProps) {
           error ? "border-destructive" : "border-input",
           className,
         )}
-        placeholderTextColor="#94A3B8"
+        accessibilityLabel={accessibilityLabel ?? label}
+        placeholderTextColor={
+          placeholderTextColor ??
+          (colorScheme === "dark" ? "#94A3B8" : "#64748B")
+        }
         {...props}
       />
       {error ? (
-        <Text variant="caption" className="text-destructive">
+        <Text
+          variant="caption"
+          className="text-destructive"
+          accessibilityLiveRegion="polite"
+        >
           {error}
         </Text>
       ) : null}

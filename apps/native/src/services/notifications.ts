@@ -1,4 +1,5 @@
 import * as ExpoNotifications from "expo-notifications";
+import i18n from "i18next";
 import { Platform } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 
@@ -10,7 +11,9 @@ export type PermissionStatus = "granted" | "denied" | "undetermined";
 async function ensureReminderChannel(): Promise<void> {
   if (Platform.OS !== "android") return;
   await ExpoNotifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
-    name: "Event reminders",
+    name: i18n.isInitialized
+      ? i18n.t("reminders.channelName")
+      : "Event reminders",
     importance: ExpoNotifications.AndroidImportance.HIGH,
   });
 }
@@ -51,6 +54,10 @@ interface EventForReminder {
 
 interface ScheduleReminderOptions {
   requestPermission?: boolean;
+  notificationContent?: {
+    title: string;
+    body: string;
+  };
 }
 
 export async function scheduleEventReminder(
@@ -81,15 +88,31 @@ export async function scheduleEventReminder(
     return null; // In the past
   }
 
-  const body = event.room
-    ? `Starting in ${minutesBefore} min · ${event.room}`
-    : `Starting in ${minutesBefore} min`;
+  const notificationContent =
+    options.notificationContent ??
+    (i18n.isInitialized
+      ? {
+          title: i18n.t("reminders.notificationTitle", {
+            event: event.title,
+          }),
+          body: i18n.t(
+            event.room
+              ? "reminders.notificationBodyWithRoom"
+              : "reminders.notificationBody",
+            { minutes: minutesBefore, room: event.room },
+          ),
+        }
+      : {
+          title: `Time to leave for ${event.title}`,
+          body: event.room
+            ? `Starts in ${minutesBefore} min · ${event.room}`
+            : `Starts in ${minutesBefore} min`,
+        });
 
   await ExpoNotifications.scheduleNotificationAsync({
     identifier: notificationId,
     content: {
-      title: event.title,
-      body,
+      ...notificationContent,
       sound: true,
     },
     trigger: {
@@ -115,8 +138,11 @@ export async function cancelEventReminder(eventId: string): Promise<boolean> {
 
 export async function cancelConventionReminders(
   eventIds: string[],
-): Promise<void> {
-  await Promise.all(eventIds.map((id) => cancelEventReminder(id)));
+): Promise<boolean> {
+  const results = await Promise.all(
+    eventIds.map((id) => cancelEventReminder(id)),
+  );
+  return results.every(Boolean);
 }
 
 export interface ReminderReconciliationResult {

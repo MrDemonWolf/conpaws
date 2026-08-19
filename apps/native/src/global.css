@@ -1,41 +1,81 @@
+/* biome-ignore-all lint/correctness/noUnknownFunction: NativeWind compiles platformColor() to native semantic colors. */
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css";
 @import "nativewind/theme";
 
 @theme {
-  --color-primary: #0faced;
+  --color-primary: #00729c;
   --color-primary-foreground: #ffffff;
   --color-background: #ffffff;
   --color-foreground: #0f172a;
-  --color-card: #f8fafc;
+  --color-card: #f2f2f7;
   --color-card-foreground: #0f172a;
-  --color-secondary: #f1f5f9;
+  --color-secondary: #e5e5ea;
   --color-secondary-foreground: #0f172a;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
-  --color-accent: #f1f5f9;
+  --color-muted: #e5e5ea;
+  --color-muted-foreground: #5c667a;
+  --color-accent: #e5e5ea;
   --color-accent-foreground: #0f172a;
-  --color-destructive: #ef4444;
+  --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-ring: #0faced;
+  --color-border: #d1d1d6;
+  --color-input: #d1d1d6;
+  --color-ring: #00729c;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: #091533;
-    --color-foreground: #f8fafc;
-    --color-card: #0f1d45;
-    --color-card-foreground: #f8fafc;
-    --color-secondary: #1e293b;
-    --color-secondary-foreground: #f8fafc;
-    --color-muted: #1e293b;
-    --color-muted-foreground: #94a3b8;
-    --color-accent: #1e293b;
-    --color-accent-foreground: #f8fafc;
-    --color-border: #1e3a5f;
-    --color-input: #1e3a5f;
+    --color-primary: #18b7f2;
+    --color-primary-foreground: #000000;
+    --color-background: #000000;
+    --color-foreground: #ffffff;
+    --color-card: #1c1c1e;
+    --color-card-foreground: #ffffff;
+    --color-secondary: #2c2c2e;
+    --color-secondary-foreground: #ffffff;
+    --color-muted: #2c2c2e;
+    --color-muted-foreground: #aeb4c0;
+    --color-accent: #2c2c2e;
+    --color-accent-foreground: #ffffff;
+    --color-border: #38383a;
+    --color-input: #38383a;
+    --color-ring: #18b7f2;
+    --color-destructive: #ff6961;
+    --color-destructive-foreground: #000000;
+  }
+}
+
+@media ios {
+  :root {
+    --color-background: platformColor(systemBackground);
+    --color-foreground: platformColor(label);
+    --color-card: platformColor(secondarySystemBackground);
+    --color-card-foreground: platformColor(label);
+    --color-secondary: platformColor(secondarySystemBackground);
+    --color-secondary-foreground: platformColor(label);
+    --color-muted: platformColor(tertiarySystemBackground);
+    --color-muted-foreground: platformColor(secondaryLabel);
+    --color-accent: platformColor(secondarySystemBackground);
+    --color-accent-foreground: platformColor(label);
+    --color-border: platformColor(separator);
+    --color-input: platformColor(separator);
+  }
+}
+
+@media android {
+  :root {
+    --color-background: platformColor(\?attr\/colorBackground);
+    --color-foreground: platformColor(\?attr\/colorOnSurface);
+    --color-card: platformColor(\?attr\/colorSurface);
+    --color-card-foreground: platformColor(\?attr\/colorOnSurface);
+    --color-secondary: platformColor(\?attr\/colorSurfaceVariant);
+    --color-secondary-foreground: platformColor(\?attr\/colorOnSurface);
+    --color-muted: platformColor(\?attr\/colorSurfaceVariant);
+    --color-muted-foreground: platformColor(\?attr\/colorOnSurfaceVariant);
+    --color-accent: platformColor(\?attr\/colorSecondaryContainer);
+    --color-accent-foreground: platformColor(\?attr\/colorOnSecondaryContainer);
+    --color-border: platformColor(\?attr\/colorOutline);
+    --color-input: platformColor(\?attr\/colorOutline);
   }
 }

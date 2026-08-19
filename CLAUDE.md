@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Skills and documentation
+
+For every task, first discover the installed skills and plugin capabilities that are relevant to the request. Use each relevant skill that materially improves correctness or execution, including the applicable Expo and platform skills for native app work. Read and follow each selected skill before acting, and use its official documentation workflow when APIs, configuration, or platform rules may have changed. Announce skill use when the skill requires it. Do not load or invoke unrelated skills simply to increase the count.
+
 ## Project Overview
 
 ConPaws is a furry convention companion app — an Expo/React Native mobile app plus a Next.js website, in a bun/Turborepo monorepo. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") will be powered by RevenueCat. The cloud backend target is **Cloudflare Workers + D1 + R2 with Hono, tRPC, and Better-Auth** — no Supabase, no VPS, no Docker.
@@ -120,7 +124,7 @@ Putting the values only in `.dev.vars` and then running `bun run deploy` locally
 
 ### Native MVP Screens
 
-The current routes cover onboarding, Home/Profile/Settings tabs, convention detail and schedule import, About, and language settings. Put new routes in `apps/native/app/` (top level) and use classic JS tabs — Expo Router Native Tabs is alpha and its API is subject to change. `notes/plan.md` remains the source for unfinished MVP and later product scope.
+The current routes cover onboarding, Home and Settings tabs, convention detail and schedule import, About, and language settings. Put new routes in `apps/native/app/` (top level) and use classic JS tabs. Expo Router Native Tabs is alpha and its API is subject to change. `notes/plan.md` remains the source for unfinished MVP and later product scope.
 
 ### Database Schema
 
