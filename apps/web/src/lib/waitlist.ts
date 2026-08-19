@@ -37,8 +37,12 @@ export function resendAllowed(
  *
  * Never throws: this runs inside `ctx.waitUntil` on the request path and inside
  * a scheduled handler on the cron path, and in neither place should a failure
- * take anything else down with it. Failure is recorded on the row, which is
- * what makes the reconciler able to find it again.
+ * take anything else down with it. That includes the D1 writes themselves — see
+ * `settle` below. Failure is recorded on the row, which is what makes the
+ * reconciler able to find it again.
+ *
+ * Returns whether the address is now synced, so a D1 write that fails after a
+ * successful Brevo call is reported as not-synced rather than as success.
  */
 export async function syncRow(
   db: Db,
@@ -51,18 +55,43 @@ export async function syncRow(
   });
 
   if (result.ok) {
-    await db
-      .update(waitlist)
-      .set({ syncedAt: new Date(), syncError: null })
-      .where(eq(waitlist.id, row.id));
-    return true;
+    // A D1 failure here is the bad case: Brevo already has the contact, but the
+    // row keeps synced_at NULL, so a later pass sends a second confirmation.
+    // Nothing better is available from inside the Worker — what matters is that
+    // it does not take the rest of the batch down with it.
+    return await settle(
+      db
+        .update(waitlist)
+        .set({ syncedAt: new Date(), syncError: null })
+        .where(eq(waitlist.id, row.id)),
+    );
   }
 
-  await db
-    .update(waitlist)
-    .set({ syncError: `${result.status}: ${result.detail}` })
-    .where(eq(waitlist.id, row.id));
+  await settle(
+    db
+      .update(waitlist)
+      .set({ syncError: `${result.status}: ${result.detail}` })
+      .where(eq(waitlist.id, row.id)),
+  );
   return false;
+}
+
+/**
+ * Runs a D1 write and reports success instead of rejecting.
+ *
+ * `reconcile` walks its rows sequentially, so one rejected write would skip
+ * every remaining row in the pass and surface as a wholesale failure of the
+ * scheduled handler. On the request path the same rejection would land in
+ * `ctx.waitUntil` as an unhandled promise.
+ */
+async function settle(work: Promise<unknown>): Promise<boolean> {
+  try {
+    await work;
+    return true;
+  } catch (error) {
+    console.error("waitlist: D1 write failed", error);
+    return false;
+  }
 }
 
 /**
@@ -77,19 +106,26 @@ export async function claimRow(
   db: Db,
   row: Pick<WaitlistRow, "id" | "syncAttempts">,
 ): Promise<boolean> {
-  const claimed = await db
-    .update(waitlist)
-    .set({ syncAttempts: row.syncAttempts + 1, syncAttemptedAt: new Date() })
-    .where(
-      and(
-        eq(waitlist.id, row.id),
-        isNull(waitlist.syncedAt),
-        eq(waitlist.syncAttempts, row.syncAttempts),
-      ),
-    )
-    .returning({ id: waitlist.id });
+  try {
+    const claimed = await db
+      .update(waitlist)
+      .set({ syncAttempts: row.syncAttempts + 1, syncAttemptedAt: new Date() })
+      .where(
+        and(
+          eq(waitlist.id, row.id),
+          isNull(waitlist.syncedAt),
+          eq(waitlist.syncAttempts, row.syncAttempts),
+        ),
+      )
+      .returning({ id: waitlist.id });
 
-  return claimed.length > 0;
+    return claimed.length > 0;
+  } catch (error) {
+    // A failed claim is indistinguishable from a lost claim as far as the
+    // caller is concerned: do not send, leave the row for the next pass.
+    console.error("waitlist: claim failed", error);
+    return false;
+  }
 }
 
 /**

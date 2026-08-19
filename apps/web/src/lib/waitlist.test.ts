@@ -32,6 +32,7 @@ type PendingRow = {
 function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
   const updates: Array<Record<string, unknown>> = [];
   let limit = 0;
+  let selectWhere: unknown;
 
   const db = {
     update: () => ({
@@ -55,19 +56,66 @@ function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
     }),
     select: () => ({
       from: () => ({
-        where: () => ({
-          orderBy: () => ({
-            limit: (value: number) => {
-              limit = value;
-              return Promise.resolve(pending.slice(0, value));
-            },
-          }),
-        }),
+        where: (condition: unknown) => {
+          selectWhere = condition;
+          return {
+            orderBy: () => ({
+              limit: (value: number) => {
+                limit = value;
+                return Promise.resolve(pending.slice(0, value));
+              },
+            }),
+          };
+        },
       }),
     }),
   };
 
-  return { db: db as unknown as Db, updates, limitUsed: () => limit };
+  return {
+    db: db as unknown as Db,
+    updates,
+    limitUsed: () => limit,
+    selectWhereUsed: () => selectWhere,
+  };
+}
+
+/**
+ * Walks a Drizzle SQL tree and collects the column names and bound parameter
+ * values it references. Drizzle builds the same object whichever client runs
+ * it, so a predicate can be inspected without a database behind it.
+ */
+function describePredicate(node: unknown): {
+  columns: string[];
+  values: unknown[];
+} {
+  const columns: string[] = [];
+  const values: unknown[] = [];
+
+  function walk(current: unknown) {
+    if (current === null || typeof current !== "object") return;
+
+    if (Array.isArray(current)) {
+      for (const item of current) walk(item);
+      return;
+    }
+
+    const record = current as Record<string, unknown>;
+
+    if (typeof record.name === "string" && "table" in record) {
+      columns.push(record.name);
+      return;
+    }
+
+    if ("value" in record && Object.hasOwn(record, "encoder")) {
+      values.push(record.value);
+      return;
+    }
+
+    for (const item of Object.values(record)) walk(item);
+  }
+
+  walk(node);
+  return { columns, values };
 }
 
 afterEach(() => {
@@ -172,8 +220,27 @@ describe("reconcile", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("keeps a retry ceiling so a rejected address is not retried forever", () => {
-    expect(MAX_SYNC_ATTEMPTS).toBeGreaterThan(0);
+  it("keeps a retry ceiling so a rejected address is not retried forever", async () => {
+    const { db, selectWhereUsed } = fakeDb([]);
+
+    await reconcile(db, CONFIG);
+
+    // Asserted against the predicate the query actually carries. The previous
+    // version of this test compared MAX_SYNC_ATTEMPTS to zero, so it would have
+    // passed just as happily with the ceiling deleted.
+    const { columns, values } = describePredicate(selectWhereUsed());
+    expect(columns).toContain("sync_attempts");
+    expect(values).toContain(MAX_SYNC_ATTEMPTS);
+  });
+
+  it("only replays rows that are pending and unsynced", async () => {
+    const { db, selectWhereUsed } = fakeDb([]);
+
+    await reconcile(db, CONFIG);
+
+    const { columns, values } = describePredicate(selectWhereUsed());
+    expect(columns).toEqual(expect.arrayContaining(["synced_at", "status"]));
+    expect(values).toContain("pending");
   });
 });
 

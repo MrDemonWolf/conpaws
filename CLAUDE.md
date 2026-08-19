@@ -97,7 +97,19 @@ conpaws/
 - `EXPO_PUBLIC_SENTRY_DSN` — crash reporting (preview/production)
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Turnstile widget (public; server verify uses the secret below)
 
-Worker-side waitlist config is read at **deploy time** by `packages/infra/alchemy.run.ts` and bound onto the Workers — it never lives in `process.env` at build time, which is why `packages/env/src/web.ts` deliberately omits it: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `BREVO_LIST_ID`, `BREVO_DOI_TEMPLATE_ID`, `BREVO_DOI_REDIRECT_URL`. Locally they go in `apps/web/.dev.vars` (gitignored). `ALCHEMY_PASSWORD` encrypts Alchemy state.
+Worker-side waitlist config is read at **deploy time** by `packages/infra/alchemy.run.ts` and bound onto the Workers — it never lives in `process.env` at build time, which is why `packages/env/src/web.ts` deliberately omits it: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `BREVO_LIST_ID`, `BREVO_DOI_TEMPLATE_ID`, `BREVO_DOI_REDIRECT_URL`. `ALCHEMY_PASSWORD` encrypts Alchemy state.
+
+Which file supplies those depends on how the Worker is being run, and the three are not interchangeable:
+
+| Running | Reads |
+|---|---|
+| `bun run preview` / `wrangler dev` in `apps/web` | `apps/web/.dev.vars` (gitignored) |
+| `bun run deploy` from the repo root (Alchemy) | `packages/infra/.env` and `apps/web/.env`, loaded by dotenv at the top of `alchemy.run.ts` |
+| GitHub Actions production deploy | repo secrets and variables — see `.github/workflows/deploy-web.yml` |
+
+Putting the values only in `.dev.vars` and then running `bun run deploy` locally yields unresolved `Config` values, not a useful error.
+
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` goes the other way: it is a **build-time client** var, so it has to be present wherever the OpenNext build runs (`apps/web/.env` locally, a repo variable in CI). Without it the widget never renders, the client posts an empty token, and every real signup is rejected.
 
 ### App Variants
 
