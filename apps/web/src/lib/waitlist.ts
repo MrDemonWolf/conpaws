@@ -15,6 +15,24 @@ export const MAX_SYNC_ATTEMPTS = 5;
 export const RECONCILE_BATCH_SIZE = 50;
 
 /**
+ * Minimum gap between confirmation sends to one address.
+ *
+ * The attempt ceiling alone is not a rate limit — it would still let someone
+ * fire MAX_SYNC_ATTEMPTS emails at a stranger's inbox in a second. This is what
+ * makes the form not a mailbombing tool.
+ */
+export const RESEND_COOLDOWN_MS = 10 * 60 * 1000;
+
+/** Whether enough time has passed to send this address another confirmation. */
+export function resendAllowed(
+  syncAttemptedAt: Date | null,
+  now: number = Date.now(),
+): boolean {
+  if (syncAttemptedAt === null) return true;
+  return now - syncAttemptedAt.getTime() >= RESEND_COOLDOWN_MS;
+}
+
+/**
  * Pushes one row to Brevo and records the outcome.
  *
  * Never throws: this runs inside `ctx.waitUntil` on the request path and inside
@@ -42,12 +60,36 @@ export async function syncRow(
 
   await db
     .update(waitlist)
-    .set({
-      syncAttempts: row.syncAttempts + 1,
-      syncError: `${result.status}: ${result.detail}`,
-    })
+    .set({ syncError: `${result.status}: ${result.detail}` })
     .where(eq(waitlist.id, row.id));
   return false;
+}
+
+/**
+ * Takes exclusive ownership of a row before sending its confirmation email.
+ *
+ * The attempt counter doubles as the claim token: the update only lands if the
+ * row is still unsynced AND still on the attempt count the caller observed. Two
+ * requests that read the same row therefore cannot both send — the loser's
+ * WHERE matches nothing. Returns true if this caller may send.
+ */
+export async function claimRow(
+  db: Db,
+  row: Pick<WaitlistRow, "id" | "syncAttempts">,
+): Promise<boolean> {
+  const claimed = await db
+    .update(waitlist)
+    .set({ syncAttempts: row.syncAttempts + 1, syncAttemptedAt: new Date() })
+    .where(
+      and(
+        eq(waitlist.id, row.id),
+        isNull(waitlist.syncedAt),
+        eq(waitlist.syncAttempts, row.syncAttempts),
+      ),
+    )
+    .returning({ id: waitlist.id });
+
+  return claimed.length > 0;
 }
 
 /**
@@ -84,13 +126,15 @@ export async function reconcile(
 
   // Sequential on purpose. Brevo rate-limits, and a parallel burst of a large
   // backlog is the fastest way to get the account throttled.
+  let attempted = 0;
   for (const row of pending) {
-    if (await syncRow(db, config, row)) synced += 1;
+    if (!(await claimRow(db, row))) continue;
+    attempted += 1;
+    if (
+      await syncRow(db, config, { ...row, syncAttempts: row.syncAttempts + 1 })
+    )
+      synced += 1;
   }
 
-  return {
-    attempted: pending.length,
-    synced,
-    failed: pending.length - synced,
-  };
+  return { attempted, synced, failed: attempted - synced };
 }

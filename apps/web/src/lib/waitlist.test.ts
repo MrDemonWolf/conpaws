@@ -4,7 +4,9 @@ import type { Db } from "../db";
 import {
   MAX_SYNC_ATTEMPTS,
   RECONCILE_BATCH_SIZE,
+  RESEND_COOLDOWN_MS,
   reconcile,
+  resendAllowed,
   syncRow,
 } from "./waitlist";
 
@@ -27,18 +29,29 @@ type PendingRow = {
  * asked for. It covers only the two query shapes this module builds, which is
  * the point: if the shape changes, the fake stops matching and the test fails.
  */
-function fakeDb(pending: PendingRow[] = []) {
+function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
   const updates: Array<Record<string, unknown>> = [];
   let limit = 0;
 
   const db = {
     update: () => ({
-      set: (values: Record<string, unknown>) => ({
-        where: () => {
+      set: (values: Record<string, unknown>) => {
+        const record = () => {
           updates.push(values);
-          return Promise.resolve();
-        },
-      }),
+        };
+        return {
+          where: () => {
+            record();
+            // claimRow chains .returning(); syncRow awaits the where() itself.
+            const result = Promise.resolve() as Promise<void> & {
+              returning: () => Promise<{ id: string }[]>;
+            };
+            result.returning = () =>
+              Promise.resolve(claimSucceeds ? [{ id: "claimed" }] : []);
+            return result;
+          },
+        };
+      },
     }),
     select: () => ({
       from: () => ({
@@ -97,13 +110,12 @@ describe("syncRow", () => {
       }),
     ).resolves.toBe(false);
 
-    expect(updates[0]).toMatchObject({
-      syncAttempts: 3,
-      syncError: "429: nope",
-    });
+    expect(updates[0]).toMatchObject({ syncError: "429: nope" });
     // The row keeps synced_at NULL, which is what makes the reconciler find it
-    // again on the next fire.
+    // again on the next fire. The attempt counter belongs to claimRow, so
+    // syncRow must not touch it.
     expect(updates[0]).not.toHaveProperty("syncedAt");
+    expect(updates[0]).not.toHaveProperty("syncAttempts");
   });
 });
 
@@ -145,7 +157,40 @@ describe("reconcile", () => {
     expect(result.attempted).toBe(RECONCILE_BATCH_SIZE);
   });
 
+  it("skips rows it cannot claim, so overlapping runs never double-send", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { db } = fakeDb(
+      [{ id: "a", email: "a@example.com", name: "", syncAttempts: 0 }],
+      false,
+    );
+
+    await expect(reconcile(db, CONFIG)).resolves.toEqual({
+      attempted: 0,
+      synced: 0,
+      failed: 0,
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("keeps a retry ceiling so a rejected address is not retried forever", () => {
     expect(MAX_SYNC_ATTEMPTS).toBeGreaterThan(0);
+  });
+});
+
+describe("resendAllowed", () => {
+  const now = 1_700_000_000_000;
+
+  it("allows the first send", () => {
+    expect(resendAllowed(null, now)).toBe(true);
+  });
+
+  it("blocks a resend inside the cooldown", () => {
+    const justNow = new Date(now - 1_000);
+    expect(resendAllowed(justNow, now)).toBe(false);
+  });
+
+  it("allows a resend once the cooldown has elapsed", () => {
+    const old = new Date(now - RESEND_COOLDOWN_MS - 1);
+    expect(resendAllowed(old, now)).toBe(true);
   });
 });

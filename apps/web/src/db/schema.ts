@@ -63,11 +63,26 @@ export const waitlist = sqliteTable(
     /** Last sync failure, kept so a stuck row can be diagnosed without logs. */
     syncError: text("sync_error"),
     syncAttempts: integer("sync_attempts").notNull().default(0),
+
+    /**
+     * When a confirmation send was last attempted. This is the mailbomb guard:
+     * without a time window, anyone could type a stranger's address into the
+     * form repeatedly and trigger a confirmation email every time.
+     */
+    syncAttemptedAt: integer("sync_attempted_at", { mode: "timestamp_ms" }),
   },
   (table) => [
     uniqueIndex("waitlist_email_unique").on(table.email),
-    index("waitlist_synced_at_idx").on(table.syncedAt),
     index("waitlist_status_idx").on(table.status),
+    // Shaped to the reconciler's query in lib/waitlist.ts: filter on status +
+    // synced_at + sync_attempts, then order by created_at. D1 bills scanned
+    // rows, so the whole predicate wants one index rather than three.
+    index("waitlist_retry_idx").on(
+      table.status,
+      table.syncedAt,
+      table.syncAttempts,
+      table.createdAt,
+    ),
   ],
 );
 
