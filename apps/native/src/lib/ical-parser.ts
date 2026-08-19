@@ -361,7 +361,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       }
     }
 
-    const uid = props["UID"];
+    const uid = props.UID;
     if (!uid) continue;
     const recurrenceId = props["RECURRENCE-ID"] ?? "";
     const dedupeKey = recurrenceId ? `${uid}|${recurrenceId}` : uid;
