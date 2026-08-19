@@ -17,7 +17,7 @@ const ENV = {
 };
 
 /** Covers only the two query shapes the route builds. */
-function fakeDb(existing: unknown[] = []) {
+function fakeDb(existing: unknown[] = [], claimSucceeds = true) {
   const inserted: unknown[] = [];
 
   const db = {
@@ -28,22 +28,31 @@ function fakeDb(existing: unknown[] = []) {
     }),
     insert: () => ({
       values: (row: unknown) => ({
-        onConflictDoNothing: () => {
-          inserted.push(row);
-          return Promise.resolve();
-        },
+        onConflictDoNothing: () => ({
+          // RETURNING is empty when the INSERT lost to a concurrent one.
+          returning: () => {
+            if (!claimSucceeds) return Promise.resolve([]);
+            inserted.push(row);
+            return Promise.resolve([{ id: "inserted" }]);
+          },
+        }),
       }),
     }),
     update: () => ({
-      set: () => ({ where: () => Promise.resolve() }),
+      set: () => ({
+        where: () => ({
+          returning: () =>
+            Promise.resolve(claimSucceeds ? [{ id: "claimed" }] : []),
+        }),
+      }),
     }),
   };
 
   return { db, inserted };
 }
 
-function wireWorker(existing: unknown[] = []) {
-  const { db, inserted } = fakeDb(existing);
+function wireWorker(existing: unknown[] = [], claimSucceeds = true) {
+  const { db, inserted } = fakeDb(existing, claimSucceeds);
   const waitUntil = vi.fn();
   createDb.mockReturnValue(db);
   getCloudflareContext.mockReturnValue({ env: ENV, ctx: { waitUntil } });
@@ -184,6 +193,7 @@ describe("POST /api/waitlist", () => {
         status: "pending",
         syncedAt: new Date(),
         syncAttempts: 0,
+        syncAttemptedAt: null,
       },
     ]);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
@@ -213,6 +223,7 @@ describe("POST /api/waitlist", () => {
         status: "pending",
         syncedAt: null,
         syncAttempts: 1,
+        syncAttemptedAt: null,
       },
     ]);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
@@ -248,5 +259,55 @@ describe("POST /api/waitlist", () => {
     );
 
     expect(response.status).toBe(503);
+  });
+
+  it("does not send when a concurrent request already claimed the address", async () => {
+    const { inserted, waitUntil } = wireWorker([], false);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ success: true }),
+    );
+
+    const response = await POST(
+      request({
+        email: "person@example.com",
+        elapsedMs: 3_000,
+        turnstileToken: "good-token",
+      }),
+    );
+
+    // The visitor still sees success — they are on the list either way.
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true });
+    expect(inserted).toHaveLength(0);
+    expect(waitUntil).not.toHaveBeenCalled();
+  });
+
+  it("refuses to re-send inside the cooldown, so the form cannot mailbomb", async () => {
+    const { waitUntil } = wireWorker([
+      {
+        id: "existing",
+        email: "person@example.com",
+        name: "Paws",
+        status: "pending",
+        syncedAt: null,
+        syncAttempts: 1,
+        // A confirmation went out moments ago.
+        syncAttemptedAt: new Date(),
+      },
+    ]);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ success: true }),
+    );
+
+    const response = await POST(
+      request({
+        email: "person@example.com",
+        elapsedMs: 3_000,
+        turnstileToken: "good-token",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(waitUntil).not.toHaveBeenCalled();
   });
 });

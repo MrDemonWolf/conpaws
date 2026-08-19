@@ -7,7 +7,12 @@ import { waitlist } from "../../../db/schema";
 import { readBrevoConfig } from "../../../lib/brevo";
 import { CONSENT_COPY } from "../../../lib/consent";
 import { verifyTurnstile } from "../../../lib/turnstile";
-import { MAX_SYNC_ATTEMPTS, syncRow } from "../../../lib/waitlist";
+import {
+  claimRow,
+  MAX_SYNC_ATTEMPTS,
+  resendAllowed,
+  syncRow,
+} from "../../../lib/waitlist";
 
 /**
  * Waitlist signup.
@@ -102,6 +107,7 @@ export async function POST(request: Request) {
       status: waitlist.status,
       syncedAt: waitlist.syncedAt,
       syncAttempts: waitlist.syncAttempts,
+      syncAttemptedAt: waitlist.syncAttemptedAt,
     })
     .from(waitlist)
     .where(eq(waitlist.email, email))
@@ -109,15 +115,27 @@ export async function POST(request: Request) {
 
   if (existing) {
     // Already known. Re-sending the confirmation only makes sense while Brevo
-    // has never accepted this address; otherwise the form is a way to mailbomb
-    // someone else's inbox one submission at a time.
+    // has never accepted this address, and never faster than the cooldown —
+    // otherwise the form is a way to mailbomb someone else's inbox one
+    // submission at a time.
     const resendable =
       existing.syncedAt === null &&
       existing.status === "pending" &&
-      existing.syncAttempts < MAX_SYNC_ATTEMPTS;
+      existing.syncAttempts < MAX_SYNC_ATTEMPTS &&
+      resendAllowed(existing.syncAttemptedAt);
 
     if (resendable) {
-      ctx.waitUntil(syncRow(db, brevo, existing));
+      // Compare-and-set: only the request that actually moves the attempt
+      // counter gets to send. Two concurrent resubmissions both read the same
+      // row, so without this claim both would fire a confirmation email.
+      if (await claimRow(db, existing)) {
+        ctx.waitUntil(
+          syncRow(db, brevo, {
+            ...existing,
+            syncAttempts: existing.syncAttempts + 1,
+          }),
+        );
+      }
     }
 
     return Response.json({ ok: true });
@@ -136,11 +154,25 @@ export async function POST(request: Request) {
     utmSource: parsed.utmSource ?? null,
     utmMedium: parsed.utmMedium ?? null,
     utmCampaign: parsed.utmCampaign ?? null,
+    // The insert IS this address's first send claim: stamping the attempt here
+    // is what starts the resend cooldown. Without it a second submission
+    // moments later would see a fresh-looking row and send again.
+    syncAttempts: 1,
+    syncAttemptedAt: new Date(),
   };
 
-  await db.insert(waitlist).values(row).onConflictDoNothing();
+  // RETURNING tells us whether this request actually created the row. Two
+  // concurrent signups for the same new address both pass the SELECT above;
+  // only the one whose INSERT wins should send a confirmation email.
+  const inserted = await db
+    .insert(waitlist)
+    .values(row)
+    .onConflictDoNothing()
+    .returning({ id: waitlist.id });
 
-  ctx.waitUntil(syncRow(db, brevo, { ...row, syncAttempts: 0 }));
+  if (inserted.length > 0) {
+    ctx.waitUntil(syncRow(db, brevo, row));
+  }
 
   return Response.json({ ok: true });
 }

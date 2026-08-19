@@ -535,14 +535,8 @@ export default function Home() {
       {/* ---- closing CTA ---- */}
       <section className="relative z-10 mt-28">
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-8 py-14 text-center sm:py-16">
-          <CompassPaw
-            aria-hidden="true"
-            className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]"
-          />
-          <CompassPaw
-            aria-hidden="true"
-            className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]"
-          />
+          <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
+          <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
           <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
             Registration line
           </p>

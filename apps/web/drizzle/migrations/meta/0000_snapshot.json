@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "4c7ecbcd-509b-426e-9d92-eebb517fcaad",
+  "id": "1125536f-d6d2-4ca3-ae4e-b734b138abf4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "waitlist": {
@@ -137,6 +137,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
+        },
+        "sync_attempted_at": {
+          "name": "sync_attempted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -147,17 +154,20 @@
           ],
           "isUnique": true
         },
-        "waitlist_synced_at_idx": {
-          "name": "waitlist_synced_at_idx",
-          "columns": [
-            "synced_at"
-          ],
-          "isUnique": false
-        },
         "waitlist_status_idx": {
           "name": "waitlist_status_idx",
           "columns": [
             "status"
+          ],
+          "isUnique": false
+        },
+        "waitlist_retry_idx": {
+          "name": "waitlist_retry_idx",
+          "columns": [
+            "status",
+            "synced_at",
+            "sync_attempts",
+            "created_at"
           ],
           "isUnique": false
         }

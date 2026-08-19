@@ -10,6 +10,12 @@ import { Badge } from "./badge";
 
 type Status = "idle" | "submitting" | "done";
 
+declare global {
+  interface Window {
+    turnstile?: { reset: (widget?: string) => void };
+  }
+}
+
 // Keep the public form closed until D1 persistence, DOI, and retries land.
 const WAITLIST_ACCEPTING_SIGNUPS = false;
 
@@ -72,6 +78,10 @@ export function Waitlist() {
       toast.success("Check your inbox to confirm your spot.");
     } catch (error) {
       setStatus("idle");
+      // Turnstile tokens are single-use. Without this reset the hidden field
+      // still holds the spent token, so every retry re-submits it and fails
+      // again — the user would be stuck with no way out but a page reload.
+      window.turnstile?.reset();
       toast.error(
         error instanceof Error ? error.message : "Something went wrong.",
       );
