@@ -1,39 +1,77 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
-import { Button, SafeView, Text } from "@/components/ui";
+import { Image, ScrollView, View } from "react-native";
+import { OnboardingButton } from "@/components/OnboardingButton";
+import { OnboardingProgress } from "@/components/OnboardingProgress";
+import { SafeView, Text } from "@/components/ui";
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
 
+  async function handleSkip() {
+    await AsyncStorage.setItem("hasCompletedOnboarding", "true").catch(
+      () => undefined,
+    );
+    router.replace("/(tabs)/(home)");
+  }
+
   return (
-    <SafeView>
-      <View className="flex-1 items-center justify-center px-6 gap-8">
-        <View className="items-center gap-3">
-          <View className="w-24 h-24 rounded-3xl bg-primary items-center justify-center">
-            <Text className="text-4xl text-primary-foreground font-bold">
-              CP
-            </Text>
+    <SafeView className="overflow-hidden bg-background">
+      <ScrollView
+        className="flex-1"
+        alwaysBounceVertical={false}
+        bounces={false}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 8,
+        }}
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="flex-1">
+          <OnboardingProgress step={1} />
+          <View className="flex-1 items-center justify-center py-6">
+            <View className="w-full max-w-sm items-center gap-5">
+              <Image
+                source={require("../../assets/images/splash-icon.png")}
+                style={{ width: 112, height: 112 }}
+                resizeMode="contain"
+                accessible={false}
+                accessibilityIgnoresInvertColors
+              />
+              <View className="items-center gap-3">
+                <Text variant="h1" className="tracking-tight text-primary">
+                  ConPaws
+                </Text>
+                <Text variant="body" className="text-center font-semibold">
+                  {t("onboarding.welcome.tagline")}
+                </Text>
+                <Text
+                  variant="caption"
+                  className="max-w-xs text-center leading-5 text-muted-foreground"
+                >
+                  {t("onboarding.welcome.subtitle")}
+                </Text>
+              </View>
+            </View>
           </View>
-          <Text variant="h1" className="text-primary">
-            ConPaws
-          </Text>
-          <Text variant="body" className="text-center text-muted-foreground">
-            {t("onboarding.welcome.tagline")}
-          </Text>
         </View>
-        <Text variant="caption" className="text-center">
-          {t("onboarding.welcome.subtitle")}
-        </Text>
-      </View>
-      <View className="px-6 pb-8">
-        <Button
-          size="lg"
+      </ScrollView>
+      <View className="gap-1 px-4 pt-1 pb-2">
+        <OnboardingButton
+          label={t("onboarding.welcome.continue")}
           onPress={() => router.push("/(onboarding)/features")}
-          className="w-full"
-        >
-          {t("onboarding.welcome.getStarted")}
-        </Button>
+          testID="onboarding-welcome-continue"
+        />
+        <OnboardingButton
+          label={t("onboarding.welcome.skip")}
+          variant="text"
+          onPress={handleSkip}
+          testID="onboarding-welcome-skip"
+        />
       </View>
     </SafeView>
   );

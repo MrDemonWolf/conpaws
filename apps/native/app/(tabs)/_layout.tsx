@@ -1,38 +1,33 @@
-import { Tabs } from "expo-router";
+import { useTheme } from "expo-router/react-navigation";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "react-i18next";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: "#0FACED",
-        tabBarInactiveTintColor: "#94A3B8",
-        tabBarStyle: {
-          borderTopColor: "#E2E8F0",
-        },
-      }}
+    <NativeTabs
+      tintColor={colors.primary}
+      minimizeBehavior="never"
+      disableTransparentOnScrollEdge
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: t("common.home"),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: t("common.profile"),
-        }}
-      />
-      <Tabs.Screen
+      <NativeTabs.Trigger name="(home)" accessibilityLabel={t("home.title")}>
+        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
+        <NativeTabs.Trigger.Label>{t("home.title")}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger
         name="settings"
-        options={{
-          title: t("common.settings"),
-        }}
-      />
-    </Tabs>
+        accessibilityLabel={t("common.settings")}
+      >
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "gearshape", selected: "gearshape.fill" }}
+          md="settings"
+        />
+        <NativeTabs.Trigger.Label>
+          {t("common.settings")}
+        </NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

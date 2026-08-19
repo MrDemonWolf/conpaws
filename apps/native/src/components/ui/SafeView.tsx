@@ -1,5 +1,8 @@
+import { styled } from "nativewind";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { cn } from "@/lib/utils";
+
+const StyledSafeAreaView = styled(SafeAreaView);
 
 interface SafeViewProps {
   children: React.ReactNode;
@@ -13,11 +16,11 @@ export function SafeView({
   className,
 }: SafeViewProps) {
   return (
-    <SafeAreaView
+    <StyledSafeAreaView
       edges={edges}
       className={cn("flex-1 bg-background", className)}
     >
       {children}
-    </SafeAreaView>
+    </StyledSafeAreaView>
   );
 }

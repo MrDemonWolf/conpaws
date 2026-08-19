@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable } from "react-native";
+import { ActivityIndicator, Pressable, useColorScheme } from "react-native";
 import { cn } from "@/lib/utils";
 import { Text } from "./Text";
 
@@ -18,6 +18,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -56,28 +58,41 @@ export function Button({
   disabled = false,
   loading = false,
   className,
+  accessibilityLabel,
+  accessibilityHint,
 }: ButtonProps) {
+  const isDisabled = disabled || loading;
+  const colorScheme = useColorScheme();
+  const spinnerColor =
+    variant === "default" || variant === "destructive"
+      ? colorScheme === "dark"
+        ? "#091533"
+        : "#FFFFFF"
+      : colorScheme === "dark"
+        ? "#18B7F2"
+        : "#006F91";
+
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={
+        accessibilityLabel ??
+        (typeof children === "string" ? children : undefined)
+      }
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       className={cn(
-        "flex-row items-center justify-center",
+        "min-h-[44px] flex-row items-center justify-center",
         variantStyles[variant],
         sizeStyles[size],
-        (disabled || loading) && "opacity-50",
+        isDisabled && "opacity-50",
         className,
       )}
     >
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={
-            variant === "default" || variant === "destructive"
-              ? "#FFFFFF"
-              : "#0FACED"
-          }
-        />
+        <ActivityIndicator size="small" color={spinnerColor} />
       ) : typeof children === "string" ? (
         <Text
           className={cn(

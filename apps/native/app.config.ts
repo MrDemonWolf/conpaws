@@ -46,27 +46,29 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "conpaws",
   owner: "mrdemonwolf-org",
   version: "1.0.0",
-  orientation: "default",
+  orientation: "portrait",
+  userInterfaceStyle: "automatic",
   icon: "./assets/images/icon.png",
   scheme: getScheme(),
   extra: {
+    appVariant: APP_VARIANT,
     eas: {
       projectId: EAS_PROJECT_ID,
     },
   },
   ios: {
     appleTeamId: "HBB7T99U79",
-    supportsTablet: true,
+    icon: "./assets/images/ConPaws.icon",
+    supportsTablet: false,
     bundleIdentifier: getBundleId(),
-    associatedDomains: ["applinks:conpaws.com"],
     config: {
       usesNonExemptEncryption: false,
     },
   },
   android: {
+    icon: "./assets/images/icon.png",
     permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
       foregroundImage: "./assets/images/android-icon-foreground.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -82,7 +84,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-sqlite",
     "expo-localization",
-    "expo-notifications",
+    [
+      "expo-notifications",
+      {
+        icon: "./assets/images/notification-icon.png",
+        color: "#0FACED",
+      },
+    ],
     [
       "expo-splash-screen",
       {
@@ -91,12 +99,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         resizeMode: "contain",
         backgroundColor: "#ffffff",
         dark: {
-          backgroundColor: "#000000",
+          backgroundColor: "#091533",
         },
       },
     ],
     "expo-document-picker",
     "expo-sharing",
+    "expo-web-browser",
     ...(APP_VARIANT === "development" ? [] : ["@sentry/react-native/expo"]),
   ],
   experiments: {

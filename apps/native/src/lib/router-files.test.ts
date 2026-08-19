@@ -2,7 +2,10 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const conventionRoute = path.resolve(__dirname, "../../app/convention/[id]");
+const conventionRoute = path.resolve(
+  __dirname,
+  "../../app/(tabs)/(home)/convention/[id]",
+);
 
 describe("Expo Router convention routes", () => {
   it("uses one detail route with its nested import screen", () => {

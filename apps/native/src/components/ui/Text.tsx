@@ -17,14 +17,35 @@ const variantStyles: Record<TextVariant, string> = {
   label: "text-sm font-medium text-foreground",
 };
 
+const dynamicTypeRamps: Record<
+  TextVariant,
+  NonNullable<RNTextProps["dynamicTypeRamp"]>
+> = {
+  h1: "largeTitle",
+  h2: "title1",
+  h3: "title2",
+  body: "body",
+  caption: "footnote",
+  label: "subheadline",
+};
+
 export function Text({
   variant = "body",
   className,
   children,
+  dynamicTypeRamp,
+  accessibilityRole,
   ...props
 }: TextProps) {
   return (
-    <RNText className={cn(variantStyles[variant], className)} {...props}>
+    <RNText
+      className={cn(variantStyles[variant], className)}
+      dynamicTypeRamp={dynamicTypeRamp ?? dynamicTypeRamps[variant]}
+      accessibilityRole={
+        accessibilityRole ?? (variant.startsWith("h") ? "header" : undefined)
+      }
+      {...props}
+    >
       {children}
     </RNText>
   );

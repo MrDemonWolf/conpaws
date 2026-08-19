@@ -4,6 +4,7 @@
     "profile": "Profiel",
     "settings": "Instellingen",
     "back": "Terug",
+    "add": "Toevoegen",
     "save": "Opslaan",
     "cancel": "Annuleren",
     "delete": "Verwijderen",
@@ -20,68 +21,173 @@
     "version": "Versie {{version}}"
   },
   "onboarding": {
+    "progress": "Stap {{step}} van {{total}}",
     "welcome": {
-      "tagline": "Navigeer, Verbind, Geniet",
-      "subtitle": "Jouw furry conventie metgezel",
-      "getStarted": "Aan de slag"
+      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
+      "subtitle": "Plan vooruit, ook met slechte wifi op de con. Je programma blijft op je apparaat.",
+      "continue": "Doorgaan",
+      "skip": "Overslaan"
     },
     "features": {
-      "title": "Alles wat je nodig hebt",
-      "subtitle": "ConPaws houdt jouw conventie-ervaring georganiseerd",
-      "calendar": {
-        "title": "Conventiekalender",
-        "description": "Importeer roosters van elke conventie. Bekijk panels, evenementen en activiteiten in één oogopslag."
+      "title": "Plan je hele con",
+      "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
+      "demo": {
+        "now": "Nu",
+        "next": "Hierna",
+        "eventOne": "Openingsceremonie",
+        "eventTwo": "Fursuitparade",
+        "saved": "Mijn planning"
       },
-      "share": {
-        "title": "Delen & Verbinden",
-        "description": "Maak je persoonlijke rooster en deel het met vrienden die naar dezelfde con gaan."
+      "import": {
+        "title": "Importeer elk programma",
+        "description": "Voeg een .ics-bestand toe of plak een Sched-link."
+      },
+      "plan": {
+        "title": "Mis nooit een panel",
+        "description": "Maak je planning, zie wat er nu en hierna komt en ontdek overlap."
       },
       "offline": {
-        "title": "Werkt Offline",
-        "description": "Al je gegevens worden lokaal opgeslagen. Geen internet nodig nadat je je rooster hebt geïmporteerd."
+        "title": "Privé en offline",
+        "description": "Je conventiegegevens blijven op dit apparaat."
       },
-      "next": "Volgende"
+      "plus": {
+        "eyebrow": "Binnenkort",
+        "title": "ConPaws+",
+        "description": "Optionele premiumfuncties voor cloudback-ups, synchronisatie en sociale functies staan op de planning. ConPaws werkt nu al offline, zonder account."
+      },
+      "next": "Doorgaan"
     },
     "getStarted": {
-      "title": "Sluit je aan bij ConPaws",
-      "subtitle": "Log in om je rooster op alle apparaten te synchroniseren",
-      "signInWithApple": "Inloggen met Apple",
-      "signInWithGoogle": "Inloggen met Google",
-      "skipForNow": "Nu overslaan",
-      "legal": "Door verder te gaan, ga je akkoord met onze Servicevoorwaarden en het Privacybeleid"
-    },
-    "complete": {
-      "title": "Je bent er klaar voor!",
-      "subtitle": "Welkom bij ConPaws. Laten we jouw eerste conventie verkennen.",
-      "letsGo": "Laten we gaan"
+      "title": "Klaar voor je volgende con?",
+      "subtitle": "Importeer nu een programma of verken eerst ConPaws.",
+      "importSchedule": "Programma importeren",
+      "exploreFirst": "Eerst verkennen",
+      "localPrivacy": "Geen account nodig. Je gegevens blijven lokaal."
     }
   },
   "home": {
-    "title": "Mijn Conventies",
+    "title": "Conventies",
     "addConvention": "Conventie toevoegen",
     "empty": {
       "title": "Nog geen conventies",
-      "subtitle": "Voeg je eerste conventie toe om te beginnen.",
-      "cta": "Conventie toevoegen"
+      "subtitle": "Maak een conventie of importeer een bestaand rooster.",
+      "cta": "Conventie maken"
     },
+    "loadError": "Conventies konden niet worden geladen.",
+    "dateRange": "{{start}} tot {{end}}",
     "upcoming": "Aankomend",
     "active": "Actief",
-    "past": "Verleden"
+    "past": "Verleden",
+    "moreActions": "Meer acties voor {{name}}",
+    "sortBy": "Sorteren op",
+    "sort": {
+      "upcoming": "Aankomende eerst",
+      "name": "Naam"
+    },
+    "delete": {
+      "title": "{{name}} verwijderen?",
+      "message": "Hiermee worden de conventie, het programma en de herinneringen permanent verwijderd.",
+      "success": "{{name}} is verwijderd.",
+      "errorTitle": "Conventie kon niet worden verwijderd",
+      "errorMessage": "Er is niets verwijderd. Probeer het opnieuw."
+    }
   },
   "convention": {
     "new": "Nieuwe Conventie",
+    "create": "Conventie maken",
     "edit": "Conventie bewerken",
     "import": "Rooster importeren",
     "detail": "Conventiedetails",
     "events": "Evenementen",
+    "searchEvents": "Evenementen zoeken",
+    "filterEvents": "Evenementen filteren",
+    "scheduleActions": "Programma-acties",
+    "allEvents": "Alle evenementen",
+    "mySchedule": "Mijn programma",
+    "nowAndNext": "Nu en hierna",
+    "categories": "Categorieën",
+    "allCategories": "Alle categorieën",
+    "noMatchingEvents": "Geen overeenkomende evenementen",
+    "noMatchingEventsSubtitle": "Probeer een andere zoekopdracht of filter.",
+    "timesShownIn": "Tijden worden weergegeven in {{timeZone}}",
+    "nowCount": "Nu ({{eventCount}})",
+    "nextAtCount": "Hierna om {{time}} ({{eventCount}})",
+    "nextCount": "Hierna ({{eventCount}})",
+    "nothingHappeningNow": "Er is nu niets uit je programma bezig.",
+    "noMoreUpcomingEvents": "Er staan geen komende evenementen meer in je programma.",
     "noEvents": "Nog geen evenementen",
     "noEventsSubtitle": "Importeer een rooster of voeg evenementen handmatig toe.",
+    "myScheduleEmpty": "Mijn programma is leeg",
+    "myScheduleNowNextSubtitle": "Kies evenementen bij Alles om te zien wat er nu en hierna gebeurt.",
+    "myScheduleSubtitle": "Open Alles en voeg evenementen toe die je niet wilt missen.",
+    "overlapSummary": "Opgeslagen panels met overlap: {{count}}",
+    "overlapHelp": "Je kunt ze allemaal bewaren. Stel bij het latere panel een vertrekherinnering in voor genoeg tijd tussen zalen.",
+    "overlapLabel": "Overlapt met een ander opgeslagen panel",
+    "showAllEvents": "Alle evenementen tonen",
     "addEvent": "Evenement toevoegen",
     "importSchedule": "Rooster importeren",
     "startDate": "Begindatum",
     "endDate": "Einddatum",
+    "timeZone": "Tijdzone",
+    "timeZonePlaceholder": "America/Chicago",
+    "timeZoneSearch": "Tijdzones zoeken",
+    "timeZoneSearchPlaceholder": "Stad of regio",
+    "timeZoneHelp": "Gebruik de lokale tijdzone van de conventie, zoals America/Chicago.",
     "name": "Conventienaam",
-    "namePlaceholder": "bijv. IndyFurCon 2025"
+    "namePlaceholder": "bijv. ConPaws Preview Con",
+    "nameRequired": "Voer een naam voor de conventie in.",
+    "timeZoneInvalid": "Voer een geldige IANA-tijdzone in, zoals America/Chicago.",
+    "createError": "De conventie kon niet worden gemaakt. Probeer het opnieuw.",
+    "notFound": "Conventie niet gevonden.",
+    "goBack": "Ga terug",
+    "addToSchedule": "Toevoegen aan Mijn programma",
+    "removeFromSchedule": "Verwijderen uit Mijn programma",
+    "scheduleActionHint": "Werkt dit evenement bij in Mijn programma.",
+    "scheduleAddedAnnouncement": "{{event}} is toegevoegd aan Mijn programma.",
+    "scheduleRemovedAnnouncement": "{{event}} is verwijderd uit Mijn programma.",
+    "scheduleUpdateErrorTitle": "Programma niet bijgewerkt",
+    "scheduleUpdateErrorMessage": "Het evenement kon niet worden gewijzigd. Je programma is niet aangepast.",
+    "viewOnSched": "Bekijken op Sched",
+    "viewOnSchedLabel": "Bekijk {{event}} op Sched",
+    "openExternalHint": "Opent de evenementpagina in je browser.",
+    "closeEventDetails": "Evenementdetails sluiten",
+    "timeRangeTo": "tot {{time}}",
+    "eventTimeRange": "{{start}} tot {{end}}",
+    "inMySchedule": "In Mijn programma",
+    "notInMySchedule": "Niet in Mijn programma",
+    "reminderSet": "Herinnering ingesteld",
+    "ageRestricted": "Leeftijdsbeperking",
+    "contentWarning": "Inhoudswaarschuwing",
+    "eventActionsHint": "Opent evenementdetails, programma- en herinneringsacties.",
+    "manualEvent": {
+      "cancelLabel": "Evenement toevoegen annuleren",
+      "saveLabel": "Evenement opslaan",
+      "saving": "Opslaan...",
+      "titleLabel": "Titel *",
+      "titlePlaceholder": "Evenementtitel",
+      "titleAccessibility": "Evenementtitel, verplicht",
+      "dateLabel": "Datum *",
+      "dateAccessibility": "Evenementdatum, verplicht, JJJJ-MM-DD",
+      "startLabel": "Start *",
+      "startAccessibility": "Starttijd, verplicht, 24-uursnotatie HH:mm",
+      "endLabel": "Einde",
+      "endAccessibility": "Eindtijd, optioneel, 24-uursnotatie HH:mm",
+      "roomLabel": "Zaal",
+      "roomPlaceholder": "Optioneel",
+      "roomAccessibility": "Evenementzaal, optioneel",
+      "timeZoneHelp": "Datum en tijden gebruiken {{timeZone}}. De eindtijd valt op dezelfde datum.",
+      "savedAnnouncement": "{{event}} is opgeslagen en toegevoegd aan Mijn programma.",
+      "errors": {
+        "title": "Een titel is verplicht.",
+        "date": "De datum moet JJJJ-MM-DD gebruiken en een echte kalenderdatum zijn.",
+        "startTime": "De starttijd moet 24-uursnotatie HH:mm gebruiken, zoals 09:30.",
+        "endTime": "De eindtijd moet 24-uursnotatie HH:mm gebruiken, zoals 10:30.",
+        "startTimeZone": "Die starttijd bestaat niet in de tijdzone van de conventie.",
+        "endTimeZone": "Die eindtijd bestaat niet in de tijdzone van de conventie.",
+        "order": "De eindtijd moet op dezelfde datum na de starttijd vallen.",
+        "save": "Het evenement kon niet worden opgeslagen. Je andere evenementen zijn niet gewijzigd."
+      }
+    }
   },
   "profile": {
     "title": "Profiel",
@@ -104,7 +210,17 @@
       "fr": "Frans",
       "pt-BR": "Portugees (Brazilië)",
       "sv": "Zweeds",
-      "pl": "Pools"
+      "pl": "Pools",
+      "description": "Kies de taal die ConPaws gebruikt.",
+      "selected": "Geselecteerd",
+      "changeError": "ConPaws kon de taal niet wijzigen. Probeer het opnieuw."
+    },
+    "appearance": {
+      "system": "Systeem",
+      "light": "Licht",
+      "dark": "Donker",
+      "description": "Kies hoe ConPaws eruitziet op dit apparaat.",
+      "changeError": "ConPaws kon de weergave niet wijzigen. Probeer het opnieuw."
     },
     "account": {
       "title": "Account",
@@ -120,7 +236,12 @@
     "data": {
       "title": "Gegevens",
       "exportData": "Gegevens exporteren",
+      "exportDescription": "Bewaar een back-up van je conventies en programma's.",
+      "exporting": "Back-up voorbereiden",
+      "exportError": "ConPaws kon je gegevens niet exporteren. Probeer het opnieuw.",
       "importData": "Gegevens importeren",
+      "importDescription": "Herstel conventies en programma's vanuit een back-up.",
+      "importing": "Back-up openen",
       "resetOnboarding": "Onboarding resetten"
     },
     "legal": {
@@ -132,24 +253,107 @@
     },
     "about": {
       "title": "Over",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
+      "resources": "Bronnen",
+      "sourceCode": "Broncode",
+      "website": "Website",
+      "support": "Ondersteuning",
+      "email": "E-mail",
+      "discordDescription": "Word lid van de community",
+      "copyright": "© {{year}} ConPaws. Alle rechten voorbehouden."
     }
   },
   "import": {
     "title": "Rooster importeren",
-    "url": "Importeren via URL",
-    "file": "Importeren via bestand",
+    "source": "Bron",
+    "sourceLabel": "Importeren uit",
+    "url": "Sched-URL",
+    "file": "Agenda-bestand",
     "urlPlaceholder": "https://yourcon.sched.com",
-    "preview": "Evenementen bekijken",
+    "fileDescription": "Kies een .ics-bestand dat door de conventie is geëxporteerd.",
+    "chooseFile": "Bestand kiezen",
+    "fetchSchedule": "Rooster ophalen",
+    "loading": "Rooster laden",
+    "loadingDescription": "Evenementen worden gelezen en gecontroleerd...",
+    "needsAttention": "Let op",
+    "couldNotLoad": "Rooster kon niet worden geladen",
+    "importedConvention": "Geïmporteerde conventie",
+    "preview": "Voorbeeld",
+    "eventFound": "{{count}} actief evenement gevonden",
+    "eventsFound": "{{count}} actieve evenementen gevonden",
+    "cancellation": "{{count}} annulering wordt verwerkt",
+    "cancellations": "{{count}} annuleringen worden verwerkt",
+    "emptyUpdateTitle": "Geen actieve evenementen",
+    "emptyUpdateMessage": "Je controleert het exacte aantal verwijderingen voordat er iets verandert.",
+    "categories": "Categorieën",
+    "categoryEvent": "{{name}}, {{count}} evenement",
+    "categoryEvents": "{{name}}, {{count}} evenementen",
+    "importEvent": "{{count}} evenement importeren",
+    "importEvents": "{{count}} evenementen importeren",
     "importing": "Importeren...",
+    "applying": "Toepassen...",
+    "applyUpdate": "Roosterupdate toepassen",
     "success": "Import voltooid",
-    "error": "Import mislukt"
+    "error": "Import mislukt",
+    "timeZone": {
+      "sectionTitle": "Tijdzone",
+      "label": "Tijdzone van de conventie",
+      "placeholder": "America/Chicago",
+      "help": "Gebruik de locatie van de conventie, niet de huidige locatie van je telefoon.",
+      "requiredTitle": "Tijdzone vereist",
+      "requiredMessage": "Kies de IANA-tijdzone van de conventie zodat evenementtijden onderweg correct blijven.",
+      "choose": "Kies een tijdzone",
+      "use": "Tijdzone gebruiken"
+    },
+    "errors": {
+      "fileType": "Kies een .ics-agendabestand.",
+      "fileRead": "Het bestand kon niet worden gelezen.",
+      "invalidUrl": "Voer een geldige Sched-URL in, zoals https://yourcon.sched.com.",
+      "network": "Controleer je verbinding en probeer het opnieuw.",
+      "invalidResponse": "De URL heeft geen geldig agendabestand opgeleverd.",
+      "noEvents": "Er zijn geen evenementen in dit agendabestand gevonden.",
+      "parse": "Deze agenda kon niet veilig worden verwerkt.",
+      "unsupportedRecurrence": "Deze agenda gebruikt niet-ondersteunde actieve herhalingsdefinities ({{properties}}). ConPaws kan die nog niet veilig uitwerken. Exporteer een uitgewerkt .ics-bestand met elke herhaling als afzonderlijk evenement en probeer het opnieuw.",
+      "generic": "Er ging iets mis. Probeer het opnieuw."
+    },
+    "alerts": {
+      "emptyUpdateTitle": "Lege roosterupdate toepassen?",
+      "emptyUpdateEvent": "Deze Sched-update heeft geen actieve evenementen. Als je deze toepast, wordt precies {{count}} geïmporteerd evenement uit deze conventie verwijderd en wordt de lokale herinnering geannuleerd. Handmatig toegevoegde evenementen blijven staan.",
+      "emptyUpdateEvents": "Deze Sched-update heeft geen actieve evenementen. Als je deze toepast, worden precies {{count}} geïmporteerde evenementen uit deze conventie verwijderd en worden hun lokale herinneringen geannuleerd. Handmatig toegevoegde evenementen blijven staan.",
+      "invalidTimeZoneTitle": "Ongeldige tijdzone",
+      "invalidTimeZoneMessage": "Gebruik een IANA-tijdzone zoals America/Chicago.",
+      "notAppliedTitle": "Import niet toegepast",
+      "parseNotApplied": "Deze agenda kon niet veilig worden verwerkt. Er is niets gewijzigd.",
+      "nothingTitle": "Niets om te importeren",
+      "nothingMessage": "Kies ten minste één evenement.",
+      "updateNotAppliedTitle": "Roosterupdate niet toegepast",
+      "updateNotAppliedMessage": "De app kon niet controleren welke geïmporteerde evenementen zouden worden verwijderd. Er is niets gewijzigd.",
+      "successTitle": "Import voltooid",
+      "successSummary": "Toegevoegd: {{added}} • Bijgewerkt: {{updated}} • Verwijderd: {{removed}}.",
+      "unresolvedSeries": "Ongewijzigde terugkerende reeksen: {{count}}. Oudere opgeslagen evenementen konden niet veilig worden gekoppeld.",
+      "detailsNotUpdated": "De evenementen zijn opgeslagen, maar de conventiedatums of opgeslagen Sched-URL konden niet worden bijgewerkt.",
+      "failedTitle": "Import mislukt"
+    }
   },
   "reminders": {
     "title": "Herinneringen",
     "add": "Herinnering toevoegen",
-    "minutesBefore": "{{minutes}} minuten van tevoren",
+    "minutesBefore": "{{minutes}} min van tevoren",
     "atTime": "Op het tijdstip van het evenement",
-    "none": "Geen herinnering"
+    "none": "Geen vertrekherinnering",
+    "hourBefore": "1 uur van tevoren",
+    "setLeave": "Vertrekherinnering instellen",
+    "changeLeave": "Vertrekherinnering wijzigen",
+    "pickerTitle": "Wanneer moet ConPaws je herinneren?",
+    "pickerDescription": "Kies hoe vroeg je naar {{event}} wilt vertrekken.",
+    "notificationTitle": "Tijd om naar {{event}} te gaan",
+    "notificationBody": "Begint over {{minutes}} min",
+    "notificationBodyWithRoom": "Begint over {{minutes}} min · {{room}}",
+    "channelName": "Evenementherinneringen",
+    "setAnnouncement": "Vertrekherinnering ingesteld voor {{event}}.",
+    "clearedAnnouncement": "Vertrekherinnering gewist voor {{event}}.",
+    "errorTitle": "Herinnering niet ingesteld",
+    "errorMessage": "Schakel meldingen in bij Instellingen en kies een toekomstig evenement."
   }
 }

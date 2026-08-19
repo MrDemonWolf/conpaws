@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
-import { reconcileEventReminders } from "./notifications";
+import {
+  cancelConventionReminders,
+  reconcileEventReminders,
+} from "./notifications";
 
 const notificationMocks = vi.hoisted(() => ({
   cancelScheduledNotificationAsync: vi.fn(),
@@ -16,6 +19,10 @@ const eventRepoMocks = vi.hoisted(() => ({
   getAllWithReminders: vi.fn(),
   update: vi.fn(),
 }));
+const i18nMock = vi.hoisted(() => ({
+  isInitialized: false,
+  t: vi.fn(),
+}));
 
 vi.mock("expo-notifications", () => ({
   ...notificationMocks,
@@ -24,6 +31,7 @@ vi.mock("expo-notifications", () => ({
 }));
 vi.mock("react-native", () => ({ Platform: { OS: "ios" } }));
 vi.mock("@/db/repositories/events", () => eventRepoMocks);
+vi.mock("i18next", () => ({ default: i18nMock }));
 
 function reminderEvent(
   overrides: Partial<ConventionEvent> = {},
@@ -56,6 +64,7 @@ describe("startup reminder reconciliation", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-08-17T12:00:00.000Z"));
     vi.clearAllMocks();
+    i18nMock.isInitialized = false;
     notificationMocks.cancelScheduledNotificationAsync.mockResolvedValue(
       undefined,
     );
@@ -91,7 +100,13 @@ describe("startup reminder reconciliation", () => {
       notificationMocks.cancelScheduledNotificationAsync,
     ).toHaveBeenCalledWith("reminder-event-1");
     expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ identifier: "reminder-event-1" }),
+      expect.objectContaining({
+        identifier: "reminder-event-1",
+        content: expect.objectContaining({
+          title: "Time to leave for Opening",
+          body: "Starts in 15 min · Main Stage",
+        }),
+      }),
     );
     expect(eventRepoMocks.update).not.toHaveBeenCalled();
     expect(result).toEqual({
@@ -137,5 +152,48 @@ describe("startup reminder reconciliation", () => {
       reminderMinutes: null,
     });
     expect(result.cleared).toBe(1);
+  });
+
+  it("uses the active app language when a reminder is rebuilt", async () => {
+    i18nMock.isInitialized = true;
+    i18nMock.t.mockImplementation((key: string) =>
+      key === "reminders.notificationTitle"
+        ? "Hora de salir para Opening"
+        : "Empieza en 15 min · Main Stage",
+    );
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
+
+    await reconcileEventReminders();
+
+    expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({
+          title: "Hora de salir para Opening",
+          body: "Empieza en 15 min · Main Stage",
+        }),
+      }),
+    );
+  });
+});
+
+describe("convention reminder cleanup", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("reports a partial failure without rejecting cleanup", async () => {
+    notificationMocks.cancelScheduledNotificationAsync
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("notification store unavailable"));
+
+    await expect(
+      cancelConventionReminders(["event-1", "event-2"]),
+    ).resolves.toBe(false);
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-event-1");
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-event-2");
   });
 });

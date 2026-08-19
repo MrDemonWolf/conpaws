@@ -4,6 +4,7 @@
     "profile": "Profile",
     "settings": "Settings",
     "back": "Back",
+    "add": "Add",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -20,68 +21,173 @@
     "version": "Version {{version}}"
   },
   "onboarding": {
+    "progress": "Step {{step}} of {{total}}",
     "welcome": {
-      "tagline": "Navigate, Connect, Enjoy",
-      "subtitle": "Your furry convention companion",
-      "getStarted": "Get Started"
+      "tagline": "Your convention schedule, ready offline.",
+      "subtitle": "Plan around bad con Wi-Fi. Your schedule stays on your device.",
+      "continue": "Continue",
+      "skip": "Skip"
     },
     "features": {
-      "title": "Everything you need",
-      "subtitle": "ConPaws keeps your convention experience organized",
-      "calendar": {
-        "title": "Convention Calendar",
-        "description": "Import schedules from any convention. Browse panels, events, and activities at a glance."
+      "title": "Plan the whole con",
+      "subtitle": "Everything you need when the venue Wi-Fi gives up.",
+      "demo": {
+        "now": "Now",
+        "next": "Next",
+        "eventOne": "Opening Ceremonies",
+        "eventTwo": "Fursuit Parade",
+        "saved": "My Schedule"
       },
-      "share": {
-        "title": "Share & Connect",
-        "description": "Build your personal schedule and share it with friends attending the same con."
+      "import": {
+        "title": "Import any schedule",
+        "description": "Add an .ics file or paste a Sched link."
+      },
+      "plan": {
+        "title": "Never miss a panel",
+        "description": "Build My Schedule, see Now & Next, and catch overlaps."
       },
       "offline": {
-        "title": "Works Offline",
-        "description": "All your data is stored locally. No internet required once you've imported your schedule."
+        "title": "Private and offline",
+        "description": "Your convention data stays on this device."
       },
-      "next": "Next"
+      "plus": {
+        "eyebrow": "Coming soon",
+        "title": "ConPaws+",
+        "description": "We plan to add optional premium cloud backup, sync, and social features. ConPaws works offline now and does not need an account."
+      },
+      "next": "Continue"
     },
     "getStarted": {
-      "title": "Join ConPaws",
-      "subtitle": "Sign in to sync your schedule across devices",
-      "signInWithApple": "Sign in with Apple",
-      "signInWithGoogle": "Sign in with Google",
-      "skipForNow": "Skip for now",
-      "legal": "By continuing, you agree to our Terms of Service and Privacy Policy"
-    },
-    "complete": {
-      "title": "You're all set!",
-      "subtitle": "Welcome to ConPaws. Let's explore your first convention.",
-      "letsGo": "Let's Go"
+      "title": "Ready for your next con?",
+      "subtitle": "Import a schedule now, or explore ConPaws first.",
+      "importSchedule": "Import a schedule",
+      "exploreFirst": "Explore first",
+      "localPrivacy": "No account required. Your data stays local."
     }
   },
   "home": {
-    "title": "My Conventions",
+    "title": "Conventions",
     "addConvention": "Add Convention",
     "empty": {
       "title": "No conventions yet",
-      "subtitle": "Add your first convention to get started.",
-      "cta": "Add Convention"
+      "subtitle": "Create one or import an existing schedule.",
+      "cta": "Create Convention"
     },
+    "loadError": "Conventions could not be loaded.",
+    "dateRange": "{{start}} to {{end}}",
     "upcoming": "Upcoming",
     "active": "Active",
-    "past": "Past"
+    "past": "Past",
+    "moreActions": "More actions for {{name}}",
+    "sortBy": "Sort By",
+    "sort": {
+      "upcoming": "Upcoming First",
+      "name": "Name"
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "message": "This permanently deletes the convention, its schedule, and reminders.",
+      "success": "Deleted {{name}}.",
+      "errorTitle": "Could Not Delete Convention",
+      "errorMessage": "Nothing was deleted. Try again."
+    }
   },
   "convention": {
     "new": "New Convention",
+    "create": "Create Convention",
     "edit": "Edit Convention",
     "import": "Import Schedule",
     "detail": "Convention Details",
     "events": "Events",
+    "searchEvents": "Search events",
+    "filterEvents": "Filter events",
+    "scheduleActions": "Schedule actions",
+    "allEvents": "All Events",
+    "mySchedule": "My Schedule",
+    "nowAndNext": "Now and Next",
+    "categories": "Categories",
+    "allCategories": "All Categories",
+    "noMatchingEvents": "No matching events",
+    "noMatchingEventsSubtitle": "Try another search or filter.",
+    "timesShownIn": "Times shown in {{timeZone}}",
+    "nowCount": "Now ({{eventCount}})",
+    "nextAtCount": "Next at {{time}} ({{eventCount}})",
+    "nextCount": "Next ({{eventCount}})",
+    "nothingHappeningNow": "Nothing from My Schedule is happening right now.",
+    "noMoreUpcomingEvents": "No more upcoming events in My Schedule.",
     "noEvents": "No events yet",
     "noEventsSubtitle": "Import a schedule or add events manually.",
+    "myScheduleEmpty": "My Schedule is empty",
+    "myScheduleNowNextSubtitle": "Choose events from All to see what is happening now and next.",
+    "myScheduleSubtitle": "Open All and add the events you do not want to miss.",
+    "overlapSummary": "Saved panels involved in an overlap: {{count}}",
+    "overlapHelp": "You can keep them all. Set a leave reminder on the later panel to allow time between rooms.",
+    "overlapLabel": "Overlaps another saved panel",
+    "showAllEvents": "Show All Events",
     "addEvent": "Add Event",
     "importSchedule": "Import Schedule",
     "startDate": "Start Date",
     "endDate": "End Date",
+    "timeZone": "Time Zone",
+    "timeZonePlaceholder": "America/Chicago",
+    "timeZoneSearch": "Search Time Zones",
+    "timeZoneSearchPlaceholder": "City or region",
+    "timeZoneHelp": "Use the convention's local time zone, such as America/Chicago.",
     "name": "Convention Name",
-    "namePlaceholder": "e.g. IndyFurCon 2025"
+    "namePlaceholder": "e.g. ConPaws Preview Con",
+    "nameRequired": "Enter a convention name.",
+    "timeZoneInvalid": "Enter a valid IANA time zone, such as America/Chicago.",
+    "createError": "The convention could not be created. Try again.",
+    "notFound": "Convention not found.",
+    "goBack": "Go back",
+    "addToSchedule": "Add to My Schedule",
+    "removeFromSchedule": "Remove from My Schedule",
+    "scheduleActionHint": "Updates this event in My Schedule.",
+    "scheduleAddedAnnouncement": "{{event}} added to My Schedule.",
+    "scheduleRemovedAnnouncement": "{{event}} removed from My Schedule.",
+    "scheduleUpdateErrorTitle": "Schedule Not Updated",
+    "scheduleUpdateErrorMessage": "The event could not be changed. Your schedule was left as it was.",
+    "viewOnSched": "View on Sched",
+    "viewOnSchedLabel": "View {{event}} on Sched",
+    "openExternalHint": "Opens the event page in your browser.",
+    "closeEventDetails": "Close event details",
+    "timeRangeTo": "to {{time}}",
+    "eventTimeRange": "{{start}} to {{end}}",
+    "inMySchedule": "In My Schedule",
+    "notInMySchedule": "Not in My Schedule",
+    "reminderSet": "Reminder set",
+    "ageRestricted": "Age restricted",
+    "contentWarning": "Content warning",
+    "eventActionsHint": "Opens event details, schedule, and reminder actions.",
+    "manualEvent": {
+      "cancelLabel": "Cancel adding event",
+      "saveLabel": "Save event",
+      "saving": "Saving...",
+      "titleLabel": "Title *",
+      "titlePlaceholder": "Event title",
+      "titleAccessibility": "Event title, required",
+      "dateLabel": "Date *",
+      "dateAccessibility": "Event date, required, YYYY-MM-DD",
+      "startLabel": "Start *",
+      "startAccessibility": "Start time, required, 24-hour HH:mm",
+      "endLabel": "End",
+      "endAccessibility": "End time, optional, 24-hour HH:mm",
+      "roomLabel": "Room",
+      "roomPlaceholder": "Optional",
+      "roomAccessibility": "Event room, optional",
+      "timeZoneHelp": "Date and times use {{timeZone}}. End time is on the same date.",
+      "savedAnnouncement": "{{event}} saved and added to My Schedule.",
+      "errors": {
+        "title": "Title is required.",
+        "date": "Date must use YYYY-MM-DD and be a real calendar date.",
+        "startTime": "Start time must use 24-hour HH:mm, such as 09:30.",
+        "endTime": "End time must use 24-hour HH:mm, such as 10:30.",
+        "startTimeZone": "That start time does not exist in the convention time zone.",
+        "endTimeZone": "That end time does not exist in the convention time zone.",
+        "order": "End time must be later than start time on the same date.",
+        "save": "Could not save the event. Your other events were not changed."
+      }
+    }
   },
   "profile": {
     "title": "Profile",
@@ -104,7 +210,17 @@
       "fr": "French",
       "pt-BR": "Portuguese (Brazil)",
       "sv": "Swedish",
-      "pl": "Polish"
+      "pl": "Polish",
+      "description": "Choose the language used throughout ConPaws.",
+      "selected": "Selected",
+      "changeError": "ConPaws could not change the language. Try again."
+    },
+    "appearance": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "description": "Choose how ConPaws looks on this device.",
+      "changeError": "ConPaws could not change the appearance. Try again."
     },
     "account": {
       "title": "Account",
@@ -120,7 +236,12 @@
     "data": {
       "title": "Data",
       "exportData": "Export Data",
+      "exportDescription": "Save a backup of your conventions and schedules.",
+      "exporting": "Preparing backup",
+      "exportError": "ConPaws could not export your data. Try again.",
       "importData": "Import Data",
+      "importDescription": "Restore conventions and schedules from a backup.",
+      "importing": "Opening backup",
       "resetOnboarding": "Reset Onboarding"
     },
     "legal": {
@@ -132,24 +253,107 @@
     },
     "about": {
       "title": "About",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Your convention schedule, ready offline.",
+      "resources": "Resources",
+      "sourceCode": "Source Code",
+      "website": "Website",
+      "support": "Support",
+      "email": "Email",
+      "discordDescription": "Join the community",
+      "copyright": "© {{year}} ConPaws. All rights reserved."
     }
   },
   "import": {
     "title": "Import Schedule",
-    "url": "Import from URL",
-    "file": "Import from File",
+    "source": "Source",
+    "sourceLabel": "Import from",
+    "url": "Sched URL",
+    "file": "Calendar File",
     "urlPlaceholder": "https://yourcon.sched.com",
-    "preview": "Preview Events",
+    "fileDescription": "Choose an .ics file exported by the convention.",
+    "chooseFile": "Choose File",
+    "fetchSchedule": "Fetch Schedule",
+    "loading": "Loading Schedule",
+    "loadingDescription": "Reading and checking events...",
+    "needsAttention": "Needs Attention",
+    "couldNotLoad": "Couldn't Load Schedule",
+    "importedConvention": "Imported Convention",
+    "preview": "Preview",
+    "eventFound": "{{count}} active event found",
+    "eventsFound": "{{count}} active events found",
+    "cancellation": "{{count}} cancellation will be reconciled",
+    "cancellations": "{{count}} cancellations will be reconciled",
+    "emptyUpdateTitle": "No Active Events",
+    "emptyUpdateMessage": "You'll review the exact removal count before anything changes.",
+    "categories": "Categories",
+    "categoryEvent": "{{name}}, {{count}} event",
+    "categoryEvents": "{{name}}, {{count}} events",
+    "importEvent": "Import {{count}} Event",
+    "importEvents": "Import {{count}} Events",
     "importing": "Importing...",
+    "applying": "Applying...",
+    "applyUpdate": "Apply Schedule Update",
     "success": "Import complete",
-    "error": "Import failed"
+    "error": "Import failed",
+    "timeZone": {
+      "sectionTitle": "Time Zone",
+      "label": "Convention time zone",
+      "placeholder": "America/Chicago",
+      "help": "Use the convention's location, not your phone's current location.",
+      "requiredTitle": "Time Zone Required",
+      "requiredMessage": "Choose the convention's IANA time zone so event times stay correct when you travel.",
+      "choose": "Choose a time zone",
+      "use": "Use Time Zone"
+    },
+    "errors": {
+      "fileType": "Choose an .ics calendar file.",
+      "fileRead": "The file couldn't be read.",
+      "invalidUrl": "Enter a valid Sched URL, such as https://yourcon.sched.com.",
+      "network": "Check your connection and try again.",
+      "invalidResponse": "The URL didn't return a valid calendar file.",
+      "noEvents": "No events were found in this calendar file.",
+      "parse": "This calendar couldn't be parsed safely.",
+      "unsupportedRecurrence": "This calendar uses unsupported active recurrence definitions ({{properties}}). ConPaws can't safely expand them yet. Export an expanded .ics file with each occurrence as its own event, then try again.",
+      "generic": "Something went wrong. Try again."
+    },
+    "alerts": {
+      "emptyUpdateTitle": "Apply empty schedule update?",
+      "emptyUpdateEvent": "This Sched update has no active events. Applying it will remove exactly {{count}} imported event from this convention and cancel its local reminder. Manually added events will stay.",
+      "emptyUpdateEvents": "This Sched update has no active events. Applying it will remove exactly {{count}} imported events from this convention and cancel their local reminders. Manually added events will stay.",
+      "invalidTimeZoneTitle": "Invalid Time Zone",
+      "invalidTimeZoneMessage": "Use an IANA time zone such as America/Chicago.",
+      "notAppliedTitle": "Import Not Applied",
+      "parseNotApplied": "This calendar couldn't be parsed safely. Nothing was changed.",
+      "nothingTitle": "Nothing to Import",
+      "nothingMessage": "Choose at least one event.",
+      "updateNotAppliedTitle": "Schedule Update Not Applied",
+      "updateNotAppliedMessage": "The app couldn't verify which imported events would be removed. Nothing was changed.",
+      "successTitle": "Import Complete",
+      "successSummary": "Added: {{added}} • Updated: {{updated}} • Removed: {{removed}}.",
+      "unresolvedSeries": "Recurring series left unchanged: {{count}}. Older saved events couldn't be matched safely.",
+      "detailsNotUpdated": "Events were saved, but the convention dates or saved Sched URL couldn't be refreshed.",
+      "failedTitle": "Import Failed"
+    }
   },
   "reminders": {
     "title": "Reminders",
     "add": "Add Reminder",
-    "minutesBefore": "{{minutes}} minutes before",
+    "minutesBefore": "{{minutes}} min before",
     "atTime": "At event time",
-    "none": "No reminder"
+    "none": "No leave reminder",
+    "hourBefore": "1 hour before",
+    "setLeave": "Set leave reminder",
+    "changeLeave": "Change leave reminder",
+    "pickerTitle": "When should ConPaws remind you?",
+    "pickerDescription": "Choose how early to leave for {{event}}.",
+    "notificationTitle": "Time to leave for {{event}}",
+    "notificationBody": "Starts in {{minutes}} min",
+    "notificationBodyWithRoom": "Starts in {{minutes}} min · {{room}}",
+    "channelName": "Event reminders",
+    "setAnnouncement": "Leave reminder set for {{event}}.",
+    "clearedAnnouncement": "Leave reminder cleared for {{event}}.",
+    "errorTitle": "Reminder Not Set",
+    "errorMessage": "Enable notifications in Settings and choose a future event."
   }
 }
