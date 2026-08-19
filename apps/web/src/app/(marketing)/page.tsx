@@ -67,7 +67,7 @@ const TICKER_ITEMS = [
 function Ticker() {
   const row = TICKER_ITEMS.map((item) => (
     <span key={item} className="flex items-center gap-6 pr-6">
-      <span className="font-bold text-[15px] text-transparent uppercase tracking-[0.2em] [-webkit-text-stroke:1px_rgb(148_163_184/0.5)]">
+      <span className="font-bold text-[15px] text-transparent uppercase tracking-[0.2em] [-webkit-text-stroke:1px_rgb(148_163_184/0.75)]">
         {item}
       </span>
       <CompassPaw className="h-3.5 w-3.5 shrink-0 text-primary/50" />
@@ -94,12 +94,12 @@ function Ticker() {
 export default function Home() {
   return (
     <main className="relative mx-auto max-w-[1120px] px-6 pb-28">
-      <nav className="flex items-center justify-between py-7">
+      <nav className="relative z-10 flex items-center justify-between py-7">
         <span className="flex items-center gap-2.5">
           <CompassPaw className="h-7 w-7 text-primary" />
           <b className="font-bold text-[18px] tracking-tight">ConPaws</b>
         </span>
-        <span className="rounded-full border border-border px-3 py-1 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+        <span className="rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
           Coming soon
         </span>
       </nav>
@@ -112,10 +112,10 @@ export default function Home() {
 
       <section className="mt-24">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-tech text-[11px] text-primary uppercase tracking-[0.3em]">
+          <h2 className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
             Today&rsquo;s lineup
           </h2>
-          <span className="font-tech text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+          <span className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
             Day 1 of ∞
           </span>
         </div>
@@ -135,15 +135,15 @@ export default function Home() {
                 <h3 className="font-bold text-[17px] tracking-tight transition group-hover:text-primary">
                   {item.title}
                 </h3>
-                <p className="mt-1 max-w-[52ch] text-[13.5px] text-muted-foreground leading-relaxed">
+                <p className="mt-1 max-w-[52ch] text-[14.5px] text-muted-foreground leading-relaxed">
                   {item.body}
                 </p>
               </div>
               <div className="col-start-2 mt-2 flex gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
-                <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[9px] text-primary uppercase tracking-[0.18em]">
+                <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[10px] text-primary uppercase tracking-[0.18em]">
                   {item.tag}
                 </span>
-                <span className="pt-0.5 font-tech text-[9px] text-muted-foreground uppercase tracking-[0.18em]">
+                <span className="pt-0.5 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
                   {item.room}
                 </span>
               </div>
@@ -153,7 +153,7 @@ export default function Home() {
       </section>
 
       <section className="mt-24">
-        <h2 className="font-tech text-[11px] text-primary uppercase tracking-[0.3em]">
+        <h2 className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
           How it works
         </h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -168,7 +168,7 @@ export default function Home() {
               <h3 className="mt-4 font-bold text-[16px] tracking-tight">
                 {step.title}
               </h3>
-              <p className="mt-1.5 text-[13px] text-muted-foreground leading-relaxed">
+              <p className="mt-1.5 text-[14px] text-muted-foreground leading-relaxed">
                 {step.body}
               </p>
             </div>
@@ -189,12 +189,12 @@ export default function Home() {
               <CompassPaw className="h-5 w-5 text-primary" />
               <b className="text-[15px] tracking-tight">ConPaws</b>
             </span>
-            <p className="mt-2 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
-              © {new Date().getFullYear()} ConPaws by MrDemonWolf, Inc. · Made
-              with paws
+            <p className="mt-2 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
+              © {new Date().getFullYear()} MrDemonWolf, Inc. All rights
+              reserved.
             </p>
           </div>
-          <nav className="flex gap-5 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
+          <nav className="flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
             <a href="/privacy" className="transition hover:text-primary">
               Privacy
             </a>

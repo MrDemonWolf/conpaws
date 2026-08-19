@@ -79,9 +79,9 @@ export function Waitlist() {
   }
 
   return (
-    <div className="grid items-start gap-16 md:grid-cols-[1fr_380px]">
+    <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-16">
       <div className="pt-6 md:pt-14">
-        <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[10px] text-primary uppercase tracking-[0.28em]">
+        <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[11px] text-primary uppercase tracking-[0.24em]">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
@@ -120,16 +120,18 @@ export function Waitlist() {
               <div>
                 <label
                   htmlFor={nameId}
-                  className="mb-1.5 block font-tech text-[10px] text-muted-foreground uppercase tracking-[0.24em]"
+                  className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
                 >
                   Your name or fursona
                 </label>
+                {/* Deliberately never disabled: the badge filling in as you
+                    type is the page's one interactive moment, and it works
+                    whether or not signups are open. */}
                 <input
                   id={nameId}
                   name="name"
                   autoComplete="name"
                   placeholder="Luna Starfall"
-                  disabled={!WAITLIST_ACCEPTING_SIGNUPS}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={60}
@@ -140,7 +142,7 @@ export function Waitlist() {
               <div>
                 <label
                   htmlFor={emailId}
-                  className="mb-1.5 block font-tech text-[10px] text-muted-foreground uppercase tracking-[0.24em]"
+                  className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
                 >
                   Email
                 </label>
@@ -200,7 +202,7 @@ export function Waitlist() {
                   : "Register for the beta →"}
             </button>
 
-            <p className="mt-3.5 text-[12px] text-muted-foreground leading-relaxed">
+            <p className="mt-3.5 text-[13px] text-muted-foreground leading-relaxed">
               {WAITLIST_ACCEPTING_SIGNUPS ? (
                 CONSENT_COPY
               ) : (

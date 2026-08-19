@@ -49,7 +49,7 @@ export function Badge({ name }: { name: string }) {
       ) : (
         <BadgeCard name={name} />
       )}
-      <p className="mt-4 text-center font-tech text-[10px] text-muted-foreground uppercase tracking-[0.22em]">
+      <p className="mt-4 text-center font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
         {physics
           ? "↑ grab the badge — and type your name"
           : "↑ your badge fills in as you type"}

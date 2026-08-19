@@ -29,7 +29,6 @@ import { BadgeFace } from "./badge-face";
  */
 const PXU = 200;
 const ANCHOR_Y = 1.175 - 17 / PXU;
-const SEG = 0.4;
 const GRAVITY = -40;
 const DT = 1 / 60;
 
@@ -91,7 +90,14 @@ export default function BadgePhysics({
 
         const rect = wrapper.current.getBoundingClientRect();
         const visH = rect.height / PXU;
-        const fixedY = visH / 2 - 0.25;
+        // Anchor the rope ABOVE the viewport top, not inside the wrapper — a
+        // band that visibly starts mid-air reads as a bug. The SVG is
+        // overflow-visible so the band draws all the way up to it.
+        const fixedY = visH / 2 + Math.max(0.2, rect.top / PXU + 0.15);
+        // Card slot rests ~150px below the wrapper top; the rope spans from
+        // the off-screen anchor down to it in three equal segments.
+        const slotRestY = visH / 2 - 150 / PXU;
+        const SEG = Math.max(0.35, (fixedY - slotRestY) / 3);
 
         const world = new RAPIER.World({ x: 0, y: GRAVITY });
 
@@ -106,9 +112,9 @@ export default function BadgePhysics({
               .setAngularDamping(3)
               .setCanSleep(false),
           );
-        const j1 = mkLink(0.25, fixedY - SEG);
-        const j2 = mkLink(0.45, fixedY - SEG * 2);
-        const j3 = mkLink(0.6, fixedY - SEG * 3);
+        const j1 = mkLink(0.12, fixedY - SEG);
+        const j2 = mkLink(0.22, fixedY - SEG * 2);
+        const j3 = mkLink(0.3, fixedY - SEG * 3);
 
         // Chain links need some mass or the rope has no swing weight.
         // Collision group 0 = collides with nothing.
@@ -121,7 +127,7 @@ export default function BadgePhysics({
 
         const card = world.createRigidBody(
           RAPIER.RigidBodyDesc.dynamic()
-            .setTranslation(0.7, fixedY - SEG * 3 - ANCHOR_Y)
+            .setTranslation(0.35, fixedY - SEG * 3 - ANCHOR_Y)
             .setLinearDamping(4)
             .setAngularDamping(4)
             .setCanSleep(false)
@@ -316,7 +322,7 @@ export default function BadgePhysics({
       onPointerCancel={onRelease}
     >
       <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
+        className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
         role="presentation"
       >
         <title>Lanyard</title>
