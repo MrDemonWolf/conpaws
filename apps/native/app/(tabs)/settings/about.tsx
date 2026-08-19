@@ -4,6 +4,7 @@ import ForumIcon from "@expo/material-symbols/forum.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
 import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
+import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
@@ -43,12 +44,12 @@ export default function AboutScreen() {
       useViewportSizeMeasurement
     >
       <FieldGroup>
-        <FieldGroup.Section>
+        <FieldGroup.Section style={{ paddingTop: 8 }}>
           <ListItem
             leading={
               <Image
                 source={require("../../../assets/images/icon.png")}
-                style={{ width: 64, height: 64, borderRadius: 14 }}
+                style={{ width: 72, height: 72, borderRadius: 16 }}
                 resizeMode="contain"
                 accessible={false}
               />
@@ -58,7 +59,12 @@ export default function AboutScreen() {
               { version },
             )}`}
           >
-            ConPaws
+            <NativeText
+              textStyle={{ fontSize: 22, fontWeight: "700" }}
+              modifiers={[font({ textStyle: "title2", weight: "bold" })]}
+            >
+              ConPaws
+            </NativeText>
           </ListItem>
         </FieldGroup.Section>
 
@@ -107,7 +113,10 @@ export default function AboutScreen() {
             Discord
           </ListItem>
           <FieldGroup.SectionFooter>
-            <NativeText>
+            <NativeText
+              textStyle={{ fontSize: 13 }}
+              modifiers={[font({ textStyle: "footnote" })]}
+            >
               {t("settings.about.copyright", {
                 year: new Date().getFullYear(),
               })}

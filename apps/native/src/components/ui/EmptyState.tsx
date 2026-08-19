@@ -9,6 +9,8 @@ interface EmptyStateProps {
   subtitle?: string;
   ctaLabel?: string;
   onCta?: () => void;
+  secondaryCtaLabel?: string;
+  onSecondaryCta?: () => void;
   className?: string;
 }
 
@@ -18,6 +20,8 @@ export function EmptyState({
   subtitle,
   ctaLabel,
   onCta,
+  secondaryCtaLabel,
+  onSecondaryCta,
   className,
 }: EmptyStateProps) {
   const colorScheme = useColorScheme();
@@ -46,15 +50,31 @@ export function EmptyState({
           </Text>
         ) : null}
       </View>
-      {ctaLabel && onCta ? (
-        <Host
-          colorScheme={resolvedColorScheme}
-          seedColor={resolvedColorScheme === "dark" ? "#18B7F2" : "#006F91"}
-          matchContents
-        >
-          <NativeButton label={ctaLabel} onPress={onCta} />
-        </Host>
-      ) : null}
+      <View className="items-center gap-1">
+        {ctaLabel && onCta ? (
+          <Host
+            colorScheme={resolvedColorScheme}
+            seedColor="#006F91"
+            matchContents
+          >
+            <NativeButton
+              label={ctaLabel}
+              onPress={onCta}
+              style={{ height: 44 }}
+            />
+          </Host>
+        ) : null}
+        {secondaryCtaLabel && onSecondaryCta ? (
+          <Host colorScheme={resolvedColorScheme} matchContents>
+            <NativeButton
+              label={secondaryCtaLabel}
+              onPress={onSecondaryCta}
+              variant="text"
+              style={{ height: 44 }}
+            />
+          </Host>
+        ) : null}
+      </View>
     </View>
   );
 }

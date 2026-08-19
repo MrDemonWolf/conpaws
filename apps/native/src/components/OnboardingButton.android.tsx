@@ -27,6 +27,7 @@ export function OnboardingButton({
   testID,
 }: OnboardingButtonProps) {
   const colorScheme = useColorScheme();
+  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
   const NativeButton = buttonComponents[variant];
   const modifiers = [
     fillMaxWidth(),
@@ -37,8 +38,14 @@ export function OnboardingButton({
   return (
     <View className="w-full">
       <Host
-        colorScheme={colorScheme}
-        seedColor="#006F91"
+        colorScheme={resolvedColorScheme}
+        seedColor={
+          variant === "primary"
+            ? "#006F91"
+            : resolvedColorScheme === "dark"
+              ? "#18B7F2"
+              : "#006F91"
+        }
         matchContents={{ vertical: true }}
         style={{ alignSelf: "stretch" }}
       >

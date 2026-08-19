@@ -22,36 +22,57 @@ export default function GetStartedScreen() {
   }
 
   return (
-    <SafeView>
+    <SafeView className="overflow-hidden">
       <OnboardingBackground />
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          paddingTop: 16,
+          paddingBottom: 24,
+        }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 items-center justify-center gap-6 px-6 py-8">
-          <View className="h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
+        <View className="flex-grow items-center justify-center gap-6 py-8">
+          <View
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            className="h-20 w-20 items-center justify-center rounded-3xl bg-primary/10"
+          >
             <CalendarPlus size={36} color={iconColor} />
           </View>
-          <View className="items-center gap-3">
+          <View className="max-w-sm items-center gap-2">
             <Text variant="h2" className="text-center">
               {t("onboarding.getStarted.title")}
             </Text>
-            <Text variant="body" className="text-center text-foreground/80">
+            <Text variant="body" className="text-center text-muted-foreground">
               {t("onboarding.getStarted.subtitle")}
             </Text>
           </View>
-          <View className="w-full flex-row items-center gap-3 rounded-2xl border border-border bg-card/90 p-4">
-            <ShieldCheck size={22} color={iconColor} />
+          <View
+            accessible
+            accessibilityLabel={t("onboarding.getStarted.localPrivacy")}
+            className="w-full max-w-xl flex-row items-start gap-3 rounded-2xl border border-border bg-card p-4"
+          >
+            <View
+              accessible={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <ShieldCheck size={22} color={iconColor} />
+            </View>
             <Text
               variant="caption"
-              className="flex-1 leading-5 text-foreground/80"
+              className="flex-1 leading-5 text-muted-foreground"
             >
               {t("onboarding.getStarted.localPrivacy")}
             </Text>
           </View>
         </View>
-        <View className="gap-3 px-6 pb-8">
+        <View className="gap-3 pt-4">
           <OnboardingButton
             label={t("onboarding.getStarted.importSchedule")}
             onPress={() => finishOnboarding("/convention/new/import")}

@@ -1,98 +1,223 @@
+import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
+import CheckIcon from "@expo/material-symbols/check.xml";
+import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
+import FormsIcon from "@expo/material-symbols/forms_add_on.xml";
+import {
+  BottomSheet,
+  FieldGroup,
+  Host,
+  Icon,
+  ListItem,
+  Button as NativeButton,
+  Switch as NativeSwitch,
+  Text as NativeText,
+  TextInput as NativeTextInput,
+  RNHostView,
+  Row,
+} from "@expo/ui";
+import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { Redirect } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
-import { OnboardingButton } from "@/components/OnboardingButton";
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Separator,
-  Switch,
-  Text,
-} from "@/components/ui";
+import { useTranslation } from "react-i18next";
+import { useColorScheme, useWindowDimensions, View } from "react-native";
+import { EmptyState } from "@/components/ui";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 
+const CHECK_ICON = Icon.select({ ios: "checkmark", android: CheckIcon });
+const CHEVRON_ICON = Icon.select({
+  ios: "chevron.right",
+  android: ChevronRightIcon,
+});
+const EMPTY_STATE_ICON = Icon.select({
+  ios: "calendar.badge.plus",
+  android: CalendarAddIcon,
+});
+const FORM_ICON = Icon.select({ ios: "square.and.pencil", android: FormsIcon });
+
+const APPEARANCE_OPTIONS = ["system", "light", "dark"] as const;
+
+type PreviewAppearance = (typeof APPEARANCE_OPTIONS)[number];
+type SheetPreview = "empty" | "form" | null;
+
+function NavigationIndicator() {
+  return <Icon name={CHEVRON_ICON} size={15} />;
+}
+
 export default function UiSystemScreen() {
+  const { t } = useTranslation();
+  const systemColorScheme = useColorScheme();
+  const { fontScale, width } = useWindowDimensions();
+  const [appearance, setAppearance] = useState<PreviewAppearance>("system");
   const [switchValue, setSwitchValue] = useState(true);
+  const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);
   const enabled = developerToolsEnabled(
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
   );
+  const systemAppearance = systemColorScheme === "dark" ? "dark" : "light";
+  const previewAppearance =
+    appearance === "system" ? systemAppearance : appearance;
+  const sheetContentWidth = Math.max(280, width - 32);
 
   if (!enabled) return <Redirect href="/(tabs)/settings" />;
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{ gap: 20, padding: 16, paddingBottom: 32 }}
-      keyboardShouldPersistTaps="handled"
+    <Host
+      colorScheme={previewAppearance}
+      seedColor={previewAppearance === "dark" ? "#18B7F2" : "#006F91"}
+      style={{ flex: 1 }}
+      useViewportSizeMeasurement
     >
-      <View className="gap-2">
-        <Text variant="h1">Heading 1</Text>
-        <Text variant="h2">Heading 2</Text>
-        <Text variant="h3">Heading 3</Text>
-        <Text variant="body">Body text</Text>
-        <Text variant="label">Label text</Text>
-        <Text variant="caption" className="text-muted-foreground">
-          Caption text
-        </Text>
-      </View>
+      <FieldGroup>
+        <FieldGroup.Section title="Appearance">
+          {APPEARANCE_OPTIONS.map((option) => (
+            <ListItem
+              key={option}
+              supportingText={
+                option === "system"
+                  ? `Currently ${systemAppearance}`
+                  : `Preview the ${option} system surface`
+              }
+              trailing={
+                appearance === option ? (
+                  <Icon name={CHECK_ICON} size={17} />
+                ) : undefined
+              }
+              onPress={() => setAppearance(option)}
+            >
+              {option[0].toUpperCase() + option.slice(1)}
+            </ListItem>
+          ))}
+        </FieldGroup.Section>
 
-      <Separator />
-
-      <View className="gap-3">
-        <Text variant="h3">Native onboarding controls</Text>
-        <OnboardingButton label="Primary" onPress={() => undefined} />
-        <OnboardingButton
-          label="Secondary"
-          variant="secondary"
-          onPress={() => undefined}
-        />
-        <OnboardingButton
-          label="Text"
-          variant="text"
-          onPress={() => undefined}
-        />
-      </View>
-
-      <View className="gap-3">
-        <Text variant="h3">App controls</Text>
-        <Button onPress={() => undefined}>Default</Button>
-        <Button variant="outline" onPress={() => undefined}>
-          Outline
-        </Button>
-        <Button disabled onPress={() => undefined}>
-          Disabled
-        </Button>
-        <Button loading onPress={() => undefined}>
-          Loading
-        </Button>
-        <Input label="Input" placeholder="Type here" returnKeyType="done" />
-        <Input label="Input error" value="Invalid" error="Check this value" />
-        <View className="flex-row items-center justify-between">
-          <Text variant="body">System switch</Text>
-          <Switch
+        <FieldGroup.Section title="Native controls">
+          <NativeSwitch
+            label={t("settings.app.notifications")}
             value={switchValue}
             onValueChange={setSwitchValue}
-            accessibilityLabel="System switch preview"
           />
-        </View>
-      </View>
+          <NativeTextInput
+            placeholder={t("convention.namePlaceholder")}
+            returnKeyType="done"
+          />
+          <Row alignment="center" spacing={10}>
+            <NativeButton label={t("common.save")} onPress={() => undefined} />
+            <NativeButton
+              label={t("common.cancel")}
+              variant="outlined"
+              onPress={() => undefined}
+            />
+            <NativeButton
+              label={t("common.learnMore")}
+              variant="text"
+              onPress={() => undefined}
+            />
+          </Row>
+          <NativeButton label="Disabled" disabled onPress={() => undefined} />
+        </FieldGroup.Section>
 
-      <Card className="gap-3 p-4">
-        <Text variant="h3">Card and status</Text>
-        <Text variant="body" className="text-muted-foreground">
-          Semantic surfaces follow light and dark appearance.
-        </Text>
-        <View className="flex-row flex-wrap gap-2">
-          <Badge variant="upcoming" label="Upcoming" />
-          <Badge variant="active" label="Active" />
-          <Badge variant="ended" label="Ended" />
-        </View>
-      </Card>
-    </ScrollView>
+        <FieldGroup.Section title="Patterns">
+          <ListItem
+            leading={<Icon name={EMPTY_STATE_ICON} size={22} />}
+            supportingText={t("home.empty.subtitle")}
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("empty")}
+          >
+            {t("home.empty.title")}
+          </ListItem>
+          <ListItem
+            leading={<Icon name={FORM_ICON} size={22} />}
+            supportingText={t("onboarding.getStarted.importSchedule")}
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("form")}
+          >
+            {t("convention.new")}
+          </ListItem>
+        </FieldGroup.Section>
+
+        <FieldGroup.Section title="Accessibility type">
+          <ListItem supportingText={`${fontScale.toFixed(2)}× system scale`}>
+            Dynamic Type
+          </ListItem>
+          <ListItem supportingText="Large title · accessibility scalable">
+            <NativeText
+              textStyle={{ fontSize: 34, fontWeight: "700" }}
+              modifiers={[font({ textStyle: "largeTitle", weight: "bold" })]}
+            >
+              Heading 1
+            </NativeText>
+          </ListItem>
+          <ListItem supportingText="Body · accessibility scalable">
+            <NativeText
+              textStyle={{ fontSize: 17 }}
+              modifiers={[font({ textStyle: "body" })]}
+            >
+              Body text
+            </NativeText>
+          </ListItem>
+          <ListItem supportingText="Caption · accessibility scalable">
+            <NativeText
+              textStyle={{ fontSize: 12 }}
+              modifiers={[font({ textStyle: "caption" })]}
+            >
+              Caption text
+            </NativeText>
+          </ListItem>
+        </FieldGroup.Section>
+      </FieldGroup>
+
+      <BottomSheet
+        isPresented={sheetPreview !== null}
+        onDismiss={() => setSheetPreview(null)}
+        snapPoints={["half", "full"]}
+      >
+        {sheetPreview === "empty" ? (
+          <RNHostView matchContents>
+            <View
+              className="h-[360px] bg-background"
+              style={{ width: sheetContentWidth }}
+            >
+              <EmptyState
+                icon={EMPTY_STATE_ICON}
+                title={t("home.empty.title")}
+                subtitle={t("home.empty.subtitle")}
+                ctaLabel={t("home.empty.cta")}
+                onCta={() => undefined}
+                secondaryCtaLabel={t("convention.import")}
+                onSecondaryCta={() => undefined}
+              />
+            </View>
+          </RNHostView>
+        ) : sheetPreview === "form" ? (
+          <FieldGroup style={{ width: sheetContentWidth, height: 400 }}>
+            <FieldGroup.Section title={t("convention.new")}>
+              <NativeTextInput
+                placeholder={t("convention.namePlaceholder")}
+                returnKeyType="done"
+              />
+              <NativeSwitch
+                label={t("settings.app.notifications")}
+                value={switchValue}
+                onValueChange={setSwitchValue}
+              />
+            </FieldGroup.Section>
+            <FieldGroup.Section>
+              <Row alignment="center" spacing={12}>
+                <NativeButton
+                  label={t("common.cancel")}
+                  variant="text"
+                  onPress={() => setSheetPreview(null)}
+                />
+                <NativeButton
+                  label={t("common.save")}
+                  onPress={() => setSheetPreview(null)}
+                />
+              </Row>
+            </FieldGroup.Section>
+          </FieldGroup>
+        ) : null}
+      </BottomSheet>
+    </Host>
   );
 }

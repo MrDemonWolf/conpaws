@@ -17,19 +17,26 @@ export function OnboardingSlide({
 }: OnboardingSlideProps) {
   return (
     <View
+      accessible
+      accessibilityLabel={`${title}. ${description}`}
       className={cn(
-        "flex-row items-center gap-4 rounded-2xl border border-border bg-card/90 p-4",
+        "flex-row items-start gap-4 rounded-2xl border border-border bg-card p-4",
         className,
       )}
     >
-      <View className="h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+      <View
+        accessible={false}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        className="h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10"
+      >
         {icon}
       </View>
       <View className="flex-1 gap-1">
         <Text variant="body" className="font-semibold">
           {title}
         </Text>
-        <Text variant="caption" className="leading-5 text-foreground/80">
+        <Text variant="caption" className="leading-5 text-muted-foreground">
           {description}
         </Text>
       </View>

@@ -19,7 +19,7 @@ export function OnboardingButton({
       }
       size="lg"
       disabled={disabled}
-      className="w-full"
+      className="min-h-[48px] w-full"
     >
       {label}
     </Button>

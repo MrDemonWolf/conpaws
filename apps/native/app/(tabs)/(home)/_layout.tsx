@@ -28,11 +28,24 @@ export default function HomeLayout() {
       />
       <Stack.Screen name="convention/[id]" options={{ title: "Convention" }} />
       <Stack.Screen
+        name="convention/create"
+        options={{
+          title: t("convention.new"),
+          headerShown: process.env.EXPO_OS === "ios",
+          presentation: "formSheet",
+          sheetAllowedDetents: [0.6, 0.9],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
         name="convention/[id]/import"
         options={{
-          headerShown: false,
+          title: t("import.title"),
+          headerShown: process.env.EXPO_OS === "ios",
+          headerShadowVisible: false,
           presentation: "formSheet",
-          sheetAllowedDetents: [0.9, 1],
+          sheetAllowedDetents: [0.5, 0.9, 1],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
         }}

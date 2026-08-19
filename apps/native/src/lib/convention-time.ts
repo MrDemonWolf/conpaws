@@ -52,6 +52,16 @@ export function conventionDayKey(
   return formatInConventionTime(value, timeZone, "yyyy-MM-dd");
 }
 
+export function conventionStatusForDay(
+  startDate: string,
+  endDate: string,
+  today: string,
+): "upcoming" | "active" | "ended" {
+  if (today < startDate) return "upcoming";
+  if (today > endDate) return "ended";
+  return "active";
+}
+
 export function overlappingEventIds(
   events: readonly {
     id: string;
