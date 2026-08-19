@@ -20,6 +20,7 @@ interface ButtonProps {
   className?: string;
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  testID?: string;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -60,6 +61,7 @@ export function Button({
   className,
   accessibilityLabel,
   accessibilityHint,
+  testID,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
   const colorScheme = useColorScheme();
@@ -83,6 +85,7 @@ export function Button({
       }
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
+      testID={testID}
       className={cn(
         "min-h-[44px] flex-row items-center justify-center",
         variantStyles[variant],
