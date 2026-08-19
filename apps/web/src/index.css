@@ -6,6 +6,13 @@
  * · IBM Plex Mono (technical labels, times, badge numbers)
  * ------------------------------------------------------------------------- */
 
+/* The closing CTA anchors back to the hero form. Instant jumps are fine for
+   reduced-motion users; everyone else gets the glide. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 /* Keyboard focus must be unmistakable on the navy ground — the browser
    default is nearly invisible against it. */
 :focus-visible {
