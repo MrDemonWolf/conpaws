@@ -28,7 +28,12 @@
     "web": "turbo -F @conpaws/native web",
     "prebuild": "turbo -F @conpaws/native prebuild",
     "prebuild:clean": "turbo -F @conpaws/native prebuild:clean",
-    "type-check": "turbo -F @conpaws/native type-check"
+    "type-check": "turbo -F @conpaws/native type-check",
+    "deploy": "bun run --filter @conpaws/infra deploy",
+    "destroy": "bun run --filter @conpaws/infra destroy",
+    "infra:dev": "bun run --filter @conpaws/infra dev",
+    "db:generate": "bun run --filter web db:generate",
+    "db:migrate:local": "bun run --filter web db:migrate:local"
   },
   "dependencies": {
     "@conpaws/env": "workspace:*",

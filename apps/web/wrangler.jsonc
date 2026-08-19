@@ -1,5 +1,18 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+
+  // LOCAL DEVELOPMENT ONLY.
+  //
+  // Production deployment is owned by packages/infra/alchemy.run.ts — Alchemy
+  // creates the D1 database, binds the secrets, and uploads the Worker. This
+  // file exists so `opennextjs-cloudflare preview` and
+  // `wrangler d1 migrations apply DB --local` work on a laptop and in CI
+  // without touching the Cloudflare account.
+  //
+  // Do not add a real `database_id` here. If remote and local both claim to
+  // define the binding they will drift, and D1 drift is not recoverable by a
+  // Worker rollback.
+
   "name": "conpaws-web",
   "main": ".open-next/worker.js",
   "workers_dev": false,
@@ -25,32 +38,17 @@
     }
   ],
 
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "conpaws-db-local",
+      "database_id": "local",
+      "migrations_dir": "drizzle/migrations",
+      "migrations_table": "drizzle_migrations"
+    }
+  ],
+
   "observability": {
     "enabled": true
   }
-
-  // Added in CON-25 once `wrangler d1 create conpaws-db` has been run — the
-  // binding needs a real database_id and is invalid with a placeholder:
-  //
-  // "d1_databases": [
-  //   {
-  //     "binding": "DB",
-  //     "database_name": "conpaws-db",
-  //     "database_id": "<uuid from wrangler d1 create>",
-  //     "migrations_dir": "drizzle/migrations",
-  //     "migrations_table": "drizzle_migrations"
-  //   }
-  // ],
-  //
-  // Added in CON-29 with the reconciler that replays rows where
-  // synced_at IS NULL:
-  //
-  // "triggers": { "crons": ["0 * * * *"] },
-  //
-  // Added at launch, once DNS for conpaws.com is on Cloudflare nameservers:
-  //
-  // "routes": [
-  //   { "pattern": "conpaws.com", "custom_domain": true },
-  //   { "pattern": "www.conpaws.com", "custom_domain": true }
-  // ]
 }

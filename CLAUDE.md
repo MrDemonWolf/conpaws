@@ -37,7 +37,9 @@ bun prebuild:clean        # Clean and regenerate native projects
 - **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`)
 - **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
 - **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
-- **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. It is prepared for Cloudflare Workers through `@opennextjs/cloudflare` (1.20.2), but production routes are intentionally disabled and the site has not launched. See `apps/web/wrangler.jsonc` and `open-next.config.ts`. The intended waitlist flow is Turnstile → D1 → Brevo; valid submissions currently fail closed with HTTP 503 until those dependencies and route logic are implemented.
+- **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. It ships to Cloudflare Workers through `@opennextjs/cloudflare` (1.20.2, also pinned exactly).
+- **Infrastructure (`packages/infra`):** **Alchemy** (`alchemy.run.ts`) owns production — the D1 database, the Worker bindings and secrets, migrations, and the hourly waitlist reconciler Worker. `bun run deploy` / `bun run destroy` from the repo root. `apps/web/wrangler.jsonc` is **local dev and CI preview only**; never put a real `database_id` in it. `alchemy` and the Effect packages are pinned exactly because 2.0 is still beta. Alchemy does not do canary or automatic rollback — rollback is manual. See `notes/prerelease-site.md` §Deployment.
+- **Waitlist:** implemented. `honeypot + timing gate → Turnstile siteverify → D1 insert → Brevo double opt-in in ctx.waitUntil`, with `apps/web/workers/reconcile.ts` replaying `synced_at IS NULL` rows hourly. D1 is the source of truth and the row **is** the consent record; Brevo owns confirmation tokens, so there is deliberately no `confirm_token` column. The public form is still closed (`WAITLIST_ACCEPTING_SIGNUPS` in `apps/web/src/components/waitlist.tsx`) and the route fails closed with 503 whenever the bindings or secrets are absent — CI asserts that 503.
 - **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 57/New Architecture compatibility is unverified; test on a dev build before building on it
 - **Payments (planned):** RevenueCat, entitlement `conpaws_plus`
 - **Language:** TypeScript strict mode
@@ -70,6 +72,7 @@ conpaws/
 ├── packages/
 │   ├── config/              # Shared tsconfig base
 │   ├── env/                 # Zod-validated env schemas (src/native.ts: EXPO_PUBLIC_SERVER_URL; src/web.ts)
+│   ├── infra/               # alchemy.run.ts — D1, Worker bindings/secrets, cron
 │   └── ui/                  # Shared shadcn/ui primitives (web)
 ├── biome.json
 ├── turbo.json
@@ -92,6 +95,21 @@ conpaws/
 - `EXPO_PUBLIC_SERVER_URL` — API Worker URL (validated by `packages/env/src/native.ts`)
 - `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` — RevenueCat (optional; premium disabled without them)
 - `EXPO_PUBLIC_SENTRY_DSN` — crash reporting (preview/production)
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Turnstile widget (public; server verify uses the secret below)
+
+Worker-side waitlist config is read at **deploy time** by `packages/infra/alchemy.run.ts` and bound onto the Workers — it never lives in `process.env` at build time, which is why `packages/env/src/web.ts` deliberately omits it: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `BREVO_LIST_ID`, `BREVO_DOI_TEMPLATE_ID`, `BREVO_DOI_REDIRECT_URL`. `ALCHEMY_PASSWORD` encrypts Alchemy state.
+
+Which file supplies those depends on how the Worker is being run, and the three are not interchangeable:
+
+| Running | Reads |
+|---|---|
+| `bun run preview` / `wrangler dev` in `apps/web` | `apps/web/.dev.vars` (gitignored) |
+| `bun run deploy` from the repo root (Alchemy) | `packages/infra/.env` and `apps/web/.env`, loaded by dotenv at the top of `alchemy.run.ts` |
+| GitHub Actions production deploy | repo secrets and variables — see `.github/workflows/deploy-web.yml` |
+
+Putting the values only in `.dev.vars` and then running `bun run deploy` locally yields unresolved `Config` values, not a useful error.
+
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` goes the other way: it is a **build-time client** var, so it has to be present wherever the OpenNext build runs (`apps/web/.env` locally, a repo variable in CI). Without it the widget never renders, the client posts an empty token, and every real signup is rejected.
 
 ### App Variants
 

@@ -1,11 +1,20 @@
 "use client";
 
+import { env } from "@conpaws/env/web";
+import Script from "next/script";
 import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
 
 type Status = "idle" | "submitting" | "done";
+
+declare global {
+  interface Window {
+    turnstile?: { reset: (widget?: string) => void };
+  }
+}
 
 // Keep the public form closed until D1 persistence, DOI, and retries land.
 const WAITLIST_ACCEPTING_SIGNUPS = false;
@@ -17,6 +26,8 @@ export function Waitlist() {
   const nameId = useId();
   const emailId = useId();
   const hpId = useId();
+
+  const turnstileSiteKey = env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const [name, setName] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -33,6 +44,12 @@ export function Waitlist() {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
 
+    // Turnstile's implicit rendering writes the token into this hidden field.
+    // It is verified server-side only; a token here proves nothing on its own.
+    const turnstileToken = String(form.get("cf-turnstile-response") ?? "");
+
+    const params = new URLSearchParams(window.location.search);
+
     setStatus("submitting");
     try {
       const res = await fetch("/api/waitlist", {
@@ -43,6 +60,10 @@ export function Waitlist() {
           name: name.trim(),
           honeypot,
           elapsedMs: Date.now() - mountedAt.current,
+          turnstileToken,
+          utmSource: params.get("utm_source") ?? undefined,
+          utmMedium: params.get("utm_medium") ?? undefined,
+          utmCampaign: params.get("utm_campaign") ?? undefined,
         }),
       });
 
@@ -57,6 +78,10 @@ export function Waitlist() {
       toast.success("Check your inbox to confirm your spot.");
     } catch (error) {
       setStatus("idle");
+      // Turnstile tokens are single-use. Without this reset the hidden field
+      // still holds the spent token, so every retry re-submits it and fails
+      // again — the user would be stuck with no way out but a page reload.
+      window.turnstile?.reset();
       toast.error(
         error instanceof Error ? error.message : "Something went wrong.",
       );
@@ -64,9 +89,9 @@ export function Waitlist() {
   }
 
   return (
-    <div className="grid items-start gap-16 md:grid-cols-[1fr_380px]">
-      <div className="pt-6 md:pt-14">
-        <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[10px] text-primary uppercase tracking-[0.28em]">
+    <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-16">
+      <div className="relative z-10 pt-6 md:pt-14">
+        <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[11px] text-primary uppercase tracking-[0.24em]">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
@@ -105,16 +130,18 @@ export function Waitlist() {
               <div>
                 <label
                   htmlFor={nameId}
-                  className="mb-1.5 block font-tech text-[10px] text-muted-foreground uppercase tracking-[0.24em]"
+                  className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
                 >
                   Your name or fursona
                 </label>
+                {/* Deliberately never disabled: the badge filling in as you
+                    type is the page's one interactive moment, and it works
+                    whether or not signups are open. */}
                 <input
                   id={nameId}
                   name="name"
                   autoComplete="name"
                   placeholder="Luna Starfall"
-                  disabled={!WAITLIST_ACCEPTING_SIGNUPS}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={60}
@@ -125,7 +152,7 @@ export function Waitlist() {
               <div>
                 <label
                   htmlFor={emailId}
-                  className="mb-1.5 block font-tech text-[10px] text-muted-foreground uppercase tracking-[0.24em]"
+                  className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
                 >
                   Email
                 </label>
@@ -159,6 +186,20 @@ export function Waitlist() {
               />
             </div>
 
+            {WAITLIST_ACCEPTING_SIGNUPS && turnstileSiteKey ? (
+              <>
+                <Script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                  strategy="lazyOnload"
+                />
+                <div
+                  className="cf-turnstile mt-5"
+                  data-sitekey={turnstileSiteKey}
+                  data-theme="auto"
+                />
+              </>
+            ) : null}
+
             <button
               type="submit"
               disabled={!WAITLIST_ACCEPTING_SIGNUPS || status === "submitting"}
@@ -171,9 +212,15 @@ export function Waitlist() {
                   : "Register for the beta →"}
             </button>
 
-            <p className="mt-3.5 text-[12px] text-muted-foreground leading-relaxed">
-              We&rsquo;re finishing secure signup and email confirmation. No
-              addresses are being accepted yet.{" "}
+            <p className="mt-3.5 text-[13px] text-muted-foreground leading-relaxed">
+              {WAITLIST_ACCEPTING_SIGNUPS ? (
+                CONSENT_COPY
+              ) : (
+                <>
+                  We&rsquo;re finishing secure signup and email confirmation. No
+                  addresses are being accepted yet.
+                </>
+              )}{" "}
               <a href="/privacy" className="text-primary hover:underline">
                 Privacy
               </a>
@@ -182,7 +229,7 @@ export function Waitlist() {
         )}
       </div>
 
-      <div className="md:order-none -order-1 md:pt-2">
+      <div className="md:order-none -order-1 relative z-0 md:pt-2">
         <Badge name={name} />
       </div>
     </div>
