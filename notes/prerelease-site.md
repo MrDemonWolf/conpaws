@@ -267,11 +267,16 @@ gh variable set BREVO_DOI_REDIRECT_URL --body 'https://conpaws.com/confirmed'
 gh variable set NEXT_PUBLIC_TURNSTILE_SITE_KEY --body '<site key>'
 ```
 
-**`BREVO_DOI_REDIRECT_URL` has no page behind it yet.** `apps/web/src/app/`
-currently holds only `(marketing)/page.tsx`, `privacy`, `terms`, and the two API
-routes — there is no `/confirmed`. Brevo sends every confirming subscriber there
-after they click the link, so the page must exist before the waitlist opens or
-the last step of the signup flow is a 404. Build it with step 6, not step 4.
+**`BREVO_DOI_REDIRECT_URL` now has a page behind it.**
+`apps/web/src/app/(marketing)/confirmed/page.tsx` is the destination Brevo sends
+every confirming subscriber to after they click the link — without it the last
+step of signup is a 404. It is static and `noindex`: the confirmation already
+happened at the ESP before the redirect, so the page verifies nothing and reads
+no token off the URL.
+
+The redirect does **not** carry across to Listmonk. Listmonk serves its own
+confirmation page; pointing it at `/confirmed` is a separate setting to verify in
+the running instance. See `infra/listmonk/README.md` §5.
 
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is deliberately a **variable, not a secret**.
 It is a build-time client var (`packages/env/src/web.ts`) that the deploy step
