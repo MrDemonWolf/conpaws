@@ -6,6 +6,14 @@
  * · IBM Plex Mono (technical labels, times, badge numbers)
  * ------------------------------------------------------------------------- */
 
+/* Keyboard focus must be unmistakable on the navy ground — the browser
+   default is nearly invisible against it. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 @theme inline {
   --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
