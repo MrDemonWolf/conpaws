@@ -20,6 +20,7 @@ interface EventItemProps {
   onLongPress?: () => void;
   interactive?: boolean;
   className?: string;
+  testID?: string;
 }
 
 export function EventItem({
@@ -37,6 +38,7 @@ export function EventItem({
   onLongPress,
   interactive = true,
   className,
+  testID,
 }: EventItemProps) {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
@@ -62,6 +64,7 @@ export function EventItem({
 
   return (
     <Pressable
+      testID={testID}
       onPress={interactive ? onPress : undefined}
       onLongPress={interactive ? onLongPress : undefined}
       delayLongPress={400}
