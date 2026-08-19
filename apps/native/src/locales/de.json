@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "Meine Conventions",
+    "title": "Conventions",
     "addConvention": "Convention hinzufügen",
     "empty": {
       "title": "Noch keine Conventions",
@@ -83,6 +83,10 @@
     "events": "Events",
     "noEvents": "Noch keine Events",
     "noEventsSubtitle": "Importiere einen Zeitplan oder füge Events manuell hinzu.",
+    "myScheduleEmpty": "Mein Zeitplan ist leer",
+    "myScheduleNowNextSubtitle": "Wähle unter Alle Events aus, um zu sehen, was jetzt und als Nächstes stattfindet.",
+    "myScheduleSubtitle": "Öffne Alle und füge Events hinzu, die du nicht verpassen möchtest.",
+    "showAllEvents": "Alle Events anzeigen",
     "addEvent": "Event hinzufügen",
     "importSchedule": "Zeitplan importieren",
     "startDate": "Startdatum",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "Über",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Dein Convention-Zeitplan, offline verfügbar.",
+      "resources": "Ressourcen",
+      "sourceCode": "Quellcode",
+      "website": "Website",
+      "support": "Support",
+      "email": "E-Mail",
+      "discordDescription": "Community beitreten",
+      "copyright": "© {{year}} ConPaws. Alle Rechte vorbehalten."
     }
   },
   "import": {

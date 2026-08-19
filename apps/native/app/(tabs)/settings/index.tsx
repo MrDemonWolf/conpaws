@@ -1,4 +1,5 @@
-import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
+import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
+import { FieldGroup, Host, Icon, ListItem } from "@expo/ui";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -13,9 +14,17 @@ const CHEVRON = Icon.select({
   ios: "chevron.right",
   android: import("@expo/material-symbols/chevron_right.xml"),
 });
+const EXTERNAL_LINK = Icon.select({
+  ios: "arrow.up.right",
+  android: ArrowOutwardIcon,
+});
 
 function NavigationIndicator() {
-  return <Icon name={CHEVRON} size={16} color="#8E8E93" />;
+  return <Icon name={CHEVRON} size={16} />;
+}
+
+function ExternalIndicator() {
+  return <Icon name={EXTERNAL_LINK} size={15} />;
 }
 
 export default function SettingsScreen() {
@@ -25,7 +34,6 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
 
-  const version = Constants.expoConfig?.version ?? "0.0.0";
   const showDeveloperTools = developerToolsEnabled(
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
@@ -58,7 +66,10 @@ export default function SettingsScreen() {
           </ListItem>
         </FieldGroup.Section>
 
-        <FieldGroup.Section title={t("settings.data.title")}>
+        <FieldGroup.Section
+          title={t("settings.data.title")}
+          disabled={isExporting || isImporting}
+        >
           <ListItem
             supportingText={
               isExporting ? "Exporting..." : "Save a backup of all your data"
@@ -79,7 +90,7 @@ export default function SettingsScreen() {
 
         <FieldGroup.Section title={t("settings.legal.title")}>
           <ListItem
-            trailing={<NavigationIndicator />}
+            trailing={<ExternalIndicator />}
             onPress={() =>
               WebBrowser.openBrowserAsync("https://conpaws.com/privacy")
             }
@@ -87,16 +98,13 @@ export default function SettingsScreen() {
             {t("settings.legal.privacyPolicy")}
           </ListItem>
           <ListItem
-            trailing={<NavigationIndicator />}
+            trailing={<ExternalIndicator />}
             onPress={() =>
               WebBrowser.openBrowserAsync("https://conpaws.com/terms")
             }
           >
             {t("settings.legal.termsOfService")}
           </ListItem>
-          <FieldGroup.SectionFooter>
-            <NativeText>{t("common.version", { version })}</NativeText>
-          </FieldGroup.SectionFooter>
         </FieldGroup.Section>
 
         {showDeveloperTools ? (

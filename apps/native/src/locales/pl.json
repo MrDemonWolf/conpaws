@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "Moje Konwenty",
+    "title": "Konwenty",
     "addConvention": "Dodaj Konwent",
     "empty": {
       "title": "Brak konwentów",
@@ -83,6 +83,10 @@
     "events": "Wydarzenia",
     "noEvents": "Brak wydarzeń",
     "noEventsSubtitle": "Zaimportuj harmonogram lub dodaj wydarzenia ręcznie.",
+    "myScheduleEmpty": "Mój harmonogram jest pusty",
+    "myScheduleNowNextSubtitle": "Wybierz wydarzenia w sekcji Wszystkie, aby zobaczyć, co trwa teraz i co będzie następne.",
+    "myScheduleSubtitle": "Otwórz Wszystkie i dodaj wydarzenia, których nie chcesz przegapić.",
+    "showAllEvents": "Pokaż wszystkie wydarzenia",
     "addEvent": "Dodaj Wydarzenie",
     "importSchedule": "Importuj Harmonogram",
     "startDate": "Data Rozpoczęcia",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "O aplikacji",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Twój plan konwentu, dostępny offline.",
+      "resources": "Zasoby",
+      "sourceCode": "Kod źródłowy",
+      "website": "Witryna",
+      "support": "Pomoc",
+      "email": "E-mail",
+      "discordDescription": "Dołącz do społeczności",
+      "copyright": "© {{year}} ConPaws. Wszelkie prawa zastrzeżone."
     }
   },
   "import": {

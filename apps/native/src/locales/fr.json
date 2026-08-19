@@ -64,7 +64,7 @@
     }
   },
   "home": {
-    "title": "Mes Conventions",
+    "title": "Conventions",
     "addConvention": "Ajouter une Convention",
     "empty": {
       "title": "Aucune convention pour l'instant",
@@ -83,6 +83,10 @@
     "events": "Événements",
     "noEvents": "Aucun événement pour l'instant",
     "noEventsSubtitle": "Importez un programme ou ajoutez des événements manuellement.",
+    "myScheduleEmpty": "Mon programme est vide",
+    "myScheduleNowNextSubtitle": "Sélectionnez des événements dans Tout pour voir ce qui se passe maintenant et ensuite.",
+    "myScheduleSubtitle": "Ouvrez Tout et ajoutez les événements à ne pas manquer.",
+    "showAllEvents": "Afficher tous les événements",
     "addEvent": "Ajouter un Événement",
     "importSchedule": "Importer le Programme",
     "startDate": "Date de Début",
@@ -139,7 +143,15 @@
     },
     "about": {
       "title": "À propos",
-      "contact": "hello@conpaws.com"
+      "contact": "hello@conpaws.com",
+      "tagline": "Votre programme de convention, disponible hors ligne.",
+      "resources": "Ressources",
+      "sourceCode": "Code source",
+      "website": "Site web",
+      "support": "Assistance",
+      "email": "E-mail",
+      "discordDescription": "Rejoindre la communauté",
+      "copyright": "© {{year}} ConPaws. Tous droits réservés."
     }
   },
   "import": {
