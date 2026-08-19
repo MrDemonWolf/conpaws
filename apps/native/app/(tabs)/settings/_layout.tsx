@@ -30,6 +30,10 @@ export default function SettingsLayout() {
         options={{ title: t("settings.languages.title") }}
       />
       <Stack.Screen
+        name="appearance"
+        options={{ title: t("settings.app.theme") }}
+      />
+      <Stack.Screen
         name="about"
         options={{ title: t("settings.legal.about") }}
       />

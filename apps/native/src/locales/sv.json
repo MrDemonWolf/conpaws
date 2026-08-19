@@ -215,6 +215,13 @@
       "selected": "Valt",
       "changeError": "ConPaws kunde inte byta språk. Försök igen."
     },
+    "appearance": {
+      "system": "System",
+      "light": "Ljust",
+      "dark": "Mörkt",
+      "description": "Välj hur ConPaws ska se ut på den här enheten.",
+      "changeError": "ConPaws kunde inte ändra utseendet. Försök igen."
+    },
     "account": {
       "title": "Konto",
       "signIn": "Logga In",

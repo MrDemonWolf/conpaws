@@ -215,6 +215,13 @@
       "selected": "Geselecteerd",
       "changeError": "ConPaws kon de taal niet wijzigen. Probeer het opnieuw."
     },
+    "appearance": {
+      "system": "Systeem",
+      "light": "Licht",
+      "dark": "Donker",
+      "description": "Kies hoe ConPaws eruitziet op dit apparaat.",
+      "changeError": "ConPaws kon de weergave niet wijzigen. Probeer het opnieuw."
+    },
     "account": {
       "title": "Account",
       "signIn": "Inloggen",

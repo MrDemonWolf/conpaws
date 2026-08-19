@@ -5,7 +5,7 @@
 @import "nativewind/theme";
 
 @theme {
-  --color-primary: #006f91;
+  --color-primary: #00729c;
   --color-primary-foreground: #ffffff;
   --color-background: #ffffff;
   --color-foreground: #0f172a;
@@ -21,7 +21,7 @@
   --color-destructive-foreground: #ffffff;
   --color-border: #d1d1d6;
   --color-input: #d1d1d6;
-  --color-ring: #006f91;
+  --color-ring: #00729c;
 }
 
 @media (prefers-color-scheme: dark) {
