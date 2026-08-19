@@ -9,15 +9,12 @@ export default function TabsLayout() {
   return (
     <NativeTabs
       tintColor={colors.primary}
-      minimizeBehavior="onScrollDown"
+      minimizeBehavior="never"
       disableTransparentOnScrollEdge
     >
-      <NativeTabs.Trigger name="(home)" accessibilityLabel={t("common.home")}>
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "house", selected: "house.fill" }}
-          md="home"
-        />
-        <NativeTabs.Trigger.Label>{t("common.home")}</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="(home)" accessibilityLabel={t("home.title")}>
+        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
+        <NativeTabs.Trigger.Label>{t("home.title")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="settings"

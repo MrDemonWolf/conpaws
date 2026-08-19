@@ -1,7 +1,6 @@
 import { Button, Host, Text } from "@expo/ui/swift-ui";
 import {
   accessibilityLabel,
-  buttonBorderShape,
   buttonStyle,
   controlSize,
   disabled as disabledModifier,
@@ -46,12 +45,11 @@ export function OnboardingButton({
           modifiers={[
             accessibilityLabel(label),
             buttonStyle(buttonStyles[variant]),
-            controlSize("large"),
-            buttonBorderShape("roundedRectangle", 12),
+            controlSize("regular"),
             disabledModifier(disabled),
           ]}
         >
-          <Text modifiers={[frame({ maxWidth: Infinity, minHeight: 48 })]}>
+          <Text modifiers={[frame({ maxWidth: Infinity, minHeight: 44 })]}>
             {label}
           </Text>
         </Button>

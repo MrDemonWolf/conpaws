@@ -1,154 +1,122 @@
 import { router } from "expo-router";
-import {
-  CalendarPlus,
-  CheckCircle2,
-  Clock3,
-  Cloud,
-  ShieldCheck,
-} from "lucide-react-native";
+import { Cloud, ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, useColorScheme, View } from "react-native";
-import { OnboardingBackground } from "@/components/OnboardingBackground";
+import { EventItem } from "@/components/EventItem";
 import { OnboardingButton } from "@/components/OnboardingButton";
-import { OnboardingSlide } from "@/components/OnboardingSlide";
+import { OnboardingProgress } from "@/components/OnboardingProgress";
+import { SectionHeader } from "@/components/SectionHeader";
 import { SafeView, Text } from "@/components/ui";
+import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
+
+const previewFixture = buildConPawsPreviewFixture();
+const previewEvents = previewFixture.events.slice(0, 2);
+
+function formatTime(value: string | null | undefined, locale: string): string {
+  if (!value) return "";
+
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: previewFixture.convention.timeZone ?? "UTC",
+  }).format(new Date(value));
+}
 
 export default function FeaturesScreen() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const colorScheme = useColorScheme();
   const iconColor = colorScheme === "dark" ? "#18B7F2" : "#006F91";
+  const locale = i18n.resolvedLanguage ?? i18n.language ?? "en";
 
   return (
-    <SafeView edges={["top", "bottom"]} className="overflow-hidden">
-      <OnboardingBackground />
+    <SafeView
+      edges={["top", "bottom"]}
+      className="overflow-hidden bg-background"
+    >
       <ScrollView
         className="flex-1"
-        contentInsetAdjustmentBehavior="automatic"
+        alwaysBounceVertical={false}
+        bounces={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingHorizontal: 24,
-          paddingTop: 20,
-          paddingBottom: 16,
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 8,
         }}
+        overScrollMode="never"
       >
-        <View className="w-full gap-6 self-center">
-          <View className="items-center gap-2">
-            <Text variant="h2" className="text-center">
-              {t("onboarding.features.title")}
-            </Text>
-            <Text
-              variant="caption"
-              className="text-center text-muted-foreground"
-            >
-              {t("onboarding.features.subtitle")}
-            </Text>
-          </View>
-          <View
-            accessible
-            accessibilityRole="summary"
-            accessibilityLabel={`${t("onboarding.features.demo.saved")}. 10:00, ${t("onboarding.features.demo.eventOne")}, ${t("onboarding.features.demo.now")}. 11:30, ${t("onboarding.features.demo.eventTwo")}, ${t("onboarding.features.demo.next")}.`}
-            className="gap-4 rounded-3xl border border-border bg-card p-4"
-          >
-            <View className="flex-row items-center justify-between gap-3">
-              <Text variant="label" className="flex-1">
-                {t("onboarding.features.demo.saved")}
+        <View className="flex-1">
+          <OnboardingProgress step={2} />
+          <View className="flex-1 justify-center gap-5 py-5">
+            <View className="items-center gap-2">
+              <Text variant="h2" className="text-center">
+                {t("onboarding.features.title")}
               </Text>
-              <View className="shrink-0 rounded-full bg-primary/10 px-3 py-1">
-                <Text variant="caption" className="font-semibold text-primary">
+              <Text
+                variant="caption"
+                className="max-w-sm text-center leading-5 text-muted-foreground"
+              >
+                {t("onboarding.features.subtitle")}
+              </Text>
+            </View>
+            <View className="overflow-hidden rounded-2xl bg-card">
+              <SectionHeader
+                title={t("onboarding.features.demo.saved")}
+                className="bg-card pt-4"
+              />
+              {previewEvents.map((event) => (
+                <EventItem
+                  key={event.id}
+                  title={event.title}
+                  startTime={formatTime(event.startTime, locale)}
+                  endTime={formatTime(event.endTime, locale)}
+                  room={event.room ?? undefined}
+                  category={event.category ?? undefined}
+                  isInSchedule
+                  hasConflict
+                  interactive={false}
+                  className="bg-card"
+                />
+              ))}
+              <View
+                accessible
+                accessibilityLabel={`${t("onboarding.features.offline.title")}. ${t("onboarding.features.offline.description")}`}
+                className="flex-row items-center gap-2 border-border border-t px-4 py-3"
+              >
+                <ShieldCheck size={17} color={iconColor} />
+                <Text variant="caption" className="flex-1">
                   {t("onboarding.features.offline.title")}
                 </Text>
               </View>
             </View>
-            <View className="gap-3">
-              <View className="flex-row items-center gap-3">
-                <Text
-                  variant="caption"
-                  className="min-w-12 shrink-0 font-semibold text-primary"
-                >
-                  10:00
-                </Text>
-                <View className="h-11 w-1 rounded-full bg-primary" />
-                <View className="flex-1 gap-0.5">
-                  <Text variant="label">
-                    {t("onboarding.features.demo.eventOne")}
-                  </Text>
-                  <Text variant="caption" className="font-medium text-primary">
-                    {t("onboarding.features.demo.now")}
-                  </Text>
-                </View>
-                <CheckCircle2 size={18} color={iconColor} />
-              </View>
-              <View className="flex-row items-center gap-3">
-                <Text
-                  variant="caption"
-                  className="min-w-12 shrink-0 font-semibold text-muted-foreground"
-                >
-                  11:30
-                </Text>
-                <View className="h-11 w-1 rounded-full bg-border" />
-                <View className="flex-1 gap-0.5">
-                  <Text variant="label">
-                    {t("onboarding.features.demo.eventTwo")}
-                  </Text>
-                  <Text variant="caption" className="text-muted-foreground">
-                    {t("onboarding.features.demo.next")}
-                  </Text>
-                </View>
-              </View>
+            <View className="items-center gap-1">
+              <Text variant="label" className="text-center">
+                {t("onboarding.features.plan.title")}
+              </Text>
+              <Text variant="caption" className="text-center leading-5">
+                {t("onboarding.features.plan.description")}
+              </Text>
             </View>
-          </View>
-          <View className="gap-3">
-            <OnboardingSlide
-              icon={<CalendarPlus size={24} color={iconColor} />}
-              title={t("onboarding.features.import.title")}
-              description={t("onboarding.features.import.description")}
-            />
-            <OnboardingSlide
-              icon={<Clock3 size={24} color={iconColor} />}
-              title={t("onboarding.features.plan.title")}
-              description={t("onboarding.features.plan.description")}
-            />
-            <OnboardingSlide
-              icon={<ShieldCheck size={24} color={iconColor} />}
-              title={t("onboarding.features.offline.title")}
-              description={t("onboarding.features.offline.description")}
-            />
             <View
               accessible
               accessibilityLabel={`${t("onboarding.features.plus.eyebrow")}. ${t("onboarding.features.plus.title")}. ${t("onboarding.features.plus.description")}`}
-              className="flex-row items-start gap-4 rounded-2xl border border-dashed border-border bg-card p-4"
+              className="flex-row items-center justify-center gap-2"
             >
-              <View
-                accessible={false}
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                className="h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10"
-              >
-                <Cloud size={24} color={iconColor} />
-              </View>
-              <View className="flex-1 gap-1">
-                <Text variant="caption" className="font-semibold text-primary">
-                  {t("onboarding.features.plus.eyebrow")}
-                </Text>
-                <Text variant="body" className="font-semibold">
-                  {t("onboarding.features.plus.title")}
-                </Text>
-                <Text
-                  variant="caption"
-                  className="leading-5 text-muted-foreground"
-                >
-                  {t("onboarding.features.plus.description")}
-                </Text>
-              </View>
+              <Cloud size={16} color={iconColor} />
+              <Text variant="caption" className="font-semibold text-primary">
+                {t("onboarding.features.plus.eyebrow")}:{" "}
+                {t("onboarding.features.plus.title")}
+              </Text>
             </View>
           </View>
         </View>
       </ScrollView>
-      <View className="px-6 pt-3 pb-6">
+      <View className="px-4 pt-1 pb-2">
         <OnboardingButton
           label={t("onboarding.features.next")}
           onPress={() => router.push("/(onboarding)/get-started")}
+          testID="onboarding-features-continue"
         />
       </View>
     </SafeView>

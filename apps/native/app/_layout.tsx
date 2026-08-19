@@ -77,9 +77,11 @@ function RootLayout() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    void Promise.allSettled([initI18n(), reconcileEventReminders()]).then(() =>
-      setReady(true),
-    );
+    void (async () => {
+      await initI18n().catch(() => undefined);
+      await reconcileEventReminders().catch(() => undefined);
+      setReady(true);
+    })();
   }, []);
 
   useEffect(() => {

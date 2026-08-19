@@ -1,8 +1,9 @@
+import { useTheme } from "expo-router/react-navigation";
 import { AlertTriangle, Bell, ShieldAlert } from "lucide-react-native";
-import { Pressable, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { Pressable, useColorScheme, View } from "react-native";
 import { Text } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { CategoryPill } from "./CategoryPill";
 
 interface EventItemProps {
   title: string;
@@ -17,6 +18,7 @@ interface EventItemProps {
   contentWarning?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
+  interactive?: boolean;
   className?: string;
 }
 
@@ -33,61 +35,87 @@ export function EventItem({
   contentWarning = false,
   onPress,
   onLongPress,
+  interactive = true,
   className,
 }: EventItemProps) {
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
+  const isDark = colorScheme === "dark";
   const accessibilityDetails = [
     title,
-    endTime ? `${startTime} to ${endTime}` : startTime,
+    endTime
+      ? t("convention.eventTimeRange", { start: startTime, end: endTime })
+      : startTime,
     room,
     category,
-    isInSchedule ? "In My Schedule" : "Not in My Schedule",
-    hasReminder ? "Reminder set" : null,
-    hasConflict ? "Schedule conflict" : null,
-    isAgeRestricted ? "Age restricted" : null,
-    contentWarning ? "Content warning" : null,
+    isInSchedule
+      ? t("convention.inMySchedule")
+      : t("convention.notInMySchedule"),
+    hasReminder ? t("convention.reminderSet") : null,
+    hasConflict ? t("convention.overlapLabel") : null,
+    isAgeRestricted ? t("convention.ageRestricted") : null,
+    contentWarning ? t("convention.contentWarning") : null,
   ]
     .filter(Boolean)
     .join(", ");
 
   return (
     <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
+      onPress={interactive ? onPress : undefined}
+      onLongPress={interactive ? onLongPress : undefined}
       delayLongPress={400}
-      accessibilityRole="button"
+      accessibilityRole={interactive ? "button" : undefined}
       accessibilityLabel={accessibilityDetails}
-      accessibilityHint="Opens event details, schedule, and reminder actions"
+      accessibilityHint={
+        interactive ? t("convention.eventActionsHint") : undefined
+      }
       accessibilityState={{ selected: isInSchedule }}
       className={cn(
-        "flex-row items-start gap-3 py-3 px-4 active:opacity-70",
+        "min-h-14 flex-row items-center gap-3 border-b border-border px-4 py-2 active:opacity-70",
         className,
       )}
     >
-      <View className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
-      <View className="flex-1 gap-1">
+      <View className="min-w-20 shrink-0 justify-center">
+        <Text variant="label" className="tabular-nums text-primary">
+          {startTime}
+        </Text>
+        {endTime ? (
+          <Text variant="caption" className="tabular-nums">
+            {endTime}
+          </Text>
+        ) : null}
+      </View>
+      <View className="flex-1 gap-0.5">
         <View className="flex-row items-center justify-between">
           <Text variant="label" className="flex-1 pr-2">
             {title}
           </Text>
-          <View className="flex-row items-center gap-1.5">
-            {isAgeRestricted && <ShieldAlert size={14} color="#EF4444" />}
-            {contentWarning && <AlertTriangle size={14} color="#F59E0B" />}
-            {hasReminder && <Bell size={14} color="#0FACED" />}
+          <View
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            className="flex-row items-center gap-1.5"
+          >
+            {isAgeRestricted && (
+              <ShieldAlert size={14} color={isDark ? "#FCA5A5" : "#B42318"} />
+            )}
+            {contentWarning && (
+              <AlertTriangle size={14} color={isDark ? "#FCD34D" : "#854D0E"} />
+            )}
+            {hasReminder && <Bell size={14} color={colors.primary} />}
             {isInSchedule && <Text className="text-primary text-lg">✓</Text>}
           </View>
         </View>
-        <Text variant="caption">
-          {startTime}
-          {endTime ? ` – ${endTime}` : ""}
-          {room ? ` · ${room}` : ""}
-        </Text>
-        {hasConflict ? (
-          <Text variant="caption" className="text-destructive">
-            Schedule conflict
+        {category || room ? (
+          <Text variant="caption" numberOfLines={2}>
+            {[category, room].filter(Boolean).join(" · ")}
           </Text>
         ) : null}
-        {category ? (
-          <CategoryPill label={category} className="self-start mt-1" />
+        {hasConflict ? (
+          <Text variant="caption" className="text-destructive">
+            {t("convention.overlapLabel")}
+          </Text>
         ) : null}
       </View>
     </Pressable>

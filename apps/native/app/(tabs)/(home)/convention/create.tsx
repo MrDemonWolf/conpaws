@@ -16,9 +16,10 @@ import { addDays, format, startOfDay } from "date-fns";
 import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
 import { router, Stack } from "expo-router";
+import { useTheme } from "expo-router/react-navigation";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, useColorScheme, View } from "react-native";
+import { Alert, Keyboard, useColorScheme, View } from "react-native";
 import { SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import {
@@ -96,10 +97,12 @@ export default function CreateConventionScreen() {
   const queryClient = useQueryClient();
   const colorScheme = useColorScheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
-  const seedColor = resolvedColorScheme === "dark" ? "#18B7F2" : "#006F91";
+  const { colors } = useTheme();
+  const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
   const [name, setName] = useState("");
   const [timeZone, setTimeZone] = useState(deviceTimeZone);
+  const [timeZoneSearch, setTimeZoneSearch] = useState("");
   const [startDate, setStartDate] = useState(() => startOfDay(new Date()));
   const [endDate, setEndDate] = useState(() =>
     addDays(startOfDay(new Date()), 1),
@@ -113,6 +116,15 @@ export default function CreateConventionScreen() {
         .sort(),
     ];
   }, [deviceTimeZone]);
+  const filteredTimeZones = useMemo(() => {
+    const query = timeZoneSearch.trim().toLocaleLowerCase();
+    if (!query) return timeZones;
+
+    const matches = timeZones.filter((value) =>
+      value.toLocaleLowerCase().includes(query),
+    );
+    return matches.includes(timeZone) ? matches : [timeZone, ...matches];
+  }, [timeZone, timeZoneSearch, timeZones]);
 
   function updateStartDate(value: Date) {
     setStartDate(value);
@@ -162,6 +174,8 @@ export default function CreateConventionScreen() {
   }
 
   const validTimeZone = isValidTimeZone(timeZone) ? timeZone : undefined;
+  const canCreate =
+    !saving && name.trim().length > 0 && isValidTimeZone(timeZone);
 
   return (
     <SafeView edges={["bottom"]}>
@@ -175,7 +189,7 @@ export default function CreateConventionScreen() {
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button
               onPress={handleCreate}
-              disabled={saving}
+              disabled={!canCreate}
               variant="done"
             >
               {t("common.add")}
@@ -205,7 +219,7 @@ export default function CreateConventionScreen() {
               <NativeButton
                 label={t("common.add")}
                 onPress={handleCreate}
-                disabled={saving}
+                disabled={!canCreate}
               />
             </Host>
           </View>
@@ -226,7 +240,10 @@ export default function CreateConventionScreen() {
                   defaultValue={name}
                   onChangeText={setName}
                   placeholder={t("convention.namePlaceholder")}
-                  returnKeyType="next"
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                  onSubmitEditing={Keyboard.dismiss}
+                  testID="convention-name-input"
                 />
               }
             >
@@ -252,13 +269,33 @@ export default function CreateConventionScreen() {
               }
             />
             <ListItem
+              supportingText={
+                <TextInput
+                  defaultValue={timeZoneSearch}
+                  onChangeText={setTimeZoneSearch}
+                  placeholder={t("convention.timeZoneSearchPlaceholder")}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="search"
+                  onSubmitEditing={Keyboard.dismiss}
+                  testID="time-zone-search-input"
+                />
+              }
+            >
+              {t("convention.timeZoneSearch")}
+            </ListItem>
+            <ListItem
               trailing={
                 <Picker
                   selectedValue={timeZone}
-                  onValueChange={(value) => setTimeZone(String(value))}
+                  onValueChange={(value) => {
+                    setTimeZone(String(value));
+                    Keyboard.dismiss();
+                  }}
                   appearance="menu"
+                  testID="time-zone-picker"
                 >
-                  {timeZones.map((value) => (
+                  {filteredTimeZones.map((value) => (
                     <Picker.Item key={value} label={value} value={value} />
                   ))}
                 </Picker>

@@ -1,7 +1,11 @@
+import CheckIcon from "@expo/material-symbols/check.xml";
+import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
+import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
+import { useTheme } from "expo-router/react-navigation";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, View } from "react-native";
-import { Separator, Text } from "@/components/ui";
+import { Alert, useColorScheme } from "react-native";
 import i18n, {
   changeLanguage,
   LANGUAGE_META,
@@ -9,70 +13,77 @@ import i18n, {
   type SupportedLanguage,
 } from "@/lib/i18n";
 
+const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
+
 export default function LanguageScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const colorScheme = useColorScheme();
+  const [isChanging, setIsChanging] = useState(false);
   const currentLanguage = i18n.language as SupportedLanguage;
 
   async function handleSelect(code: SupportedLanguage) {
-    await changeLanguage(code);
-    router.back();
+    if (code === currentLanguage || isChanging) return;
+
+    setIsChanging(true);
+    try {
+      await changeLanguage(code);
+      router.back();
+    } catch {
+      setIsChanging(false);
+      Alert.alert(t("common.error"), t("settings.languages.changeError"));
+    }
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentInsetAdjustmentBehavior="automatic"
+    <Host
+      colorScheme={colorScheme === "dark" ? "dark" : "light"}
+      seedColor={colors.primary}
+      style={{ flex: 1 }}
+      useViewportSizeMeasurement
     >
-      {SUPPORTED_LANGUAGES.map((code, index) => {
-        const { nativeName, flag } = LANGUAGE_META[code];
-        const isSelected = currentLanguage === code;
-        const isLast = index === SUPPORTED_LANGUAGES.length - 1;
+      <FieldGroup>
+        <FieldGroup.Section disabled={isChanging}>
+          {SUPPORTED_LANGUAGES.map((code) => {
+            const { nativeName, flag } = LANGUAGE_META[code];
+            const isSelected = currentLanguage === code;
+            const localizedName = t(`settings.languages.${code}`, {
+              defaultValue: nativeName,
+            });
 
-        return (
-          <View key={code}>
-            <Pressable
-              onPress={() => handleSelect(code)}
-              accessibilityRole="radio"
-              accessibilityLabel={nativeName}
-              accessibilityState={{ checked: isSelected }}
-              className="px-4 py-3.5 flex-row items-center justify-between active:opacity-70 bg-card"
-            >
-              <View className="flex-1 flex-row items-center gap-3">
-                <Text variant="body" accessible={false}>
-                  {flag}
-                </Text>
-                <View className="flex-1">
-                  <Text
-                    variant="body"
-                    className={
-                      isSelected
-                        ? "text-primary font-medium"
-                        : "text-foreground"
-                    }
+            return (
+              <ListItem
+                key={code}
+                testID={`language-${code}`}
+                leading={
+                  <NativeText
+                    textStyle={{ fontSize: 22 }}
+                    modifiers={[font({ textStyle: "title3" })]}
                   >
-                    {nativeName}
-                  </Text>
-                  <Text variant="caption" className="text-muted-foreground">
-                    {t(`settings.languages.${code}`, {
-                      defaultValue: nativeName,
-                    })}
-                  </Text>
-                </View>
-              </View>
-              {isSelected && (
-                <Text
-                  variant="body"
-                  className="shrink-0 text-primary font-semibold"
-                  accessible={false}
-                >
-                  ✓
-                </Text>
-              )}
-            </Pressable>
-            {!isLast && <Separator />}
-          </View>
-        );
-      })}
-    </ScrollView>
+                    {flag}
+                  </NativeText>
+                }
+                supportingText={
+                  isSelected
+                    ? `${localizedName}, ${t("settings.languages.selected")}`
+                    : localizedName
+                }
+                trailing={
+                  isSelected ? <Icon name={CHECK} size={18} /> : undefined
+                }
+                onPress={() => handleSelect(code)}
+              >
+                {nativeName}
+              </ListItem>
+            );
+          })}
+          <FieldGroup.SectionFooter>
+            <NativeText modifiers={[font({ textStyle: "footnote" })]}>
+              {t("settings.languages.description")}
+            </NativeText>
+          </FieldGroup.SectionFooter>
+        </FieldGroup.Section>
+      </FieldGroup>
+    </Host>
   );
 }

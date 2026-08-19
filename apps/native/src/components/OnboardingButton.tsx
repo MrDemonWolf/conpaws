@@ -17,9 +17,9 @@ export function OnboardingButton({
             ? "ghost"
             : "outline"
       }
-      size="lg"
+      size="md"
       disabled={disabled}
-      className="min-h-[48px] w-full"
+      className="min-h-11 w-full"
     >
       {label}
     </Button>

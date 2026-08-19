@@ -1,5 +1,4 @@
 import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
-import CheckIcon from "@expo/material-symbols/check.xml";
 import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import FormsIcon from "@expo/material-symbols/forms_add_on.xml";
 import {
@@ -18,13 +17,13 @@ import {
 import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { Redirect } from "expo-router";
+import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useColorScheme, useWindowDimensions, View } from "react-native";
 import { EmptyState } from "@/components/ui";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 
-const CHECK_ICON = Icon.select({ ios: "checkmark", android: CheckIcon });
 const CHEVRON_ICON = Icon.select({
   ios: "chevron.right",
   android: ChevronRightIcon,
@@ -35,9 +34,6 @@ const EMPTY_STATE_ICON = Icon.select({
 });
 const FORM_ICON = Icon.select({ ios: "square.and.pencil", android: FormsIcon });
 
-const APPEARANCE_OPTIONS = ["system", "light", "dark"] as const;
-
-type PreviewAppearance = (typeof APPEARANCE_OPTIONS)[number];
 type SheetPreview = "empty" | "form" | null;
 
 function NavigationIndicator() {
@@ -46,9 +42,9 @@ function NavigationIndicator() {
 
 export default function UiSystemScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const systemColorScheme = useColorScheme();
   const { fontScale, width } = useWindowDimensions();
-  const [appearance, setAppearance] = useState<PreviewAppearance>("system");
   const [switchValue, setSwitchValue] = useState(true);
   const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);
   const enabled = developerToolsEnabled(
@@ -56,39 +52,23 @@ export default function UiSystemScreen() {
     Constants.expoConfig?.extra?.appVariant,
   );
   const systemAppearance = systemColorScheme === "dark" ? "dark" : "light";
-  const previewAppearance =
-    appearance === "system" ? systemAppearance : appearance;
   const sheetContentWidth = Math.max(280, width - 32);
 
   if (!enabled) return <Redirect href="/(tabs)/settings" />;
 
   return (
     <Host
-      colorScheme={previewAppearance}
-      seedColor={previewAppearance === "dark" ? "#18B7F2" : "#006F91"}
+      colorScheme={systemAppearance}
+      seedColor={colors.primary}
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
       <FieldGroup>
-        <FieldGroup.Section title="Appearance">
-          {APPEARANCE_OPTIONS.map((option) => (
-            <ListItem
-              key={option}
-              supportingText={
-                option === "system"
-                  ? `Currently ${systemAppearance}`
-                  : `Preview the ${option} system surface`
-              }
-              trailing={
-                appearance === option ? (
-                  <Icon name={CHECK_ICON} size={17} />
-                ) : undefined
-              }
-              onPress={() => setAppearance(option)}
-            >
-              {option[0].toUpperCase() + option.slice(1)}
-            </ListItem>
-          ))}
+        <FieldGroup.Section title="Environment">
+          <ListItem supportingText={systemAppearance}>Appearance</ListItem>
+          <ListItem supportingText={`${fontScale.toFixed(2)}x system scale`}>
+            Dynamic Type
+          </ListItem>
         </FieldGroup.Section>
 
         <FieldGroup.Section title="Native controls">
@@ -137,9 +117,6 @@ export default function UiSystemScreen() {
         </FieldGroup.Section>
 
         <FieldGroup.Section title="Accessibility type">
-          <ListItem supportingText={`${fontScale.toFixed(2)}× system scale`}>
-            Dynamic Type
-          </ListItem>
           <ListItem supportingText="Large title · accessibility scalable">
             <NativeText
               textStyle={{ fontSize: 34, fontWeight: "700" }}
