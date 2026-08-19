@@ -77,7 +77,20 @@
     "dateRange": "{{start}} tot {{end}}",
     "upcoming": "Aankomend",
     "active": "Actief",
-    "past": "Verleden"
+    "past": "Verleden",
+    "moreActions": "Meer acties voor {{name}}",
+    "sortBy": "Sorteren op",
+    "sort": {
+      "upcoming": "Aankomende eerst",
+      "name": "Naam"
+    },
+    "delete": {
+      "title": "{{name}} verwijderen?",
+      "message": "Hiermee worden de conventie, het programma en de herinneringen permanent verwijderd.",
+      "success": "{{name}} is verwijderd.",
+      "errorTitle": "Conventie kon niet worden verwijderd",
+      "errorMessage": "Er is niets verwijderd. Probeer het opnieuw."
+    }
   },
   "convention": {
     "new": "Nieuwe Conventie",

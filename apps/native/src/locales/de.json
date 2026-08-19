@@ -77,7 +77,20 @@
     "dateRange": "{{start}} bis {{end}}",
     "upcoming": "Bevorstehend",
     "active": "Aktiv",
-    "past": "Vergangen"
+    "past": "Vergangen",
+    "moreActions": "Weitere Aktionen für {{name}}",
+    "sortBy": "Sortieren nach",
+    "sort": {
+      "upcoming": "Bevorstehende zuerst",
+      "name": "Name"
+    },
+    "delete": {
+      "title": "{{name}} löschen?",
+      "message": "Dadurch werden die Convention, ihr Zeitplan und ihre Erinnerungen dauerhaft gelöscht.",
+      "success": "{{name}} wurde gelöscht.",
+      "errorTitle": "Convention konnte nicht gelöscht werden",
+      "errorMessage": "Es wurde nichts gelöscht. Versuche es erneut."
+    }
   },
   "convention": {
     "new": "Neue Convention",

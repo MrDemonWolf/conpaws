@@ -77,7 +77,20 @@
     "dateRange": "{{start}} a {{end}}",
     "upcoming": "Próximas",
     "active": "Ativas",
-    "past": "Passadas"
+    "past": "Passadas",
+    "moreActions": "Mais ações para {{name}}",
+    "sortBy": "Ordenar por",
+    "sort": {
+      "upcoming": "Próximas primeiro",
+      "name": "Nome"
+    },
+    "delete": {
+      "title": "Excluir {{name}}?",
+      "message": "Isso excluirá permanentemente a convenção, sua programação e seus lembretes.",
+      "success": "{{name}} foi excluída.",
+      "errorTitle": "Não foi possível excluir a convenção",
+      "errorMessage": "Nada foi excluído. Tente novamente."
+    }
   },
   "convention": {
     "new": "Nova Convenção",

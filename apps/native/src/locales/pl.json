@@ -77,7 +77,20 @@
     "dateRange": "{{start}} do {{end}}",
     "upcoming": "Nadchodzące",
     "active": "Aktywne",
-    "past": "Minione"
+    "past": "Minione",
+    "moreActions": "Więcej działań dla {{name}}",
+    "sortBy": "Sortuj według",
+    "sort": {
+      "upcoming": "Nadchodzące najpierw",
+      "name": "Nazwa"
+    },
+    "delete": {
+      "title": "Usunąć {{name}}?",
+      "message": "To trwale usunie konwent, jego harmonogram i przypomnienia.",
+      "success": "Usunięto {{name}}.",
+      "errorTitle": "Nie udało się usunąć konwentu",
+      "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
+    }
   },
   "convention": {
     "new": "Nowy Konwent",

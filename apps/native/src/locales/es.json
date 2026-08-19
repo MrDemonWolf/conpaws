@@ -77,7 +77,20 @@
     "dateRange": "{{start}} a {{end}}",
     "upcoming": "Próximas",
     "active": "Activas",
-    "past": "Pasadas"
+    "past": "Pasadas",
+    "moreActions": "Más acciones para {{name}}",
+    "sortBy": "Ordenar por",
+    "sort": {
+      "upcoming": "Próximas primero",
+      "name": "Nombre"
+    },
+    "delete": {
+      "title": "¿Eliminar {{name}}?",
+      "message": "Esto eliminará permanentemente la convención, su horario y sus recordatorios.",
+      "success": "Se eliminó {{name}}.",
+      "errorTitle": "No se pudo eliminar la convención",
+      "errorMessage": "No se eliminó nada. Inténtalo de nuevo."
+    }
   },
   "convention": {
     "new": "Nueva Convención",
