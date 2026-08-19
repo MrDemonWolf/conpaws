@@ -6,6 +6,7 @@ import PublicIcon from "@expo/material-symbols/public.xml";
 import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
+import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
 import { Image, Linking, useColorScheme } from "react-native";
@@ -33,13 +34,14 @@ function ExternalIndicator() {
 export default function AboutScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
+  const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
   const version = Constants.expoConfig?.version ?? "0.0.0";
 
   return (
     <Host
       colorScheme={resolvedColorScheme}
-      seedColor={resolvedColorScheme === "dark" ? "#18B7F2" : "#006F91"}
+      seedColor={colors.primary}
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >

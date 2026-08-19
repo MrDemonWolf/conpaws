@@ -31,7 +31,7 @@ export function OnboardingButton({
   const NativeButton = buttonComponents[variant];
   const modifiers = [
     fillMaxWidth(),
-    defaultMinSize({ minHeight: 48 }),
+    defaultMinSize({ minHeight: 44 }),
     ...(testID ? [testIDModifier(testID)] : []),
   ];
 

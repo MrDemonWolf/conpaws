@@ -1,4 +1,5 @@
 import { Host, Icon, type IconName, Button as NativeButton } from "@expo/ui";
+import { useTheme } from "expo-router/react-navigation";
 import { useColorScheme, View } from "react-native";
 import { cn } from "@/lib/utils";
 import { Text } from "./Text";
@@ -25,6 +26,7 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   const colorScheme = useColorScheme();
+  const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
 
   return (
@@ -54,7 +56,7 @@ export function EmptyState({
         {ctaLabel && onCta ? (
           <Host
             colorScheme={resolvedColorScheme}
-            seedColor="#006F91"
+            seedColor={colors.primary}
             matchContents
           >
             <NativeButton

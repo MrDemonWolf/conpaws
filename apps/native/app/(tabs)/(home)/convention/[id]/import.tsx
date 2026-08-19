@@ -9,15 +9,24 @@ import {
   Picker,
   useNativeState,
 } from "@expo/ui";
+import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import * as Haptics from "expo-haptics";
+import { getCalendars } from "expo-localization";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useTheme } from "expo-router/react-navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, useColorScheme } from "react-native";
-import { SafeView } from "@/components/ui";
+import {
+  AccessibilityInfo,
+  Alert,
+  Keyboard,
+  useColorScheme,
+  View,
+} from "react-native";
+import { SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
@@ -73,13 +82,14 @@ export default function ImportScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
-  const seedColor = resolvedColorScheme === "dark" ? "#18B7F2" : "#006F91";
+  const { colors } = useTheme();
+  const seedColor = colors.primary;
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
   const didPrefill = useRef(false);
   const requestGeneration = useRef(0);
   const urlInput = useNativeState("");
-  const timeZoneInput = useNativeState("");
+  const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
 
   const { data: existingConvention } = useQuery({
     queryKey: ["convention", id],
@@ -98,12 +108,31 @@ export default function ImportScreen() {
   const [pendingCalendar, setPendingCalendar] =
     useState<PendingCalendar | null>(null);
   const [timeZone, setTimeZone] = useState("");
+  const [timeZoneSearch, setTimeZoneSearch] = useState("");
+  const timeZones = useMemo(
+    () => [
+      deviceTimeZone,
+      ...[...new Set(["UTC", ...supportedValuesOf("timeZone")])]
+        .filter((value) => value !== deviceTimeZone)
+        .sort(),
+    ],
+    [deviceTimeZone],
+  );
+  const filteredTimeZones = useMemo(() => {
+    const query = timeZoneSearch.trim().toLocaleLowerCase();
+    const matches = query
+      ? timeZones.filter((value) => value.toLocaleLowerCase().includes(query))
+      : timeZones;
+
+    return isValidTimeZone(timeZone) && !matches.includes(timeZone)
+      ? [timeZone, ...matches]
+      : matches;
+  }, [timeZone, timeZoneSearch, timeZones]);
 
   useEffect(() => {
     if (!existingConvention || didPrefill.current) return;
     didPrefill.current = true;
     if (storedTimeZone) {
-      timeZoneInput.value = storedTimeZone;
       setTimeZone(storedTimeZone);
     }
     if (existingConvention.icalUrl) {
@@ -111,7 +140,7 @@ export default function ImportScreen() {
       setUrl(existingConvention.icalUrl);
       setActiveTab("url");
     }
-  }, [existingConvention, storedTimeZone, timeZoneInput, urlInput]);
+  }, [existingConvention, storedTimeZone, urlInput]);
 
   function setUrlValue(value: string) {
     urlInput.value = value;
@@ -119,7 +148,6 @@ export default function ImportScreen() {
   }
 
   function setTimeZoneValue(value: string) {
-    timeZoneInput.value = value;
     setTimeZone(value);
   }
 
@@ -638,6 +666,48 @@ export default function ImportScreen() {
       : t(selectedCount === 1 ? "import.importEvent" : "import.importEvents", {
           count: selectedCount,
         });
+  const timeZoneFields = (
+    <>
+      <ListItem
+        supportingText={
+          <NativeTextInput
+            defaultValue={timeZoneSearch}
+            onChangeText={setTimeZoneSearch}
+            placeholder={t("convention.timeZoneSearchPlaceholder")}
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!controlsDisabled}
+            returnKeyType="search"
+            onSubmitEditing={Keyboard.dismiss}
+            testID="time-zone-search-input"
+          />
+        }
+      >
+        {t("convention.timeZoneSearch")}
+      </ListItem>
+      <ListItem
+        trailing={
+          <Picker
+            selectedValue={isValidTimeZone(timeZone) ? timeZone : ""}
+            onValueChange={(value) => {
+              setTimeZoneValue(String(value));
+              Keyboard.dismiss();
+            }}
+            appearance="menu"
+            enabled={!controlsDisabled}
+            testID="time-zone-picker"
+          >
+            <Picker.Item label={t("import.timeZone.choose")} value="" />
+            {filteredTimeZones.map((value) => (
+              <Picker.Item key={value} label={value} value={value} />
+            ))}
+          </Picker>
+        }
+      >
+        {t("import.timeZone.label")}
+      </ListItem>
+    </>
+  );
 
   return (
     <SafeView edges={["bottom"]}>
@@ -647,7 +717,21 @@ export default function ImportScreen() {
             {t("common.cancel")}
           </Stack.Toolbar.Button>
         </Stack.Toolbar>
-      ) : null}
+      ) : (
+        <View className="flex-row items-center px-3 py-2">
+          <View className="flex-1 items-start">
+            <Host colorScheme={resolvedColorScheme} matchContents>
+              <NativeButton
+                label={t("common.cancel")}
+                onPress={closeImport}
+                variant="text"
+              />
+            </Host>
+          </View>
+          <Text variant="h3">{t("import.title")}</Text>
+          <View className="flex-1" />
+        </View>
+      )}
 
       <Host
         colorScheme={resolvedColorScheme}
@@ -729,22 +813,7 @@ export default function ImportScreen() {
               </ListItem>
               {error.type === "timezone" ? (
                 <>
-                  <ListItem
-                    supportingText={
-                      <NativeTextInput
-                        value={timeZoneInput}
-                        onChangeText={setTimeZoneValue}
-                        placeholder={t("import.timeZone.placeholder")}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        returnKeyType="done"
-                        onSubmitEditing={handleTimeZoneSubmit}
-                        testID="required-time-zone-input"
-                      />
-                    }
-                  >
-                    {t("import.timeZone.label")}
-                  </ListItem>
+                  {timeZoneFields}
                   <NativeButton
                     label={t("import.timeZone.use")}
                     onPress={handleTimeZoneSubmit}
@@ -796,22 +865,7 @@ export default function ImportScreen() {
               </FieldGroup.Section>
 
               <FieldGroup.Section title={t("import.timeZone.sectionTitle")}>
-                <ListItem
-                  supportingText={
-                    <NativeTextInput
-                      value={timeZoneInput}
-                      onChangeText={setTimeZoneValue}
-                      placeholder={t("import.timeZone.placeholder")}
-                      autoCapitalize="none"
-                      editable={!importMutation.isPending}
-                      autoCorrect={false}
-                      returnKeyType="done"
-                      testID="preview-time-zone-input"
-                    />
-                  }
-                >
-                  {t("import.timeZone.label")}
-                </ListItem>
+                {timeZoneFields}
                 <FieldGroup.SectionFooter>
                   <NativeText>{t("import.timeZone.help")}</NativeText>
                 </FieldGroup.SectionFooter>
