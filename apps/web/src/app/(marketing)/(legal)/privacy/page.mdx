@@ -1,12 +1,15 @@
-export const metadata = { title: "Privacy Policy" };
+export const metadata = {
+  title: "Privacy Policy",
+  description: "How ConPaws handles app, website, and diagnostic data.",
+};
 
 # Privacy Policy
 
-**Last updated:** August 17, 2026
+**Last updated:** August 19, 2026
 
 ## The Short Version
 
-ConPaws is built with privacy at its core. The current pre-release website does not accept signup submissions. If you use the app without an account, your schedules, choices, and settings stay on your device and are not sent to us. If you choose to import from a Sched link, your device contacts Sched to download that public calendar. Account and ConPaws+ features are planned; if you choose them once they are available, we will collect only what's needed to provide them. We don't run ads. We don't sell your data. We don't use third-party analytics.
+ConPaws is built with privacy at its core. The current pre-release website does not accept signup submissions. If you use the app without an account, your schedules, choices, and settings stay on your device and are not sent to us. If you choose to import from a Sched link, your device contacts Sched to download that public calendar. A production build may send crash and diagnostic reports to Sentry when crash reporting is configured; the app disables Sentry's default collection of personally identifiable information. Account and ConPaws+ features are planned; if you choose them once they are available, we will collect only what's needed to provide them. We don't run ads, sell your data, or use behavioral analytics.
 
 ---
 
@@ -37,9 +40,10 @@ Once registration opens, you can leave the list through any email's unsubscribe 
 
 When you use ConPaws without creating an account:
 
-- **We collect nothing.** All data (conventions, events, settings) is stored locally on your device.
+- Your conventions, events, reminders, choices, and settings are stored locally on your device and are not sent to us.
+- A production build may send crash and diagnostic reports to Sentry when crash reporting is configured. The app disables Sentry's default collection of personally identifiable information. We use these reports only to find and fix app problems.
 - If you choose **Import from Sched**, your device requests the public calendar directly from Sched. Sched receives ordinary network request information under its [privacy policy](https://sched.com/privacy/); ConPaws does not send Sched your saved schedule choices or reminders.
-- No analytics, no tracking, no cookies, no device fingerprinting.
+- No behavioral analytics, tracking, advertising cookies, or device fingerprinting.
 
 ### Free Account
 
@@ -69,8 +73,9 @@ Once ConPaws+ is available, subscriber data is planned to include:
 
 ## 3. How We Use Your Data
 
-When the optional online features become available, we will use your data **only** to provide the features you've opted into:
+We use data only for these purposes:
 
+- **Crash diagnostics:** When enabled in a production build, identify and fix crashes and performance problems
 - **Waitlist:** Once registration opens, send the confirmation email and let you know when ConPaws launches
 - **Account features:** Display your profile to other users
 - **ConPaws+ features:** Sync your convention data to the cloud, share your schedule publicly
@@ -85,12 +90,13 @@ We do **not** use your data for:
 
 ## 4. Third-Party Services
 
-Cloudflare Workers currently hosts this website. Sched is contacted only when you choose its link-import option. The remaining integrations are planned for features that are not live yet.
+Cloudflare Workers currently hosts this website. Sched is contacted only when you choose its link-import option. When configured in a production build, Sentry processes crash and diagnostic reports on our behalf. The remaining integrations are planned for features that are not live yet.
 
 | Service | Purpose | Their Privacy Policy |
 |---------|---------|---------------------|
 | Cloudflare Workers | Current website hosting | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
 | Sched | Optional public-calendar download you request | [sched.com/privacy](https://sched.com/privacy/) |
+| Sentry | Production crash and diagnostic processing, only when configured | [sentry.io/privacy](https://sentry.io/privacy/) |
 | Apple Sign-In | Planned authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
 | Google Sign-In | Planned authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
 | RevenueCat | Planned subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
@@ -102,13 +108,19 @@ Cloudflare Workers currently hosts this website. Sched is contacted only when yo
 
 ## 5. Data Sharing
 
-We do **not** currently collect or share waitlist signup data. If the optional online features open, the planned sharing is limited to:
+We do **not** currently collect or share waitlist signup data. Current processing is limited to:
 
-- **Apple/Google:** For authentication (OAuth sign-in) and subscription billing
-- **RevenueCat:** For subscription management (receives your anonymous user ID and subscription status only)
-- **Brevo:** Once the waitlist opens, for confirmation emails and updates (receives your email and name only)
-- **Cloudflare:** For hosting and processing the online features you choose to use
+- **Cloudflare Workers:** Hosts this website.
+- **Sched:** Downloads a public calendar only when you request a link import.
+- **Sentry:** When crash reporting is configured in a production build, processes crash and diagnostic reports on our behalf. The app disables Sentry's default collection of personally identifiable information.
 - **Law enforcement:** If required by law (court order, subpoena)
+
+If the planned account, waitlist, and ConPaws+ features launch, processing would also include:
+
+- **Apple/Google:** Authentication (OAuth sign-in) and subscription billing
+- **RevenueCat:** Subscription management (receives your anonymous user ID and subscription status only)
+- **Brevo:** Waitlist confirmation emails and updates (receives your email and name only)
+- **Cloudflare D1/R2:** Account and waitlist records, plus avatar file storage
 
 We do **not** sell, rent, or trade your personal information. Ever.
 
@@ -116,7 +128,7 @@ We do **not** sell, rent, or trade your personal information. Ever.
 
 | Scenario | What Happens |
 |----------|-------------|
-| **Free (no account)** | All data on your device. We have nothing to retain. |
+| **Free (no account)** | Your schedules, reminders, and settings stay on your device. When crash reporting is configured, diagnostics are kept only as long as needed to identify and prevent app problems, subject to the Sentry project's configured retention. |
 | **Waitlist signup (once open)** | Kept until launch or until you unsubscribe — whichever comes first. |
 | **Account exists** | Profile data kept until you delete your account. |
 | **ConPaws+ cancelled** | Cloud data retained for 30 days, then permanently deleted. Local data stays on your device. |

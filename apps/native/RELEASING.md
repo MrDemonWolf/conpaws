@@ -18,10 +18,17 @@ Never use `--latest`. Never guess which artifact was tested.
 
 | Profile | Result | Use it for |
 | --- | --- | --- |
-| `preview` | Private iOS sideload build or Android APK using `com.mrdemonwolf.conpaws.preview` | Quick tester installs only |
+| `development` | Internal Expo development client using `com.mrdemonwolf.conpaws.dev` and the DEV icon | Local development with Metro |
+| `preview` | Store-signed build using `com.mrdemonwolf.conpaws`, the QA icon, and owner debug tools | Internal TestFlight or Play testing; never public release |
 | `production` | Store-signed iOS IPA or Android AAB using `com.mrdemonwolf.conpaws` | TestFlight, Play Internal Testing, and store release |
 
-Preview builds do not go to either store. A preview install is useful, but it does not replace testing the signed production build delivered by TestFlight or Google Play.
+Preview and production builds belong to the same App Store Connect and Play
+Console records. They cannot be installed side by side. Preview is an
+owner-only QA build and must never be promoted publicly because it includes a
+QA icon and debug tools. Always test a clean production build before release.
+
+iOS selects `ConPaws-development.icon`, `ConPaws-preview.icon`, or the clean
+`ConPaws.icon` at build time. The badge never belongs on the splash screen.
 
 ## One-time setup
 
@@ -108,6 +115,10 @@ Stop unless all of these are true:
 - The latest GitHub Actions run is for the displayed commit and its `CI / Verify` job is green.
 - The public version in `app.config.ts` is correct.
 - The signed-in Expo account is the intended account.
+- `https://conpaws.com/privacy`, `/terms`, and `/support` show their real pages,
+  not the marketing fallback.
+- A production CNG prebuild contains the iPhone widget, Watch app, and Watch
+  widget targets with production bundle identifiers and matching App Groups.
 
 `eas.json` requires a committed tree, but that is only one guard. A clean tree does not replace green CI.
 
@@ -169,9 +180,13 @@ Complete this on the TestFlight build and the Play Internal Testing build, not j
 - [ ] Star events, close the app, reopen it, and confirm the schedule is still present.
 - [ ] Check Now/Next and event times in the convention timezone, including an overlap.
 - [ ] Schedule a reminder, background or terminate the app, and confirm the notification arrives with the correct event and room.
+- [ ] Add the small and medium Home Screen widgets; check Coming Up, Next, Leave In, and blank states in light, dark, and tinted appearances.
+- [ ] Pair an Apple Watch, open the Watch app, and confirm Now, Next, Later, event detail, offline cache, and the Smart Stack widget use the same schedule.
+- [ ] Confirm Leave In appears on iPhone and Watch only for an event with a configured leave reminder; verify the mirrored Watch notification/haptic once.
+- [ ] Change a saved schedule on iPhone, reopen the app, and confirm the widgets and Watch receive the new snapshot.
 - [ ] Turn on airplane mode and confirm the imported schedule and core planning flow still work.
 - [ ] Check large text, VoiceOver or TalkBack labels, light/dark appearance, and one small-screen device.
-- [ ] Confirm no debug menu, preview app name, preview bundle ID, or test-only data appears.
+- [ ] Confirm the clean production icon appears and no debug menu or test-only data is available.
 
 Record device models, OS versions, pass/fail results, and any accepted limitation. A simulator pass is useful evidence, but it is not store-release approval.
 
@@ -203,6 +218,8 @@ iOS build number:
 iOS IPA filename:
 iOS IPA SHA-256:
 TestFlight group/status:
+Widget/Watch paired-device result:
+Privacy/terms/support URL result:
 
 Android EAS build ID:
 Android version code:
@@ -219,21 +236,29 @@ Play production rollout status:
 Operator and date:
 ```
 
-## Preview builds
+## Owner preview builds
 
-For a private sideload build that will not enter either store:
+Preview is a store build of the real app with the QA icon and owner debug menu.
+Build it without auto-submit:
 
 ```bash
 npx eas-cli@22.0.0 build --platform ios --profile preview --message "preview: short description"
 npx eas-cli@22.0.0 build --platform android --profile preview --message "preview: short description"
 ```
 
-The iOS preview path may require registered test devices. Android preview produces an APK. Treat both as disposable test builds and keep the production release checklist unchanged.
+Upload the iOS IPA to the existing ConPaws App Store Connect record and add it
+only to the owner's internal TestFlight group. Upload the Android AAB to the
+internal Play track. Do not submit either preview build for public review or
+promote it to production. Build and test the `production` profile separately
+when the release candidate is ready.
 
 ## Official references
 
+- [Expo TestFlight distribution](https://docs.expo.dev/submit/testflight/)
+- [Expo app variants](https://docs.expo.dev/build-reference/variants/)
 - [Expo app version management](https://docs.expo.dev/build-reference/app-versions/)
 - [Expo manual iOS upload](https://docs.expo.dev/submit/ios-manual/)
 - [Expo local production builds](https://docs.expo.dev/guides/local-app-production/)
-- [Apple TestFlight overview](https://developer.apple.com/testflight/)
+- [Apple TestFlight overview](https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview)
+- [Apple build association rules](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds)
 - [Google Play release preparation](https://support.google.com/googleplay/android-developer/answer/9859348)

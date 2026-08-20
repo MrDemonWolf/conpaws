@@ -7,71 +7,100 @@ if (!["development", "preview", "production"].includes(APP_VARIANT)) {
   throw new Error(`Invalid APP_VARIANT: ${APP_VARIANT}`);
 }
 
-const getAppName = (): string => {
-  switch (APP_VARIANT) {
-    case "development":
-      return "ConPaws (Dev)";
-    case "preview":
-      return "ConPaws (Preview)";
-    default:
-      return "ConPaws";
-  }
-};
-
 const getBundleId = (): string => {
-  switch (APP_VARIANT) {
-    case "development":
-      return "com.mrdemonwolf.conpaws.dev";
-    case "preview":
-      return "com.mrdemonwolf.conpaws.preview";
-    default:
-      return "com.mrdemonwolf.conpaws";
-  }
+  return APP_VARIANT === "development"
+    ? "com.mrdemonwolf.conpaws.dev"
+    : "com.mrdemonwolf.conpaws";
 };
 
 const getScheme = (): string => {
-  switch (APP_VARIANT) {
-    case "development":
-      return "conpaws-dev";
-    case "preview":
-      return "conpaws-preview";
-    default:
-      return "conpaws";
-  }
+  return APP_VARIANT === "development" ? "conpaws-dev" : "conpaws";
 };
+
+const getVariantPng = (name: string): string =>
+  `./assets/images/${name}${APP_VARIANT === "production" ? "" : `-${APP_VARIANT}`}.png`;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: getAppName(),
+  name: "ConPaws",
   slug: "conpaws",
   owner: "mrdemonwolf-org",
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
-  icon: "./assets/images/icon.png",
+  icon: getVariantPng("icon"),
   scheme: getScheme(),
   extra: {
     appVariant: APP_VARIANT,
     eas: {
       projectId: EAS_PROJECT_ID,
+      build: {
+        experimental: {
+          ios: {
+            appExtensions: [
+              {
+                targetName: "widget",
+                bundleIdentifier: `${getBundleId()}.widgets`,
+                entitlements: {
+                  "com.apple.security.application-groups": [
+                    `group.${getBundleId()}`,
+                  ],
+                },
+              },
+              {
+                targetName: "ConPawsWatch",
+                bundleIdentifier: `${getBundleId()}.watchkitapp`,
+                entitlements: {
+                  "com.apple.security.application-groups": [
+                    `group.${getBundleId()}`,
+                  ],
+                },
+              },
+              {
+                targetName: "ConPawsWatchWidgetExtension",
+                bundleIdentifier: `${getBundleId()}.watchkitapp.widgets`,
+                entitlements: {
+                  "com.apple.security.application-groups": [
+                    `group.${getBundleId()}`,
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
     },
   },
   ios: {
     appleTeamId: "HBB7T99U79",
-    icon: "./assets/images/ConPaws.icon",
+    icon:
+      APP_VARIANT === "production"
+        ? "./assets/images/ConPaws.icon"
+        : `./assets/images/ConPaws-${APP_VARIANT}.icon`,
     supportsTablet: false,
     bundleIdentifier: getBundleId(),
+    entitlements: {
+      "com.apple.security.application-groups": [`group.${getBundleId()}`],
+    },
+    privacyManifests: {
+      NSPrivacyAccessedAPITypes: [
+        {
+          NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategoryUserDefaults",
+          NSPrivacyAccessedAPITypeReasons: ["1C8F.1"],
+        },
+      ],
+    },
     config: {
       usesNonExemptEncryption: false,
     },
   },
   android: {
-    icon: "./assets/images/icon.png",
+    icon: getVariantPng("icon"),
     permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
     adaptiveIcon: {
-      foregroundImage: "./assets/images/android-icon-foreground.png",
+      foregroundImage: getVariantPng("android-icon-foreground"),
       backgroundImage: "./assets/images/android-icon-background.png",
-      monochromeImage: "./assets/images/android-icon-monochrome.png",
+      monochromeImage: getVariantPng("android-icon-monochrome"),
     },
     package: getBundleId(),
     // Edge-to-edge is always enabled in Expo SDK 57.
@@ -82,6 +111,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     "expo-router",
+    "@bacons/apple-targets",
     "expo-sqlite",
     "expo-localization",
     [

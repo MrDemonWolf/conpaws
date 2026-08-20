@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 For every task, first discover the installed skills and plugin capabilities that are relevant to the request. Use each relevant skill that materially improves correctness or execution, including the applicable Expo and platform skills for native app work. Read and follow each selected skill before acting, and use its official documentation workflow when APIs, configuration, or platform rules may have changed. Announce skill use when the skill requires it. Do not load or invoke unrelated skills simply to increase the count.
 
+## Browser and visual testing
+
+Use the agent's built-in browser for localhost viewers and browser-based test surfaces, including serve-sim. Do not open Safari, Chrome, or another external browser unless the user explicitly requests it. Reuse existing local servers and ports instead of starting duplicates.
+
 ## Project Overview
 
 ConPaws is a furry convention companion app — an Expo/React Native mobile app plus a Next.js website, in a bun/Turborepo monorepo. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") will be powered by RevenueCat. The cloud backend target is **Cloudflare Workers + D1 + R2 with Hono, tRPC, and Better-Auth** — no Supabase, no VPS, no Docker.
@@ -86,7 +90,7 @@ conpaws/
 ### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **eas.json** — EAS CLI 22.x, committed-tree guard, remote app-version counters, and production `autoIncrement`. `preview` creates private sideload artifacts; `production` creates store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md`.
+- **eas.json** — EAS CLI 22.x, committed-tree guard, and remote app-version counters. `preview` creates owner-only store builds with the QA icon and debug tools; `production` creates clean store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md`.
 - **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
 - **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
@@ -118,9 +122,15 @@ Putting the values only in `.dev.vars` and then running `bun run deploy` locally
 ### App Variants
 
 `APP_VARIANT` controls build configuration:
-- `development` (default) — `com.mrdemonwolf.conpaws.dev`
-- `preview` — `com.mrdemonwolf.conpaws.preview`
-- `production` — `com.mrdemonwolf.conpaws`
+- `development` — `com.mrdemonwolf.conpaws.dev`, layered `ConPaws-development.icon` with a DEV badge, Expo dev client
+- `preview` — `com.mrdemonwolf.conpaws`, layered `ConPaws-preview.icon` with a QA badge, owner debug tools, TestFlight/Play internal only
+- `production` (default) — `com.mrdemonwolf.conpaws`, clean `ConPaws.icon`, no debug tools
+
+Build badges apply only to app/launcher icons. Keep the splash, notification,
+favicon, Play Store icon, and production icon unbadged.
+
+Preview and production are two builds of the same store app and cannot be
+installed side by side. Never promote a preview build publicly.
 
 ### Native MVP Screens
 

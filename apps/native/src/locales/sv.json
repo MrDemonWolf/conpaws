@@ -78,6 +78,17 @@
     "upcoming": "Kommande",
     "active": "Aktiva",
     "past": "Avslutade",
+    "countdown": {
+      "today": "I dag",
+      "tomorrow": "I morgon",
+      "days": "Om {{count}} dagar"
+    },
+    "archive": {
+      "title": "Arkiv ({{count}})",
+      "show": "Visa",
+      "hide": "Dölj",
+      "noCurrent": "Inga kommande konvent."
+    },
     "moreActions": "Fler åtgärder för {{name}}",
     "sortBy": "Sortera efter",
     "sort": {
@@ -98,6 +109,9 @@
     "edit": "Redigera Konvent",
     "import": "Importera Schema",
     "detail": "Konventdetaljer",
+    "loadingTitle": "Läser in konvent",
+    "loadingSubtitle": "Förbereder schemat och sparade evenemang.",
+    "loadErrorSubtitle": "Det gick inte att läsa in konventet eller dess evenemang.",
     "events": "Evenemang",
     "searchEvents": "Sök bland evenemang",
     "filterEvents": "Filtrera evenemang",
@@ -156,6 +170,10 @@
     "inMySchedule": "I Mitt schema",
     "notInMySchedule": "Inte i Mitt schema",
     "reminderSet": "Påminnelse inställd",
+    "eventSource": {
+      "imported": "Importerat",
+      "added": "Tillagt"
+    },
     "ageRestricted": "Åldersbegränsat",
     "contentWarning": "Innehållsvarning",
     "eventActionsHint": "Öppnar evenemangsdetaljer, schema- och påminnelseåtgärder.",
@@ -249,19 +267,55 @@
       "privacyPolicy": "Integritetspolicy",
       "termsOfService": "Användarvillkor",
       "about": "Om ConPaws",
-      "openSourceLicenses": "Öppen källkodslicenser"
+      "openSourceLicenses": "Tredjepartslicenser"
     },
     "about": {
       "title": "Om",
       "contact": "hello@conpaws.com",
       "tagline": "Ditt konventsschema, tillgängligt offline.",
       "resources": "Resurser",
-      "sourceCode": "Källkod",
       "website": "Webbplats",
+      "builtWith": "Byggd med",
+      "technology": "Teknik",
+      "technologyDescription": "Viktiga verktyg bakom ConPaws",
+      "licenseDescription": "{{count}} paket och verktyg",
       "support": "Support",
       "email": "E-post",
       "discordDescription": "Gå med i communityn",
-      "copyright": "© {{year}} ConPaws. Med ensamrätt."
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "technology": {
+      "title": "Teknik",
+      "foundation": "Grund",
+      "interface": "Gränssnitt",
+      "offlineData": "Offline och data",
+      "localizationReliability": "Lokalisering och tillförlitlighet",
+      "footer": "Se Öppen källkodslicenser för hela paketlistan och licenstexterna.",
+      "tools": {
+        "expo": "Plattform och verktyg för inbyggda appar",
+        "reactNative": "Plattformsoberoende inbyggd grund",
+        "expoRouter": "Filbaserad navigering",
+        "expoUi": "Plattformsinbyggda kontroller",
+        "expoSqlite": "Offlinelagring av scheman",
+        "drizzle": "Typsäkert lokalt databaslager",
+        "tanstackQuery": "Dataladdning och cachning",
+        "i18next": "Lokalisering på åtta språk",
+        "sentry": "Krasch- och prestandaövervakning"
+      }
+    },
+    "licenses": {
+      "detailsTitle": "Licensdetaljer",
+      "packageCount": "{{count}} paket",
+      "searchPlaceholder": "Sök paket eller licenser",
+      "noResultsTitle": "Inga licenser hittades",
+      "noResultsDescription": "Prova ett annat paket- eller licensnamn.",
+      "version": "Version {{version}}",
+      "license": "Licens: {{license}}",
+      "repository": "Kodarkiv",
+      "projectWebsite": "Projektwebbplats",
+      "packageNotFoundTitle": "Paketet hittades inte",
+      "packageNotFoundDescription": "Paketet kanske inte längre ingår i den här versionen.",
+      "licenseTextUnavailable": "Licenstexten är inte tillgänglig i den här versionen."
     }
   },
   "import": {

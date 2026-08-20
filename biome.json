@@ -17,7 +17,8 @@
       "!**/ios",
       "!**/dist",
       "!**/drizzle",
-      "!**/*.d.ts"
+      "!**/*.d.ts",
+      "!**/*.svg"
     ]
   },
   "formatter": {

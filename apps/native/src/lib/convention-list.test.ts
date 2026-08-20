@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { Convention } from "@/db/schema";
-import { conventionStatusAt, sortConventions } from "./convention-list";
+import {
+  conventionDaysUntil,
+  conventionStatusAt,
+  partitionConventions,
+  sortConventions,
+} from "./convention-list";
 
 const conventions = [
   {
@@ -97,5 +102,35 @@ describe("convention list ordering", () => {
         "UTC",
       ).map(({ id }) => id),
     ).toEqual(["next", "local"]);
+
+    expect(conventionDaysUntil(localConvention, beforeMidnight, "UTC")).toBe(0);
+    expect(conventionDaysUntil(nextConvention, beforeMidnight, "UTC")).toBe(1);
+    expect(conventionDaysUntil(nextConvention, afterMidnight, "UTC")).toBe(0);
+    expect(
+      conventionDaysUntil(
+        {
+          ...nextConvention,
+          startDate: "2026-03-09",
+        },
+        new Date("2026-03-07T18:00:00.000Z"),
+        "UTC",
+      ),
+    ).toBe(2);
+  });
+
+  it("moves ended conventions into the archive without trusting stored status", () => {
+    const staleStatusConventions = conventions.map((convention) =>
+      convention.id === "past"
+        ? ({ ...convention, status: "upcoming" } as Convention)
+        : convention,
+    );
+    const { current, archived } = partitionConventions(
+      staleStatusConventions,
+      new Date("2025-12-01T12:00:00.000Z"),
+      "UTC",
+    );
+
+    expect(current.map(({ id }) => id)).toEqual(["later", "sooner"]);
+    expect(archived.map(({ id }) => id)).toEqual(["past", "older-past"]);
   });
 });

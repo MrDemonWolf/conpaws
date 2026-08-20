@@ -50,8 +50,8 @@ describe("ConPaws Preview Con", () => {
     notificationMocks.cancelConventionReminders.mockClear();
   });
 
-  it("is unavailable outside a development bundle running dev JavaScript", async () => {
-    expect(getPreviewConventionFixtures(true, "preview")).toBeNull();
+  it("is available in owner preview builds and unavailable in production", async () => {
+    expect(getPreviewConventionFixtures(false, "preview")).not.toBeNull();
     expect(getPreviewConventionFixtures(true, "production")).toBeNull();
     expect(getPreviewConventionFixtures(false, "development")).toBeNull();
     await expect(
@@ -79,7 +79,8 @@ describe("ConPaws Preview Con", () => {
     expect(firstEvents[0]?.startTime).toBe(firstEvents[1]?.startTime);
     expect(firstEvents[0]?.isInSchedule).toBe(true);
     expect(firstEvents[1]?.isInSchedule).toBe(true);
-    expect(firstEvents[1]?.reminderMinutes).toBeNull();
+    expect(firstEvents[0]?.reminderMinutes).toBe(60);
+    expect(firstEvents[1]?.reminderMinutes).toBe(15);
   });
 
   it("cancels local reminders for every preview event before reset", async () => {

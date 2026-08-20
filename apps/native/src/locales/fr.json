@@ -78,6 +78,17 @@
     "upcoming": "À venir",
     "active": "Active",
     "past": "Passée",
+    "countdown": {
+      "today": "Aujourd’hui",
+      "tomorrow": "Demain",
+      "days": "Dans {{count}} jours"
+    },
+    "archive": {
+      "title": "Archives ({{count}})",
+      "show": "Afficher",
+      "hide": "Masquer",
+      "noCurrent": "Aucune convention à venir."
+    },
     "moreActions": "Plus d’actions pour {{name}}",
     "sortBy": "Trier par",
     "sort": {
@@ -98,6 +109,9 @@
     "edit": "Modifier la Convention",
     "import": "Importer le Programme",
     "detail": "Détails de la Convention",
+    "loadingTitle": "Chargement de la convention",
+    "loadingSubtitle": "Préparation du programme et des événements enregistrés.",
+    "loadErrorSubtitle": "Impossible de charger la convention ou ses événements.",
     "events": "Événements",
     "searchEvents": "Rechercher des événements",
     "filterEvents": "Filtrer les événements",
@@ -156,6 +170,10 @@
     "inMySchedule": "Dans Mon programme",
     "notInMySchedule": "Absent de Mon programme",
     "reminderSet": "Rappel défini",
+    "eventSource": {
+      "imported": "Importé",
+      "added": "Ajouté"
+    },
     "ageRestricted": "Réservé à un certain âge",
     "contentWarning": "Avertissement de contenu",
     "eventActionsHint": "Ouvre les détails, le programme et les actions de rappel de l'événement.",
@@ -249,19 +267,55 @@
       "privacyPolicy": "Politique de Confidentialité",
       "termsOfService": "Conditions d'Utilisation",
       "about": "À propos de ConPaws",
-      "openSourceLicenses": "Licences Open Source"
+      "openSourceLicenses": "Licences tierces"
     },
     "about": {
       "title": "À propos",
       "contact": "hello@conpaws.com",
       "tagline": "Votre programme de convention, disponible hors ligne.",
       "resources": "Ressources",
-      "sourceCode": "Code source",
       "website": "Site web",
+      "builtWith": "Conçu avec",
+      "technology": "Technologie",
+      "technologyDescription": "Outils essentiels de ConPaws",
+      "licenseDescription": "{{count}} paquets et outils",
       "support": "Assistance",
       "email": "E-mail",
       "discordDescription": "Rejoindre la communauté",
-      "copyright": "© {{year}} ConPaws. Tous droits réservés."
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "technology": {
+      "title": "Technologie",
+      "foundation": "Fondation",
+      "interface": "Interface",
+      "offlineData": "Hors ligne et données",
+      "localizationReliability": "Localisation et fiabilité",
+      "footer": "Consultez Licences Open Source pour voir la liste complète des paquets et leurs licences.",
+      "tools": {
+        "expo": "Plateforme et outils pour application native",
+        "reactNative": "Fondation native multiplateforme",
+        "expoRouter": "Navigation basée sur les fichiers",
+        "expoUi": "Contrôles natifs de la plateforme",
+        "expoSqlite": "Stockage hors ligne du programme",
+        "drizzle": "Couche typée de base de données locale",
+        "tanstackQuery": "Chargement et mise en cache des données",
+        "i18next": "Localisation en huit langues",
+        "sentry": "Suivi des plantages et des performances"
+      }
+    },
+    "licenses": {
+      "detailsTitle": "Détails de la licence",
+      "packageCount": "{{count}} paquets",
+      "searchPlaceholder": "Rechercher des paquets ou licences",
+      "noResultsTitle": "Aucune licence trouvée",
+      "noResultsDescription": "Essayez un autre nom de paquet ou de licence.",
+      "version": "Version {{version}}",
+      "license": "Licence : {{license}}",
+      "repository": "Dépôt",
+      "projectWebsite": "Site web du projet",
+      "packageNotFoundTitle": "Paquet introuvable",
+      "packageNotFoundDescription": "Ce paquet n’est peut-être plus inclus dans cette version.",
+      "licenseTextUnavailable": "Le texte de la licence n’est pas disponible dans cette version."
     }
   },
   "import": {

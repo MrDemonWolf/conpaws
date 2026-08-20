@@ -35,25 +35,26 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import { StatusBar, useColorScheme } from "react-native";
+import { AppState, StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
   applyAppearancePreference,
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
 import { initI18n } from "@/lib/i18n";
+import { getSentryOptions } from "@/lib/sentry-config";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
 } from "@/services/notifications";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const sentryOptions = getSentryOptions(__DEV__, sentryDsn);
 
-Sentry.init({
-  dsn: sentryDsn,
-  enabled: !__DEV__ && Boolean(sentryDsn),
-  sendDefaultPii: false,
-});
+if (sentryOptions) {
+  Sentry.init(sentryOptions);
+}
 
 setupNotificationHandler();
 void SplashScreen.preventAutoHideAsync();
@@ -88,8 +89,32 @@ function RootLayout() {
       applyAppearancePreference(appearance);
       await initI18n().catch(() => undefined);
       await reconcileEventReminders().catch(() => undefined);
+      await publishWidgetSnapshot().catch(() => false);
       setReady(true);
     })();
+  }, []);
+
+  useEffect(() => {
+    const appStateSubscription = AppState.addEventListener(
+      "change",
+      (state) => {
+        if (state === "active") void publishWidgetSnapshot().catch(() => false);
+      },
+    );
+    const unsubscribeMutations = queryClient
+      .getMutationCache()
+      .subscribe((event) => {
+        if (
+          event.type === "updated" &&
+          event.mutation.state.status === "success"
+        ) {
+          void publishWidgetSnapshot().catch(() => false);
+        }
+      });
+    return () => {
+      appStateSubscription.remove();
+      unsubscribeMutations();
+    };
   }, []);
 
   useEffect(() => {
