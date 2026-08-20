@@ -9,10 +9,7 @@
           "name": "iconwolf-preview-badge",
           "position": {
             "scale": 1,
-            "translation-in-points": [
-              0,
-              0
-            ]
+            "translation-in-points": [0, 0]
           }
         }
       ],
@@ -33,10 +30,7 @@
           "name": "logo",
           "position": {
             "scale": 0.59,
-            "translation-in-points": [
-              -0.25,
-              3.75
-            ]
+            "translation-in-points": [-0.25, 3.75]
           }
         }
       ],
@@ -51,9 +45,7 @@
     }
   ],
   "supported-platforms": {
-    "circles": [
-      "watchOS"
-    ],
+    "circles": ["watchOS"],
     "squares": "shared"
   }
 }
