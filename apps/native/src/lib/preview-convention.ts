@@ -8,6 +8,7 @@ import {
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { cancelConventionReminders } from "@/services/notifications";
 
 export function getPreviewConventionFixtures(
   isDev: boolean,
@@ -23,6 +24,10 @@ export async function resetPreviewConventions(
 ): Promise<string | null> {
   const fixtures = getPreviewConventionFixtures(isDev, appVariant);
   if (!fixtures) return null;
+
+  await cancelConventionReminders(
+    fixtures.flatMap((fixture) => fixture.events.map((event) => event.id)),
+  );
 
   db.transaction((tx) => {
     for (const id of [PREVIEW_CONVENTION_ID, BLANK_PREVIEW_CONVENTION_ID]) {

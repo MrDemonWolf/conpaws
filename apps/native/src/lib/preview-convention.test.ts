@@ -32,15 +32,22 @@ const database = vi.hoisted(() => {
   };
 });
 
+const notificationMocks = vi.hoisted(() => ({
+  cancelConventionReminders: vi.fn().mockResolvedValue(true),
+}));
+
 vi.mock("@/db", () => ({
   db: { transaction: database.transaction },
 }));
+
+vi.mock("@/services/notifications", () => notificationMocks);
 
 describe("ConPaws Preview Con", () => {
   beforeEach(() => {
     database.state.deleteRuns = 0;
     database.state.inserts.length = 0;
     database.transaction.mockClear();
+    notificationMocks.cancelConventionReminders.mockClear();
   });
 
   it("is unavailable outside a development bundle running dev JavaScript", async () => {
@@ -74,5 +81,22 @@ describe("ConPaws Preview Con", () => {
     expect(firstEvents[1]?.isInSchedule).toBe(true);
     expect(firstEvents[0]?.reminderMinutes).toBe(60);
     expect(firstEvents[1]?.reminderMinutes).toBe(15);
+  });
+
+  it("cancels local reminders for every preview event before reset", async () => {
+    const fixtures = getPreviewConventionFixtures(true, "development");
+    const eventIds = fixtures?.flatMap((fixture) =>
+      fixture.events.map((event) => event.id),
+    );
+
+    await resetPreviewConventions(true, "development");
+
+    expect(eventIds).toHaveLength(200);
+    expect(notificationMocks.cancelConventionReminders).toHaveBeenCalledWith(
+      eventIds,
+    );
+    expect(
+      notificationMocks.cancelConventionReminders.mock.invocationCallOrder[0],
+    ).toBeLessThan(database.transaction.mock.invocationCallOrder[0] ?? 0);
   });
 });

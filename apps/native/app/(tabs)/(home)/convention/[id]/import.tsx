@@ -43,6 +43,10 @@ import {
 } from "@/lib/ical-parser";
 import { canApplyScheduleImport } from "@/lib/import-policy";
 import {
+  resetPresentationLock,
+  tryAcquirePresentationLock,
+} from "@/lib/presentation-lock";
+import {
   fetchSchedIcs,
   InvalidResponseError,
   InvalidSchedUrlError,
@@ -88,6 +92,7 @@ export default function ImportScreen() {
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
   const didPrefill = useRef(false);
+  const filePickerLock = useRef(false);
   const requestGeneration = useRef(0);
   const urlInput = useNativeState("");
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
@@ -298,6 +303,7 @@ export default function ImportScreen() {
   }
 
   async function handleFilePick() {
+    if (!tryAcquirePresentationLock(filePickerLock)) return;
     const generation = beginRequest();
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -305,32 +311,31 @@ export default function ImportScreen() {
         copyToCacheDirectory: true,
       });
 
-      if (!isCurrentRequest(generation)) return;
-      if (result.canceled) return;
-
-      const file = result.assets[0];
-      if (!file.name.endsWith(".ics")) {
-        setError({
-          type: "file-type",
-          message: t("import.errors.fileType"),
-        });
-        return;
+      if (isCurrentRequest(generation) && !result.canceled) {
+        const file = result.assets[0];
+        if (!file.name.endsWith(".ics")) {
+          setError({
+            type: "file-type",
+            message: t("import.errors.fileType"),
+          });
+        } else {
+          const content = await new File(file.uri).text();
+          if (isCurrentRequest(generation)) {
+            processIcs(
+              content,
+              file.name.replace(/\.ics$/i, ""),
+              storedTimeZone ?? undefined,
+            );
+          }
+        }
       }
-
-      const content = await new File(file.uri).text();
-      if (!isCurrentRequest(generation)) return;
-      processIcs(
-        content,
-        file.name.replace(/\.ics$/i, ""),
-        storedTimeZone ?? undefined,
-      );
     } catch {
       if (isCurrentRequest(generation)) {
         setError({ type: "parse", message: t("import.errors.fileRead") });
       }
-    } finally {
-      if (isCurrentRequest(generation)) setLoading(false);
     }
+    resetPresentationLock(filePickerLock);
+    if (isCurrentRequest(generation)) setLoading(false);
   }
 
   async function handleUrlFetch() {

@@ -2,9 +2,9 @@ import { FieldGroup, Host, ListItem, Button as NativeButton } from "@expo/ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AppState, Linking, useColorScheme } from "react-native";
 import {
   BLANK_PREVIEW_CONVENTION_ID,
@@ -14,6 +14,10 @@ import {
   type ConventionPreviewState,
   developerToolsEnabled,
 } from "@/lib/developer-tools";
+import {
+  resetPresentationLock,
+  tryAcquirePresentationLock,
+} from "@/lib/presentation-lock";
 import { resetPreviewConventions } from "@/lib/preview-convention";
 import {
   cancelTestNotifications,
@@ -30,6 +34,7 @@ export default function DebugScreen() {
   >(null);
   const [notificationPermission, setNotificationPermission] =
     useState<PermissionStatus>("undetermined");
+  const presentationLock = useRef(false);
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
@@ -54,6 +59,12 @@ export default function DebugScreen() {
     return () => subscription.remove();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      resetPresentationLock(presentationLock);
+    }, []),
+  );
+
   if (!enabled) return <Redirect href="/(tabs)/settings" />;
 
   function replayOnboarding() {
@@ -73,14 +84,17 @@ export default function DebugScreen() {
     );
   }
 
-  function loadPreviewConvention(
+  async function loadPreviewConvention(
     id: string,
     previewState: ConventionPreviewState,
   ) {
+    if (!tryAcquirePresentationLock(presentationLock)) return;
     setIsLoadingPreview(true);
-    void resetPreviewConventions(__DEV__, appVariant)
-      .then(async (installed) => {
-        if (!installed) return;
+    try {
+      const installed = await resetPreviewConventions(__DEV__, appVariant);
+      if (!installed) {
+        resetPresentationLock(presentationLock);
+      } else {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["conventions"] }),
           queryClient.invalidateQueries({ queryKey: ["convention"] }),
@@ -90,14 +104,15 @@ export default function DebugScreen() {
           pathname: "/convention/[id]",
           params: previewState === "empty" ? { id } : { id, previewState },
         });
-      })
-      .catch(() => {
-        Alert.alert(
-          "Preview Con could not be loaded",
-          "Your existing conventions were not changed. Try again.",
-        );
-      })
-      .finally(() => setIsLoadingPreview(false));
+      }
+    } catch {
+      resetPresentationLock(presentationLock);
+      Alert.alert(
+        "Preview Con could not be loaded",
+        "Your existing conventions were not changed. Try again.",
+      );
+    }
+    setIsLoadingPreview(false);
   }
 
   function sendTestNotification() {
@@ -230,7 +245,7 @@ export default function DebugScreen() {
                 : "Preview Content State"
             }
             onPress={() =>
-              loadPreviewConvention(PREVIEW_CONVENTION_ID, "content")
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "content")
             }
             disabled={isLoadingPreview}
             testID="debug-load-preview-con"
@@ -239,7 +254,7 @@ export default function DebugScreen() {
           <NativeButton
             label="Preview Empty State"
             onPress={() =>
-              loadPreviewConvention(BLANK_PREVIEW_CONVENTION_ID, "empty")
+              void loadPreviewConvention(BLANK_PREVIEW_CONVENTION_ID, "empty")
             }
             variant="outlined"
             disabled={isLoadingPreview}
@@ -249,7 +264,7 @@ export default function DebugScreen() {
           <NativeButton
             label="Preview Loading State"
             onPress={() =>
-              loadPreviewConvention(PREVIEW_CONVENTION_ID, "loading")
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "loading")
             }
             variant="outlined"
             disabled={isLoadingPreview}
@@ -259,7 +274,7 @@ export default function DebugScreen() {
           <NativeButton
             label="Preview Error State"
             onPress={() =>
-              loadPreviewConvention(PREVIEW_CONVENTION_ID, "error")
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "error")
             }
             variant="outlined"
             disabled={isLoadingPreview}

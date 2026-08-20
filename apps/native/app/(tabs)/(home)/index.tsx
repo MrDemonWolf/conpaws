@@ -6,9 +6,9 @@ import SortIcon from "@expo/material-symbols/sort.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Host, Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router, Stack } from "expo-router";
+import { router, Stack, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
@@ -30,6 +30,10 @@ import {
   partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
+import {
+  resetPresentationLock,
+  tryAcquirePresentationLock,
+} from "@/lib/presentation-lock";
 import { cancelConventionReminders } from "@/services/notifications";
 
 const EMPTY_ICON = Icon.select({
@@ -135,9 +139,16 @@ export default function HomeScreen() {
   const queryClient = useQueryClient();
   const [sort, setSort] = useState<ConventionSort>("upcoming");
   const [archiveExpanded, setArchiveExpanded] = useState(false);
+  const presentationLock = useRef(false);
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const { date: dateFormatter, names: nameCollator } = localeFormatters(locale);
   const deviceTimeZone = DEVICE_TIME_ZONE;
+
+  useFocusEffect(
+    useCallback(() => {
+      resetPresentationLock(presentationLock);
+    }, []),
+  );
 
   const {
     data: conventions = [],
@@ -182,11 +193,18 @@ export default function HomeScreen() {
   });
 
   function handleImportConvention() {
+    if (!tryAcquirePresentationLock(presentationLock)) return;
     router.push("/convention/new/import");
   }
 
   function handleCreateConvention() {
+    if (!tryAcquirePresentationLock(presentationLock)) return;
     router.push("/convention/create");
+  }
+
+  function handleOpenConvention(id: string) {
+    if (!tryAcquirePresentationLock(presentationLock)) return;
+    router.push(`/convention/${id}`);
   }
 
   function confirmDeleteConvention(convention: Convention) {
@@ -265,7 +283,7 @@ export default function HomeScreen() {
         onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
         onDelete={confirmDeleteConvention}
-        onOpen={(item) => router.push(`/convention/${item.id}`)}
+        onOpen={(item) => handleOpenConvention(item.id)}
         getRowContent={(item) => {
           const start = dateFormatter.format(
             new Date(`${item.startDate}T12:00:00`),
