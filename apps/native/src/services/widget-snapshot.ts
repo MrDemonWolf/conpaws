@@ -144,7 +144,38 @@ export function buildWidgetSnapshot(
   };
 }
 
-export async function publishWidgetSnapshot(): Promise<boolean> {
+let publishing: Promise<boolean> | null = null;
+let pendingRepublish: Promise<boolean> | null = null;
+
+/**
+ * Serialized so concurrent triggers cannot each reload every convention, and
+ * so a slow older build can never publish over a newer one. Requests that
+ * arrive mid-flight coalesce into a single follow-up run, which reads the
+ * database after all of them have landed.
+ */
+export function publishWidgetSnapshot(): Promise<boolean> {
+  if (!nativeWidgetModule) return Promise.resolve(false);
+
+  if (!publishing) {
+    publishing = buildAndPublishSnapshot().finally(() => {
+      publishing = null;
+    });
+    return publishing;
+  }
+
+  if (!pendingRepublish) {
+    pendingRepublish = publishing
+      .catch(() => false)
+      .then(() => {
+        pendingRepublish = null;
+        return publishWidgetSnapshot();
+      });
+  }
+
+  return pendingRepublish;
+}
+
+async function buildAndPublishSnapshot(): Promise<boolean> {
   if (!nativeWidgetModule) return false;
   const conventions = await conventionsRepo.getAll();
   const eventEntries = await Promise.all(
