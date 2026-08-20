@@ -199,9 +199,7 @@ export default function AboutScreen() {
               textStyle={{ fontSize: 13 }}
               modifiers={[font({ textStyle: "footnote" })]}
             >
-              {t("settings.about.copyright", {
-                year: new Date().getFullYear(),
-              })}
+              {t("settings.about.copyright")}
             </NativeText>
           </FieldGroup.SectionFooter>
         </FieldGroup.Section>
