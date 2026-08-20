@@ -90,7 +90,7 @@ conpaws/
 ### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **eas.json** — EAS CLI 22.x, committed-tree guard, remote app-version counters, and production `autoIncrement`. `preview` creates private sideload artifacts; `production` creates store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md`.
+- **eas.json** — EAS CLI 22.x, committed-tree guard, and remote app-version counters. `preview` creates owner-only store builds with the QA icon and debug tools; `production` creates clean store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md`.
 - **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
 - **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
@@ -122,9 +122,15 @@ Putting the values only in `.dev.vars` and then running `bun run deploy` locally
 ### App Variants
 
 `APP_VARIANT` controls build configuration:
-- `development` (default) — `com.mrdemonwolf.conpaws.dev`
-- `preview` — `com.mrdemonwolf.conpaws.preview`
-- `production` — `com.mrdemonwolf.conpaws`
+- `development` — `com.mrdemonwolf.conpaws.dev`, layered `ConPaws-development.icon` with a DEV badge, Expo dev client
+- `preview` — `com.mrdemonwolf.conpaws`, layered `ConPaws-preview.icon` with a QA badge, owner debug tools, TestFlight/Play internal only
+- `production` (default) — `com.mrdemonwolf.conpaws`, clean `ConPaws.icon`, no debug tools
+
+Build badges apply only to app/launcher icons. Keep the splash, notification,
+favicon, Play Store icon, and production icon unbadged.
+
+Preview and production are two builds of the same store app and cannot be
+installed side by side. Never promote a preview build publicly.
 
 ### Native MVP Screens
 
