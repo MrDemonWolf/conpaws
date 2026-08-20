@@ -35,13 +35,12 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
       return
     }
 
-    let shouldTransfer = shouldTransferLatest
-    self.latestJSON = nil
-    shouldTransferLatest = false
-
-    if shouldTransfer, session.isPaired, session.isWatchAppInstalled {
+    if shouldTransferLatest {
+      guard session.isPaired, session.isWatchAppInstalled else { return }
       session.transferUserInfo([Self.snapshotKey: latestJSON])
+      shouldTransferLatest = false
     }
+    self.latestJSON = nil
   }
 
   func session(
@@ -64,6 +63,12 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
 
   func sessionDidDeactivate(_ session: WCSession) {
     session.activate()
+  }
+
+  func sessionWatchStateDidChange(_ session: WCSession) {
+    queue.async {
+      self.flushIfActivated(session)
+    }
   }
 }
 

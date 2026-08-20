@@ -4,6 +4,7 @@ import WatchConnectivity
 import WidgetKit
 
 final class WatchScheduleStore: NSObject, ObservableObject {
+  private let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
   @Published private(set) var isReachable = false
 
@@ -24,7 +25,18 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
     guard
       let json,
-      !json.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+      !json.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    else {
+      return
+    }
+
+    receiveQueue.async { [weak self] in
+      self?.save(json)
+    }
+  }
+
+  private func save(_ json: String) {
+    guard
       let data = json.data(using: .utf8),
       let candidate = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
       Self.isValid(candidate)

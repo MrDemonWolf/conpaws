@@ -587,6 +587,12 @@ func runWatchScheduleSelfCheck() {
   assert(schedule.activeEvent?.id == "current")
   assert(schedule.nextEvent?.id == "next")
   assert(schedule.isLeaveWindow)
+  let deepLink = ConPawsSnapshotStore.appURL(conventionID: "con /?#")
+  let deepLinkComponents = deepLink.flatMap {
+    URLComponents(url: $0, resolvingAgainstBaseURL: false)
+  }
+  assert(deepLinkComponents?.host == "convention")
+  assert(deepLinkComponents?.percentEncodedPath == "/con%20%2F%3F%23")
   assert(
     WatchFormat.nextEventTime(
       now.addingTimeInterval(86_400),
