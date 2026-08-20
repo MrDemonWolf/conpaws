@@ -42,6 +42,7 @@ import {
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
 import { initI18n } from "@/lib/i18n";
+import { getSentryOptions } from "@/lib/sentry-config";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -49,12 +50,11 @@ import {
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const sentryOptions = getSentryOptions(__DEV__, sentryDsn);
 
-Sentry.init({
-  dsn: sentryDsn,
-  enabled: !__DEV__ && Boolean(sentryDsn),
-  sendDefaultPii: false,
-});
+if (sentryOptions) {
+  Sentry.init(sentryOptions);
+}
 
 setupNotificationHandler();
 void SplashScreen.preventAutoHideAsync();
