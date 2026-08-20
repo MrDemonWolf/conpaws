@@ -50,8 +50,8 @@ describe("ConPaws Preview Con", () => {
     notificationMocks.cancelConventionReminders.mockClear();
   });
 
-  it("is unavailable outside a development bundle running dev JavaScript", async () => {
-    expect(getPreviewConventionFixtures(true, "preview")).toBeNull();
+  it("is available in owner preview builds and unavailable in production", async () => {
+    expect(getPreviewConventionFixtures(false, "preview")).not.toBeNull();
     expect(getPreviewConventionFixtures(true, "production")).toBeNull();
     expect(getPreviewConventionFixtures(false, "development")).toBeNull();
     await expect(

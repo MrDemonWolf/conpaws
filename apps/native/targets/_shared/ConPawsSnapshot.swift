@@ -74,9 +74,7 @@ enum ConPawsSnapshotStore {
 
   static func appURL(conventionID: String? = nil) -> URL? {
     let bundle = appGroupIdentifier().replacingOccurrences(of: "group.", with: "")
-    let scheme = bundle.hasSuffix(".dev")
-      ? "conpaws-dev"
-      : bundle.hasSuffix(".preview") ? "conpaws-preview" : "conpaws"
+    let scheme = bundle.hasSuffix(".dev") ? "conpaws-dev" : "conpaws"
     let path = conventionID.map { "/convention/\($0)" } ?? ""
     return URL(string: "\(scheme)://\(path)")
   }

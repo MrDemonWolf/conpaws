@@ -1,0 +1,59 @@
+{
+  "fill": "automatic",
+  "groups": [
+    {
+      "name": "iconwolf-preview-badge",
+      "layers": [
+        {
+          "image-name": "iconwolf-preview-badge.svg",
+          "name": "iconwolf-preview-badge",
+          "position": {
+            "scale": 1,
+            "translation-in-points": [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.35
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.2
+      }
+    },
+    {
+      "layers": [
+        {
+          "fill": "automatic",
+          "image-name": "logo.png",
+          "name": "logo",
+          "position": {
+            "scale": 0.59,
+            "translation-in-points": [
+              -0.25,
+              3.75
+            ]
+          }
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}
