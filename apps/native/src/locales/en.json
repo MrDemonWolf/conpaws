@@ -78,6 +78,17 @@
     "upcoming": "Upcoming",
     "active": "Active",
     "past": "Past",
+    "countdown": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "days": "In {{count}} days"
+    },
+    "archive": {
+      "title": "Archive ({{count}})",
+      "show": "Show",
+      "hide": "Hide",
+      "noCurrent": "No upcoming conventions."
+    },
     "moreActions": "More actions for {{name}}",
     "sortBy": "Sort By",
     "sort": {
@@ -98,6 +109,9 @@
     "edit": "Edit Convention",
     "import": "Import Schedule",
     "detail": "Convention Details",
+    "loadingTitle": "Loading convention",
+    "loadingSubtitle": "Getting the schedule and saved events ready.",
+    "loadErrorSubtitle": "The convention or its events could not be loaded.",
     "events": "Events",
     "searchEvents": "Search events",
     "filterEvents": "Filter events",
@@ -156,6 +170,10 @@
     "inMySchedule": "In My Schedule",
     "notInMySchedule": "Not in My Schedule",
     "reminderSet": "Reminder set",
+    "eventSource": {
+      "imported": "Imported",
+      "added": "Added"
+    },
     "ageRestricted": "Age restricted",
     "contentWarning": "Content warning",
     "eventActionsHint": "Opens event details, schedule, and reminder actions.",
@@ -249,19 +267,55 @@
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "about": "About ConPaws",
-      "openSourceLicenses": "Open Source Licenses"
+      "openSourceLicenses": "Third-Party Licenses"
     },
     "about": {
       "title": "About",
       "contact": "hello@conpaws.com",
       "tagline": "Your convention schedule, ready offline.",
       "resources": "Resources",
-      "sourceCode": "Source Code",
       "website": "Website",
+      "builtWith": "Built with",
+      "technology": "Technology",
+      "technologyDescription": "Core tools that power ConPaws",
+      "licenseDescription": "{{count}} packages and tools",
       "support": "Support",
       "email": "Email",
       "discordDescription": "Join the community",
-      "copyright": "© {{year}} ConPaws. All rights reserved."
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "technology": {
+      "title": "Technology",
+      "foundation": "Foundation",
+      "interface": "Interface",
+      "offlineData": "Offline and Data",
+      "localizationReliability": "Localization and Reliability",
+      "footer": "See Open Source Licenses for the complete package list and license text.",
+      "tools": {
+        "expo": "Native app platform and tooling",
+        "reactNative": "Cross-platform native foundation",
+        "expoRouter": "File-based navigation",
+        "expoUi": "Platform-native controls",
+        "expoSqlite": "Offline schedule storage",
+        "drizzle": "Typed local database layer",
+        "tanstackQuery": "Data loading and caching",
+        "i18next": "Eight-language localization",
+        "sentry": "Crash and performance monitoring"
+      }
+    },
+    "licenses": {
+      "detailsTitle": "License Details",
+      "packageCount": "{{count}} packages",
+      "searchPlaceholder": "Search packages or licenses",
+      "noResultsTitle": "No licenses found",
+      "noResultsDescription": "Try a different package or license name.",
+      "version": "Version {{version}}",
+      "license": "License: {{license}}",
+      "repository": "Repository",
+      "projectWebsite": "Project Website",
+      "packageNotFoundTitle": "Package not found",
+      "packageNotFoundDescription": "This package may no longer be included in this build.",
+      "licenseTextUnavailable": "The license text is not available in this build."
     }
   },
   "import": {

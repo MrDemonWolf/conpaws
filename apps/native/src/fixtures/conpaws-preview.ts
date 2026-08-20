@@ -305,7 +305,7 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
         category,
         type: AUDIENCES[audienceIndex],
         isInSchedule: selected,
-        reminderMinutes: null,
+        reminderMinutes: selected ? (index % 34 === 0 ? 60 : 15) : null,
         sourceUid: `conpaws-preview-${ordinal}`,
         sourceUrl: null,
         isAgeRestricted: audienceIndex > 0,

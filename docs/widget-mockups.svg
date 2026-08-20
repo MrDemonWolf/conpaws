@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1965" viewBox="0 0 1440 1965" role="img" aria-labelledby="widget-title widget-desc">
+  <title id="widget-title">ConPaws next-event widget state mockups</title>
+  <desc id="widget-desc">Design sheet comparing before-reminder, reminder-window, blank, and adaptive pre-convention countdown states for systemSmall, systemMedium, and Apple Watch Smart Stack widgets. The whole widget is tappable.</desc>
+  <defs>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { fill: #10252d; font-size: 34px; font-weight: 700; }
+      .subtitle { fill: #5c6e75; font-size: 16px; }
+      .row-title { fill: #29414a; font-size: 14px; font-weight: 700; letter-spacing: 1.6px; }
+      .family { fill: #5c6e75; font-size: 13px; font-weight: 600; }
+      .card { fill: #ffffff; stroke: #cad7dc; stroke-width: 1.5; }
+      .brand { fill: #12313c; font-size: 13px; font-weight: 700; }
+      .eyebrow { fill: #00729c; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; }
+      .event { fill: #10252d; font-size: 22px; font-weight: 700; }
+      .event-medium { fill: #10252d; font-size: 26px; font-weight: 700; }
+      .detail { fill: #53666e; font-size: 14px; }
+      .count { fill: #005f82; font-size: 58px; font-weight: 750; }
+      .count-unit { fill: #005f82; font-size: 18px; font-weight: 700; }
+      .adaptive-count { fill: #005f82; font-size: 32px; font-weight: 750; letter-spacing: -0.4px; }
+      .blank-title { fill: #18313a; font-size: 18px; font-weight: 700; }
+      .blank-copy { fill: #60727a; font-size: 13px; }
+      .watch-primary { fill: #f8fbfc; font-size: 20px; font-weight: 700; }
+      .watch-secondary { fill: #ced8dc; font-size: 14px; }
+      .note { fill: #53666e; font-size: 14px; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="1965" fill="#f2f6f7" />
+  <text x="60" y="64" class="title">ConPaws Next Event</text>
+  <text x="60" y="96" class="subtitle">Four timeline states. The whole widget opens the relevant event or convention; no embedded button is needed.</text>
+  <line x1="60" y1="126" x2="1380" y2="126" stroke="#cad7dc" />
+
+  <text x="60" y="160" class="row-title">BEFORE REMINDER — SHOW “NEXT EVENT”</text>
+  <text x="60" y="192" class="family">systemSmall</text>
+  <text x="360" y="192" class="family">systemMedium</text>
+  <text x="960" y="247" class="family">Apple Watch Smart Stack</text>
+
+  <g role="group" aria-label="Before reminder, systemSmall: Next event, Opening Ceremonies, 3:00 PM, Main Ballroom">
+    <rect x="60" y="210" width="260" height="260" rx="32" class="card" />
+    <circle cx="88" cy="240" r="8" fill="#00729c" />
+    <text x="106" y="245" class="brand">ConPaws</text>
+    <text x="88" y="286" class="eyebrow">NEXT EVENT</text>
+    <text x="88" y="326" class="event">Opening</text>
+    <text x="88" y="354" class="event">Ceremonies</text>
+    <line x1="88" y1="380" x2="292" y2="380" stroke="#e0e8eb" />
+    <text x="88" y="410" class="brand">3:00 PM</text>
+    <text x="88" y="437" class="detail">Main Ballroom</text>
+  </g>
+
+  <g role="group" aria-label="Before reminder, systemMedium: Next event, Opening Ceremonies, 3:00 PM to 4:00 PM, Main Ballroom">
+    <rect x="360" y="210" width="560" height="260" rx="32" class="card" />
+    <circle cx="392" cy="240" r="8" fill="#00729c" />
+    <text x="410" y="245" class="brand">ConPaws</text>
+    <text x="392" y="286" class="eyebrow">NEXT EVENT</text>
+    <text x="392" y="329" class="event-medium">Opening Ceremonies</text>
+    <text x="392" y="368" class="detail">Today · 3:00 PM–4:00 PM</text>
+    <text x="392" y="398" class="detail">Main Ballroom</text>
+    <rect x="748" y="246" width="140" height="140" rx="32" fill="#e7f1f4" />
+    <rect x="786" y="284" width="64" height="56" rx="10" fill="none" stroke="#477482" stroke-width="4" />
+    <line x1="786" y1="300" x2="850" y2="300" stroke="#477482" stroke-width="4" />
+    <line x1="800" y1="276" x2="800" y2="293" stroke="#477482" stroke-width="4" stroke-linecap="round" />
+    <line x1="836" y1="276" x2="836" y2="293" stroke="#477482" stroke-width="4" stroke-linecap="round" />
+    <text x="818" y="420" text-anchor="middle" class="detail">Starts at 3:00 PM</text>
+  </g>
+
+  <g role="group" aria-label="Before reminder, Apple Watch Smart Stack: Next at 3:00 PM, Opening Ceremonies, Main Ballroom">
+    <rect x="960" y="265" width="360" height="160" rx="28" fill="#242c30" stroke="#65747b" stroke-width="1.5" />
+    <rect x="986" y="296" width="38" height="34" rx="7" fill="none" stroke="#f8fbfc" stroke-width="2.5" />
+    <line x1="986" y1="307" x2="1024" y2="307" stroke="#f8fbfc" stroke-width="2.5" />
+    <text x="1044" y="315" class="watch-primary">Next · 3:00 PM</text>
+    <text x="984" y="352" class="watch-secondary">Opening Ceremonies</text>
+    <text x="984" y="379" class="watch-secondary">Main Ballroom</text>
+  </g>
+
+  <line x1="60" y1="520" x2="1380" y2="520" stroke="#cad7dc" />
+  <text x="60" y="558" class="row-title">REMINDER WINDOW — SWITCH TO “LEAVE IN”</text>
+  <text x="60" y="590" class="family">systemSmall</text>
+  <text x="360" y="590" class="family">systemMedium · split event + countdown</text>
+  <text x="960" y="645" class="family">Apple Watch Smart Stack</text>
+
+  <g role="group" aria-label="Leave in 18 minutes. Current event, Fursuit Meetup, ends at 2:50 PM. Next event, Opening Ceremonies, starts at 3:00 PM.">
+    <rect x="60" y="608" width="260" height="260" rx="32" class="card" />
+    <text x="88" y="646" class="eyebrow">LEAVE IN 18 MIN</text>
+    <text x="88" y="681" class="eyebrow">NOW · ENDS 2:50 PM</text>
+    <text x="88" y="714" class="event">Fursuit Meetup</text>
+    <line x1="88" y1="744" x2="176" y2="744" stroke="#d5e2e6" />
+    <path d="M184 739 L190 745 L196 739" fill="none" stroke="#477482" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <line x1="204" y1="744" x2="292" y2="744" stroke="#d5e2e6" />
+    <text x="88" y="782" class="eyebrow">NEXT · 3:00 PM</text>
+    <text x="88" y="818" class="event">Opening</text>
+    <text x="88" y="846" class="event">Ceremonies</text>
+  </g>
+
+  <g role="group" aria-label="Reminder window, systemMedium: Opening Ceremonies at 3:00 PM in Main Ballroom, leave in 18 minutes by 2:42 PM">
+    <rect x="360" y="608" width="560" height="260" rx="32" class="card" />
+    <circle cx="392" cy="638" r="8" fill="#00729c" />
+    <text x="410" y="643" class="brand">ConPaws</text>
+    <text x="392" y="684" class="eyebrow">NEXT EVENT</text>
+    <text x="392" y="727" class="event-medium">Opening</text>
+    <text x="392" y="759" class="event-medium">Ceremonies</text>
+    <text x="392" y="798" class="detail">3:00 PM–4:00 PM</text>
+    <text x="392" y="828" class="detail">Main Ballroom</text>
+    <line x1="672" y1="640" x2="672" y2="836" stroke="#d5e2e6" />
+    <rect x="700" y="632" width="188" height="212" rx="24" fill="#dceff5" />
+    <text x="724" y="672" class="eyebrow">LEAVE IN</text>
+    <text x="724" y="744" class="count">18</text>
+    <text x="798" y="744" class="count-unit">min</text>
+    <line x1="724" y1="768" x2="864" y2="768" stroke="#a9d4e1" />
+    <text x="724" y="798" class="detail">Head out by</text>
+    <text x="724" y="823" class="brand">2:42 PM</text>
+  </g>
+
+  <g role="group" aria-label="Reminder window, Apple Watch Smart Stack: Leave in 18 minutes for Opening Ceremonies at 3:00 PM in Main Ballroom">
+    <rect x="960" y="663" width="360" height="160" rx="28" fill="#242c30" stroke="#65747b" stroke-width="1.5" />
+    <circle cx="994" cy="707" r="14" fill="none" stroke="#f8fbfc" stroke-width="2.5" />
+    <line x1="994" y1="707" x2="994" y2="697" stroke="#f8fbfc" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="994" y1="707" x2="1002" y2="712" stroke="#f8fbfc" stroke-width="2.5" stroke-linecap="round" />
+    <text x="1022" y="713" class="watch-primary">Leave in 18 min</text>
+    <text x="984" y="750" class="watch-secondary">Opening Ceremonies</text>
+    <text x="984" y="777" class="watch-secondary">3:00 PM · Main Ballroom</text>
+  </g>
+
+  <line x1="60" y1="918" x2="1380" y2="918" stroke="#cad7dc" />
+  <text x="60" y="956" class="row-title">BLANK FALLBACK — NO EXTRA BUTTON</text>
+  <text x="60" y="988" class="family">systemSmall</text>
+  <text x="360" y="988" class="family">systemMedium</text>
+  <text x="960" y="1043" class="family">Apple Watch Smart Stack</text>
+
+  <g role="group" aria-label="Blank systemSmall: No upcoming events. Select a convention schedule">
+    <rect x="60" y="1006" width="260" height="260" rx="32" class="card" />
+    <rect x="142" y="1048" width="96" height="82" rx="18" fill="#e7f1f4" />
+    <rect x="165" y="1070" width="50" height="40" rx="8" fill="none" stroke="#477482" stroke-width="3" />
+    <line x1="165" y1="1082" x2="215" y2="1082" stroke="#477482" stroke-width="3" />
+    <line x1="177" y1="1064" x2="177" y2="1075" stroke="#477482" stroke-width="3" stroke-linecap="round" />
+    <line x1="203" y1="1064" x2="203" y2="1075" stroke="#477482" stroke-width="3" stroke-linecap="round" />
+    <text x="190" y="1168" text-anchor="middle" class="blank-title">No upcoming events</text>
+    <text x="190" y="1198" text-anchor="middle" class="blank-copy">Select a convention</text>
+    <text x="190" y="1219" text-anchor="middle" class="blank-copy">schedule to get started.</text>
+  </g>
+
+  <g role="group" aria-label="Blank systemMedium: No upcoming events. Select a convention schedule to see what is next">
+    <rect x="360" y="1006" width="560" height="260" rx="32" class="card" />
+    <rect x="404" y="1076" width="120" height="120" rx="28" fill="#e7f1f4" />
+    <rect x="435" y="1110" width="58" height="48" rx="9" fill="none" stroke="#477482" stroke-width="3.5" />
+    <line x1="435" y1="1124" x2="493" y2="1124" stroke="#477482" stroke-width="3.5" />
+    <line x1="448" y1="1103" x2="448" y2="1117" stroke="#477482" stroke-width="3.5" stroke-linecap="round" />
+    <line x1="480" y1="1103" x2="480" y2="1117" stroke="#477482" stroke-width="3.5" stroke-linecap="round" />
+    <text x="560" y="1104" class="eyebrow">NEXT EVENT</text>
+    <text x="560" y="1147" class="event-medium">No upcoming events</text>
+    <text x="560" y="1180" class="detail">Select a convention schedule</text>
+    <text x="560" y="1205" class="detail">to see what’s next.</text>
+  </g>
+
+  <g role="group" aria-label="Blank Apple Watch Smart Stack: No upcoming events. Select a schedule">
+    <rect x="960" y="1061" width="360" height="160" rx="28" fill="#242c30" stroke="#65747b" stroke-width="1.5" />
+    <rect x="986" y="1102" width="38" height="34" rx="7" fill="none" stroke="#f8fbfc" stroke-width="2.5" />
+    <line x1="986" y1="1113" x2="1024" y2="1113" stroke="#f8fbfc" stroke-width="2.5" />
+    <text x="1044" y="1116" class="watch-primary">No upcoming events</text>
+    <text x="1044" y="1146" class="watch-secondary">Select a schedule</text>
+  </g>
+
+  <line x1="60" y1="1316" x2="1380" y2="1316" stroke="#cad7dc" />
+  <text x="60" y="1354" class="row-title">PRE-CONVENTION — “COMING UP” COUNTDOWN</text>
+  <text x="60" y="1386" class="family">systemSmall</text>
+  <text x="360" y="1386" class="family">systemMedium</text>
+  <text x="960" y="1441" class="family">Apple Watch Smart Stack</text>
+
+  <g role="group" aria-label="Coming up. ConPaws Preview Con starts in 15 days, 6 hours, September 3 through 6, 2026. Opens the convention.">
+    <rect x="60" y="1404" width="260" height="260" rx="32" class="card" />
+    <text x="88" y="1440" class="eyebrow">COMING UP</text>
+    <text x="88" y="1478" class="event">ConPaws</text>
+    <text x="88" y="1506" class="event">Preview Con</text>
+    <line x1="88" y1="1530" x2="292" y2="1530" stroke="#d5e2e6" />
+    <text x="88" y="1558" class="eyebrow">STARTS IN</text>
+    <text x="88" y="1612" class="adaptive-count">15 D 6 H</text>
+    <text x="88" y="1646" class="brand">SEP 3–6, 2026</text>
+  </g>
+
+  <g role="group" aria-label="Coming up. ConPaws Preview Con starts in 15 days, 6 hours, September 3 through 6, 2026. Opens the convention.">
+    <rect x="360" y="1404" width="560" height="260" rx="32" class="card" />
+    <circle cx="392" cy="1434" r="8" fill="#00729c" />
+    <text x="410" y="1439" class="brand">ConPaws</text>
+    <text x="392" y="1480" class="eyebrow">COMING UP</text>
+    <text x="392" y="1523" class="event-medium">ConPaws Preview Con</text>
+    <text x="392" y="1562" class="detail">Your convention starts soon</text>
+    <rect x="700" y="1428" width="188" height="212" rx="24" fill="#dceff5" />
+    <text x="724" y="1468" class="eyebrow">STARTS IN</text>
+    <text x="724" y="1532" class="adaptive-count">15 D 6 H</text>
+    <line x1="724" y1="1564" x2="864" y2="1564" stroke="#a9d4e1" />
+    <text x="724" y="1594" class="brand">SEP 3–6</text>
+    <text x="724" y="1619" class="detail">2026</text>
+  </g>
+
+  <g role="group" aria-label="Coming up. ConPaws Preview Con starts in 15 days, 6 hours, September 3 through 6, 2026. Opens the convention.">
+    <rect x="960" y="1459" width="360" height="160" rx="28" fill="#242c30" stroke="#65747b" stroke-width="1.5" />
+    <rect x="986" y="1490" width="38" height="34" rx="7" fill="none" stroke="#f8fbfc" stroke-width="2.5" />
+    <line x1="986" y1="1501" x2="1024" y2="1501" stroke="#f8fbfc" stroke-width="2.5" />
+    <text x="1044" y="1509" class="watch-primary">Coming up · 15 d 6 h</text>
+    <text x="984" y="1546" class="watch-secondary">ConPaws Preview Con</text>
+    <text x="984" y="1573" class="watch-secondary">Sep 3–6, 2026</text>
+  </g>
+
+  <line x1="60" y1="1714" x2="1380" y2="1714" stroke="#cad7dc" />
+  <text x="60" y="1752" class="row-title">ADAPTIVE COUNTDOWN LEGEND</text>
+  <text x="380" y="1752" class="note">Calendar-aware far out; system-driven live timer inside 24 hours.</text>
+
+  <g role="group" aria-label="At least 30 days: calendar-aware months and days, for example 2 months 12 days">
+    <rect x="60" y="1770" width="300" height="100" rx="20" class="card" />
+    <text x="84" y="1798" class="eyebrow">≥ 30 DAYS · CALENDAR</text>
+    <text x="84" y="1831" class="event">2 MO 12 D</text>
+    <text x="84" y="1856" class="detail">Months + days, never ÷ 30</text>
+  </g>
+  <g role="group" aria-label="From 2 through 29 days: days and hours, for example 15 days 6 hours">
+    <rect x="380" y="1770" width="300" height="100" rx="20" class="card" />
+    <text x="404" y="1798" class="eyebrow">2–29 DAYS</text>
+    <text x="404" y="1831" class="event">15 D 6 H</text>
+    <text x="404" y="1856" class="detail">Days + hours</text>
+  </g>
+  <g role="group" aria-label="From 24 through 47 hours: one day and hours, for example 1 day 8 hours">
+    <rect x="700" y="1770" width="300" height="100" rx="20" class="card" />
+    <text x="724" y="1798" class="eyebrow">24–47 HOURS</text>
+    <text x="724" y="1831" class="event">1 D 8 H</text>
+    <text x="724" y="1856" class="detail">Day + hours</text>
+  </g>
+  <g role="group" aria-label="Under 24 hours: live system timer, hours minutes seconds, then minutes seconds, then final seconds">
+    <rect x="1020" y="1770" width="300" height="100" rx="20" class="card" />
+    <text x="1044" y="1798" class="eyebrow">&lt; 24 HOURS · LIVE</text>
+    <text x="1044" y="1831" class="event">23:42:18</text>
+    <text x="1044" y="1856" class="detail">H:M:S → M:S → 0:59</text>
+  </g>
+
+  <line x1="60" y1="1900" x2="1380" y2="1900" stroke="#cad7dc" />
+  <circle cx="72" cy="1937" r="6" fill="#00729c" />
+  <text x="90" y="1942" class="note">Each family is one accessible tap target. Countdown units are localized and announced in full by VoiceOver.</text>
+</svg>

@@ -64,6 +64,10 @@ export const web = Cloudflare.Website.StaticSite("web", {
   // `wrangler rollback` and apps/web/wrangler.jsonc's WORKER_SELF_REFERENCE
   // both expect. Rollback is manual now, so the name has to be predictable.
   name: "conpaws-web",
+  domain:
+    process.env.ROUTES_ENABLED === "true"
+      ? { name: "conpaws.com", redirects: ["www.conpaws.com"] }
+      : undefined,
   cwd: "../../apps/web",
   command: "bun run build:cloudflare",
   // Rebuild shared workspace dependencies until Alchemy has a workspace-aware

@@ -1,7 +1,12 @@
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-const css = readFileSync(new URL("../global.css", import.meta.url), "utf8");
+const css = readFileSync(
+  resolve(dirname(fileURLToPath(import.meta.url)), "../global.css"),
+  "utf8",
+);
 
 function themeBlock(pattern: RegExp): string {
   const match = css.match(pattern);

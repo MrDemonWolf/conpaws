@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { cn } from "@/lib/utils";
 import { Text } from "./Text";
 
-type BadgeVariant = "upcoming" | "active" | "ended";
+type BadgeVariant = "upcoming" | "active" | "ended" | "info" | "neutral";
 
 interface BadgeProps {
   variant: BadgeVariant;
@@ -21,6 +21,14 @@ const variantStyles: Record<BadgeVariant, { container: string; text: string }> =
       text: "text-green-700 dark:text-green-300",
     },
     ended: {
+      container: "bg-muted",
+      text: "text-muted-foreground",
+    },
+    info: {
+      container: "bg-blue-100 dark:bg-blue-900/30",
+      text: "text-blue-700 dark:text-blue-300",
+    },
+    neutral: {
       container: "bg-muted",
       text: "text-muted-foreground",
     },

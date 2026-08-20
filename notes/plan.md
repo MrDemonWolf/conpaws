@@ -1703,7 +1703,7 @@ Light + dark mode support. Primary color TBD (match logo).
 
 ## App Config & Production Readiness (EAS)
 
-The app config is code, not docs: **`apps/native/app.config.ts` is the source of truth.** It is variant-driven (`APP_VARIANT` = `development` / `preview` / `production`) with per-variant bundle IDs (`com.mrdemonwolf.conpaws`, `.preview`, `.dev`), names, and icons; scheme `conpaws` for deep links; `supportsTablet` for iPad. This section documents the production decisions layered on top of it.
+The app config is code, not docs: **`apps/native/app.config.ts` is the source of truth.** It is variant-driven (`APP_VARIANT` = `development` / `preview` / `production`). Development uses the `.dev` bundle ID and deep-link scheme; preview and production share the store bundle ID and scheme. All variants display as ConPaws, select distinct launcher icons at build time, and remain iPhone-only. This section documents the production decisions layered on top of it.
 
 ### Versioning: remote source + auto-increment
 
@@ -1712,12 +1712,15 @@ The app config is code, not docs: **`apps/native/app.config.ts` is the source of
 ```json
 {
   "cli": { "appVersionSource": "remote" },
-  "build": { "production": { "autoIncrement": true } }
+  "build": {
+    "preview": { "autoIncrement": true },
+    "production": { "autoIncrement": true }
+  }
 }
 ```
 
 - With `appVersionSource: "remote"`, EAS owns the internal iOS `buildNumber` and Android `versionCode`. Never hand-bump those counters in app config.
-- `autoIncrement: true` bumps the appropriate counter on every production build. The two platform counters may differ, and gaps from discarded release candidates are normal.
+- `autoIncrement: true` bumps the appropriate counter on every preview or production build. The two platform counters may differ, and gaps from discarded release candidates are normal.
 - The public `version` in `app.config.ts` is still chosen manually. Many candidates can share `1.0.0`; change it only when starting a new customer-facing version.
 
 ### EAS Environment Variables (not `.env`)
@@ -1757,18 +1760,20 @@ Keep the SDK baseline green with dependency alignment, Expo Doctor, clean CNG ge
 
 | Profile | Built where | Why |
 |---------|------------|-----|
-| `preview` | EAS internal distribution or local build | Private sideload testing with the preview bundle ID; never TestFlight or Play |
+| `development` | EAS internal distribution or local build | Expo dev client with the `.dev` bundle ID and DEV icon |
+| `preview` | Manually triggered EAS Build | Owner-only TestFlight/Play internal build with the production ID, QA icon, and debug tools |
 | `production` | Manually triggered EAS Build | Store-signed IPA/AAB; remote `autoIncrement` handles internal counters |
 
 No build profile submits automatically. See `apps/native/RELEASING.md` before creating a production build.
 
 ### Why Three Variants
 
-All three can be installed on the same device simultaneously (different bundle IDs):
+- **Development** (`conpaws.dev`) — side-by-side local development, DEV icon, sandbox services, debug tools
+- **Preview** (`conpaws`) — owner-only TestFlight/Play internal build, QA icon, debug tools
+- **Production** (`conpaws`) — clean TestFlight/Play candidate and public store release
 
-- **Development** (`conpaws.dev`) — local API Worker (`wrangler dev`), sandbox RevenueCat, debug tools
-- **Preview** (`conpaws.preview`) — private sideload testing, isolated from the store app
-- **Production** (`conpaws`) — the only variant used for TestFlight, Play Internal Testing, and public store release
+Preview and production share the store identity, data container, and Watch
+companion IDs. Installing one replaces the other. Development remains separate.
 
 ---
 

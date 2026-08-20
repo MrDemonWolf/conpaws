@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
 import {
   cancelConventionReminders,
+  cancelTestNotifications,
   reconcileEventReminders,
+  scheduleTestNotification,
 } from "./notifications";
 
 const notificationMocks = vi.hoisted(() => ({
@@ -27,7 +29,10 @@ const i18nMock = vi.hoisted(() => ({
 vi.mock("expo-notifications", () => ({
   ...notificationMocks,
   AndroidImportance: { HIGH: 4 },
-  SchedulableTriggerInputTypes: { DATE: "date" },
+  SchedulableTriggerInputTypes: {
+    DATE: "date",
+    TIME_INTERVAL: "timeInterval",
+  },
 }));
 vi.mock("react-native", () => ({ Platform: { OS: "ios" } }));
 vi.mock("@/db/repositories/events", () => eventRepoMocks);
@@ -173,6 +178,53 @@ describe("startup reminder reconciliation", () => {
         }),
       }),
     );
+  });
+});
+
+describe("developer test notifications", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    notificationMocks.scheduleNotificationAsync.mockImplementation(
+      async ({ identifier }: { identifier: string }) => identifier,
+    );
+    notificationMocks.getAllScheduledNotificationsAsync.mockResolvedValue([]);
+    notificationMocks.cancelScheduledNotificationAsync.mockResolvedValue(
+      undefined,
+    );
+  });
+
+  it("schedules a five-second local notification with a dedicated identifier", async () => {
+    const identifier = await scheduleTestNotification();
+
+    expect(identifier).toMatch(/^developer-test-/);
+    expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        identifier,
+        trigger: {
+          type: "timeInterval",
+          seconds: 5,
+          channelId: "event-reminders",
+        },
+      }),
+    );
+  });
+
+  it("only clears pending developer test notifications", async () => {
+    notificationMocks.getAllScheduledNotificationsAsync.mockResolvedValue([
+      { identifier: "developer-test-1" },
+      { identifier: "reminder-event-1" },
+      { identifier: "developer-test-2" },
+    ]);
+
+    await expect(cancelTestNotifications()).resolves.toBe(2);
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync.mock.calls.map(
+        ([identifier]) => identifier,
+      ),
+    ).toEqual(["developer-test-1", "developer-test-2"]);
   });
 });
 

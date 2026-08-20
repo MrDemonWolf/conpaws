@@ -22,6 +22,39 @@ export function conventionStatusAt(
   );
 }
 
+export function conventionDaysUntil(
+  convention: Convention,
+  now: Date,
+  deviceTimeZone: string,
+): number {
+  const timeZone = isValidTimeZone(convention.timeZone)
+    ? convention.timeZone
+    : deviceTimeZone;
+  const today = conventionDayKey(now, timeZone);
+
+  return Math.round(
+    (Date.parse(convention.startDate) - Date.parse(today)) / 86_400_000,
+  );
+}
+
+export function partitionConventions(
+  conventions: readonly Convention[],
+  now: Date,
+  deviceTimeZone: string,
+): { current: Convention[]; archived: Convention[] } {
+  const current: Convention[] = [];
+  const archived: Convention[] = [];
+
+  for (const convention of conventions) {
+    (conventionStatusAt(convention, now, deviceTimeZone) === "ended"
+      ? archived
+      : current
+    ).push(convention);
+  }
+
+  return { current, archived };
+}
+
 export function sortConventions(
   conventions: Convention[],
   sort: ConventionSort,

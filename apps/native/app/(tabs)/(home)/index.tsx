@@ -4,26 +4,30 @@ import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
 import SortIcon from "@expo/material-symbols/sort.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
-import { Icon } from "@expo/ui";
+import { Host, Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, Stack, useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useTheme } from "expo-router/react-navigation";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
   Alert,
   ScrollView,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
-import { EmptyState, LoadingSpinner } from "@/components/ui";
+import { Button, EmptyState, LoadingSpinner, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
 import {
   type ConventionSort,
+  conventionDaysUntil,
   conventionStatusAt,
+  partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
 import {
@@ -42,28 +46,103 @@ const ERROR_ICON = Icon.select({
   android: WarningIcon,
 });
 
+const DEVICE_TIME_ZONE =
+  Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+const localeFormatterCache = new Map<
+  string,
+  {
+    date: Intl.DateTimeFormat;
+    names: Intl.Collator;
+  }
+>();
+
+function localeFormatters(locale: string) {
+  const cached = localeFormatterCache.get(locale);
+  if (cached) return cached;
+
+  // ponytail: supported locales are finite; keep expensive Intl formatters per locale.
+  const formatters = {
+    date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
+    names: new Intl.Collator(locale, { sensitivity: "base" }),
+  };
+  localeFormatterCache.set(locale, formatters);
+  return formatters;
+}
+
+interface ConventionEmptyStateProps {
+  title: string;
+  subtitle: string;
+  createLabel: string;
+  importLabel: string;
+  onCreate: () => void;
+  onImport: () => void;
+}
+
+function ConventionEmptyState({
+  title,
+  subtitle,
+  createLabel,
+  importLabel,
+  onCreate,
+  onImport,
+}: ConventionEmptyStateProps) {
+  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
+
+  return (
+    <View
+      className="mx-4 my-auto gap-6 rounded-3xl border border-border bg-card px-6 py-8"
+      style={{ borderCurve: "continuous" }}
+    >
+      <View className="items-center gap-4">
+        <View
+          className="h-16 w-16 items-center justify-center rounded-2xl bg-primary/10"
+          style={{ borderCurve: "continuous" }}
+        >
+          <Host
+            colorScheme={colorScheme === "dark" ? "dark" : "light"}
+            matchContents
+            pointerEvents="none"
+          >
+            <Icon name={EMPTY_ICON} size={38} color={colors.primary} />
+          </Host>
+        </View>
+        <View className="items-center gap-2">
+          <Text variant="h2" className="text-center">
+            {title}
+          </Text>
+          <Text variant="body" className="text-center text-muted-foreground">
+            {subtitle}
+          </Text>
+        </View>
+      </View>
+      <View className="gap-3">
+        <Button size="lg" className="w-full" onPress={onCreate}>
+          {createLabel}
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          className="w-full"
+          onPress={onImport}
+        >
+          {importLabel}
+        </Button>
+      </View>
+    </View>
+  );
+}
+
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const { fontScale } = useWindowDimensions();
   const queryClient = useQueryClient();
   const [sort, setSort] = useState<ConventionSort>("upcoming");
+  const [archiveExpanded, setArchiveExpanded] = useState(false);
   const presentationLock = useRef(false);
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const dateFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        dateStyle: "medium",
-      }),
-    [locale],
-  );
-  const nameCollator = useMemo(
-    () => new Intl.Collator(locale, { sensitivity: "base" }),
-    [locale],
-  );
-  const deviceTimeZone = useMemo(
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-    [],
-  );
+  const { date: dateFormatter, names: nameCollator } = localeFormatters(locale);
+  const deviceTimeZone = DEVICE_TIME_ZONE;
 
   useFocusEffect(
     useCallback(() => {
@@ -89,6 +168,8 @@ export default function HomeScreen() {
     now,
     deviceTimeZone,
   );
+  const { current: currentConventions, archived: archivedConventions } =
+    partitionConventions(sortedConventions, now, deviceTimeZone);
 
   const deleteMutation = useMutation({
     mutationFn: async ({ id }: Pick<Convention, "id" | "name">) => {
@@ -178,20 +259,28 @@ export default function HomeScreen() {
           paddingBottom: 24,
         }}
       >
-        <EmptyState
-          className="flex-none"
-          icon={EMPTY_ICON}
+        <ConventionEmptyState
           title={t("home.empty.title")}
           subtitle={t("home.empty.subtitle")}
-          ctaLabel={t("home.empty.cta")}
-          onCta={handleCreateConvention}
-          secondaryCtaLabel={t("convention.importSchedule")}
-          onSecondaryCta={handleImportConvention}
+          createLabel={t("home.empty.cta")}
+          onCreate={handleCreateConvention}
+          importLabel={t("convention.importSchedule")}
+          onImport={handleImportConvention}
         />
       </ScrollView>
     ) : (
       <ConventionList
-        data={sortedConventions}
+        data={currentConventions}
+        archivedData={archivedConventions}
+        archiveExpanded={archiveExpanded}
+        archiveLabel={t("home.archive.title", {
+          count: archivedConventions.length,
+        })}
+        archiveActionLabel={t(
+          archiveExpanded ? "home.archive.hide" : "home.archive.show",
+        )}
+        currentEmptyLabel={t("home.archive.noCurrent")}
+        onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
         onDelete={confirmDeleteConvention}
         onOpen={(item) => handleOpenConvention(item.id)}
@@ -203,12 +292,20 @@ export default function HomeScreen() {
             new Date(`${item.endDate}T12:00:00`),
           );
           const status = conventionStatusAt(item, now, deviceTimeZone);
+          const daysUntil = conventionDaysUntil(item, now, deviceTimeZone);
 
           return {
             name: item.name,
             dateRange: t("home.dateRange", { start, end }),
             status,
-            statusLabel: t(status === "ended" ? "home.past" : `home.${status}`),
+            statusLabel:
+              status !== "upcoming"
+                ? t(status === "ended" ? "home.past" : "home.active")
+                : daysUntil < 1
+                  ? t("home.countdown.today")
+                  : daysUntil === 1
+                    ? t("home.countdown.tomorrow")
+                    : t("home.countdown.days", { count: daysUntil }),
             moreAccessibilityLabel: t("home.moreActions", {
               name: item.name,
             }),

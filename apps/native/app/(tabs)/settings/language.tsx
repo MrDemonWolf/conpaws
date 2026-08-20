@@ -50,6 +50,12 @@ export default function LanguageScreen() {
             const localizedName = t(`settings.languages.${code}`, {
               defaultValue: nativeName,
             });
+            const supportingText = [
+              localizedName === nativeName ? null : localizedName,
+              isSelected ? t("settings.languages.selected") : null,
+            ]
+              .filter(Boolean)
+              .join(" · ");
 
             return (
               <ListItem
@@ -63,11 +69,7 @@ export default function LanguageScreen() {
                     {flag}
                   </NativeText>
                 }
-                supportingText={
-                  isSelected
-                    ? `${localizedName}, ${t("settings.languages.selected")}`
-                    : localizedName
-                }
+                supportingText={supportingText || undefined}
                 trailing={
                   isSelected ? <Icon name={CHECK} size={18} /> : undefined
                 }

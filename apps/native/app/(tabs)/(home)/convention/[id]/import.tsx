@@ -52,6 +52,7 @@ import {
   InvalidSchedUrlError,
   NetworkError,
 } from "@/lib/sched-extractor";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 type Tab = "file" | "url";
 
@@ -555,6 +556,9 @@ export default function ImportScreen() {
           }
         } catch {
           conventionDetailsUpdated = false;
+        }
+        if (conventionDetailsUpdated) {
+          await publishWidgetSnapshot().catch(() => false);
         }
       }
       await Promise.allSettled([

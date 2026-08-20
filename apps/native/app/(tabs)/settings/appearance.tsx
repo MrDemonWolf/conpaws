@@ -1,4 +1,7 @@
 import CheckIcon from "@expo/material-symbols/check.xml";
+import ContrastIcon from "@expo/material-symbols/contrast.xml";
+import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
+import LightModeIcon from "@expo/material-symbols/light_mode.xml";
 import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
@@ -16,6 +19,14 @@ import {
 } from "@/lib/appearance-storage";
 
 const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
+const APPEARANCE_ICONS: Record<
+  AppearancePreference,
+  ReturnType<typeof Icon.select>
+> = {
+  system: Icon.select({ ios: "circle.lefthalf.filled", android: ContrastIcon }),
+  light: Icon.select({ ios: "sun.max.fill", android: LightModeIcon }),
+  dark: Icon.select({ ios: "moon.fill", android: DarkModeIcon }),
+};
 
 export default function AppearanceScreen() {
   const { t } = useTranslation();
@@ -26,22 +37,20 @@ export default function AppearanceScreen() {
   );
   const [isChanging, setIsChanging] = useState(false);
 
-  async function handleSelect(next: AppearancePreference) {
+  function handleSelect(next: AppearancePreference) {
     if (next === appearance || isChanging) return;
 
     const previous = appearance;
     setIsChanging(true);
     setAppearance(next);
 
-    try {
-      await saveAppearancePreference(next);
-      applyAppearancePreference(next);
-    } catch {
-      setAppearance(previous);
-      Alert.alert(t("common.error"), t("settings.appearance.changeError"));
-    } finally {
-      setIsChanging(false);
-    }
+    void saveAppearancePreference(next)
+      .then(() => applyAppearancePreference(next))
+      .catch(() => {
+        setAppearance(previous);
+        Alert.alert(t("common.error"), t("settings.appearance.changeError"));
+      })
+      .finally(() => setIsChanging(false));
   }
 
   return (
@@ -60,6 +69,7 @@ export default function AppearanceScreen() {
               <ListItem
                 key={preference}
                 testID={`appearance-${preference}`}
+                leading={<Icon name={APPEARANCE_ICONS[preference]} size={22} />}
                 supportingText={
                   isSelected ? t("settings.languages.selected") : undefined
                 }

@@ -70,6 +70,7 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const version = Constants.expoConfig?.version ?? "0.0.0";
   const appearance = useSyncExternalStore(
     subscribeAppearancePreference,
     getAppearancePreference,
@@ -116,13 +117,6 @@ export default function SettingsScreen() {
           >
             {t("settings.app.language")}
           </ListItem>
-          <ListItem
-            leading={<LeadingIcon name={ABOUT} />}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/about")}
-          >
-            {t("settings.legal.about")}
-          </ListItem>
         </FieldGroup.Section>
 
         <FieldGroup.Section
@@ -153,7 +147,15 @@ export default function SettingsScreen() {
           </ListItem>
         </FieldGroup.Section>
 
-        <FieldGroup.Section title={t("settings.legal.title")}>
+        <FieldGroup.Section title={t("settings.about.title")}>
+          <ListItem
+            leading={<LeadingIcon name={ABOUT} />}
+            supportingText={t("common.version", { version })}
+            trailing={<NavigationIndicator />}
+            onPress={() => router.push("/settings/about")}
+          >
+            {t("settings.legal.about")}
+          </ListItem>
           <ListItem
             leading={<LeadingIcon name={PRIVACY} />}
             trailing={<ExternalIndicator />}

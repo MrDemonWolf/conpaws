@@ -27,6 +27,7 @@ import {
   conventionStatusForDay,
   isValidTimeZone,
 } from "@/lib/convention-time";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 interface ConventionDateFieldProps {
   title: string;
@@ -102,7 +103,6 @@ export default function CreateConventionScreen() {
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
   const [name, setName] = useState("");
   const [timeZone, setTimeZone] = useState(deviceTimeZone);
-  const [timeZoneSearch, setTimeZoneSearch] = useState("");
   const [startDate, setStartDate] = useState(() => startOfDay(new Date()));
   const [endDate, setEndDate] = useState(() =>
     addDays(startOfDay(new Date()), 1),
@@ -116,16 +116,6 @@ export default function CreateConventionScreen() {
         .sort(),
     ];
   }, [deviceTimeZone]);
-  const filteredTimeZones = useMemo(() => {
-    const query = timeZoneSearch.trim().toLocaleLowerCase();
-    if (!query) return timeZones;
-
-    const matches = timeZones.filter((value) =>
-      value.toLocaleLowerCase().includes(query),
-    );
-    return matches.includes(timeZone) ? matches : [timeZone, ...matches];
-  }, [timeZone, timeZoneSearch, timeZones]);
-
   function updateStartDate(value: Date) {
     setStartDate(value);
     if (endDate < value) setEndDate(value);
@@ -159,6 +149,8 @@ export default function CreateConventionScreen() {
         icalUrl: null,
         status: conventionStatusForDay(startDateKey, endDateKey, today),
       });
+      queryClient.setQueryData(["convention", convention.id], convention);
+      queryClient.setQueryData(["events", convention.id], []);
       conventionId = convention.id;
     } catch {
       Alert.alert(t("common.error"), t("convention.createError"));
@@ -170,6 +162,7 @@ export default function CreateConventionScreen() {
       queryClient.invalidateQueries({ queryKey: ["conventions"] }),
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
     ]);
+    await publishWidgetSnapshot().catch(() => false);
     router.replace(`/convention/${conventionId}`);
   }
 
@@ -269,22 +262,6 @@ export default function CreateConventionScreen() {
               }
             />
             <ListItem
-              supportingText={
-                <TextInput
-                  defaultValue={timeZoneSearch}
-                  onChangeText={setTimeZoneSearch}
-                  placeholder={t("convention.timeZoneSearchPlaceholder")}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="search"
-                  onSubmitEditing={Keyboard.dismiss}
-                  testID="time-zone-search-input"
-                />
-              }
-            >
-              {t("convention.timeZoneSearch")}
-            </ListItem>
-            <ListItem
               trailing={
                 <Picker
                   selectedValue={timeZone}
@@ -295,7 +272,7 @@ export default function CreateConventionScreen() {
                   appearance="menu"
                   testID="time-zone-picker"
                 >
-                  {filteredTimeZones.map((value) => (
+                  {timeZones.map((value) => (
                     <Picker.Item key={value} label={value} value={value} />
                   ))}
                 </Picker>
