@@ -1,0 +1,63 @@
+name: mrdemonwolf-listmonk
+
+services:
+  listmonk:
+    # Digest-pinned so a moved upstream tag cannot silently change what runs.
+    image: listmonk/listmonk:v6.2.0@sha256:f535d59e14991337a9f2d570273685378ae86b0d7698c3e00da444e3bc205286
+    restart: unless-stopped
+    # --install is idempotent, so this is safe on every restart; --upgrade
+    # applies schema migrations after an image bump. --config "" makes the
+    # environment the only configuration source — no config.toml is mounted.
+    command:
+      - sh
+      - -c
+      - >-
+        ./listmonk --install --idempotent --yes --config "" &&
+        ./listmonk --upgrade --yes --config "" &&
+        ./listmonk --config ""
+    environment:
+      LISTMONK_app__address: "0.0.0.0:9000"
+      # Paste the values from the Dokploy PostgreSQL service. Do not guess the
+      # internal hostname; Dokploy prints the exact one.
+      LISTMONK_db__host: ${DB_HOST:?Set DB_HOST in Dokploy}
+      LISTMONK_db__port: ${DB_PORT:-5432}
+      LISTMONK_db__user: ${DB_USER:?Set DB_USER in Dokploy}
+      LISTMONK_db__password: ${DB_PASSWORD:?Set DB_PASSWORD in Dokploy}
+      LISTMONK_db__database: ${DB_NAME:?Set DB_NAME in Dokploy}
+      # "disable" is only correct while Postgres is a private Dokploy service on
+      # the same host. An external database must use "require" or stricter.
+      LISTMONK_db__ssl_mode: ${DB_SSL_MODE:-disable}
+      # Bootstrap only — these seed the first super admin. Remove both from
+      # Dokploy once the account exists and its password is in the vault.
+      LISTMONK_ADMIN_USER: ${ADMIN_USER:-}
+      LISTMONK_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    expose:
+      - "9000"
+    volumes:
+      # Campaign images and other media. Losing this loses nothing legally, but
+      # it does break every image in already-sent campaigns.
+      - listmonk-uploads:/listmonk/uploads
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -T
+        - "5"
+        - -O
+        - /dev/null
+        - http://127.0.0.1:9000/health
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  listmonk-uploads:
