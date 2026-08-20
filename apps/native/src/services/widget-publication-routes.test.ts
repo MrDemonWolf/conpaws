@@ -27,6 +27,25 @@ describe("widget snapshot publication routes", () => {
     expect(navigationIndex).toBeGreaterThan(publishIndex);
   });
 
+  it("seeds the created convention and its empty event list before navigation", () => {
+    const createIndex = createSource.indexOf(
+      "const convention = await conventionsRepo.create",
+    );
+    const conventionCacheIndex = createSource.indexOf(
+      'queryClient.setQueryData(["convention", convention.id], convention)',
+      createIndex,
+    );
+    const eventCacheIndex = createSource.indexOf(
+      'queryClient.setQueryData(["events", convention.id], [])',
+      createIndex,
+    );
+    const navigationIndex = createSource.indexOf("router.replace", createIndex);
+
+    expect(conventionCacheIndex).toBeGreaterThan(createIndex);
+    expect(eventCacheIndex).toBeGreaterThan(conventionCacheIndex);
+    expect(navigationIndex).toBeGreaterThan(eventCacheIndex);
+  });
+
   it("publishes updated convention metadata after an existing schedule import", () => {
     const metadataUpdateIndex = importSource.indexOf(
       "await conventionsRepo.update(conventionId",

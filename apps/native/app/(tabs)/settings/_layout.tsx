@@ -16,11 +16,10 @@ export default function SettingsLayout() {
     <Stack
       screenOptions={{
         headerBackButtonDisplayMode: "minimal",
-        headerBlurEffect:
-          process.env.EXPO_OS === "ios" ? "systemChromeMaterial" : undefined,
+        headerLargeTitleEnabled: process.env.EXPO_OS === "ios",
+        headerLargeTitleShadowVisible: false,
         headerShadowVisible: false,
         headerTintColor: colors.text,
-        headerTransparent: process.env.EXPO_OS === "ios",
       }}
     >
       <Stack.Screen

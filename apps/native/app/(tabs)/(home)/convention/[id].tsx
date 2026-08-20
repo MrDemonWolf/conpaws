@@ -3,6 +3,7 @@ import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
 import { Host, Icon } from "@expo/ui";
+import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as Haptics from "expo-haptics";
@@ -25,9 +26,9 @@ import {
   Pressable,
   ScrollView,
   SectionList,
+  Switch,
   TextInput,
   useColorScheme,
-  useWindowDimensions,
   View,
 } from "react-native";
 import { EventItem } from "@/components/EventItem";
@@ -52,6 +53,16 @@ import {
 } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
 import { getEventIndicators } from "@/lib/event-indicators";
+import {
+  createManualEventTimes,
+  type ManualEventTimes,
+  manualEventDayKey,
+  manualEventPickerDate,
+  updateManualEventDate,
+  updateManualEventEnd,
+  updateManualEventStart,
+  validatedManualEventEnd,
+} from "@/lib/manual-event-time";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
@@ -153,11 +164,8 @@ function BlankConventionState({
   );
 }
 
-interface ManualEventValues {
+interface ManualEventTextValues {
   title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
   room: string;
 }
 
@@ -168,45 +176,10 @@ interface ManualEventDraft {
   room: string | null;
 }
 
-const EMPTY_MANUAL_EVENT: ManualEventValues = {
+const EMPTY_MANUAL_EVENT_TEXT: ManualEventTextValues = {
   title: "",
-  date: "",
-  startTime: "",
-  endTime: "",
   room: "",
 };
-
-function parseDate(
-  value: string,
-): { year: number; month: number; day: number } | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
-  if (!match) return null;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const calendarDate = new Date(Date.UTC(year, month - 1, day));
-  if (
-    calendarDate.getUTCFullYear() !== year ||
-    calendarDate.getUTCMonth() !== month - 1 ||
-    calendarDate.getUTCDate() !== day
-  ) {
-    return null;
-  }
-
-  return { year, month, day };
-}
-
-function parseTime(value: string): { hour: number; minute: number } | null {
-  const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
-  if (!match) return null;
-
-  const hour = Number(match[1]);
-  const minute = Number(match[2]);
-  return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59
-    ? { hour, minute }
-    : null;
-}
 
 function groupEventsByDay(
   events: ConventionEvent[],
@@ -531,34 +504,122 @@ function ReminderPickerContent({
   );
 }
 
+interface NativeDateTimeFieldProps {
+  label: string;
+  value: Date;
+  mode: "date" | "time";
+  locale: string;
+  minimumDate?: Date;
+  maximumDate?: Date;
+  showDivider?: boolean;
+  testID: string;
+  onChange: (value: Date) => void;
+}
+
+function NativeDateTimeField({
+  label,
+  value,
+  mode,
+  locale,
+  minimumDate,
+  maximumDate,
+  showDivider = false,
+  testID,
+  onChange,
+}: NativeDateTimeFieldProps) {
+  const colorScheme = useColorScheme();
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const formattedValue =
+    mode === "date"
+      ? value.toLocaleDateString(locale, { dateStyle: "medium" })
+      : value.toLocaleTimeString(locale, { timeStyle: "short" });
+  const fieldClassName = `min-h-14 flex-row items-center justify-between gap-4 px-4 py-2 ${showDivider ? "border-b border-border" : ""}`;
+
+  if (process.env.EXPO_OS === "ios") {
+    return (
+      <View className={fieldClassName}>
+        <Text variant="body">{label}</Text>
+        <DateTimePicker
+          value={value}
+          mode={mode}
+          display="compact"
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          locale={locale}
+          themeVariant={colorScheme === "dark" ? "dark" : "light"}
+          testID={testID}
+          onValueChange={(_, nextValue) => onChange(nextValue)}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <>
+      <Pressable
+        className={`${fieldClassName} active:opacity-70`}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        testID={testID}
+        onPress={() => setDialogVisible(true)}
+      >
+        <Text variant="body">{label}</Text>
+        <Text variant="body" className="text-primary" selectable>
+          {formattedValue}
+        </Text>
+      </Pressable>
+      {dialogVisible ? (
+        <DateTimePicker
+          value={value}
+          mode={mode}
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          presentation="dialog"
+          onValueChange={(_, nextValue) => {
+            onChange(nextValue);
+            setDialogVisible(false);
+          }}
+          onDismiss={() => setDialogVisible(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
 interface ManualEventModalProps {
   visible: boolean;
   defaultDate: string;
+  minimumDate: string;
+  maximumDate: string;
   timeZone: string;
   onClose: () => void;
   onSave: (event: ManualEventDraft) => Promise<void>;
 }
 
-function ManualEventModal({
-  visible,
+function ManualEventModal(props: ManualEventModalProps) {
+  return props.visible ? <ManualEventModalContent {...props} /> : null;
+}
+
+function ManualEventModalContent({
   defaultDate,
+  minimumDate,
+  maximumDate,
   timeZone,
   onClose,
   onSave,
 }: ManualEventModalProps) {
-  const { t } = useTranslation();
-  const { fontScale } = useWindowDimensions();
-  const [values, setValues] = useState<ManualEventValues>(EMPTY_MANUAL_EVENT);
+  const { t, i18n } = useTranslation();
+  const [values, setValues] = useState<ManualEventTextValues>(
+    EMPTY_MANUAL_EVENT_TEXT,
+  );
+  const [times, setTimes] = useState<ManualEventTimes>(() =>
+    createManualEventTimes(defaultDate, minimumDate, maximumDate),
+  );
+  const [includeEndTime, setIncludeEndTime] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (!visible) return;
-    setValues({ ...EMPTY_MANUAL_EVENT, date: defaultDate });
-    setError(null);
-  }, [defaultDate, visible]);
-
-  function updateValue(key: keyof ManualEventValues, value: string) {
+  function updateValue(key: keyof ManualEventTextValues, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
     setError(null);
   }
@@ -570,27 +631,22 @@ function ManualEventModal({
       return;
     }
 
-    const date = parseDate(values.date);
-    if (!date) {
-      setError(t("convention.manualEvent.errors.date"));
-      return;
-    }
-
-    const startParts = parseTime(values.startTime);
-    if (!startParts) {
-      setError(t("convention.manualEvent.errors.startTime"));
-      return;
-    }
-
-    const endValue = values.endTime.trim();
-    const endParts = endValue ? parseTime(endValue) : null;
-    if (endValue && !endParts) {
-      setError(t("convention.manualEvent.errors.endTime"));
-      return;
-    }
-
+    const dayKey = manualEventDayKey(times.date);
+    const date = {
+      year: times.date.getFullYear(),
+      month: times.date.getMonth() + 1,
+      day: times.date.getDate(),
+    };
+    const startParts = {
+      hour: times.startTime.getHours(),
+      minute: times.startTime.getMinutes(),
+    };
+    const endParts = {
+      hour: times.endTime.getHours(),
+      minute: times.endTime.getMinutes(),
+    };
     const start = fromConventionTime({ ...date, ...startParts }, timeZone);
-    const normalizedStart = `${values.date.trim()} ${String(startParts.hour).padStart(2, "0")}:${String(startParts.minute).padStart(2, "0")}`;
+    const normalizedStart = `${dayKey} ${String(startParts.hour).padStart(2, "0")}:${String(startParts.minute).padStart(2, "0")}`;
     if (
       formatInConventionTime(start, timeZone, "yyyy-MM-dd HH:mm") !==
       normalizedStart
@@ -599,24 +655,23 @@ function ManualEventModal({
       return;
     }
 
-    const end = endParts
-      ? fromConventionTime({ ...date, ...endParts }, timeZone)
-      : null;
-    if (end && endParts) {
-      const normalizedEnd = `${values.date.trim()} ${String(endParts.hour).padStart(2, "0")}:${String(endParts.minute).padStart(2, "0")}`;
-      if (
-        formatInConventionTime(end, timeZone, "yyyy-MM-dd HH:mm") !==
-        normalizedEnd
-      ) {
-        setError(t("convention.manualEvent.errors.endTimeZone"));
-        return;
-      }
-    }
-    if (end && end.getTime() <= start.getTime()) {
+    const endCandidate = fromConventionTime({ ...date, ...endParts }, timeZone);
+    let end: Date | null;
+    try {
+      end = validatedManualEventEnd(start, endCandidate, includeEndTime);
+    } catch {
       setError(t("convention.manualEvent.errors.order"));
       return;
     }
-
+    const normalizedEnd = `${dayKey} ${String(endParts.hour).padStart(2, "0")}:${String(endParts.minute).padStart(2, "0")}`;
+    if (
+      end &&
+      formatInConventionTime(end, timeZone, "yyyy-MM-dd HH:mm") !==
+        normalizedEnd
+    ) {
+      setError(t("convention.manualEvent.errors.endTimeZone"));
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -635,7 +690,7 @@ function ManualEventModal({
 
   return (
     <Modal
-      visible={visible}
+      visible
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={saving ? undefined : onClose}
@@ -691,52 +746,69 @@ function ManualEventModal({
             />
           </View>
 
-          <View className="gap-2">
-            <Text variant="label">{t("convention.manualEvent.dateLabel")}</Text>
-            <TextInput
-              value={values.date}
-              onChangeText={(value) => updateValue("date", value)}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#94A3B8"
-              keyboardType="numbers-and-punctuation"
-              accessibilityLabel={t("convention.manualEvent.dateAccessibility")}
-              className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
+          <View className="overflow-hidden rounded-xl border border-border bg-card">
+            <NativeDateTimeField
+              label={t("convention.manualEvent.dateLabel")}
+              value={times.date}
+              mode="date"
+              locale={i18n.resolvedLanguage ?? i18n.language}
+              minimumDate={manualEventPickerDate(minimumDate)}
+              maximumDate={manualEventPickerDate(maximumDate)}
+              showDivider
+              testID="manual-event-date-picker"
+              onChange={(value) => {
+                setTimes((current) =>
+                  updateManualEventDate(
+                    current,
+                    value,
+                    minimumDate,
+                    maximumDate,
+                  ),
+                );
+                setError(null);
+              }}
             />
-          </View>
-
-          <View className={fontScale > 1.3 ? "gap-3" : "flex-row gap-3"}>
-            <View className={fontScale > 1.3 ? "gap-2" : "flex-1 gap-2"}>
-              <Text variant="label">
-                {t("convention.manualEvent.startLabel")}
-              </Text>
-              <TextInput
-                value={values.startTime}
-                onChangeText={(value) => updateValue("startTime", value)}
-                placeholder="HH:mm"
-                placeholderTextColor="#94A3B8"
-                keyboardType="numbers-and-punctuation"
-                accessibilityLabel={t(
-                  "convention.manualEvent.startAccessibility",
-                )}
-                className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-              />
-            </View>
-            <View className={fontScale > 1.3 ? "gap-2" : "flex-1 gap-2"}>
-              <Text variant="label">
-                {t("convention.manualEvent.endLabel")}
-              </Text>
-              <TextInput
-                value={values.endTime}
-                onChangeText={(value) => updateValue("endTime", value)}
-                placeholder="HH:mm"
-                placeholderTextColor="#94A3B8"
-                keyboardType="numbers-and-punctuation"
+            <NativeDateTimeField
+              label={t("convention.manualEvent.startLabel")}
+              value={times.startTime}
+              mode="time"
+              locale={i18n.resolvedLanguage ?? i18n.language}
+              showDivider
+              testID="manual-event-start-picker"
+              onChange={(value) => {
+                setTimes((current) => updateManualEventStart(current, value));
+                setError(null);
+              }}
+            />
+            <View
+              className={`min-h-14 flex-row items-center justify-between gap-4 px-4 py-2 ${includeEndTime ? "border-b border-border" : ""}`}
+            >
+              <Text variant="body">{t("convention.manualEvent.endLabel")}</Text>
+              <Switch
+                value={includeEndTime}
+                onValueChange={(value) => {
+                  setIncludeEndTime(value);
+                  setError(null);
+                }}
                 accessibilityLabel={t(
                   "convention.manualEvent.endAccessibility",
                 )}
-                className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
               />
             </View>
+            {includeEndTime ? (
+              <NativeDateTimeField
+                label={t("convention.manualEvent.endLabel")}
+                value={times.endTime}
+                mode="time"
+                locale={i18n.resolvedLanguage ?? i18n.language}
+                minimumDate={times.startTime}
+                testID="manual-event-end-picker"
+                onChange={(value) => {
+                  setTimes((current) => updateManualEventEnd(current, value));
+                  setError(null);
+                }}
+              />
+            ) : null}
           </View>
 
           <View className="gap-2">
@@ -1173,11 +1245,11 @@ export default function ConventionDetailScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background" collapsable={false}>
       <Stack.Screen
         options={{
           title: convention.name,
-          headerLargeTitle: true,
+          headerLargeTitleEnabled: process.env.EXPO_OS === "ios",
           headerLargeTitleShadowVisible: false,
         }}
       />
@@ -1349,9 +1421,7 @@ export default function ConventionDetailScreen() {
           alwaysBounceVertical={false}
           sections={dayGroups}
           keyExtractor={(event) => event.id}
-          contentInsetAdjustmentBehavior={
-            dayGroups.length === 0 ? "never" : "automatic"
-          }
+          contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={
             dayGroups.length === 0
               ? events.length === 0
@@ -1412,6 +1482,8 @@ export default function ConventionDetailScreen() {
       <ManualEventModal
         visible={manualEventVisible}
         defaultDate={manualEventDefaultDate}
+        minimumDate={convention.startDate}
+        maximumDate={convention.endDate}
         timeZone={conventionTimeZone}
         onClose={() => setManualEventVisible(false)}
         onSave={(event) => addManualEventMutation.mutateAsync(event)}

@@ -15,11 +15,10 @@ export default function HomeLayout() {
       screenOptions={{
         contentStyle: { backgroundColor: colors.background },
         headerBackButtonDisplayMode: "minimal",
-        headerBlurEffect:
-          process.env.EXPO_OS === "ios" ? "systemChromeMaterial" : undefined,
+        headerLargeTitleEnabled: process.env.EXPO_OS === "ios",
+        headerLargeTitleShadowVisible: false,
         headerShadowVisible: false,
         headerTintColor: colors.text,
-        headerTransparent: process.env.EXPO_OS === "ios",
       }}
     >
       <Stack.Screen
@@ -33,6 +32,7 @@ export default function HomeLayout() {
         name="convention/create"
         options={{
           title: t("convention.new"),
+          headerLargeTitleEnabled: false,
           headerShown: process.env.EXPO_OS === "ios",
           presentation: "formSheet",
           sheetAllowedDetents: [0.55, 0.85],
@@ -44,6 +44,7 @@ export default function HomeLayout() {
         name="convention/[id]/import"
         options={{
           title: t("import.title"),
+          headerLargeTitleEnabled: false,
           headerShown: process.env.EXPO_OS === "ios",
           headerShadowVisible: false,
           presentation: "formSheet",

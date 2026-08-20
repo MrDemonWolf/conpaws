@@ -7,6 +7,14 @@ const conventionRoute = path.resolve(
   "../../app/(tabs)/(home)/convention/[id]",
 );
 const conventionDetailSource = readFileSync(`${conventionRoute}.tsx`, "utf8");
+const homeLayoutSource = readFileSync(
+  path.resolve(__dirname, "../../app/(tabs)/(home)/_layout.tsx"),
+  "utf8",
+);
+const settingsLayoutSource = readFileSync(
+  path.resolve(__dirname, "../../app/(tabs)/settings/_layout.tsx"),
+  "utf8",
+);
 
 describe("Expo Router convention routes", () => {
   it("uses one detail route with its nested import screen", () => {
@@ -19,5 +27,30 @@ describe("Expo Router convention routes", () => {
     expect(conventionDetailSource).toMatch(
       /<SectionList\s+alwaysBounceVertical=\{false\}/,
     );
+  });
+
+  it("keeps convention scroll content connected to the native header", () => {
+    expect(conventionDetailSource).toContain("collapsable={false}");
+    expect(conventionDetailSource).toContain(
+      'contentInsetAdjustmentBehavior="automatic"',
+    );
+  });
+});
+
+describe("iOS native stack headers", () => {
+  it("uses native large titles without a competing fixed blur", () => {
+    for (const source of [homeLayoutSource, settingsLayoutSource]) {
+      expect(source).toContain(
+        'headerLargeTitleEnabled: process.env.EXPO_OS === "ios"',
+      );
+      expect(source).not.toContain("headerBlurEffect");
+      expect(source).not.toContain("headerTransparent");
+    }
+  });
+
+  it("keeps form sheets compact", () => {
+    expect(
+      homeLayoutSource.match(/headerLargeTitleEnabled: false/g),
+    ).toHaveLength(2);
   });
 });
