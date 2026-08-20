@@ -15,15 +15,17 @@ export default function HomeLayout() {
       screenOptions={{
         contentStyle: { backgroundColor: colors.background },
         headerBackButtonDisplayMode: "minimal",
+        headerBlurEffect:
+          process.env.EXPO_OS === "ios" ? "systemChromeMaterial" : undefined,
         headerShadowVisible: false,
+        headerTintColor: colors.text,
+        headerTransparent: process.env.EXPO_OS === "ios",
       }}
     >
       <Stack.Screen
         name="index"
         options={{
           title: t("home.title"),
-          headerLargeTitle: true,
-          headerLargeTitleShadowVisible: false,
         }}
       />
       <Stack.Screen name="convention/[id]" options={{ title: "Convention" }} />

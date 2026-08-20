@@ -108,6 +108,10 @@ Stop unless all of these are true:
 - The latest GitHub Actions run is for the displayed commit and its `CI / Verify` job is green.
 - The public version in `app.config.ts` is correct.
 - The signed-in Expo account is the intended account.
+- `https://conpaws.com/privacy`, `/terms`, and `/support` show their real pages,
+  not the marketing fallback.
+- A production CNG prebuild contains the iPhone widget, Watch app, and Watch
+  widget targets with production bundle identifiers and matching App Groups.
 
 `eas.json` requires a committed tree, but that is only one guard. A clean tree does not replace green CI.
 
@@ -169,6 +173,10 @@ Complete this on the TestFlight build and the Play Internal Testing build, not j
 - [ ] Star events, close the app, reopen it, and confirm the schedule is still present.
 - [ ] Check Now/Next and event times in the convention timezone, including an overlap.
 - [ ] Schedule a reminder, background or terminate the app, and confirm the notification arrives with the correct event and room.
+- [ ] Add the small and medium Home Screen widgets; check Coming Up, Next, Leave In, and blank states in light, dark, and tinted appearances.
+- [ ] Pair an Apple Watch, open the Watch app, and confirm Now, Next, Later, event detail, offline cache, and the Smart Stack widget use the same schedule.
+- [ ] Confirm Leave In appears on iPhone and Watch only for an event with a configured leave reminder; verify the mirrored Watch notification/haptic once.
+- [ ] Change a saved schedule on iPhone, reopen the app, and confirm the widgets and Watch receive the new snapshot.
 - [ ] Turn on airplane mode and confirm the imported schedule and core planning flow still work.
 - [ ] Check large text, VoiceOver or TalkBack labels, light/dark appearance, and one small-screen device.
 - [ ] Confirm no debug menu, preview app name, preview bundle ID, or test-only data appears.
@@ -203,6 +211,8 @@ iOS build number:
 iOS IPA filename:
 iOS IPA SHA-256:
 TestFlight group/status:
+Widget/Watch paired-device result:
+Privacy/terms/support URL result:
 
 Android EAS build ID:
 Android version code:

@@ -35,7 +35,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import { StatusBar, useColorScheme } from "react-native";
+import { AppState, StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
   applyAppearancePreference,
@@ -46,6 +46,7 @@ import {
   reconcileEventReminders,
   setupNotificationHandler,
 } from "@/services/notifications";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
@@ -88,8 +89,32 @@ function RootLayout() {
       applyAppearancePreference(appearance);
       await initI18n().catch(() => undefined);
       await reconcileEventReminders().catch(() => undefined);
+      await publishWidgetSnapshot().catch(() => false);
       setReady(true);
     })();
+  }, []);
+
+  useEffect(() => {
+    const appStateSubscription = AppState.addEventListener(
+      "change",
+      (state) => {
+        if (state === "active") void publishWidgetSnapshot().catch(() => false);
+      },
+    );
+    const unsubscribeMutations = queryClient
+      .getMutationCache()
+      .subscribe((event) => {
+        if (
+          event.type === "updated" &&
+          event.mutation.state.status === "success"
+        ) {
+          void publishWidgetSnapshot().catch(() => false);
+        }
+      });
+    return () => {
+      appStateSubscription.remove();
+      unsubscribeMutations();
+    };
   }, []);
 
   useEffect(() => {

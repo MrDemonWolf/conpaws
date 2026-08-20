@@ -1,8 +1,7 @@
-import { useTheme } from "expo-router/react-navigation";
-import { AlertTriangle, Bell, ShieldAlert } from "lucide-react-native";
+import { AlertTriangle, ShieldAlert } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, useColorScheme, View } from "react-native";
-import { Text } from "@/components/ui";
+import { Badge, Text } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 interface EventItemProps {
@@ -12,7 +11,8 @@ interface EventItemProps {
   room?: string;
   category?: string;
   isInSchedule?: boolean;
-  hasReminder?: boolean;
+  reminderLabel?: string;
+  provenanceLabel?: string;
   hasConflict?: boolean;
   isAgeRestricted?: boolean;
   contentWarning?: boolean;
@@ -29,7 +29,8 @@ export function EventItem({
   room,
   category,
   isInSchedule = false,
-  hasReminder = false,
+  reminderLabel,
+  provenanceLabel,
   hasConflict = false,
   isAgeRestricted = false,
   contentWarning = false,
@@ -40,7 +41,6 @@ export function EventItem({
 }: EventItemProps) {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
-  const { colors } = useTheme();
   const isDark = colorScheme === "dark";
   const accessibilityDetails = [
     title,
@@ -52,7 +52,8 @@ export function EventItem({
     isInSchedule
       ? t("convention.inMySchedule")
       : t("convention.notInMySchedule"),
-    hasReminder ? t("convention.reminderSet") : null,
+    reminderLabel ? `${t("convention.reminderSet")}: ${reminderLabel}` : null,
+    provenanceLabel,
     hasConflict ? t("convention.overlapLabel") : null,
     isAgeRestricted ? t("convention.ageRestricted") : null,
     contentWarning ? t("convention.contentWarning") : null,
@@ -103,7 +104,6 @@ export function EventItem({
             {contentWarning && (
               <AlertTriangle size={14} color={isDark ? "#FCD34D" : "#854D0E"} />
             )}
-            {hasReminder && <Bell size={14} color={colors.primary} />}
             {isInSchedule && <Text className="text-primary text-lg">✓</Text>}
           </View>
         </View>
@@ -111,6 +111,21 @@ export function EventItem({
           <Text variant="caption" numberOfLines={2}>
             {[category, room].filter(Boolean).join(" · ")}
           </Text>
+        ) : null}
+        {reminderLabel !== undefined || provenanceLabel !== undefined ? (
+          <View
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            className="flex-row flex-wrap gap-1.5 pt-1"
+          >
+            {reminderLabel !== undefined ? (
+              <Badge variant="info" label={reminderLabel} />
+            ) : null}
+            {provenanceLabel !== undefined ? (
+              <Badge variant="neutral" label={provenanceLabel} />
+            ) : null}
+          </View>
         ) : null}
         {hasConflict ? (
           <Text variant="caption" className="text-destructive">

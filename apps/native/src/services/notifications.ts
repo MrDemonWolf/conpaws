@@ -5,6 +5,7 @@ import * as eventsRepo from "@/db/repositories/events";
 
 const REMINDER_CHANNEL_ID = "event-reminders";
 const REMINDER_IDENTIFIER_PREFIX = "reminder-";
+const TEST_NOTIFICATION_IDENTIFIER_PREFIX = "developer-test-";
 
 export type PermissionStatus = "granted" | "denied" | "undetermined";
 
@@ -43,6 +44,46 @@ export async function requestNotificationPermission(): Promise<PermissionStatus>
 export async function getNotificationPermissionStatus(): Promise<PermissionStatus> {
   const { status } = await ExpoNotifications.getPermissionsAsync();
   return status as PermissionStatus;
+}
+
+export async function scheduleTestNotification(): Promise<string | null> {
+  const permission = await requestNotificationPermission();
+  if (permission !== "granted") return null;
+
+  const identifier = `${TEST_NOTIFICATION_IDENTIFIER_PREFIX}${Date.now()}`;
+  await ExpoNotifications.scheduleNotificationAsync({
+    identifier,
+    content: {
+      title: "ConPaws test notification",
+      body: "Notifications are working. Your convention reminders can reach you.",
+      sound: true,
+      data: { kind: "developer-test" },
+    },
+    trigger: {
+      type: ExpoNotifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 5,
+      channelId: REMINDER_CHANNEL_ID,
+    },
+  });
+
+  return identifier;
+}
+
+export async function cancelTestNotifications(): Promise<number> {
+  const scheduled = await ExpoNotifications.getAllScheduledNotificationsAsync();
+  const identifiers: string[] = [];
+  for (const request of scheduled) {
+    if (request.identifier.startsWith(TEST_NOTIFICATION_IDENTIFIER_PREFIX)) {
+      identifiers.push(request.identifier);
+    }
+  }
+
+  await Promise.all(
+    identifiers.map((identifier) =>
+      ExpoNotifications.cancelScheduledNotificationAsync(identifier),
+    ),
+  );
+  return identifiers.length;
 }
 
 interface EventForReminder {
@@ -159,13 +200,16 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
   try {
     const scheduled =
       await ExpoNotifications.getAllScheduledNotificationsAsync();
-    const staleIdentifiers = scheduled
-      .map((request) => request.identifier)
-      .filter(
-        (identifier) =>
-          identifier.startsWith(REMINDER_IDENTIFIER_PREFIX) &&
-          !eventIds.has(identifier.slice(REMINDER_IDENTIFIER_PREFIX.length)),
-      );
+    const staleIdentifiers: string[] = [];
+    for (const request of scheduled) {
+      const { identifier } = request;
+      if (
+        identifier.startsWith(REMINDER_IDENTIFIER_PREFIX) &&
+        !eventIds.has(identifier.slice(REMINDER_IDENTIFIER_PREFIX.length))
+      ) {
+        staleIdentifiers.push(identifier);
+      }
+    }
     await Promise.all(
       staleIdentifiers.map((identifier) =>
         ExpoNotifications.cancelScheduledNotificationAsync(identifier),

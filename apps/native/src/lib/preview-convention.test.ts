@@ -72,6 +72,7 @@ describe("ConPaws Preview Con", () => {
     expect(firstEvents[0]?.startTime).toBe(firstEvents[1]?.startTime);
     expect(firstEvents[0]?.isInSchedule).toBe(true);
     expect(firstEvents[1]?.isInSchedule).toBe(true);
-    expect(firstEvents[1]?.reminderMinutes).toBeNull();
+    expect(firstEvents[0]?.reminderMinutes).toBe(60);
+    expect(firstEvents[1]?.reminderMinutes).toBe(15);
   });
 });

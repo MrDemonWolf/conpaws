@@ -54,6 +54,41 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appVariant: APP_VARIANT,
     eas: {
       projectId: EAS_PROJECT_ID,
+      build: {
+        experimental: {
+          ios: {
+            appExtensions: [
+              {
+                targetName: "widget",
+                bundleIdentifier: `${getBundleId()}.widgets`,
+                entitlements: {
+                  "com.apple.security.application-groups": [
+                    `group.${getBundleId()}`,
+                  ],
+                },
+              },
+              {
+                targetName: "ConPawsWatch",
+                bundleIdentifier: `${getBundleId()}.watchkitapp`,
+                entitlements: {
+                  "com.apple.security.application-groups": [
+                    `group.${getBundleId()}`,
+                  ],
+                },
+              },
+              {
+                targetName: "ConPawsWatchWidgetExtension",
+                bundleIdentifier: `${getBundleId()}.watchkitapp.widgets`,
+                entitlements: {
+                  "com.apple.security.application-groups": [
+                    `group.${getBundleId()}`,
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
     },
   },
   ios: {
@@ -61,6 +96,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     icon: "./assets/images/ConPaws.icon",
     supportsTablet: false,
     bundleIdentifier: getBundleId(),
+    entitlements: {
+      "com.apple.security.application-groups": [`group.${getBundleId()}`],
+    },
+    privacyManifests: {
+      NSPrivacyAccessedAPITypes: [
+        {
+          NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategoryUserDefaults",
+          NSPrivacyAccessedAPITypeReasons: ["1C8F.1"],
+        },
+      ],
+    },
     config: {
       usesNonExemptEncryption: false,
     },
@@ -82,6 +128,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     "expo-router",
+    "@bacons/apple-targets",
     "expo-sqlite",
     "expo-localization",
     [

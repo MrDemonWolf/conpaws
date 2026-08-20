@@ -27,6 +27,7 @@ import {
   conventionStatusForDay,
   isValidTimeZone,
 } from "@/lib/convention-time";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 interface ConventionDateFieldProps {
   title: string;
@@ -170,6 +171,7 @@ export default function CreateConventionScreen() {
       queryClient.invalidateQueries({ queryKey: ["conventions"] }),
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
     ]);
+    await publishWidgetSnapshot().catch(() => false);
     router.replace(`/convention/${conventionId}`);
   }
 

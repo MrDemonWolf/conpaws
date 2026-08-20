@@ -33,6 +33,12 @@ const statusStyles: Record<ConventionCardProps["status"], string> = {
   ended: "text-muted-foreground",
 };
 
+const statusContainerStyles: Record<ConventionCardProps["status"], string> = {
+  upcoming: "bg-secondary",
+  active: "bg-primary/10",
+  ended: "bg-muted",
+};
+
 export function ConventionCard({
   name,
   dateRange,
@@ -60,9 +66,17 @@ export function ConventionCard({
           </Text>
           <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
             <Text variant="caption">{dateRange}</Text>
-            <Text variant="caption" className={statusStyles[status]}>
-              {statusLabel}
-            </Text>
+            <View
+              className={cn(
+                "rounded-full px-2 py-0.5",
+                statusContainerStyles[status],
+              )}
+              style={{ borderCurve: "continuous" }}
+            >
+              <Text variant="caption" className={statusStyles[status]}>
+                {statusLabel}
+              </Text>
+            </View>
           </View>
         </View>
         {!onMorePress ? (

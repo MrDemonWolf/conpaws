@@ -2,13 +2,16 @@ import AddIcon from "@expo/material-symbols/add.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
-import { Icon } from "@expo/ui";
+import { Host, Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
 import { router, Stack, useLocalSearchParams } from "expo-router";
+import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
+import type { TFunction } from "i18next";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
@@ -18,12 +21,20 @@ import {
   ScrollView,
   SectionList,
   TextInput,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from "react-native";
 import { EventItem } from "@/components/EventItem";
 import { SectionHeader } from "@/components/SectionHeader";
-import { EmptyState, LoadingSpinner, SafeView, Text } from "@/components/ui";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  LoadingSpinner,
+  SafeView,
+  Text,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
@@ -34,6 +45,8 @@ import {
   isValidTimeZone,
   overlappingEventIds,
 } from "@/lib/convention-time";
+import { resolveConventionPreviewState } from "@/lib/developer-tools";
+import { getEventIndicators } from "@/lib/event-indicators";
 import { getNowAndNextEvents } from "@/lib/schedule-view";
 import {
   cancelEventReminder,
@@ -52,6 +65,77 @@ const EMPTY_SCHEDULE_ICON = Icon.select({
   ios: "calendar",
   android: EventIcon,
 });
+
+interface BlankConventionStateProps {
+  title: string;
+  subtitle: string;
+  dateRange: string;
+  timeZoneLabel: string;
+  importLabel: string;
+  addLabel: string;
+  onImport: () => void;
+  onAdd: () => void;
+}
+
+function BlankConventionState({
+  title,
+  subtitle,
+  dateRange,
+  timeZoneLabel,
+  importLabel,
+  addLabel,
+  onImport,
+  onAdd,
+}: BlankConventionStateProps) {
+  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
+
+  return (
+    <View className="flex-1 justify-center px-6 py-6">
+      <View className="items-center gap-3">
+        <View
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          className="h-14 w-14 items-center justify-center rounded-2xl bg-primary/10"
+          style={{ borderCurve: "continuous" }}
+        >
+          <Host
+            colorScheme={colorScheme === "dark" ? "dark" : "light"}
+            matchContents
+            pointerEvents="none"
+          >
+            <Icon name={EMPTY_SCHEDULE_ICON} size={32} color={colors.primary} />
+          </Host>
+        </View>
+        <View className="items-center gap-1.5">
+          <Text variant="h3" className="text-center">
+            {title}
+          </Text>
+          <Text variant="body" className="text-center text-muted-foreground">
+            {subtitle}
+          </Text>
+        </View>
+        <View className="items-center gap-1 pt-1">
+          <Text variant="label" className="text-center" selectable>
+            {dateRange}
+          </Text>
+          <Text variant="caption" className="text-center" selectable>
+            {timeZoneLabel}
+          </Text>
+        </View>
+      </View>
+      <View className="gap-3 pt-8">
+        <Button size="lg" className="w-full" onPress={onImport}>
+          {importLabel}
+        </Button>
+        <Button size="lg" variant="outline" className="w-full" onPress={onAdd}>
+          {addLabel}
+        </Button>
+      </View>
+    </View>
+  );
+}
 
 interface ManualEventValues {
   title: string;
@@ -150,6 +234,25 @@ function formatTime(
   }).format(new Date(isoString));
 }
 
+function getEventIndicatorLabels(
+  event: Pick<ConventionEvent, "reminderMinutes" | "sourceUid">,
+  t: TFunction,
+): { provenanceLabel: string; reminderLabel?: string } {
+  const { provenance, reminder } = getEventIndicators(event);
+
+  return {
+    provenanceLabel: t(`convention.eventSource.${provenance}`),
+    reminderLabel: reminder
+      ? t(
+          reminder.kind === "hour"
+            ? "reminders.hourBefore"
+            : "reminders.minutesBefore",
+          { minutes: reminder.minutes },
+        )
+      : undefined,
+  };
+}
+
 interface ActionSheetProps {
   event: ConventionEvent | null;
   visible: boolean;
@@ -173,6 +276,7 @@ function EventActionSheet({
   const room = event.room ?? event.location;
   const sourceUrl = event.sourceUrl;
   const locale = i18n.resolvedLanguage ?? i18n.language;
+  const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(event, t);
   const scheduleAction = event.isInSchedule
     ? t("convention.removeFromSchedule")
     : t("convention.addToSchedule");
@@ -221,6 +325,24 @@ function EventActionSheet({
                 : ""}
               {room ? ` · ${room}` : ""}
             </Text>
+            <View
+              accessible
+              accessibilityRole="text"
+              accessibilityLabel={[
+                reminderLabel
+                  ? `${t("convention.reminderSet")}: ${reminderLabel}`
+                  : null,
+                provenanceLabel,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+              className="flex-row flex-wrap gap-1.5 px-4 pt-3"
+            >
+              {reminderLabel !== undefined ? (
+                <Badge variant="info" label={reminderLabel} />
+              ) : null}
+              <Badge variant="neutral" label={provenanceLabel} />
+            </View>
             {event.description ? (
               <Text
                 variant="body"
@@ -488,9 +610,8 @@ function ManualEventModal({
       onClose();
     } catch {
       setError(t("convention.manualEvent.errors.save"));
-    } finally {
-      setSaving(false);
     }
+    setSaving(false);
   }
 
   return (
@@ -631,10 +752,22 @@ function ManualEventModal({
 }
 
 export default function ConventionDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, previewState: requestedPreviewState } = useLocalSearchParams<{
+    id: string;
+    previewState?: string;
+  }>();
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const locale = i18n.resolvedLanguage ?? i18n.language;
+  const previewState = resolveConventionPreviewState(
+    requestedPreviewState,
+    __DEV__,
+    Constants.expoConfig?.extra?.appVariant,
+  );
+  const dateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
+    [locale],
+  );
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [scheduleView, setScheduleView] = useState<ScheduleView>("all");
@@ -666,7 +799,7 @@ export default function ConventionDetailScreen() {
   });
 
   const {
-    data: events = [],
+    data: storedEvents = [],
     isLoading: eventsLoading,
     isError: eventsError,
     refetch: refetchEvents,
@@ -675,6 +808,7 @@ export default function ConventionDetailScreen() {
     queryFn: () => eventsRepo.getByConventionId(id ?? ""),
     enabled: !!id,
   });
+  const events = previewState === "empty" ? [] : storedEvents;
 
   const toggleScheduleMutation = useMutation({
     mutationFn: async (event: ConventionEvent) => {
@@ -868,53 +1002,101 @@ export default function ConventionDetailScreen() {
       ? currentConventionDay
       : (convention?.startDate ?? currentConventionDay);
 
-  const isLoading = conventionLoading || eventsLoading;
+  const isLoading =
+    previewState === "loading" ||
+    (previewState !== "error" && (conventionLoading || eventsLoading));
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-background">
-        <View className="flex-1 items-center justify-center">
-          <LoadingSpinner />
-        </View>
-      </View>
+      <>
+        <Stack.Screen
+          options={{
+            title: convention?.name ?? t("convention.loadingTitle"),
+          }}
+        />
+        <SafeView>
+          <View className="flex-1 justify-center px-6">
+            <View
+              className="items-center gap-3 rounded-3xl border border-border bg-card px-6 py-8"
+              style={{ borderCurve: "continuous" }}
+              accessibilityLiveRegion="polite"
+            >
+              <LoadingSpinner size="large" className="h-12 flex-none" />
+              <Text variant="h3" className="text-center">
+                {t("convention.loadingTitle")}
+              </Text>
+              <Text
+                variant="body"
+                className="text-center text-muted-foreground"
+              >
+                {t("convention.loadingSubtitle")}
+              </Text>
+            </View>
+          </View>
+        </SafeView>
+      </>
     );
   }
 
-  if (conventionError || eventsError) {
+  if (previewState === "error" || conventionError || eventsError) {
     return (
-      <View className="flex-1 bg-background">
-        <EmptyState
-          icon={EMPTY_SCHEDULE_ICON}
-          title={t("common.error")}
-          ctaLabel={t("common.retry")}
-          onCta={() => {
-            void Promise.all([refetchConvention(), refetchEvents()]);
-          }}
+      <>
+        <Stack.Screen
+          options={{ title: convention?.name ?? t("convention.detail") }}
         />
-      </View>
+        <SafeView>
+          <EmptyState
+            className="py-8"
+            icon={EMPTY_SCHEDULE_ICON}
+            title={t("common.error")}
+            subtitle={t("convention.loadErrorSubtitle")}
+            ctaLabel={t("common.retry")}
+            onCta={() => {
+              if (previewState === "error" && id) {
+                router.replace(`/convention/${id}`);
+                return;
+              }
+              void Promise.all([refetchConvention(), refetchEvents()]);
+            }}
+          />
+        </SafeView>
+      </>
     );
   }
 
   if (!convention) {
     return (
-      <View className="flex-1 bg-background">
-        <View className="flex-1 items-center justify-center px-6">
-          <Text variant="body" className="text-muted-foreground text-center">
-            {t("convention.notFound")}
-          </Text>
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            className="mt-4 min-h-11 justify-center active:opacity-70"
-          >
-            <Text className="text-primary">{t("convention.goBack")}</Text>
-          </Pressable>
+      <>
+        <Stack.Screen options={{ title: t("convention.detail") }} />
+        <View className="flex-1 bg-background">
+          <View className="flex-1 items-center justify-center px-6">
+            <Text variant="body" className="text-muted-foreground text-center">
+              {t("convention.notFound")}
+            </Text>
+            <Pressable
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              className="mt-4 min-h-11 justify-center active:opacity-70"
+            >
+              <Text className="text-primary">{t("convention.goBack")}</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
+      </>
     );
   }
 
+  const conventionDateRange = t("home.dateRange", {
+    start: dateFormatter.format(new Date(`${convention.startDate}T12:00:00`)),
+    end: dateFormatter.format(new Date(`${convention.endDate}T12:00:00`)),
+  });
+
   function renderEventRow(event: ConventionEvent) {
+    const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(
+      event,
+      t,
+    );
+
     return (
       <EventItem
         key={event.id}
@@ -924,7 +1106,8 @@ export default function ConventionDetailScreen() {
         room={event.room ?? event.location ?? undefined}
         category={event.category ?? undefined}
         isInSchedule={event.isInSchedule}
-        hasReminder={event.reminderMinutes !== null}
+        reminderLabel={reminderLabel}
+        provenanceLabel={provenanceLabel}
         hasConflict={conflictingEventIds.has(event.id)}
         isAgeRestricted={event.isAgeRestricted}
         contentWarning={event.contentWarning}
@@ -1134,13 +1317,16 @@ export default function ConventionDetailScreen() {
         </ScrollView>
       ) : (
         <SectionList
+          alwaysBounceVertical={false}
           sections={dayGroups}
           keyExtractor={(event) => event.id}
-          contentInsetAdjustmentBehavior="automatic"
+          contentInsetAdjustmentBehavior={
+            dayGroups.length === 0 ? "never" : "automatic"
+          }
           contentContainerStyle={
             dayGroups.length === 0 ? { flexGrow: 1 } : undefined
           }
-          ListHeaderComponent={events.length > 0 ? scheduleNotices : null}
+          ListHeaderComponent={dayGroups.length > 0 ? scheduleNotices : null}
           renderSectionHeader={({ section }) => (
             <SectionHeader title={section.label} />
           )}
@@ -1161,14 +1347,17 @@ export default function ConventionDetailScreen() {
                 onCta={() => setScheduleView("all")}
               />
             ) : (
-              <EmptyState
-                icon={EMPTY_SCHEDULE_ICON}
+              <BlankConventionState
                 title={t("convention.noEvents")}
                 subtitle={t("convention.noEventsSubtitle")}
-                ctaLabel={t("convention.addEvent")}
-                onCta={() => setManualEventVisible(true)}
-                secondaryCtaLabel={t("convention.importSchedule")}
-                onSecondaryCta={() => router.push(`/convention/${id}/import`)}
+                dateRange={conventionDateRange}
+                timeZoneLabel={t("convention.timesShownIn", {
+                  timeZone: conventionTimeZone,
+                })}
+                importLabel={t("convention.importSchedule")}
+                onImport={() => router.push(`/convention/${id}/import`)}
+                addLabel={t("convention.addEvent")}
+                onAdd={() => setManualEventVisible(true)}
               />
             )
           }
