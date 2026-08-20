@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { CompassPaw } from "@/components/compass-paw";
 
-/** Shared shell for /privacy and /terms. */
+/** Shared shell for the public legal and support pages. */
 export default function LegalLayout({
   children,
 }: {
@@ -25,9 +25,22 @@ export default function LegalLayout({
 
       <article className="pt-6">{children}</article>
 
-      <footer className="mt-16 border-border border-t pt-6 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
-        © {new Date().getFullYear()} ConPaws by MrDemonWolf, Inc. · Made with
-        paws
+      <footer className="mt-16 flex flex-col gap-4 border-border border-t pt-6 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em] sm:flex-row sm:items-center sm:justify-between">
+        <span>
+          © {new Date().getFullYear()} ConPaws by MrDemonWolf, Inc. · Made with
+          paws
+        </span>
+        <nav aria-label="Legal and support" className="flex flex-wrap gap-4">
+          <Link className="transition hover:text-primary" href="/privacy">
+            Privacy
+          </Link>
+          <Link className="transition hover:text-primary" href="/terms">
+            Terms
+          </Link>
+          <Link className="transition hover:text-primary" href="/support">
+            Support
+          </Link>
+        </nav>
       </footer>
     </main>
   );
