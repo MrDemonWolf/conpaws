@@ -108,14 +108,19 @@ Cloudflare Workers currently hosts this website. Sched is contacted only when yo
 
 ## 5. Data Sharing
 
-We do **not** currently collect or share waitlist signup data. Data processing is limited to:
+We do **not** currently collect or share waitlist signup data. Current processing is limited to:
 
+- **Cloudflare Workers:** Hosts this website.
+- **Sched:** Downloads a public calendar only when you request a link import.
 - **Sentry:** When crash reporting is configured in a production build, processes crash and diagnostic reports on our behalf. The app disables Sentry's default collection of personally identifiable information.
-- **Apple/Google:** For authentication (OAuth sign-in) and subscription billing
-- **RevenueCat:** For subscription management (receives your anonymous user ID and subscription status only)
-- **Brevo:** Once the waitlist opens, for confirmation emails and updates (receives your email and name only)
-- **Cloudflare:** For hosting and processing the online features you choose to use
 - **Law enforcement:** If required by law (court order, subpoena)
+
+If the planned account, waitlist, and ConPaws+ features launch, processing would also include:
+
+- **Apple/Google:** Authentication (OAuth sign-in) and subscription billing
+- **RevenueCat:** Subscription management (receives your anonymous user ID and subscription status only)
+- **Brevo:** Waitlist confirmation emails and updates (receives your email and name only)
+- **Cloudflare D1/R2:** Account and waitlist records, plus avatar file storage
 
 We do **not** sell, rent, or trade your personal information. Ever.
 
