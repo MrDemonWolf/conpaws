@@ -11,6 +11,12 @@ ios/
 android/
 web-build/
 
+# Local Expo modules contain hand-written native source, not generated projects.
+!apps/native/modules/**/ios/
+!apps/native/modules/**/ios/**
+!apps/native/modules/**/android/
+!apps/native/modules/**/android/**
+
 # Native
 *.orig.*
 *.jks
