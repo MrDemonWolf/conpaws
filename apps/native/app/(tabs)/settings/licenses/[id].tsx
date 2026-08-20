@@ -1,8 +1,8 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
+import { Text } from "@/components/ui/Text";
 import licenseManifest from "@/generated/open-source-licenses.json";
 
 function safeExternalUrl(value: string) {
@@ -11,7 +11,6 @@ function safeExternalUrl(value: string) {
 
 export default function LicenseDetailsScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const index = Number(id);
@@ -21,14 +20,14 @@ export default function LicenseDetailsScreen() {
 
   if (!packageInfo) {
     return (
-      <View style={styles.notFound}>
+      <View className="flex-1 items-center justify-center gap-1.5 p-8">
         <Stack.Screen
           options={{ title: t("settings.licenses.detailsTitle") }}
         />
-        <Text style={[styles.notFoundTitle, { color: colors.text }]}>
+        <Text variant="h3" className="text-center">
           {t("settings.licenses.packageNotFoundTitle")}
         </Text>
-        <Text style={[styles.notFoundDescription, { color: colors.text }]}>
+        <Text variant="caption" className="text-center">
           {t("settings.licenses.packageNotFoundDescription")}
         </Text>
       </View>
@@ -54,51 +53,47 @@ export default function LicenseDetailsScreen() {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={styles.content}
+      contentContainerClassName="gap-4 px-4 pt-4 pb-10"
     >
       <Stack.Screen options={{ title: packageInfo.name }} />
       <View
         accessible
         accessibilityRole="summary"
-        style={[
-          styles.summary,
-          { backgroundColor: colors.card, borderColor: colors.border },
-        ]}
+        className="gap-1 rounded-2xl border border-border bg-card p-4"
+        style={{ borderCurve: "continuous" }}
       >
-        <Text selectable style={[styles.packageName, { color: colors.text }]}>
+        <Text selectable variant="h3" className="text-xl">
           {packageInfo.name}
         </Text>
-        <Text selectable style={[styles.metadata, { color: colors.text }]}>
+        <Text selectable variant="caption">
           {t("settings.licenses.version", { version: packageInfo.version })}
         </Text>
-        <Text selectable style={[styles.metadata, { color: colors.text }]}>
+        <Text selectable variant="caption">
           {t("settings.licenses.license", { license: packageInfo.license })}
         </Text>
       </View>
 
       {links.length > 0 ? (
-        <View style={styles.links}>
+        <View className="gap-2">
           {links.map(({ label, url }) => (
             <Pressable
               accessibilityRole="link"
               key={label}
               onPress={() => WebBrowser.openBrowserAsync(url)}
-              style={({ pressed }) => [
-                styles.link,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: colors.border,
-                  opacity: pressed ? 0.65 : 1,
-                },
-              ]}
+              className="min-h-12 flex-row items-center rounded-xl border border-border bg-card px-4 active:opacity-65"
+              style={{ borderCurve: "continuous" }}
             >
-              <Text style={[styles.linkLabel, { color: colors.primary }]}>
+              <Text
+                variant="body"
+                className="flex-1 font-semibold text-primary"
+              >
                 {label}
               </Text>
               <Text
                 accessibilityElementsHidden
                 importantForAccessibility="no-hide-descendants"
-                style={[styles.external, { color: colors.primary }]}
+                variant="body"
+                className="ml-3 text-lg text-primary"
               >
                 ↗
               </Text>
@@ -107,100 +102,17 @@ export default function LicenseDetailsScreen() {
         </View>
       ) : null}
 
-      <Text
-        accessibilityRole="header"
-        style={[styles.sectionTitle, { color: colors.text }]}
-      >
+      <Text accessibilityRole="header" variant="caption" className="px-1">
         {t("settings.licenses.license", { license: packageInfo.license })}
       </Text>
       <View
-        style={[
-          styles.licenseCard,
-          { backgroundColor: colors.card, borderColor: colors.border },
-        ]}
+        className="rounded-2xl border border-border bg-card p-4"
+        style={{ borderCurve: "continuous" }}
       >
-        <Text selectable style={[styles.licenseText, { color: colors.text }]}>
+        <Text selectable variant="caption" className="text-foreground">
           {licenseText || t("settings.licenses.licenseTextUnavailable")}
         </Text>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 40,
-    gap: 16,
-  },
-  summary: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 14,
-    padding: 16,
-    gap: 4,
-  },
-  packageName: {
-    fontSize: 20,
-    fontWeight: "700",
-    lineHeight: 26,
-  },
-  metadata: {
-    fontSize: 14,
-    lineHeight: 20,
-    opacity: 0.68,
-  },
-  links: {
-    gap: 8,
-  },
-  link: {
-    minHeight: 48,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  linkLabel: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  external: {
-    fontSize: 18,
-    marginLeft: 12,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: "600",
-    opacity: 0.62,
-    paddingHorizontal: 4,
-  },
-  licenseCard: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 14,
-    padding: 16,
-  },
-  licenseText: {
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  notFound: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 32,
-    gap: 6,
-  },
-  notFoundTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  notFoundDescription: {
-    fontSize: 15,
-    lineHeight: 21,
-    opacity: 0.68,
-    textAlign: "center",
-  },
-});

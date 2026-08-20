@@ -1,16 +1,10 @@
 import { router, Stack } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccessibilityInfo,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { AccessibilityInfo, FlatList, Pressable, View } from "react-native";
+import { Text } from "@/components/ui/Text";
 import licenseManifest from "@/generated/open-source-licenses.json";
+import { cn } from "@/lib/utils";
 
 type LicensePackage = {
   name: string;
@@ -25,7 +19,6 @@ const packages: LicensePackage[] = licenseManifest.packages.map(
 
 export default function LicensesScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredPackages = normalizedQuery
@@ -60,7 +53,7 @@ export default function LicensesScreen() {
       />
       <FlatList
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="px-4 pt-3 pb-8"
         data={filteredPackages}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
@@ -70,7 +63,8 @@ export default function LicensesScreen() {
         ListHeaderComponent={
           <Text
             accessibilityRole="header"
-            style={[styles.count, { color: colors.text }]}
+            variant="caption"
+            className="px-1 pb-2"
           >
             {t("settings.licenses.packageCount", {
               count: filteredPackages.length,
@@ -78,140 +72,58 @@ export default function LicensesScreen() {
           </Text>
         }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+          <View className="items-center gap-1.5 px-8 py-20">
+            <Text variant="h3" className="text-center text-lg">
               {t("settings.licenses.noResultsTitle")}
             </Text>
-            <Text style={[styles.emptyDescription, { color: colors.text }]}>
+            <Text variant="caption" className="text-center">
               {t("settings.licenses.noResultsDescription")}
             </Text>
           </View>
         }
-        renderItem={({ item, index }) => {
-          const isFirst = index === 0;
-          const isLast = index === filteredPackages.length - 1;
-          return (
-            <Pressable
-              accessibilityLabel={`${item.name}, ${t(
-                "settings.licenses.version",
-                { version: item.version },
-              )}, ${t("settings.licenses.license", {
-                license: item.license,
-              })}`}
-              accessibilityRole="button"
-              onPress={() =>
-                router.push({
-                  pathname: "/settings/licenses/[id]",
-                  params: { id: String(item.index) },
-                })
-              }
-              style={({ pressed }) => [
-                styles.row,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: colors.border,
-                  opacity: pressed ? 0.65 : 1,
-                },
-                isFirst && styles.firstRow,
-                isLast && styles.lastRow,
-              ]}
-            >
-              <View style={styles.rowText}>
-                <Text
-                  numberOfLines={1}
-                  style={[styles.packageName, { color: colors.text }]}
-                >
-                  {item.name}
-                </Text>
-                <Text
-                  numberOfLines={1}
-                  style={[styles.metadata, { color: colors.text }]}
-                >
-                  {item.version} · {item.license}
-                </Text>
-              </View>
-              <Text
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                style={[styles.chevron, { color: colors.text }]}
-              >
-                ›
+        renderItem={({ item, index }) => (
+          <Pressable
+            accessibilityLabel={`${item.name}, ${t(
+              "settings.licenses.version",
+              {
+                version: item.version,
+              },
+            )}, ${t("settings.licenses.license", {
+              license: item.license,
+            })}`}
+            accessibilityRole="button"
+            onPress={() =>
+              router.push({
+                pathname: "/settings/licenses/[id]",
+                params: { id: String(item.index) },
+              })
+            }
+            className={cn(
+              "min-h-14 flex-row items-center border-r border-b border-l border-border bg-card px-4 py-2.5 active:opacity-65",
+              index === 0 && "rounded-t-xl border-t",
+              index === filteredPackages.length - 1 && "rounded-b-xl",
+            )}
+            style={{ borderCurve: "continuous" }}
+          >
+            <View className="flex-1 gap-0.5">
+              <Text numberOfLines={1} variant="body" className="font-semibold">
+                {item.name}
               </Text>
-            </Pressable>
-          );
-        }}
+              <Text numberOfLines={1} variant="caption">
+                {item.version} · {item.license}
+              </Text>
+            </View>
+            <Text
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+              variant="body"
+              className="ml-3 text-2xl text-muted-foreground"
+            >
+              ›
+            </Text>
+          </Pressable>
+        )}
       />
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 32,
-  },
-  count: {
-    fontSize: 13,
-    fontWeight: "600",
-    opacity: 0.62,
-    paddingHorizontal: 4,
-    paddingBottom: 8,
-  },
-  row: {
-    minHeight: 58,
-    borderLeftWidth: StyleSheet.hairlineWidth,
-    borderRightWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  firstRow: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  lastRow: {
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  rowText: {
-    flex: 1,
-    gap: 2,
-  },
-  packageName: {
-    fontSize: 16,
-    fontWeight: "600",
-    lineHeight: 21,
-  },
-  metadata: {
-    fontSize: 13,
-    lineHeight: 18,
-    opacity: 0.64,
-  },
-  chevron: {
-    fontSize: 25,
-    lineHeight: 28,
-    marginLeft: 12,
-    opacity: 0.42,
-  },
-  empty: {
-    alignItems: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 72,
-    gap: 6,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  emptyDescription: {
-    fontSize: 15,
-    lineHeight: 21,
-    opacity: 0.68,
-    textAlign: "center",
-  },
-});
