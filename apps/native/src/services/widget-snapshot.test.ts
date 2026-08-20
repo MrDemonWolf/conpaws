@@ -78,4 +78,19 @@ describe("buildWidgetSnapshot", () => {
       "later",
     ]);
   });
+
+  it.each([
+    ["2024-02-29", true],
+    ["2025-02-29", false],
+    ["2026-04-30", true],
+    ["2026-04-31", false],
+  ])("validates calendar date %s", (date, isValid) => {
+    const snapshot = buildWidgetSnapshot(
+      [{ ...convention, startDate: date, endDate: date }],
+      new Map(),
+      "en",
+    );
+
+    expect(snapshot.conventions).toHaveLength(isValid ? 1 : 0);
+  });
 });

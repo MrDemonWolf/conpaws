@@ -68,6 +68,7 @@ import {
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
 import { getNowAndNextEvents } from "@/lib/schedule-view";
+import { cn } from "@/lib/utils";
 import {
   cancelEventReminder,
   scheduleEventReminder,
@@ -533,7 +534,10 @@ function NativeDateTimeField({
     mode === "date"
       ? value.toLocaleDateString(locale, { dateStyle: "medium" })
       : value.toLocaleTimeString(locale, { timeStyle: "short" });
-  const fieldClassName = `min-h-14 flex-row items-center justify-between gap-4 px-4 py-2 ${showDivider ? "border-b border-border" : ""}`;
+  const fieldClassName = cn(
+    "min-h-14 flex-row items-center justify-between gap-4 px-4 py-2",
+    showDivider && "border-b border-border",
+  );
 
   if (process.env.EXPO_OS === "ios") {
     return (
@@ -557,7 +561,7 @@ function NativeDateTimeField({
   return (
     <>
       <Pressable
-        className={`${fieldClassName} active:opacity-70`}
+        className={cn(fieldClassName, "active:opacity-70")}
         accessibilityRole="button"
         accessibilityLabel={label}
         testID={testID}
@@ -776,17 +780,27 @@ function ManualEventModalContent({
               showDivider
               testID="manual-event-start-picker"
               onChange={(value) => {
-                setTimes((current) => updateManualEventStart(current, value));
+                setTimes((current) =>
+                  updateManualEventStart(current, value, includeEndTime),
+                );
                 setError(null);
               }}
             />
             <View
-              className={`min-h-14 flex-row items-center justify-between gap-4 px-4 py-2 ${includeEndTime ? "border-b border-border" : ""}`}
+              className={cn(
+                "min-h-14 flex-row items-center justify-between gap-4 px-4 py-2",
+                includeEndTime && "border-b border-border",
+              )}
             >
               <Text variant="body">{t("convention.manualEvent.endLabel")}</Text>
               <Switch
                 value={includeEndTime}
                 onValueChange={(value) => {
+                  if (value) {
+                    setTimes((current) =>
+                      updateManualEventStart(current, current.startTime, true),
+                    );
+                  }
                   setIncludeEndTime(value);
                   setError(null);
                 }}

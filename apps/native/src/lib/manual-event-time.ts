@@ -39,14 +39,7 @@ function onDay(dayKey: string, clock: Date): Date {
 }
 
 function nextMinuteOnSameDay(startTime: Date): Date {
-  const endOfDay = new Date(
-    startTime.getFullYear(),
-    startTime.getMonth(),
-    startTime.getDate(),
-    23,
-    59,
-  );
-  return new Date(Math.min(startTime.getTime() + 60_000, endOfDay.getTime()));
+  return new Date(startTime.getTime() + 60_000);
 }
 
 export function createManualEventTimes(
@@ -83,9 +76,21 @@ export function updateManualEventDate(
 export function updateManualEventStart(
   current: ManualEventTimes,
   selectedTime: Date,
+  keepEndTimeLater = true,
 ): ManualEventTimes {
   const dayKey = manualEventDayKey(current.date);
   const startTime = onDay(dayKey, selectedTime);
+  if (!keepEndTimeLater) return { ...current, startTime };
+
+  const endOfDay = manualEventPickerDate(dayKey, 23, 59);
+  if (startTime.getTime() >= endOfDay.getTime()) {
+    return {
+      ...current,
+      startTime: new Date(endOfDay.getTime() - 60_000),
+      endTime: endOfDay,
+    };
+  }
+
   return {
     ...current,
     startTime,
@@ -100,7 +105,17 @@ export function updateManualEventEnd(
   current: ManualEventTimes,
   selectedTime: Date,
 ): ManualEventTimes {
-  const endTime = onDay(manualEventDayKey(current.date), selectedTime);
+  const dayKey = manualEventDayKey(current.date);
+  const endTime = onDay(dayKey, selectedTime);
+  const endOfDay = manualEventPickerDate(dayKey, 23, 59);
+  if (current.startTime.getTime() >= endOfDay.getTime()) {
+    return {
+      ...current,
+      startTime: new Date(endOfDay.getTime() - 60_000),
+      endTime: endOfDay,
+    };
+  }
+
   return {
     ...current,
     endTime:

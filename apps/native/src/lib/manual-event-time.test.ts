@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createManualEventTimes,
+  manualEventDayKey,
   updateManualEventDate,
   updateManualEventEnd,
   updateManualEventStart,
@@ -50,7 +51,7 @@ describe("manual event picker times", () => {
     ).toBe("2026-09-06-12-00");
   });
 
-  it("keeps the end at or after the start", () => {
+  it("keeps the end later than the start", () => {
     const initial = createManualEventTimes(
       "2026-09-04",
       "2026-09-03",
@@ -67,6 +68,35 @@ describe("manual event picker times", () => {
     const clampedEnd = updateManualEventEnd(afterStart, earlierEnd);
     expect(clampedEnd.endTime.getTime()).toBeGreaterThan(
       clampedEnd.startTime.getTime(),
+    );
+  });
+
+  it("keeps an included end later than a last-minute start", () => {
+    const initial = createManualEventTimes(
+      "2026-09-04",
+      "2026-09-03",
+      "2026-09-06",
+    );
+    const lastMinute = new Date(2026, 8, 4, 23, 59);
+    const optionalEnd = updateManualEventStart(initial, lastMinute, false);
+    const includedEnd = updateManualEventStart(
+      optionalEnd,
+      optionalEnd.startTime,
+      true,
+    );
+    const selectedEnd = updateManualEventEnd(initial, lastMinute);
+    const correctedEnd = updateManualEventEnd(
+      { ...selectedEnd, startTime: lastMinute },
+      lastMinute,
+    );
+
+    expect(localStamp(optionalEnd.startTime)).toBe("2026-09-04-23-59");
+    expect(includedEnd.endTime.getTime()).toBeGreaterThan(
+      includedEnd.startTime.getTime(),
+    );
+    expect(manualEventDayKey(includedEnd.endTime)).toBe("2026-09-04");
+    expect(correctedEnd.endTime.getTime()).toBeGreaterThan(
+      correctedEnd.startTime.getTime(),
     );
   });
 

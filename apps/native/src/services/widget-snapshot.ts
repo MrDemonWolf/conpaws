@@ -49,11 +49,10 @@ function calendarParts(value: string): {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
-  return Number.isInteger(year) &&
-    month >= 1 &&
-    month <= 12 &&
-    day >= 1 &&
-    day <= 31
+  const date = new Date(`${value}T00:00:00Z`);
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
     ? { year, month, day }
     : null;
 }
