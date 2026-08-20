@@ -78,6 +78,17 @@
     "upcoming": "Bevorstehend",
     "active": "Aktiv",
     "past": "Vergangen",
+    "countdown": {
+      "today": "Heute",
+      "tomorrow": "Morgen",
+      "days": "In {{count}} Tagen"
+    },
+    "archive": {
+      "title": "Archiv ({{count}})",
+      "show": "Anzeigen",
+      "hide": "Ausblenden",
+      "noCurrent": "Keine bevorstehenden Conventions."
+    },
     "moreActions": "Weitere Aktionen für {{name}}",
     "sortBy": "Sortieren nach",
     "sort": {
@@ -98,6 +109,9 @@
     "edit": "Convention bearbeiten",
     "import": "Zeitplan importieren",
     "detail": "Convention-Details",
+    "loadingTitle": "Convention wird geladen",
+    "loadingSubtitle": "Zeitplan und gespeicherte Events werden vorbereitet.",
+    "loadErrorSubtitle": "Die Convention oder ihre Events konnten nicht geladen werden.",
     "events": "Events",
     "searchEvents": "Events suchen",
     "filterEvents": "Events filtern",
@@ -156,6 +170,10 @@
     "inMySchedule": "In Mein Zeitplan",
     "notInMySchedule": "Nicht in Mein Zeitplan",
     "reminderSet": "Erinnerung festgelegt",
+    "eventSource": {
+      "imported": "Importiert",
+      "added": "Hinzugefügt"
+    },
     "ageRestricted": "Altersbeschränkt",
     "contentWarning": "Inhaltswarnung",
     "eventActionsHint": "Öffnet Eventdetails, Zeitplan- und Erinnerungsaktionen.",
@@ -249,19 +267,55 @@
       "privacyPolicy": "Datenschutzerklärung",
       "termsOfService": "Nutzungsbedingungen",
       "about": "Über ConPaws",
-      "openSourceLicenses": "Open-Source-Lizenzen"
+      "openSourceLicenses": "Drittanbieter-Lizenzen"
     },
     "about": {
       "title": "Über",
       "contact": "hello@conpaws.com",
       "tagline": "Dein Convention-Zeitplan, offline verfügbar.",
       "resources": "Ressourcen",
-      "sourceCode": "Quellcode",
       "website": "Website",
+      "builtWith": "Entwickelt mit",
+      "technology": "Technologie",
+      "technologyDescription": "Zentrale Tools hinter ConPaws",
+      "licenseDescription": "{{count}} Pakete und Werkzeuge",
       "support": "Support",
       "email": "E-Mail",
       "discordDescription": "Community beitreten",
-      "copyright": "© {{year}} ConPaws. Alle Rechte vorbehalten."
+      "copyright": "© {{year}} ConPaws."
+    },
+    "technology": {
+      "title": "Technologie",
+      "foundation": "Grundlage",
+      "interface": "Benutzeroberfläche",
+      "offlineData": "Offline und Daten",
+      "localizationReliability": "Lokalisierung und Zuverlässigkeit",
+      "footer": "Die vollständige Paketliste und alle Lizenztexte findest du unter Open-Source-Lizenzen.",
+      "tools": {
+        "expo": "Native App-Plattform und Werkzeuge",
+        "reactNative": "Plattformübergreifende native Grundlage",
+        "expoRouter": "Dateibasierte Navigation",
+        "expoUi": "Plattformnative Bedienelemente",
+        "expoSqlite": "Offline-Speicher für Zeitpläne",
+        "drizzle": "Typisierte lokale Datenbankschicht",
+        "tanstackQuery": "Datenladen und Zwischenspeicherung",
+        "i18next": "Lokalisierung in acht Sprachen",
+        "sentry": "Absturz- und Leistungsüberwachung"
+      }
+    },
+    "licenses": {
+      "detailsTitle": "Lizenzdetails",
+      "packageCount": "{{count}} Pakete",
+      "searchPlaceholder": "Pakete oder Lizenzen suchen",
+      "noResultsTitle": "Keine Lizenzen gefunden",
+      "noResultsDescription": "Versuche es mit einem anderen Paket- oder Lizenznamen.",
+      "version": "Version {{version}}",
+      "license": "Lizenz: {{license}}",
+      "repository": "Repository",
+      "projectWebsite": "Projektwebsite",
+      "packageNotFoundTitle": "Paket nicht gefunden",
+      "packageNotFoundDescription": "Dieses Paket ist möglicherweise nicht mehr in diesem Build enthalten.",
+      "licenseTextUnavailable": "Der Lizenztext ist in diesem Build nicht verfügbar."
     }
   },
   "import": {

@@ -78,6 +78,17 @@
     "upcoming": "Próximas",
     "active": "Activas",
     "past": "Pasadas",
+    "countdown": {
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "days": "En {{count}} días"
+    },
+    "archive": {
+      "title": "Archivo ({{count}})",
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "noCurrent": "No hay próximas convenciones."
+    },
     "moreActions": "Más acciones para {{name}}",
     "sortBy": "Ordenar por",
     "sort": {
@@ -98,6 +109,9 @@
     "edit": "Editar Convención",
     "import": "Importar Horario",
     "detail": "Detalles de la Convención",
+    "loadingTitle": "Cargando convención",
+    "loadingSubtitle": "Preparando el horario y los eventos guardados.",
+    "loadErrorSubtitle": "No se pudieron cargar la convención o sus eventos.",
     "events": "Eventos",
     "searchEvents": "Buscar eventos",
     "filterEvents": "Filtrar eventos",
@@ -156,6 +170,10 @@
     "inMySchedule": "En Mi horario",
     "notInMySchedule": "No está en Mi horario",
     "reminderSet": "Aviso configurado",
+    "eventSource": {
+      "imported": "Importado",
+      "added": "Añadido"
+    },
     "ageRestricted": "Restringido por edad",
     "contentWarning": "Advertencia de contenido",
     "eventActionsHint": "Abre los detalles, el horario y las acciones de recordatorio del evento.",
@@ -249,19 +267,55 @@
       "privacyPolicy": "Política de Privacidad",
       "termsOfService": "Términos de Servicio",
       "about": "Acerca de ConPaws",
-      "openSourceLicenses": "Licencias de Código Abierto"
+      "openSourceLicenses": "Licencias de terceros"
     },
     "about": {
       "title": "Acerca de",
       "contact": "hello@conpaws.com",
       "tagline": "Tu horario de convenciones, disponible sin conexión.",
       "resources": "Recursos",
-      "sourceCode": "Código fuente",
       "website": "Sitio web",
+      "builtWith": "Creado con",
+      "technology": "Tecnología",
+      "technologyDescription": "Herramientas principales de ConPaws",
+      "licenseDescription": "{{count}} paquetes y herramientas",
       "support": "Soporte",
       "email": "Correo electrónico",
       "discordDescription": "Únete a la comunidad",
-      "copyright": "© {{year}} ConPaws. Todos los derechos reservados."
+      "copyright": "© {{year}} ConPaws."
+    },
+    "technology": {
+      "title": "Tecnología",
+      "foundation": "Base",
+      "interface": "Interfaz",
+      "offlineData": "Uso sin conexión y datos",
+      "localizationReliability": "Localización y confiabilidad",
+      "footer": "Consulta Licencias de Código Abierto para ver la lista completa de paquetes y sus licencias.",
+      "tools": {
+        "expo": "Plataforma y herramientas para apps nativas",
+        "reactNative": "Base nativa multiplataforma",
+        "expoRouter": "Navegación basada en archivos",
+        "expoUi": "Controles nativos de cada plataforma",
+        "expoSqlite": "Almacenamiento de horarios sin conexión",
+        "drizzle": "Capa tipada de base de datos local",
+        "tanstackQuery": "Carga y almacenamiento en caché de datos",
+        "i18next": "Localización en ocho idiomas",
+        "sentry": "Monitoreo de fallos y rendimiento"
+      }
+    },
+    "licenses": {
+      "detailsTitle": "Detalles de la licencia",
+      "packageCount": "{{count}} paquetes",
+      "searchPlaceholder": "Buscar paquetes o licencias",
+      "noResultsTitle": "No se encontraron licencias",
+      "noResultsDescription": "Prueba con otro nombre de paquete o licencia.",
+      "version": "Versión {{version}}",
+      "license": "Licencia: {{license}}",
+      "repository": "Repositorio",
+      "projectWebsite": "Sitio web del proyecto",
+      "packageNotFoundTitle": "Paquete no encontrado",
+      "packageNotFoundDescription": "Es posible que este paquete ya no esté incluido en esta compilación.",
+      "licenseTextUnavailable": "El texto de la licencia no está disponible en esta compilación."
     }
   },
   "import": {

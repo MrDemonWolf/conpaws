@@ -78,6 +78,17 @@
     "upcoming": "Aankomend",
     "active": "Actief",
     "past": "Verleden",
+    "countdown": {
+      "today": "Vandaag",
+      "tomorrow": "Morgen",
+      "days": "Over {{count}} dagen"
+    },
+    "archive": {
+      "title": "Archief ({{count}})",
+      "show": "Tonen",
+      "hide": "Verbergen",
+      "noCurrent": "Geen aankomende conventies."
+    },
     "moreActions": "Meer acties voor {{name}}",
     "sortBy": "Sorteren op",
     "sort": {
@@ -98,6 +109,9 @@
     "edit": "Conventie bewerken",
     "import": "Rooster importeren",
     "detail": "Conventiedetails",
+    "loadingTitle": "Conventie laden",
+    "loadingSubtitle": "Het programma en opgeslagen evenementen worden klaargezet.",
+    "loadErrorSubtitle": "De conventie of de evenementen konden niet worden geladen.",
     "events": "Evenementen",
     "searchEvents": "Evenementen zoeken",
     "filterEvents": "Evenementen filteren",
@@ -156,6 +170,10 @@
     "inMySchedule": "In Mijn programma",
     "notInMySchedule": "Niet in Mijn programma",
     "reminderSet": "Herinnering ingesteld",
+    "eventSource": {
+      "imported": "Geïmporteerd",
+      "added": "Toegevoegd"
+    },
     "ageRestricted": "Leeftijdsbeperking",
     "contentWarning": "Inhoudswaarschuwing",
     "eventActionsHint": "Opent evenementdetails, programma- en herinneringsacties.",
@@ -249,19 +267,55 @@
       "privacyPolicy": "Privacybeleid",
       "termsOfService": "Servicevoorwaarden",
       "about": "Over ConPaws",
-      "openSourceLicenses": "Open Source-licenties"
+      "openSourceLicenses": "Licenties van derden"
     },
     "about": {
       "title": "Over",
       "contact": "hello@conpaws.com",
       "tagline": "Je conventieprogramma, ook offline beschikbaar.",
       "resources": "Bronnen",
-      "sourceCode": "Broncode",
       "website": "Website",
+      "builtWith": "Gebouwd met",
+      "technology": "Technologie",
+      "technologyDescription": "Belangrijkste tools achter ConPaws",
+      "licenseDescription": "{{count}} pakketten en tools",
       "support": "Ondersteuning",
       "email": "E-mail",
       "discordDescription": "Word lid van de community",
-      "copyright": "© {{year}} ConPaws. Alle rechten voorbehouden."
+      "copyright": "© {{year}} ConPaws."
+    },
+    "technology": {
+      "title": "Technologie",
+      "foundation": "Basis",
+      "interface": "Interface",
+      "offlineData": "Offline en gegevens",
+      "localizationReliability": "Lokalisatie en betrouwbaarheid",
+      "footer": "Bekijk Open Source-licenties voor de volledige pakketlijst en licentieteksten.",
+      "tools": {
+        "expo": "Platform en tools voor native apps",
+        "reactNative": "Platformoverschrijdende native basis",
+        "expoRouter": "Bestandsgebaseerde navigatie",
+        "expoUi": "Platformeigen bedieningselementen",
+        "expoSqlite": "Offline opslag van programma’s",
+        "drizzle": "Getypeerde lokale databaselaag",
+        "tanstackQuery": "Gegevens laden en cachen",
+        "i18next": "Lokalisatie in acht talen",
+        "sentry": "Crash- en prestatiebewaking"
+      }
+    },
+    "licenses": {
+      "detailsTitle": "Licentiedetails",
+      "packageCount": "{{count}} pakketten",
+      "searchPlaceholder": "Pakketten of licenties zoeken",
+      "noResultsTitle": "Geen licenties gevonden",
+      "noResultsDescription": "Probeer een andere pakket- of licentienaam.",
+      "version": "Versie {{version}}",
+      "license": "Licentie: {{license}}",
+      "repository": "Repository",
+      "projectWebsite": "Projectwebsite",
+      "packageNotFoundTitle": "Pakket niet gevonden",
+      "packageNotFoundDescription": "Dit pakket is mogelijk niet meer opgenomen in deze build.",
+      "licenseTextUnavailable": "De licentietekst is niet beschikbaar in deze build."
     }
   },
   "import": {
