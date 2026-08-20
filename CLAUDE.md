@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 For every task, first discover the installed skills and plugin capabilities that are relevant to the request. Use each relevant skill that materially improves correctness or execution, including the applicable Expo and platform skills for native app work. Read and follow each selected skill before acting, and use its official documentation workflow when APIs, configuration, or platform rules may have changed. Announce skill use when the skill requires it. Do not load or invoke unrelated skills simply to increase the count.
 
+## Browser and visual testing
+
+Use the agent's built-in browser for localhost viewers and browser-based test surfaces, including serve-sim. Do not open Safari, Chrome, or another external browser unless the user explicitly requests it. Reuse existing local servers and ports instead of starting duplicates.
+
 ## Project Overview
 
 ConPaws is a furry convention companion app — an Expo/React Native mobile app plus a Next.js website, in a bun/Turborepo monorepo. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") will be powered by RevenueCat. The cloud backend target is **Cloudflare Workers + D1 + R2 with Hono, tRPC, and Better-Auth** — no Supabase, no VPS, no Docker.

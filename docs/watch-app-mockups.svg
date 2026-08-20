@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400" role="img" aria-labelledby="watch-title watch-desc">
+  <title id="watch-title">ConPaws Apple Watch companion mockups</title>
+  <desc id="watch-desc">Six Apple Watch-sized design frames showing the ConPaws app Now and Next handoff, Today schedule, event detail, adaptive convention countdown, offline fallback, and a distinct Smart Stack widget. No iPhone Lock Screen design is included.</desc>
+  <defs>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .sheet-title { fill: #10252d; font-size: 36px; font-weight: 750; }
+      .sheet-subtitle { fill: #5c6e75; font-size: 17px; }
+      .section-label { fill: #29414a; font-size: 13px; font-weight: 750; letter-spacing: 1.5px; }
+      .screen-label { fill: #10252d; font-size: 17px; font-weight: 750; }
+      .screen-note { fill: #5c6e75; font-size: 13px; }
+      .time { fill: #dceff5; font-size: 9px; font-weight: 650; }
+      .nav-title { fill: #f8fbfc; font-size: 13px; font-weight: 700; }
+      .eyebrow { fill: #66d9ff; font-size: 8px; font-weight: 750; letter-spacing: 0.8px; }
+      .watch-title { fill: #f8fbfc; font-size: 15px; font-weight: 750; }
+      .watch-title-large { fill: #f8fbfc; font-size: 19px; font-weight: 780; }
+      .watch-body { fill: #ced8dc; font-size: 10px; }
+      .watch-body-strong { fill: #f8fbfc; font-size: 10px; font-weight: 650; }
+      .watch-meta { fill: #98aab1; font-size: 8.5px; }
+      .watch-count { fill: #f8fbfc; font-size: 27px; font-weight: 800; letter-spacing: -0.6px; }
+      .watch-count-small { fill: #f8fbfc; font-size: 19px; font-weight: 800; }
+      .watch-button { fill: #041117; font-size: 10px; font-weight: 750; }
+      .outside-chip { fill: #12313c; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+      .flow-label { fill: #29414a; font-size: 13px; font-weight: 650; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#477482"/>
+    </marker>
+  </defs>
+
+  <rect width="1800" height="1400" fill="#f2f6f7"/>
+  <text id="watch-sheet-heading" x="64" y="70" class="sheet-title">ConPaws on Apple Watch</text>
+  <text x="64" y="105" class="sheet-subtitle">A focused wrist companion: glance, turn the Crown, tap once, move on.</text>
+
+  <g aria-label="Surface legend">
+    <rect x="64" y="128" width="122" height="30" rx="15" fill="#dceff5"/>
+    <text x="125" y="148" class="outside-chip" text-anchor="middle">WATCH APP</text>
+    <rect x="198" y="128" width="196" height="30" rx="15" fill="#e0e8eb"/>
+    <text x="296" y="148" class="outside-chip" text-anchor="middle">SMART STACK WIDGET</text>
+    <rect x="406" y="128" width="282" height="30" rx="15" fill="#ffffff" stroke="#cad7dc"/>
+    <text x="547" y="148" class="outside-chip" text-anchor="middle">46 MM · 208 × 248 PT CANVAS</text>
+  </g>
+
+  <text x="64" y="196" class="section-label">CORE APP FLOW</text>
+
+  <!-- 1: Now / Next -->
+  <text x="110" y="226" class="screen-label">1 · NOW / NEXT</text>
+  <text x="110" y="248" class="screen-note">Context-first home · one tap to event detail</text>
+  <g transform="translate(110 270) scale(1.35)" role="img" aria-label="Now and next event screen with an 18 minute leave countdown">
+    <rect x="0" y="0" width="236" height="280" rx="62" fill="#202628" stroke="#65747b" stroke-width="2"/>
+    <rect x="7" y="7" width="222" height="266" rx="57" fill="#080b0c" stroke="#000000" stroke-width="2"/>
+    <rect x="14" y="14" width="208" height="248" rx="52" fill="#030506"/>
+    <rect x="234" y="76" width="8" height="46" rx="4" fill="#53666e"/>
+    <rect x="234" y="136" width="6" height="34" rx="3" fill="#53666e"/>
+    <text x="118" y="31" class="time" text-anchor="middle">2:42</text>
+    <text x="27" y="51" class="nav-title">ConPaws</text>
+
+    <rect x="26" y="61" width="184" height="42" rx="12" fill="#12313c" stroke="#00729c" stroke-width="0.8"/>
+    <text x="38" y="77" class="eyebrow">LEAVE IN</text>
+    <text x="38" y="97" class="watch-title-large">18 MIN</text>
+
+    <rect x="26" y="110" width="184" height="55" rx="12" fill="#0f171a"/>
+    <text x="38" y="126" class="eyebrow">NOW · ENDS 2:50</text>
+    <text x="38" y="144" class="watch-body-strong">Fursuit Meetup</text>
+    <text x="38" y="158" class="watch-meta">Garden Room</text>
+
+    <path d="M118 168 v8 M114 173 l4 4 4-4" fill="none" stroke="#60727a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <rect x="26" y="181" width="184" height="64" rx="12" fill="#10252d"/>
+    <text x="38" y="197" class="eyebrow">NEXT · 3:00 PM</text>
+    <text x="38" y="215" class="watch-body-strong">Opening Ceremonies</text>
+    <text x="38" y="230" class="watch-meta">Main Ballroom</text>
+    <path d="M195 208 l5 5 -5 5" fill="none" stroke="#cad7dc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 2: Today list -->
+  <text x="660" y="226" class="screen-label">2 · TODAY</text>
+  <text x="660" y="248" class="screen-note">Digital Crown scroll · tap any 38 pt row</text>
+  <g transform="translate(660 270) scale(1.35)" role="img" aria-label="Today schedule list with current and upcoming events">
+    <rect x="0" y="0" width="236" height="280" rx="62" fill="#202628" stroke="#65747b" stroke-width="2"/>
+    <rect x="7" y="7" width="222" height="266" rx="57" fill="#080b0c" stroke="#000000" stroke-width="2"/>
+    <rect x="14" y="14" width="208" height="248" rx="52" fill="#030506"/>
+    <rect x="234" y="76" width="8" height="46" rx="4" fill="#66d9ff"/>
+    <rect x="234" y="136" width="6" height="34" rx="3" fill="#53666e"/>
+    <text x="118" y="31" class="time" text-anchor="middle">2:42</text>
+    <text x="27" y="51" class="nav-title">Today</text>
+    <text x="202" y="51" class="watch-meta" text-anchor="end">SEP 4</text>
+
+    <rect x="26" y="61" width="184" height="50" rx="12" fill="#12313c" stroke="#00729c" stroke-width="0.8"/>
+    <rect x="26" y="61" width="4" height="50" rx="2" fill="#32c7f4"/>
+    <text x="39" y="77" class="eyebrow">NOW · 2:00–2:50</text>
+    <text x="39" y="95" class="watch-body-strong">Fursuit Meetup</text>
+    <text x="39" y="106" class="watch-meta">Garden Room</text>
+
+    <rect x="26" y="118" width="184" height="50" rx="12" fill="#0f171a"/>
+    <text x="39" y="134" class="eyebrow">3:00 PM</text>
+    <text x="39" y="151" class="watch-body-strong">Opening Ceremonies</text>
+    <text x="39" y="163" class="watch-meta">Main Ballroom · leave 2:42</text>
+
+    <rect x="26" y="175" width="184" height="50" rx="12" fill="#0f171a"/>
+    <text x="39" y="191" class="eyebrow">4:30 PM</text>
+    <text x="39" y="208" class="watch-body-strong">Artist Alley</text>
+    <text x="39" y="220" class="watch-meta">Hall B</text>
+    <text x="118" y="245" class="watch-meta" text-anchor="middle">Turn Crown for later events</text>
+  </g>
+
+  <!-- 3: Event detail -->
+  <text x="1210" y="226" class="screen-label">3 · EVENT DETAIL</text>
+  <text x="1210" y="248" class="screen-note">Critical facts first · reminder status visible</text>
+  <g transform="translate(1210 270) scale(1.35)" role="img" aria-label="Opening Ceremonies event detail with time, location, and leave reminder status">
+    <rect x="0" y="0" width="236" height="280" rx="62" fill="#202628" stroke="#65747b" stroke-width="2"/>
+    <rect x="7" y="7" width="222" height="266" rx="57" fill="#080b0c" stroke="#000000" stroke-width="2"/>
+    <rect x="14" y="14" width="208" height="248" rx="52" fill="#030506"/>
+    <rect x="234" y="76" width="8" height="46" rx="4" fill="#53666e"/>
+    <rect x="234" y="136" width="6" height="34" rx="3" fill="#53666e"/>
+    <text x="118" y="31" class="time" text-anchor="middle">2:42</text>
+    <path d="M34 43 l-5 5 5 5" fill="none" stroke="#cad7dc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="118" y="51" class="nav-title" text-anchor="middle">Event</text>
+
+    <text x="26" y="76" class="eyebrow">UP NEXT</text>
+    <text x="26" y="97" class="watch-title">Opening</text>
+    <text x="26" y="115" class="watch-title">Ceremonies</text>
+
+    <rect x="26" y="128" width="184" height="38" rx="11" fill="#0f171a"/>
+    <rect x="38" y="139" width="12" height="12" rx="3" fill="none" stroke="#66d9ff" stroke-width="1.2"/>
+    <path d="M38 143 h12" stroke="#66d9ff" stroke-width="1.2"/>
+    <text x="59" y="143" class="watch-meta">TIME</text>
+    <text x="59" y="157" class="watch-body-strong">3:00–4:00 PM</text>
+
+    <rect x="26" y="172" width="184" height="38" rx="11" fill="#0f171a"/>
+    <circle cx="44" cy="188" r="5" fill="none" stroke="#66d9ff" stroke-width="1.2"/>
+    <circle cx="44" cy="188" r="1.5" fill="#66d9ff"/>
+    <text x="59" y="187" class="watch-meta">LOCATION</text>
+    <text x="59" y="201" class="watch-body-strong">Main Ballroom</text>
+
+    <rect x="26" y="216" width="184" height="38" rx="11" fill="#12313c"/>
+    <path d="M44 227 c-4 0-6 3-6 7 v3 h12 v-3 c0-4-2-7-6-7 z M42 240 h4" fill="none" stroke="#66d9ff" stroke-width="1.2" stroke-linecap="round"/>
+    <text x="59" y="231" class="watch-meta">LEAVE REMINDER</text>
+    <text x="59" y="246" class="watch-body-strong">2:42 PM · On</text>
+    <circle cx="194" cy="235" r="4" fill="#37d37a"/>
+  </g>
+
+  <path d="M 450 462 C 520 462, 545 462, 618 462" fill="none" stroke="#477482" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="534" y="446" class="flow-label" text-anchor="middle">Crown / Today</text>
+  <path d="M 1000 462 C 1070 462, 1095 462, 1168 462" fill="none" stroke="#477482" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1084" y="446" class="flow-label" text-anchor="middle">Tap event</text>
+
+  <text x="64" y="744" class="section-label">CONTEXTUAL APP STATES</text>
+
+  <!-- 4: Pre-convention countdown -->
+  <text x="110" y="774" class="screen-label">4 · PRE-CONVENTION</text>
+  <text x="110" y="796" class="screen-note">Adaptive precision · never four noisy units</text>
+  <g transform="translate(110 818) scale(1.35)" role="img" aria-label="Convention countdown showing two months and fourteen days until ConPaws Preview Con">
+    <rect x="0" y="0" width="236" height="280" rx="62" fill="#202628" stroke="#65747b" stroke-width="2"/>
+    <rect x="7" y="7" width="222" height="266" rx="57" fill="#080b0c" stroke="#000000" stroke-width="2"/>
+    <rect x="14" y="14" width="208" height="248" rx="52" fill="#030506"/>
+    <rect x="234" y="76" width="8" height="46" rx="4" fill="#53666e"/>
+    <rect x="234" y="136" width="6" height="34" rx="3" fill="#53666e"/>
+    <text x="118" y="31" class="time" text-anchor="middle">10:12</text>
+    <text x="118" y="52" class="nav-title" text-anchor="middle">ConPaws Preview Con</text>
+
+    <circle cx="118" cy="87" r="22" fill="#12313c"/>
+    <rect x="108" y="79" width="20" height="16" rx="4" fill="none" stroke="#66d9ff" stroke-width="1.6"/>
+    <path d="M108 84 h20 M113 76 v6 M123 76 v6" stroke="#66d9ff" stroke-width="1.6" stroke-linecap="round"/>
+    <text x="118" y="123" class="eyebrow" text-anchor="middle">STARTS IN</text>
+
+    <rect x="26" y="132" width="184" height="61" rx="14" fill="#10252d"/>
+    <text x="72" y="164" class="watch-count" text-anchor="middle">2</text>
+    <text x="72" y="180" class="watch-meta" text-anchor="middle">MONTHS</text>
+    <rect x="117" y="146" width="1" height="34" fill="#29414a"/>
+    <text x="164" y="164" class="watch-count" text-anchor="middle">14</text>
+    <text x="164" y="180" class="watch-meta" text-anchor="middle">DAYS</text>
+
+    <text x="118" y="213" class="watch-body-strong" text-anchor="middle">Sep 3 · 9:00 AM</text>
+    <text x="118" y="229" class="watch-meta" text-anchor="middle">Chicago · America/Chicago</text>
+    <text x="118" y="247" class="watch-meta" text-anchor="middle">months → days → hours → min:sec</text>
+  </g>
+
+  <!-- 5: Offline fallback -->
+  <text x="660" y="774" class="screen-label">5 · OFFLINE / SYNC</text>
+  <text x="660" y="796" class="screen-note">Cached schedule stays useful without the phone</text>
+  <g transform="translate(660 818) scale(1.35)" role="img" aria-label="Offline fallback showing a cached next event and passive saved-schedule status">
+    <rect x="0" y="0" width="236" height="280" rx="62" fill="#202628" stroke="#65747b" stroke-width="2"/>
+    <rect x="7" y="7" width="222" height="266" rx="57" fill="#080b0c" stroke="#000000" stroke-width="2"/>
+    <rect x="14" y="14" width="208" height="248" rx="52" fill="#030506"/>
+    <rect x="234" y="76" width="8" height="46" rx="4" fill="#53666e"/>
+    <rect x="234" y="136" width="6" height="34" rx="3" fill="#53666e"/>
+    <text x="118" y="31" class="time" text-anchor="middle">2:42</text>
+    <text x="27" y="51" class="nav-title">Saved schedule</text>
+
+    <rect x="26" y="64" width="184" height="92" rx="13" fill="#10252d"/>
+    <text x="39" y="84" class="eyebrow">NEXT · 3:00 PM</text>
+    <text x="39" y="108" class="watch-title">Opening</text>
+    <text x="39" y="127" class="watch-title">Ceremonies</text>
+    <text x="39" y="145" class="watch-meta">Main Ballroom</text>
+
+    <path d="M26 181 h184" stroke="#242c30" stroke-width="1"/>
+    <circle cx="42" cy="202" r="6" fill="none" stroke="#98aab1" stroke-width="1.2"/>
+    <path d="M35 209 l14-14" stroke="#98aab1" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="57" y="200" class="watch-body-strong">Offline · Updated 12 min ago</text>
+    <text x="57" y="216" class="watch-meta">Using saved schedule</text>
+  </g>
+
+  <!-- 6: Smart Stack -->
+  <text x="1210" y="774" class="screen-label">APPLE WATCH SMART STACK</text>
+  <text x="1210" y="796" class="screen-note">Widget surface · explicitly not iPhone Lock Screen</text>
+  <g transform="translate(1210 818) scale(1.35)" role="img" aria-label="Apple Watch Smart Stack with a ConPaws leave reminder widget">
+    <rect x="0" y="0" width="236" height="280" rx="62" fill="#202628" stroke="#65747b" stroke-width="2"/>
+    <rect x="7" y="7" width="222" height="266" rx="57" fill="#080b0c" stroke="#000000" stroke-width="2"/>
+    <rect x="14" y="14" width="208" height="248" rx="52" fill="#070b0d"/>
+    <rect x="234" y="76" width="8" height="46" rx="4" fill="#66d9ff"/>
+    <rect x="234" y="136" width="6" height="34" rx="3" fill="#53666e"/>
+    <text x="118" y="31" class="time" text-anchor="middle">2:42</text>
+    <text x="27" y="51" class="nav-title">Smart Stack</text>
+    <text x="202" y="51" class="watch-meta" text-anchor="end">CROWN</text>
+
+    <rect x="26" y="62" width="184" height="119" rx="18" fill="#10252d" stroke="#29414a" stroke-width="0.8"/>
+    <text x="40" y="80" class="eyebrow">CONPAWS · LEAVE IN</text>
+    <text x="40" y="106" class="watch-count-small">18 MIN</text>
+    <path d="M40 119 h156" stroke="#29414a" stroke-width="1"/>
+    <text x="40" y="136" class="watch-meta">NOW · Fursuit Meetup</text>
+    <text x="40" y="153" class="watch-body-strong">NEXT · Opening Ceremonies</text>
+    <text x="40" y="168" class="watch-meta">3:00 PM · Main Ballroom</text>
+
+    <rect x="26" y="190" width="184" height="45" rx="16" fill="#161b1d"/>
+    <circle cx="47" cy="212" r="10" fill="#29414a"/>
+    <path d="M42 212 h10 M47 207 v10" stroke="#cad7dc" stroke-width="1.2" stroke-linecap="round"/>
+    <text x="65" y="209" class="watch-body-strong">Other Smart Stack card</text>
+    <text x="65" y="223" class="watch-meta">Shown only for context</text>
+    <rect x="90" y="245" width="56" height="3" rx="1.5" fill="#53666e"/>
+  </g>
+
+  <g aria-label="Interaction and accessibility notes">
+    <rect x="64" y="1227" width="1672" height="119" rx="24" fill="#ffffff" stroke="#cad7dc" stroke-width="1.5"/>
+    <text x="92" y="1261" class="section-label">FLOW + ACCESSIBILITY</text>
+    <path d="M92 1286 H310" fill="none" stroke="#477482" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="326" y="1291" class="flow-label">Countdown automatically becomes Now / Next when the convention starts.</text>
+    <path d="M92 1319 H310" fill="none" stroke="#477482" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="326" y="1324" class="flow-label">Smart Stack tap opens the matching app state; offline may replace any screen with cached data.</text>
+    <text x="1104" y="1277" class="flow-label">38 pt minimum actions · Dynamic Type · VoiceOver groups each event row</text>
+    <text x="1104" y="1304" class="flow-label">Dark, high-contrast UI · status is never color-only · Always On dims detail</text>
+    <text x="1104" y="1331" class="flow-label">No iPhone Lock Screen mockup, complication family, or watch-side editing</text>
+  </g>
+</svg>
