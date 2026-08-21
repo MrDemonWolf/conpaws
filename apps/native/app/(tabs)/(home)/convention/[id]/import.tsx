@@ -47,11 +47,12 @@ import {
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
 import {
-  fetchSchedIcs,
+  fetchScheduleIcs,
   InvalidResponseError,
-  InvalidSchedUrlError,
+  InvalidScheduleUrlError,
   NetworkError,
 } from "@/lib/sched-extractor";
+import { scheduleNameFromUrl } from "@/lib/schedule-url";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 type Tab = "file" | "url";
@@ -75,11 +76,6 @@ interface PendingCalendar {
   name: string;
   icsContent: string;
   sourceUrl: string | null;
-}
-
-function normalizeSchedUrl(value: string): string {
-  const parsed = new URL(value.trim());
-  return `https://${parsed.hostname.toLowerCase()}`;
 }
 
 export default function ImportScreen() {
@@ -106,6 +102,8 @@ export default function ImportScreen() {
     ? existingConvention.timeZone
     : null;
 
+  // Records which source was last used so Retry re-runs the right one. Not a
+  // UI mode any more -- both sources are always on screen.
   const [activeTab, setActiveTab] = useState<Tab>("file");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -174,15 +172,6 @@ export default function ImportScreen() {
 
   function isCurrentRequest(generation: number): boolean {
     return requestGeneration.current === generation;
-  }
-
-  function handleTabChange(tab: Tab) {
-    if (loading || importMutation.isPending) return;
-    requestGeneration.current += 1;
-    didPrefill.current = true;
-    setLoading(false);
-    setActiveTab(tab);
-    clearState();
   }
 
   function handleUrlChange(value: string) {
@@ -304,6 +293,7 @@ export default function ImportScreen() {
 
   async function handleFilePick() {
     if (!tryAcquirePresentationLock(filePickerLock)) return;
+    setActiveTab("file");
     const generation = beginRequest();
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -343,21 +333,25 @@ export default function ImportScreen() {
     if (!scheduleUrl) return;
     const generation = beginRequest();
 
+    setActiveTab("url");
+
     try {
-      const content = await fetchSchedIcs(scheduleUrl);
+      const fetched = await fetchScheduleIcs(scheduleUrl);
       if (!isCurrentRequest(generation)) return;
-      const normalizedUrl = normalizeSchedUrl(scheduleUrl);
-      const name = new URL(normalizedUrl).hostname.split(".")[0];
-      setUrlValue(normalizedUrl);
+      // Store the canonical form, not what was typed: a webcal link has been
+      // rewritten to https and a Sched page collapsed to its site root, and
+      // that resolved value is what a later refresh should re-fetch.
+      setUrlValue(fetched.canonicalUrl);
       processIcs(
-        content,
-        name || t("import.importedConvention"),
+        fetched.icsContent,
+        scheduleNameFromUrl(fetched.canonicalUrl) ||
+          t("import.importedConvention"),
         storedTimeZone ?? undefined,
-        normalizedUrl,
+        fetched.canonicalUrl,
       );
     } catch (err) {
       if (!isCurrentRequest(generation)) return;
-      if (err instanceof InvalidSchedUrlError) {
+      if (err instanceof InvalidScheduleUrlError) {
         setError({
           type: "file-type",
           message: t("import.errors.invalidUrl"),
@@ -749,60 +743,48 @@ export default function ImportScreen() {
         useViewportSizeMeasurement
       >
         <FieldGroup>
+          {/* Both sources stay visible. Choosing between two options used to
+              sit behind a menu picker, which cost two taps to reveal what the
+              screen could simply show. */}
           <FieldGroup.Section title={t("import.source")}>
             <ListItem
-              trailing={
-                <Picker
-                  selectedValue={activeTab}
-                  onValueChange={(value) => handleTabChange(value as Tab)}
-                  appearance="menu"
-                  enabled={!controlsDisabled}
-                  testID="import-source-picker"
-                >
-                  <Picker.Item label={t("import.file")} value="file" />
-                  <Picker.Item label={t("import.url")} value="url" />
-                </Picker>
+              onPress={controlsDisabled ? undefined : handleFilePick}
+              supportingText={t("import.fileDescription")}
+              trailing={t("import.chooseFile")}
+              testID="import-file-row"
+            >
+              {t("import.file")}
+            </ListItem>
+          </FieldGroup.Section>
+
+          <FieldGroup.Section>
+            <ListItem
+              supportingText={
+                <NativeTextInput
+                  value={urlInput}
+                  onChangeText={handleUrlChange}
+                  placeholder={t("import.urlPlaceholder")}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  returnKeyType="go"
+                  onSubmitEditing={handleUrlFetch}
+                  editable={!controlsDisabled}
+                  testID="sched-url-input"
+                />
               }
             >
-              {t("import.sourceLabel")}
+              {t("import.url")}
             </ListItem>
-
-            {activeTab === "file" ? (
-              <ListItem
-                onPress={controlsDisabled ? undefined : handleFilePick}
-                supportingText={t("import.fileDescription")}
-                trailing={t("import.chooseFile")}
-              >
-                {t("import.file")}
-              </ListItem>
-            ) : (
-              <>
-                <ListItem
-                  supportingText={
-                    <NativeTextInput
-                      value={urlInput}
-                      onChangeText={handleUrlChange}
-                      placeholder={t("import.urlPlaceholder")}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      keyboardType="url"
-                      returnKeyType="go"
-                      onSubmitEditing={handleUrlFetch}
-                      editable={!controlsDisabled}
-                      testID="sched-url-input"
-                    />
-                  }
-                >
-                  {t("import.url")}
-                </ListItem>
-                <NativeButton
-                  label={t("import.fetchSchedule")}
-                  onPress={handleUrlFetch}
-                  disabled={!url.trim() || controlsDisabled}
-                  style={{ height: 48 }}
-                />
-              </>
-            )}
+            <NativeButton
+              label={t("import.fetchSchedule")}
+              onPress={handleUrlFetch}
+              disabled={!url.trim() || controlsDisabled}
+              style={{ height: 48 }}
+            />
+            <FieldGroup.SectionFooter>
+              <NativeText>{t("import.linkHelp")}</NativeText>
+            </FieldGroup.SectionFooter>
           </FieldGroup.Section>
 
           {loading ? (
