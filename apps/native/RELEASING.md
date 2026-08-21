@@ -265,6 +265,27 @@ Play production rollout status:
 Operator and date:
 ```
 
+### The expo-notifications keychain error in local builds
+
+An unsigned local build logs this on every launch:
+
+```
+[expo-notifications] Error reading persisted server registration info:
+ERR_NOTIFICATIONS_KEYCHAIN_ACCESS
+```
+
+It is not an app bug and nothing in ConPaws should try to silence it.
+Building with `CODE_SIGNING_ALLOWED=NO` strips entitlements -- confirm with
+`codesign -d --entitlements - <path>.app`, which prints nothing for such a
+build. With no entitlements there is no keychain access group, so
+expo-notifications' internal push-registration read fails with
+`errSecMissingEntitlement`.
+
+Nothing in this app calls that API; push is not wired up yet (CON-45). Local
+notifications, which are what the app actually uses, work regardless -- the
+debug screen's test notification schedules and fires normally. The error goes
+away on any signed build.
+
 ## Ad-hoc device builds (`preview-device`)
 
 `preview-device` is the same app as `preview` — production bundle identifier,
