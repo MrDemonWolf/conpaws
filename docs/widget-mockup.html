@@ -1,0 +1,295 @@
+<title>ConPaws Widget Countdown</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f2f2f7;
+    --panel: #ffffff;
+    --ink: #0f172a;
+    --muted: #5c667a;
+    --line: #d1d1d6;
+    --accent: #00729c;
+    --widget: #101419;
+    --widget-ink: #ffffff;
+    --widget-muted: #aeb4c0;
+    --tint: #18b7f2;
+    --bad: #b42318;
+    --good: #14532d;
+    --good-bg: #dcfce7;
+    --bad-bg: #fee2e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --panel: #1c1c1e;
+      --ink: #ffffff;
+      --muted: #aeb4c0;
+      --line: #38383a;
+      --accent: #18b7f2;
+      --good: #bbf7d0;
+      --good-bg: #0f3320;
+      --bad: #fecaca;
+      --bad-bg: #4a1216;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 24px 64px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  main { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 18px; margin: 40px 0 4px; letter-spacing: -0.01em; }
+  p.lede { color: var(--muted); margin: 0 0 8px; max-width: 68ch; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    margin: 24px 0; padding: 16px; border: 1px solid var(--line);
+    border-radius: 14px; background: var(--panel);
+  }
+  label { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+  input[type=datetime-local], select {
+    font: inherit; padding: 6px 8px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  }
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  figure { margin: 0; display: grid; gap: 8px; justify-items: start; }
+  figcaption { font-size: 12px; color: var(--muted); }
+  /* Real widget point sizes: small 170x170, accessoryRectangular ~172x76. */
+  .widget {
+    width: 170px; height: 170px; padding: 14px;
+    border-radius: 22px; background: var(--widget); color: var(--widget-ink);
+    display: flex; flex-direction: column; gap: 6px;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.18);
+  }
+  .widget.rect {
+    width: 172px; height: 76px; border-radius: 12px; padding: 8px 10px; gap: 2px;
+  }
+  .eyebrow {
+    font-size: 10px; letter-spacing: 0.08em; font-weight: 700;
+    color: var(--tint); text-transform: uppercase;
+  }
+  .name { font-size: 14px; font-weight: 600; line-height: 1.25; }
+  .count {
+    font-size: 22px; font-weight: 700; margin-top: auto;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  }
+  .rect .count { font-size: 17px; margin-top: 0; }
+  .rect .name { font-size: 12px; }
+  .sub { font-size: 11px; color: var(--widget-muted); }
+  table { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  td.mono { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background: var(--good-bg); color: var(--good); }
+  .pill.no { background: var(--bad-bg); color: var(--bad); }
+  .scroll { overflow-x: auto; }
+  code { font-size: 13px; background: color-mix(in srgb, var(--ink) 8%, transparent); padding: 1px 5px; border-radius: 5px; }
+</style>
+
+<main>
+  <h1>ConPaws widget countdown</h1>
+  <p class="lede">
+    Live preview of the countdown ladder in
+    <code>targets/_shared/ConPawsCountdown.swift</code>. The JavaScript below
+    mirrors that Swift exactly, so the wording here is what a device renders.
+    The smallest unit is a whole hour; the final hour is a single
+    &ldquo;Starting soon&rdquo;.
+  </p>
+  <p class="lede">
+    Widgets refresh on the system's schedule, not ours. Seconds were removed
+    because a widget cannot honour that precision, and the timeline now carries
+    a pre-built entry for every wording change instead of a single entry plus a
+    refresh request.
+  </p>
+
+  <div class="controls">
+    <label>Convention starts
+      <input type="datetime-local" id="target">
+    </label>
+    <label>Reading the widget at
+      <input type="datetime-local" id="now">
+    </label>
+    <label>Convention time zone
+      <select id="zone"></select>
+    </label>
+  </div>
+
+  <h2>Home Screen &mdash; systemSmall</h2>
+  <div class="grid" id="small"></div>
+
+  <h2>Watch &mdash; accessoryRectangular</h2>
+  <div class="grid" id="rect"></div>
+
+  <h2>Ladder</h2>
+  <p class="lede">Every threshold, evaluated against the "reading at" time above.</p>
+  <div class="scroll"><table id="ladder">
+    <thead><tr><th>Time until start</th><th>Label</th><th>Has seconds</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2>Timeline entries</h2>
+  <p class="lede">
+    The moments <code>changePoints</code> pre-builds, capped at 24. The widget
+    stays correct across all of these without waking the extension once.
+  </p>
+  <div class="scroll"><table id="points">
+    <thead><tr><th>#</th><th>Fires at</th><th>Shows</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</main>
+
+<script>
+  const MIN = 60_000, HOUR = 3_600_000, DAY = 86_400_000;
+
+  const zoneSelect = document.getElementById("zone");
+  const targetInput = document.getElementById("target");
+  const nowInput = document.getElementById("now");
+
+  for (const zone of ["America/Indiana/Indianapolis", "America/Chicago", "America/New_York", "America/Los_Angeles", "Europe/London", "Asia/Tokyo", "UTC"]) {
+    const option = document.createElement("option");
+    option.value = option.textContent = zone;
+    zoneSelect.append(option);
+  }
+
+  function toLocalInput(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  const start = new Date(Date.now() + 13 * DAY);
+  targetInput.value = toLocalInput(start);
+  nowInput.value = toLocalInput(new Date());
+
+  /** Calendar day index in a given zone, for day-based wording. */
+  function dayNumber(date, zone) {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(date);
+    return Math.round(Date.parse(`${parts}T00:00:00Z`) / DAY);
+  }
+
+  /** Mirrors ConPawsCountdown.label. */
+  function label(from, to, zone) {
+    const ms = to - from;
+    if (ms <= 0) return "Now";
+    if (ms < HOUR) return "Starting soon";
+    if (ms < DAY) {
+      const hours = Math.floor(ms / HOUR);
+      return hours === 1 ? "In 1 hour" : `In ${hours} hours`;
+    }
+    const days = dayNumber(to, zone) - dayNumber(from, zone);
+    if (days <= 0) return "Today";
+    if (days === 1) return "Tomorrow";
+    if (days < 30) return `In ${days} days`;
+    const months = Math.floor(days / 30);
+    return months === 1 ? "In 1 month" : `In ${months} months`;
+  }
+
+  /** Mirrors ConPawsCountdown.changePoints. */
+  function changePoints(from, to, zone, limit = 24) {
+    const points = [];
+    let cursor = from;
+    while (points.length < limit) {
+      const remaining = to - cursor;
+      if (remaining <= 0) break;
+      let next;
+      if (remaining <= HOUR) {
+        break;
+      } else if (remaining <= DAY) {
+        const hoursLeft = Math.floor(remaining / HOUR);
+        next = new Date(to.getTime() - hoursLeft * HOUR + 1000);
+      } else {
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
+        }).format(cursor);
+        next = new Date(Date.parse(`${parts}T00:00:00Z`) + DAY);
+        const offset = cursor.getTimezoneOffset() * MIN;
+        next = new Date(next.getTime() + offset);
+      }
+      if (!(next > cursor) || next >= to) break;
+      points.push(next);
+      cursor = next;
+    }
+    if (points.length < limit && to > from) points.push(to);
+    return points;
+  }
+
+  const SMALL_STATES = [
+    { caption: "Far out", offset: 62 * DAY },
+    { caption: "Two weeks", offset: 13 * DAY },
+    { caption: "Day before", offset: 26 * HOUR },
+    { caption: "Same day", offset: 7 * HOUR },
+    { caption: "Final hour", offset: 42 * MIN },
+    { caption: "One hour out", offset: HOUR + MIN },
+    { caption: "Doors open", offset: 0 },
+  ];
+
+  function render() {
+    const zone = zoneSelect.value;
+    const now = new Date(nowInput.value || Date.now());
+    const target = new Date(targetInput.value || Date.now());
+
+    for (const [id, klass] of [["small", ""], ["rect", "rect"]]) {
+      const host = document.getElementById(id);
+      host.innerHTML = "";
+      for (const state of SMALL_STATES) {
+        const at = new Date(target.getTime() - state.offset);
+        const text = label(at, target, zone);
+        const figure = document.createElement("figure");
+        figure.innerHTML = `
+          <div class="widget ${klass}">
+            <div class="eyebrow">Coming up</div>
+            <div class="name">IndyFurCon 2026</div>
+            <div class="count">${text}</div>
+            <div class="sub">Sep 3 – Sep 6</div>
+          </div>
+          <figcaption>${state.caption}</figcaption>`;
+        host.append(figure);
+      }
+    }
+
+    const rows = [
+      ["62 days", 62 * DAY], ["31 days", 31 * DAY], ["13 days", 13 * DAY],
+      ["2 days", 2 * DAY], ["26 hours", 26 * HOUR], ["23 hours", 23 * HOUR],
+      ["6 hours", 6 * HOUR], ["61 minutes", HOUR + MIN], ["42 minutes", 42 * MIN],
+      ["1 minute", MIN], ["0", 0],
+    ];
+    const body = document.querySelector("#ladder tbody");
+    body.innerHTML = "";
+    for (const [name, offset] of rows) {
+      const at = new Date(target.getTime() - offset);
+      const text = label(at, target, zone);
+      const seconds = /\bsec|\d+:\d\d/.test(text);
+      body.insertAdjacentHTML("beforeend", `<tr>
+        <td class="mono">${name}</td>
+        <td><strong>${text}</strong></td>
+        <td><span class="pill ${seconds ? "no" : "ok"}">${seconds ? "yes" : "no"}</span></td>
+      </tr>`);
+    }
+
+    const points = changePoints(now, target, zone);
+    const pointBody = document.querySelector("#points tbody");
+    pointBody.innerHTML = "";
+    const fmt = new Intl.DateTimeFormat("en-US", {
+      timeZone: zone, dateStyle: "medium", timeStyle: "short",
+    });
+    points.forEach((date, index) => {
+      pointBody.insertAdjacentHTML("beforeend", `<tr>
+        <td class="mono">${index + 1}</td>
+        <td class="mono">${fmt.format(date)}</td>
+        <td><strong>${label(date, target, zone)}</strong></td>
+      </tr>`);
+    });
+    if (points.length === 0) {
+      pointBody.innerHTML = `<tr><td colspan="3">No entries — the target is not in the future.</td></tr>`;
+    }
+  }
+
+  for (const el of [zoneSelect, targetInput, nowInput]) {
+    el.addEventListener("input", render);
+  }
+  render();
+</script>
