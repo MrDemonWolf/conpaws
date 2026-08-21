@@ -354,15 +354,19 @@ private struct AdaptiveCountdownView: View {
 
   var body: some View {
     if target.timeIntervalSince(now) < 86_400, target > now {
+      // Inside the last day the app keeps a live timer. Unlike a widget it is
+      // on screen and refreshing, so it can honour per-second precision -- and
+      // this is the stretch where that precision is worth having.
       Text(timerInterval: now...target, countsDown: true)
         .accessibilityLabel(
           WatchFormat.countdownAccessibility(from: now, to: target, in: timeZone)
         )
     } else {
-      Text(WatchFormat.countdown(from: now, to: target, in: timeZone))
-        .accessibilityLabel(
-          WatchFormat.countdownAccessibility(from: now, to: target, in: timeZone)
-        )
+      // Further out, read the same ladder the complication and the iPhone
+      // Lock Screen read. The app used to say "12 D 9 H" here while its own
+      // complication said "In 12 days" about the same wait.
+      Text(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone))
+        .accessibilityLabel(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone))
     }
   }
 }
@@ -503,20 +507,6 @@ private enum WatchFormat {
     return values.isEmpty ? nil : values.joined(separator: " • ")
   }
 
-  static func countdown(from now: Date, to target: Date, in timeZone: TimeZone) -> String {
-    let seconds = max(0, target.timeIntervalSince(now))
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
-
-    if seconds >= 30 * 86_400 {
-      let parts = calendar.dateComponents([.month, .day], from: now, to: target)
-      return "\(max(0, parts.month ?? 0)) MO  \(max(0, parts.day ?? 0)) D"
-    }
-
-    let parts = calendar.dateComponents([.day, .hour], from: now, to: target)
-    return "\(max(0, parts.day ?? 0)) D  \(max(0, parts.hour ?? 0)) H"
-  }
-
   static func countdownAccessibility(
     from now: Date,
     to target: Date,
@@ -602,9 +592,13 @@ func runWatchScheduleSelfCheck() {
       in: convention
     ).hasPrefix("Tomorrow · ")
   )
+  // Beyond a day out the app reads the shared ladder, not its own wording.
   assert(
-    WatchFormat.countdown(from: now, to: now.addingTimeInterval(32 * 3_600), in: TimeZone(identifier: "UTC")!)
-      == "1 D  8 H"
+    ConPawsCountdown.label(
+      from: now,
+      to: now.addingTimeInterval(32 * 3_600),
+      timeZone: TimeZone(identifier: "UTC")!
+    ) == "Tomorrow"
   )
 }
 #endif
