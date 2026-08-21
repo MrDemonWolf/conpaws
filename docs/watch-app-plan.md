@@ -9,7 +9,7 @@ ConPaws on Apple Watch is a focused schedule companion, not a smaller copy of th
 3. What is on my schedule today?
 4. How long until the convention starts?
 
-This plan includes a watchOS app and one Apple Watch Smart Stack widget. It intentionally includes no iPhone Lock Screen surface and no native implementation yet.
+This plan covers the watchOS app and its one Apple Watch Smart Stack widget. The iPhone Lock Screen is a separate surface owned by `docs/widget-plan.md`, and it now ships its own accessory families — this plan does not describe them.
 
 ## Screen flow
 
@@ -65,7 +65,7 @@ Offer one context-sensitive widget, not a family of speculative complications:
 - With no schedule: `No upcoming events`.
 - Increase Smart Stack relevance only around the convention, event starts, and leave-reminder windows.
 
-The mockup labels this surface as an Apple Watch Smart Stack widget. It is not an iPhone Lock Screen widget.
+The mockup labels this surface as an Apple Watch Smart Stack widget. It is not the iPhone Lock Screen widget, which is a separate target with its own views; the two share `ConPawsCountdown` so their wording agrees, and nothing else.
 
 ## Appearance
 

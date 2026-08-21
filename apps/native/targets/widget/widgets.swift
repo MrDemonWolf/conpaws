@@ -38,7 +38,12 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
     for configuration: ConPawsWidgetIntent,
     in context: Context
   ) async -> ConPawsWidgetEntry {
-    entry(for: configuration, at: .now)
+    // The gallery is a shop window, not a live view. Someone browsing it
+    // before importing anything should see what this widget looks like full,
+    // not the empty state they are trying to get out of.
+    context.isPreview
+      ? placeholder(in: context)
+      : entry(for: configuration, at: .now)
   }
 
   func timeline(
@@ -204,31 +209,45 @@ struct ConPawsWidgetEntryView: View {
 
   var body: some View {
     Group {
-      switch entry.state {
-      case .countdown(let convention):
-        ConPawsCountdownView(entryDate: entry.date, convention: convention)
-      case .next(let convention, let current, let upcoming):
-        ConPawsNextView(
-          current: current,
-          upcoming: upcoming,
-          timeZone: convention.timeZone,
-          family: family
-        )
-      case .leave(let convention, let current, let upcoming):
-        ConPawsLeaveView(
-          entryDate: entry.date,
-          current: current,
-          upcoming: upcoming,
-          timeZone: convention.timeZone,
-          family: family
-        )
-      case .empty(let convention):
-        ConPawsEmptyView(convention: convention)
+      switch family {
+      case .accessoryCircular:
+        ConPawsCircularView(entry: entry)
+      case .accessoryRectangular:
+        ConPawsRectangularView(entry: entry)
+      case .accessoryInline:
+        ConPawsInlineView(entry: entry)
+      default:
+        homeScreenBody
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .widgetURL(entry.appURL)
-    .conPawsWidgetBackground()
+    .conPawsWidgetBackground(family: family)
+  }
+
+  @ViewBuilder
+  private var homeScreenBody: some View {
+    switch entry.state {
+    case .countdown(let convention):
+      ConPawsCountdownView(entryDate: entry.date, convention: convention)
+    case .next(let convention, let current, let upcoming):
+      ConPawsNextView(
+        current: current,
+        upcoming: upcoming,
+        timeZone: convention.timeZone,
+        family: family
+      )
+    case .leave(let convention, let current, let upcoming):
+      ConPawsLeaveView(
+        entryDate: entry.date,
+        current: current,
+        upcoming: upcoming,
+        timeZone: convention.timeZone,
+        family: family
+      )
+    case .empty(let convention):
+      ConPawsEmptyView(convention: convention)
+    }
   }
 }
 
@@ -246,7 +265,13 @@ struct ConPawsWidget: Widget {
     }
     .configurationDisplayName("ConPaws")
     .description("Convention countdowns, next events, and leave reminders.")
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([
+      .systemSmall,
+      .systemMedium,
+      .accessoryCircular,
+      .accessoryRectangular,
+      .accessoryInline,
+    ])
   }
 }
 
@@ -507,6 +532,203 @@ private struct ConPawsLiveTimer: View {
   }
 }
 
+// MARK: - Lock Screen
+
+/// Clock time in the convention's zone. The Lock Screen families have no room
+/// for a weekday alongside it, unlike their Home Screen counterparts.
+private func conPawsClockStyle(_ timeZone: TimeZone) -> Date.FormatStyle {
+  var style = Date.FormatStyle.dateTime.hour().minute()
+  style.timeZone = timeZone
+  return style
+}
+
+@available(iOS 17.0, *)
+private struct ConPawsCircularView: View {
+  let entry: ConPawsWidgetEntry
+
+  var body: some View {
+    switch entry.state {
+    case .countdown(let convention):
+      Gauge(
+        value: ConPawsCountdown.ringProgress(from: entry.date, to: convention.startDate)
+      ) {
+        Text(convention.name)
+      } currentValueLabel: {
+        Text(
+          ConPawsCountdown.compactLabel(
+            from: entry.date,
+            to: convention.startDate,
+            timeZone: convention.timeZone
+          )
+        )
+        .minimumScaleFactor(0.6)
+        .lineLimit(1)
+      }
+      .gaugeStyle(.accessoryCircularCapacity)
+      .accessibilityLabel(
+        "\(convention.name), \(ConPawsCountdown.label(from: entry.date, to: convention.startDate, timeZone: convention.timeZone))"
+      )
+
+    case .leave(let convention, _, let upcoming):
+      // The reminder window is minutes wide, so every compact label here would
+      // read "Soon". The glyph is the message; the number adds nothing.
+      ConPawsCircularStack(symbol: "figure.walk")
+        .accessibilityLabel(
+          "Leave for \(upcoming.title), \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone))"
+        )
+
+    case .next(let convention, _, let upcoming):
+      ConPawsCircularStack(
+        symbol: "calendar",
+        detail: ConPawsCountdown.compactLabel(
+          from: entry.date,
+          to: upcoming.startDate,
+          timeZone: convention.timeZone
+        )
+      )
+      .accessibilityLabel(
+        "Next: \(upcoming.title), \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone))"
+      )
+
+    case .empty:
+      ConPawsCircularStack(symbol: "calendar")
+        .accessibilityLabel("No upcoming events")
+    }
+  }
+}
+
+private struct ConPawsCircularStack: View {
+  let symbol: String
+  var detail: String?
+
+  var body: some View {
+    ZStack {
+      AccessoryWidgetBackground()
+      VStack(spacing: 0) {
+        Image(systemName: symbol)
+          .font(detail == nil ? .title3 : .caption2)
+          .accessibilityHidden(true)
+        if let detail {
+          Text(detail)
+            .font(.caption.weight(.semibold))
+            .minimumScaleFactor(0.6)
+            .lineLimit(1)
+        }
+      }
+      .padding(6)
+    }
+  }
+}
+
+@available(iOS 17.0, *)
+private struct ConPawsRectangularView: View {
+  let entry: ConPawsWidgetEntry
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 2) {
+      switch entry.state {
+      case .countdown(let convention):
+        ConPawsAccessoryEyebrow(title: "COMING UP", symbol: "calendar.badge.clock")
+        Text(
+          ConPawsCountdown.label(
+            from: entry.date,
+            to: convention.startDate,
+            timeZone: convention.timeZone
+          )
+        )
+        .font(.headline)
+        .monospacedDigit()
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+        Text(convention.name)
+          .font(.caption2)
+          .lineLimit(1)
+
+      case .leave(let convention, _, let upcoming):
+        ConPawsAccessoryEyebrow(
+          title: "LEAVE · \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone))",
+          symbol: "figure.walk"
+        )
+        Text(upcoming.title)
+          .font(.headline)
+          .lineLimit(1)
+        if let place = upcoming.place {
+          Text(place)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+        }
+
+      case .next(let convention, _, let upcoming):
+        ConPawsAccessoryEyebrow(
+          title: "NEXT · \(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone)))",
+          symbol: "calendar"
+        )
+        Text(upcoming.title)
+          .font(.headline)
+          .lineLimit(1)
+        if let place = upcoming.place {
+          Text(place)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+        }
+
+      case .empty(let convention):
+        ConPawsAccessoryEyebrow(title: "NO EVENTS", symbol: "calendar")
+        Text(convention?.name ?? "Add a convention")
+          .font(.headline)
+          .lineLimit(2)
+      }
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    .accessibilityElement(children: .combine)
+  }
+}
+
+private struct ConPawsAccessoryEyebrow: View {
+  let title: String
+  let symbol: String
+
+  var body: some View {
+    Label(title, systemImage: symbol)
+      .font(.caption2.weight(.semibold))
+      .lineLimit(1)
+  }
+}
+
+@available(iOS 17.0, *)
+private struct ConPawsInlineView: View {
+  let entry: ConPawsWidgetEntry
+
+  /// Inline sits on one line beside the clock and renders a symbol plus text.
+  /// Custom layout is ignored here, so every state is one `Label`.
+  var body: some View {
+    switch entry.state {
+    case .countdown(let convention):
+      // Countdown first. Inline shares its line with the date and truncates
+      // hard, and the countdown is the part worth reading -- putting the
+      // convention name first buries it behind an ellipsis.
+      Label(
+        "\(ConPawsCountdown.label(from: entry.date, to: convention.startDate, timeZone: convention.timeZone)) · \(convention.name)",
+        systemImage: "calendar"
+      )
+    case .leave(let convention, _, let upcoming):
+      Label(
+        "Leave \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone).lowercased()) · \(upcoming.title)",
+        systemImage: "figure.walk"
+      )
+    case .next(let convention, _, let upcoming):
+      Label(
+        "\(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone))) · \(upcoming.title)",
+        systemImage: "calendar"
+      )
+    case .empty:
+      Label("No upcoming events", systemImage: "calendar")
+    }
+  }
+}
+
 private extension ConPawsConventionSnapshot {
   var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
   var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
@@ -554,13 +776,73 @@ private extension ConPawsEventSnapshot {
 
 private extension View {
   @ViewBuilder
-  func conPawsWidgetBackground() -> some View {
-    if #available(iOSApplicationExtension 17.0, *) {
+  func conPawsWidgetBackground(family: WidgetFamily) -> some View {
+    switch family {
+    case .accessoryCircular, .accessoryRectangular, .accessoryInline:
+      // The Lock Screen paints its own backdrop and expects the widget to sit
+      // in it. Anything opaque here reads as a card stuck on the wallpaper.
+      containerBackground(.clear, for: .widget)
+    default:
       containerBackground(for: .widget) {
         Color(uiColor: .systemBackground)
       }
-    } else {
-      background(Color(uiColor: .systemBackground))
     }
   }
 }
+
+#if DEBUG
+/// Boundary checks for the countdown ladder the Lock Screen families added.
+///
+/// The compact and prose renderings share one classifier precisely so they
+/// cannot drift apart; these assertions are what would catch it if they did.
+func runConPawsWidgetSelfCheck() {
+  let zone = TimeZone(identifier: "UTC")!
+  // 2026-01-01 00:00 UTC. Midnight in the test zone keeps the calendar-day
+  // arithmetic below unambiguous.
+  let now = Date(timeIntervalSince1970: 1_767_225_600)
+
+  func compact(_ seconds: TimeInterval) -> String {
+    ConPawsCountdown.compactLabel(
+      from: now,
+      to: now.addingTimeInterval(seconds),
+      timeZone: zone
+    )
+  }
+  func prose(_ seconds: TimeInterval) -> String {
+    ConPawsCountdown.label(from: now, to: now.addingTimeInterval(seconds), timeZone: zone)
+  }
+
+  assert(compact(-60) == "Now")
+  assert(compact(0) == "Now")
+  assert(compact(60) == "Soon")
+  assert(compact(3_599) == "Soon")
+  assert(compact(3_600) == "1h")
+  assert(compact(6 * 3_600) == "6h")
+  assert(compact(86_399) == "23h")
+  assert(compact(86_400) == "1d")
+  assert(compact(13 * 86_400) == "13d")
+  assert(compact(60 * 86_400) == "2mo")
+
+  assert(prose(0) == "Now")
+  assert(prose(3_600) == "In 1 hour")
+  assert(prose(86_400) == "Tomorrow")
+  assert(prose(13 * 86_400) == "In 13 days")
+  assert(prose(60 * 86_400) == "In 2 months")
+
+  // 30 days out with no whole calendar month between them stays in days. This
+  // is the rung the JS mirrors in docs/ get wrong by dividing by 30.
+  assert(compact(30 * 86_400) == "30d")
+  assert(prose(30 * 86_400) == "In 30 days")
+  assert(compact(31 * 86_400) == "1mo")
+
+  // The ring is scaled to the final week and clamped either side of it.
+  assert(ConPawsCountdown.ringProgress(from: now, to: now) == 1)
+  assert(ConPawsCountdown.ringProgress(from: now, to: now.addingTimeInterval(7 * 86_400)) == 0)
+  assert(ConPawsCountdown.ringProgress(from: now, to: now.addingTimeInterval(30 * 86_400)) == 0)
+  let midweek = ConPawsCountdown.ringProgress(
+    from: now,
+    to: now.addingTimeInterval(3.5 * 86_400)
+  )
+  assert(abs(midweek - 0.5) < 0.000_1)
+}
+#endif

@@ -17,23 +17,32 @@ enum ConPawsCountdown {
   /// exists to replace it.
   static let maximumEntries = 24
 
-  /// Human-readable countdown for the gap between two dates.
+  /// How much of a wait is left, in the only terms these widgets are willing
+  /// to state.
   ///
-  /// `timeZone` is the convention's, not the reader's: whether something is
-  /// "Tomorrow" depends on the calendar day where the convention happens.
-  static func label(from: Date, to: Date, timeZone: TimeZone) -> String {
+  /// Every rendering switches on this rather than re-deriving its own
+  /// thresholds, so a Lock Screen rectangle reading "Tomorrow" can never sit
+  /// beside a circle reading "2d".
+  private enum Remaining {
+    case now
+    case soon
+    case hours(Int)
+    case today
+    case tomorrow
+    case days(Int)
+    case months(Int)
+  }
+
+  private static func remaining(from: Date, to: Date, timeZone: TimeZone) -> Remaining {
     let seconds = to.timeIntervalSince(from)
-    if seconds <= 0 { return "Now" }
+    if seconds <= 0 { return .now }
 
     // The final hour is one label, not a per-minute countdown. Minutes would
     // need an entry each, which exhausts the timeline budget inside a single
     // hour and leaves nothing for the transition that actually matters.
-    if seconds < 3_600 { return "Starting soon" }
+    if seconds < 3_600 { return .soon }
 
-    if seconds < 86_400 {
-      let hours = Int(seconds / 3_600)
-      return hours == 1 ? "In 1 hour" : "In \(hours) hours"
-    }
+    if seconds < 86_400 { return .hours(Int(seconds / 3_600)) }
 
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = timeZone
@@ -43,13 +52,65 @@ enum ConPawsCountdown {
     let startOfTo = calendar.startOfDay(for: to)
     let days = calendar.dateComponents([.day], from: startOfFrom, to: startOfTo).day ?? 0
 
-    if days <= 0 { return "Today" }
-    if days == 1 { return "Tomorrow" }
-    if days < 30 { return "In \(days) days" }
+    if days <= 0 { return .today }
+    if days == 1 { return .tomorrow }
+    if days < 30 { return .days(days) }
 
     let months = calendar.dateComponents([.month], from: startOfFrom, to: startOfTo).month ?? 0
-    if months < 1 { return "In \(days) days" }
-    return months == 1 ? "In 1 month" : "In \(months) months"
+    if months < 1 { return .days(days) }
+    return .months(months)
+  }
+
+  /// Human-readable countdown for the gap between two dates.
+  ///
+  /// `timeZone` is the convention's, not the reader's: whether something is
+  /// "Tomorrow" depends on the calendar day where the convention happens.
+  static func label(from: Date, to: Date, timeZone: TimeZone) -> String {
+    switch remaining(from: from, to: to, timeZone: timeZone) {
+    case .now: "Now"
+    case .soon: "Starting soon"
+    case .hours(let hours): hours == 1 ? "In 1 hour" : "In \(hours) hours"
+    case .today: "Today"
+    case .tomorrow: "Tomorrow"
+    case .days(let days): "In \(days) days"
+    case .months(let months): months == 1 ? "In 1 month" : "In \(months) months"
+    }
+  }
+
+  /// The same ladder compressed to the handful of characters a Lock Screen
+  /// circular gauge can hold.
+  ///
+  /// `today` and `tomorrow` both read as "1d": both are a full day or more
+  /// out, and `today` only arises when a DST-lengthened day pushes a 24-hour
+  /// gap back onto the same calendar date.
+  static func compactLabel(from: Date, to: Date, timeZone: TimeZone) -> String {
+    switch remaining(from: from, to: to, timeZone: timeZone) {
+    case .now: "Now"
+    case .soon: "Soon"
+    case .hours(let hours): "\(hours)h"
+    case .today, .tomorrow: "1d"
+    case .days(let days): "\(days)d"
+    case .months(let months): "\(months)mo"
+    }
+  }
+
+  /// The stretch of the wait a Lock Screen ring is scaled to.
+  static let ringWindow: TimeInterval = 7 * 86_400
+
+  /// How full the Lock Screen countdown ring should be, from 0 to 1.
+  ///
+  /// Scaled to the final week rather than the whole wait. A ring that barely
+  /// moves for two months reads as broken, and the week before a convention
+  /// is the stretch worth glancing at.
+  ///
+  /// Like the wording, this only redraws at the moments `changePoints`
+  /// already emits -- daily beyond a day out, hourly inside one -- so the
+  /// ring steps rather than sweeps. Same limit, same reason.
+  static func ringProgress(from: Date, to: Date) -> Double {
+    let remaining = to.timeIntervalSince(from)
+    if remaining <= 0 { return 1 }
+    if remaining >= ringWindow { return 0 }
+    return 1 - (remaining / ringWindow)
   }
 
   /// Every moment between `from` and `to` at which `label` would produce
