@@ -4,6 +4,11 @@
   <dict>
     <key>CFBundleDisplayName</key>
     <string>ConPaws</string>
+    <!-- Marks this as a modern single-target watch app. Without it watchOS
+         looks for a legacy WKWatchKitApp extension pair and refuses to
+         install with "cannot be installed at this time". -->
+    <key>WKApplication</key>
+    <true/>
     <key>WKRunsIndependentlyOfCompanionApp</key>
     <false/>
   </dict>

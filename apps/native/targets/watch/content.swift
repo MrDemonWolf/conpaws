@@ -294,7 +294,9 @@ private struct TodayListView: View {
             "\(event.title), \(WatchFormat.timeRange(event, in: convention))"
           )
         }
-        .listStyle(.carousel)
+        // ponytail: plain, not .carousel — carousel scales rows toward the
+        // screen center, so a single-event day renders as an oversized slab.
+        .listStyle(.plain)
       }
     }
     .navigationTitle("Today")
