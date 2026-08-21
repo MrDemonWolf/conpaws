@@ -265,6 +265,29 @@ Play production rollout status:
 Operator and date:
 ```
 
+## Ad-hoc device builds (`preview-device`)
+
+`preview-device` is the same app as `preview` — production bundle identifier,
+QA icon, debug tools — but built for **internal (ad-hoc) distribution** instead
+of the store. It exists so a build can be installed straight onto a registered
+device from a link, without waiting on TestFlight processing. Use it when you
+need a fast on-device check, especially of the embedded Watch app.
+
+```bash
+bunx eas-cli@22 build --profile preview-device --platform ios
+```
+
+Rules:
+
+- The device must be registered first (`eas device:create`, then
+  `eas device:list --apple-team-id HBB7T99U79` to confirm).
+- It shares `com.mrdemonwolf.conpaws` with `preview` and `production`, so
+  installing it replaces any store build already on the device, and vice versa.
+- It deliberately does **not** set `autoIncrement`, so throwaway device builds
+  never advance the remote store build number.
+- Never promote a `preview-device` artifact. It is ad-hoc signed and cannot go
+  to the store. Release candidates still come from `production`.
+
 ## Owner preview builds
 
 Preview is a store build of the real app with the QA icon and owner debug menu.
