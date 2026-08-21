@@ -208,6 +208,11 @@
         "order": "L'heure de fin doit être postérieure à l'heure de début à la même date.",
         "save": "Impossible d'enregistrer l'événement. Vos autres événements n'ont pas été modifiés."
       }
+    },
+    "ageRatings": {
+      "teen": "13+ Ados",
+      "mature": "17+ Averti",
+      "adult": "18+ Adultes"
     }
   },
   "profile": {

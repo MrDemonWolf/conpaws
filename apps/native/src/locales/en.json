@@ -208,6 +208,11 @@
         "order": "End time must be later than start time on the same date.",
         "save": "Could not save the event. Your other events were not changed."
       }
+    },
+    "ageRatings": {
+      "teen": "13+ Teen",
+      "mature": "17+ Mature",
+      "adult": "18+ Adult"
     }
   },
   "profile": {

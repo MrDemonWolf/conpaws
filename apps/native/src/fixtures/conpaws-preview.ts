@@ -1,4 +1,5 @@
 import type { NewConvention, NewConventionEvent } from "@/db/schema";
+import { ageRatingFromCategory } from "@/lib/event-categories";
 
 export const PREVIEW_CONVENTION_ID = "conpaws-preview-con";
 export const BLANK_PREVIEW_CONVENTION_ID = "conpaws-blank-preview-con";
@@ -308,6 +309,9 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
         reminderMinutes: selected ? (index % 34 === 0 ? 60 : 15) : null,
         sourceUid: `conpaws-preview-${ordinal}`,
         sourceUrl: null,
+        // Run the label through the real classifier so the fixture exercises
+        // the same code path an imported feed does.
+        ageRating: ageRatingFromCategory(AUDIENCES[audienceIndex]),
         isAgeRestricted: audienceIndex > 0,
         contentWarning: audienceIndex === 3,
         createdAt: FIXTURE_TIME,

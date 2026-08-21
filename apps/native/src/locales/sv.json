@@ -208,6 +208,11 @@
         "order": "Sluttiden måste vara senare än starttiden på samma datum.",
         "save": "Evenemanget kunde inte sparas. Dina andra evenemang ändrades inte."
       }
+    },
+    "ageRatings": {
+      "teen": "13+ Tonår",
+      "mature": "17+ Vuxet",
+      "adult": "18+ Vuxen"
     }
   },
   "profile": {

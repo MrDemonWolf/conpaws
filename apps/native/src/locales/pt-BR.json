@@ -208,6 +208,11 @@
         "order": "A hora de término deve ser posterior à hora de início na mesma data.",
         "save": "Não foi possível salvar o evento. Seus outros eventos não foram alterados."
       }
+    },
+    "ageRatings": {
+      "teen": "13+ Adolescente",
+      "mature": "17+ Maduro",
+      "adult": "18+ Adulto"
     }
   },
   "profile": {
