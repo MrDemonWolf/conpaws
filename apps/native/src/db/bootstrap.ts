@@ -61,6 +61,19 @@ PRAGMA user_version = 2;
 COMMIT;
 `;
 
+export const MIGRATION_3_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE conventions ADD COLUMN location TEXT;
+PRAGMA user_version = 3;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_3_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 3;
+COMMIT;
+`;
+
 interface MigrationDatabase {
   execSync(source: string): void;
   getFirstSync<T>(source: string): T | null;
@@ -73,23 +86,46 @@ export function initializeDatabase(database: MigrationDatabase): void {
       ?.user_version ?? 0;
 
   if (version < 1) database.execSync(MIGRATION_1_SQL);
-  if (version < 2) {
-    const alreadyHasTimeZone =
-      database.getFirstSync<{ present: number }>(
-        "SELECT 1 AS present FROM pragma_table_info('conventions') WHERE name = 'time_zone'",
-      )?.present === 1;
+  if (version < 2) applyColumnMigration(database, "time_zone");
+  if (version < 3) applyColumnMigration(database, "location");
+}
 
-    // A previous process may have stopped after ALTER TABLE but before the
-    // version bump. Repair that state instead of retrying the ALTER forever.
+const COLUMN_MIGRATIONS = {
+  time_zone: {
+    migrate: () => MIGRATION_2_SQL,
+    complete: () => COMPLETE_MIGRATION_2_SQL,
+  },
+  location: {
+    migrate: () => MIGRATION_3_SQL,
+    complete: () => COMPLETE_MIGRATION_3_SQL,
+  },
+} as const;
+
+/**
+ * Adds one nullable column to `conventions` and bumps the schema version.
+ *
+ * A previous process may have stopped after ALTER TABLE but before the version
+ * bump, which would make the ALTER fail forever on every launch. Detect that
+ * and just finish the bump instead of retrying the ALTER.
+ */
+function applyColumnMigration(
+  database: MigrationDatabase,
+  column: keyof typeof COLUMN_MIGRATIONS,
+): void {
+  const alreadyPresent =
+    database.getFirstSync<{ present: number }>(
+      `SELECT 1 AS present FROM pragma_table_info('conventions') WHERE name = '${column}'`,
+    )?.present === 1;
+  const migration = COLUMN_MIGRATIONS[column];
+
+  try {
+    database.execSync(
+      alreadyPresent ? migration.complete() : migration.migrate(),
+    );
+  } catch (error) {
     try {
-      database.execSync(
-        alreadyHasTimeZone ? COMPLETE_MIGRATION_2_SQL : MIGRATION_2_SQL,
-      );
-    } catch (error) {
-      try {
-        database.execSync("ROLLBACK;");
-      } catch {}
-      throw error;
-    }
+      database.execSync("ROLLBACK;");
+    } catch {}
+    throw error;
   }
 }

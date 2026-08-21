@@ -1,0 +1,134 @@
+import { describe, expect, it, vi } from "vitest";
+import {
+  isValidCoordinates,
+  normalizeLocationName,
+  resolveConventionTimeZone,
+  timeZoneFromCoordinates,
+} from "./convention-location";
+
+/** Stand-in for tz-lookup: real behaviour, no 150KB table in the test. */
+const PITTSBURGH = { latitude: 40.4406, longitude: -79.9959 };
+const lookup = vi.fn(() => "America/New_York");
+
+describe("isValidCoordinates", () => {
+  it("accepts in-range coordinates", () => {
+    expect(isValidCoordinates(PITTSBURGH)).toBe(true);
+    expect(isValidCoordinates({ latitude: -90, longitude: 180 })).toBe(true);
+  });
+
+  it("rejects out-of-range, non-finite, and malformed values", () => {
+    expect(isValidCoordinates({ latitude: 91, longitude: 0 })).toBe(false);
+    expect(isValidCoordinates({ latitude: 0, longitude: 181 })).toBe(false);
+    expect(isValidCoordinates({ latitude: Number.NaN, longitude: 0 })).toBe(
+      false,
+    );
+    expect(isValidCoordinates({ latitude: "40", longitude: 0 })).toBe(false);
+    expect(isValidCoordinates(null)).toBe(false);
+    expect(isValidCoordinates(undefined)).toBe(false);
+  });
+});
+
+describe("timeZoneFromCoordinates", () => {
+  it("returns the looked-up zone for valid coordinates", () => {
+    expect(timeZoneFromCoordinates(PITTSBURGH, lookup)).toBe(
+      "America/New_York",
+    );
+  });
+
+  it("returns null rather than calling the lookup on bad coordinates", () => {
+    const spy = vi.fn(() => "America/New_York");
+    expect(timeZoneFromCoordinates({ latitude: 999, longitude: 0 }, spy)).toBe(
+      null,
+    );
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("swallows a throwing lookup instead of propagating", () => {
+    expect(
+      timeZoneFromCoordinates(PITTSBURGH, () => {
+        throw new Error("out of range");
+      }),
+    ).toBe(null);
+  });
+
+  it("rejects a zone this device cannot resolve", () => {
+    expect(timeZoneFromCoordinates(PITTSBURGH, () => "Mars/Olympus_Mons")).toBe(
+      null,
+    );
+  });
+
+  it("rejects an empty or non-string lookup result", () => {
+    expect(timeZoneFromCoordinates(PITTSBURGH, () => "")).toBe(null);
+    expect(
+      timeZoneFromCoordinates(PITTSBURGH, () => undefined as unknown as string),
+    ).toBe(null);
+  });
+});
+
+describe("resolveConventionTimeZone", () => {
+  it("prefers a manual choice over the location", () => {
+    expect(
+      resolveConventionTimeZone({
+        coordinates: PITTSBURGH,
+        manualTimeZone: "America/Chicago",
+        deviceTimeZone: "Europe/Berlin",
+        lookup,
+      }),
+    ).toEqual({ timeZone: "America/Chicago", source: "manual" });
+  });
+
+  it("uses the location when there is no manual choice", () => {
+    expect(
+      resolveConventionTimeZone({
+        coordinates: PITTSBURGH,
+        deviceTimeZone: "Europe/Berlin",
+        lookup,
+      }),
+    ).toEqual({ timeZone: "America/New_York", source: "location" });
+  });
+
+  it("falls back to the device when geocoding produced nothing", () => {
+    expect(
+      resolveConventionTimeZone({
+        deviceTimeZone: "Europe/Berlin",
+        lookup,
+      }),
+    ).toEqual({ timeZone: "Europe/Berlin", source: "device" });
+  });
+
+  it("ignores a manual value that is blank or unresolvable", () => {
+    expect(
+      resolveConventionTimeZone({
+        manualTimeZone: "   ",
+        deviceTimeZone: "Europe/Berlin",
+        lookup,
+      }).source,
+    ).toBe("device");
+
+    expect(
+      resolveConventionTimeZone({
+        manualTimeZone: "Not/AZone",
+        coordinates: PITTSBURGH,
+        deviceTimeZone: "Europe/Berlin",
+        lookup,
+      }),
+    ).toEqual({ timeZone: "America/New_York", source: "location" });
+  });
+
+  it("falls back to UTC when even the device zone is unresolvable", () => {
+    expect(
+      resolveConventionTimeZone({
+        deviceTimeZone: "Nowhere/Nothing",
+        lookup,
+      }),
+    ).toEqual({ timeZone: "UTC", source: "device" });
+  });
+});
+
+describe("normalizeLocationName", () => {
+  it("tidies spacing around commas without reformatting the name", () => {
+    expect(normalizeLocationName("  Pittsburgh ,  PA ")).toBe("Pittsburgh, PA");
+    expect(normalizeLocationName("San   Jose")).toBe("San Jose");
+    expect(normalizeLocationName("")).toBe("");
+  });
+});

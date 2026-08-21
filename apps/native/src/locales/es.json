@@ -18,7 +18,8 @@
     "skip": "Omitir",
     "getStarted": "Comenzar",
     "learnMore": "Saber más",
-    "version": "Versión {{version}}"
+    "version": "Versión {{version}}",
+    "advanced": "Avanzado"
   },
   "onboarding": {
     "progress": "Paso {{step}} de {{total}}",
@@ -146,6 +147,8 @@
     "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Buscar zonas horarias",
     "timeZoneSearchPlaceholder": "Ciudad o región",
+    "timeZoneNoResults": "Ninguna zona horaria coincide con «{{query}}».",
+    "timeZoneAdvancedHelp": "ConPaws usa la zona horaria de este dispositivo. Cámbiala solo si la convención es en otro lugar.",
     "timeZoneHelp": "Usa la zona horaria local de la convención, como America/Chicago.",
     "name": "Nombre de la Convención",
     "namePlaceholder": "ej. ConPaws Preview Con",

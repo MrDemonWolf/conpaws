@@ -18,7 +18,8 @@
     "skip": "Pomiń",
     "getStarted": "Zacznij",
     "learnMore": "Dowiedz się więcej",
-    "version": "Wersja {{version}}"
+    "version": "Wersja {{version}}",
+    "advanced": "Zaawansowane"
   },
   "onboarding": {
     "progress": "Krok {{step}} z {{total}}",
@@ -146,6 +147,8 @@
     "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Wyszukaj strefy czasowe",
     "timeZoneSearchPlaceholder": "Miasto lub region",
+    "timeZoneNoResults": "Żadna strefa czasowa nie pasuje do „{{query}}”.",
+    "timeZoneAdvancedHelp": "ConPaws domyślnie używa strefy czasowej tego urządzenia. Zmień ją tylko, jeśli konwent odbywa się gdzie indziej.",
     "timeZoneHelp": "Użyj lokalnej strefy czasowej konwentu, na przykład America/Chicago.",
     "name": "Nazwa Konwentu",
     "namePlaceholder": "np. ConPaws Preview Con",

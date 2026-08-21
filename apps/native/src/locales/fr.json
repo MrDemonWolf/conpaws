@@ -18,7 +18,8 @@
     "skip": "Passer",
     "getStarted": "Commencer",
     "learnMore": "En savoir plus",
-    "version": "Version {{version}}"
+    "version": "Version {{version}}",
+    "advanced": "Avancé"
   },
   "onboarding": {
     "progress": "Étape {{step}} sur {{total}}",
@@ -146,6 +147,8 @@
     "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Rechercher des fuseaux horaires",
     "timeZoneSearchPlaceholder": "Ville ou région",
+    "timeZoneNoResults": "Aucun fuseau horaire ne correspond à « {{query}} ».",
+    "timeZoneAdvancedHelp": "ConPaws utilise le fuseau horaire de cet appareil. Ne le changez que si la convention a lieu ailleurs.",
     "timeZoneHelp": "Utilisez le fuseau horaire local de la convention, comme America/Chicago.",
     "name": "Nom de la Convention",
     "namePlaceholder": "ex. ConPaws Preview Con",

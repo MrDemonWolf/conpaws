@@ -18,7 +18,8 @@
     "skip": "Hoppa över",
     "getStarted": "Kom igång",
     "learnMore": "Läs mer",
-    "version": "Version {{version}}"
+    "version": "Version {{version}}",
+    "advanced": "Avancerat"
   },
   "onboarding": {
     "progress": "Steg {{step}} av {{total}}",
@@ -146,6 +147,8 @@
     "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Sök tidszoner",
     "timeZoneSearchPlaceholder": "Stad eller region",
+    "timeZoneNoResults": "Inga tidszoner matchar ”{{query}}”.",
+    "timeZoneAdvancedHelp": "ConPaws använder som standard den här enhetens tidszon. Ändra den bara om konventet hålls någon annanstans.",
     "timeZoneHelp": "Använd konventets lokala tidszon, till exempel America/Chicago.",
     "name": "Konventnamn",
     "namePlaceholder": "t.ex. ConPaws Preview Con",
