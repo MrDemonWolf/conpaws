@@ -107,7 +107,7 @@
   "convention": {
     "new": "Nowy Konwent",
     "create": "Utwórz konwent",
-    "edit": "Edytuj Konwent",
+    "edit": "Edytuj konwent",
     "import": "Importuj Harmonogram",
     "detail": "Szczegóły Konwentu",
     "loadingTitle": "Ładowanie konwentu",
@@ -213,7 +213,12 @@
       "teen": "13+ Nastolatki",
       "mature": "17+ Dojrzałe",
       "adult": "18+ Dorośli"
-    }
+    },
+    "nameTooLong": "Nazwa może mieć maksymalnie {{max}} znaków.",
+    "endBeforeStart": "Data zakończenia nie może być wcześniejsza niż początkowa.",
+    "longSpan": "To konwent trwający {{count}} dni. Sprawdź daty.",
+    "updateError": "Nie udało się zapisać zmian.",
+    "nameCounter": "{{count}} z {{max}}"
   },
   "profile": {
     "title": "Profil",

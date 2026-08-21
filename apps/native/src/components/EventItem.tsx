@@ -159,7 +159,12 @@ export function EventItem({
               />
             ) : null}
             {meta ? (
-              <Text variant="caption" className="shrink" numberOfLines={1}>
+              <Text
+                variant="caption"
+                className="shrink"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {meta}
               </Text>
             ) : null}
@@ -173,6 +178,7 @@ export function EventItem({
             variant="caption"
             className="text-muted-foreground"
             numberOfLines={2}
+            ellipsizeMode="tail"
           >
             {summary}
           </Text>

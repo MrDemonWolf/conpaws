@@ -107,7 +107,7 @@
   "convention": {
     "new": "Nueva Convención",
     "create": "Crear convención",
-    "edit": "Editar Convención",
+    "edit": "Editar convención",
     "import": "Importar Horario",
     "detail": "Detalles de la Convención",
     "loadingTitle": "Cargando convención",
@@ -213,7 +213,12 @@
       "teen": "13+ Adolescentes",
       "mature": "17+ Maduro",
       "adult": "18+ Adultos"
-    }
+    },
+    "nameTooLong": "El nombre debe tener {{max}} caracteres o menos.",
+    "endBeforeStart": "La fecha de fin no puede ser anterior a la de inicio.",
+    "longSpan": "Es una convención de {{count}} días. Revisa las fechas.",
+    "updateError": "No se pudieron guardar los cambios.",
+    "nameCounter": "{{count}} de {{max}}"
   },
   "profile": {
     "title": "Perfil",
