@@ -190,6 +190,27 @@ Complete this on the TestFlight build and the Play Internal Testing build, not j
 
 Record device models, OS versions, pass/fail results, and any accepted limitation. A simulator pass is useful evidence, but it is not store-release approval.
 
+### Installing the Watch app on a physical Apple Watch
+
+The Watch app ships inside the iPhone app; it is not a separate TestFlight
+download. If Available Apps shows ConPaws but Install fails with "This app could
+not be installed at this time":
+
+1. Delete the ConPaws iPhone app, then reinstall it from TestFlight. The Watch
+   app is embedded in the iPhone bundle, so a stale iPhone install carries a
+   stale Watch app with it.
+2. Open Watch on iPhone, scroll to Available Apps, and install from there.
+   Automatic install can silently skip a build whose watch bundle changed.
+3. Keep the Watch on Wi-Fi and on the charger for the first install. Low Power
+   Mode and low battery both block installs without saying so.
+4. Confirm the Watch runs watchOS 10 or newer. `targets/watch/expo-target.config.js`
+   sets `deploymentTarget: "10.0"`, so Series 3 and older cannot install.
+5. If it still fails, unpair and re-pair the Watch. That is the only reliable way
+   to clear a bad companion-app record.
+
+Preview and production share the bundle identifier `com.mrdemonwolf.conpaws`, so
+they also share the Watch bundle identifier. Installing one replaces the other.
+
 ## Promote or stop
 
 Promote only when all of these point to the same binary:

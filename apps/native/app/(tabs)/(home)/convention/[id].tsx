@@ -90,8 +90,8 @@ const EMPTY_LIST_CONTENT_STYLE = { flexGrow: 1 } as const;
 const EMPTY_CONVENTION_CONTENT_STYLE = {
   flexGrow: 1,
   justifyContent: "center",
-  paddingBottom: 112,
-  paddingTop: 96,
+  paddingBottom: 48,
+  paddingTop: 24,
 } as const;
 
 interface BlankConventionStateProps {
@@ -542,8 +542,16 @@ function NativeDateTimeField({
   if (process.env.EXPO_OS === "ios") {
     return (
       <View className={fieldClassName}>
-        <Text variant="body">{label}</Text>
+        <Text variant="body" className="shrink" numberOfLines={1}>
+          {label}
+        </Text>
         <DateTimePicker
+          // ponytail: the compact UIDatePicker stretches to the full row width
+          // and then overflows past the label, clipping against the card edge.
+          // It ignores flexShrink, so the frame has to be given explicitly.
+          // Sized for the longest en-US value ("Sep 30, 2026" / "10:00 PM");
+          // widen these if a locale or Dynamic Type size truncates the pill.
+          style={{ width: mode === "date" ? 148 : 112 }}
           value={value}
           mode={mode}
           display="compact"
