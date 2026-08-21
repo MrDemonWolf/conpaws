@@ -40,6 +40,7 @@ export function useImportSchedule() {
         legacySourceUid: e.legacySourceUid,
         sourceUrl: e.sourceUrl,
         isAgeRestricted: e.isAgeRestricted,
+        ageRating: e.ageRating,
         contentWarning: e.contentWarning,
       }));
 
