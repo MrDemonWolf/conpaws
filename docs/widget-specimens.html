@@ -299,7 +299,7 @@
     <div class="sec-head">
       <h2>Lock Screen</h2>
       <span class="dims">circular 76 &times; 76 &middot; rectangular 172 &times; 76 &middot; inline</span>
-      <span class="status new">Proposed</span>
+      <span class="status built">Shipping</span>
     </div>
     <p class="note">
       The highest-value place for this app and the cheapest to add &mdash; the
@@ -350,12 +350,16 @@
       <div class="row">
         <div>
           <h3>Lock Screen family</h3>
-          <p class="verdict">Highest value, lowest cost</p>
+          <p class="verdict">Built</p>
         </div>
         <p>
-          Reuses the snapshot and countdown logic already shipping. Three small
+          Reused the snapshot and countdown logic already shipping. Three small
           SwiftUI views plus three families added to
-          <code>supportedFamilies</code>. Nothing new on the data side.
+          <code>supportedFamilies</code>, and nothing new on the data side. The
+          circular family needed two additions to
+          <code>ConPawsCountdown</code> &mdash; a compact label and the
+          final-week ring &mdash; both switching on the same classifier as the
+          prose label so the two can never disagree.
         </p>
       </div>
       <div class="row">
