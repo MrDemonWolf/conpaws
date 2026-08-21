@@ -4,12 +4,67 @@ import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 import "@conpaws/env/web";
 import type { NextConfig } from "next";
 
+// Turnstile's widget script and its challenge iframe. Both must come from
+// challenges.cloudflare.com un-proxied, per Cloudflare's docs.
+const TURNSTILE = "https://challenges.cloudflare.com";
+
+/**
+ * Content-Security-Policy.
+ *
+ * `script-src` includes `'unsafe-inline'` because Next inlines its hydration
+ * payload in <script> tags. Removing it needs a per-request nonce, which needs
+ * middleware — and this repo deliberately has none, because Next 16 made proxy
+ * node-only and OpenNext support for it is an unmerged PR (see CON-24 notes).
+ * So the realistic win here is origin restriction, not inline-script defence:
+ * a third-party script injected from anywhere but Turnstile still fails.
+ *
+ * `'wasm-unsafe-eval'` is required by the Rapier physics badge on the landing
+ * page. Without it the badge silently fails to start.
+ */
+const CSP = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' ${TURNSTILE}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  `frame-src ${TURNSTILE}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEADERS = [
+  { key: "Content-Security-Policy", value: CSP },
+  // Redundant with frame-ancestors for modern browsers, kept for old ones.
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  },
+  {
+    // Two years, subdomains included. No `preload` directive: submitting to the
+    // preload list is close to irreversible and should be a deliberate act,
+    // not a side effect of adding headers.
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains",
+  },
+];
+
 const nextConfig: NextConfig = {
   typedRoutes: true,
   reactCompiler: true,
   pageExtensions: ["ts", "tsx", "mdx"],
   env: {
     CONPAWS_RELEASE_SHA: process.env.GITHUB_SHA ?? "local",
+  },
+
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
 
   // Pin the workspace root. Without this, Turbopack scans upward, finds the
