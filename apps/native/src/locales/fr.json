@@ -107,7 +107,7 @@
   "convention": {
     "new": "Nouvelle Convention",
     "create": "Créer une convention",
-    "edit": "Modifier la Convention",
+    "edit": "Modifier la convention",
     "import": "Importer le Programme",
     "detail": "Détails de la Convention",
     "loadingTitle": "Chargement de la convention",
@@ -213,7 +213,12 @@
       "teen": "13+ Ados",
       "mature": "17+ Averti",
       "adult": "18+ Adultes"
-    }
+    },
+    "nameTooLong": "Le nom doit faire {{max}} caractères ou moins.",
+    "endBeforeStart": "La date de fin ne peut pas précéder la date de début.",
+    "longSpan": "Convention de {{count}} jours. Vérifiez les dates.",
+    "updateError": "Impossible d'enregistrer les modifications.",
+    "nameCounter": "{{count}} sur {{max}}"
   },
   "profile": {
     "title": "Profil",

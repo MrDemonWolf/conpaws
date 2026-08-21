@@ -213,7 +213,12 @@
       "teen": "13+ Teen",
       "mature": "17+ Mature",
       "adult": "18+ Adult"
-    }
+    },
+    "nameTooLong": "Keep the name to {{max}} characters or fewer.",
+    "endBeforeStart": "The end date can't be before the start date.",
+    "longSpan": "That's a {{count}}-day convention. Double-check the dates.",
+    "updateError": "Couldn't save your changes.",
+    "nameCounter": "{{count}} of {{max}}"
   },
   "profile": {
     "title": "Profile",
