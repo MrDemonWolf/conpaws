@@ -181,6 +181,8 @@ Complete this on the TestFlight build and the Play Internal Testing build, not j
 - [ ] Check Now/Next and event times in the convention timezone, including an overlap.
 - [ ] Schedule a reminder, background or terminate the app, and confirm the notification arrives with the correct event and room.
 - [ ] Add the small and medium Home Screen widgets; check Coming Up, Next, Leave In, and blank states in light, dark, and tinted appearances.
+- [ ] Add all three Lock Screen widgets (circular, rectangular, inline); check the same four states on each.
+- [ ] Check the Lock Screen widgets against a light photo wallpaper as well as a dark one. They render in `vibrant`, which strips colour, so anything that has become unreadable there is a real defect rather than a wallpaper choice.
 - [ ] Pair an Apple Watch, open the Watch app, and confirm Now, Next, Later, event detail, offline cache, and the Smart Stack widget use the same schedule.
 - [ ] Confirm Leave In appears on iPhone and Watch only for an event with a configured leave reminder; verify the mirrored Watch notification/haptic once.
 - [ ] Change a saved schedule on iPhone, reopen the app, and confirm the widgets and Watch receive the new snapshot.

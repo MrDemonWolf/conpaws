@@ -93,15 +93,19 @@ Keep the timeline local. The Expo config plugin's App Group is the future transp
 
 ## Family behavior
 
-`accessoryRectangular` is the technical WidgetKit name for the watchOS-only Apple Watch Smart Stack presentation shown in the mockups. The iOS branch declares only `.systemSmall` and `.systemMedium`; the watchOS branch conditionally declares `.accessoryRectangular`. Any future accessory family remains watchOS-only.
+`accessoryRectangular` is the technical WidgetKit name shared by the Apple Watch Smart Stack and the iPhone Lock Screen. Both surfaces exist. The watchOS target declares `.accessoryRectangular` only; the iOS target declares `.systemSmall` and `.systemMedium` for the Home Screen plus `.accessoryCircular`, `.accessoryRectangular`, and `.accessoryInline` for the Lock Screen, all under the single `ConPawsWidget` kind.
+
+The two targets render the accessory families from separate code. They agree because they share `ConPawsCountdown`, not because they share views: the iOS target runs `ConPawsWidgetState` and the watchOS target runs `WidgetScheduleProjection`, and those were not worth unifying for one duplicated layout.
 
 | Family | Before reminder | Reminder window | Blank fallback |
 | --- | --- | --- | --- |
 | `systemSmall` | **Next event**, two-line event title, start time, then location. | **Leave in** at top, current title/end, then next title/start. Hide brand and locations. Without an active current event, show **For** with the next title/start. | Calendar mark, **No upcoming events**, and short schedule guidance. |
 | `systemMedium` | **Next event** with title, full time range, and location. | Split layout: event details on the left, **Leave in** countdown and leave-by time on the right. | Calendar mark, **No upcoming events**, and short schedule guidance. |
-| `accessoryRectangular` (watchOS only) | Monochrome **Next** status, start time, title, and location. | Monochrome **Leave in** countdown, title, start time, and location. | **No upcoming events** and a short schedule label. |
+| `accessoryRectangular` (watchOS + Lock Screen) | Monochrome **Next** status, start time, title, and location. | Monochrome **Leave in** countdown, title, start time, and location. | **No upcoming events** and a short schedule label. |
+| `accessoryCircular` (Lock Screen) | Calendar mark over the compact countdown to the next event, such as `3h`. | Walking figure alone. The reminder window is minutes wide, so a compact label would read `Soon` for all of it and add nothing. | Calendar mark. |
+| `accessoryInline` (Lock Screen) | One line above the clock: start time, then title. | `Leave`, the title, and the countdown. | **No upcoming events**. |
 
-In `preConvention`, every family shows **Coming up**, the convention title, adaptive countdown, and date range. The mockup's 15-day sample renders as `15 D 6 H`; compact families compress the same hierarchy instead of dropping the countdown.
+In `preConvention`, every family shows **Coming up**, the convention title, the countdown, and the date range where it fits. A 15-day wait renders as `In 15 days` (see the countdown ladder above). `accessoryCircular` has room for neither the title nor the prose countdown, so it shows a ring scaled to the final week with `ConPawsCountdown.compactLabel` at its centre — `15d`, then `6h`, then `Now`. The ring is empty until the last seven days on purpose: one that barely moves for two months reads as broken.
 
 Set one root widget URL for the whole surface. `preConvention` opens the convention, event states open the next event, and a blank state opens the convention list. Do not add nested buttons, open-app labels, app-like controls, or scrolling.
 
@@ -120,7 +124,7 @@ Set one root widget URL for the whole surface. `preConvention` opens the convent
 - Read `widgetFamily`, `widgetRenderingMode`, `colorScheme`, `isLuminanceReduced`, and system content margins from `WidgetEnvironment`.
 - `fullColor`: iPhone Home Screen widgets support light and dark appearances; the Apple Watch Smart Stack uses its native black background unless a meaningful custom background is needed.
 - `accented`: split content into primary and accent groups. Preserve hierarchy without relying on the original colors.
-- Do not implement `vibrant`: Apple Watch doesn't use that rendering mode, and ConPaws intentionally exposes no iPhone Lock Screen widget.
+- `vibrant`: used by the iPhone Lock Screen families. The system desaturates and flattens the content, so nothing may depend on colour to carry meaning. Do not use `.tint` as the only signal and do not use opacity-filled backgrounds — the `.tint.opacity(0.12)` leave strip on `systemMedium` would turn to mush here. `.secondary` still maps to a distinct vibrancy level and remains valid for hierarchy. Use `AccessoryWidgetBackground()` for circular rather than a hand-rolled shape, and give the accessory families a `.clear` container background so they do not sit on the wallpaper as a card.
 - Use a removable widget container background. Keep default system content margins for MVP.
 - Under reduced luminance, remove bright fills and retain the text hierarchy.
 
@@ -130,8 +134,8 @@ Implementation can start after these are true:
 
 - Final widget copy exists in every supported locale.
 - Event and convention deep links are stable across development, preview, and production variants.
-- Timeline generation has unit coverage for the 30-day, 48-hour, 24-hour, and zero countdown boundaries plus upcoming, leave-soon, event-start, no-event, calendar-month, daylight-saving, and time-zone transitions.
-- iOS Xcode previews cover `systemSmall` and `systemMedium` without exposing accessory families. watchOS previews separately cover `accessoryRectangular` in Smart Stack rendering modes.
+- The countdown ladder has boundary checks. These live in `runConPawsWidgetSelfCheck()` in `targets/widget/widgets.swift`, run from the widget bundle's `init()` under `#if DEBUG`, and follow the same pattern as `runWatchScheduleSelfCheck()` on the Watch. They cover the zero, one-hour, 24-hour, 30-day, and calendar-month rungs, that the prose and compact renderings agree on each, and the ring's clamps. There is no Swift test target and CI runs on Linux with no `xcodebuild` step, so these are the only automated Swift checks that exist.
+- iOS Xcode previews cover `systemSmall` and `systemMedium` in `fullColor` and `accented`, and the three Lock Screen families in `vibrant`. watchOS previews separately cover `accessoryRectangular` in Smart Stack rendering modes.
 - VoiceOver and large-text checks pass on a physical iPhone and Apple Watch for their respective families.
 
 ## Official references
