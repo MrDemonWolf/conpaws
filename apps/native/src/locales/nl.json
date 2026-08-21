@@ -18,7 +18,8 @@
     "skip": "Overslaan",
     "getStarted": "Aan de slag",
     "learnMore": "Meer informatie",
-    "version": "Versie {{version}}"
+    "version": "Versie {{version}}",
+    "advanced": "Geavanceerd"
   },
   "onboarding": {
     "progress": "Stap {{step}} van {{total}}",
@@ -146,6 +147,8 @@
     "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Tijdzones zoeken",
     "timeZoneSearchPlaceholder": "Stad of regio",
+    "timeZoneNoResults": "Geen tijdzones komen overeen met ‘{{query}}’.",
+    "timeZoneAdvancedHelp": "ConPaws gebruikt standaard de tijdzone van dit apparaat. Wijzig dit alleen als de conventie ergens anders is.",
     "timeZoneHelp": "Gebruik de lokale tijdzone van de conventie, zoals America/Chicago.",
     "name": "Conventienaam",
     "namePlaceholder": "bijv. ConPaws Preview Con",

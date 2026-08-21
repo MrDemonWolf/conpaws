@@ -30,7 +30,10 @@ function humanizeSegment(segment: string): string {
 export function describeTimeZone(id: string): TimeZoneOption {
   const segments = id.split("/");
   const city = humanizeSegment(segments[segments.length - 1] ?? id);
-  const region = segments.slice(0, -1).map(humanizeSegment).join(SEGMENT_SEPARATOR);
+  const region = segments
+    .slice(0, -1)
+    .map(humanizeSegment)
+    .join(SEGMENT_SEPARATOR);
 
   return { id, city, region };
 }
