@@ -107,7 +107,7 @@
   "convention": {
     "new": "Nytt Konvent",
     "create": "Skapa konvent",
-    "edit": "Redigera Konvent",
+    "edit": "Redigera konvent",
     "import": "Importera Schema",
     "detail": "Konventdetaljer",
     "loadingTitle": "Läser in konvent",
@@ -213,7 +213,12 @@
       "teen": "13+ Tonår",
       "mature": "17+ Vuxet",
       "adult": "18+ Vuxen"
-    }
+    },
+    "nameTooLong": "Namnet får vara högst {{max}} tecken.",
+    "endBeforeStart": "Slutdatumet kan inte vara före startdatumet.",
+    "longSpan": "Det är ett {{count}} dagar långt konvent. Kontrollera datumen.",
+    "updateError": "Det gick inte att spara ändringarna.",
+    "nameCounter": "{{count}} av {{max}}"
   },
   "profile": {
     "title": "Profil",

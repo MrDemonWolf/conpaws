@@ -48,9 +48,17 @@ describe("iOS native stack headers", () => {
     }
   });
 
-  it("keeps form sheets compact", () => {
-    expect(
-      homeLayoutSource.match(/headerLargeTitleEnabled: false/g),
-    ).toHaveLength(2);
+  it("keeps every form sheet compact", () => {
+    // Counting occurrences would just need bumping each time a sheet is added,
+    // and would pass if a new sheet were added while an old one lost the flag.
+    // Assert the invariant instead: a form sheet never gets a large title.
+    const sheets = homeLayoutSource
+      .match(/options=\{\{[\s\S]*?\}\}/g)
+      ?.filter((block) => block.includes('presentation: "formSheet"'));
+
+    expect(sheets?.length).toBeGreaterThan(0);
+    for (const sheet of sheets ?? []) {
+      expect(sheet).toContain("headerLargeTitleEnabled: false");
+    }
   });
 });

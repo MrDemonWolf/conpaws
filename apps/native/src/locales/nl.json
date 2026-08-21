@@ -213,7 +213,12 @@
       "teen": "13+ Tiener",
       "mature": "17+ Mature",
       "adult": "18+ Volwassen"
-    }
+    },
+    "nameTooLong": "Houd de naam op {{max}} tekens of minder.",
+    "endBeforeStart": "De einddatum kan niet voor de startdatum liggen.",
+    "longSpan": "Dat is een conventie van {{count}} dagen. Controleer de data.",
+    "updateError": "Wijzigingen konden niet worden opgeslagen.",
+    "nameCounter": "{{count}} van {{max}}"
   },
   "profile": {
     "title": "Profiel",

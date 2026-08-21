@@ -1,6 +1,7 @@
 import AddIcon from "@expo/material-symbols/add.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
+import SettingsIcon from "@expo/material-symbols/settings.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
 import { Host, Icon } from "@expo/ui";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
@@ -1322,6 +1323,12 @@ export default function ConventionDetailScreen() {
               onPress={openImportSchedule}
             >
               {t("convention.importSchedule")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              icon={process.env.EXPO_OS === "ios" ? "gearshape" : SettingsIcon}
+              onPress={() => router.push(`/convention/${convention.id}/edit`)}
+            >
+              {t("convention.edit")}
             </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
           {events.length > 0 ? (

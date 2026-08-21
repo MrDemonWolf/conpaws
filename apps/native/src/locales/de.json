@@ -213,7 +213,12 @@
       "teen": "Ab 13",
       "mature": "Ab 17",
       "adult": "Ab 18"
-    }
+    },
+    "nameTooLong": "Der Name darf höchstens {{max}} Zeichen haben.",
+    "endBeforeStart": "Das Enddatum darf nicht vor dem Startdatum liegen.",
+    "longSpan": "Das ist eine {{count}}-tägige Convention. Prüfe die Daten.",
+    "updateError": "Änderungen konnten nicht gespeichert werden.",
+    "nameCounter": "{{count}} von {{max}}"
   },
   "profile": {
     "title": "Profil",

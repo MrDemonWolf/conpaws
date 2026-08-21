@@ -41,6 +41,18 @@ export default function HomeLayout() {
         }}
       />
       <Stack.Screen
+        name="convention/[id]/edit"
+        options={{
+          title: t("convention.edit"),
+          headerLargeTitleEnabled: false,
+          headerShown: process.env.EXPO_OS === "ios",
+          presentation: "formSheet",
+          sheetAllowedDetents: [0.55, 0.85],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
         name="convention/[id]/import"
         options={{
           title: t("import.title"),
