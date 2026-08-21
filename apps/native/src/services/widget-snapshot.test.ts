@@ -46,6 +46,7 @@ function event(
     sourceUid: null,
     sourceUrl: null,
     isAgeRestricted: false,
+    ageRating: null,
     contentWarning: false,
     createdAt: "2026-01-01",
     updatedAt: "2026-01-01",

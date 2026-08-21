@@ -69,6 +69,28 @@ describe.each([
     ).toBeGreaterThanOrEqual(4.5);
   });
 
+  // These pairs were previously hardcoded Tailwind palette classes inside
+  // Badge.tsx, so nothing checked them. Pill text is small, so AAA for small
+  // text (7:1) is the bar, not AA.
+  it.each(["age-teen", "age-mature", "age-adult", "info", "success"])(
+    "keeps %s pill text at WCAG AAA against its own fill",
+    (name) => {
+      expect(
+        contrast(color(theme, `${name}-foreground`), color(theme, name)),
+      ).toBeGreaterThanOrEqual(7);
+    },
+  );
+
+  it("keeps pill text readable if the fill fails to render", () => {
+    // A pill whose background is dropped -- by a theme override or a
+    // rendering fallback -- must not leave unreadable text on bare card.
+    for (const name of ["age-teen", "age-mature", "age-adult", "info"]) {
+      expect(
+        contrast(color(theme, `${name}-foreground`), color(theme, "card")),
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it("keeps body text at WCAG AAA", () => {
     for (const surface of ["background", "card"]) {
       expect(

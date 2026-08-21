@@ -425,6 +425,7 @@ export async function upsertBySourceUid(
           sourceUid: event.sourceUid,
           sourceUrl: event.sourceUrl,
           isAgeRestricted: event.isAgeRestricted,
+          ageRating: event.ageRating,
           contentWarning: event.contentWarning,
           updatedAt: now,
         })

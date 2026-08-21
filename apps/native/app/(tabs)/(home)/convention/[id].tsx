@@ -53,7 +53,10 @@ import {
   overlappingEventIds,
 } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
-import { getEventIndicators } from "@/lib/event-indicators";
+import {
+  getEventIndicators,
+  shouldShowProvenance,
+} from "@/lib/event-indicators";
 import {
   createManualEventTimes,
   type ManualEventTimes,
@@ -1084,6 +1087,8 @@ export default function ConventionDetailScreen() {
   });
 
   const scheduledEvents = events.filter((event) => event.isInSchedule);
+  // One computation per render, not per row.
+  const showProvenance = useMemo(() => shouldShowProvenance(events), [events]);
   const conflictingEventIds = overlappingEventIds(scheduledEvents);
 
   const storedTimeZone = convention?.timeZone;
@@ -1234,11 +1239,12 @@ export default function ConventionDetailScreen() {
         endTime={formatTime(event.endTime, conventionTimeZone, locale)}
         room={event.room ?? event.location ?? undefined}
         category={event.category ?? undefined}
+        description={event.description}
+        ageRating={event.ageRating}
         isInSchedule={event.isInSchedule}
         reminderLabel={reminderLabel}
-        provenanceLabel={provenanceLabel}
+        provenanceLabel={showProvenance ? provenanceLabel : undefined}
         hasConflict={conflictingEventIds.has(event.id)}
-        isAgeRestricted={event.isAgeRestricted}
         contentWarning={event.contentWarning}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

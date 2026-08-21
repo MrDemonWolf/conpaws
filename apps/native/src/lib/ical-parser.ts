@@ -1,4 +1,11 @@
 import { fromConventionTime, isValidTimeZone } from "./convention-time";
+import {
+  type AgeRating,
+  ageRatingFromText,
+  classifyCategories,
+  isRestrictedRating,
+  strictestRating,
+} from "./event-categories";
 
 export interface ParsedEvent {
   title: string;
@@ -7,7 +14,12 @@ export interface ParsedEvent {
   endTime: Date | null;
   location: string | null;
   room: string | null;
+  /** First topic tag, kept for existing callers and the category filter. */
   category: string | null;
+  /** Every topic tag the feed supplied, audience tags removed. */
+  categories: string[];
+  /** Audience rating, or null when the feed said nothing about audience. */
+  ageRating: AgeRating | null;
   sourceUid: string;
   legacySourceUid: string | null;
   recurrenceTime: Date | null;
@@ -168,11 +180,6 @@ function splitLocation(raw: string): { location: string; room: string | null } {
   const room = raw.slice(0, lastComma).trim();
   const location = raw.slice(lastComma + 1).trim();
   return { location, room };
-}
-
-function detectAgeRestricted(text: string): boolean {
-  const lower = text.toLowerCase();
-  return /18\+|nsfw|adult|after dark/.test(lower);
 }
 
 function detectContentWarning(text: string): boolean {
@@ -416,19 +423,29 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     }
 
     const rawCategory = props["CATEGORIES"] ?? null;
-    const category = rawCategory
-      ? decodeHtmlEntities(unescapeText(rawCategory)).split(",")[0].trim() ||
-        null
-      : null;
+    // CATEGORIES mixes audience ratings and topics in one comma list, in no
+    // guaranteed order. Splitting them keeps both; taking [0] used to discard
+    // whichever happened to come second.
+    const { ageRating: taggedRating, categories: topicCategories } =
+      classifyCategories(
+        rawCategory ? decodeHtmlEntities(unescapeText(rawCategory)) : null,
+      );
+    const category = topicCategories[0] ?? null;
 
     const sourceUrl = props["URL"] ?? null;
 
     const checkText = `${title} ${description ?? ""}`;
-    const isAgeRestricted = detectAgeRestricted(checkText);
+    // Sched exports carry no audience tags at all, so prose is the only signal
+    // there. A tag from the feed always outranks it.
+    const ageRating = strictestRating(
+      taggedRating,
+      ageRatingFromText(checkText),
+    );
+    const isAgeRestricted = isRestrictedRating(ageRating);
     const contentWarning = detectContentWarning(checkText);
 
-    if (category) {
-      categoryCountMap.set(category, (categoryCountMap.get(category) ?? 0) + 1);
+    for (const topic of topicCategories) {
+      categoryCountMap.set(topic, (categoryCountMap.get(topic) ?? 0) + 1);
     }
 
     parsedEvents.push({
@@ -439,6 +456,8 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       location,
       room,
       category,
+      categories: topicCategories,
+      ageRating,
       sourceUid: dedupeKey,
       recurrenceTime,
       legacySourceUid: recurrenceId ? uid : null,

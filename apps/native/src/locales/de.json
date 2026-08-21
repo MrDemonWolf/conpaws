@@ -208,6 +208,11 @@
         "order": "Die Endzeit muss am selben Datum nach der Startzeit liegen.",
         "save": "Das Event konnte nicht gespeichert werden. Deine anderen Events wurden nicht geändert."
       }
+    },
+    "ageRatings": {
+      "teen": "Ab 13",
+      "mature": "Ab 17",
+      "adult": "Ab 18"
     }
   },
   "profile": {

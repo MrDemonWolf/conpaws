@@ -1,8 +1,18 @@
-import { AlertTriangle, ShieldAlert } from "lucide-react-native";
+import { AlertTriangle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, useColorScheme, View } from "react-native";
-import { Badge, Text } from "@/components/ui";
+import { Badge, type BadgeVariant, Text } from "@/components/ui";
+import type { AgeRating } from "@/lib/event-categories";
 import { cn } from "@/lib/utils";
+
+/** Only ratings that restrict who may attend get a pill. */
+const AGE_BADGES: Partial<
+  Record<AgeRating, { variant: BadgeVariant; key: string }>
+> = {
+  teen: { variant: "age-teen", key: "convention.ageRatings.teen" },
+  mature: { variant: "age-mature", key: "convention.ageRatings.mature" },
+  adult: { variant: "age-adult", key: "convention.ageRatings.adult" },
+};
 
 interface EventItemProps {
   title: string;
@@ -10,11 +20,16 @@ interface EventItemProps {
   endTime?: string;
   room?: string;
   category?: string;
+  description?: string | null;
+  ageRating?: AgeRating | null;
   isInSchedule?: boolean;
   reminderLabel?: string;
+  /**
+   * Provenance is only meaningful when a convention actually mixes imported
+   * and hand-added events. Labelling every row "Imported" is noise.
+   */
   provenanceLabel?: string;
   hasConflict?: boolean;
-  isAgeRestricted?: boolean;
   contentWarning?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
@@ -29,11 +44,12 @@ export function EventItem({
   endTime,
   room,
   category,
+  description,
+  ageRating,
   isInSchedule = false,
   reminderLabel,
   provenanceLabel,
   hasConflict = false,
-  isAgeRestricted = false,
   contentWarning = false,
   onPress,
   onLongPress,
@@ -42,13 +58,20 @@ export function EventItem({
   testID,
 }: EventItemProps) {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const isDark = useColorScheme() === "dark";
+  const ageBadge = ageRating ? AGE_BADGES[ageRating] : undefined;
+  const ageLabel = ageBadge ? t(ageBadge.key) : null;
+  const meta = [category, room].filter(Boolean).join(" · ");
+  const summary = description?.trim() ? description.trim() : null;
+
   const accessibilityDetails = [
     title,
     endTime
       ? t("convention.eventTimeRange", { start: startTime, end: endTime })
       : startTime,
+    // Announced right after the time so a screen-reader user hears the age
+    // gate before the description, not buried after it.
+    ageLabel,
     room,
     category,
     isInSchedule
@@ -57,8 +80,8 @@ export function EventItem({
     reminderLabel ? `${t("convention.reminderSet")}: ${reminderLabel}` : null,
     provenanceLabel,
     hasConflict ? t("convention.overlapLabel") : null,
-    isAgeRestricted ? t("convention.ageRestricted") : null,
     contentWarning ? t("convention.contentWarning") : null,
+    summary,
   ]
     .filter(Boolean)
     .join(", ");
@@ -76,51 +99,91 @@ export function EventItem({
       }
       accessibilityState={{ selected: isInSchedule }}
       className={cn(
-        "min-h-14 flex-row items-center gap-3 border-b border-border px-4 py-2 active:opacity-70",
+        // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
+        // the old py-2 broke.
+        "min-h-14 flex-row gap-3 border-b border-border px-4 py-3 active:opacity-70",
         className,
       )}
     >
-      <View className="min-w-20 shrink-0 justify-center">
-        <Text variant="label" className="tabular-nums text-primary">
+      <View className="w-20 shrink-0">
+        <Text
+          variant="label"
+          className="tabular-nums text-primary"
+          maxFontSizeMultiplier={1.6}
+        >
           {startTime}
         </Text>
         {endTime ? (
-          <Text variant="caption" className="tabular-nums">
+          <Text
+            variant="caption"
+            className="tabular-nums"
+            maxFontSizeMultiplier={1.6}
+          >
             {endTime}
           </Text>
         ) : null}
       </View>
-      <View className="flex-1 gap-0.5">
-        <View className="flex-row items-center justify-between">
-          <Text variant="label" className="flex-1 pr-2">
+
+      <View className="flex-1 gap-1.5">
+        <View className="flex-row items-start justify-between gap-2">
+          <Text variant="label" className="flex-1 font-semibold">
             {title}
           </Text>
           <View
             accessible={false}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
-            className="flex-row items-center gap-1.5"
+            className="flex-row items-center gap-1.5 pt-0.5"
           >
-            {isAgeRestricted && (
-              <ShieldAlert size={14} color={isDark ? "#FCA5A5" : "#B42318"} />
-            )}
-            {contentWarning && (
-              <AlertTriangle size={14} color={isDark ? "#FCD34D" : "#854D0E"} />
-            )}
-            {isInSchedule && <Text className="text-primary text-lg">✓</Text>}
+            {contentWarning ? (
+              <AlertTriangle
+                size={15}
+                // Matches --color-age-mature-foreground in global.css, which
+                // theme-contrast.test.ts holds at AAA against the card.
+                color={isDark ? "#fed7aa" : "#7c2d12"}
+              />
+            ) : null}
+            {isInSchedule ? (
+              <Text className="text-primary text-base leading-none">✓</Text>
+            ) : null}
           </View>
         </View>
-        {category || room ? (
-          <Text variant="caption" numberOfLines={2}>
-            {[category, room].filter(Boolean).join(" · ")}
+
+        {ageLabel || meta ? (
+          <View className="flex-row flex-wrap items-center gap-2">
+            {ageBadge && ageLabel ? (
+              <Badge
+                variant={ageBadge.variant}
+                label={ageLabel}
+                emphasis="strong"
+              />
+            ) : null}
+            {meta ? (
+              <Text variant="caption" className="shrink" numberOfLines={1}>
+                {meta}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
+
+        {summary ? (
+          // Truncated here; the full text lives in the event's action sheet,
+          // which is what tapping the row already opens.
+          <Text
+            variant="caption"
+            className="text-muted-foreground"
+            numberOfLines={2}
+          >
+            {summary}
           </Text>
         ) : null}
+
         {reminderLabel !== undefined || provenanceLabel !== undefined ? (
           <View
             accessible={false}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
-            className="flex-row flex-wrap gap-1.5 pt-1"
+            className="flex-row flex-wrap gap-1.5"
           >
             {reminderLabel !== undefined ? (
               <Badge variant="info" label={reminderLabel} />
@@ -130,6 +193,7 @@ export function EventItem({
             ) : null}
           </View>
         ) : null}
+
         {hasConflict ? (
           <Text variant="caption" className="text-destructive">
             {t("convention.overlapLabel")}

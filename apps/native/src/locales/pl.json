@@ -208,6 +208,11 @@
         "order": "Czas zakończenia musi być późniejszy niż rozpoczęcia tego samego dnia.",
         "save": "Nie udało się zapisać wydarzenia. Inne wydarzenia nie zostały zmienione."
       }
+    },
+    "ageRatings": {
+      "teen": "13+ Nastolatki",
+      "mature": "17+ Dojrzałe",
+      "adult": "18+ Dorośli"
     }
   },
   "profile": {

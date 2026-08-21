@@ -38,6 +38,10 @@ export const conventionEvents = sqliteTable("convention_events", {
   isAgeRestricted: integer("is_age_restricted", { mode: "boolean" })
     .notNull()
     .default(false),
+  /** Audience rating from the feed. Null means the feed did not say. */
+  ageRating: text("age_rating", {
+    enum: ["all-ages", "teen", "mature", "adult"],
+  }),
   contentWarning: integer("content_warning", { mode: "boolean" })
     .notNull()
     .default(false),
