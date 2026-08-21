@@ -7,6 +7,7 @@ export const conventions = sqliteTable("conventions", {
   startDate: text("start_date").notNull(),
   endDate: text("end_date").notNull(),
   timeZone: text("time_zone"),
+  location: text("location"),
   icalUrl: text("ical_url"),
   status: text("status", { enum: ["upcoming", "active", "ended"] })
     .notNull()
