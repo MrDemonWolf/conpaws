@@ -25,6 +25,15 @@
         "APP_VARIANT": "preview"
       }
     },
+    "preview-device": {
+      "distribution": "internal",
+      "environment": "preview",
+      "bun": "1.3.10",
+      "node": "22.13.1",
+      "env": {
+        "APP_VARIANT": "preview"
+      }
+    },
     "production": {
       "distribution": "store",
       "environment": "production",
