@@ -208,6 +208,11 @@
         "order": "De eindtijd moet op dezelfde datum na de starttijd vallen.",
         "save": "Het evenement kon niet worden opgeslagen. Je andere evenementen zijn niet gewijzigd."
       }
+    },
+    "ageRatings": {
+      "teen": "13+ Tiener",
+      "mature": "17+ Mature",
+      "adult": "18+ Volwassen"
     }
   },
   "profile": {

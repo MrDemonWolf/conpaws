@@ -22,6 +22,20 @@
   --color-border: #d1d1d6;
   --color-input: #d1d1d6;
   --color-ring: #00729c;
+
+  /* Audience ratings and status pills. Every foreground/background pair here
+     is asserted at WCAG AAA (7:1) by theme-contrast.test.ts, because pill text
+     is small and these used to be untested Tailwind palette classes. */
+  --color-age-teen: #fef3c7;
+  --color-age-teen-foreground: #713f12;
+  --color-age-mature: #ffedd5;
+  --color-age-mature-foreground: #7c2d12;
+  --color-age-adult: #fee2e2;
+  --color-age-adult-foreground: #7f1d1d;
+  --color-info: #dbeafe;
+  --color-info-foreground: #1e40af;
+  --color-success: #dcfce7;
+  --color-success-foreground: #14532d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,6 +57,16 @@
     --color-ring: #18b7f2;
     --color-destructive: #ff6961;
     --color-destructive-foreground: #000000;
+    --color-age-teen: #3f2d09;
+    --color-age-teen-foreground: #fde68a;
+    --color-age-mature: #43200a;
+    --color-age-mature-foreground: #fed7aa;
+    --color-age-adult: #4a1216;
+    --color-age-adult-foreground: #fecaca;
+    --color-info: #12294d;
+    --color-info-foreground: #bfdbfe;
+    --color-success: #0f3320;
+    --color-success-foreground: #bbf7d0;
   }
 }
 

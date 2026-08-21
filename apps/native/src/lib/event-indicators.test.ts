@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getEventIndicators } from "./event-indicators";
+import { getEventIndicators, shouldShowProvenance } from "./event-indicators";
 
 describe("getEventIndicators", () => {
   it("marks source-backed events as imported without requiring a source URL", () => {
@@ -27,5 +27,24 @@ describe("getEventIndicators", () => {
       provenance: "added",
       reminder: { kind: "hour", minutes: 60 },
     });
+  });
+});
+
+describe("shouldShowProvenance", () => {
+  const imported = { reminderMinutes: null, sourceUid: "uid-1" };
+  const added = { reminderMinutes: null, sourceUid: null };
+
+  it("stays hidden when every event came from the same place", () => {
+    expect(shouldShowProvenance([imported, imported])).toBe(false);
+    expect(shouldShowProvenance([added, added])).toBe(false);
+  });
+
+  it("shows once the schedule actually mixes sources", () => {
+    expect(shouldShowProvenance([imported, added])).toBe(true);
+    expect(shouldShowProvenance([added, imported])).toBe(true);
+  });
+
+  it("stays hidden for an empty schedule", () => {
+    expect(shouldShowProvenance([])).toBe(false);
   });
 });
