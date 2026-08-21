@@ -1,10 +1,10 @@
 import {
+  Collapsible,
   FieldGroup,
   Host,
   ListItem,
   Button as NativeButton,
   Text as NativeText,
-  Picker,
   TextInput,
 } from "@expo/ui";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
@@ -19,7 +19,16 @@ import { router, Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Keyboard, useColorScheme, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  Keyboard,
+  Modal,
+  Pressable,
+  TextInput as RNTextInput,
+  useColorScheme,
+  View,
+} from "react-native";
 import { SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import {
@@ -27,6 +36,12 @@ import {
   conventionStatusForDay,
   isValidTimeZone,
 } from "@/lib/convention-time";
+import {
+  buildTimeZoneOptions,
+  searchTimeZones,
+  type TimeZoneOption,
+  timeZoneLabel,
+} from "@/lib/time-zone-search";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 interface ConventionDateFieldProps {
@@ -93,6 +108,118 @@ function ConventionDateField({
   );
 }
 
+interface TimeZonePickerModalProps {
+  visible: boolean;
+  options: readonly TimeZoneOption[];
+  selected: string;
+  onSelect: (id: string) => void;
+  onClose: () => void;
+}
+
+function TimeZonePickerModal({
+  visible,
+  options,
+  selected,
+  onSelect,
+  onClose,
+}: TimeZonePickerModalProps) {
+  const { t } = useTranslation();
+  const [query, setQuery] = useState("");
+  const results = useMemo(
+    () => searchTimeZones(options, query),
+    [options, query],
+  );
+
+  function handleClose() {
+    setQuery("");
+    onClose();
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={handleClose}
+    >
+      <SafeView edges={["top", "bottom"]}>
+        <View className="flex-row items-center justify-between gap-4 px-4 py-3">
+          <Text variant="h3">{t("convention.timeZoneSearch")}</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={handleClose}
+            className="active:opacity-70"
+          >
+            <Text variant="body" className="text-primary">
+              {t("common.done")}
+            </Text>
+          </Pressable>
+        </View>
+
+        <View className="px-4 pb-3">
+          <RNTextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t("convention.timeZoneSearchPlaceholder")}
+            placeholderTextColor="#94A3B8"
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+            accessibilityLabel={t("convention.timeZoneSearch")}
+            testID="time-zone-search-input"
+            className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
+          />
+        </View>
+
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentInsetAdjustmentBehavior="automatic"
+          testID="time-zone-results"
+          ListEmptyComponent={
+            <View className="px-4 py-8">
+              <Text
+                variant="body"
+                className="text-muted-foreground text-center"
+              >
+                {t("convention.timeZoneNoResults", { query: query.trim() })}
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => {
+            const isSelected = item.id === selected;
+            return (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                onPress={() => {
+                  onSelect(item.id);
+                  handleClose();
+                }}
+                className="min-h-14 flex-row items-center justify-between gap-4 border-b border-border px-4 py-3 active:opacity-70"
+              >
+                <View className="flex-1">
+                  <Text variant="body">{item.city}</Text>
+                  <Text variant="caption" className="text-muted-foreground">
+                    {item.region || item.id}
+                  </Text>
+                </View>
+                {isSelected ? (
+                  <Text variant="body" className="text-primary">
+                    ✓
+                  </Text>
+                ) : null}
+              </Pressable>
+            );
+          }}
+        />
+      </SafeView>
+    </Modal>
+  );
+}
+
 export default function CreateConventionScreen() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
@@ -108,14 +235,16 @@ export default function CreateConventionScreen() {
     addDays(startOfDay(new Date()), 1),
   );
   const [saving, setSaving] = useState(false);
-  const timeZones = useMemo(() => {
-    return [
-      deviceTimeZone,
-      ...[...new Set(["UTC", ...supportedValuesOf("timeZone")])]
-        .filter((value) => value !== deviceTimeZone)
-        .sort(),
-    ];
-  }, [deviceTimeZone]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
+  const timeZones = useMemo(
+    () =>
+      buildTimeZoneOptions(
+        ["UTC", ...supportedValuesOf("timeZone")],
+        deviceTimeZone,
+      ),
+    [deviceTimeZone],
+  );
   function updateStartDate(value: Date) {
     setStartDate(value);
     if (endDate < value) setEndDate(value);
@@ -261,31 +390,36 @@ export default function CreateConventionScreen() {
                 setEndDate(value < startDate ? startDate : value)
               }
             />
-            <ListItem
-              trailing={
-                <Picker
-                  selectedValue={timeZone}
-                  onValueChange={(value) => {
-                    setTimeZone(String(value));
-                    Keyboard.dismiss();
-                  }}
-                  appearance="menu"
-                  testID="time-zone-picker"
-                >
-                  {timeZones.map((value) => (
-                    <Picker.Item key={value} label={value} value={value} />
-                  ))}
-                </Picker>
-              }
+            <Collapsible
+              label={t("common.advanced")}
+              isOpen={advancedOpen}
+              onOpenChange={setAdvancedOpen}
             >
-              {t("convention.timeZone")}
-            </ListItem>
+              <ListItem
+                supportingText={timeZoneLabel(timeZone)}
+                testID="time-zone-picker"
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setTimeZonePickerVisible(true);
+                }}
+              >
+                {t("convention.timeZone")}
+              </ListItem>
+            </Collapsible>
             <FieldGroup.SectionFooter>
-              <NativeText>{t("convention.timeZoneHelp")}</NativeText>
+              <NativeText>{t("convention.timeZoneAdvancedHelp")}</NativeText>
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>
         </FieldGroup>
       </Host>
+
+      <TimeZonePickerModal
+        visible={timeZonePickerVisible}
+        options={timeZones}
+        selected={timeZone}
+        onSelect={setTimeZone}
+        onClose={() => setTimeZonePickerVisible(false)}
+      />
     </SafeView>
   );
 }

@@ -38,7 +38,7 @@ describe("database bootstrap", () => {
     const version = database.prepare("PRAGMA user_version").get();
 
     expect(eventCount).toEqual({ count: 0 });
-    expect(version).toEqual({ user_version: 2 });
+    expect(version).toEqual({ user_version: 3 });
     database.close();
   });
 
@@ -54,10 +54,39 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     const convention = database
-      .prepare("SELECT name, time_zone FROM conventions WHERE id = ?")
+      .prepare("SELECT name, time_zone, location FROM conventions WHERE id = ?")
       .get("legacy-con");
 
-    expect(convention).toEqual({ name: "Legacy Con", time_zone: null });
+    expect(convention).toEqual({
+      name: "Legacy Con",
+      time_zone: null,
+      location: null,
+    });
+    database.close();
+  });
+
+  it("repairs an interrupted v3 migration without retrying ADD COLUMN", () => {
+    const database = new DatabaseSync(":memory:");
+    database.exec(MIGRATION_1_SQL);
+    database.exec(`
+      INSERT INTO conventions (id, name, start_date, end_date)
+      VALUES ('legacy-con', 'Legacy Con', '2026-01-01', '2026-01-02');
+      ALTER TABLE conventions ADD COLUMN time_zone TEXT;
+      ALTER TABLE conventions ADD COLUMN location TEXT;
+      PRAGMA user_version = 2;
+    `);
+
+    initializeDatabase(migrationAdapter(database));
+    initializeDatabase(migrationAdapter(database));
+
+    expect(database.prepare("PRAGMA user_version").get()).toEqual({
+      user_version: 3,
+    });
+    expect(
+      database
+        .prepare("SELECT id, location FROM conventions WHERE id = ?")
+        .get("legacy-con"),
+    ).toEqual({ id: "legacy-con", location: null });
     database.close();
   });
 
@@ -78,13 +107,20 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 2,
+      user_version: 3,
     });
     expect(
       database
-        .prepare("SELECT id, name, time_zone FROM conventions WHERE id = ?")
+        .prepare(
+          "SELECT id, name, time_zone, location FROM conventions WHERE id = ?",
+        )
         .get("legacy-con"),
-    ).toEqual({ id: "legacy-con", name: "Legacy Con", time_zone: null });
+    ).toEqual({
+      id: "legacy-con",
+      name: "Legacy Con",
+      time_zone: null,
+      location: null,
+    });
     database.close();
   });
 });
