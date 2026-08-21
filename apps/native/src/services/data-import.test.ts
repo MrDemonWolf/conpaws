@@ -19,6 +19,7 @@ const payload: ExportPayload = {
         startDate: "2026-08-21",
         endDate: "2026-08-23",
         timeZone: "America/Chicago",
+        location: null,
         icalUrl: "https://testcon.sched.com",
         status: "upcoming",
         createdAt: "2026-01-01T00:00:00.000Z",

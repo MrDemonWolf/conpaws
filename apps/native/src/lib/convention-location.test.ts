@@ -60,10 +60,7 @@ describe("timeZoneFromCoordinates", () => {
   it("rejects an empty or non-string lookup result", () => {
     expect(timeZoneFromCoordinates(PITTSBURGH, () => "")).toBe(null);
     expect(
-      timeZoneFromCoordinates(
-        PITTSBURGH,
-        () => undefined as unknown as string,
-      ),
+      timeZoneFromCoordinates(PITTSBURGH, () => undefined as unknown as string),
     ).toBe(null);
   });
 });

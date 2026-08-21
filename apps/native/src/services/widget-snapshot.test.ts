@@ -18,6 +18,7 @@ const convention: Convention = {
   startDate: "2026-09-03",
   endDate: "2026-09-06",
   timeZone: "America/Chicago",
+  location: null,
   icalUrl: null,
   status: "upcoming",
   createdAt: "2026-01-01",

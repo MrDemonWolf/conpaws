@@ -112,5 +112,8 @@ export function resolveConventionTimeZone({
 
 /** Collapses whitespace so " Pittsburgh ,  PA " stores as "Pittsburgh, PA". */
 export function normalizeLocationName(value: string): string {
-  return value.replace(/\s*,\s*/g, ", ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/\s*,\s*/g, ", ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
