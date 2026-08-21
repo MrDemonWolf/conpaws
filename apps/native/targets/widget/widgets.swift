@@ -45,8 +45,22 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
     for configuration: ConPawsWidgetIntent,
     in context: Context
   ) async -> Timeline<ConPawsWidgetEntry> {
-    let entry = entry(for: configuration, at: .now)
-    return Timeline(entries: [entry], policy: .after(nextRefresh(for: entry)))
+    let now = Date.now
+    let first = entry(for: configuration, at: now)
+
+    // One entry plus a refresh request leaves the label frozen for as long as
+    // the system takes to wake us -- which is exactly when a countdown looks
+    // broken. Pre-build an entry for every moment the text changes so
+    // WidgetKit can render them without us.
+    var entries = [first]
+    for date in changePoints(for: first, from: now) {
+      entries.append(entry(for: configuration, at: date))
+    }
+
+    // Re-plan from the last entry rather than a fixed interval, so the next
+    // wake lands exactly when the pre-built run is exhausted.
+    let reload = entries.last?.date ?? nextRefresh(for: first)
+    return Timeline(entries: entries, policy: .after(reload))
   }
 
   private func entry(
@@ -104,6 +118,31 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       configuration: configuration,
       state: .next(convention, current: current, upcoming: upcoming)
     )
+  }
+
+  /// Moments at which this entry's visible countdown would change wording.
+  private func changePoints(
+    for entry: ConPawsWidgetEntry,
+    from date: Date
+  ) -> [Date] {
+    switch entry.state {
+    case .countdown(let convention):
+      return ConPawsCountdown.changePoints(
+        from: date,
+        to: convention.startDate,
+        timeZone: convention.timeZone
+      )
+    case .leave(let convention, _, let upcoming):
+      return ConPawsCountdown.changePoints(
+        from: date,
+        to: upcoming.startDate,
+        timeZone: convention.timeZone
+      )
+    case .next, .empty:
+      // These read as clock times rather than countdowns, so they only need
+      // the single transition nextRefresh already computes.
+      return []
+    }
   }
 
   private func nextRefresh(for entry: ConPawsWidgetEntry) -> Date {
@@ -222,28 +261,18 @@ private struct ConPawsCountdownView: View {
         .font(.headline)
         .lineLimit(2)
       Spacer(minLength: 2)
-      if convention.startDate.timeIntervalSince(entryDate) < 86_400 {
-        Text(
-          timerInterval: entryDate...convention.startDate,
-          pauseTime: convention.startDate,
-          countsDown: true,
-          showsHours: true
+      Text(
+        ConPawsCountdown.label(
+          from: entryDate,
+          to: convention.startDate,
+          timeZone: convention.timeZone
         )
-        .font(.system(.title2, design: .rounded, weight: .bold))
-        .monospacedDigit()
-        .widgetAccentable()
-      } else {
-        Text(
-          ConPawsCountdownFormatter.label(
-            from: entryDate,
-            to: convention.startDate,
-            timeZone: convention.timeZone
-          )
-        )
-        .font(.system(.title2, design: .rounded, weight: .bold))
-        .monospacedDigit()
-        .widgetAccentable()
-      }
+      )
+      .font(.system(.title2, design: .rounded, weight: .bold))
+      .monospacedDigit()
+      .minimumScaleFactor(0.8)
+      .lineLimit(1)
+      .widgetAccentable()
       if !convention.dateRangeLabel.isEmpty {
         Text(convention.dateRangeLabel)
           .font(.caption)
@@ -336,7 +365,11 @@ private struct ConPawsLeaveView: View {
           Text("Leave in")
             .font(.caption.weight(.semibold))
           Spacer()
-          ConPawsLiveTimer(from: entryDate, to: upcoming.startDate)
+          ConPawsLiveTimer(
+            from: entryDate,
+            to: upcoming.startDate,
+            timeZone: timeZone
+          )
         }
         .foregroundStyle(.tint)
         .padding(.horizontal, 10)
@@ -367,7 +400,11 @@ private struct ConPawsLeaveView: View {
           Text("Leave in")
             .font(.caption2.weight(.semibold))
           Spacer()
-          ConPawsLiveTimer(from: entryDate, to: upcoming.startDate)
+          ConPawsLiveTimer(
+            from: entryDate,
+            to: upcoming.startDate,
+            timeZone: timeZone
+          )
         }
         .foregroundStyle(.tint)
         .widgetAccentable()
@@ -455,36 +492,18 @@ private struct ConPawsEventTime: View {
   }
 }
 
+/// "Leave in" readout. Shows whole minutes at most, for the same reason the
+/// convention countdown does: a widget cannot honour a per-second promise.
 private struct ConPawsLiveTimer: View {
   let from: Date
   let to: Date
+  let timeZone: TimeZone
 
   var body: some View {
-    Text(
-      timerInterval: from...to,
-      pauseTime: to,
-      countsDown: true,
-      showsHours: true
-    )
-    .font(.system(.subheadline, design: .rounded, weight: .bold))
-    .monospacedDigit()
-  }
-}
-
-private enum ConPawsCountdownFormatter {
-  static func label(from: Date, to: Date, timeZone: TimeZone) -> String {
-    let seconds = max(0, to.timeIntervalSince(from))
-    if seconds >= 30 * 86_400 {
-      var calendar = Calendar.autoupdatingCurrent
-      calendar.timeZone = timeZone
-      let components = calendar.dateComponents([.month, .day], from: from, to: to)
-      let months = max(0, components.month ?? 0)
-      let days = max(0, components.day ?? 0)
-      return months > 0 ? "\(months) MO \(days) D" : "\(days) D"
-    }
-
-    let hours = Int(seconds / 3_600)
-    return "\(hours / 24) D \(hours % 24) H"
+    Text(ConPawsCountdown.label(from: from, to: to, timeZone: timeZone))
+      .font(.system(.subheadline, design: .rounded, weight: .bold))
+      .monospacedDigit()
+      .lineLimit(1)
   }
 }
 

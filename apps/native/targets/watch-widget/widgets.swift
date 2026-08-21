@@ -64,31 +64,24 @@ private struct ConPawsWatchProvider: TimelineProvider {
     in context: Context,
     completion: @escaping (Timeline<ConPawsWatchEntry>) -> Void
   ) {
-    #if DEBUG
-    let preview = ConPawsWatchEntry.preview
-    if case .leave = WidgetScheduleProjection(snapshot: preview.snapshot, now: preview.date).state {
-      // Expected preview state.
-    } else {
-      assertionFailure("The Watch widget preview must cover the leave state")
-    }
-    if let convention = preview.snapshot.conventions.first {
-      assert(
-        WidgetFormat.nextEventTime(
-          preview.date.addingTimeInterval(86_400),
-          relativeTo: preview.date,
-          in: convention
-        ).hasPrefix("Tomorrow · ")
-      )
-    }
-    #endif
-
     let now = Date()
     let snapshot = ConPawsSnapshotStore.load()
-    let next = WidgetScheduleProjection(snapshot: snapshot, now: now).nextRefresh
-    let entries = [
-      ConPawsWatchEntry(date: now, snapshot: snapshot),
-      ConPawsWatchEntry(date: next, snapshot: snapshot),
-    ]
+    let projection = WidgetScheduleProjection(snapshot: snapshot, now: now)
+
+    // Pre-build an entry for every wording change rather than relying on the
+    // system waking this extension on time. Complications get an even smaller
+    // refresh budget than Home Screen widgets, so a frozen label is likelier
+    // here, not less.
+    var entries = [ConPawsWatchEntry(date: now, snapshot: snapshot)]
+    if let target = projection.countdownTarget, let zone = projection.timeZone {
+      for date in ConPawsCountdown.changePoints(from: now, to: target, timeZone: zone) {
+        entries.append(ConPawsWatchEntry(date: date, snapshot: snapshot))
+      }
+    }
+    if entries.count == 1 {
+      entries.append(ConPawsWatchEntry(date: projection.nextRefresh, snapshot: snapshot))
+    }
+
     completion(Timeline(entries: entries, policy: .atEnd))
   }
 }
@@ -258,11 +251,9 @@ private struct WidgetCountdownView: View {
   let timeZone: TimeZone
 
   var body: some View {
-    if target.timeIntervalSince(now) < 86_400, target > now {
-      Text(timerInterval: now...target, countsDown: true)
-    } else {
-      Text(WidgetFormat.countdown(from: now, to: target, in: timeZone))
-    }
+    Text(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone))
+      .lineLimit(1)
+      .minimumScaleFactor(0.8)
   }
 }
 
@@ -303,6 +294,21 @@ private struct WidgetScheduleProjection {
       return .leave(activeEvent, nextEvent, convention)
     }
     return .next(nextEvent, convention)
+  }
+
+  /// The convention's zone, so day wording matches where the event happens.
+  var timeZone: TimeZone? { convention?.timeZone }
+
+  /// The date this widget is currently counting down to, if any.
+  ///
+  /// Only the two states that render a countdown report one. `next` shows a
+  /// clock time, so it has nothing that changes wording minute to minute.
+  var countdownTarget: Date? {
+    switch state {
+    case .comingUp(let convention): return convention.startDate
+    case .leave(_, let upcoming, _): return upcoming.startDate
+    case .next, .blank: return nil
+    }
   }
 
   var nextRefresh: Date {
