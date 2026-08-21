@@ -65,13 +65,13 @@ private struct PreConventionView: View {
   let isUsingSavedSchedule: Bool
 
   var body: some View {
+    // Kept scrollable for large Dynamic Type, but the content is sized to
+    // fit without scrolling at default sizes. A decorative mark used to sit
+    // above the title and pushed the date range off the bottom of a 46mm
+    // screen -- it was already hidden from VoiceOver, so it cost a line and
+    // carried nothing.
     ScrollView {
       VStack(spacing: 8) {
-        Image(systemName: "calendar.badge.clock")
-          .font(.title2)
-          .foregroundStyle(.cyan)
-          .accessibilityHidden(true)
-
         Text(convention.name)
           .font(.headline)
           .multilineTextAlignment(.center)
