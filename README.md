@@ -21,6 +21,11 @@ Never miss a panel again.
   view the schedule in the convention's timezone.
 - **Local Reminders** - Schedule per-event reminders that work without a
   ConPaws account or push server.
+- **Home Screen and Lock Screen Widgets** - Convention countdown, next
+  event, and leave reminders in the small and medium Home Screen families
+  plus all three Lock Screen families.
+- **Apple Watch** - A watchOS app and a Smart Stack complication, fed by
+  the same cached schedule as the widgets.
 - **ConPaws+** - Premium subscription via RevenueCat for cloud sync,
   schedule sharing, badges, and pride flag name effects (planned).
 - **Cloud Sync** - Polling-based sync against a Cloudflare Workers API
@@ -65,8 +70,9 @@ Never miss a panel again.
 | Cloud database   | Cloudflare D1 (SQLite) with Drizzle ORM                          |
 | File storage     | Cloudflare R2 (zero egress)                                      |
 | Website          | Next.js 16.2.12 on Cloudflare Workers via OpenNext               |
+| Widgets and Watch | WidgetKit and SwiftUI via @bacons/apple-targets                  |
 | Payments         | RevenueCat (planned)                                             |
-| Crash reporting  | Sentry (planned)                                                 |
+| Crash reporting  | Sentry — wired up; the production DSN is not yet set             |
 | Monorepo         | bun workspaces, Turborepo, Biome                                 |
 
 ## Development
@@ -153,12 +159,17 @@ deployment bundle is ready, but no service is deployed or enabled in a store bin
 conpaws/
 ├── apps/
 │   ├── native/      # Expo React Native app (routes in app/, not src/app)
+│   │   ├── targets/ # Widget, Watch app, and Watch complication (Swift)
+│   │   └── modules/ # Local Expo module bridging the App Group and Watch
 │   ├── web/         # Next.js site on Cloudflare Workers via OpenNext
 │   └── server/      # (planned) Hono + tRPC + Better-Auth Worker
 ├── packages/
 │   ├── config/      # Shared tsconfig base
-│   ├── env/         # Zod-validated environment schemas
+│   ├── env/         # Zod environment schemas
+│   ├── infra/       # Alchemy — D1, Worker bindings and secrets, cron
 │   └── ui/          # Shared shadcn/ui components and styles
+├── docs/            # Widget and Watch design docs and mockups
+├── infra/           # xprem OTA descriptor and runbook (not deployed)
 ├── notes/           # Planning docs (plan.md is the technical blueprint)
 └── test-data/       # iCal fixtures for import development
 ```
