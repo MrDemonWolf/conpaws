@@ -29,6 +29,7 @@ import {
   Switch,
   TextInput,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { EventItem } from "@/components/EventItem";
@@ -529,6 +530,7 @@ function NativeDateTimeField({
   onChange,
 }: NativeDateTimeFieldProps) {
   const colorScheme = useColorScheme();
+  const { fontScale } = useWindowDimensions();
   const [dialogVisible, setDialogVisible] = useState(false);
   const formattedValue =
     mode === "date"
@@ -538,6 +540,15 @@ function NativeDateTimeField({
     "min-h-14 flex-row items-center justify-between gap-4 px-4 py-2",
     showDivider && "border-b border-border",
   );
+  // The compact UIDatePicker stretches to fill the row and then overflows past
+  // its label, clipping the value against the card edge. It has no intrinsic
+  // width and ignores flexShrink, so the frame has to be set explicitly.
+  // ponytail: base widths fit the widest en-US value ("Sep 30, 2026" /
+  // "10:00 PM") and scale with Dynamic Type. If a locale renders wider than
+  // en-US, measure onLayout instead of widening these further.
+  const pickerWidth = Math.round(
+    (mode === "date" ? 148 : 112) * Math.min(Math.max(fontScale, 1), 1.6),
+  );
 
   if (process.env.EXPO_OS === "ios") {
     return (
@@ -546,12 +557,7 @@ function NativeDateTimeField({
           {label}
         </Text>
         <DateTimePicker
-          // ponytail: the compact UIDatePicker stretches to the full row width
-          // and then overflows past the label, clipping against the card edge.
-          // It ignores flexShrink, so the frame has to be given explicitly.
-          // Sized for the longest en-US value ("Sep 30, 2026" / "10:00 PM");
-          // widen these if a locale or Dynamic Type size truncates the pill.
-          style={{ width: mode === "date" ? 148 : 112 }}
+          style={{ width: pickerWidth }}
           value={value}
           mode={mode}
           display="compact"
