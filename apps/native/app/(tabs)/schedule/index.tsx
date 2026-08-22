@@ -172,7 +172,10 @@ export default function ScheduleScreen() {
             title={t("schedule.empty.title")}
             subtitle={t("schedule.empty.subtitle")}
             ctaLabel={t("schedule.empty.cta")}
-            onCta={() => router.push("/")}
+            // The Home tab, not "/" — the root route re-runs the onboarding
+            // redirect, which is not what "open my conventions" should do
+            // from inside the app.
+            onCta={() => router.navigate("/(tabs)/(home)")}
           />
         }
       />
