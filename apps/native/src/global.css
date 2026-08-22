@@ -87,19 +87,20 @@
   }
 }
 
-@media android {
-  :root {
-    --color-background: platformColor(\?attr\/colorBackground);
-    --color-foreground: platformColor(\?attr\/colorOnSurface);
-    --color-card: platformColor(\?attr\/colorSurface);
-    --color-card-foreground: platformColor(\?attr\/colorOnSurface);
-    --color-secondary: platformColor(\?attr\/colorSurfaceVariant);
-    --color-secondary-foreground: platformColor(\?attr\/colorOnSurface);
-    --color-muted: platformColor(\?attr\/colorSurfaceVariant);
-    --color-muted-foreground: platformColor(\?attr\/colorOnSurfaceVariant);
-    --color-accent: platformColor(\?attr\/colorSecondaryContainer);
-    --color-accent-foreground: platformColor(\?attr\/colorOnSecondaryContainer);
-    --color-border: platformColor(\?attr\/colorOutline);
-    --color-input: platformColor(\?attr\/colorOutline);
-  }
-}
+/*
+ * No `@media android` platform colors.
+ *
+ * The Material 3 theme attributes this used to reference — colorOutline,
+ * colorSurfaceVariant, colorOnSurface, colorSecondaryContainer — do not exist
+ * in `Theme.AppCompat.DayNight.NoActionBar`, which is the theme Expo generates
+ * for this app. PlatformColor could not resolve them, so RCTView threw
+ * "None of the paths in the `resource_paths` array resolved to a color
+ * resource" on the first bordered view and the app died at launch. It was not
+ * a subtle degradation: Android never got past the splash.
+ *
+ * Android therefore uses the hex tokens above, which are the ones
+ * theme-contrast.test.ts already holds at AAA. Restoring Material You dynamic
+ * color here means first moving the app theme to Material 3 through a config
+ * plugin — android/ is generated, so editing styles.xml by hand does not
+ * survive a prebuild.
+ */
