@@ -142,7 +142,7 @@ installed side by side. Never promote a preview build publicly.
 
 ### Native MVP Screens
 
-The current routes cover onboarding, the Home and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. Put new routes in `apps/native/app/` (top level).
+The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).
 
 The tab bar uses **`NativeTabs` from `expo-router/unstable-native-tabs`** (`app/(tabs)/_layout.tsx`). That API is still marked unstable upstream, so pin expectations to the installed version and re-check it on every Expo upgrade — but do not "fix" it back to classic JS tabs. `notes/plan.md` remains the source for unfinished MVP and later product scope.
 
