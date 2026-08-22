@@ -382,10 +382,12 @@ export default function Home() {
         </span>
       </nav>
 
-      {/* The hero is z-0 so the decorative badge (and its lanyard, which runs
-          to the top of the screen) can never paint over the nav or any section
-          below — everything after this stacks above it. */}
-      <section id="waitlist" className="relative z-0 pt-6">
+      {/* No z-index here on purpose. `relative` alone does not open a stacking
+          context, so the badge inside can raise itself above the nav and every
+          section below — it hangs on a lanyard that runs off the top, and it
+          should read as hanging in front of the page, not trapped behind it.
+          Adding a z-index back to this section would box the badge in. */}
+      <section id="waitlist" className="relative pt-6">
         <Waitlist />
       </section>
 
