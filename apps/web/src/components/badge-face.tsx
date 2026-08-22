@@ -16,11 +16,19 @@ const QR = [
 ].map((row) => row.split("").map((c) => c === "1"));
 
 /**
- * The badge card face — shared between the static assembly (badge-card) and
- * the physics lanyard (badge-physics). Pure presentation, no handlers.
+ * The badge card face. Pure presentation, no handlers.
  * Fixed size: 320 × ~470px. The punch slot centre sits at (160, 17).
+ *
+ * `badgeNumber` arrives pre-formatted (four characters) so the roll-in
+ * animation lives with the state that drives it, in badge-card.
  */
-export function BadgeFace({ name }: { name: string }) {
+export function BadgeFace({
+  name,
+  badgeNumber = "0001",
+}: {
+  name: string;
+  badgeNumber?: string;
+}) {
   const filled = name.trim().length > 0;
 
   return (
@@ -108,8 +116,8 @@ export function BadgeFace({ name }: { name: string }) {
             )}
           </svg>
           <div className="text-right">
-            <p className="font-tech text-[22px] text-primary leading-none tracking-[0.08em]">
-              № 0007
+            <p className="font-tech text-[22px] text-primary leading-none tracking-[0.08em] tabular-nums">
+              № {badgeNumber}
             </p>
             <p className="mt-1.5 font-tech text-[8.5px] text-muted-foreground uppercase tracking-[0.24em]">
               iOS · Android · Est. 2026
