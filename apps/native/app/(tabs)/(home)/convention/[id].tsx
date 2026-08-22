@@ -1459,7 +1459,18 @@ export default function ConventionDetailScreen() {
         </ScrollView>
       ) : (
         <SectionList
-          alwaysBounceVertical={false}
+          // Bounce only when there is a schedule to show.
+          //
+          // Empty states must not bounce -- a centred "no events" panel that
+          // rubber-bands looks broken, which is why this was false.
+          //
+          // But it cannot be false when rows exist. The screen sets
+          // headerLargeTitleEnabled, and UIKit only lays the large title into
+          // a scroll view's content inset when that view can actually scroll.
+          // Bouncing off plus a schedule short enough to fit left the title
+          // nowhere to go, so it painted over the first event row and hid its
+          // start time.
+          alwaysBounceVertical={dayGroups.length > 0}
           sections={dayGroups}
           keyExtractor={(event) => event.id}
           contentInsetAdjustmentBehavior="automatic"
