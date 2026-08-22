@@ -104,3 +104,25 @@ it("keeps the brand heading readable over the strongest onboarding glow", () => 
   expect(contrast("#00729c", "#d4f0fc")).toBeGreaterThanOrEqual(4.5);
   expect(contrast("#18b7f2", "#0b3c63")).toBeGreaterThanOrEqual(4.5);
 });
+
+describe("Android platform colors", () => {
+  // The app's generated theme is Theme.AppCompat.DayNight.NoActionBar, which
+  // defines none of the Material 3 colour attributes. PlatformColor cannot
+  // resolve them, and RCTView throws "None of the paths in the
+  // `resource_paths` array resolved to a color resource" on the first bordered
+  // view — which killed the app at launch, on every Android device, for as
+  // long as the block existed.
+  //
+  // Re-adding these means moving the app theme to Material 3 through a config
+  // plugin first. android/ is generated, so editing styles.xml does not
+  // survive a prebuild.
+  it("declares no Material 3 theme attributes", () => {
+    const attrColors = css.match(/platformColor\(\\\?attr[^)]*\)/g) ?? [];
+
+    expect(attrColors).toEqual([]);
+  });
+
+  it("has no @media android block to reintroduce them", () => {
+    expect(css).not.toMatch(/@media\s+android\s*\{/);
+  });
+});
