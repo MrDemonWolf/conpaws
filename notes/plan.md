@@ -1,7 +1,9 @@
 # ConPaws - Project Plan
 
 **Tagline:** Navigate, Connect, Enjoy
-**Status:** Pre-development planning
+**Status:** In development. The native MVP, widgets, the Watch app, and the
+waitlist all ship; the cloud backend, auth, and premium remain planned. Treat
+unbuilt sections here as intent, not as a description of the code.
 
 ---
 
@@ -218,7 +220,7 @@ Two separate systems. Do not mix them up:
 
 | Variable | Notes |
 |----------|-------|
-| `EXPO_PUBLIC_SERVER_URL` | API Worker URL — validated by `packages/env/src/native.ts` |
+| `EXPO_PUBLIC_SERVER_URL` | API Worker URL. A schema exists at `packages/env/src/native.ts` but nothing imports it, so this is unvalidated today |
 | `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` | RevenueCat SDK keys (sandbox in dev/preview, live in production) |
 | `EXPO_PUBLIC_SENTRY_DSN` | Crash reporting (preview + production only) |
 | `SENTRY_AUTH_TOKEN` | Secret — source map uploads during EAS builds |

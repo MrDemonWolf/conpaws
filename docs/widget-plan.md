@@ -1,15 +1,18 @@
-# ConPaws next-event widget MVP
+# ConPaws widgets
 
-Status: design only. This plan does not add a widget target, native files, or a dependency.
+Status: **shipped**. The iOS widget extension, the watchOS app, and the watchOS
+complication all exist under `apps/native/targets/`, built with
+`@bacons/apple-targets`. This file is the design record and the reference for
+family behaviour, accessibility, and rendering modes — not a proposal.
 
-Mockups: [widget-mockups.svg](./widget-mockups.svg)
+Mockups: [widget-mockups.svg](./widget-mockups.svg) ·
+Specimens at true point size: [widget-specimens.html](./widget-specimens.html)
 
 ## Product slice
 
-- Ship one read-only widget named **Next Event**.
-- iOS supports only the Home Screen families `systemSmall` and `systemMedium`.
-- watchOS supports `accessoryRectangular` only for the Apple Watch Smart Stack. Keep it, and any future watch accessory family, behind platform-conditional family registration.
-- Start with `systemSmall`; `systemMedium` and the watchOS Smart Stack presentation are follow-ups after the small widget proves useful.
+- One read-only widget kind, `ConPawsWidget`, configurable per instance with a convention picker and a Display mode.
+- iOS ships `systemSmall` and `systemMedium` on the Home Screen, and `accessoryCircular`, `accessoryRectangular`, and `accessoryInline` on the Lock Screen.
+- watchOS ships `accessoryRectangular` only, as a separate target with its own kind.
 - Before the reminder window, lead with **Next event** and the event's title, time, and location.
 - At `leaveAt`, switch the primary status to **Leave in**. The medium family keeps event details and countdown in separate zones.
 - The entire widget is one tap target that opens the next event. The blank widget opens the convention list; it has no button or open-app CTA.
@@ -66,30 +69,70 @@ In `preConvention`, require `conventionId`, `conventionTitle`, `conventionStarts
 
 ### Adaptive pre-convention countdown
 
-| Time remaining | Visual example | Calculation and refresh |
-| --- | --- | --- |
-| At least 30 days | `2 MO 12 D` | Use calendar month and day components in the convention time zone. Never approximate a month as 30 days. Refresh at the next calendar-day boundary. |
-| 2–29 days | `15 D 6 H` | Show remaining days and hours. Add timeline entries when the displayed hour changes. |
-| 24–47 hours | `1 D 8 H` | Keep one day plus remaining hours instead of switching early to a clock. Add timeline entries when the displayed hour changes. |
-| Under 24 hours | `23:42:18`, then `42:18`, then `0:59` | Render `Text(conventionStartsAt, style: .timer)` so SwiftUI supplies the live H:M:S, M:S, and final-minute seconds. Do not enqueue per-second timeline entries. |
+The ladder lives in `ConPawsCountdown` (`targets/_shared/ConPawsCountdown.swift`)
+and is shared by every surface. One private classifier backs both renderings, so
+a rectangle and a circle can never disagree about which rung they are on.
 
-Derive the tier from `conventionStartsAt` and the timeline entry date; do not persist a tier. Localize compact unit tokens and their order. VoiceOver uses full units, such as `ConPaws Preview Con starts in 15 days, 6 hours`. Do not replace the live timer with a stale static accessibility value. At zero, the `conventionStartsAt` entry transitions to the next-event state.
+| Time remaining | Prose (`label`) | Compact (`compactLabel`) |
+| --- | --- | --- |
+| At or past the start | `Now` | `Now` |
+| Under 1 hour | `Starting soon` | `Soon` |
+| 1–23 hours | `In 6 hours` | `6h` |
+| Tomorrow, or a DST-stretched today | `Tomorrow` / `Today` | `1d` |
+| 2–29 calendar days | `In 13 days` | `13d` |
+| A whole calendar month or more | `In 2 months` | `2mo` |
+
+**The smallest unit is a whole hour, deliberately.** A widget refreshes on the
+system's schedule, not ours, so a label has to stay true for as long as it might
+sit on screen — seconds and minutes promise a precision the extension cannot
+deliver. The earlier design here called for `Text(…, style: .timer)` inside the
+final 24 hours; that was removed in PR #23 for exactly this reason. The watchOS
+**app** still uses a live timer inside the final day, because it is on screen and
+refreshing and genuinely can honour it.
+
+Days are counted from `startOfDay` in the **convention's** zone, not as 24-hour
+blocks, so "Tomorrow" means the next calendar day where the convention happens.
+Months use `dateComponents([.month])`, never `days / 30` — 1 January to 31
+January is `In 30 days`, not one month.
+
+`accessoryCircular` also draws a ring, scaled to the final seven days
+(`ringProgress`). It is empty before then on purpose: a ring that barely moves
+for two months reads as broken. The ring redraws only at the moments the wording
+changes, so it steps rather than sweeps.
 
 During `leaveSoon`, the small widget shows `LEAVE IN 18 MIN`, then `NOW · ENDS 2:50 PM` with the current title, then `NEXT · 3:00 PM` with the next title. If no event is currently active, use the compact fallback: `LEAVE IN 18 MIN`, `FOR`, then the next title and start time. Both layouts tap through to the next event.
 
 ## Timeline
 
-Use Expo Widgets `updateTimeline` with future entries prepared by the app:
+**There is no `expo-widgets` dependency and no `updateTimeline` API here.** The
+app does not enqueue entries; it publishes a snapshot and the Swift side builds
+its own timeline from it.
 
-1. Write an immediate entry for the current state.
-2. In `preConvention`, add entries at the tier and displayed-component boundaries above, plus an entry at `conventionStartsAt` that advances to the first next-event state or the blank state. Inside 24 hours, the SwiftUI timer updates between entries.
-3. Add an entry at `leaveAt` to switch from **Next event** to **Leave in**.
-4. During the leave window, add five-minute countdown entries, then one-minute entries for the final ten minutes. Notifications remain the exact-time alert path because WidgetKit does not guarantee precise refresh timing.
-5. If the active event ends during the leave window, add an entry at `currentEventEndsAt` that switches the small family to its `FOR` fallback.
-6. Add an entry at `nextEventStartsAt` that advances to the following event or the blank state.
-7. Rebuild the timeline after import, add, edit, delete, reminder, selected-convention, locale, or time-zone changes, and when the app returns to the foreground.
+The transport, end to end:
 
-Keep the timeline local. The Expo config plugin's App Group is the future transport between the main app and generated widget extension. Do not add a second cache or a widget-side network client.
+1. `src/services/widget-snapshot.ts` builds a presentation-ready
+   `WidgetSnapshot` — epoch milliseconds only, dates already localized — and
+   `publishWidgetSnapshot()` serializes and coalesces the call.
+2. The local Expo module `modules/conpaws-widgets` writes that JSON string into
+   the App Group `UserDefaults` under `conpaws.widget.snapshot.v1`, and calls
+   `WidgetCenter.shared.reloadAllTimelines()` **only when the string changed**.
+   The same string is mirrored to the Watch over `WCSession`.
+3. `ConPawsSnapshotStore.load()` reads and decodes it, rejecting anything whose
+   `schemaVersion` is not 1. The App Group id is derived from the bundle id, so
+   the dev, preview, and production variants stay isolated.
+4. Each provider builds its own `Timeline`. Rather than one entry plus a refresh
+   request, it **pre-builds an entry for every moment the wording changes** —
+   `ConPawsCountdown.changePoints`, capped at 24 — so WidgetKit can render the
+   descent itself even when the system declines to wake the extension. The iOS
+   provider then re-plans from the last entry with `.after(...)`; the watchOS one
+   uses `.atEnd`.
+
+The app republishes on launch, on foreground, after every successful mutation,
+and explicitly before navigating away from the create, edit, and import routes.
+`widget-publication-routes.test.ts` asserts that last one by reading the route
+sources.
+
+Keep it local. Do not add a second cache or a widget-side network client.
 
 ## Family behavior
 
@@ -128,9 +171,9 @@ Set one root widget URL for the whole surface. `preConvention` opens the convent
 - Use a removable widget container background. Keep default system content margins for MVP.
 - Under reduced luminance, remove bright fills and retain the text hierarchy.
 
-## Implementation gate
+## Release checklist
 
-Implementation can start after these are true:
+Verify before a store build, not before starting work — the work is done:
 
 - Final widget copy exists in every supported locale.
 - Event and convention deep links are stable across development, preview, and production variants.
@@ -140,7 +183,8 @@ Implementation can start after these are true:
 
 ## Official references
 
-- [Expo Widgets](https://docs.expo.dev/versions/latest/sdk/widgets/) - config plugin, supported families, `WidgetEnvironment`, snapshots, and timelines.
+- [@bacons/apple-targets](https://github.com/EvanBacon/expo-apple-targets) - the config plugin actually in use. Targets are `PBXFileSystemSynchronizedRootGroup`s, so new Swift files in `targets/<name>/` are picked up with no project-file edit.
+- [WidgetKit](https://developer.apple.com/documentation/widgetkit) - families, timelines, rendering modes, and `AccessoryWidgetBackground`.
 - [Apple Human Interface Guidelines: Widgets](https://developer.apple.com/design/human-interface-guidelines/widgets) - glanceable hierarchy and focused interactions.
 - [Apple: Supporting additional widget sizes](https://developer.apple.com/documentation/widgetkit/supporting-additional-widget-sizes) - family-specific layouts.
 - [Apple: Keeping a widget up to date](https://developer.apple.com/documentation/widgetkit/keeping-a-widget-up-to-date) - timeline entries and refresh behavior.

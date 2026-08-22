@@ -26,14 +26,14 @@ Research references:
 1. **Per-convention travel buffer** — one default walking buffer, with an event override only when needed. No location tracking required.
 2. **Schedule-change review** — when an imported source changes time, room, or cancellation status, show a compact diff before replacing saved data.
 3. **Conflict resolution sheet** — tapping an overlap badge compares the conflicting events and lets the user keep one, both, or change reminders.
-4. **Next Up widget** — start with one read-only small widget, then add medium and Lock Screen families after real use proves the need.
+4. ~~**Next Up widget**~~ — **shipped.** Small and medium on the Home Screen, all three Lock Screen families, and a watchOS complication. See `widget-plan.md`.
 5. **Offline venue essentials** — a small saved card for map, registration hours, quiet room, medical help, and emergency contacts.
 6. **Notification controls in context** — reminder timing belongs on the event; global defaults and permission status belong in Settings.
 
 ## Later — only after MVP use validates them
 
 1. **Live Activity during an active convention day** — current event, next event, and leave time.
-2. **Apple Watch glance** — next event and room, based on the same widget timeline data.
+2. ~~**Apple Watch glance**~~ — **shipped.** A watchOS app plus a Smart Stack complication, fed by the same cached snapshot. See `watch-app-plan.md`.
 3. **Shared itinerary card** — export a privacy-safe image or link containing only selected events.
 4. **Official-source verification** — signed or server-verified feeds, source identity, and update history.
 5. **Quiet-mode schedule** — user-selected rest blocks and reduced reminders without pretending to diagnose or manage health.
