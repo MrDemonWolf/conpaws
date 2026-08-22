@@ -104,6 +104,16 @@
       "errorMessage": "Es wurde nichts gelöscht. Versuche es erneut."
     }
   },
+  "schedule": {
+    "title": "Zeitplan",
+    "empty": {
+      "title": "Noch nichts markiert",
+      "subtitle": "Markiere eine Veranstaltung in einer Convention, dann erscheint sie hier.",
+      "cta": "Meine Conventions öffnen"
+    },
+    "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
+    "loadError": "Dein Zeitplan konnte nicht geladen werden."
+  },
   "convention": {
     "new": "Neue Convention",
     "create": "Convention erstellen",

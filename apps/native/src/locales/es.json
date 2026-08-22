@@ -104,6 +104,16 @@
       "errorMessage": "No se eliminó nada. Inténtalo de nuevo."
     }
   },
+  "schedule": {
+    "title": "Horario",
+    "empty": {
+      "title": "Aún no hay nada destacado",
+      "subtitle": "Destaca un evento dentro de una convención y aparecerá aquí.",
+      "cta": "Abrir mis convenciones"
+    },
+    "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
+    "loadError": "No se pudo cargar tu horario."
+  },
   "convention": {
     "new": "Nueva Convención",
     "create": "Crear convención",

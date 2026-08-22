@@ -104,6 +104,16 @@
       "errorMessage": "Rien n’a été supprimé. Réessayez."
     }
   },
+  "schedule": {
+    "title": "Programme",
+    "empty": {
+      "title": "Rien en favori pour l'instant",
+      "subtitle": "Mettez un événement en favori dans une convention et il apparaîtra ici.",
+      "cta": "Ouvrir mes conventions"
+    },
+    "timesShownInConventionTime": "Les horaires sont affichés dans le fuseau de chaque convention.",
+    "loadError": "Impossible de charger votre programme."
+  },
   "convention": {
     "new": "Nouvelle Convention",
     "create": "Créer une convention",
