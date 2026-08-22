@@ -390,6 +390,7 @@
       "invalidUrl": "Isso não parece um link de programação. Cole um endereço Sched, um link .ics ou um link webcal://.",
       "network": "Verifique sua conexão e tente novamente.",
       "invalidResponse": "A URL não retornou um arquivo de calendário válido.",
+      "tooLarge": "Essa programação é grande demais para importar. Feeds de convenções costumam ficar bem abaixo de 8 MB — confira se o link aponta para uma programação e não para um arquivo inteiro.",
       "noEvents": "Nenhum evento foi encontrado neste arquivo de calendário.",
       "parse": "Não foi possível processar este calendário com segurança.",
       "unsupportedRecurrence": "Este calendário usa definições de recorrência ativas não compatíveis ({{properties}}). O ConPaws ainda não consegue expandi-las com segurança. Exporte um arquivo .ics expandido com cada ocorrência como um evento separado e tente novamente.",

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { createDb } from "../../../db";
 import { waitlist } from "../../../db/schema";
+import { readBodyWithLimit } from "../../../lib/body-limit";
 import { readBrevoConfig } from "../../../lib/brevo";
 import { CONSENT_COPY } from "../../../lib/consent";
 import { verifyTurnstile } from "../../../lib/turnstile";
@@ -54,9 +55,23 @@ function unavailable() {
 }
 
 export async function POST(request: Request) {
+  // Bound the read before anything parses it. Zod's field caps are applied to
+  // a value that has already been decoded, so on their own they still let an
+  // unauthenticated caller spend the Worker's memory on a payload that was
+  // never going to validate.
+  const raw = await readBodyWithLimit(request);
+  if (raw === null) {
+    return Response.json(
+      { error: "That request was too large." },
+      {
+        status: 413,
+      },
+    );
+  }
+
   let parsed: z.infer<typeof Body>;
   try {
-    parsed = Body.parse(await request.json());
+    parsed = Body.parse(JSON.parse(raw));
   } catch {
     return Response.json(
       { error: "That email doesn't look right." },
