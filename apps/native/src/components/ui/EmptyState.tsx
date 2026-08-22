@@ -1,6 +1,6 @@
 import { Host, Icon, type IconName, Button as NativeButton } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
-import { useColorScheme, View } from "react-native";
+import { Platform, useColorScheme, View } from "react-native";
 import { cn } from "@/lib/utils";
 import { Button } from "./Button";
 import { Text } from "./Text";
@@ -59,6 +59,10 @@ export function EmptyState({
             colorScheme={resolvedColorScheme}
             matchContents
             pointerEvents="none"
+            // Android collapses a matchContents Host to zero height, which
+            // let the icon paint straight through the title beneath it. An
+            // explicit box is the only thing that reserves the space.
+            style={{ width: compact ? 28 : 52, height: compact ? 28 : 52 }}
           >
             <Icon
               color={compact ? colors.primary : undefined}
@@ -100,7 +104,7 @@ export function EmptyState({
             >
               {ctaLabel}
             </Button>
-          ) : (
+          ) : Platform.OS === "ios" ? (
             <Host
               colorScheme={resolvedColorScheme}
               seedColor={colors.primary}
@@ -113,6 +117,19 @@ export function EmptyState({
                 testID={ctaTestID}
               />
             </Host>
+          ) : (
+            // Android measures a matchContents Host at the full available
+            // width, so the native button lands against the right edge and
+            // the parent's items-center has nothing to centre. alignSelf on
+            // the Host does not override it. The plain button sizes to its
+            // own content, which is what centring needs.
+            <Button
+              className="min-h-12 self-center px-6"
+              onPress={onCta}
+              testID={ctaTestID}
+            >
+              {ctaLabel}
+            </Button>
           )
         ) : null}
         {secondaryCtaLabel && onSecondaryCta ? (
@@ -125,7 +142,7 @@ export function EmptyState({
             >
               {secondaryCtaLabel}
             </Button>
-          ) : (
+          ) : Platform.OS === "ios" ? (
             <Host colorScheme={resolvedColorScheme} matchContents>
               <NativeButton
                 label={secondaryCtaLabel}
@@ -135,6 +152,15 @@ export function EmptyState({
                 testID={secondaryCtaTestID}
               />
             </Host>
+          ) : (
+            <Button
+              className="min-h-12 self-center px-6"
+              onPress={onSecondaryCta}
+              testID={secondaryCtaTestID}
+              variant="ghost"
+            >
+              {secondaryCtaLabel}
+            </Button>
           )
         ) : null}
       </View>
