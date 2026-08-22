@@ -39,9 +39,9 @@ bun prebuild:clean        # Clean and regenerate native projects
 
 ## Architecture
 
-- **Native app:** Expo SDK **57.0.14** (React Native 0.86.2, React 19.2.3). Keep Expo at `>=57.0.9`; earlier SDK 57 patches contain the Hermes/Reanimated/Worklets memory regression.
-- **Routing:** Expo Router `~57.0.14` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
-  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~57.0.14` major is correct — do not "fix" it to a single-digit major.
+- **Native app:** Expo SDK **57.0.15** (React Native 0.86.2, React 19.2.3). Keep Expo at `>=57.0.9`; earlier SDK 57 patches contain the Hermes/Reanimated/Worklets memory regression.
+- **Routing:** Expo Router `~57.0.15` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
+  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~57.0.15` major is correct — do not "fix" it to a single-digit major.
 - **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`)
 - **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
 - **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
@@ -67,9 +67,15 @@ conpaws/
 │   │   ├── src/
 │   │   │   ├── db/          # SQLite/Drizzle schema, bootstrap, migrations, repositories
 │   │   │   ├── lib/         # ICS parsing, timezone, import policy, schedule selectors
-│   │   │   ├── services/    # Local reminders and backup import/export
-│   │   │   ├── global.css   # Tailwind entry point (Metro's NativeWind input)
-│   │   │   └── components/ hooks/ locales/ assets/
+│   │   │   ├── services/    # Local reminders, backup import/export, widget snapshot
+│   │   │   ├── global.css   # Tailwind entry point
+│   │   │   └── components/ hooks/ locales/ fixtures/ assets/
+│   │   ├── targets/         # Apple targets via @bacons/apple-targets (NOT hand-written pbxproj)
+│   │   │   ├── widget/      # iOS Home Screen + Lock Screen widget extension
+│   │   │   ├── watch/       # watchOS app
+│   │   │   ├── watch-widget/ # watchOS Smart Stack complication
+│   │   │   └── _shared/     # Swift shared across all four targets (snapshot, countdown)
+│   │   ├── modules/         # Local Expo module: conpaws-widgets (App Group + WatchConnectivity)
 │   │   ├── app.config.ts    # Variant-based Expo config
 │   │   ├── eas.json         # Preview sideload and production store-build profiles
 │   │   ├── metro.config.js
@@ -79,9 +85,11 @@ conpaws/
 │   └── server/              # (planned — does not exist) Hono/tRPC/Better-Auth Worker
 ├── packages/
 │   ├── config/              # Shared tsconfig base
-│   ├── env/                 # Zod-validated env schemas (src/native.ts: EXPO_PUBLIC_SERVER_URL; src/web.ts)
+│   ├── env/                 # Zod env schemas (src/web.ts is used; src/native.ts is not imported)
 │   ├── infra/               # alchemy.run.ts — D1, Worker bindings/secrets, cron
 │   └── ui/                  # Shared shadcn/ui primitives (web)
+├── docs/                    # Widget and Watch design docs, mockups, UX opportunities
+├── infra/                   # xprem OTA descriptor and runbook (not deployed)
 ├── biome.json
 ├── turbo.json
 └── package.json
@@ -91,16 +99,16 @@ conpaws/
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
 - **eas.json** — EAS CLI 22.x, committed-tree guard, and remote app-version counters. `preview` creates owner-only store builds with the QA icon and debug tools; `production` creates clean store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md`.
-- **metro.config.js** — `withNativeWind(config, { input: "./src/global.css" })` (the input arg IS passed)
-- **postcss.config.mjs** — plugin is `tailwindcss` (NOT `@tailwindcss/postcss`)
-- **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./*` (NOT `./src/*`)
+- **metro.config.js** — `withNativeWind(config)`. No `input` argument is passed; NativeWind resolves `global.css` itself. Metro is also wrapped in `getSentryExpoConfig`.
+- **postcss.config.mjs** — plugin is `@tailwindcss/postcss`
+- **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./src/*`. `vitest.config.ts` mirrors it.
 - **OTA is required for the MVP but remains fail-closed:** the chosen host is one shared MrDemonWolf, Inc. xprem **3.1.1** control plane on Dokploy at `updates.mrdemonwolf.com`, not EAS Update. Do not create a ConPaws-only duplicate. Every product needs an isolated xprem app UUID, signing material, branches/channels, publisher token, and runtime; ConPaws client configuration must use only its record. The runtime MCP at `/mcp` is unavailable until deployment, authenticates dashboard users through OAuth rather than publisher tokens, and can reach multiple apps: list apps and confirm the exact app UUID before any mutation. The hardened descriptor and runbook are in `infra/xprem/`, but no service is deployed and the SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before production. See `notes/ota-updates.md`.
 
 ### Environment Variables
 
 `.env` files are local-dev-only; EAS builds use **EAS Environment Variables** (`eas env:pull` to materialize locally). Workers use `wrangler.jsonc` bindings + `wrangler secret`, never `.env`.
 
-- `EXPO_PUBLIC_SERVER_URL` — API Worker URL (validated by `packages/env/src/native.ts`)
+- `EXPO_PUBLIC_SERVER_URL` — API Worker URL. A Zod schema for it exists at `packages/env/src/native.ts`, but **nothing in `apps/native` imports it**, so this variable is currently unvalidated at runtime. Either wire the schema in or delete it; do not describe it as validated.
 - `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` — RevenueCat (optional; premium disabled without them)
 - `EXPO_PUBLIC_SENTRY_DSN` — crash reporting (preview/production)
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Turnstile widget (public; server verify uses the secret below)
@@ -134,7 +142,9 @@ installed side by side. Never promote a preview build publicly.
 
 ### Native MVP Screens
 
-The current routes cover onboarding, Home and Settings tabs, convention detail and schedule import, About, and language settings. Put new routes in `apps/native/app/` (top level) and use classic JS tabs. Expo Router Native Tabs is alpha and its API is subject to change. `notes/plan.md` remains the source for unfinished MVP and later product scope.
+The current routes cover onboarding, the Home and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. Put new routes in `apps/native/app/` (top level).
+
+The tab bar uses **`NativeTabs` from `expo-router/unstable-native-tabs`** (`app/(tabs)/_layout.tsx`). That API is still marked unstable upstream, so pin expectations to the installed version and re-check it on every Expo upgrade — but do not "fix" it back to classic JS tabs. `notes/plan.md` remains the source for unfinished MVP and later product scope.
 
 ### Database Schema
 
