@@ -390,6 +390,7 @@
       "invalidUrl": "That doesn't look like a schedule link. Paste a Sched address, an .ics link, or a webcal:// link.",
       "network": "Check your connection and try again.",
       "invalidResponse": "The URL didn't return a valid calendar file.",
+      "tooLarge": "That schedule is too large to import. Convention feeds are normally well under 8MB — check the link points at a schedule and not a whole archive.",
       "noEvents": "No events were found in this calendar file.",
       "parse": "This calendar couldn't be parsed safely.",
       "unsupportedRecurrence": "This calendar uses unsupported active recurrence definitions ({{properties}}). ConPaws can't safely expand them yet. Export an expanded .ics file with each occurrence as its own event, then try again.",

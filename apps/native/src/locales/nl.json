@@ -390,6 +390,7 @@
       "invalidUrl": "Dat lijkt geen programmalink. Plak een Sched-adres, een .ics-link of een webcal://-link.",
       "network": "Controleer je verbinding en probeer het opnieuw.",
       "invalidResponse": "De URL heeft geen geldig agendabestand opgeleverd.",
+      "tooLarge": "Dit programma is te groot om te importeren. Conventiefeeds blijven normaal ruim onder 8 MB — controleer of de link naar een programma wijst en niet naar een heel archief.",
       "noEvents": "Er zijn geen evenementen in dit agendabestand gevonden.",
       "parse": "Deze agenda kon niet veilig worden verwerkt.",
       "unsupportedRecurrence": "Deze agenda gebruikt niet-ondersteunde actieve herhalingsdefinities ({{properties}}). ConPaws kan die nog niet veilig uitwerken. Exporteer een uitgewerkt .ics-bestand met elke herhaling als afzonderlijk evenement en probeer het opnieuw.",
