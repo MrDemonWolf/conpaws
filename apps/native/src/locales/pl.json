@@ -104,6 +104,16 @@
       "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
     }
   },
+  "schedule": {
+    "title": "Harmonogram",
+    "empty": {
+      "title": "Nic jeszcze nie oznaczono",
+      "subtitle": "Oznacz wydarzenie gwiazdką na konwencie, a pojawi się tutaj.",
+      "cta": "Otwórz moje konwenty"
+    },
+    "timesShownInConventionTime": "Godziny podane w czasie lokalnym każdego konwentu.",
+    "loadError": "Nie udało się wczytać harmonogramu."
+  },
   "convention": {
     "new": "Nowy Konwent",
     "create": "Utwórz konwent",

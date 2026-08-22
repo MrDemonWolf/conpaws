@@ -104,6 +104,16 @@
       "errorMessage": "Nothing was deleted. Try again."
     }
   },
+  "schedule": {
+    "title": "Schedule",
+    "empty": {
+      "title": "Nothing starred yet",
+      "subtitle": "Star an event inside a convention and it lands here.",
+      "cta": "Open my conventions"
+    },
+    "timesShownInConventionTime": "Times are shown in each convention's local time.",
+    "loadError": "Your schedule could not be loaded."
+  },
   "convention": {
     "new": "New Convention",
     "create": "Create Convention",

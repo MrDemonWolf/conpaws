@@ -104,6 +104,16 @@
       "errorMessage": "Er is niets verwijderd. Probeer het opnieuw."
     }
   },
+  "schedule": {
+    "title": "Programma",
+    "empty": {
+      "title": "Nog niets met een ster",
+      "subtitle": "Geef een evenement in een conventie een ster en het verschijnt hier.",
+      "cta": "Mijn conventies openen"
+    },
+    "timesShownInConventionTime": "Tijden staan in de lokale tijd van elke conventie.",
+    "loadError": "Je programma kon niet worden geladen."
+  },
   "convention": {
     "new": "Nieuwe Conventie",
     "create": "Conventie maken",

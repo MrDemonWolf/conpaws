@@ -104,6 +104,16 @@
       "errorMessage": "Nada foi excluído. Tente novamente."
     }
   },
+  "schedule": {
+    "title": "Programação",
+    "empty": {
+      "title": "Nada marcado ainda",
+      "subtitle": "Marque um evento dentro de uma convenção e ele aparece aqui.",
+      "cta": "Abrir minhas convenções"
+    },
+    "timesShownInConventionTime": "Os horários aparecem no fuso local de cada convenção.",
+    "loadError": "Não foi possível carregar sua programação."
+  },
   "convention": {
     "new": "Nova Convenção",
     "create": "Criar convenção",
