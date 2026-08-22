@@ -162,6 +162,17 @@ function SectionHeading({
 /* Phone mockups — DOM-drawn app screens, swappable for real captures later */
 /* ------------------------------------------------------------------------ */
 
+/**
+ * The convention shown in the mockups is invented, and has to stay that way.
+ *
+ * Putting a real convention's name on marketing screenshots implies a
+ * partnership or an endorsement that does not exist, and the name is very
+ * likely someone's trademark. Test fixtures elsewhere in the repo do use real
+ * feeds — that is a compatibility concern and stays internal.
+ */
+const SAMPLE_CON = "Glasswing Furmeet 2026";
+const SAMPLE_CON_SHORT = "Glasswing";
+
 function PhoneFrame({
   label,
   children,
@@ -174,7 +185,12 @@ function PhoneFrame({
   return (
     <figure className={`w-[248px] shrink-0 ${className}`}>
       <div className="rounded-[36px] border border-border bg-gradient-to-b from-slate-700/60 to-slate-900/80 p-[7px] shadow-[0_40px_80px_-30px_rgb(0_0_0/0.8),inset_0_1px_0_rgb(255_255_255/0.08)]">
-        <div className="relative overflow-hidden rounded-[29px] border border-border/60 bg-background">
+        {/*
+          A real capture is 1320x2868, so the frame is held at that ratio
+          rather than a round pixel height. A fixed height quietly crops or
+          letterboxes the day someone drops an <Image> in here.
+        */}
+        <div className="relative aspect-[1320/2868] overflow-hidden rounded-[29px] border border-border/60 bg-background">
           {/* speaker/camera pill */}
           <div className="-translate-x-1/2 absolute top-[9px] left-1/2 z-10 h-[18px] w-[74px] rounded-full bg-black/90" />
           {children}
@@ -191,12 +207,15 @@ function MiniEvent({
   time,
   title,
   room,
+  con,
   starred,
   flag,
 }: {
   time: string;
   title: string;
   room: string;
+  /** Which convention the row belongs to — only shown in the Schedule tab. */
+  con?: string;
   starred?: boolean;
   flag?: string;
 }) {
@@ -219,7 +238,7 @@ function MiniEvent({
       </p>
       <div className="mt-1 flex items-center gap-2">
         <span className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.14em]">
-          {room}
+          {con ? `${con} · ${room}` : room}
         </span>
         {flag ? (
           <span className="rounded-[4px] border border-amber-400/40 bg-amber-400/10 px-1 py-px font-tech text-[8px] text-amber-300 uppercase tracking-[0.1em]">
@@ -231,133 +250,195 @@ function MiniEvent({
   );
 }
 
+// The first tab is labelled "Conventions" in the app, not "Home" — the
+// route group is (home) but the string is t("home.title").
+const TABS = ["Conventions", "Schedule", "Settings"] as const;
+
+function TabBar({ active }: { active: (typeof TABS)[number] }) {
+  return (
+    <div className="mt-auto flex items-center justify-around border-border border-t pt-2.5">
+      {TABS.map((tab) => (
+        <span
+          key={tab}
+          className={`font-tech text-[9px] uppercase tracking-[0.12em] ${
+            tab === active ? "text-primary" : "text-muted-foreground/70"
+          }`}
+        >
+          {tab}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function ScreenChrome({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-[470px] flex-col px-3 pt-9 pb-3 text-foreground">
+    <div className="flex h-full flex-col px-3 pt-9 pb-3 text-foreground">
       {children}
     </div>
   );
 }
 
+/**
+ * The Schedule tab: every starred event from every saved convention, grouped
+ * by day. Rows name their convention only when more than one is in play,
+ * which is exactly what the app does.
+ */
 function ScheduleScreen() {
   return (
     <ScreenChrome>
-      <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.2em]">
-        IndyFurCon 2026
+      <p className="font-bold text-[19px] leading-tight tracking-tight">
+        Schedule
       </p>
-      <p className="mt-0.5 font-bold text-[16px] tracking-tight">My weekend</p>
-      <div className="mt-2.5 flex gap-1.5">
-        {["Fri", "Sat", "Sun"].map((d, i) => (
-          <span
-            key={d}
-            className={`rounded-full px-2.5 py-1 font-tech text-[9px] uppercase tracking-[0.12em] ${
-              i === 1
-                ? "bg-primary font-bold text-primary-foreground"
-                : "border border-border text-muted-foreground"
-            }`}
-          >
-            {d}
-          </span>
-        ))}
-      </div>
-      <div className="mt-3 flex flex-col gap-2">
+      <p className="mt-1 text-[9px] text-muted-foreground">
+        Times are shown in each convention's local time.
+      </p>
+      <p className="mt-3 font-bold text-[12px] tracking-tight">
+        Saturday, July 4
+      </p>
+      <div className="mt-2 flex flex-col gap-2">
         <MiniEvent
           time="10:00"
           title="Fursuit Parade"
+          con={SAMPLE_CON_SHORT}
           room="Main Hall"
           starred
         />
-        <MiniEvent time="11:30" title="Drawing for Beginners" room="Panel 2" />
-        <MiniEvent time="13:00" title="Dealers' Den" room="Hall B" starred />
-        <MiniEvent time="20:00" title="DJ Night" room="Ballroom" flag="18+" />
+        <MiniEvent
+          time="13:00"
+          title="Dealers' Den"
+          con={SAMPLE_CON_SHORT}
+          room="Hall B"
+          starred
+        />
+        <MiniEvent
+          time="20:00"
+          title="DJ Night"
+          con={SAMPLE_CON_SHORT}
+          room="Ballroom"
+          starred
+          flag="18+"
+        />
       </div>
-      <div className="mt-auto flex items-center justify-around border-border border-t pt-2.5">
-        {["Home", "Schedule", "Settings"].map((t, i) => (
-          <span
-            key={t}
-            className={`font-tech text-[9px] uppercase tracking-[0.12em] ${
-              i === 1 ? "text-primary" : "text-muted-foreground/70"
-            }`}
-          >
-            {t}
-          </span>
-        ))}
+      <p className="mt-4 font-bold text-[12px] tracking-tight">
+        Sunday, July 5
+      </p>
+      <div className="mt-2 flex flex-col gap-2">
+        <MiniEvent
+          time="11:00"
+          title="Closing Ceremonies"
+          con={SAMPLE_CON_SHORT}
+          room="Main Hall"
+          starred
+        />
       </div>
+      <TabBar active="Schedule" />
     </ScreenChrome>
   );
 }
 
-function EventScreen() {
+/**
+ * Tapping an event opens an action sheet over the schedule. The app has no
+ * event detail screen, deliberately — stars and reminders live in one place.
+ * This mockup used to show a full-page detail view the app has never had.
+ */
+function EventSheetScreen() {
   return (
-    <ScreenChrome>
-      <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.2em]">
-        ← Saturday
-      </p>
-      <p className="mt-2 font-bold text-[19px] leading-tight tracking-tight">
-        Fursuit Parade
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        <span className="rounded-[5px] bg-primary px-2 py-0.5 font-tech text-[9px] text-primary-foreground uppercase tracking-[0.1em]">
-          10:00–11:00
-        </span>
-        <span className="rounded-[5px] border border-border px-2 py-0.5 font-tech text-[9px] text-muted-foreground uppercase tracking-[0.1em]">
-          Main Hall
-        </span>
+    <div className="relative h-full">
+      <ScreenChrome>
+        <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.2em]">
+          {SAMPLE_CON}
+        </p>
+        <p className="mt-0.5 font-bold text-[16px] tracking-tight">Saturday</p>
+        <div className="mt-3 flex flex-col gap-2">
+          <MiniEvent
+            time="10:00"
+            title="Fursuit Parade"
+            room="Main Hall"
+            starred
+          />
+          <MiniEvent
+            time="11:30"
+            title="Drawing for Beginners"
+            room="Panel 2"
+          />
+          <MiniEvent time="13:00" title="Dealers' Den" room="Hall B" starred />
+        </div>
+      </ScreenChrome>
+
+      {/* scrim + sheet */}
+      <div className="absolute inset-0 rounded-[29px] bg-black/45" />
+      <div className="absolute inset-x-0 bottom-0 rounded-t-[16px] border-border border-t bg-card pb-3">
+        <div className="mx-auto mt-2.5 mb-3 h-1 w-10 rounded-full bg-border" />
+        <p className="px-3 font-bold text-[15px] leading-tight tracking-tight">
+          Fursuit Parade
+        </p>
+        <p className="mt-1 px-3 text-[10px] text-muted-foreground">
+          Saturday, July 4 at 10:00 to 11:00 · Main Hall
+        </p>
+        <div className="mt-2.5 flex flex-wrap gap-1.5 px-3">
+          <span className="rounded-[5px] border border-primary/40 bg-primary/10 px-1.5 py-px font-tech text-[8px] text-primary uppercase tracking-[0.1em]">
+            15 min before
+          </span>
+          <span className="rounded-[5px] border border-border px-1.5 py-px font-tech text-[8px] text-muted-foreground uppercase tracking-[0.1em]">
+            Imported
+          </span>
+        </div>
+        <p className="mt-2.5 px-3 text-[10px] text-muted-foreground leading-relaxed">
+          Line up on the mezzanine by 9:40. The route ends at the photo wall.
+        </p>
+        <div className="mt-2 flex flex-col">
+          {[
+            "Remove from My Schedule",
+            "Change leave reminder",
+            "View on Sched",
+          ].map((action) => (
+            <span key={action} className="px-3 py-2 text-[11px] leading-tight">
+              {action}
+            </span>
+          ))}
+          <span className="mt-1 border-border border-t px-3 pt-2 text-center text-[11px] text-muted-foreground">
+            Close
+          </span>
+        </div>
       </div>
-      <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
-        Line up on the mezzanine by 9:40. The route ends at the photo wall —
-        stick around for the group shot.
-      </p>
-      <div className="mt-4 flex items-center justify-between rounded-[10px] border border-primary/40 bg-primary/10 px-3 py-2.5">
-        <span className="font-bold text-[11px]">Remind me</span>
-        <span className="flex h-[18px] w-[32px] items-center rounded-full bg-primary p-[2px]">
-          <span className="ml-auto h-[14px] w-[14px] rounded-full bg-primary-foreground" />
-        </span>
-      </div>
-      <p className="mt-2 font-tech text-[9px] text-muted-foreground uppercase tracking-[0.14em]">
-        15 minutes before · on device
-      </p>
-      <div className="mt-auto rounded-[10px] bg-primary px-3 py-2.5 text-center font-bold text-[11px] text-primary-foreground uppercase tracking-[0.12em]">
-        ★ On my schedule
-      </div>
-    </ScreenChrome>
+    </div>
   );
 }
 
+/**
+ * Now and Next inside a convention.
+ *
+ * This used to show a "no connection" banner and a "saved on device" card.
+ * The app has neither, and never has: it is local-first, so there is no
+ * network state to report and nothing to reassure the user about mid-session.
+ * The offline claim belongs in the copy around the phone, not in invented
+ * chrome pretending to be a screen the app can render.
+ */
 function OfflineScreen() {
   return (
     <ScreenChrome>
-      <div className="rounded-[8px] border border-amber-400/40 bg-amber-400/10 px-2.5 py-1.5 font-tech text-[9px] text-amber-300 uppercase tracking-[0.12em]">
-        No connection — everything still works
-      </div>
-      <p className="mt-3 font-bold text-[16px] tracking-tight">Up next</p>
-      <div className="mt-2.5 flex flex-col gap-2">
+      <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.2em]">
+        {SAMPLE_CON}
+      </p>
+      <p className="mt-0.5 font-bold text-[16px] tracking-tight">
+        Now and Next
+      </p>
+      <p className="mt-1 text-[9px] text-muted-foreground">
+        Times shown in America/Chicago
+      </p>
+      <p className="mt-3 font-bold text-[12px] tracking-tight">Now (1)</p>
+      <div className="mt-2 flex flex-col gap-2">
         <MiniEvent time="13:00" title="Dealers' Den" room="Hall B" starred />
+      </div>
+      <p className="mt-4 font-bold text-[12px] tracking-tight">
+        Next at 14:30 (2)
+      </p>
+      <div className="mt-2 flex flex-col gap-2">
         <MiniEvent time="14:30" title="Writing Furry Fiction" room="Panel 1" />
+        <MiniEvent time="14:30" title="Fursuit Repair Clinic" room="Panel 3" />
       </div>
-      <div className="mt-4 flex items-center gap-2 rounded-[10px] border border-border bg-card/60 px-3 py-2.5">
-        <span aria-hidden="true" className="text-[13px] text-primary">
-          ✓
-        </span>
-        <div>
-          <p className="font-bold text-[11px] leading-tight">Saved on device</p>
-          <p className="mt-0.5 font-tech text-[9px] text-muted-foreground uppercase tracking-[0.12em]">
-            Schedule · picks · reminders
-          </p>
-        </div>
-      </div>
-      <div className="mt-auto flex items-center justify-around border-border border-t pt-2.5">
-        {["Home", "Schedule", "Settings"].map((t, i) => (
-          <span
-            key={t}
-            className={`font-tech text-[9px] uppercase tracking-[0.12em] ${
-              i === 0 ? "text-primary" : "text-muted-foreground/70"
-            }`}
-          >
-            {t}
-          </span>
-        ))}
-      </div>
+      <TabBar active="Conventions" />
     </ScreenChrome>
   );
 }
@@ -398,7 +479,7 @@ export default function Home() {
         <SectionHeading
           eyebrow="A look inside"
           title="Your whole weekend, one thumb"
-          blurb="Early builds, real screens. The schedule you build is the schedule you see — no feeds, no algorithm, no pull-to-refresh roulette."
+          blurb="Illustrations of the real screens, drawn to match. The schedule you build is the schedule you see — no feeds, no algorithm, no pull-to-refresh roulette."
         />
         <div className="mt-12 flex flex-wrap items-start justify-center gap-8 md:gap-6">
           <PhoneFrame
@@ -408,7 +489,7 @@ export default function Home() {
             <ScheduleScreen />
           </PhoneFrame>
           <PhoneFrame label="Never miss a lineup" className="z-10">
-            <EventScreen />
+            <EventSheetScreen />
           </PhoneFrame>
           <PhoneFrame
             label="WiFi optional"
