@@ -1,4 +1,4 @@
-import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
+import StarIcon from "@expo/material-symbols/star.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +21,7 @@ import {
 
 const EMPTY_ICON = Icon.select({
   ios: "star",
-  android: CalendarAddIcon,
+  android: StarIcon,
 });
 
 const ERROR_ICON = Icon.select({
