@@ -51,6 +51,7 @@ import {
   InvalidResponseError,
   InvalidScheduleUrlError,
   NetworkError,
+  ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
 import { scheduleNameFromUrl } from "@/lib/schedule-url";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
@@ -365,6 +366,11 @@ export default function ImportScreen() {
         setError({
           type: "no-events",
           message: t("import.errors.invalidResponse"),
+        });
+      } else if (err instanceof ScheduleTooLargeError) {
+        setError({
+          type: "file-type",
+          message: t("import.errors.tooLarge"),
         });
       } else {
         setError({

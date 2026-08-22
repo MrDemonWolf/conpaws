@@ -380,6 +380,7 @@
       "invalidUrl": "To nie wygląda na link do harmonogramu. Wklej adres Sched, link .ics lub link webcal://.",
       "network": "Sprawdź połączenie i spróbuj ponownie.",
       "invalidResponse": "Adres URL nie zwrócił prawidłowego pliku kalendarza.",
+      "tooLarge": "Ten harmonogram jest za duży, aby go zaimportować. Kanały konwentów mają zwykle znacznie mniej niż 8 MB — sprawdź, czy link prowadzi do harmonogramu, a nie do całego archiwum.",
       "noEvents": "W tym pliku kalendarza nie znaleziono wydarzeń.",
       "parse": "Nie udało się bezpiecznie przetworzyć tego kalendarza.",
       "unsupportedRecurrence": "Ten kalendarz używa nieobsługiwanych aktywnych definicji cykliczności ({{properties}}). ConPaws nie potrafi jeszcze bezpiecznie ich rozwinąć. Wyeksportuj rozwinięty plik .ics, w którym każde wystąpienie jest osobnym wydarzeniem, i spróbuj ponownie.",

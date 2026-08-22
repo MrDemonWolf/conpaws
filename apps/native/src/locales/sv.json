@@ -380,6 +380,7 @@
       "invalidUrl": "Det ser inte ut som en schemalänk. Klistra in en Sched-adress, en .ics-länk eller en webcal://-länk.",
       "network": "Kontrollera anslutningen och försök igen.",
       "invalidResponse": "URL:en returnerade ingen giltig kalenderfil.",
+      "tooLarge": "Det här schemat är för stort för att importeras. Konventsflöden är normalt en bra bit under 8 MB — kontrollera att länken pekar på ett schema och inte på ett helt arkiv.",
       "noEvents": "Inga evenemang hittades i kalenderfilen.",
       "parse": "Kalendern kunde inte behandlas på ett säkert sätt.",
       "unsupportedRecurrence": "Kalendern använder aktiva återkommande definitioner som inte stöds ({{properties}}). ConPaws kan ännu inte expandera dem på ett säkert sätt. Exportera en expanderad .ics-fil där varje förekomst är ett eget evenemang och försök igen.",

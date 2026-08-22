@@ -380,6 +380,7 @@
       "invalidUrl": "Das sieht nicht nach einem Zeitplan-Link aus. Füge eine Sched-Adresse, einen .ics-Link oder einen webcal://-Link ein.",
       "network": "Prüfe deine Verbindung und versuche es erneut.",
       "invalidResponse": "Die URL hat keine gültige Kalenderdatei zurückgegeben.",
+      "tooLarge": "Dieser Zeitplan ist zu groß für den Import. Convention-Feeds liegen normalerweise deutlich unter 8 MB — prüfe, ob der Link auf einen Zeitplan und nicht auf ein ganzes Archiv verweist.",
       "noEvents": "In dieser Kalenderdatei wurden keine Events gefunden.",
       "parse": "Dieser Kalender konnte nicht sicher verarbeitet werden.",
       "unsupportedRecurrence": "Dieser Kalender verwendet nicht unterstützte aktive Wiederholungsdefinitionen ({{properties}}). ConPaws kann sie noch nicht sicher erweitern. Exportiere eine erweiterte .ics-Datei, in der jeder Termin als eigenes Event enthalten ist, und versuche es erneut.",
