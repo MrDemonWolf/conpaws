@@ -250,7 +250,9 @@ function MiniEvent({
   );
 }
 
-const TABS = ["Home", "Schedule", "Settings"] as const;
+// The first tab is labelled "Conventions" in the app, not "Home" — the
+// route group is (home) but the string is t("home.title").
+const TABS = ["Conventions", "Schedule", "Settings"] as const;
 
 function TabBar({ active }: { active: (typeof TABS)[number] }) {
   return (
@@ -436,7 +438,7 @@ function OfflineScreen() {
         <MiniEvent time="14:30" title="Writing Furry Fiction" room="Panel 1" />
         <MiniEvent time="14:30" title="Fursuit Repair Clinic" room="Panel 3" />
       </div>
-      <TabBar active="Home" />
+      <TabBar active="Conventions" />
     </ScreenChrome>
   );
 }
