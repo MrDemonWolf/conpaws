@@ -229,7 +229,12 @@ export function Waitlist() {
         )}
       </div>
 
-      <div className="md:order-none -order-1 relative z-0 md:pt-2">
+      {/* The badge hangs in front of everything: above the nav (z-20) and
+          above every section below (z-10). Its lanyard runs off the top of
+          the hero, so anything lower makes it look clipped rather than hung.
+          This only works while the hero section stays free of a z-index --
+          see the note in (marketing)/page.tsx. */}
+      <div className="md:order-none -order-1 relative z-40 md:pt-2">
         <Badge name={name} />
       </div>
     </div>
