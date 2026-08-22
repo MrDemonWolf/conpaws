@@ -23,9 +23,16 @@ describe("Expo Router convention routes", () => {
     expect(existsSync(path.join(conventionRoute, "import.tsx"))).toBe(true);
   });
 
-  it("does not bounce an empty convention schedule", () => {
+  // Bouncing is tied to whether there are rows, and both halves matter.
+  //
+  // Off when empty: a centred "no events" panel that rubber-bands reads as
+  // broken. On when populated: the screen sets headerLargeTitleEnabled, and
+  // UIKit only lays the large title into the scroll view's content inset when
+  // that view can scroll. Hard-coding false put the title on top of the first
+  // event row for any schedule short enough to fit on one screen.
+  it("bounces the convention schedule only when it has rows", () => {
     expect(conventionDetailSource).toMatch(
-      /<SectionList\s+alwaysBounceVertical=\{false\}/,
+      /<SectionList\s+(?:\/\/[^\n]*\n\s*)*alwaysBounceVertical=\{dayGroups\.length > 0\}/,
     );
   });
 
