@@ -3,6 +3,7 @@ import { db } from "../index";
 import {
   type ConventionEvent,
   conventionEvents,
+  conventions,
   type NewConventionEvent,
 } from "../schema";
 
@@ -498,4 +499,31 @@ export async function getIdsByConventionId(
     .from(conventionEvents)
     .where(eq(conventionEvents.conventionId, conventionId));
   return rows.map((r) => r.id);
+}
+
+export interface SavedEventRow {
+  event: ConventionEvent;
+  conventionName: string;
+  conventionTimeZone: string | null;
+}
+
+/**
+ * Every starred event across every convention, for the Schedule tab.
+ *
+ * Joined rather than fetched per convention: the tab needs the convention's
+ * name and time zone on each row, and the whole point is that the user has
+ * more than one convention saved.
+ */
+export async function getAllInSchedule(): Promise<SavedEventRow[]> {
+  const rows = await db
+    .select({
+      event: conventionEvents,
+      conventionName: conventions.name,
+      conventionTimeZone: conventions.timeZone,
+    })
+    .from(conventionEvents)
+    .innerJoin(conventions, eq(conventionEvents.conventionId, conventions.id))
+    .where(eq(conventionEvents.isInSchedule, true));
+
+  return rows;
 }

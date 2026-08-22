@@ -22,6 +22,12 @@ interface EventItemProps {
   category?: string;
   description?: string | null;
   ageRating?: AgeRating | null;
+  /**
+   * Where this event comes from, when that is not already obvious. The
+   * Schedule tab pools events from several conventions into one list, so a
+   * row there has to say which one it belongs to.
+   */
+  contextLabel?: string;
   isInSchedule?: boolean;
   reminderLabel?: string;
   /**
@@ -46,6 +52,7 @@ export function EventItem({
   category,
   description,
   ageRating,
+  contextLabel,
   isInSchedule = false,
   reminderLabel,
   provenanceLabel,
@@ -61,11 +68,12 @@ export function EventItem({
   const isDark = useColorScheme() === "dark";
   const ageBadge = ageRating ? AGE_BADGES[ageRating] : undefined;
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
-  const meta = [category, room].filter(Boolean).join(" · ");
+  const meta = [contextLabel, category, room].filter(Boolean).join(" · ");
   const summary = description?.trim() ? description.trim() : null;
 
   const accessibilityDetails = [
     title,
+    contextLabel,
     endTime
       ? t("convention.eventTimeRange", { start: startTime, end: endTime })
       : startTime,

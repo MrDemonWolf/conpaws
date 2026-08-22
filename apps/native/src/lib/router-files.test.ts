@@ -15,6 +15,14 @@ const settingsLayoutSource = readFileSync(
   path.resolve(__dirname, "../../app/(tabs)/settings/_layout.tsx"),
   "utf8",
 );
+const scheduleLayoutSource = readFileSync(
+  path.resolve(__dirname, "../../app/(tabs)/schedule/_layout.tsx"),
+  "utf8",
+);
+const scheduleScreenSource = readFileSync(
+  path.resolve(__dirname, "../../app/(tabs)/schedule/index.tsx"),
+  "utf8",
+);
 
 describe("Expo Router convention routes", () => {
   it("uses one detail route with its nested import screen", () => {
@@ -46,7 +54,11 @@ describe("Expo Router convention routes", () => {
 
 describe("iOS native stack headers", () => {
   it("uses native large titles without a competing fixed blur", () => {
-    for (const source of [homeLayoutSource, settingsLayoutSource]) {
+    for (const source of [
+      homeLayoutSource,
+      settingsLayoutSource,
+      scheduleLayoutSource,
+    ]) {
       expect(source).toContain(
         'headerLargeTitleEnabled: process.env.EXPO_OS === "ios"',
       );
@@ -67,5 +79,23 @@ describe("iOS native stack headers", () => {
     for (const sheet of sheets ?? []) {
       expect(sheet).toContain("headerLargeTitleEnabled: false");
     }
+  });
+});
+
+describe("Schedule tab", () => {
+  // Same failure the convention schedule hit: with bouncing hard-coded off,
+  // a list short enough to fit gives the iOS large title no content inset to
+  // occupy, so it paints over the first row.
+  it("bounces only when it has rows", () => {
+    expect(scheduleScreenSource).toMatch(
+      /<SectionList\s+(?:\/\/[^\n]*\n\s*)*alwaysBounceVertical=\{days\.length > 0\}/,
+    );
+  });
+
+  it("keeps scroll content connected to the native header", () => {
+    expect(scheduleScreenSource).toContain("collapsable={false}");
+    expect(scheduleScreenSource).toContain(
+      'contentInsetAdjustmentBehavior="automatic"',
+    );
   });
 });

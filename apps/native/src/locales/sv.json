@@ -104,6 +104,16 @@
       "errorMessage": "Inget togs bort. Försök igen."
     }
   },
+  "schedule": {
+    "title": "Schema",
+    "empty": {
+      "title": "Inget stjärnmärkt än",
+      "subtitle": "Stjärnmärk ett evenemang i ett konvent så dyker det upp här.",
+      "cta": "Öppna mina konvent"
+    },
+    "timesShownInConventionTime": "Tiderna visas i varje konvents lokala tid.",
+    "loadError": "Ditt schema kunde inte läsas in."
+  },
   "convention": {
     "new": "Nytt Konvent",
     "create": "Skapa konvent",

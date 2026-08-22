@@ -17,6 +17,18 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>{t("home.title")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
+        name="schedule"
+        accessibilityLabel={t("schedule.title")}
+      >
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "star", selected: "star.fill" }}
+          md="star"
+        />
+        <NativeTabs.Trigger.Label>
+          {t("schedule.title")}
+        </NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger
         name="settings"
         accessibilityLabel={t("common.settings")}
       >
