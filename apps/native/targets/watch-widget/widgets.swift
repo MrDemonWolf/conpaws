@@ -262,8 +262,13 @@ struct ConPawsWatchWidget: Widget {
 
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: ConPawsWatchProvider()) { entry in
-      ConPawsWatchEntryView(entry: entry)
-        .containerBackground(Color.black, for: .widget)
+      if #available(iOS 17.0, *) {
+        ConPawsWatchEntryView(entry: entry)
+          .containerBackground(Color.black, for: .widget)
+      } else {
+        ConPawsWatchEntryView(entry: entry)
+          .background(Color.black)
+      }
     }
     .configurationDisplayName("ConPaws Schedule")
     .description("See your next event, leave reminder, or convention countdown.")
