@@ -3,9 +3,7 @@ module.exports = (config) => {
   const icon =
     config.extra?.appVariant === "development"
       ? "icon-development.png"
-      : config.extra?.appVariant === "preview"
-        ? "icon-preview.png"
-        : "icon.png";
+      : "icon.png";
 
   return {
     type: "watch",
