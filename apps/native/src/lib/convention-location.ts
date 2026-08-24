@@ -129,6 +129,44 @@ export function resolveConventionTimeZone({
   };
 }
 
+export interface LocationEditOptions {
+  /** The location as it now reads in the form, already normalized. */
+  location: string;
+  /** The location this convention was saved with, already normalized. */
+  originalLocation: string;
+  /** True once the user has picked a zone by hand. */
+  manuallySet: boolean;
+}
+
+export type LocationEditDecision =
+  /** Nothing to re-infer — keep `currentTimeZone`. */
+  | { action: "keep" }
+  /** The location changed to something real — geocode it. */
+  | { action: "infer" };
+
+/**
+ * Decides whether editing a convention's location should re-infer its zone.
+ *
+ * Clearing the location is the case worth being careful about. An empty field
+ * is the absence of information, not a statement that the convention moved to
+ * this device's zone — and treating it as the latter silently rewrites every
+ * event time on the schedule, with no prompt and nothing on screen to explain
+ * why the day now starts an hour early.
+ *
+ * So a cleared location keeps whatever zone is already set. Only a location
+ * that changed to a real place is worth geocoding.
+ */
+export function decideTimeZoneForLocationEdit({
+  location,
+  originalLocation,
+  manuallySet,
+}: LocationEditOptions): LocationEditDecision {
+  if (manuallySet) return { action: "keep" };
+  if (location === originalLocation) return { action: "keep" };
+  if (!location) return { action: "keep" };
+  return { action: "infer" };
+}
+
 /** Collapses whitespace so " Pittsburgh ,  PA " stores as "Pittsburgh, PA". */
 export function normalizeLocationName(value: string): string {
   return value

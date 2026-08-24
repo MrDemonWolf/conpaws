@@ -14,6 +14,15 @@ public final class ConPawsQuickActionsSubscriber: ExpoAppDelegateSubscriber {
       shortcut(type: "create", title: title(for: "create"), icon: .add),
       shortcut(type: "import", title: title(for: "import"), icon: .capturePhoto),
     ]
+
+    // A cold launch never calls performActionFor. When the app is not already
+    // running, iOS hands the tapped shortcut to this method in launchOptions
+    // instead, and that is the only chance to see it — so without this a Home
+    // Screen action on a closed app just opened the default screen.
+    if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem {
+      storePendingRoute(for: shortcutItem)
+    }
+
     return true
   }
 
@@ -22,12 +31,19 @@ public final class ConPawsQuickActionsSubscriber: ExpoAppDelegateSubscriber {
     performActionFor shortcutItem: UIApplicationShortcutItem,
     completionHandler: @escaping (Bool) -> Void
   ) {
-    guard let route = route(for: shortcutItem.type) else {
-      completionHandler(false)
-      return
-    }
+    completionHandler(storePendingRoute(for: shortcutItem))
+  }
+
+  /// Parks the route for JS to pick up once the router is mounted.
+  ///
+  /// Writing the same route twice is harmless — the read side removes the key
+  /// as it consumes it — which is what makes it safe to call from both the
+  /// cold-launch and the warm-launch path without coordinating them.
+  @discardableResult
+  private func storePendingRoute(for shortcutItem: UIApplicationShortcutItem) -> Bool {
+    guard let route = route(for: shortcutItem.type) else { return false }
     UserDefaults.standard.set(route, forKey: pendingRouteKey)
-    completionHandler(true)
+    return true
   }
 
   private func shortcut(
