@@ -8,6 +8,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "archive": "Archive",
     "edit": "Edit",
     "done": "Done",
     "loading": "Loading...",
@@ -88,7 +89,10 @@
       "title": "Archive ({{count}})",
       "show": "Show",
       "hide": "Hide",
-      "noCurrent": "No upcoming conventions."
+      "noCurrent": "No upcoming conventions.",
+      "success": "Archived {{name}}.",
+      "errorTitle": "Could Not Archive Convention",
+      "errorMessage": "Nothing was archived. Try again."
     },
     "moreActions": "More actions for {{name}}",
     "sortBy": "Sort By",
@@ -112,7 +116,12 @@
       "cta": "Open my conventions"
     },
     "timesShownInConventionTime": "Times are shown in each convention's local time.",
-    "loadError": "Your schedule could not be loaded."
+    "loadError": "Your schedule could not be loaded.",
+    "conventionEmpty": {
+      "title": "Nothing saved for {{name}} yet",
+      "subtitle": "Star events in the convention schedule and they will appear here.",
+      "cta": "Open Convention"
+    }
   },
   "convention": {
     "new": "New Convention",
@@ -164,6 +173,12 @@
     "namePlaceholder": "e.g. ConPaws Preview Con",
     "nameRequired": "Enter a convention name.",
     "timeZoneInvalid": "Enter a valid IANA time zone, such as America/Chicago.",
+    "location": "Location",
+    "locationPlaceholder": "City, venue, or address",
+    "timeZoneFallbackTitle": "Time Zone Could Not Be Detected",
+    "timeZoneFallbackMessage": "ConPaws can use this device's time zone ({{timeZone}}), or you can choose the convention's time zone under Advanced.",
+    "setTimeZone": "Set Time Zone",
+    "useDeviceTimeZone": "Use Device Time Zone",
     "createError": "The convention could not be created. Try again.",
     "notFound": "Convention not found.",
     "goBack": "Go back",

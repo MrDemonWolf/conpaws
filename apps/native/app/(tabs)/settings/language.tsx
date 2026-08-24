@@ -45,7 +45,7 @@ export default function LanguageScreen() {
       <FieldGroup>
         <FieldGroup.Section disabled={isChanging}>
           {SUPPORTED_LANGUAGES.map((code) => {
-            const { nativeName, flag } = LANGUAGE_META[code];
+            const { nativeName } = LANGUAGE_META[code];
             const isSelected = currentLanguage === code;
             const localizedName = t(`settings.languages.${code}`, {
               defaultValue: nativeName,
@@ -61,14 +61,6 @@ export default function LanguageScreen() {
               <ListItem
                 key={code}
                 testID={`language-${code}`}
-                leading={
-                  <NativeText
-                    textStyle={{ fontSize: 22 }}
-                    modifiers={[font({ textStyle: "title3" })]}
-                  >
-                    {flag}
-                  </NativeText>
-                }
                 supportingText={supportingText || undefined}
                 trailing={
                   isSelected ? <Icon name={CHECK} size={18} /> : undefined

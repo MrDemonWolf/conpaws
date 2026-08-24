@@ -46,7 +46,8 @@ export function partitionConventions(
   const archived: Convention[] = [];
 
   for (const convention of conventions) {
-    (conventionStatusAt(convention, now, deviceTimeZone) === "ended"
+    (convention.archivedAt ||
+    conventionStatusAt(convention, now, deviceTimeZone) === "ended"
       ? archived
       : current
     ).push(convention);

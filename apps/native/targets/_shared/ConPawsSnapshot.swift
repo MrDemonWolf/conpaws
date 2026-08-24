@@ -77,13 +77,9 @@ enum ConPawsSnapshotStore {
     let scheme = bundle.hasSuffix(".dev") ? "conpaws-dev" : "conpaws"
     var components = URLComponents()
     components.scheme = scheme
-    components.host = conventionID == nil ? "" : "convention"
+    components.host = conventionID == nil ? "" : "schedule"
     if let conventionID {
-      let pathSegment = conventionID.addingPercentEncoding(
-        withAllowedCharacters: CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
-      )
-      guard let pathSegment else { return nil }
-      components.percentEncodedPath = "/\(pathSegment)"
+      components.queryItems = [URLQueryItem(name: "conventionId", value: conventionID)]
     }
     return components.url
   }

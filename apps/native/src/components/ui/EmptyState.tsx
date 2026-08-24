@@ -16,6 +16,8 @@ interface EmptyStateProps {
   secondaryCtaLabel?: string;
   onSecondaryCta?: () => void;
   secondaryCtaTestID?: string;
+  actionsInline?: boolean;
+  secondaryCtaVariant?: "text" | "outlined";
   className?: string;
   testID?: string;
 }
@@ -31,6 +33,8 @@ export function EmptyState({
   secondaryCtaLabel,
   onSecondaryCta,
   secondaryCtaTestID,
+  actionsInline = false,
+  secondaryCtaVariant = "text",
   className,
   testID,
 }: EmptyStateProps) {
@@ -42,17 +46,15 @@ export function EmptyState({
     <View
       className={cn(
         "flex-1 items-center justify-center px-6 gap-4",
-        compact &&
-          "mx-4 flex-none items-stretch justify-start rounded-3xl border border-border bg-card px-5 py-6",
+        compact && "mx-4 flex-none items-stretch justify-start px-5 py-6",
         className,
       )}
-      style={compact ? { borderCurve: "continuous" } : undefined}
       testID={testID}
     >
       {icon ? (
         <View
           accessibilityElementsHidden
-          className={cn(compact && "self-start rounded-full bg-primary/10 p-3")}
+          className={cn(compact && "self-start")}
           importantForAccessibility="no-hide-descendants"
         >
           <Host
@@ -93,6 +95,7 @@ export function EmptyState({
       <View
         className={cn(
           compact ? "items-stretch gap-1 pt-1" : "items-center gap-1",
+          actionsInline && "flex-row flex-wrap justify-center gap-2",
         )}
       >
         {ctaLabel && onCta ? (
@@ -138,7 +141,7 @@ export function EmptyState({
               className="min-h-12 w-full"
               onPress={onSecondaryCta}
               testID={secondaryCtaTestID}
-              variant="ghost"
+              variant={secondaryCtaVariant === "outlined" ? "outline" : "ghost"}
             >
               {secondaryCtaLabel}
             </Button>
@@ -147,7 +150,7 @@ export function EmptyState({
               <NativeButton
                 label={secondaryCtaLabel}
                 onPress={onSecondaryCta}
-                variant="text"
+                variant={secondaryCtaVariant}
                 style={{ height: 44 }}
                 testID={secondaryCtaTestID}
               />

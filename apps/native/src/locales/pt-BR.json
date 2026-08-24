@@ -8,6 +8,7 @@
     "save": "Salvar",
     "cancel": "Cancelar",
     "delete": "Excluir",
+    "archive": "Arquivar",
     "edit": "Editar",
     "done": "Concluído",
     "loading": "Carregando...",
@@ -88,7 +89,10 @@
       "title": "Arquivo ({{count}})",
       "show": "Mostrar",
       "hide": "Ocultar",
-      "noCurrent": "Nenhuma convenção próxima."
+      "noCurrent": "Nenhuma convenção próxima.",
+      "success": "{{name}} foi arquivada.",
+      "errorTitle": "Não foi possível arquivar a convenção",
+      "errorMessage": "Nada foi arquivado. Tente novamente."
     },
     "moreActions": "Mais ações para {{name}}",
     "sortBy": "Ordenar por",
@@ -112,7 +116,12 @@
       "cta": "Abrir minhas convenções"
     },
     "timesShownInConventionTime": "Os horários aparecem no fuso local de cada convenção.",
-    "loadError": "Não foi possível carregar sua programação."
+    "loadError": "Não foi possível carregar sua programação.",
+    "conventionEmpty": {
+      "title": "Nada salvo para {{name}} ainda",
+      "subtitle": "Marque eventos na programação da convenção para que apareçam aqui.",
+      "cta": "Abrir convenção"
+    }
   },
   "convention": {
     "new": "Nova Convenção",
@@ -164,6 +173,12 @@
     "namePlaceholder": "ex. ConPaws Preview Con",
     "nameRequired": "Informe um nome para a convenção.",
     "timeZoneInvalid": "Informe um fuso horário IANA válido, como America/Chicago.",
+    "location": "Local",
+    "locationPlaceholder": "Cidade, espaço ou endereço",
+    "timeZoneFallbackTitle": "Não foi possível detectar o fuso horário",
+    "timeZoneFallbackMessage": "O ConPaws pode usar o fuso deste dispositivo ({{timeZone}}), ou você pode escolher o fuso da convenção em Avançado.",
+    "setTimeZone": "Definir fuso horário",
+    "useDeviceTimeZone": "Usar fuso do dispositivo",
     "createError": "Não foi possível criar a convenção. Tente novamente.",
     "notFound": "Convenção não encontrada.",
     "goBack": "Voltar",

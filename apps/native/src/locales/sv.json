@@ -8,6 +8,7 @@
     "save": "Spara",
     "cancel": "Avbryt",
     "delete": "Ta bort",
+    "archive": "Arkivera",
     "edit": "Redigera",
     "done": "Klar",
     "loading": "Laddar...",
@@ -88,7 +89,10 @@
       "title": "Arkiv ({{count}})",
       "show": "Visa",
       "hide": "Dölj",
-      "noCurrent": "Inga kommande konvent."
+      "noCurrent": "Inga kommande konvent.",
+      "success": "{{name}} har arkiverats.",
+      "errorTitle": "Konventet kunde inte arkiveras",
+      "errorMessage": "Inget arkiverades. Försök igen."
     },
     "moreActions": "Fler åtgärder för {{name}}",
     "sortBy": "Sortera efter",
@@ -112,7 +116,12 @@
       "cta": "Öppna mina konvent"
     },
     "timesShownInConventionTime": "Tiderna visas i varje konvents lokala tid.",
-    "loadError": "Ditt schema kunde inte läsas in."
+    "loadError": "Ditt schema kunde inte läsas in.",
+    "conventionEmpty": {
+      "title": "Inget sparat för {{name}} än",
+      "subtitle": "Stjärnmärk evenemang i konventets schema så visas de här.",
+      "cta": "Öppna konventet"
+    }
   },
   "convention": {
     "new": "Nytt Konvent",
@@ -164,6 +173,12 @@
     "namePlaceholder": "t.ex. ConPaws Preview Con",
     "nameRequired": "Ange ett namn på konventet.",
     "timeZoneInvalid": "Ange en giltig IANA-tidszon, till exempel America/Chicago.",
+    "location": "Plats",
+    "locationPlaceholder": "Stad, lokal eller adress",
+    "timeZoneFallbackTitle": "Tidszonen kunde inte identifieras",
+    "timeZoneFallbackMessage": "ConPaws kan använda enhetens tidszon ({{timeZone}}), eller så kan du välja konventets tidszon under Avancerat.",
+    "setTimeZone": "Ställ in tidszon",
+    "useDeviceTimeZone": "Använd enhetens tidszon",
     "createError": "Konventet kunde inte skapas. Försök igen.",
     "notFound": "Konventet hittades inte.",
     "goBack": "Gå tillbaka",

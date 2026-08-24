@@ -12,6 +12,7 @@ const VALID = {
   startDate: "2026-09-03",
   endDate: "2026-09-06",
   timeZone: "America/Indiana/Indianapolis",
+  location: "Indianapolis, IN",
 };
 
 describe("normalizeConventionName", () => {
@@ -108,6 +109,7 @@ describe("validateConventionForm", () => {
       startDate: "2026-09-06",
       endDate: "2026-09-03",
       timeZone: "Nope/Nope",
+      location: "Indianapolis, IN",
     });
     expect(result.errors).toEqual({
       name: "nameRequired",
@@ -157,6 +159,9 @@ describe("isConventionUnchanged", () => {
     ).toBe(false);
     expect(
       isConventionUnchanged({ ...VALID, timeZone: "America/Chicago" }, VALID),
+    ).toBe(false);
+    expect(
+      isConventionUnchanged({ ...VALID, location: "Chicago, IL" }, VALID),
     ).toBe(false);
   });
 });
