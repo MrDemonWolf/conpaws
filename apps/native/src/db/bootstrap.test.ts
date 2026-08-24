@@ -38,7 +38,7 @@ describe("database bootstrap", () => {
     const version = database.prepare("PRAGMA user_version").get();
 
     expect(eventCount).toEqual({ count: 0 });
-    expect(version).toEqual({ user_version: 4 });
+    expect(version).toEqual({ user_version: 5 });
     database.close();
   });
 
@@ -54,13 +54,16 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     const convention = database
-      .prepare("SELECT name, time_zone, location FROM conventions WHERE id = ?")
+      .prepare(
+        "SELECT name, time_zone, location, archived_at FROM conventions WHERE id = ?",
+      )
       .get("legacy-con");
 
     expect(convention).toEqual({
       name: "Legacy Con",
       time_zone: null,
       location: null,
+      archived_at: null,
     });
     database.close();
   });
@@ -100,7 +103,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 4,
+      user_version: 5,
     });
     expect(
       database
@@ -127,7 +130,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 4,
+      user_version: 5,
     });
     expect(
       database

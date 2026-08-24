@@ -8,6 +8,7 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
+    "archive": "Archivar",
     "edit": "Editar",
     "done": "Hecho",
     "loading": "Cargando...",
@@ -88,7 +89,10 @@
       "title": "Archivo ({{count}})",
       "show": "Mostrar",
       "hide": "Ocultar",
-      "noCurrent": "No hay próximas convenciones."
+      "noCurrent": "No hay próximas convenciones.",
+      "success": "Se archivó {{name}}.",
+      "errorTitle": "No se pudo archivar la convención",
+      "errorMessage": "No se archivó nada. Inténtalo de nuevo."
     },
     "moreActions": "Más acciones para {{name}}",
     "sortBy": "Ordenar por",
@@ -112,7 +116,12 @@
       "cta": "Abrir mis convenciones"
     },
     "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
-    "loadError": "No se pudo cargar tu horario."
+    "loadError": "No se pudo cargar tu horario.",
+    "conventionEmpty": {
+      "title": "Aún no hay nada guardado para {{name}}",
+      "subtitle": "Destaca eventos en el horario de la convención y aparecerán aquí.",
+      "cta": "Abrir convención"
+    }
   },
   "convention": {
     "new": "Nueva Convención",
@@ -164,6 +173,12 @@
     "namePlaceholder": "ej. ConPaws Preview Con",
     "nameRequired": "Introduce un nombre para la convención.",
     "timeZoneInvalid": "Introduce una zona horaria IANA válida, como America/Chicago.",
+    "location": "Ubicación",
+    "locationPlaceholder": "Ciudad, recinto o dirección",
+    "timeZoneFallbackTitle": "No se pudo detectar la zona horaria",
+    "timeZoneFallbackMessage": "ConPaws puede usar la zona horaria de este dispositivo ({{timeZone}}), o puedes elegir la de la convención en Avanzado.",
+    "setTimeZone": "Elegir zona horaria",
+    "useDeviceTimeZone": "Usar zona del dispositivo",
     "createError": "No se pudo crear la convención. Inténtalo de nuevo.",
     "notFound": "No se encontró la convención.",
     "goBack": "Volver",

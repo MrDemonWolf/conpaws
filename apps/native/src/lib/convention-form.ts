@@ -1,4 +1,5 @@
 import { isValidTimeZone } from "./convention-time";
+import { normalizeLocationName } from "./convention-location";
 
 /**
  * Validation shared by the create and edit forms. Keeping it here rather than
@@ -32,6 +33,7 @@ export interface ConventionFormValues {
   startDate: string;
   endDate: string;
   timeZone: string;
+  location: string;
 }
 
 export interface ConventionFormValidation {
@@ -97,6 +99,7 @@ export function validateConventionForm(
       startDate: values.startDate,
       endDate: values.endDate,
       timeZone,
+      location: normalizeLocationName(values.location),
     },
   };
 }
@@ -111,6 +114,8 @@ export function isConventionUnchanged(
       normalizeConventionName(original.name) &&
     values.startDate === original.startDate &&
     values.endDate === original.endDate &&
-    values.timeZone.trim() === original.timeZone.trim()
+    values.timeZone.trim() === original.timeZone.trim() &&
+    normalizeLocationName(values.location) ===
+      normalizeLocationName(original.location)
   );
 }

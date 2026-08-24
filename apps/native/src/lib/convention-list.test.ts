@@ -41,6 +41,8 @@ const conventions = [
     ({
       ...convention,
       timeZone: null,
+      location: null,
+      archivedAt: null,
       icalUrl: null,
       createdAt: "2026-01-01T00:00:00.000Z",
       updatedAt: "2026-01-01T00:00:00.000Z",
@@ -132,5 +134,28 @@ describe("convention list ordering", () => {
 
     expect(current.map(({ id }) => id)).toEqual(["later", "sooner"]);
     expect(archived.map(({ id }) => id)).toEqual(["past", "older-past"]);
+  });
+
+  it("moves a manually archived future convention into the archive", () => {
+    const manuallyArchived = conventions.map((convention) =>
+      convention.id === "later"
+        ? ({
+            ...convention,
+            archivedAt: "2026-08-24T12:00:00.000Z",
+          } as Convention)
+        : convention,
+    );
+    const { current, archived } = partitionConventions(
+      manuallyArchived,
+      new Date("2025-12-01T12:00:00.000Z"),
+      "UTC",
+    );
+
+    expect(current.map(({ id }) => id)).toEqual(["sooner"]);
+    expect(archived.map(({ id }) => id)).toEqual([
+      "past",
+      "later",
+      "older-past",
+    ]);
   });
 });

@@ -7,28 +7,18 @@ import {
   Text as NativeText,
   TextInput,
 } from "@expo/ui";
-import { DateTimePicker } from "@expo/ui/community/datetime-picker";
-import { DatePicker as SwiftDatePicker } from "@expo/ui/swift-ui";
-import { datePickerStyle } from "@expo/ui/swift-ui/modifiers";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, startOfDay } from "date-fns";
 import * as Haptics from "expo-haptics";
+import * as Location from "expo-location";
 import { getCalendars } from "expo-localization";
 import { router, Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Alert,
-  FlatList,
-  Keyboard,
-  Modal,
-  Pressable,
-  TextInput as RNTextInput,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Alert, Keyboard, useColorScheme, View } from "react-native";
+import tzLookup from "tz-lookup";
 import {
   ConventionDateField,
   TimeZonePickerModal,
@@ -36,16 +26,15 @@ import {
 import { SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import {
+  inferTimeZoneFromLocation,
+  normalizeLocationName,
+} from "@/lib/convention-location";
+import {
   conventionDayKey,
   conventionStatusForDay,
   isValidTimeZone,
 } from "@/lib/convention-time";
-import {
-  buildTimeZoneOptions,
-  searchTimeZones,
-  type TimeZoneOption,
-  timeZoneLabel,
-} from "@/lib/time-zone-search";
+import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 export default function CreateConventionScreen() {
@@ -57,7 +46,9 @@ export default function CreateConventionScreen() {
   const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
   const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
   const [timeZone, setTimeZone] = useState(deviceTimeZone);
+  const [timeZoneManuallySet, setTimeZoneManuallySet] = useState(false);
   const [startDate, setStartDate] = useState(() => startOfDay(new Date()));
   const [endDate, setEndDate] = useState(() =>
     addDays(startOfDay(new Date()), 1),
@@ -78,22 +69,65 @@ export default function CreateConventionScreen() {
     if (endDate < value) setEndDate(value);
   }
 
+  function confirmDeviceTimeZoneFallback(): Promise<string | null> {
+    return new Promise((resolve) => {
+      Alert.alert(
+        t("convention.timeZoneFallbackTitle"),
+        t("convention.timeZoneFallbackMessage", {
+          timeZone: timeZoneLabel(deviceTimeZone),
+        }),
+        [
+          {
+            text: t("convention.setTimeZone"),
+            onPress: () => {
+              setAdvancedOpen(true);
+              setTimeZonePickerVisible(true);
+              resolve(null);
+            },
+          },
+          {
+            text: t("convention.useDeviceTimeZone"),
+            onPress: () => resolve(deviceTimeZone),
+          },
+        ],
+      );
+    });
+  }
+
+  async function resolveTimeZoneForSave(): Promise<string | null> {
+    const normalizedLocation = normalizeLocationName(location);
+    if (!normalizedLocation || timeZoneManuallySet) return timeZone.trim();
+
+    const inferred = await inferTimeZoneFromLocation(
+      normalizedLocation,
+      Location.geocodeAsync,
+      tzLookup,
+    );
+    if (inferred) {
+      setTimeZone(inferred);
+      return inferred;
+    }
+    return confirmDeviceTimeZoneFallback();
+  }
+
   async function handleCreate() {
     const trimmedName = name.trim();
-    const trimmedTimeZone = timeZone.trim();
 
     if (!trimmedName) {
       Alert.alert(t("common.error"), t("convention.nameRequired"));
       return;
     }
-    if (!isValidTimeZone(trimmedTimeZone)) {
+    if (!isValidTimeZone(timeZone.trim())) {
       Alert.alert(t("common.error"), t("convention.timeZoneInvalid"));
       return;
     }
 
+    const resolvedTimeZone = await resolveTimeZoneForSave();
+    if (!resolvedTimeZone) return;
+
     const startDateKey = format(startDate, "yyyy-MM-dd");
     const endDateKey = format(endDate, "yyyy-MM-dd");
-    const today = conventionDayKey(new Date(), trimmedTimeZone);
+    const today = conventionDayKey(new Date(), resolvedTimeZone);
     let conventionId: string;
 
     setSaving(true);
@@ -102,7 +136,8 @@ export default function CreateConventionScreen() {
         name: trimmedName,
         startDate: startDateKey,
         endDate: endDateKey,
-        timeZone: trimmedTimeZone,
+        timeZone: resolvedTimeZone,
+        location: normalizeLocationName(location) || null,
         icalUrl: null,
         status: conventionStatusForDay(startDateKey, endDateKey, today),
       });
@@ -199,6 +234,21 @@ export default function CreateConventionScreen() {
             >
               {t("convention.name")}
             </ListItem>
+            <ListItem
+              supportingText={
+                <TextInput
+                  defaultValue={location}
+                  onChangeText={setLocation}
+                  placeholder={t("convention.locationPlaceholder")}
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                  onSubmitEditing={Keyboard.dismiss}
+                  testID="convention-location-input"
+                />
+              }
+            >
+              {t("convention.location")}
+            </ListItem>
             <ConventionDateField
               title={t("convention.startDate")}
               value={startDate}
@@ -245,7 +295,10 @@ export default function CreateConventionScreen() {
         visible={timeZonePickerVisible}
         options={timeZones}
         selected={timeZone}
-        onSelect={setTimeZone}
+        onSelect={(value) => {
+          setTimeZone(value);
+          setTimeZoneManuallySet(true);
+        }}
         onClose={() => setTimeZonePickerVisible(false)}
       />
     </SafeView>

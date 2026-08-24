@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   isValidCoordinates,
+  inferTimeZoneFromLocation,
   normalizeLocationName,
   resolveConventionTimeZone,
   timeZoneFromCoordinates,
@@ -62,6 +63,29 @@ describe("timeZoneFromCoordinates", () => {
     expect(
       timeZoneFromCoordinates(PITTSBURGH, () => undefined as unknown as string),
     ).toBe(null);
+  });
+});
+
+describe("inferTimeZoneFromLocation", () => {
+  it("geocodes a normalized place before resolving its zone", async () => {
+    const geocode = vi.fn(async () => [PITTSBURGH]);
+    await expect(
+      inferTimeZoneFromLocation(" Pittsburgh , PA ", geocode, lookup),
+    ).resolves.toBe("America/New_York");
+    expect(geocode).toHaveBeenCalledWith("Pittsburgh, PA");
+  });
+
+  it("returns null for blank locations and geocoder failures", async () => {
+    const geocode = vi.fn(async () => {
+      throw new Error("offline");
+    });
+    await expect(inferTimeZoneFromLocation("", geocode, lookup)).resolves.toBe(
+      null,
+    );
+    expect(geocode).not.toHaveBeenCalled();
+    await expect(
+      inferTimeZoneFromLocation("Pittsburgh", geocode, lookup),
+    ).resolves.toBe(null);
   });
 });
 

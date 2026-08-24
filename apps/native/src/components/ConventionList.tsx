@@ -22,6 +22,9 @@ interface ConventionListProps<T extends { id: string }> {
   onOpen: (item: T) => void;
   deleteLabel: string;
   onDelete: (item: T) => void;
+  archiveItemLabel: string;
+  onArchive: (item: T) => void;
+  onOpenActions: (item: T) => void;
 }
 
 export function ConventionList<T extends { id: string }>({
@@ -34,7 +37,7 @@ export function ConventionList<T extends { id: string }>({
   onToggleArchive,
   getRowContent,
   onOpen,
-  onDelete,
+  onOpenActions,
 }: ConventionListProps<T>) {
   return (
     <FlatList
@@ -79,7 +82,7 @@ export function ConventionList<T extends { id: string }>({
                       <ConventionCard
                         {...row}
                         onPress={() => onOpen(item)}
-                        onMorePress={() => onDelete(item)}
+                        onMorePress={() => onOpenActions(item)}
                       />
                       {index < archivedData.length - 1 ? (
                         <View className="ml-1 h-px bg-border" />
@@ -99,7 +102,7 @@ export function ConventionList<T extends { id: string }>({
           <ConventionCard
             {...row}
             onPress={() => onOpen(item)}
-            onMorePress={() => onDelete(item)}
+            onMorePress={() => onOpenActions(item)}
           />
         );
       }}

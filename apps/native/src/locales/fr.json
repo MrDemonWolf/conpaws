@@ -8,6 +8,7 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
+    "archive": "Archiver",
     "edit": "Modifier",
     "done": "Terminé",
     "loading": "Chargement...",
@@ -88,7 +89,10 @@
       "title": "Archives ({{count}})",
       "show": "Afficher",
       "hide": "Masquer",
-      "noCurrent": "Aucune convention à venir."
+      "noCurrent": "Aucune convention à venir.",
+      "success": "{{name}} a été archivée.",
+      "errorTitle": "Impossible d’archiver la convention",
+      "errorMessage": "Rien n’a été archivé. Réessayez."
     },
     "moreActions": "Plus d’actions pour {{name}}",
     "sortBy": "Trier par",
@@ -112,7 +116,12 @@
       "cta": "Ouvrir mes conventions"
     },
     "timesShownInConventionTime": "Les horaires sont affichés dans le fuseau de chaque convention.",
-    "loadError": "Impossible de charger votre programme."
+    "loadError": "Impossible de charger votre programme.",
+    "conventionEmpty": {
+      "title": "Rien d’enregistré pour {{name}}",
+      "subtitle": "Ajoutez des événements en favori dans le programme de la convention pour les voir ici.",
+      "cta": "Ouvrir la convention"
+    }
   },
   "convention": {
     "new": "Nouvelle Convention",
@@ -164,6 +173,12 @@
     "namePlaceholder": "ex. ConPaws Preview Con",
     "nameRequired": "Saisissez un nom pour la convention.",
     "timeZoneInvalid": "Saisissez un fuseau horaire IANA valide, comme America/Chicago.",
+    "location": "Lieu",
+    "locationPlaceholder": "Ville, site ou adresse",
+    "timeZoneFallbackTitle": "Fuseau horaire introuvable",
+    "timeZoneFallbackMessage": "ConPaws peut utiliser le fuseau de cet appareil ({{timeZone}}), ou vous pouvez choisir celui de la convention dans Avancé.",
+    "setTimeZone": "Choisir le fuseau",
+    "useDeviceTimeZone": "Utiliser le fuseau de l’appareil",
     "createError": "Impossible de créer la convention. Réessayez.",
     "notFound": "Convention introuvable.",
     "goBack": "Retour",

@@ -37,6 +37,7 @@
         "date-fns": "^4.1.0",
         "drizzle-orm": "^0.39.3",
         "expo": "~57.0.15",
+        "expo-application": "~57.0.2",
         "expo-constants": "~57.0.13",
         "expo-dev-client": "~57.0.14",
         "expo-document-picker": "~57.0.1",

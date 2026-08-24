@@ -4,22 +4,20 @@ import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
 import SortIcon from "@expo/material-symbols/sort.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
-import { Host, Icon } from "@expo/ui";
+import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, Stack, useFocusEffect } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
   Alert,
   ScrollView,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
-import { Button, EmptyState, LoadingSpinner, Text } from "@/components/ui";
+import { EmptyState, LoadingSpinner } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
@@ -86,50 +84,18 @@ function ConventionEmptyState({
   onCreate,
   onImport,
 }: ConventionEmptyStateProps) {
-  const colorScheme = useColorScheme();
-  const { colors } = useTheme();
-
   return (
-    <View
-      className="mx-4 my-auto gap-6 rounded-3xl border border-border bg-card px-6 py-8"
-      style={{ borderCurve: "continuous" }}
-    >
-      <View className="items-center gap-4">
-        <View
-          className="h-16 w-16 items-center justify-center rounded-2xl bg-primary/10"
-          style={{ borderCurve: "continuous" }}
-        >
-          <Host
-            colorScheme={colorScheme === "dark" ? "dark" : "light"}
-            matchContents
-            pointerEvents="none"
-          >
-            <Icon name={EMPTY_ICON} size={38} color={colors.primary} />
-          </Host>
-        </View>
-        <View className="items-center gap-2">
-          <Text variant="h2" className="text-center">
-            {title}
-          </Text>
-          <Text variant="body" className="text-center text-muted-foreground">
-            {subtitle}
-          </Text>
-        </View>
-      </View>
-      <View className="gap-3">
-        <Button size="lg" className="w-full" onPress={onCreate}>
-          {createLabel}
-        </Button>
-        <Button
-          size="lg"
-          variant="outline"
-          className="w-full"
-          onPress={onImport}
-        >
-          {importLabel}
-        </Button>
-      </View>
-    </View>
+    <EmptyState
+      icon={EMPTY_ICON}
+      title={title}
+      subtitle={subtitle}
+      ctaLabel={createLabel}
+      onCta={onCreate}
+      secondaryCtaLabel={importLabel}
+      onSecondaryCta={onImport}
+      secondaryCtaVariant="outlined"
+      actionsInline
+    />
   );
 }
 
@@ -192,6 +158,22 @@ export default function HomeScreen() {
     },
   });
 
+  const archiveMutation = useMutation({
+    mutationFn: conventionsRepo.archive,
+    onSuccess: async (_, id) => {
+      const convention = conventions.find((item) => item.id === id);
+      await queryClient.invalidateQueries({ queryKey: ["conventions"] });
+      if (convention) {
+        AccessibilityInfo.announceForAccessibility(
+          t("home.archive.success", { name: convention.name }),
+        );
+      }
+    },
+    onError: () => {
+      Alert.alert(t("home.archive.errorTitle"), t("home.archive.errorMessage"));
+    },
+  });
+
   function handleImportConvention() {
     if (!tryAcquirePresentationLock(presentationLock)) return;
     router.push("/convention/new/import");
@@ -225,6 +207,25 @@ export default function HomeScreen() {
         },
       ],
     );
+  }
+
+  function showConventionActions(convention: Convention) {
+    Alert.alert(convention.name, undefined, [
+      {
+        text: t("common.edit"),
+        onPress: () => router.push(`/convention/${convention.id}/edit`),
+      },
+      {
+        text: t("common.archive"),
+        onPress: () => archiveMutation.mutate(convention.id),
+      },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: () => confirmDeleteConvention(convention),
+      },
+      { text: t("common.cancel"), style: "cancel" },
+    ]);
   }
 
   const content =
@@ -283,6 +284,9 @@ export default function HomeScreen() {
         onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
         onDelete={confirmDeleteConvention}
+        archiveItemLabel={t("common.archive")}
+        onArchive={(item) => archiveMutation.mutate(item.id)}
+        onOpenActions={showConventionActions}
         onOpen={(item) => handleOpenConvention(item.id)}
         getRowContent={(item) => {
           const start = dateFormatter.format(

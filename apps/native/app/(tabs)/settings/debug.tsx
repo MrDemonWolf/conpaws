@@ -2,6 +2,7 @@ import { FieldGroup, Host, ListItem, Button as NativeButton } from "@expo/ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
+import * as Application from "expo-application";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -40,10 +41,17 @@ export default function DebugScreen() {
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const enabled = developerToolsEnabled(__DEV__, appVariant);
-  const buildNumber =
-    Constants.expoConfig?.ios?.buildNumber ??
-    Constants.expoConfig?.android?.versionCode?.toString() ??
-    "Development";
+  const version =
+    Application.nativeApplicationVersion ??
+    Constants.expoConfig?.version ??
+    "Unknown";
+  const buildNumber = Application.nativeBuildVersion ?? "Development";
+  const variantName =
+    appVariant === "preview"
+      ? "Preview"
+      : appVariant === "production"
+        ? "Production"
+        : "Development";
 
   useEffect(() => {
     function refreshPermission() {
@@ -166,11 +174,8 @@ export default function DebugScreen() {
     >
       <FieldGroup>
         <FieldGroup.Section title="Build">
-          <ListItem supportingText={String(appVariant ?? "Unknown")}>
-            App variant
-          </ListItem>
-          <ListItem supportingText={buildNumber}>
-            Version {Constants.expoConfig?.version ?? "Unknown"}
+          <ListItem supportingText={`${version} (${buildNumber})`}>
+            {variantName} app version
           </ListItem>
         </FieldGroup.Section>
 

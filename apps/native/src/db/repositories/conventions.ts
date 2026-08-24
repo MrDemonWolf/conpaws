@@ -44,3 +44,7 @@ export async function update(
 export async function remove(id: string): Promise<void> {
   await db.delete(conventions).where(eq(conventions.id, id));
 }
+
+export async function archive(id: string): Promise<void> {
+  await update(id, { archivedAt: new Date().toISOString() });
+}

@@ -8,6 +8,7 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "delete": "Löschen",
+    "archive": "Archivieren",
     "edit": "Bearbeiten",
     "done": "Fertig",
     "loading": "Laden...",
@@ -88,7 +89,10 @@
       "title": "Archiv ({{count}})",
       "show": "Anzeigen",
       "hide": "Ausblenden",
-      "noCurrent": "Keine bevorstehenden Conventions."
+      "noCurrent": "Keine bevorstehenden Conventions.",
+      "success": "{{name}} wurde archiviert.",
+      "errorTitle": "Convention konnte nicht archiviert werden",
+      "errorMessage": "Es wurde nichts archiviert. Versuche es erneut."
     },
     "moreActions": "Weitere Aktionen für {{name}}",
     "sortBy": "Sortieren nach",
@@ -112,7 +116,12 @@
       "cta": "Meine Conventions öffnen"
     },
     "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
-    "loadError": "Dein Zeitplan konnte nicht geladen werden."
+    "loadError": "Dein Zeitplan konnte nicht geladen werden.",
+    "conventionEmpty": {
+      "title": "Noch nichts für {{name}} gespeichert",
+      "subtitle": "Markiere Veranstaltungen im Convention-Zeitplan, damit sie hier erscheinen.",
+      "cta": "Convention öffnen"
+    }
   },
   "convention": {
     "new": "Neue Convention",
@@ -164,6 +173,12 @@
     "namePlaceholder": "z.B. ConPaws Preview Con",
     "nameRequired": "Gib einen Namen für die Convention ein.",
     "timeZoneInvalid": "Gib eine gültige IANA-Zeitzone ein, zum Beispiel America/Chicago.",
+    "location": "Ort",
+    "locationPlaceholder": "Stadt, Veranstaltungsort oder Adresse",
+    "timeZoneFallbackTitle": "Zeitzone konnte nicht erkannt werden",
+    "timeZoneFallbackMessage": "ConPaws kann die Zeitzone dieses Geräts ({{timeZone}}) verwenden. Unter Erweitert kannst du auch die Zeitzone der Convention auswählen.",
+    "setTimeZone": "Zeitzone festlegen",
+    "useDeviceTimeZone": "Gerätezeitzone verwenden",
     "createError": "Die Convention konnte nicht erstellt werden. Versuche es erneut.",
     "notFound": "Convention nicht gefunden.",
     "goBack": "Zurück",

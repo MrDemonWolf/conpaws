@@ -3,7 +3,7 @@ import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCalendars } from "expo-localization";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { SectionList, View } from "react-native";
@@ -11,6 +11,7 @@ import { EventItem } from "@/components/EventItem";
 import { SectionHeader } from "@/components/SectionHeader";
 import { EmptyState, LoadingSpinner, Text } from "@/components/ui";
 import * as eventsRepo from "@/db/repositories/events";
+import * as conventionsRepo from "@/db/repositories/conventions";
 import type { ConventionEvent } from "@/db/schema";
 import { isValidTimeZone } from "@/lib/convention-time";
 import {
@@ -64,6 +65,7 @@ function formatDayLabel(key: string, locale: string): string {
 }
 
 export default function ScheduleScreen() {
+  const { conventionId } = useLocalSearchParams<{ conventionId?: string }>();
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const queryClient = useQueryClient();
@@ -75,6 +77,11 @@ export default function ScheduleScreen() {
   } = useQuery({
     queryKey: ["schedule"],
     queryFn: eventsRepo.getAllInSchedule,
+  });
+  const { data: linkedConvention } = useQuery({
+    queryKey: ["convention", conventionId],
+    queryFn: () => conventionsRepo.getById(conventionId ?? ""),
+    enabled: !!conventionId,
   });
 
   // Stars are toggled from the convention screen and its action sheet, so the
@@ -88,18 +95,20 @@ export default function ScheduleScreen() {
   const entries = useMemo<ScheduleEntry[]>(() => {
     const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
 
-    return (rows ?? []).map((row) => ({
-      id: row.event.id,
-      conventionId: row.event.conventionId,
-      conventionName: row.conventionName,
-      timeZone: isValidTimeZone(row.conventionTimeZone)
-        ? row.conventionTimeZone
-        : deviceTimeZone,
-      startTime: row.event.startTime,
-      endTime: row.event.endTime,
-      event: row.event,
-    }));
-  }, [rows]);
+    return (rows ?? [])
+      .filter((row) => !conventionId || row.event.conventionId === conventionId)
+      .map((row) => ({
+        id: row.event.id,
+        conventionId: row.event.conventionId,
+        conventionName: row.conventionName,
+        timeZone: isValidTimeZone(row.conventionTimeZone)
+          ? row.conventionTimeZone
+          : deviceTimeZone,
+        startTime: row.event.startTime,
+        endTime: row.event.endTime,
+        event: row.event,
+      }));
+  }, [conventionId, rows]);
 
   const days = useMemo(() => groupPersonalScheduleByDay(entries), [entries]);
   const showConventionName = useMemo(
@@ -138,12 +147,14 @@ export default function ScheduleScreen() {
         }
         ListHeaderComponent={
           days.length > 0 ? (
-            <Text
-              variant="caption"
-              className="px-4 pt-1 pb-2 text-muted-foreground"
-            >
-              {t("schedule.timesShownInConventionTime")}
-            </Text>
+            <View className="gap-1 px-4 pt-1 pb-2">
+              {linkedConvention ? (
+                <Text variant="label">{linkedConvention.name}</Text>
+              ) : null}
+              <Text variant="caption" className="text-muted-foreground">
+                {t("schedule.timesShownInConventionTime")}
+              </Text>
+            </View>
           ) : null
         }
         renderSectionHeader={({ section }) => (
@@ -167,16 +178,26 @@ export default function ScheduleScreen() {
           />
         )}
         ListEmptyComponent={
-          <EmptyState
-            icon={EMPTY_ICON}
-            title={t("schedule.empty.title")}
-            subtitle={t("schedule.empty.subtitle")}
-            ctaLabel={t("schedule.empty.cta")}
-            // The Home tab, not "/" — the root route re-runs the onboarding
-            // redirect, which is not what "open my conventions" should do
-            // from inside the app.
-            onCta={() => router.navigate("/(tabs)/(home)")}
-          />
+          linkedConvention ? (
+            <EmptyState
+              icon={EMPTY_ICON}
+              title={t("schedule.conventionEmpty.title", {
+                name: linkedConvention.name,
+              })}
+              subtitle={t("schedule.conventionEmpty.subtitle")}
+              ctaLabel={t("schedule.conventionEmpty.cta")}
+              onCta={() => router.push(`/convention/${linkedConvention.id}`)}
+            />
+          ) : (
+            <EmptyState
+              icon={EMPTY_ICON}
+              title={t("schedule.empty.title")}
+              subtitle={t("schedule.empty.subtitle")}
+              ctaLabel={t("schedule.empty.cta")}
+              // The Home tab, not "/" — the root route re-runs onboarding.
+              onCta={() => router.navigate("/(tabs)/(home)")}
+            />
+          )
         }
       />
     </View>
