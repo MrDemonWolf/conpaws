@@ -62,6 +62,7 @@ export function ConventionList<T extends { id: string }>({
   onDelete,
   archiveItemLabel,
   onArchive,
+  onOpenActions,
 }: ConventionListProps<T>) {
   const colorScheme = useColorScheme();
 
@@ -79,67 +80,92 @@ export function ConventionList<T extends { id: string }>({
           }),
         ]}
       >
-        <Button
-          onPress={() => onOpen(item)}
-          modifiers={[
-            buttonStyle("plain"),
-            accessibilityLabel(
-              `${row.name}, ${row.dateRange}, ${row.statusLabel}`,
-            ),
-          ]}
-        >
-          <HStack
-            spacing={12}
+        {/*
+          The row and its actions button are siblings, not nested. A Button
+          inside a Button gives SwiftUI two overlapping tap targets and the
+          inner one wins inconsistently, so the row would sometimes open the
+          convention and sometimes open the sheet.
+        */}
+        <HStack spacing={4} modifiers={[frame({ maxWidth: Infinity })]}>
+          <Button
+            onPress={() => onOpen(item)}
             modifiers={[
-              frame({ maxWidth: Infinity, minHeight: 44 }),
-              padding({ vertical: 10 }),
-              contentShape(shapes.rectangle()),
+              buttonStyle("plain"),
+              accessibilityLabel(
+                `${row.name}, ${row.dateRange}, ${row.statusLabel}`,
+              ),
             ]}
           >
-            <VStack alignment="leading" spacing={3}>
-              <Text
-                modifiers={[font({ textStyle: "body", weight: "semibold" })]}
-              >
-                {row.name}
-              </Text>
-              <VStack alignment="leading" spacing={2}>
-                <Text
-                  modifiers={[
-                    font({ textStyle: "caption" }),
-                    foregroundStyle({
-                      type: "hierarchical",
-                      style: "secondary",
-                    }),
-                  ]}
-                >
-                  {row.dateRange}
-                </Text>
-                <Text
-                  modifiers={[
-                    font({ textStyle: "caption" }),
-                    foregroundStyle({
-                      type: "hierarchical",
-                      style: row.status === "ended" ? "secondary" : "primary",
-                    }),
-                  ]}
-                >
-                  {row.statusLabel}
-                </Text>
-              </VStack>
-            </VStack>
-            <Spacer />
-            <Image
-              systemName="chevron.right"
+            <HStack
+              spacing={12}
               modifiers={[
-                font({ textStyle: "caption", weight: "semibold" }),
-                foregroundStyle({
-                  type: "hierarchical",
-                  style: "tertiary",
-                }),
+                frame({ maxWidth: Infinity, minHeight: 44 }),
+                padding({ vertical: 10 }),
+                contentShape(shapes.rectangle()),
               ]}
-            />
-          </HStack>
-        </Button>
+            >
+              <VStack alignment="leading" spacing={3}>
+                <Text
+                  modifiers={[font({ textStyle: "body", weight: "semibold" })]}
+                >
+                  {row.name}
+                </Text>
+                <VStack alignment="leading" spacing={2}>
+                  <Text
+                    modifiers={[
+                      font({ textStyle: "caption" }),
+                      foregroundStyle({
+                        type: "hierarchical",
+                        style: "secondary",
+                      }),
+                    ]}
+                  >
+                    {row.dateRange}
+                  </Text>
+                  <Text
+                    modifiers={[
+                      font({ textStyle: "caption" }),
+                      foregroundStyle({
+                        type: "hierarchical",
+                        style: row.status === "ended" ? "secondary" : "primary",
+                      }),
+                    ]}
+                  >
+                    {row.statusLabel}
+                  </Text>
+                </VStack>
+              </VStack>
+              <Spacer />
+              <Image
+                systemName="chevron.right"
+                modifiers={[
+                  font({ textStyle: "caption", weight: "semibold" }),
+                  foregroundStyle({
+                    type: "hierarchical",
+                    style: "tertiary",
+                  }),
+                ]}
+              />
+            </HStack>
+          </Button>
+          {/*
+            The same actions the swipe offers, as a button. Swipe alone is
+            invisible until discovered, and it is awkward under VoiceOver and
+            out of reach under Switch Control — so it cannot be the only way
+            to archive or delete a convention.
+          */}
+          <Button
+            systemImage="ellipsis.circle"
+            onPress={() => onOpenActions(item)}
+            modifiers={[
+              buttonStyle("borderless"),
+              frame({ width: 44, height: 44 }),
+              contentShape(shapes.rectangle()),
+              accessibilityLabel(row.moreAccessibilityLabel),
+              foregroundStyle({ type: "hierarchical", style: "secondary" }),
+            ]}
+          />
+        </HStack>
         {!isArchived ? (
           <SwipeActions.Actions edge="leading" allowsFullSwipe>
             <Button
