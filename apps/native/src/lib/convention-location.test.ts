@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  decideTimeZoneForLocationEdit,
   inferTimeZoneFromLocation,
   isValidCoordinates,
   normalizeLocationName,
@@ -154,5 +155,62 @@ describe("normalizeLocationName", () => {
     expect(normalizeLocationName("  Pittsburgh ,  PA ")).toBe("Pittsburgh, PA");
     expect(normalizeLocationName("San   Jose")).toBe("San Jose");
     expect(normalizeLocationName("")).toBe("");
+  });
+});
+
+describe("decideTimeZoneForLocationEdit", () => {
+  const base = {
+    location: "Denver, CO",
+    originalLocation: "Denver, CO",
+    manuallySet: false,
+  };
+
+  // The bug this exists to prevent: clearing the location used to fall through
+  // to the device zone, silently moving a Denver convention onto the phone's
+  // clock and shifting every event time on the schedule.
+  it("keeps the existing zone when the location is cleared", () => {
+    expect(decideTimeZoneForLocationEdit({ ...base, location: "" })).toEqual({
+      action: "keep",
+    });
+  });
+
+  it("keeps the existing zone when the location did not change", () => {
+    expect(decideTimeZoneForLocationEdit(base)).toEqual({ action: "keep" });
+  });
+
+  it("keeps a hand-picked zone even when the location changes", () => {
+    expect(
+      decideTimeZoneForLocationEdit({
+        ...base,
+        location: "Pittsburgh, PA",
+        manuallySet: true,
+      }),
+    ).toEqual({ action: "keep" });
+  });
+
+  it("re-infers when the location changes to a real place", () => {
+    expect(
+      decideTimeZoneForLocationEdit({ ...base, location: "Pittsburgh, PA" }),
+    ).toEqual({ action: "infer" });
+  });
+
+  it("infers when a convention that never had a location gains one", () => {
+    expect(
+      decideTimeZoneForLocationEdit({
+        location: "Pittsburgh, PA",
+        originalLocation: "",
+        manuallySet: false,
+      }),
+    ).toEqual({ action: "infer" });
+  });
+
+  it("keeps the zone when an empty location stays empty", () => {
+    expect(
+      decideTimeZoneForLocationEdit({
+        location: "",
+        originalLocation: "",
+        manuallySet: false,
+      }),
+    ).toEqual({ action: "keep" });
   });
 });

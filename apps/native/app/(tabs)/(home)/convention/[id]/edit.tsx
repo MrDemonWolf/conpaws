@@ -32,6 +32,7 @@ import {
   validateConventionForm,
 } from "@/lib/convention-form";
 import {
+  decideTimeZoneForLocationEdit,
   inferTimeZoneFromLocation,
   normalizeLocationName,
 } from "@/lib/convention-location";
@@ -153,10 +154,14 @@ export default function EditConventionScreen() {
   async function resolveTimeZoneForSave(): Promise<string | null> {
     const normalizedLocation = normalizeLocationName(location);
     const originalLocation = normalizeLocationName(convention?.location ?? "");
-    if (timeZoneManuallySet || normalizedLocation === originalLocation) {
-      return timeZone.trim();
+    const decision = decideTimeZoneForLocationEdit({
+      location: normalizedLocation,
+      originalLocation,
+      manuallySet: timeZoneManuallySet,
+    });
+    if (decision.action === "keep") {
+      return timeZone.trim() || deviceTimeZone;
     }
-    if (!normalizedLocation) return deviceTimeZone;
 
     const inferred = await inferTimeZoneFromLocation(
       normalizedLocation,
