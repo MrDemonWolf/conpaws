@@ -19,16 +19,16 @@ Never use `--latest`. Never guess which artifact was tested.
 | Profile | Result | Use it for |
 | --- | --- | --- |
 | `development` | Internal Expo development client using `com.mrdemonwolf.conpaws.dev` and the DEV icon | Local development with Metro |
-| `preview` | Store-signed build using `com.mrdemonwolf.conpaws`, the QA icon, and owner debug tools | Internal TestFlight or Play testing; never public release |
+| `preview` | Store-signed build using `com.mrdemonwolf.conpaws`, the production icon, and owner debug tools | Internal TestFlight or Play testing; never public release |
 | `production` | Store-signed iOS IPA or Android AAB using `com.mrdemonwolf.conpaws` | TestFlight, Play Internal Testing, and store release |
 
 Preview and production builds belong to the same App Store Connect and Play
 Console records. They cannot be installed side by side. Preview is an
-owner-only QA build and must never be promoted publicly because it includes a
-QA icon and debug tools. Always test a clean production build before release.
+owner-only QA build and must never be promoted publicly because it includes
+debug tools. Always test a clean production build before release.
 
-iOS selects `ConPaws-development.icon`, `ConPaws-preview.icon`, or the clean
-`ConPaws.icon` at build time. The badge never belongs on the splash screen.
+iOS selects `ConPaws-development.icon` for development and `ConPaws.icon` for
+preview and production. The development badge never belongs on the splash screen.
 
 ## One-time setup
 
@@ -188,7 +188,7 @@ Complete this on the TestFlight build and the Play Internal Testing build, not j
 - [ ] Change a saved schedule on iPhone, reopen the app, and confirm the widgets and Watch receive the new snapshot.
 - [ ] Turn on airplane mode and confirm the imported schedule and core planning flow still work.
 - [ ] Check large text, VoiceOver or TalkBack labels, light/dark appearance, and one small-screen device.
-- [ ] Confirm the clean production icon appears and no debug menu or test-only data is available.
+- [ ] Confirm the standard ConPaws icon appears and no debug menu or test-only data is available.
 
 Record device models, OS versions, pass/fail results, and any accepted limitation. A simulator pass is useful evidence, but it is not store-release approval.
 
@@ -291,7 +291,7 @@ away on any signed build.
 ## Ad-hoc device builds (`preview-device`)
 
 `preview-device` is the same app as `preview` — production bundle identifier,
-QA icon, debug tools — but built for **internal (ad-hoc) distribution** instead
+production icon, debug tools — but built for **internal (ad-hoc) distribution** instead
 of the store. It exists so a build can be installed straight onto a registered
 device from a link, without waiting on TestFlight processing. Use it when you
 need a fast on-device check, especially of the embedded Watch app.

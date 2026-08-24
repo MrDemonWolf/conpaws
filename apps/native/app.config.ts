@@ -18,7 +18,7 @@ const getScheme = (): string => {
 };
 
 const getVariantPng = (name: string): string =>
-  `./assets/images/${name}${APP_VARIANT === "production" ? "" : `-${APP_VARIANT}`}.png`;
+  `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -26,7 +26,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "conpaws",
   owner: "mrdemonwolf-org",
   version: "1.0.0",
-  orientation: "portrait",
+  orientation: "default",
   userInterfaceStyle: "automatic",
   icon: getVariantPng("icon"),
   scheme: getScheme(),
@@ -74,10 +74,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     appleTeamId: "HBB7T99U79",
     icon:
-      APP_VARIANT === "production"
-        ? "./assets/images/ConPaws.icon"
-        : `./assets/images/ConPaws-${APP_VARIANT}.icon`,
-    supportsTablet: false,
+      APP_VARIANT === "development"
+        ? "./assets/images/ConPaws-development.icon"
+        : "./assets/images/ConPaws.icon",
+    supportsTablet: true,
     bundleIdentifier: getBundleId(),
     entitlements: {
       "com.apple.security.application-groups": [`group.${getBundleId()}`],
