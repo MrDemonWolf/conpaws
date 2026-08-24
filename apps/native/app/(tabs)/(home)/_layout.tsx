@@ -33,7 +33,6 @@ export default function HomeLayout() {
         options={{
           title: t("convention.new"),
           headerLargeTitleEnabled: false,
-          headerShown: process.env.EXPO_OS === "ios",
           presentation: "formSheet",
           sheetAllowedDetents: [0.55, 0.85],
           sheetInitialDetentIndex: 0,
@@ -45,7 +44,6 @@ export default function HomeLayout() {
         options={{
           title: t("convention.edit"),
           headerLargeTitleEnabled: false,
-          headerShown: process.env.EXPO_OS === "ios",
           presentation: "formSheet",
           sheetAllowedDetents: [0.55, 0.85],
           sheetInitialDetentIndex: 0,
@@ -57,7 +55,6 @@ export default function HomeLayout() {
         options={{
           title: t("import.title"),
           headerLargeTitleEnabled: false,
-          headerShown: process.env.EXPO_OS === "ios",
           headerShadowVisible: false,
           presentation: "formSheet",
           sheetAllowedDetents: [0.5, 0.9, 1],

@@ -20,7 +20,11 @@
     "getStarted": "Kom igång",
     "learnMore": "Läs mer",
     "version": "Version {{version}}",
-    "advanced": "Avancerat"
+    "advanced": "Avancerat",
+    "discardChangesTitle": "Kasta ändringar?",
+    "discardChangesMessage": "Dina ändringar går förlorade.",
+    "keepEditing": "Fortsätt redigera",
+    "discard": "Kasta"
   },
   "onboarding": {
     "progress": "Steg {{step}} av {{total}}",
@@ -287,6 +291,8 @@
       "title": "App",
       "theme": "Tema",
       "language": "Språk",
+      "haptics": "Haptisk återkoppling",
+      "hapticsError": "Din haptikinställning kunde inte sparas",
       "notifications": "Aviseringar"
     },
     "data": {

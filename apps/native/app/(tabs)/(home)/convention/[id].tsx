@@ -6,7 +6,6 @@ import { Host, Icon } from "@expo/ui";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
-import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
 import {
   router,
@@ -45,6 +44,7 @@ import {
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { confirmDiscardChanges } from "@/hooks/useUnsavedChangesGuard";
 import {
   conventionDayKey,
   formatInConventionTime,
@@ -74,6 +74,12 @@ import {
 import { getNowAndNextEvents } from "@/lib/schedule-view";
 import { cn } from "@/lib/utils";
 import {
+  hapticLongPress,
+  hapticSuccess,
+  hapticTap,
+  hapticToggle,
+} from "@/services/haptics";
+import {
   cancelEventReminder,
   scheduleEventReminder,
 } from "@/services/notifications";
@@ -99,6 +105,9 @@ const ADD_EVENT_ICON = Icon.select({
   android: AddIcon,
 });
 const EMPTY_LIST_CONTENT_STYLE = { flexGrow: 1 } as const;
+// Populated lists need their own bottom padding: the empty-only style above
+// left the last event of the last day running under the system navigation bar.
+const LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
 const EMPTY_CONVENTION_CONTENT_STYLE = {
   flexGrow: 1,
   justifyContent: "center",
@@ -676,6 +685,18 @@ function ManualEventModalContent({
     setError(null);
   }
 
+  const isDirty =
+    !saving &&
+    (values.title.trim().length > 0 || values.room.trim().length > 0);
+
+  function requestClose() {
+    if (!isDirty) {
+      onClose();
+      return;
+    }
+    confirmDiscardChanges(t, onClose);
+  }
+
   async function handleSave() {
     const title = values.title.trim();
     if (!title) {
@@ -745,12 +766,19 @@ function ManualEventModalContent({
       visible
       animationType="slide"
       presentationStyle="pageSheet"
-      onRequestClose={saving ? undefined : onClose}
+      // Android needs both to draw under the system bars like the rest of the app.
+      statusBarTranslucent
+      navigationBarTranslucent
+      // Always handled: React Native requires this on Android, and passing
+      // undefined while saving leaves the back gesture with no handler at all.
+      onRequestClose={() => {
+        if (!saving) requestClose();
+      }}
     >
       <SafeView>
         <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
           <Pressable
-            onPress={onClose}
+            onPress={requestClose}
             disabled={saving}
             accessibilityRole="button"
             accessibilityLabel={t("convention.manualEvent.cancelLabel")}
@@ -978,7 +1006,8 @@ export default function ConventionDetailScreen() {
     },
     onSuccess: (_, event) => {
       queryClient.invalidateQueries({ queryKey: ["events", id] });
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      // `isInSchedule` is the state before the toggle, so the new state is its negation.
+      hapticToggle(!event.isInSchedule);
       AccessibilityInfo.announceForAccessibility(
         t(
           event.isInSchedule
@@ -1020,10 +1049,8 @@ export default function ConventionDetailScreen() {
       ]);
     },
     onSuccess: async (_, event) => {
-      await Promise.allSettled([
-        queryClient.invalidateQueries({ queryKey: ["events", id] }),
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
-      ]);
+      hapticSuccess();
+      await queryClient.invalidateQueries({ queryKey: ["events", id] });
       AccessibilityInfo.announceForAccessibility(
         t("convention.manualEvent.savedAnnouncement", { event: event.title }),
       );
@@ -1278,11 +1305,11 @@ export default function ConventionDetailScreen() {
         hasConflict={conflictingEventIds.has(event.id)}
         contentWarning={event.contentWarning}
         onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          hapticTap();
           setActionSheetEvent(event);
         }}
         onLongPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          hapticLongPress();
           setActionSheetEvent(event);
         }}
       />
@@ -1508,7 +1535,7 @@ export default function ConventionDetailScreen() {
               ? events.length === 0
                 ? EMPTY_CONVENTION_CONTENT_STYLE
                 : EMPTY_LIST_CONTENT_STYLE
-              : undefined
+              : LIST_CONTENT_STYLE
           }
           ListHeaderComponent={dayGroups.length > 0 ? scheduleNotices : null}
           renderSectionHeader={({ section }) => (

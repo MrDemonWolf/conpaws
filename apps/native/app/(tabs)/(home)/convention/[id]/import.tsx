@@ -13,7 +13,6 @@ import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
-import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
@@ -24,12 +23,12 @@ import {
   Alert,
   Keyboard,
   useColorScheme,
-  View,
 } from "react-native";
-import { SafeView, Text } from "@/components/ui";
+import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   conventionDayKey,
   conventionStatusForDay,
@@ -54,6 +53,7 @@ import {
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
 import { scheduleNameFromUrl } from "@/lib/schedule-url";
+import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 type Tab = "file" | "url";
@@ -569,9 +569,7 @@ export default function ImportScreen() {
         queryClient.invalidateQueries({ queryKey: ["events", conventionId] }),
       ]);
 
-      await Haptics.notificationAsync(
-        Haptics.NotificationFeedbackType.Success,
-      ).catch(() => undefined);
+      hapticSuccess();
 
       Alert.alert(
         t("import.alerts.successTitle"),
@@ -665,6 +663,12 @@ export default function ImportScreen() {
     }
   };
 
+  // A built preview represents real work — parsing plus per-event selection.
+  const { confirmDiscard: handleCancel } = useUnsavedChangesGuard({
+    isDirty: !importMutation.isPending && !!preview,
+    onDiscard: closeImport,
+  });
+
   const controlsDisabled = loading || importMutation.isPending;
   const importActionLabel = importMutation.isPending
     ? isEmptyAuthoritativeUpdate
@@ -720,27 +724,11 @@ export default function ImportScreen() {
 
   return (
     <SafeView edges={["bottom"]}>
-      {process.env.EXPO_OS === "ios" ? (
-        <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button onPress={closeImport}>
-            {t("common.cancel")}
-          </Stack.Toolbar.Button>
-        </Stack.Toolbar>
-      ) : (
-        <View className="flex-row items-center px-3 py-2">
-          <View className="flex-1 items-start">
-            <Host colorScheme={resolvedColorScheme} matchContents>
-              <NativeButton
-                label={t("common.cancel")}
-                onPress={closeImport}
-                variant="text"
-              />
-            </Host>
-          </View>
-          <Text variant="h3">{t("import.title")}</Text>
-          <View className="flex-1" />
-        </View>
-      )}
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button onPress={handleCancel}>
+          {t("common.cancel")}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
 
       <Host
         colorScheme={resolvedColorScheme}

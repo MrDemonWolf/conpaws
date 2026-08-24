@@ -20,7 +20,11 @@
     "getStarted": "Los geht's",
     "learnMore": "Mehr erfahren",
     "version": "Version {{version}}",
-    "advanced": "Erweitert"
+    "advanced": "Erweitert",
+    "discardChangesTitle": "Änderungen verwerfen?",
+    "discardChangesMessage": "Deine Änderungen gehen verloren.",
+    "keepEditing": "Weiter bearbeiten",
+    "discard": "Verwerfen"
   },
   "onboarding": {
     "progress": "Schritt {{step}} von {{total}}",
@@ -287,6 +291,8 @@
       "title": "App",
       "theme": "Design",
       "language": "Sprache",
+      "haptics": "Haptisches Feedback",
+      "hapticsError": "Haptik-Einstellung konnte nicht gespeichert werden",
       "notifications": "Benachrichtigungen"
     },
     "data": {

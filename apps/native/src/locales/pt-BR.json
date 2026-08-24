@@ -20,7 +20,11 @@
     "getStarted": "Começar",
     "learnMore": "Saiba mais",
     "version": "Versão {{version}}",
-    "advanced": "Avançado"
+    "advanced": "Avançado",
+    "discardChangesTitle": "Descartar alterações?",
+    "discardChangesMessage": "Suas alterações serão perdidas.",
+    "keepEditing": "Continuar editando",
+    "discard": "Descartar"
   },
   "onboarding": {
     "progress": "Etapa {{step}} de {{total}}",
@@ -287,6 +291,8 @@
       "title": "Aplicativo",
       "theme": "Tema",
       "language": "Idioma",
+      "haptics": "Resposta tátil",
+      "hapticsError": "Não foi possível salvar sua configuração tátil",
       "notifications": "Notificações"
     },
     "data": {

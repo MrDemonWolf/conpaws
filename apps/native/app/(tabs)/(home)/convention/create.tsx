@@ -3,28 +3,27 @@ import {
   FieldGroup,
   Host,
   ListItem,
-  Button as NativeButton,
   Text as NativeText,
   TextInput,
 } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, startOfDay } from "date-fns";
-import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Keyboard, useColorScheme, View } from "react-native";
+import { Alert, Keyboard, useColorScheme } from "react-native";
 import tzLookup from "tz-lookup";
 import {
   ConventionDateField,
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
-import { SafeView, Text } from "@/components/ui";
+import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   inferTimeZoneFromLocation,
   normalizeLocationName,
@@ -35,6 +34,7 @@ import {
   isValidTimeZone,
 } from "@/lib/convention-time";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
+import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 export default function CreateConventionScreen() {
@@ -150,10 +150,8 @@ export default function CreateConventionScreen() {
       return;
     }
 
-    await Promise.allSettled([
-      queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
-    ]);
+    hapticSuccess();
+    await queryClient.invalidateQueries({ queryKey: ["conventions"] });
     await publishWidgetSnapshot().catch(() => false);
     router.replace(`/convention/${conventionId}`);
   }
@@ -162,54 +160,30 @@ export default function CreateConventionScreen() {
   const canCreate =
     !saving && name.trim().length > 0 && isValidTimeZone(timeZone);
 
+  // Any typed input counts as dirty; the untouched dates are defaults, not input.
+  const isDirty =
+    !saving && (name.trim().length > 0 || location.trim().length > 0);
+  const { confirmDiscard: handleCancel } = useUnsavedChangesGuard({
+    isDirty,
+    onDiscard: () => router.back(),
+  });
+
   return (
     <SafeView edges={["bottom"]}>
-      {process.env.EXPO_OS === "ios" ? (
-        <>
-          <Stack.Toolbar placement="left">
-            <Stack.Toolbar.Button onPress={() => router.back()}>
-              {t("common.cancel")}
-            </Stack.Toolbar.Button>
-          </Stack.Toolbar>
-          <Stack.Toolbar placement="right">
-            <Stack.Toolbar.Button
-              onPress={handleCreate}
-              disabled={!canCreate}
-              variant="done"
-            >
-              {t("common.add")}
-            </Stack.Toolbar.Button>
-          </Stack.Toolbar>
-        </>
-      ) : (
-        <View className="flex-row items-center px-3 py-2">
-          <View className="flex-1 items-start">
-            <Host colorScheme={resolvedColorScheme} matchContents>
-              <NativeButton
-                label={t("common.cancel")}
-                onPress={() => router.back()}
-                variant="text"
-              />
-            </Host>
-          </View>
-          <Text variant="h3" className="text-center">
-            {t("convention.new")}
-          </Text>
-          <View className="flex-1 items-end">
-            <Host
-              colorScheme={resolvedColorScheme}
-              seedColor={seedColor}
-              matchContents
-            >
-              <NativeButton
-                label={t("common.add")}
-                onPress={handleCreate}
-                disabled={!canCreate}
-              />
-            </Host>
-          </View>
-        </View>
-      )}
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button onPress={handleCancel}>
+          {t("common.cancel")}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          onPress={handleCreate}
+          disabled={!canCreate}
+          variant="done"
+        >
+          {t("common.add")}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
 
       <Host
         colorScheme={resolvedColorScheme}

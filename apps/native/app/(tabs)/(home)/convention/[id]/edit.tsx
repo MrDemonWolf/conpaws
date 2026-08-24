@@ -3,14 +3,12 @@ import {
   FieldGroup,
   Host,
   ListItem,
-  Button as NativeButton,
   Text as NativeText,
   TextInput,
 } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -23,8 +21,9 @@ import {
   ConventionDateField,
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
-import { LoadingSpinner, SafeView, Text } from "@/components/ui";
+import { LoadingSpinner, SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   CONVENTION_NAME_MAX_LENGTH,
   conventionNameLength,
@@ -41,6 +40,7 @@ import {
   conventionStatusForDay,
 } from "@/lib/convention-time";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
+import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /** Parses a stored `yyyy-MM-dd` key into a local noon Date, avoiding DST edges. */
@@ -210,18 +210,22 @@ export default function EditConventionScreen() {
       return;
     }
 
+    hapticSuccess();
     await Promise.allSettled([
       queryClient.invalidateQueries({
         queryKey: ["convention", convention.id],
       }),
       queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
     ]);
     await publishWidgetSnapshot().catch(() => false);
     router.back();
   }
 
   const canSave = !saving && validation.valid && !unchanged;
+  const { confirmDiscard: handleCancel } = useUnsavedChangesGuard({
+    isDirty: !saving && !unchanged,
+    onDiscard: () => router.back(),
+  });
 
   if (isLoading || !convention || !seeded) {
     return (
@@ -235,52 +239,20 @@ export default function EditConventionScreen() {
 
   return (
     <SafeView edges={["bottom"]}>
-      {process.env.EXPO_OS === "ios" ? (
-        <>
-          <Stack.Toolbar placement="left">
-            <Stack.Toolbar.Button onPress={() => router.back()}>
-              {t("common.cancel")}
-            </Stack.Toolbar.Button>
-          </Stack.Toolbar>
-          <Stack.Toolbar placement="right">
-            <Stack.Toolbar.Button
-              onPress={handleSave}
-              disabled={!canSave}
-              variant="done"
-            >
-              {t("common.save")}
-            </Stack.Toolbar.Button>
-          </Stack.Toolbar>
-        </>
-      ) : (
-        <View className="flex-row items-center px-3 py-2">
-          <View className="flex-1 items-start">
-            <Host colorScheme={resolvedColorScheme} matchContents>
-              <NativeButton
-                label={t("common.cancel")}
-                onPress={() => router.back()}
-                variant="text"
-              />
-            </Host>
-          </View>
-          <Text variant="h3" className="text-center">
-            {t("convention.edit")}
-          </Text>
-          <View className="flex-1 items-end">
-            <Host
-              colorScheme={resolvedColorScheme}
-              seedColor={seedColor}
-              matchContents
-            >
-              <NativeButton
-                label={t("common.save")}
-                onPress={handleSave}
-                disabled={!canSave}
-              />
-            </Host>
-          </View>
-        </View>
-      )}
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button onPress={handleCancel}>
+          {t("common.cancel")}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          onPress={handleSave}
+          disabled={!canSave}
+          variant="done"
+        >
+          {t("common.save")}
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
 
       <Host
         colorScheme={resolvedColorScheme}
