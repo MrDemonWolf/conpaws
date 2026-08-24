@@ -43,6 +43,9 @@ interface ConventionListProps<T extends { id: string }> {
   onOpen: (item: T) => void;
   deleteLabel: string;
   onDelete: (item: T) => void;
+  archiveItemLabel: string;
+  onArchive: (item: T) => void;
+  onOpenActions: (item: T) => void;
 }
 
 export function ConventionList<T extends { id: string }>({
@@ -57,10 +60,12 @@ export function ConventionList<T extends { id: string }>({
   onOpen,
   deleteLabel,
   onDelete,
+  archiveItemLabel,
+  onArchive,
 }: ConventionListProps<T>) {
   const colorScheme = useColorScheme();
 
-  function renderConvention(item: T) {
+  function renderConvention(item: T, isArchived = false) {
     const row = getRowContent(item);
     return (
       <SwipeActions
@@ -135,6 +140,15 @@ export function ConventionList<T extends { id: string }>({
             />
           </HStack>
         </Button>
+        {!isArchived ? (
+          <SwipeActions.Actions edge="leading" allowsFullSwipe>
+            <Button
+              label={archiveItemLabel}
+              systemImage="archivebox"
+              onPress={() => onArchive(item)}
+            />
+          </SwipeActions.Actions>
+        ) : null}
         <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
           {/* biome-ignore lint/a11y/useValidAriaRole: Expo UI maps this prop to SwiftUI ButtonRole. */}
           <Button
@@ -164,7 +178,7 @@ export function ConventionList<T extends { id: string }>({
             {currentEmptyLabel}
           </Text>
         ) : null}
-        {data.map(renderConvention)}
+        {data.map((item) => renderConvention(item))}
         {archivedData.length > 0 ? (
           <Button
             onPress={onToggleArchive}
@@ -207,7 +221,9 @@ export function ConventionList<T extends { id: string }>({
             </HStack>
           </Button>
         ) : null}
-        {archiveExpanded ? archivedData.map(renderConvention) : null}
+        {archiveExpanded
+          ? archivedData.map((item) => renderConvention(item, true))
+          : null}
       </List>
     </Host>
   );

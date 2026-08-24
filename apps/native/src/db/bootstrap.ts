@@ -81,6 +81,19 @@ PRAGMA user_version = 4;
 COMMIT;
 `;
 
+export const MIGRATION_5_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE conventions ADD COLUMN archived_at TEXT;
+PRAGMA user_version = 5;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_5_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 5;
+COMMIT;
+`;
+
 const COMPLETE_MIGRATION_4_SQL = `
 BEGIN IMMEDIATE;
 PRAGMA user_version = 4;
@@ -102,6 +115,7 @@ export function initializeDatabase(database: MigrationDatabase): void {
   if (version < 2) applyColumnMigration(database, "time_zone");
   if (version < 3) applyColumnMigration(database, "location");
   if (version < 4) applyColumnMigration(database, "age_rating");
+  if (version < 5) applyColumnMigration(database, "archived_at");
 }
 
 const COLUMN_MIGRATIONS = {
@@ -119,6 +133,11 @@ const COLUMN_MIGRATIONS = {
     table: "convention_events",
     migrate: () => MIGRATION_4_SQL,
     complete: () => COMPLETE_MIGRATION_4_SQL,
+  },
+  archived_at: {
+    table: "conventions",
+    migrate: () => MIGRATION_5_SQL,
+    complete: () => COMPLETE_MIGRATION_5_SQL,
   },
 } as const;
 

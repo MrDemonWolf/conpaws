@@ -29,6 +29,8 @@ export type CoordinateTimeZoneLookup = (
   longitude: number,
 ) => string;
 
+export type LocationGeocoder = (location: string) => Promise<unknown[]>;
+
 export function isValidCoordinates(value: unknown): value is Coordinates {
   if (typeof value !== "object" || value === null) return false;
   const { latitude, longitude } = value as Partial<Coordinates>;
@@ -68,6 +70,23 @@ export function timeZoneFromCoordinates(
 
   if (typeof candidate !== "string" || !candidate) return null;
   return isValidTimeZone(candidate) ? candidate : null;
+}
+
+/** Geocodes a typed place, then finishes the coordinate-to-zone step offline. */
+export async function inferTimeZoneFromLocation(
+  location: string,
+  geocode: LocationGeocoder,
+  lookup: CoordinateTimeZoneLookup,
+): Promise<string | null> {
+  const normalized = normalizeLocationName(location);
+  if (!normalized) return null;
+
+  try {
+    const [coordinates] = await geocode(normalized);
+    return timeZoneFromCoordinates(coordinates, lookup);
+  } catch {
+    return null;
+  }
 }
 
 export interface ResolveOptions {

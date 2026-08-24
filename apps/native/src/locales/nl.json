@@ -8,6 +8,7 @@
     "save": "Opslaan",
     "cancel": "Annuleren",
     "delete": "Verwijderen",
+    "archive": "Archiveren",
     "edit": "Bewerken",
     "done": "Klaar",
     "loading": "Laden...",
@@ -88,7 +89,10 @@
       "title": "Archief ({{count}})",
       "show": "Tonen",
       "hide": "Verbergen",
-      "noCurrent": "Geen aankomende conventies."
+      "noCurrent": "Geen aankomende conventies.",
+      "success": "{{name}} is gearchiveerd.",
+      "errorTitle": "Conventie kon niet worden gearchiveerd",
+      "errorMessage": "Er is niets gearchiveerd. Probeer het opnieuw."
     },
     "moreActions": "Meer acties voor {{name}}",
     "sortBy": "Sorteren op",
@@ -112,7 +116,12 @@
       "cta": "Mijn conventies openen"
     },
     "timesShownInConventionTime": "Tijden staan in de lokale tijd van elke conventie.",
-    "loadError": "Je programma kon niet worden geladen."
+    "loadError": "Je programma kon niet worden geladen.",
+    "conventionEmpty": {
+      "title": "Nog niets opgeslagen voor {{name}}",
+      "subtitle": "Geef evenementen in het conventieprogramma een ster om ze hier te zien.",
+      "cta": "Conventie openen"
+    }
   },
   "convention": {
     "new": "Nieuwe Conventie",
@@ -164,6 +173,12 @@
     "namePlaceholder": "bijv. ConPaws Preview Con",
     "nameRequired": "Voer een naam voor de conventie in.",
     "timeZoneInvalid": "Voer een geldige IANA-tijdzone in, zoals America/Chicago.",
+    "location": "Locatie",
+    "locationPlaceholder": "Stad, locatie of adres",
+    "timeZoneFallbackTitle": "Tijdzone kon niet worden bepaald",
+    "timeZoneFallbackMessage": "ConPaws kan de tijdzone van dit apparaat ({{timeZone}}) gebruiken. Je kunt ook de tijdzone van de conventie kiezen onder Geavanceerd.",
+    "setTimeZone": "Tijdzone instellen",
+    "useDeviceTimeZone": "Tijdzone van apparaat gebruiken",
     "createError": "De conventie kon niet worden gemaakt. Probeer het opnieuw.",
     "notFound": "Conventie niet gevonden.",
     "goBack": "Ga terug",

@@ -23,19 +23,17 @@ export const SUPPORTED_LANGUAGES = [
 ] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
-export const LANGUAGE_META: Record<
-  SupportedLanguage,
-  { nativeName: string; flag: string }
-> = {
-  en: { nativeName: "English", flag: "🇬🇧" },
-  es: { nativeName: "Español", flag: "🇪🇸" },
-  nl: { nativeName: "Nederlands", flag: "🇳🇱" },
-  de: { nativeName: "Deutsch", flag: "🇩🇪" },
-  fr: { nativeName: "Français", flag: "🇫🇷" },
-  "pt-BR": { nativeName: "Português", flag: "🇧🇷" },
-  sv: { nativeName: "Svenska", flag: "🇸🇪" },
-  pl: { nativeName: "Polski", flag: "🇵🇱" },
-};
+export const LANGUAGE_META: Record<SupportedLanguage, { nativeName: string }> =
+  {
+    en: { nativeName: "English" },
+    es: { nativeName: "Español" },
+    nl: { nativeName: "Nederlands" },
+    de: { nativeName: "Deutsch" },
+    fr: { nativeName: "Français" },
+    "pt-BR": { nativeName: "Português (Brasil)" },
+    sv: { nativeName: "Svenska" },
+    pl: { nativeName: "Polski" },
+  };
 
 export async function initI18n(): Promise<void> {
   const saved = (await AsyncStorage.getItem(

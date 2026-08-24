@@ -113,7 +113,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@bacons/apple-targets",
     "expo-sqlite",
-    "expo-localization",
+    [
+      "expo-localization",
+      {
+        supportedLocales: {
+          ios: ["en", "de", "es", "fr", "nl", "pl", "pt-BR", "sv"],
+          android: ["en", "de", "es", "fr", "nl", "pl", "pt-BR", "sv"],
+        },
+      },
+    ],
     [
       "expo-notifications",
       {

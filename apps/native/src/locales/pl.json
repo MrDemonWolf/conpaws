@@ -8,6 +8,7 @@
     "save": "Zapisz",
     "cancel": "Anuluj",
     "delete": "Usuń",
+    "archive": "Archiwizuj",
     "edit": "Edytuj",
     "done": "Gotowe",
     "loading": "Ładowanie...",
@@ -88,7 +89,10 @@
       "title": "Archiwum ({{count}})",
       "show": "Pokaż",
       "hide": "Ukryj",
-      "noCurrent": "Brak nadchodzących konwentów."
+      "noCurrent": "Brak nadchodzących konwentów.",
+      "success": "Zarchiwizowano {{name}}.",
+      "errorTitle": "Nie udało się zarchiwizować konwentu",
+      "errorMessage": "Nic nie zarchiwizowano. Spróbuj ponownie."
     },
     "moreActions": "Więcej działań dla {{name}}",
     "sortBy": "Sortuj według",
@@ -112,7 +116,12 @@
       "cta": "Otwórz moje konwenty"
     },
     "timesShownInConventionTime": "Godziny podane w czasie lokalnym każdego konwentu.",
-    "loadError": "Nie udało się wczytać harmonogramu."
+    "loadError": "Nie udało się wczytać harmonogramu.",
+    "conventionEmpty": {
+      "title": "Brak zapisanych wydarzeń dla {{name}}",
+      "subtitle": "Oznacz wydarzenia gwiazdką w harmonogramie konwentu, aby pojawiły się tutaj.",
+      "cta": "Otwórz konwent"
+    }
   },
   "convention": {
     "new": "Nowy Konwent",
@@ -164,6 +173,12 @@
     "namePlaceholder": "np. ConPaws Preview Con",
     "nameRequired": "Wpisz nazwę konwentu.",
     "timeZoneInvalid": "Wpisz prawidłową strefę czasową IANA, na przykład America/Chicago.",
+    "location": "Lokalizacja",
+    "locationPlaceholder": "Miasto, obiekt lub adres",
+    "timeZoneFallbackTitle": "Nie udało się wykryć strefy czasowej",
+    "timeZoneFallbackMessage": "ConPaws może użyć strefy czasowej tego urządzenia ({{timeZone}}). Strefę konwentu możesz też wybrać w sekcji Zaawansowane.",
+    "setTimeZone": "Ustaw strefę czasową",
+    "useDeviceTimeZone": "Użyj strefy urządzenia",
     "createError": "Nie udało się utworzyć konwentu. Spróbuj ponownie.",
     "notFound": "Nie znaleziono konwentu.",
     "goBack": "Wróć",

@@ -12,11 +12,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import * as Haptics from "expo-haptics";
 import { getCalendars } from "expo-localization";
+import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Keyboard, useColorScheme, View } from "react-native";
+import tzLookup from "tz-lookup";
 import {
   ConventionDateField,
   TimeZonePickerModal,
@@ -29,6 +31,10 @@ import {
   isConventionUnchanged,
   validateConventionForm,
 } from "@/lib/convention-form";
+import {
+  inferTimeZoneFromLocation,
+  normalizeLocationName,
+} from "@/lib/convention-location";
 import {
   conventionDayKey,
   conventionStatusForDay,
@@ -58,7 +64,9 @@ export default function EditConventionScreen() {
   });
 
   const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
   const [timeZone, setTimeZone] = useState(deviceTimeZone);
+  const [timeZoneManuallySet, setTimeZoneManuallySet] = useState(false);
   const [startDate, setStartDate] = useState(() => new Date());
   const [endDate, setEndDate] = useState(() => new Date());
   const [saving, setSaving] = useState(false);
@@ -74,6 +82,7 @@ export default function EditConventionScreen() {
   useEffect(() => {
     if (!convention || seeded) return;
     setName(convention.name);
+    setLocation(convention.location ?? "");
     setStartDate(dayKeyToDate(convention.startDate));
     setEndDate(dayKeyToDate(convention.endDate));
     setTimeZone(convention.timeZone ?? deviceTimeZone);
@@ -94,6 +103,7 @@ export default function EditConventionScreen() {
     startDate: format(startDate, "yyyy-MM-dd"),
     endDate: format(endDate, "yyyy-MM-dd"),
     timeZone,
+    location,
   };
   const validation = validateConventionForm(values);
   const original = convention
@@ -102,6 +112,7 @@ export default function EditConventionScreen() {
         startDate: convention.startDate,
         endDate: convention.endDate,
         timeZone: convention.timeZone ?? deviceTimeZone,
+        location: convention.location ?? "",
       }
     : null;
   const unchanged = original ? isConventionUnchanged(values, original) : true;
@@ -114,10 +125,62 @@ export default function EditConventionScreen() {
     if (endDate < value) setEndDate(value);
   }
 
+  function confirmDeviceTimeZoneFallback(): Promise<string | null> {
+    return new Promise((resolve) => {
+      Alert.alert(
+        t("convention.timeZoneFallbackTitle"),
+        t("convention.timeZoneFallbackMessage", {
+          timeZone: timeZoneLabel(deviceTimeZone),
+        }),
+        [
+          {
+            text: t("convention.setTimeZone"),
+            onPress: () => {
+              setAdvancedOpen(true);
+              setTimeZonePickerVisible(true);
+              resolve(null);
+            },
+          },
+          {
+            text: t("convention.useDeviceTimeZone"),
+            onPress: () => resolve(deviceTimeZone),
+          },
+        ],
+      );
+    });
+  }
+
+  async function resolveTimeZoneForSave(): Promise<string | null> {
+    const normalizedLocation = normalizeLocationName(location);
+    const originalLocation = normalizeLocationName(convention?.location ?? "");
+    if (timeZoneManuallySet || normalizedLocation === originalLocation) {
+      return timeZone.trim();
+    }
+    if (!normalizedLocation) return deviceTimeZone;
+
+    const inferred = await inferTimeZoneFromLocation(
+      normalizedLocation,
+      Location.geocodeAsync,
+      tzLookup,
+    );
+    if (inferred) {
+      setTimeZone(inferred);
+      return inferred;
+    }
+    return confirmDeviceTimeZoneFallback();
+  }
+
   async function handleSave() {
     if (!convention || !validation.valid || unchanged) return;
 
-    const { cleaned } = validation;
+    const resolvedTimeZone = await resolveTimeZoneForSave();
+    if (!resolvedTimeZone) return;
+    const resolvedValidation = validateConventionForm({
+      ...values,
+      timeZone: resolvedTimeZone,
+    });
+    if (!resolvedValidation.valid) return;
+    const { cleaned } = resolvedValidation;
     const today = conventionDayKey(new Date(), cleaned.timeZone);
 
     setSaving(true);
@@ -127,6 +190,7 @@ export default function EditConventionScreen() {
         startDate: cleaned.startDate,
         endDate: cleaned.endDate,
         timeZone: cleaned.timeZone,
+        location: cleaned.location || null,
         // Dates may have moved across today, so the stored status has to be
         // recomputed rather than left as it was.
         status: conventionStatusForDay(
@@ -236,6 +300,21 @@ export default function EditConventionScreen() {
             >
               {t("convention.name")}
             </ListItem>
+            <ListItem
+              supportingText={
+                <TextInput
+                  defaultValue={location}
+                  onChangeText={setLocation}
+                  placeholder={t("convention.locationPlaceholder")}
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                  onSubmitEditing={Keyboard.dismiss}
+                  testID="edit-convention-location-input"
+                />
+              }
+            >
+              {t("convention.location")}
+            </ListItem>
             {validation.errors.name === "nameTooLong" ? (
               <FieldGroup.SectionFooter>
                 <NativeText>
@@ -317,7 +396,10 @@ export default function EditConventionScreen() {
         visible={timeZonePickerVisible}
         options={timeZones}
         selected={timeZone}
-        onSelect={setTimeZone}
+        onSelect={(value) => {
+          setTimeZone(value);
+          setTimeZoneManuallySet(true);
+        }}
         onClose={() => setTimeZonePickerVisible(false)}
       />
     </SafeView>

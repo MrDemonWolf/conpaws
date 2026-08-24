@@ -1,7 +1,6 @@
 import AddIcon from "@expo/material-symbols/add.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
-import SettingsIcon from "@expo/material-symbols/settings.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
 import { Host, Icon } from "@expo/ui";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
@@ -91,6 +90,14 @@ const EMPTY_SCHEDULE_ICON = Icon.select({
   ios: "calendar",
   android: EventIcon,
 });
+const IMPORT_SCHEDULE_ICON = Icon.select({
+  ios: "square.and.arrow.down",
+  android: UploadIcon,
+});
+const ADD_EVENT_ICON = Icon.select({
+  ios: "calendar.badge.plus",
+  android: AddIcon,
+});
 const EMPTY_LIST_CONTENT_STYLE = { flexGrow: 1 } as const;
 const EMPTY_CONVENTION_CONTENT_STYLE = {
   flexGrow: 1,
@@ -126,21 +133,13 @@ function BlankConventionState({
   return (
     <View className="flex-1 justify-center px-6 py-6">
       <View className="items-center gap-3">
-        <View
-          accessible={false}
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          className="h-14 w-14 items-center justify-center rounded-2xl bg-primary/10"
-          style={{ borderCurve: "continuous" }}
+        <Host
+          colorScheme={colorScheme === "dark" ? "dark" : "light"}
+          matchContents
+          pointerEvents="none"
         >
-          <Host
-            colorScheme={colorScheme === "dark" ? "dark" : "light"}
-            matchContents
-            pointerEvents="none"
-          >
-            <Icon name={EMPTY_SCHEDULE_ICON} size={32} color={colors.primary} />
-          </Host>
-        </View>
+          <Icon name={EMPTY_SCHEDULE_ICON} size={32} color={colors.primary} />
+        </Host>
         <View className="items-center gap-1.5">
           <Text variant="h3" className="text-center">
             {title}
@@ -158,12 +157,43 @@ function BlankConventionState({
           </Text>
         </View>
       </View>
-      <View className="gap-3 pt-8">
-        <Button size="lg" className="w-full" onPress={onImport}>
-          {importLabel}
+      <View className="flex-row flex-wrap items-center justify-center gap-2 pt-4">
+        <Button accessibilityLabel={importLabel} size="sm" onPress={onImport}>
+          <View className="flex-row items-center gap-1.5">
+            <Host
+              colorScheme={colorScheme === "dark" ? "dark" : "light"}
+              matchContents
+              pointerEvents="none"
+              style={{ width: 18, height: 18 }}
+            >
+              <Icon
+                name={IMPORT_SCHEDULE_ICON}
+                size={18}
+                color={colors.background}
+              />
+            </Host>
+            <Text variant="label" className="text-primary-foreground">
+              {importLabel}
+            </Text>
+          </View>
         </Button>
-        <Button size="lg" variant="outline" className="w-full" onPress={onAdd}>
-          {addLabel}
+        <Button
+          accessibilityLabel={addLabel}
+          size="sm"
+          variant="outline"
+          onPress={onAdd}
+        >
+          <View className="flex-row items-center gap-1.5">
+            <Host
+              colorScheme={colorScheme === "dark" ? "dark" : "light"}
+              matchContents
+              pointerEvents="none"
+              style={{ width: 18, height: 18 }}
+            >
+              <Icon name={ADD_EVENT_ICON} size={18} color={colors.primary} />
+            </Host>
+            <Text variant="label">{addLabel}</Text>
+          </View>
         </Button>
       </View>
     </View>
@@ -1298,8 +1328,13 @@ export default function ConventionDetailScreen() {
           onCancelButtonPress={() => setSearchQuery("")}
         />
       ) : null}
-      {events.length > 0 ? (
-        <Stack.Toolbar placement="right">
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          onPress={() => router.push(`/convention/${convention.id}/edit`)}
+        >
+          {t("common.edit")}
+        </Stack.Toolbar.Button>
+        {events.length > 0 ? (
           <Stack.Toolbar.Menu
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("convention.scheduleActions")}
@@ -1324,72 +1359,66 @@ export default function ConventionDetailScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
-            <Stack.Toolbar.MenuAction
-              icon={process.env.EXPO_OS === "ios" ? "gearshape" : SettingsIcon}
-              onPress={() => router.push(`/convention/${convention.id}/edit`)}
-            >
-              {t("convention.edit")}
-            </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
-          {events.length > 0 ? (
-            <Stack.Toolbar.Menu
-              icon={
-                process.env.EXPO_OS === "ios"
-                  ? "line.3.horizontal.decrease"
-                  : FilterListIcon
-              }
-              accessibilityLabel={t("convention.filterEvents")}
+        ) : null}
+        {events.length > 0 ? (
+          <Stack.Toolbar.Menu
+            icon={
+              process.env.EXPO_OS === "ios"
+                ? "line.3.horizontal.decrease"
+                : FilterListIcon
+            }
+            accessibilityLabel={t("convention.filterEvents")}
+          >
+            <Stack.Toolbar.MenuAction
+              isOn={scheduleView === "all"}
+              onPress={() => {
+                setScheduleView("all");
+                setSelectedCategory(null);
+              }}
             >
-              <Stack.Toolbar.MenuAction
-                isOn={scheduleView === "all"}
-                onPress={() => {
-                  setScheduleView("all");
-                  setSelectedCategory(null);
-                }}
-              >
-                {t("convention.allEvents")}
-              </Stack.Toolbar.MenuAction>
-              <Stack.Toolbar.MenuAction
-                isOn={scheduleView === "mine"}
-                onPress={() => {
-                  setScheduleView("mine");
-                  setSelectedCategory(null);
-                }}
-              >
-                {t("convention.mySchedule")}
-              </Stack.Toolbar.MenuAction>
-              <Stack.Toolbar.MenuAction
-                isOn={scheduleView === "now-next"}
-                onPress={() => {
-                  setScheduleView("now-next");
-                  setSelectedCategory(null);
-                }}
-              >
-                {t("convention.nowAndNext")}
-              </Stack.Toolbar.MenuAction>
-              {categories.length > 0 ? (
-                <Stack.Toolbar.Menu title={t("convention.categories")}>
+              {t("convention.allEvents")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              isOn={scheduleView === "mine"}
+              onPress={() => {
+                setScheduleView("mine");
+                setSelectedCategory(null);
+              }}
+            >
+              {t("convention.mySchedule")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              isOn={scheduleView === "now-next"}
+              onPress={() => {
+                setScheduleView("now-next");
+                setSelectedCategory(null);
+              }}
+            >
+              {t("convention.nowAndNext")}
+            </Stack.Toolbar.MenuAction>
+            {categories.length > 0 ? (
+              <Stack.Toolbar.Menu title={t("convention.categories")}>
+                <Stack.Toolbar.MenuAction
+                  isOn={activeCategory === null}
+                  onPress={() => setSelectedCategory(null)}
+                >
+                  {t("convention.allCategories")}
+                </Stack.Toolbar.MenuAction>
+                {categories.map((category) => (
                   <Stack.Toolbar.MenuAction
-                    isOn={activeCategory === null}
-                    onPress={() => setSelectedCategory(null)}
+                    key={category}
+                    isOn={activeCategory === category}
+                    onPress={() => setSelectedCategory(category)}
                   >
-                    {t("convention.allCategories")}
+                    {category}
                   </Stack.Toolbar.MenuAction>
-                  {categories.map((category) => (
-                    <Stack.Toolbar.MenuAction
-                      key={category}
-                      isOn={activeCategory === category}
-                      onPress={() => setSelectedCategory(category)}
-                    >
-                      {category}
-                    </Stack.Toolbar.MenuAction>
-                  ))}
-                </Stack.Toolbar.Menu>
-              ) : null}
-            </Stack.Toolbar.Menu>
-          ) : null}
-        </Stack.Toolbar>
-      ) : null}
+                ))}
+              </Stack.Toolbar.Menu>
+            ) : null}
+          </Stack.Toolbar.Menu>
+        ) : null}
+      </Stack.Toolbar>
       {/* Events list or empty state */}
       {scheduleView === "now-next" ? (
         <ScrollView

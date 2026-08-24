@@ -1,6 +1,7 @@
 {
   "platforms": ["apple"],
   "apple": {
-    "modules": ["ConPawsWidgetsModule"]
+    "modules": ["ConPawsWidgetsModule"],
+    "appDelegateSubscribers": ["ConPawsQuickActionsSubscriber"]
   }
 }

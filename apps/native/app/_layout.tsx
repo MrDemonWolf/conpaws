@@ -32,7 +32,13 @@ import "../src/global.css";
 
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  router,
+  Stack,
+  ThemeProvider,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { AppState, StatusBar, useColorScheme } from "react-native";
@@ -47,6 +53,7 @@ import {
   reconcileEventReminders,
   setupNotificationHandler,
 } from "@/services/notifications";
+import { consumePendingQuickAction } from "@/services/quick-actions";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -95,10 +102,19 @@ function RootLayout() {
   }, []);
 
   useEffect(() => {
+    function openPendingQuickAction() {
+      const route = consumePendingQuickAction();
+      if (route) router.push(route as never);
+    }
+
+    if (ready) openPendingQuickAction();
     const appStateSubscription = AppState.addEventListener(
       "change",
       (state) => {
-        if (state === "active") void publishWidgetSnapshot().catch(() => false);
+        if (state === "active" && ready) {
+          openPendingQuickAction();
+          void publishWidgetSnapshot().catch(() => false);
+        }
       },
     );
     const unsubscribeMutations = queryClient
@@ -115,7 +131,7 @@ function RootLayout() {
       appStateSubscription.remove();
       unsubscribeMutations();
     };
-  }, []);
+  }, [ready]);
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
