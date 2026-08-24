@@ -11,8 +11,8 @@ import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import * as Haptics from "expo-haptics";
-import * as Location from "expo-location";
 import { getCalendars } from "expo-localization";
+import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -26,15 +26,15 @@ import {
 import { LoadingSpinner, SafeView, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import {
-  inferTimeZoneFromLocation,
-  normalizeLocationName,
-} from "@/lib/convention-location";
-import {
   CONVENTION_NAME_MAX_LENGTH,
   conventionNameLength,
   isConventionUnchanged,
   validateConventionForm,
 } from "@/lib/convention-form";
+import {
+  inferTimeZoneFromLocation,
+  normalizeLocationName,
+} from "@/lib/convention-location";
 import {
   conventionDayKey,
   conventionStatusForDay,

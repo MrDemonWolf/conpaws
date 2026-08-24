@@ -1,5 +1,5 @@
-import { isValidTimeZone } from "./convention-time";
 import { normalizeLocationName } from "./convention-location";
+import { isValidTimeZone } from "./convention-time";
 
 /**
  * Validation shared by the create and edit forms. Keeping it here rather than

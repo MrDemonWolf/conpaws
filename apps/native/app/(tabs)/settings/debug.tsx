@@ -1,8 +1,8 @@
 import { FieldGroup, Host, ListItem, Button as NativeButton } from "@expo/ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
-import Constants from "expo-constants";
 import * as Application from "expo-application";
+import Constants from "expo-constants";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useRef, useState } from "react";

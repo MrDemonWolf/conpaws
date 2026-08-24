@@ -53,8 +53,8 @@ import {
   reconcileEventReminders,
   setupNotificationHandler,
 } from "@/services/notifications";
-import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 import { consumePendingQuickAction } from "@/services/quick-actions";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 const sentryOptions = getSentryOptions(__DEV__, sentryDsn);

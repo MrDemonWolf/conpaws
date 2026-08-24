@@ -10,8 +10,8 @@ import { SectionList, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
 import { SectionHeader } from "@/components/SectionHeader";
 import { EmptyState, LoadingSpinner, Text } from "@/components/ui";
-import * as eventsRepo from "@/db/repositories/events";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { isValidTimeZone } from "@/lib/convention-time";
 import {

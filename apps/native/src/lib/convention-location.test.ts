@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  isValidCoordinates,
   inferTimeZoneFromLocation,
+  isValidCoordinates,
   normalizeLocationName,
   resolveConventionTimeZone,
   timeZoneFromCoordinates,
