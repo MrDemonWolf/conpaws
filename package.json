@@ -55,6 +55,7 @@
     "workerd"
   ],
   "overrides": {
+    "expo-constants": "57.0.14",
     "lightningcss": "1.30.1"
   }
 }
