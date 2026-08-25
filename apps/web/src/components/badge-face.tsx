@@ -120,7 +120,7 @@ export function BadgeFace({
               № {badgeNumber}
             </p>
             <p className="mt-1.5 font-tech text-[8.5px] text-muted-foreground uppercase tracking-[0.24em]">
-              iOS · Android · Est. 2026
+              iOS · Android · Est. 2025
             </p>
             <p className="mt-0.5 font-tech text-[8.5px] text-muted-foreground/70 uppercase tracking-[0.24em]">
               Navigate · Connect · Enjoy

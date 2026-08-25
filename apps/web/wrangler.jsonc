@@ -48,7 +48,19 @@
     }
   ],
 
+  // Mirrors the OBSERVABILITY constant in packages/infra/alchemy.run.ts, which
+  // is what production actually gets. Keep the two in step: this file has no
+  // authority over the deployed Worker, and quietly disagreeing with
+  // alchemy.run.ts is how an afternoon disappears.
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.01
+    }
   }
 }
