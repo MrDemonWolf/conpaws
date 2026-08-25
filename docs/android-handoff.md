@@ -2,7 +2,7 @@
 
 **Created:** 2026-08-24
 **Branch:** `fix/android-parity` (2 commits, not pushed, no PR yet)
-**Next goals, in order:** (1) land the current branch, (2) fix `Stack.Toolbar` on Android, (3) the Android theming overhaul.
+**Next goals, in order:** (1) land the current branch, (2) fix `Stack.Toolbar` on Android, (3) the Android theming overhaul, (4) loading states on both platforms.
 
 ---
 
@@ -36,7 +36,8 @@ Hard-won details, don't rediscover them:
 - **Gradle needs `ANDROID_HOME`** explicitly — `ANDROID_HOME=$HOME/Library/Android/sdk npx expo run:android`. Without it the build dies with "SDK location not found" after `expo prebuild` regenerates `local.properties`.
 - **`expo run:android` does NOT re-run prebuild** when `android/` already exists, so `app.config.ts` changes silently do not reach the manifest. Run `npx expo prebuild --platform android` explicitly and then check the generated manifest before trusting a config change.
 - **Screenshots:** `adb exec-out screencap -p > out.png` beats scrcpy for agent use — native resolution, direct framebuffer, no desktop capture. scrcpy (`brew install scrcpy`, installed) is for the *user* to watch live.
-- **The phone's screen timeout is 30s** and black screenshots are almost always just a dozing screen, not a broken app. Check `adb shell dumpsys display | grep mScreenState`. Raising the timeout needs the user's OK (it's their org-managed phone); restore it to `30000` afterwards.
+- **The phone's screen timeout is 30s** and black screenshots are almost always just a dozing screen, not a broken app. Check `adb shell dumpsys display | grep mScreenState`. The cheapest fix is `adb shell svc power stayon true` while it is on the cable — no settings write, and `adb shell svc power stayon false` puts it back. Changing `screen_off_timeout` itself needs the user's OK (org-managed phone) and must be restored to `30000`.
+- **`mScreenState=ON` with `mCurrentFocus=null` and a black frame means the app is still on the splash screen**, not crashed — a cold start after `am force-stop` takes ~40s to first paint over wireless Metro. Confirm with `adb shell pidof com.mrdemonwolf.conpaws.dev` before chasing a crash.
 - **Don't `adb shell input swipe` from the bottom edge** — it's the home gesture and backgrounds the app. Deep links (`conpaws-dev://convention/create`) are far more reliable than blind taps.
 - `bun test` runs **Bun's** test runner and fails wrongly. Use **`bun run test`** for Vitest.
 
@@ -65,12 +66,35 @@ The original ask. On Android the form sheet's Cancel and Add were clipped to sli
 | | iOS sim | Android device |
 |---|---|---|
 | Form header renders correctly | yes | **yes** |
-| Unsaved-changes guard, Cancel button | **yes** | not yet |
-| Unsaved-changes guard, back/swipe dismiss | **yes** | not yet |
+| Unsaved-changes guard, Cancel button | **yes** | **yes** |
+| Unsaved-changes guard, hardware back | **yes** | **yes** |
 | Predictive back registers | n/a | **yes (logcat)** |
-| Haptics toggle renders | **yes** | not yet |
+| Haptics toggle renders, flips, persists | **yes** | **yes** |
+| A haptic actually reaches the motor | **yes** | **yes (vibrator history)** |
 
-Remaining before merge: exercise the discard guard and the haptics toggle on the Android device, then push and open the PR. Nothing is pushed yet — deliberately, because this session already watched fully green CI hide a completely dead Android app.
+All device checks pass. What was exercised on the Galaxy A15, in order: opened
+`convention/create`, typed into Convention Name, tapped Cancel → "Discard
+changes? / Your changes will be lost." with KEEP EDITING and DISCARD; KEEP
+EDITING returned to the form with the input intact; hardware back then raised
+the same dialog and DISCARD exited. Haptic Feedback toggled off, survived an
+`am force-stop` and cold relaunch still off, then was restored to on.
+
+One Android detail worth knowing: the **first** hardware back only dismisses the
+IME. The guard fires on the second press. That is correct Android behaviour, not
+a missed callback — do not "fix" it.
+
+**How to prove a haptic actually fired**, rather than that a toggle flipped —
+Android keeps a system-wide vibration log, and it records requests that were
+dropped as well as ones that played:
+
+```bash
+adb shell dumpsys vibrator_manager | grep conpaws
+```
+
+`finished … played: [Step=…]` means the motor ran. `ignored_unsupported …
+played: null` means the request was dropped on the floor. That distinction is
+what caught the regression below, and it is the only honest way to test haptics
+over adb — you cannot feel the phone from here.
 
 ---
 
@@ -114,6 +138,22 @@ Also worth folding in, from the earlier audit (`docs/android-parity-audit.md`, s
 
 ---
 
+## Goal 4: loading states, both platforms
+
+Requested by the user 2026-08-24, not yet started. Cold start on the Galaxy A15
+spends roughly 40 seconds on a blank screen — first an unbranded white field,
+then a bare spinner floating in the middle of an otherwise empty "Conventions"
+screen with the tab bar already drawn. There is no skeleton, no branding and no
+sense of progress, and the same bare-spinner pattern appears elsewhere in the
+app. (Debug builds are slower than release, so measure a production build before
+quoting that number to anyone, but the *shape* of the problem is the same.)
+
+Wanted on both platforms: a splash that holds until the first meaningful paint,
+and skeleton placeholders in place of centred spinners. Build it as **one shared
+component** used by every list and detail surface, the same way `FormModalHeader`
+replaced three hand-rolled header rows — the user has been explicit that they do
+not want the same thing implemented several times over.
+
 ## Corrections to earlier notes — do not re-chase these
 
 1. **The "18pt touch target" does not exist.** The only 18×18 boxes are decorative icons with `pointerEvents="none"` inside a 44pt button.
@@ -127,5 +167,8 @@ Also worth folding in, from the earlier audit (`docs/android-parity-audit.md`, s
 
 - **Nothing in CI runs the app.** Build, tests, types, CodeRabbit and GitGuardian all stayed green for the entire period Android could not launch. A smoke job that boots the app and asserts it survives first render would have caught it. Worth proposing.
 - **German and Polish have never been seen on Android.** pt-BR has the widest tab bar, German the longest body copy (~1.40× English).
-- **Watch out for stray branch switches.** Mid-session something checked out `main` while work was in progress on `fix/android-parity`, and a 42-minute Gradle build compiled the wrong tree. Nothing was lost (reflog had it), but confirm `git branch --show-current` before long builds.
+- **Watch out for stray branch switches — this is the single biggest time sink here.** It has now happened three times. Once it sent a 42-minute Gradle build at the wrong tree; twice more during device verification, when a concurrent session checked out `chore/deploy-without-brevo` and then `main`. Both times Metro happily hot-reloaded the *other* branch's bundle into the running app, so the screen showed real, working UI that simply was not the code under test — the guard "failed" because the code being tested did not contain it. Nothing is ever lost (reflog has it), but:
+  - Run `git branch --show-current` **immediately before and after** every device check, and treat any screenshot straddling a switch as void.
+  - A missing file (`ls apps/native/src/hooks/useUnsavedChangesGuard.ts`) is the fastest tell that the tree is wrong.
+  - Metro caches per tree: after switching back, restart it with `--clear` or the stale bundle keeps serving.
 - The Apple Watch target is untouched by all of this and is not installed on the watch sim.

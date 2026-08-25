@@ -4,11 +4,20 @@ import * as Haptics from "expo-haptics";
  * Semantic haptics, expressed once and mapped per platform.
  *
  * Call sites name the *event* ("a toggle went on"), not a waveform, because iOS
- * and Android disagree about which waveform that should be. On Android these
- * route through `performAndroidHapticsAsync`, whose constants map onto the
- * platform's own `HapticFeedbackConstants` -- so they respect OEM haptic tuning
- * and the user's system "Touch feedback" setting, which raw `impactAsync`
- * amplitude patterns do not.
+ * and Android disagree about which waveform that should be.
+ *
+ * Both platforms go through the `VibrationEffect`-style API (`impactAsync` /
+ * `notificationAsync`) rather than Android's `performAndroidHapticsAsync`.
+ * `performAndroidHapticsAsync` calls `View.performHapticFeedback`, which a
+ * device is free to drop outright, and cheap ERM ("coin") motors do exactly
+ * that. Measured on the Galaxy A15 5G (`Motor type: MOTOR_COIN_DC`), every one
+ * of 81 `performHapticFeedback` requests in the system vibrator history came
+ * back `ignored_unsupported | played: null` -- including the ones Samsung's own
+ * system UI makes -- while all 77 `VibrationEffect` vibrations played. The
+ * constants buy OEM tuning and the system "Touch feedback" setting on devices
+ * that honour them, but a haptic that silently never fires is worse than one
+ * that ignores OEM tuning, and nothing in expo-haptics can query support up
+ * front. Re-check with `adb shell dumpsys vibrator_manager` before reverting.
  *
  * Every helper is fire-and-forget and swallows its own errors: a device with no
  * vibrator, or one that refuses the effect, must never fail the action that
@@ -36,25 +45,21 @@ const isAndroid = process.env.EXPO_OS === "android";
 /** A change the user committed and that was written successfully. */
 export function hapticSuccess() {
   run(() =>
-    isAndroid
-      ? Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Confirm)
-      : Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
   );
 }
 
 /**
- * A binary control flipped. Direction matters: Android's toggle constants are
- * asymmetric by design, so on and off deliberately feel different.
+ * A binary control flipped. Direction matters, so on and off deliberately feel
+ * different: turning something on lands heavier than turning it off.
  */
 export function hapticToggle(on: boolean) {
   run(() =>
-    isAndroid
-      ? Haptics.performAndroidHapticsAsync(
-          on
-            ? Haptics.AndroidHaptics.Toggle_On
-            : Haptics.AndroidHaptics.Toggle_Off,
-        )
-      : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
+    Haptics.impactAsync(
+      on
+        ? Haptics.ImpactFeedbackStyle.Medium
+        : Haptics.ImpactFeedbackStyle.Light,
+    ),
   );
 }
 
@@ -66,11 +71,7 @@ export function hapticToggle(on: boolean) {
  * ripple -- so tap feedback stays iOS-only at its call site.
  */
 export function hapticLongPress() {
-  run(() =>
-    isAndroid
-      ? Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Long_Press)
-      : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
-  );
+  run(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium));
 }
 
 /** A light acknowledgement of a tap. iOS idiom; Android uses its ripple instead. */
