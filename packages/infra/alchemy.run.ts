@@ -22,6 +22,11 @@ config({ path: "../../apps/web/.env" });
  */
 const app = await alchemy("conpaws", {
   phase: process.argv.includes("--destroy") ? "destroy" : undefined,
+  // Encrypts `alchemy.secret(...)` values at rest in the state store. Without
+  // it, serializing a secret fails outright — and the alternative, binding
+  // credentials as plain strings, would put TURNSTILE_SECRET_KEY in the
+  // Cloudflare dashboard as readable plaintext and in state unencrypted.
+  password: process.env.ALCHEMY_PASSWORD,
   // Shared account-wide state store: one Durable-Object-backed worker named
   // `alchemy-state`, shared by every MrDemonWolf Alchemy app. Alchemy
   // namespaces state by app, so this app lives under the "conpaws" scope.
