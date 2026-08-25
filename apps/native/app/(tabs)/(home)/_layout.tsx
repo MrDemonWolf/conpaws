@@ -6,6 +6,16 @@ export const unstable_settings = {
   anchor: "index",
 };
 
+// iOS gets a detented sheet; Android gets a full-screen modal. A sheet on
+// Android re-lays-out when the keyboard opens, which clipped the form's header
+// row down to unreadable slivers of Cancel and Save. Full-screen is also the
+// Material 3 full-screen-dialog pattern.
+const FORM_PRESENTATION = process.env.EXPO_OS === "ios" ? "formSheet" : "modal";
+
+// `Stack.Toolbar` only reaches the header on iOS, so Android renders its own
+// `FormModalHeader` in-content and must not also show the native header.
+const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios";
+
 export default function HomeLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -33,7 +43,8 @@ export default function HomeLayout() {
         options={{
           title: t("convention.new"),
           headerLargeTitleEnabled: false,
-          presentation: "formSheet",
+          headerShown: FORM_HEADER_SHOWN,
+          presentation: FORM_PRESENTATION,
           sheetAllowedDetents: [0.55, 0.85],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
@@ -44,7 +55,8 @@ export default function HomeLayout() {
         options={{
           title: t("convention.edit"),
           headerLargeTitleEnabled: false,
-          presentation: "formSheet",
+          headerShown: FORM_HEADER_SHOWN,
+          presentation: FORM_PRESENTATION,
           sheetAllowedDetents: [0.55, 0.85],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
@@ -56,7 +68,8 @@ export default function HomeLayout() {
           title: t("import.title"),
           headerLargeTitleEnabled: false,
           headerShadowVisible: false,
-          presentation: "formSheet",
+          headerShown: FORM_HEADER_SHOWN,
+          presentation: FORM_PRESENTATION,
           sheetAllowedDetents: [0.5, 0.9, 1],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,

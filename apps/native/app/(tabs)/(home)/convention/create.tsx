@@ -21,6 +21,7 @@ import {
   ConventionDateField,
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
+import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
@@ -169,21 +170,34 @@ export default function CreateConventionScreen() {
   });
 
   return (
-    <SafeView edges={["bottom"]}>
-      <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button onPress={handleCancel}>
-          {t("common.cancel")}
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          onPress={handleCreate}
-          disabled={!canCreate}
-          variant="done"
-        >
-          {t("common.add")}
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
+    <SafeView edges={FORM_SAFE_EDGES}>
+      {process.env.EXPO_OS === "ios" ? (
+        <>
+          <Stack.Toolbar placement="left">
+            <Stack.Toolbar.Button onPress={handleCancel}>
+              {t("common.cancel")}
+            </Stack.Toolbar.Button>
+          </Stack.Toolbar>
+          <Stack.Toolbar placement="right">
+            <Stack.Toolbar.Button
+              onPress={handleCreate}
+              disabled={!canCreate}
+              variant="done"
+            >
+              {t("common.add")}
+            </Stack.Toolbar.Button>
+          </Stack.Toolbar>
+        </>
+      ) : (
+        <FormModalHeader
+          title={t("convention.new")}
+          cancelLabel={t("common.cancel")}
+          onCancel={handleCancel}
+          confirmLabel={t("common.add")}
+          onConfirm={handleCreate}
+          confirmDisabled={!canCreate}
+        />
+      )}
 
       <Host
         colorScheme={resolvedColorScheme}

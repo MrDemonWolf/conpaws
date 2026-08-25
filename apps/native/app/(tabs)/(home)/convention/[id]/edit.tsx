@@ -21,6 +21,7 @@ import {
   ConventionDateField,
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
+import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { LoadingSpinner, SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
@@ -229,7 +230,7 @@ export default function EditConventionScreen() {
 
   if (isLoading || !convention || !seeded) {
     return (
-      <SafeView edges={["bottom"]}>
+      <SafeView edges={FORM_SAFE_EDGES}>
         <View className="flex-1 items-center justify-center">
           <LoadingSpinner />
         </View>
@@ -238,21 +239,34 @@ export default function EditConventionScreen() {
   }
 
   return (
-    <SafeView edges={["bottom"]}>
-      <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button onPress={handleCancel}>
-          {t("common.cancel")}
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          onPress={handleSave}
-          disabled={!canSave}
-          variant="done"
-        >
-          {t("common.save")}
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
+    <SafeView edges={FORM_SAFE_EDGES}>
+      {process.env.EXPO_OS === "ios" ? (
+        <>
+          <Stack.Toolbar placement="left">
+            <Stack.Toolbar.Button onPress={handleCancel}>
+              {t("common.cancel")}
+            </Stack.Toolbar.Button>
+          </Stack.Toolbar>
+          <Stack.Toolbar placement="right">
+            <Stack.Toolbar.Button
+              onPress={handleSave}
+              disabled={!canSave}
+              variant="done"
+            >
+              {t("common.save")}
+            </Stack.Toolbar.Button>
+          </Stack.Toolbar>
+        </>
+      ) : (
+        <FormModalHeader
+          title={t("convention.edit")}
+          cancelLabel={t("common.cancel")}
+          onCancel={handleCancel}
+          confirmLabel={t("common.save")}
+          onConfirm={handleSave}
+          confirmDisabled={!canSave}
+        />
+      )}
 
       <Host
         colorScheme={resolvedColorScheme}

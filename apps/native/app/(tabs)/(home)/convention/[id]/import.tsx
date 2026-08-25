@@ -24,6 +24,7 @@ import {
   Keyboard,
   useColorScheme,
 } from "react-native";
+import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
@@ -723,12 +724,20 @@ export default function ImportScreen() {
   );
 
   return (
-    <SafeView edges={["bottom"]}>
-      <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button onPress={handleCancel}>
-          {t("common.cancel")}
-        </Stack.Toolbar.Button>
-      </Stack.Toolbar>
+    <SafeView edges={FORM_SAFE_EDGES}>
+      {process.env.EXPO_OS === "ios" ? (
+        <Stack.Toolbar placement="left">
+          <Stack.Toolbar.Button onPress={handleCancel}>
+            {t("common.cancel")}
+          </Stack.Toolbar.Button>
+        </Stack.Toolbar>
+      ) : (
+        <FormModalHeader
+          title={t("import.title")}
+          cancelLabel={t("common.cancel")}
+          onCancel={handleCancel}
+        />
+      )}
 
       <Host
         colorScheme={resolvedColorScheme}
