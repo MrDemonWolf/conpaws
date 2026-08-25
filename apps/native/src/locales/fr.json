@@ -20,7 +20,11 @@
     "getStarted": "Commencer",
     "learnMore": "En savoir plus",
     "version": "Version {{version}}",
-    "advanced": "Avancé"
+    "advanced": "Avancé",
+    "discardChangesTitle": "Abandonner les modifications ?",
+    "discardChangesMessage": "Vos modifications seront perdues.",
+    "keepEditing": "Continuer l'édition",
+    "discard": "Abandonner"
   },
   "onboarding": {
     "progress": "Étape {{step}} sur {{total}}",
@@ -287,6 +291,8 @@
       "title": "Application",
       "theme": "Thème",
       "language": "Langue",
+      "haptics": "Retour haptique",
+      "hapticsError": "Impossible d'enregistrer votre réglage haptique",
       "notifications": "Notifications"
     },
     "data": {

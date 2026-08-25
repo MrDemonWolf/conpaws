@@ -47,6 +47,7 @@ import {
   applyAppearancePreference,
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
+import { loadHapticsPreference } from "@/lib/haptics-storage";
 import { initI18n } from "@/lib/i18n";
 import { getSentryOptions } from "@/lib/sentry-config";
 import {
@@ -94,6 +95,7 @@ function RootLayout() {
         () => "system" as const,
       );
       applyAppearancePreference(appearance);
+      await loadHapticsPreference().catch(() => true);
       await initI18n().catch(() => undefined);
       await reconcileEventReminders().catch(() => undefined);
       await publishWidgetSnapshot().catch(() => false);

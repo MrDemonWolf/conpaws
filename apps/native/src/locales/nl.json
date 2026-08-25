@@ -20,7 +20,11 @@
     "getStarted": "Aan de slag",
     "learnMore": "Meer informatie",
     "version": "Versie {{version}}",
-    "advanced": "Geavanceerd"
+    "advanced": "Geavanceerd",
+    "discardChangesTitle": "Wijzigingen verwerpen?",
+    "discardChangesMessage": "Je wijzigingen gaan verloren.",
+    "keepEditing": "Doorgaan met bewerken",
+    "discard": "Verwerpen"
   },
   "onboarding": {
     "progress": "Stap {{step}} van {{total}}",
@@ -287,6 +291,8 @@
       "title": "App",
       "theme": "Thema",
       "language": "Taal",
+      "haptics": "Haptische feedback",
+      "hapticsError": "Je haptische instelling kon niet worden opgeslagen",
       "notifications": "Meldingen"
     },
     "data": {

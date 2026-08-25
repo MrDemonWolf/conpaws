@@ -73,12 +73,26 @@ describe("iOS native stack headers", () => {
     // Assert the invariant instead: a form sheet never gets a large title.
     const sheets = homeLayoutSource
       .match(/options=\{\{[\s\S]*?\}\}/g)
-      ?.filter((block) => block.includes('presentation: "formSheet"'));
+      ?.filter((block) => block.includes("presentation: FORM_PRESENTATION"));
 
     expect(sheets?.length).toBeGreaterThan(0);
     for (const sheet of sheets ?? []) {
       expect(sheet).toContain("headerLargeTitleEnabled: false");
     }
+  });
+
+  it("presents forms as a sheet on iOS and a full-screen modal on Android", () => {
+    // Android clipped the form's own header row away when the sheet re-laid-out
+    // for the keyboard, so it gets a full-screen modal instead. Android also
+    // renders its header in-content, because Stack.Toolbar never reaches
+    // headerLeft/headerRight there -- so the native header must stay hidden or
+    // the screen shows two titles.
+    expect(homeLayoutSource).toContain(
+      'process.env.EXPO_OS === "ios" ? "formSheet" : "modal"',
+    );
+    expect(homeLayoutSource).toContain(
+      'const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios"',
+    );
   });
 });
 

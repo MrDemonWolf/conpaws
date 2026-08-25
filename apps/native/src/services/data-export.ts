@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { File, Paths } from "expo-file-system";
-import * as Haptics from "expo-haptics";
 import * as Sharing from "expo-sharing";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention, ConventionEvent } from "@/db/schema";
+import { hapticSuccess } from "@/services/haptics";
 
 export interface ExportPayload {
   version: 1;
@@ -54,7 +54,7 @@ export async function triggerExport(): Promise<void> {
     dialogTitle: "Export ConPaws Data",
   });
 
-  await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  hapticSuccess();
 }
 
 export function useExportData() {
