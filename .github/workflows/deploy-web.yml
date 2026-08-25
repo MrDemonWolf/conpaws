@@ -51,6 +51,8 @@ jobs:
     env:
       RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
       ROUTES_ENABLED: ${{ vars.PRODUCTION_ROUTES_ENABLED }}
+      WORKERS_DEV_ENABLED: ${{ vars.WORKERS_DEV_ENABLED }}
+      PREVIEW_URLS_ENABLED: ${{ vars.PREVIEW_URLS_ENABLED }}
     steps:
       - name: Check out verified commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -83,7 +85,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
         run: |
@@ -102,7 +104,7 @@ jobs:
           # never renders, the client posts an empty token, and every real signup
           # gets a 400. Hence a variable, not a secret.
           missing=()
-          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_PASSWORD \
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN \
             TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
@@ -119,20 +121,14 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-        # --yes is required in CI. Cloudflare.state() keeps Alchemy's state in a
-        # Worker it deploys itself (alchemy-state-store, with a Durable Object
-        # and Secrets Store entries). Without --yes the CLI refuses to create
-        # that Worker non-interactively and dies with "Cloudflare State store
-        # not found". It also auto-accepts a state-store version upgrade, which
-        # would otherwise fail a deploy the same way after an Alchemy bump.
-        #
-        # Deliberately NOT --adopt: on a conflict with a pre-existing resource
-        # (a leftover conpaws.com DNS record, say) the deploy should fail loudly
-        # rather than quietly take ownership of something we did not create.
-        run: bunx alchemy deploy --yes
+        # Runs the Alchemy program directly under Node via tsx, matching every
+        # other MrDemonWolf Alchemy project. Not `bun`: Bun segfaults executing
+        # an Alchemy program. Not the `alchemy` CLI: the program owns its own
+        # phase and shared state store.
+        run: bun run deploy
 
       - name: Verify production
         if: vars.PRODUCTION_ROUTES_ENABLED == 'true'

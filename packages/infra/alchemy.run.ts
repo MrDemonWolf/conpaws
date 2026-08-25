@@ -1,26 +1,55 @@
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import alchemy from "alchemy";
+import { D1Database, Nextjs, Worker } from "alchemy/cloudflare";
+import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
-import * as Config from "effect/Config";
-import * as Effect from "effect/Effect";
 
 config({ path: "./.env" });
 config({ path: "../../apps/web/.env" });
 
 /**
- * ConPaws infrastructure.
+ * Production infrastructure for ConPaws.
  *
- * The stack name is deliberately unique to this product: Alchemy state for
- * several MrDemonWolf projects lives in the same Cloudflare account, and a
- * shared name would let one deploy clobber another's state.
+ * Deploys are gated twice over. `PRODUCTION_DEPLOY_ENABLED` in
+ * .github/workflows/deploy-web.yml decides whether this program runs at all,
+ * and `ROUTES_ENABLED` below decides whether conpaws.com points at the Worker.
+ * Deploy with routes disabled first so Cloudflare holds a known-good version
+ * before the apex moves. There is no automatic rollback:
  *
- * Deployment safety note: Alchemy applies the whole stack in one step. It has
- * no equivalent of the canary-at-0%-traffic promotion the retired
- * .github/workflows/deploy-web.yml performed. Deploy behind disabled routes
- * first so Cloudflare retains a known-good version to roll back to.
+ *   cd apps/web && bunx wrangler rollback
+ *
+ * Run under Node via tsx rather than Bun — Bun segfaults executing an Alchemy
+ * program, the same reason wolfathon's deploy scripts use tsx.
  */
+const app = await alchemy("conpaws", {
+  phase: process.argv.includes("--destroy") ? "destroy" : undefined,
+  // Shared account-wide state store: one Durable-Object-backed worker named
+  // `alchemy-state`, shared by every MrDemonWolf Alchemy app. Alchemy
+  // namespaces state by app, so this app lives under the "conpaws" scope.
+  // Requires the same ALCHEMY_STATE_TOKEN as every other app on the account.
+  stateStore: (scope) =>
+    new CloudflareStateStore(scope, {
+      scriptName: "alchemy-state",
+      stateToken: alchemy.secret(process.env.ALCHEMY_STATE_TOKEN),
+    }),
+});
 
-export const db = Cloudflare.D1.Database("database", {
+/**
+ * Pin the Workers runtime explicitly. Alchemy's default is whatever the
+ * installed miniflare reports as its supported date, so leaving it unset means
+ * a routine dependency update can silently change production runtime
+ * semantics. Bump it on purpose, not by accident.
+ */
+const COMPATIBILITY_DATE = "2026-03-10";
+
+/**
+ * The waitlist database.
+ *
+ * `adopt: true` lets CI reconcile the live resource by name instead of
+ * requiring a shared local state file.
+ */
+const db = await D1Database("database", {
+  name: "conpaws-db",
+  adopt: true,
   migrationsDir: "../../apps/web/drizzle/migrations",
   // Must match `migrations_table` in apps/web/wrangler.jsonc. Alchemy defaults
   // to `d1_migrations`; a laptop applying migrations under one bookkeeping
@@ -38,11 +67,8 @@ export const db = Cloudflare.D1.Database("database", {
  * which is the signal the signup route and the reconciler already fail closed
  * on: 503 and a no-op respectively.
  *
- * Hardcoded rather than read through `Config` on purpose. A repo secret holding
- * a placeholder is a lie told somewhere nobody reviews; an empty string here is
- * visible in the diff. When Listmonk lands, replace these with its credentials
- * read through `Config`, and restore them to the deploy workflow's
- * required-configuration check at the same time.
+ * Replace with the Listmonk equivalents when the swap lands, and restore them
+ * to the deploy workflow's required-configuration check at the same time.
  */
 const waitlistSecrets = {
   BREVO_API_KEY: "",
@@ -52,111 +78,83 @@ const waitlistSecrets = {
 };
 
 /**
- * The site itself.
+ * The site.
  *
- * This uses `Website.StaticSite` pointed at the OpenNext worker rather than the
- * first-class `Website.Nextjs` resource on purpose: `Website.Nextjs` pulls in
- * `@alchemy.run/cloudflare-frameworks`, which peer-requires
- * `@opennextjs/cloudflare` at exactly 1.20.1. This repo pins 1.20.2 to hold
- * `next` at 16.2.12 (opennextjs-cloudflare#1334 — unbounded RSC prefetch loop).
- * Running the OpenNext build ourselves and shipping the artifact keeps that pin
- * intact. Revisit when the frameworks package accepts 1.20.2 or later.
- *
- * `bundle: false` matters — `.open-next/worker.js` is already bundled, and
- * re-bundling it breaks the OpenNext runtime.
+ * `Nextjs` is Alchemy's first-class Next.js resource: it runs the OpenNext
+ * build and uploads the result the way the adapter expects, including the
+ * ASSETS and WORKER_SELF_REFERENCE bindings. Assembling that upload by hand
+ * does not work — a prebuilt `.open-next/worker.js` shipped as a plain Worker
+ * throws `ReferenceError: require is not defined` out of Next's server
+ * bootstrap on every request, because the bundle leaves bare `require()` calls
+ * for Node builtins that only resolve under the adapter's own upload path.
  */
-export const web = Cloudflare.Website.StaticSite("web", {
-  // Pinned, not generated. Without it Alchemy derives a physical name from the
-  // stack, stage, and logical id, which would not be `conpaws-web` — the name
-  // `wrangler rollback` and apps/web/wrangler.jsonc's WORKER_SELF_REFERENCE
-  // both expect. Rollback is manual now, so the name has to be predictable.
+export const web = await Nextjs("web", {
+  // Explicit script name → conpaws-web.<subdomain>.workers.dev, and the name
+  // `wrangler rollback` expects. Without it Alchemy prefixes app and stage.
   name: "conpaws-web",
-  domain:
-    process.env.ROUTES_ENABLED === "true"
-      ? { name: "conpaws.com", redirects: ["www.conpaws.com"] }
-      : undefined,
+  adopt: true,
   cwd: "../../apps/web",
-  command: "bun run build:cloudflare",
-  // Rebuild shared workspace dependencies until Alchemy has a workspace-aware
-  // default memo.
-  memo: false,
-  outdir: ".open-next/assets",
-  main: "../../apps/web/.open-next/worker.js",
-  bundle: false,
-  compatibility: {
-    // Verified against real Cloudflare infrastructure with
-    // `opennextjs-cloudflare preview --remote`, not guessed. Two earlier dates
-    // both failed on the edge while CI stayed green:
-    //
-    //   2026-03-17 (Alchemy's default) — ReferenceError: require is not defined
-    //   2025-05-05 (wrangler.jsonc's pin) — No such module "node:http"
-    //
-    // node:http needs >= 2025-08-15, and Cloudflare made nodejs_compat
-    // default-on at 2026-08-04; this date clears both. CI cannot catch the
-    // difference because its smoke test runs `wrangler dev` locally, where
-    // node: module resolution is more permissive than the edge.
-    date: "2026-08-20",
-    flags: ["nodejs_compat", "global_fetch_strictly_public"],
-  },
-  env: {
+  compatibilityDate: COMPATIBILITY_DATE,
+  // conpaws.com is attached only once the routes switch is on, so the first
+  // deploy of any change lands on a Worker nothing points at yet.
+  domains:
+    process.env.ROUTES_ENABLED === "true"
+      ? ["conpaws.com", "www.conpaws.com"]
+      : undefined,
+  // Both public workers.dev surfaces default OFF. A stable workers.dev URL is a
+  // second, indexable copy of the site; version previews are useful but should
+  // be a deliberate choice. Toggle per environment with repo variables rather
+  // than by editing code or clicking in the dashboard.
+  url: process.env.WORKERS_DEV_ENABLED === "true",
+  previewSubdomains: process.env.PREVIEW_URLS_ENABLED === "true",
+  bindings: {
     DB: db,
-    TURNSTILE_SECRET_KEY: Config.redacted("TURNSTILE_SECRET_KEY"),
-    // OpenNext re-fetches the Worker through this binding for on-demand
-    // revalidation, so without it the call has nowhere to land. It is
-    // declared in apps/web/wrangler.jsonc too, but that file is local dev and
-    // CI preview only — Alchemy never reads it, which is how production ended
-    // up without the binding while every local run had it.
-    WORKER_SELF_REFERENCE: Cloudflare.Workers.Self,
+    TURNSTILE_SECRET_KEY: alchemy.secret(process.env.TURNSTILE_SECRET_KEY),
     ...waitlistSecrets,
   },
   dev: {
-    command: "bun run dev:bare",
-    url: "http://localhost:3001",
+    env: {
+      PORT: "3001",
+    },
   },
 });
 
 /**
  * Waitlist reconciler.
  *
- * `ctx.waitUntil` has no retry, so without this every Brevo hiccup silently
- * drops a subscriber while D1 stays perfectly correct and nothing alerts. It
- * replays rows where `synced_at IS NULL`.
+ * `ctx.waitUntil` on the signup path has no retry, so without this every ESP
+ * hiccup silently drops a subscriber while D1 stays perfectly correct and
+ * nothing alerts. It replays rows where `synced_at IS NULL`, hourly.
  *
- * It is a separate Worker rather than a `scheduled` handler on the site because
- * the OpenNext worker only exports `fetch`; adding a handler would mean
- * re-bundling a bundle that must not be re-bundled.
+ * A separate Worker rather than a `scheduled` handler on the site, because the
+ * OpenNext worker only exports `fetch`.
  */
-export const reconciler = Cloudflare.Worker("reconciler", {
+export const reconciler = await Worker("reconciler", {
   name: "conpaws-reconciler",
-  main: "../../apps/web/workers/reconcile.ts",
+  adopt: true,
+  cwd: "../../apps/web",
+  entrypoint: "workers/reconcile.ts",
+  compatibility: "node",
+  compatibilityDate: COMPATIBILITY_DATE,
   crons: ["0 * * * *"],
-  compatibility: {
-    // Same date as the site Worker, same reason.
-    date: "2026-08-20",
-    flags: ["nodejs_compat"],
-  },
-  env: {
+  // Cron-only: it exports `scheduled` and no `fetch`, so a workers.dev URL
+  // would serve nothing but an exception page.
+  url: false,
+  bindings: {
     DB: db,
     ...waitlistSecrets,
   },
 });
 
-export type WebEnv = Cloudflare.InferEnv<typeof web>;
-export type ReconcilerEnv = Cloudflare.InferEnv<typeof reconciler>;
+/**
+ * Binding types, consumed by apps/web/cloudflare-env.d.ts and
+ * apps/web/workers/reconcile.ts. Renaming a binding above is then a type error
+ * at the call site rather than a runtime `undefined` in production.
+ */
+export type WebEnv = typeof web.Env;
+export type ReconcilerEnv = typeof reconciler.Env;
 
-export default Alchemy.Stack(
-  "conpaws",
-  {
-    providers: Cloudflare.providers(),
-    state: Cloudflare.state(),
-  },
-  Effect.gen(function* () {
-    const webWorker = yield* web;
-    const reconcilerWorker = yield* reconciler;
+console.log(`Web         -> ${web.url}`);
+console.log(`Reconciler  -> ${reconciler.name}`);
 
-    return {
-      web: webWorker.url,
-      reconcilerCrons: reconcilerWorker.crons,
-    };
-  }),
-);
+await app.finalize();
