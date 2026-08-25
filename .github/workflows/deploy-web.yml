@@ -86,6 +86,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
         run: |
@@ -104,7 +105,7 @@ jobs:
           # never renders, the client posts an empty token, and every real signup
           # gets a 400. Hence a variable, not a secret.
           missing=()
-          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN \
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN ALCHEMY_PASSWORD \
             TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
@@ -122,6 +123,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
         # Runs the Alchemy program directly under Node via tsx, matching every
