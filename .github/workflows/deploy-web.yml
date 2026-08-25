@@ -139,6 +139,13 @@ jobs:
       # because CI's smoke test runs `wrangler dev`, where `node:` resolution is
       # more permissive than production. Always probe something real: the custom
       # domain once it is attached, the workers.dev URL before that.
+      #
+      # The workers.dev branch is only probe-able because WORKERS_DEV_ENABLED is
+      # a repository variable set to true — alchemy.run.ts passes it straight to
+      # `url:`, so with the variable unset Alchemy asks Cloudflare not to serve
+      # that subdomain and this step would retry twenty times against nothing.
+      # The two settings are a pair: at cutover, PRODUCTION_ROUTES_ENABLED goes
+      # true and WORKERS_DEV_ENABLED goes false, in that order, never both false.
       - name: Verify deploy
         env:
           HEALTH_ORIGIN: >-
