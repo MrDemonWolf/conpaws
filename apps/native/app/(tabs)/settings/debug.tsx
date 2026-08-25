@@ -1,4 +1,10 @@
-import { FieldGroup, Host, ListItem, Button as NativeButton } from "@expo/ui";
+import {
+  FieldGroup,
+  Host,
+  ListItem,
+  Button as NativeButton,
+  Text as NativeText,
+} from "@expo/ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Application from "expo-application";
@@ -20,6 +26,13 @@ import {
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
 import { resetPreviewConventions } from "@/lib/preview-convention";
+import {
+  getHapticsEnabled,
+  hapticLongPress,
+  hapticSuccess,
+  hapticTap,
+  hapticToggle,
+} from "@/services/haptics";
 import {
   cancelTestNotifications,
   getNotificationPermissionStatus,
@@ -46,6 +59,9 @@ export default function DebugScreen() {
     Constants.expoConfig?.version ??
     "Unknown";
   const buildNumber = Application.nativeBuildVersion ?? "Development";
+  // ponytail: read at render rather than subscribe -- this screen is pushed
+  // fresh each time, so it cannot go stale behind a Settings toggle.
+  const hapticsEnabled = getHapticsEnabled();
   const variantName =
     appVariant === "preview"
       ? "Preview"
@@ -177,6 +193,62 @@ export default function DebugScreen() {
           <ListItem supportingText={`${version} (${buildNumber})`}>
             {variantName} app version
           </ListItem>
+        </FieldGroup.Section>
+
+        <FieldGroup.Section title="Haptics">
+          <ListItem
+            supportingText={
+              hapticsEnabled
+                ? "On. Each button fires one effect."
+                : "Off in Settings, so every button below does nothing."
+            }
+          >
+            Haptic feedback
+          </ListItem>
+          <NativeButton
+            label="Success"
+            onPress={hapticSuccess}
+            testID="debug-haptic-success"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Toggle On"
+            variant="outlined"
+            onPress={() => hapticToggle(true)}
+            testID="debug-haptic-toggle-on"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Toggle Off"
+            variant="outlined"
+            onPress={() => hapticToggle(false)}
+            testID="debug-haptic-toggle-off"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Long Press"
+            variant="outlined"
+            onPress={hapticLongPress}
+            testID="debug-haptic-long-press"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Tap (iOS only)"
+            variant="text"
+            onPress={hapticTap}
+            testID="debug-haptic-tap"
+            style={{ height: 44 }}
+          />
+          <FieldGroup.SectionFooter>
+            <NativeText textStyle={{ fontSize: 13 }}>
+              Tap does nothing on Android on purpose — Material 3 gives plain
+              presses a ripple instead. If a button feels like nothing on a
+              device you expect to buzz, check what the system actually did: adb
+              shell dumpsys vibrator_manager | grep conpaws. "finished …
+              played:" ran the motor; "ignored_unsupported … played: null" was
+              dropped by the device.
+            </NativeText>
+          </FieldGroup.SectionFooter>
         </FieldGroup.Section>
 
         <FieldGroup.Section
