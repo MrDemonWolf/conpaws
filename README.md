@@ -234,10 +234,11 @@ app store terms that would otherwise be incompatible with the GPLv3. This
 permission applies to verbatim copies and to copies whose only modifications
 are those reasonably necessary for app store distribution.
 
-**Trademarks are NOT licensed.** The names "ConPaws" and "MrDemonWolf," the
-wolf mark, and associated logos are trademarks of MrDemonWolf, Inc. and are
-**not** licensed under the GPL. Forks and redistributions must use a different
-name and logo (you may state your build is "based on ConPaws").
+**Names and logos are not covered by the GPL.** The GPL grants rights to the
+code, not to the project's identity. The names "ConPaws" and "MrDemonWolf,"
+the wolf mark, and the associated logos are not licensed along with it. If you
+fork and redistribute, please use a different name and logo — you are welcome
+to say your build is "based on ConPaws".
 
 ## Contact
 
