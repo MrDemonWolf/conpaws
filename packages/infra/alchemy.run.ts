@@ -30,18 +30,25 @@ export const db = Cloudflare.D1.Database("database", {
 });
 
 /**
- * Waitlist secrets. Brevo owns double-opt-in tokens, so nothing here is a
- * confirmation credential — these are the API identities the Worker and the
- * reconciler both need.
+ * No ESP is bound yet — these are deliberately empty, not misconfigured.
  *
- * `Config.redacted` binds as `secret_text`; `Config.string` binds as a plain
- * var. The list and template ids are identifiers, not credentials.
+ * The waitlist form is closed (WAITLIST_ACCEPTING_SIGNUPS in
+ * apps/web/src/components/waitlist.tsx) and Listmonk has not replaced Brevo, so
+ * there is no sender to name. Empty values make `readBrevoConfig` return null,
+ * which is the signal the signup route and the reconciler already fail closed
+ * on: 503 and a no-op respectively.
+ *
+ * Hardcoded rather than read through `Config` on purpose. A repo secret holding
+ * a placeholder is a lie told somewhere nobody reviews; an empty string here is
+ * visible in the diff. When Listmonk lands, replace these with its credentials
+ * read through `Config`, and restore them to the deploy workflow's
+ * required-configuration check at the same time.
  */
 const waitlistSecrets = {
-  BREVO_API_KEY: Config.redacted("BREVO_API_KEY"),
-  BREVO_LIST_ID: Config.string("BREVO_LIST_ID"),
-  BREVO_DOI_TEMPLATE_ID: Config.string("BREVO_DOI_TEMPLATE_ID"),
-  BREVO_DOI_REDIRECT_URL: Config.string("BREVO_DOI_REDIRECT_URL"),
+  BREVO_API_KEY: "",
+  BREVO_LIST_ID: "",
+  BREVO_DOI_TEMPLATE_ID: "",
+  BREVO_DOI_REDIRECT_URL: "",
 };
 
 /**
