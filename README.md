@@ -178,6 +178,23 @@ conpaws/
 
 ![GitHub license](https://img.shields.io/github/license/mrdemonwolf/conpaws.svg?style=for-the-badge&logo=github)
 
+ConPaws is free software licensed under the **GNU General Public License v3.0
+or later** (see [LICENSE](LICENSE)). Copyright © 2026 MrDemonWolf, Inc.
+
+**Apple App Store / Google Play additional permission (GPLv3 §7).** As an
+additional permission under section 7 of the GPLv3, MrDemonWolf, Inc. grants
+permission to convey the Program (or a work based on it) through the Apple App
+Store, the Mac App Store, and Google Play, notwithstanding the additional terms
+imposed by Apple's Usage Rules, Google Play's Terms of Service, or comparable
+app store terms that would otherwise be incompatible with the GPLv3. This
+permission applies to verbatim copies and to copies whose only modifications
+are those reasonably necessary for app store distribution.
+
+**Trademarks are NOT licensed.** The names "ConPaws" and "MrDemonWolf," the
+wolf mark, and associated logos are trademarks of MrDemonWolf, Inc. and are
+**not** licensed under the GPL. Forks and redistributions must use a different
+name and logo (you may state your build is "based on ConPaws").
+
 ## Contact
 
 If you have any questions, suggestions, or feedback, feel free to reach
