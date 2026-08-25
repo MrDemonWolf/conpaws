@@ -19,8 +19,12 @@ Never miss a panel again.
 - **Conventions and Events** - Track conventions with status detection
   (upcoming/active/ended), pick simultaneous or overlapping events, and
   view the schedule in the convention's timezone.
+- **Pooled Schedule** - The Schedule tab gathers starred events from every
+  saved convention into one day-grouped list.
 - **Local Reminders** - Schedule per-event reminders that work without a
   ConPaws account or push server.
+- **Backup and Restore** - Export and re-import your conventions and
+  events as a file you control.
 - **Home Screen and Lock Screen Widgets** - Convention countdown, next
   event, and leave reminders in the small and medium Home Screen families
   plus all three Lock Screen families.
@@ -31,8 +35,8 @@ Never miss a panel again.
 - **Cloud Sync** - Polling-based sync against a Cloudflare Workers API
   with D1 storage — no accounts required for core features (planned).
 - **Website and Waitlist** - The marketing site and waitlist are prepared
-  for Cloudflare Workers, but production routes are intentionally disabled.
-  The website has not launched yet.
+  for Cloudflare Workers. Production routes are intentionally disabled and
+  the public signup form is closed; the website has not launched yet.
 - **Dark Mode** - Automatic light/dark theme support across the app.
 
 ## Getting Started
@@ -61,19 +65,21 @@ Never miss a panel again.
 
 ## Tech Stack
 
-| Layer            | Technology                                                       |
-| ---------------- | ---------------------------------------------------------------- |
-| Mobile app       | Expo SDK 57, React Native 0.86, React 19.2, Expo Router             |
-| Styling          | NativeWind v5 (Tailwind CSS v4), native component primitives     |
-| Local database   | expo-sqlite with Drizzle ORM                                     |
-| Backend (target) | Cloudflare Workers — Hono, tRPC, Better-Auth                     |
-| Cloud database   | Cloudflare D1 (SQLite) with Drizzle ORM                          |
-| File storage     | Cloudflare R2 (zero egress)                                      |
-| Website          | Next.js 16.2.12 on Cloudflare Workers via OpenNext               |
-| Widgets and Watch | WidgetKit and SwiftUI via @bacons/apple-targets                  |
-| Payments         | RevenueCat (planned)                                             |
-| Crash reporting  | Sentry — wired up; the production DSN is not yet set             |
-| Monorepo         | bun workspaces, Turborepo, Biome                                 |
+| Layer             | Technology                                                   |
+| ----------------- | ------------------------------------------------------------ |
+| Mobile app        | Expo SDK 57, React Native 0.86, React 19.2, Expo Router      |
+| Styling           | NativeWind v5 (Tailwind CSS v4), native component primitives |
+| Local database    | expo-sqlite with Drizzle ORM                                 |
+| Backend (target)  | Cloudflare Workers — Hono, tRPC, Better-Auth                 |
+| Cloud database    | Cloudflare D1 (SQLite) with Drizzle ORM                      |
+| File storage      | Cloudflare R2 (zero egress)                                  |
+| Website           | Next.js 16.2.12 on Cloudflare Workers via OpenNext           |
+| Infrastructure    | Alchemy — D1, Worker bindings and secrets, cron              |
+| Bot protection    | Cloudflare Turnstile (server-side siteverify)                |
+| Widgets and Watch | WidgetKit and SwiftUI via @bacons/apple-targets              |
+| Payments          | RevenueCat (planned)                                         |
+| Crash reporting   | Sentry — wired up; the production DSN is not yet set         |
+| Monorepo          | bun workspaces, Turborepo, Biome                             |
 
 ## Development
 
@@ -99,8 +105,10 @@ Never miss a panel again.
    ```
 
    Note: `.env` files are local-development-only. EAS builds read EAS
-   Environment Variables (`eas env:pull`), and Cloudflare Workers read
-   bindings from `wrangler.jsonc` plus `wrangler secret`.
+   Environment Variables (`eas env:pull`). Cloudflare Workers read their
+   bindings and secrets from `packages/infra/alchemy.run.ts` at deploy
+   time — `apps/web/wrangler.jsonc` is local development and CI preview
+   only, and is never used to deploy.
 
 3. Start the dev servers:
 
@@ -121,9 +129,17 @@ All scripts run from the repo root and fan out through Turborepo:
 - `bun web` - Run the Expo app's web target
 - `bun build` - Build all applications and packages
 - `bun lint` - Run Biome (`biome check .`)
+- `bun lint:fix` - Run Biome with `--write`
+- `bun format` - Format with Biome
 - `bun check-types` - TypeScript type checking across all packages
 - `bun test` - Run the Vitest suites across the workspace
 - `bun prebuild` / `bun prebuild:clean` - Generate native projects
+- `bun run deploy` / `bun run destroy` - Apply or tear down the Alchemy
+  stack
+- `bun run infra:dev` - Run the Alchemy stack in development
+- `bun run db:generate` - Generate Drizzle migrations for the web D1
+  database
+- `bun run db:migrate:local` - Apply those migrations to the local D1
 
 ### Code Quality
 
@@ -134,11 +150,35 @@ All scripts run from the repo root and fan out through Turborepo:
 - Vitest coverage for database migration/reconciliation, ICS and timezone
   behavior, reminders, backup import, schedule selection, and web APIs
 
+### Website Deployment
+
+Production is owned by Alchemy (`packages/infra/alchemy.run.ts`), which
+provisions the D1 database, both Workers, their bindings, and the hourly
+reconciler cron from one typed program.
+
+Deploys run from CI on a push to `main`, gated behind two repository
+variables and a manual approval on the `production` environment:
+
+- `PRODUCTION_DEPLOY_ENABLED` - the master switch; nothing deploys while
+  it is `false`
+- `PRODUCTION_ROUTES_ENABLED` - attaches `conpaws.com` (with
+  `www.conpaws.com` redirecting to it). Deploy with this `false` first so
+  Cloudflare holds a known-good version before the apex points anywhere
+
+There is no automatic rollback. Roll back by hand:
+
+```bash
+cd apps/web && bunx wrangler rollback
+```
+
+See `notes/prerelease-site.md` for the full going-live runbook.
+
 ### Mobile Releases and OTA Updates
 
 Store releases remain operator-controlled. EAS creates signed production
-IPA/AAB artifacts, then the exact tested artifacts are uploaded to TestFlight
-and Play Internal Testing and promoted manually. There is no auto-submit.
+IPA/AAB artifacts, then the exact tested artifacts are uploaded to
+TestFlight and Play Internal Testing and promoted manually. There is no
+auto-submit.
 
 - [Mobile release guide](apps/native/RELEASING.md)
 - [Self-hosted OTA decision guide](notes/ota-updates.md)
@@ -146,12 +186,13 @@ and Play Internal Testing and promoted manually. There is no auto-submit.
 
 OTA updates are required for the MVP. The selected path is signed
 [xprem 3.1.1](https://github.com/mercuretechnologies/xprem) hosted once for
-MrDemonWolf, Inc. at `updates.mrdemonwolf.com`, not EAS Update. ConPaws receives
-its own xprem app UUID, signing material, branches/channels, publisher token,
-and runtime inside that shared control plane. The app meets the Expo SDK 57
-prerequisite, but OTA remains fail-closed until signed staging passes cold-start,
-offline-start, and rollback tests on physical iOS and Android devices. The
-deployment bundle is ready, but no service is deployed or enabled in a store binary.
+MrDemonWolf, Inc. at `updates.mrdemonwolf.com`, not EAS Update. ConPaws
+receives its own xprem app UUID, signing material, branches/channels,
+publisher token, and runtime inside that shared control plane. The app
+meets the Expo SDK 57 prerequisite, but OTA remains fail-closed until
+signed staging passes cold-start, offline-start, and rollback tests on
+physical iOS and Android devices. The deployment bundle is ready, but no
+service is deployed or enabled in a store binary.
 
 ## Project Structure
 
@@ -162,6 +203,7 @@ conpaws/
 │   │   ├── targets/ # Widget, Watch app, and Watch complication (Swift)
 │   │   └── modules/ # Local Expo module bridging the App Group and Watch
 │   ├── web/         # Next.js site on Cloudflare Workers via OpenNext
+│   │   └── workers/ # Hourly waitlist reconciler (a separate Worker)
 │   └── server/      # (planned) Hono + tRPC + Better-Auth Worker
 ├── packages/
 │   ├── config/      # Shared tsconfig base
@@ -169,7 +211,9 @@ conpaws/
 │   ├── infra/       # Alchemy — D1, Worker bindings and secrets, cron
 │   └── ui/          # Shared shadcn/ui components and styles
 ├── docs/            # Widget and Watch design docs and mockups
-├── infra/           # xprem OTA descriptor and runbook (not deployed)
+├── infra/
+│   ├── listmonk/    # Shared mailing list descriptor (not deployed)
+│   └── xprem/       # xprem OTA descriptor and runbook (not deployed)
 ├── notes/           # Planning docs (plan.md is the technical blueprint)
 └── test-data/       # iCal fixtures for import development
 ```
