@@ -108,7 +108,29 @@ An earlier audit claimed Android renders these into the Material toolbar. That w
 
 Affected, all currently invisible on Android: `convention/[id].tsx` (Edit + 2 menus), `(home)/index.tsx` (Sort and Add menus — though the `+` does render, so verify each individually).
 
-The likely fix is `headerLeft`/`headerRight` render props on Android instead of `Stack.Toolbar`, mirroring what `FormModalHeader` does for the form screens. Verify on device before believing any of it.
+The likely fix is `headerLeft`/`headerRight` render props on Android instead of `Stack.Toolbar`, mirroring what `FormModalHeader` does for the form screens. Verify on device before believing any of it. Reuse `FormModalHeader` rather than writing a fourth header — the user has been explicit that they do not want the same thing built several times over.
+
+### A second dead control, same family: the ⋮ row button
+
+Found on device 2026-08-24. On the Conventions list, tapping the ⋮ glyph does
+**nothing**. Tapping a few dp beside it, still inside the same button, opens the
+Edit / Archive / Delete menu correctly. So the control works and its hit area is
+the right size — the icon itself is eating the touch.
+
+The button in `ConventionCard.tsx` wraps its icon in an `@expo/ui` `Host` with
+`pointerEvents="none"`. On iOS that hands the touch through to the `Pressable`.
+On Android `Host` is a Jetpack Compose view, and the touch stops there instead.
+Every icon in the app sits inside a `Host` like this, so **assume the same bug
+anywhere an icon is the visual target of a press** and check each one on device.
+
+Note this also revises correction 1 below. The 44pt hit area is real, but on
+Android roughly the middle 22pt of it is dead, which is exactly where anyone
+aims.
+
+While confirming it: `showConventionActions` in `(home)/index.tsx` passes **four**
+buttons to `Alert.alert`, and Android's dialog only has three slots — Cancel is
+silently dropped. Harmless, since tapping outside dismisses, but it means the
+Android dialog is not what the code says it is.
 
 ---
 
@@ -156,7 +178,7 @@ not want the same thing implemented several times over.
 
 ## Corrections to earlier notes — do not re-chase these
 
-1. **The "18pt touch target" does not exist.** The only 18×18 boxes are decorative icons with `pointerEvents="none"` inside a 44pt button.
+1. **The "18pt touch target" does not exist** — but see the ⋮ finding under goal 2. The 18×18 boxes are decorative icons inside a 44pt button, so the *hit area* was never 18pt. What is real is that on Android those icons swallow the touch instead of passing it through, which makes the centre of the button dead.
 2. **Haptics was 9 call sites, not 18.** The old count included import lines.
 3. **`Stack.Toolbar` does not render on Android.** See goal 2.
 4. **The Android form sheet header was never "missing"** before this branch — it was a hand-rolled row that got clipped. And the prediction that it rendered *under the status bar* was wrong for sheets; it only applies to the full-screen modal, which is why `FORM_SAFE_EDGES` exists.

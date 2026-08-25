@@ -15,7 +15,6 @@ import {
   RNHostView,
 } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
-import Constants from "expo-constants";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
@@ -29,6 +28,7 @@ import {
   View,
 } from "react-native";
 import licenses from "@/generated/open-source-licenses.json";
+import { useVersionLabel } from "@/hooks/useVersionLabel";
 
 const TECHNOLOGY_ICON = Icon.select({
   ios: "hammer.fill",
@@ -65,8 +65,7 @@ export default function AboutScreen() {
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
-  const version = Constants.expoConfig?.version ?? "0.0.0";
-  const versionLabel = t("common.version", { version });
+  const versionLabel = useVersionLabel();
   const heroWidth = Math.min(520, Math.max(260, width - 64));
 
   return (
