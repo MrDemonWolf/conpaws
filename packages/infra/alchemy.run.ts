@@ -84,6 +84,14 @@ export const web = Cloudflare.Website.StaticSite("web", {
   main: "../../apps/web/.open-next/worker.js",
   bundle: false,
   compatibility: {
+    // Pinned to match apps/web/wrangler.jsonc. Alchemy otherwise defaults to
+    // its own DEFAULT_COMPATIBILITY_DATE, which is a date this Next 16.2.12 +
+    // OpenNext 1.20.2 pairing was never tested against — and the difference is
+    // not theoretical: on Alchemy's default the deployed Worker threw
+    // `ReferenceError: require is not defined` out of Next's server bootstrap
+    // on every request, while CI's smoke test passed because it reads
+    // wrangler.jsonc. Deployed and tested must be the same date.
+    date: "2025-05-05",
     flags: ["nodejs_compat", "global_fetch_strictly_public"],
   },
   env: {
@@ -113,6 +121,8 @@ export const reconciler = Cloudflare.Worker("reconciler", {
   main: "../../apps/web/workers/reconcile.ts",
   crons: ["0 * * * *"],
   compatibility: {
+    // Same pin as the site Worker, same reason.
+    date: "2025-05-05",
     flags: ["nodejs_compat"],
   },
   env: {
