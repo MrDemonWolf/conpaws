@@ -132,21 +132,32 @@ jobs:
         # phase and shared state store.
         run: bun run deploy
 
-      - name: Verify production
-        if: vars.PRODUCTION_ROUTES_ENABLED == 'true'
+      # This step used to be gated on PRODUCTION_ROUTES_ENABLED, which meant that
+      # while routes were off — the entire pre-cutover period — nothing checked a
+      # deployed Worker at all. Three deploys that threw
+      # `ReferenceError: require is not defined` on the edge passed CI green,
+      # because CI's smoke test runs `wrangler dev`, where `node:` resolution is
+      # more permissive than production. Always probe something real: the custom
+      # domain once it is attached, the workers.dev URL before that.
+      - name: Verify deploy
+        env:
+          HEALTH_ORIGIN: >-
+            ${{ vars.PRODUCTION_ROUTES_ENABLED == 'true'
+            && 'https://conpaws.com'
+            || 'https://conpaws-web.mrdemonwolf.workers.dev' }}
         run: |
-          production_ok=false
+          deploy_ok=false
           for _ in {1..20}; do
-            response="$(curl --fail --silent --show-error --max-time 10 https://conpaws.com/api/health || true)"
+            response="$(curl --fail --silent --show-error --max-time 10 "$HEALTH_ORIGIN/api/health" || true)"
             if jq -e --arg sha "$RELEASE_SHA" '.ok == true and .release == $sha' \
               <<< "$response" >/dev/null 2>&1; then
-              production_ok=true
+              deploy_ok=true
               break
             fi
             sleep 3
           done
 
-          if [[ "$production_ok" != "true" ]]; then
-            echo "::error title=Production health failed::conpaws.com is not serving $RELEASE_SHA. Roll back manually: cd apps/web && bunx wrangler rollback"
+          if [[ "$deploy_ok" != "true" ]]; then
+            echo "::error title=Deploy health failed::$HEALTH_ORIGIN is not serving $RELEASE_SHA. Roll back manually: cd apps/web && bunx wrangler rollback"
             exit 1
           fi

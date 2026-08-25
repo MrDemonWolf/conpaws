@@ -102,7 +102,6 @@ const TICKER_ITEMS = [
   "Content flags",
   "iOS",
   "Android",
-  "Open source",
 ] as const;
 
 function Ticker() {
@@ -118,8 +117,7 @@ function Ticker() {
   return (
     <div className="relative z-10 mt-28 overflow-hidden border-border border-y bg-background/80 py-5">
       <p className="sr-only">
-        Schedules, offline first, reminders, content flags, iOS, Android, open
-        source.
+        Schedules, offline first, reminders, content flags, iOS, Android.
       </p>
       <div
         aria-hidden="true"
@@ -449,17 +447,12 @@ export default function Home() {
   return (
     <main className="relative mx-auto max-w-[1120px] px-6 pb-28">
       <nav className="relative z-20 flex items-center justify-between py-7">
-        <span className="flex items-baseline gap-2.5">
-          <span className="flex items-center gap-2.5">
-            <CompassPaw className="h-7 w-7 text-primary" />
-            <b className="font-bold text-[18px] tracking-tight">ConPaws</b>
-          </span>
-          <span className="hidden font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em] sm:inline">
-            by MrDemonWolf,&nbsp;Inc.
-          </span>
+        <span className="flex items-center gap-3">
+          <CompassPaw className="h-10 w-10 text-primary" />
+          <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
         </span>
         <span className="rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-          Coming soon
+          Est. 2025
         </span>
       </nav>
 
@@ -647,34 +640,20 @@ export default function Home() {
         >
           ConPaws
         </p>
-        <div className="relative flex flex-wrap items-end justify-between gap-6 pb-8">
-          <div>
-            <span className="flex items-center gap-2">
-              <CompassPaw className="h-5 w-5 text-primary" />
-              <b className="text-[15px] tracking-tight">ConPaws</b>
-              <span className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.16em]">
-                by{" "}
-                <a
-                  href="https://www.mrdemonwolf.com"
-                  rel="noopener"
-                  className="text-primary transition hover:underline"
-                >
-                  MrDemonWolf,&nbsp;Inc.
-                </a>
-              </span>
-            </span>
-            <p className="mt-2 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-              © {new Date().getFullYear()} MrDemonWolf, Inc. All rights
-              reserved.
-            </p>
-          </div>
-          <nav className="flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
+        <div className="relative flex flex-wrap items-center justify-between gap-6 pb-8">
+          <p className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
+            © {new Date().getFullYear()} ConPaws by{" "}
             <a
-              href="https://github.com/MrDemonWolf/conpaws"
+              href="https://www.mrdemonwolf.com"
               rel="noopener"
-              className="transition hover:text-primary"
+              className="text-primary transition hover:underline"
             >
-              GitHub
+              MrDemonWolf,&nbsp;Inc.
+            </a>
+          </p>
+          <nav className="flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
+            <a href="/support" className="transition hover:text-primary">
+              Support
             </a>
             <a href="/privacy" className="transition hover:text-primary">
               Privacy
