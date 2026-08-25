@@ -9,16 +9,14 @@
   "scripts": {
     "check-types": "tsc --noEmit",
     "dev": "alchemy dev",
-    "deploy": "alchemy deploy",
-    "destroy": "alchemy destroy"
+    "deploy": "tsx alchemy.run.ts",
+    "destroy": "tsx alchemy.run.ts --destroy"
   },
   "devDependencies": {
     "@conpaws/config": "workspace:*",
-    "@effect/platform-bun": "4.0.0-rc.108",
-    "@effect/platform-node": "4.0.0-rc.108",
-    "alchemy": "2.0.0-beta.72",
+    "alchemy": "0.91.2",
     "dotenv": "^17.2.2",
-    "effect": "4.0.0-rc.108",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }
