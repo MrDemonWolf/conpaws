@@ -84,19 +84,29 @@ export const web = Cloudflare.Website.StaticSite("web", {
   main: "../../apps/web/.open-next/worker.js",
   bundle: false,
   compatibility: {
-    // Pinned to match apps/web/wrangler.jsonc. Alchemy otherwise defaults to
-    // its own DEFAULT_COMPATIBILITY_DATE, which is a date this Next 16.2.12 +
-    // OpenNext 1.20.2 pairing was never tested against — and the difference is
-    // not theoretical: on Alchemy's default the deployed Worker threw
-    // `ReferenceError: require is not defined` out of Next's server bootstrap
-    // on every request, while CI's smoke test passed because it reads
-    // wrangler.jsonc. Deployed and tested must be the same date.
-    date: "2025-05-05",
+    // Verified against real Cloudflare infrastructure with
+    // `opennextjs-cloudflare preview --remote`, not guessed. Two earlier dates
+    // both failed on the edge while CI stayed green:
+    //
+    //   2026-03-17 (Alchemy's default) — ReferenceError: require is not defined
+    //   2025-05-05 (wrangler.jsonc's pin) — No such module "node:http"
+    //
+    // node:http needs >= 2025-08-15, and Cloudflare made nodejs_compat
+    // default-on at 2026-08-04; this date clears both. CI cannot catch the
+    // difference because its smoke test runs `wrangler dev` locally, where
+    // node: module resolution is more permissive than the edge.
+    date: "2026-08-20",
     flags: ["nodejs_compat", "global_fetch_strictly_public"],
   },
   env: {
     DB: db,
     TURNSTILE_SECRET_KEY: Config.redacted("TURNSTILE_SECRET_KEY"),
+    // OpenNext re-fetches the Worker through this binding for on-demand
+    // revalidation, so without it the call has nowhere to land. It is
+    // declared in apps/web/wrangler.jsonc too, but that file is local dev and
+    // CI preview only — Alchemy never reads it, which is how production ended
+    // up without the binding while every local run had it.
+    WORKER_SELF_REFERENCE: Cloudflare.Workers.Self,
     ...waitlistSecrets,
   },
   dev: {
@@ -121,8 +131,8 @@ export const reconciler = Cloudflare.Worker("reconciler", {
   main: "../../apps/web/workers/reconcile.ts",
   crons: ["0 * * * *"],
   compatibility: {
-    // Same pin as the site Worker, same reason.
-    date: "2025-05-05",
+    // Same date as the site Worker, same reason.
+    date: "2026-08-20",
     flags: ["nodejs_compat"],
   },
   env: {
