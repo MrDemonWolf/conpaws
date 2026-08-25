@@ -64,6 +64,30 @@ const db = await D1Database("database", {
 });
 
 /**
+ * Observability is billed per event, and one event is a single log line or a
+ * single trace span: 20M/month included on the Workers Paid plan, then $0.60
+ * per additional million. Traces are free until 2026-10-01 and then join that
+ * same quota.
+ *
+ * This used to be undeclared here, so production silently inherited
+ * Cloudflare's defaults — logs and traces both on at 100% — while
+ * apps/web/wrangler.jsonc looked authoritative and in fact only ever applied
+ * to local dev. Same drift that once made the Worker's bindings a guess.
+ *
+ * Logs stay at 100%: this is a low-traffic site and a dropped line costs more
+ * than it saves. Traces are sampled to 1% because spans multiply per request,
+ * which makes them the surface that can actually run up a bill — Next is
+ * pinned to 16.2.12 precisely because 16.3 + OpenNext has an unbounded
+ * prefetch loop, and that is the shape of bug that would do it. The rate
+ * matches Cloudflare's own Workers best-practices example.
+ */
+const OBSERVABILITY = {
+  enabled: true,
+  logs: { enabled: true, headSamplingRate: 1 },
+  traces: { enabled: true, headSamplingRate: 0.01 },
+} as const;
+
+/**
  * No ESP is bound yet — these are deliberately empty, not misconfigured.
  *
  * The waitlist form is closed (WAITLIST_ACCEPTING_SIGNUPS in
@@ -100,6 +124,7 @@ export const web = await Nextjs("web", {
   adopt: true,
   cwd: "../../apps/web",
   compatibilityDate: COMPATIBILITY_DATE,
+  observability: OBSERVABILITY,
   // conpaws.com is attached only once the routes switch is on, so the first
   // deploy of any change lands on a Worker nothing points at yet.
   domains:
@@ -141,6 +166,7 @@ export const reconciler = await Worker("reconciler", {
   entrypoint: "workers/reconcile.ts",
   compatibility: "node",
   compatibilityDate: COMPATIBILITY_DATE,
+  observability: OBSERVABILITY,
   crons: ["0 * * * *"],
   // Cron-only: it exports `scheduled` and no `fetch`, so a workers.dev URL
   // would serve nothing but an exception page.
