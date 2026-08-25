@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Haptics from "expo-haptics";
 import { useState } from "react";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { hapticSuccess } from "@/services/haptics";
 import {
   cancelEventReminder,
   getNotificationPermissionStatus,
@@ -68,7 +68,7 @@ export function useEventReminder(event: ConventionEvent) {
     // Persist to DB
     await eventsRepo.update(event.id, { reminderMinutes: minutes });
 
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    hapticSuccess();
 
     return {};
   }

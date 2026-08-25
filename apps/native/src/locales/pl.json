@@ -20,7 +20,11 @@
     "getStarted": "Zacznij",
     "learnMore": "Dowiedz się więcej",
     "version": "Wersja {{version}}",
-    "advanced": "Zaawansowane"
+    "advanced": "Zaawansowane",
+    "discardChangesTitle": "Odrzucić zmiany?",
+    "discardChangesMessage": "Twoje zmiany zostaną utracone.",
+    "keepEditing": "Kontynuuj edycję",
+    "discard": "Odrzuć"
   },
   "onboarding": {
     "progress": "Krok {{step}} z {{total}}",
@@ -287,6 +291,8 @@
       "title": "Aplikacja",
       "theme": "Motyw",
       "language": "Język",
+      "haptics": "Wibracje dotykowe",
+      "hapticsError": "Nie udało się zapisać ustawienia wibracji",
       "notifications": "Powiadomienia"
     },
     "data": {

@@ -87,7 +87,8 @@ export function Button({
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       testID={testID}
       className={cn(
-        "min-h-[44px] flex-row items-center justify-center",
+        // 48 satisfies both minimums: HIG asks 44pt, Material 3 asks 48dp.
+        "min-h-[48px] flex-row items-center justify-center",
         variantStyles[variant],
         sizeStyles[size],
         isDisabled && "opacity-50",

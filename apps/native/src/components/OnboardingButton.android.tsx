@@ -31,7 +31,8 @@ export function OnboardingButton({
   const NativeButton = buttonComponents[variant];
   const modifiers = [
     fillMaxWidth(),
-    defaultMinSize({ minHeight: 44 }),
+    // Material 3 asks for 48dp; 44 is the iOS figure and too small here.
+    defaultMinSize({ minHeight: 48 }),
     ...(testID ? [testIDModifier(testID)] : []),
   ];
 

@@ -20,7 +20,11 @@
     "getStarted": "Comenzar",
     "learnMore": "Saber más",
     "version": "Versión {{version}}",
-    "advanced": "Avanzado"
+    "advanced": "Avanzado",
+    "discardChangesTitle": "¿Descartar cambios?",
+    "discardChangesMessage": "Se perderán tus cambios.",
+    "keepEditing": "Seguir editando",
+    "discard": "Descartar"
   },
   "onboarding": {
     "progress": "Paso {{step}} de {{total}}",
@@ -287,6 +291,8 @@
       "title": "Aplicación",
       "theme": "Tema",
       "language": "Idioma",
+      "haptics": "Respuesta háptica",
+      "hapticsError": "No se pudo guardar tu ajuste de háptica",
       "notifications": "Notificaciones"
     },
     "data": {

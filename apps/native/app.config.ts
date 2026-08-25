@@ -104,6 +104,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     package: getBundleId(),
     // Edge-to-edge is always enabled in Expo SDK 57.
+    // Opts into the Android 13+ back-preview animation. Expo's prebuild default
+    // is `android:enableOnBackInvokedCallback="false"`, which switches it off
+    // entirely. Safe to enable only because every form now guards its own exit
+    // through useUnsavedChangesGuard -- without that, an easier-to-trigger back
+    // gesture would just make silent data loss easier to trigger too.
+    predictiveBackGestureEnabled: true,
   },
   web: {
     output: "static",

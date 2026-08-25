@@ -20,7 +20,11 @@
     "getStarted": "Get Started",
     "learnMore": "Learn More",
     "version": "Version {{version}}",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "discardChangesTitle": "Discard changes?",
+    "discardChangesMessage": "Your changes will be lost.",
+    "keepEditing": "Keep Editing",
+    "discard": "Discard"
   },
   "onboarding": {
     "progress": "Step {{step}} of {{total}}",
@@ -287,6 +291,8 @@
       "title": "App",
       "theme": "Theme",
       "language": "Language",
+      "haptics": "Haptic Feedback",
+      "hapticsError": "Could not save your haptics setting",
       "notifications": "Notifications"
     },
     "data": {

@@ -31,6 +31,9 @@ const ERROR_ICON = Icon.select({
 });
 
 const EMPTY_LIST_CONTENT_STYLE = { flexGrow: 1 } as const;
+// Populated lists need their own bottom padding: the empty-only style above
+// left the last row of the last day running under the system navigation bar.
+const LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
 
 interface ScheduleEntry extends PersonalScheduleEntry {
   event: ConventionEvent;
@@ -143,7 +146,7 @@ export default function ScheduleScreen() {
         keyExtractor={(entry) => entry.id}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={
-          days.length === 0 ? EMPTY_LIST_CONTENT_STYLE : undefined
+          days.length === 0 ? EMPTY_LIST_CONTENT_STYLE : LIST_CONTENT_STYLE
         }
         ListHeaderComponent={
           days.length > 0 ? (

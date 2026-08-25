@@ -7,12 +7,18 @@ import LanguageIcon from "@expo/material-symbols/language.xml";
 import PaletteIcon from "@expo/material-symbols/palette.xml";
 import PrivacyIcon from "@expo/material-symbols/privacy_tip.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
-import { FieldGroup, Host, Icon, ListItem } from "@expo/ui";
+import {
+  FieldGroup,
+  Host,
+  Icon,
+  ListItem,
+  Switch as NativeSwitch,
+} from "@expo/ui";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, useColorScheme } from "react-native";
 import {
@@ -20,9 +26,11 @@ import {
   subscribeAppearancePreference,
 } from "@/lib/appearance-storage";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
 import { useExportData } from "@/services/data-export";
 import { useImportData } from "@/services/data-import";
+import { getHapticsEnabled } from "@/services/haptics";
 
 const CHEVRON = Icon.select({
   ios: "chevron.right",
@@ -82,6 +90,17 @@ export default function SettingsScreen() {
     Constants.expoConfig?.extra?.appVariant,
   );
 
+  const [haptics, setHaptics] = useState(getHapticsEnabled);
+
+  function handleHapticsChange(next: boolean) {
+    // Optimistic so the switch tracks the finger; reverted if the write fails.
+    setHaptics(next);
+    void saveHapticsPreference(next).catch(() => {
+      setHaptics(!next);
+      Alert.alert(t("common.error"), t("settings.app.hapticsError"));
+    });
+  }
+
   function handleExport() {
     exportData(undefined, {
       onError: () =>
@@ -117,6 +136,12 @@ export default function SettingsScreen() {
           >
             {t("settings.app.language")}
           </ListItem>
+          <NativeSwitch
+            testID="haptics-switch"
+            label={t("settings.app.haptics")}
+            value={haptics}
+            onValueChange={handleHapticsChange}
+          />
         </FieldGroup.Section>
 
         <FieldGroup.Section

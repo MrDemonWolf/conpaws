@@ -1,4 +1,4 @@
-import { Host, ListItem, Text as NativeText } from "@expo/ui";
+import { ListItem } from "@expo/ui";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { DatePicker as SwiftDatePicker } from "@expo/ui/swift-ui";
 import { datePickerStyle } from "@expo/ui/swift-ui/modifiers";
@@ -124,7 +124,7 @@ export function TimeZonePickerModal({
           <Pressable
             accessibilityRole="button"
             onPress={handleClose}
-            className="active:opacity-70"
+            className="min-h-12 min-w-12 items-end justify-center active:opacity-70"
           >
             <Text variant="body" className="text-primary">
               {t("common.done")}
