@@ -21,6 +21,7 @@ import * as WebBrowser from "expo-web-browser";
 import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, useColorScheme } from "react-native";
+import { useVersionLabel } from "@/hooks/useVersionLabel";
 import {
   getAppearancePreference,
   subscribeAppearancePreference,
@@ -78,7 +79,7 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
   const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
-  const version = Constants.expoConfig?.version ?? "0.0.0";
+  const versionLabel = useVersionLabel();
   const appearance = useSyncExternalStore(
     subscribeAppearancePreference,
     getAppearancePreference,
@@ -175,7 +176,7 @@ export default function SettingsScreen() {
         <FieldGroup.Section title={t("settings.about.title")}>
           <ListItem
             leading={<LeadingIcon name={ABOUT} />}
-            supportingText={t("common.version", { version })}
+            supportingText={versionLabel}
             trailing={<NavigationIndicator />}
             onPress={() => router.push("/settings/about")}
           >
