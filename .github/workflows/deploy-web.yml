@@ -122,7 +122,17 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-        run: bunx alchemy deploy
+        # --yes is required in CI. Cloudflare.state() keeps Alchemy's state in a
+        # Worker it deploys itself (alchemy-state-store, with a Durable Object
+        # and Secrets Store entries). Without --yes the CLI refuses to create
+        # that Worker non-interactively and dies with "Cloudflare State store
+        # not found". It also auto-accepts a state-store version upgrade, which
+        # would otherwise fail a deploy the same way after an Alchemy bump.
+        #
+        # Deliberately NOT --adopt: on a conflict with a pre-existing resource
+        # (a leftover conpaws.com DNS record, say) the deploy should fail loudly
+        # rather than quietly take ownership of something we did not create.
+        run: bunx alchemy deploy --yes
 
       - name: Verify production
         if: vars.PRODUCTION_ROUTES_ENABLED == 'true'
