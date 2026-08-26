@@ -110,7 +110,19 @@ export function BadgeCard({ name }: { name: string }) {
             wrapper opens its own stacking context via `perspective`, so
             without this the clip can never overlap the badge and the lanyard
             reads as floating above a card it isn't attached to. */}
-        <div className="pointer-events-none relative z-10 h-[110px] w-[300px] md:h-[150px]">
+        {/* The mask is mobile-only, and it is what makes running 450px past the
+            container survive the one-column layout. On desktop the badge is in
+            the right-hand column and the overflow lands on empty page. Stacked,
+            it lands on the copy above — it used to shred the nav wordmark into
+            "ConPa⋯s", and after the hero was reordered it would cross the <h1>
+            instead. `no-repeat` is load-bearing: an unrepeated mask paints
+            nothing outside its box, so everything above is hidden outright and
+            the gradient only softens the top 60px of the strap into view. A
+            hard clip would leave a visible cut end mid-air, which is the bug
+            the 560px height exists to avoid. `mask-size` is 240% because the
+            ring and clip hang BELOW this container — at the default 100% they
+            fall outside the mask and vanish with the overflow. */}
+        <div className="pointer-events-none relative z-10 h-[110px] w-[300px] [mask-image:linear-gradient(to_bottom,transparent_0,black_60px)] [mask-repeat:no-repeat] [mask-size:100%_240%] md:h-[150px] md:[mask-image:none]">
           {/* Both straps pivot from the SAME point — the centre, just under the
               ring — so they meet at the clip and splay upward in a V, the way
               a real lanyard does. They used to hang from left-[52px] and
