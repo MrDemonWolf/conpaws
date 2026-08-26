@@ -198,6 +198,12 @@ export default function UiSystemScreen() {
         ) : sheetPreview === "skeleton" ? (
           <RNHostView matchContents>
             <View
+              // Both skeletons carry their own "loading" live region, which is
+              // right on a real screen and wrong here: nothing is loading, and
+              // a screen reader would announce it twice for a static sample.
+              // The gallery row that opened this sheet already named it.
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
               className="h-[520px] bg-background"
               style={{ width: sheetContentWidth }}
             >
