@@ -13,6 +13,7 @@ Decision record for the pre-release marketing site. This captures what was settl
 - **ESP: Brevo is OUT (2026-08-25).** Self-hosted **Listmonk** is the direction. Brevo was removed from the deploy path — `alchemy.run.ts` binds empty strings, the deploy workflow no longer requires Brevo config, and the signup route fails closed with 503. Nothing is bound today. See *ESP* below.
 - **Waitlist:** D1 is the source of truth with full consent-record columns; `ctx.waitUntil` + a cron reconciler are both required. Confirmation-token ownership moves to us with Listmonk — Brevo's DOI endpoint used to own it, which is why there is still no `confirm_token` column.
 - **Outbound vs inbound:** Cloudflare Email Routing is **inbound only** — it forwards mail to `conpaws.com` addresses and can never send the DOI or the launch email. Separate job from the ESP; `conpaws.com` has no MX today.
+- **Cloudflare Email *Sending* does not replace the ESP (re-checked 2026-08-25).** It really does send outbound now, but it is Beta and Cloudflare's FAQ still restricts it to transactional mail. It could carry the DOI confirmation; it cannot carry the launch announcement, which is the one email the waitlist exists for. See *Cloudflare Email Service*.
 - **Badge:** headless Rapier2D physics + SVG + DOM. WebGL removed after real context-loss failures.
 - **CMS:** none in Phase 1; Sveltia in Phase 2 (remember `skip_ci: false`).
 
@@ -204,6 +205,46 @@ The draggable lanyard badge is **headless Rapier2D + SVG + DOM** — no three.js
 ## Cloudflare Email Service
 
 Workers Paid includes Cloudflare Email Service (3,000 sends/month). It is **transactional only** — Cloudflare's FAQ explicitly excludes marketing and bulk mail. Its role: magic links and password resets when Better-Auth lands in Phase 2. It is **never the newsletter** — Brevo owns both the DOI confirmation and all list email.
+
+### Re-checked 2026-08-25 — it does NOT replace the ESP
+
+Outbound sending is real and self-serve now, but it does not close the ESP
+question, and the reason is not price or maturity.
+
+| | As documented |
+|---|---|
+| Status | **Beta**, not GA. Workers Paid only; Free cannot send outbound at all |
+| Price | 3,000/month included per account, then $0.35 per 1,000 |
+| Daily cap | New accounts start "conservative" and auto-scale on reputation. **No published number** — the limit is not a figure you can plan a launch against, and a raise is a support request |
+| Prereq | Domain must be on Cloudflare DNS (it is), then onboarded — Cloudflare writes MX/SPF/DKIM/DMARC on a `cf-bounce` subdomain |
+| Before onboarding | Verified destination addresses only. After onboarding, any recipient |
+| Suppression | Account-level list of bounces, complaints, and unsubscribes, checked on every send |
+
+**The blocker is the AUP, not the beta label.** Cloudflare's FAQ still reads
+"Email Service is intended only for transactional emails. We plan to support
+marketing emails and bulk sender tooling in the future." A double opt-in
+confirmation is transactional and fits. **The launch announcement is not** —
+and that one blast is the entire reason the waitlist exists. So Email Service
+can carry the confirmation and still leaves the list email homeless. Splitting
+them across two providers is worse than either alone: the suppression state
+that matters at launch would live with the provider that never sees the
+unsubscribe.
+
+What it *would* genuinely remove, if used for the DOI leg only:
+
+- SES's sandbox (200/24h, verified recipients) sitting on the launch path.
+- The SES bounce problem in the open questions — Cloudflare suppresses bounces
+  and complaints itself, so there is no SNS topic to stand up and nothing
+  forwarding bounce notices into Google Workspace to trip its rate limiter.
+
+What it would cost is unchanged from the Listmonk analysis above: sending our
+own confirmation means we own the token, so the `confirm_token` column that was
+deliberately left out has to exist, along with a confirm route, expiry, and
+replay protection — and `/confirmed` stops being the static page it is today.
+
+**Verdict: not the unblock.** Revisit when Cloudflare ships bulk sender
+tooling; until then it is still the Phase 2 auth-mail answer the section above
+describes, and the ESP decision stands on its own.
 
 ## Inbound mail on conpaws.com (Email Routing)
 
