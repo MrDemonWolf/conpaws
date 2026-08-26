@@ -13,7 +13,7 @@
   // define the binding they will drift, and D1 drift is not recoverable by a
   // Worker rollback.
 
-  "name": "conpaws-web",
+  "name": "conpaws",
   "main": ".open-next/worker.js",
   "workers_dev": false,
   "preview_urls": false,
@@ -34,7 +34,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "conpaws-web"
+      "service": "conpaws"
     }
   ],
 

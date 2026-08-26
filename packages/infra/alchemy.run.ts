@@ -118,9 +118,14 @@ const waitlistSecrets = {
  * for Node builtins that only resolve under the adapter's own upload path.
  */
 export const web = await Nextjs("web", {
-  // Explicit script name → conpaws-web.<subdomain>.workers.dev, and the name
+  // Explicit script name → conpaws.<subdomain>.workers.dev, and the name
   // `wrangler rollback` expects. Without it Alchemy prefixes app and stage.
-  name: "conpaws-web",
+  //
+  // Renamed from `conpaws-web` on 2026-08-26. Alchemy has no rename: changing
+  // this destroys the old Worker and creates a new one, which detaches and
+  // re-attaches conpaws.com. Do not change it casually — it is a brief outage
+  // every time, and the custom-domain bind is the slow part.
+  name: "conpaws",
   adopt: true,
   cwd: "../../apps/web",
   compatibilityDate: COMPATIBILITY_DATE,
