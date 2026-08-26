@@ -69,12 +69,22 @@ The reason for the reversal is operational, not technical: Alchemy provisions
 D1 and every binding from one typed program, so the Cloudflare dashboard never
 has to be touched.
 
-Shape, mirroring what Better-T-Stack generates: `Cloudflare.Website.StaticSite`
-pointed at `.open-next/worker.js` with `bundle: false`. Not the first-class
-`Cloudflare.Website.Nextjs` resource — that pulls in
-`@alchemy.run/cloudflare-frameworks`, which peer-requires
-`@opennextjs/cloudflare` at exactly **1.20.1**, and this repo pins 1.20.2 to
-hold `next` at 16.2.12. Revisit when that package accepts 1.20.2 or later.
+**Shape — corrected 2026-08-26.** It is the first-class `Nextjs` resource, not
+`StaticSite`. This record previously said the opposite, mirroring what
+Better-T-Stack generates: `StaticSite` pointed at `.open-next/worker.js` with
+`bundle: false`, avoiding `Nextjs` because of a peer pin on
+`@opennextjs/cloudflare@1.20.1`. **That shape does not work.** A prebuilt
+`.open-next/worker.js` uploaded as a plain Worker throws `ReferenceError:
+require is not defined` out of Next's server bootstrap on *every* request — the
+bundle leaves bare `require()` calls for Node builtins that resolve only under
+the adapter's own upload path. `Nextjs` runs the OpenNext build and uploads it
+the way the adapter expects, including the `ASSETS` and `WORKER_SELF_REFERENCE`
+bindings. Do not "restore" `StaticSite`.
+
+**Worker name is `conpaws`** (renamed from `conpaws-web` on 2026-08-26). Alchemy
+has no rename: changing `name` destroys the old Worker and creates a new one,
+which detaches and re-attaches `conpaws.com`. That is a real outage every time,
+and the custom-domain bind is the slow part. See *Traps* below.
 
 **What the reversal cost.** The retired wrangler pipeline did things Alchemy
 does not: canary at 0% traffic behind a version-override header, promotion of
@@ -96,13 +106,13 @@ accepted rather than avoided:
 
 Release safety rules: PR code never receives Cloudflare credentials. `PRODUCTION_DEPLOY_ENABLED`, the protected `production` environment, and a required human approval gate any release; `PRODUCTION_ROUTES_ENABLED` independently controls whether domain routes may change. Both switches default to `false`, and `workers_dev` plus preview URLs stay disabled.
 
-The first verified deployment must run with routes disabled so Cloudflare has a known-good rollback version without exposing the site. At launch, enable the checked-in routes block and the routes switch.
+The first verified deployment must run with routes disabled so Cloudflare has a known-good rollback version without exposing the site. At launch, enable the checked-in routes block and the routes switch. **Done — `PRODUCTION_ROUTES_ENABLED` went `true` on 2026-08-26 and `conpaws.com` is live.**
 
 **Superseded by the Alchemy reversal above:** the canary-at-0%, version-override probe, exact-version promotion, and automatic rollback this section used to describe no longer exist. Alchemy applies the whole stack in one step. What survives is the post-deploy health check, which fails the run loudly but cannot undo the deploy — recovery is `cd apps/web && bunx wrangler rollback` against `conpaws`, or re-running the workflow on the last good SHA. The routes switch is the real safety mechanism now: it is the only thing between a bad deploy and the apex.
 
 D1 migrations must always use expand/contract sequencing because schema changes outlive a Worker rollback — more so now that the rollback is a human typing a command. A newer `main` commit stops the release before and after migration.
 
-Before the first launch, verify in the Cloudflare dashboard that the remote Worker also has `workers.dev` and preview URLs disabled; local config cannot prove historic remote trigger state while Wrangler is unauthenticated. Never set `"build": "opennextjs-cloudflare build"` in package.json (the adapter calls the build script), and do not use `turbo build --filter=web` as a deploy build because it skips the OpenNext transform. Cloudflare secrets survive version uploads; `--keep-vars` is not valid for `wrangler versions upload`.
+`workers.dev` and preview URLs are Alchemy-managed now — `url:` and `previewSubdomains:` in `alchemy.run.ts`, driven by the `WORKERS_DEV_ENABLED` and `PREVIEW_URLS_ENABLED` repo variables. `WORKERS_DEV_ENABLED` is `false`; `PREVIEW_URLS_ENABLED` is unset, which is also off. Toggle them as variables rather than clicking in the dashboard, or the next deploy reverts the click. Never set `"build": "opennextjs-cloudflare build"` in package.json (the adapter calls the build script), and do not use `turbo build --filter=web` as a deploy build because it skips the OpenNext transform. Cloudflare secrets survive version uploads; `--keep-vars` is not valid for `wrangler versions upload`.
 
 ## ESP: Brevo — SUPERSEDED 2026-08-25
 
@@ -250,21 +260,22 @@ describes, and the ESP decision stands on its own.
 
 **Cloudflare Email Routing forwards; it does not send.** It cannot deliver the DOI confirmation or the launch announcement, and it has no bearing on the unsubscribe-scope problem above. Do not let it stand in for an ESP. What it *is* for: giving `conpaws.com` working `hello@` / `privacy@` / `support@` addresses that forward into the existing Google Workspace mailbox. The privacy policy and both app-store listings name a contact address, so this is required before launch, not optional polish.
 
-### DNS as it actually stands (measured 2026-08-15)
+### DNS as it actually stands (re-measured 2026-08-26)
 
-| | `conpaws.com` | `mrdemonwolf.com` |
-|---|---|---|
-| Nameservers | `sima` / `skip.ns.cloudflare.com` | Cloudflare |
-| MX | **none** | Google Workspace (`aspmx.l.google.com` et al.) |
-| SPF | `v=spf1 include:_spf.mx.cloudflare.net ~all` | `include:spf.sendinblue.com include:_spf.google.com ~all` |
-| DMARC | `p=quarantine`, Cloudflare `rua` | `p=quarantine`, Cloudflare `rua` |
-| Brevo DKIM | **none** | **unverified** (SPF authorization is not DKIM evidence) |
+| | `conpaws.com` |
+|---|---|
+| Nameservers | Cloudflare |
+| MX | `route1` / `route2` / `route3.mx.cloudflare.net` — **Email Routing MX published** |
+| SPF | `v=spf1 include:_spf.mx.cloudflare.net ~all` |
+| DMARC | `p=quarantine`, Cloudflare `rua` |
+| Outbound DKIM | **none** — no sender domain is authenticated for sending |
 
-Two things fall out of this:
+What follows from it:
 
-1. **`conpaws.com` is already on Cloudflare nameservers.** The `routes` block in `apps/web/wrangler.jsonc` was commented out pending that migration — the precondition is met and the block can be uncommented whenever the site is ready to take the apex.
-2. **Email Routing is not operational.** Before describing `hello@`, `privacy@`, or `support@` as working, confirm the Cloudflare Email Routing MX, SPF, and DKIM records; a verified destination address; and an active routing rule for each alias.
-3. **`conpaws.com` cannot send through Brevo today** — no DKIM, no sender verification. This work is identical whichever ESP account the domain ends up in, which is why option A above costs so little.
+1. **The apex is live.** `conpaws.com` serves the Worker and `www.conpaws.com` 308-redirects to it, path preserved. Alchemy attaches both as Custom Domains (`domains:` in `alchemy.run.ts`, gated on `ROUTES_ENABLED`). The `routes` block in `apps/web/wrangler.jsonc` is not the mechanism and never became one — that file is local dev and CI preview only.
+2. **The www→apex redirect is a zone-level Cloudflare Redirect Rule, and it exists nowhere in this repo.** Not `next.config.ts` (no `redirects()`), not middleware (there is none, and Next 16 middleware is unsupported by OpenNext anyway). Evidence it fires at the edge rather than in the Worker: the 308 response carries no `content-security-policy` and no `x-nextjs-cache`, both of which the Worker's 200 does. Alchemy cannot manage Redirect Rules, so **if the zone is ever rebuilt this rule is lost silently** and `www` starts serving a duplicate copy of the site instead of redirecting. Re-create it by hand.
+3. **Email Routing MX is published, but the aliases are unverified from here.** DNS proves the zone is onboarded; it does not prove there is a verified destination address or an active rule for `hello@`, `privacy@`, `support@`. Confirm each in the dashboard before the privacy policy and the store listings name one.
+4. **`conpaws.com` still cannot send.** No outbound DKIM, no sender verification, with or without an ESP. That work is unchanged by the Brevo→Listmonk switch.
 
 ### Terraform
 
@@ -272,98 +283,79 @@ There is **no Terraform in this repo** and no `.tf` files anywhere in the tree. 
 
 ## Going live: config runbook
 
-Nothing below can run until the accounts exist. As of 2026-08-19 the repo has
-**zero secrets**; `PRODUCTION_DEPLOY_ENABLED` and `PRODUCTION_ROUTES_ENABLED`
-both exist and are `false`. Merging the site code deploys nothing — the deploy
-job's `if:` fails on the enable switch, and `Require deploy configuration`
-fails the run rather than shipping a site whose waitlist silently 503s.
+**Steps 1-5 are DONE.** The site is deployed and `conpaws.com` is live. What is
+left is the ESP and the waitlist opening — steps 6 and 7 — and both are blocked
+on Listmonk, not on anything in this repo.
 
-Order matters. Steps 1-3 are account work; step 4 is paste-and-go once they're done.
+### Config as actually set (verified 2026-08-26)
 
-### 1. Brevo — separate account owned by `conpaws.com`
+| Repo secret | |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | set |
+| `CLOUDFLARE_ACCOUNT_ID` | set |
+| `ALCHEMY_PASSWORD` | set — state-encryption passphrase; losing it orphans the stack state |
+| `ALCHEMY_STATE_TOKEN` | set |
+| `TURNSTILE_SECRET_KEY` | set |
 
-Route A (see ESP section): the blocklist is account-wide, so sharing the
-MrDemonWolf account would let a ConPaws unsubscribe silently blocklist that
-address on `mrdemonwolf.com` too.
+| Repo variable | Value |
+|---|---|
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `0x4AAAAAAEa8rVb51KucuNh3` — public by design, a variable and not a secret |
+| `PRODUCTION_DEPLOY_ENABLED` | `true` |
+| `PRODUCTION_ROUTES_ENABLED` | `true` |
+| `WORKERS_DEV_ENABLED` | `false` |
+| `PREVIEW_URLS_ENABLED` | unset (= off) |
 
-1. Create the account, add `conpaws.com` as a sender domain.
-2. **DKIM + sender verification.** The domain has neither today (see DNS table)
-   and cannot send at all until it does.
-3. **Disable IP authorization, or allowlist Brevo's published CIDRs, before the
-   30-day learning phase arms.** Workers egress from rotating IPs. Skip this and
-   sends start failing roughly a month after launch, long after anyone connects
-   the two events.
-4. Create the double-opt-in template; confirm `{{ params.DOIurl }}` renders.
-   Note the list id and template id — they are identifiers, not credentials, and
-   go in as variables.
+**No `BREVO_*` secret or variable exists**, which is the deploy path agreeing
+with the ESP decision rather than a gap to fill. `alchemy.run.ts` binds empty
+strings, `deploy-web.yml` does not require them, and `POST /api/waitlist` fails
+closed with 503.
 
-### 2. Turnstile
+Cloudflare API token scopes are Workers Scripts:Edit and D1:Edit. Alchemy created
+`conpaws-db` on first deploy — never pre-create it, and never put a real
+`database_id` in `apps/web/wrangler.jsonc`.
 
-Create the widget for `conpaws.com`. Keep both keys: the **site** key is public
-and build-time; the **secret** key is a repo secret.
+### What the ESP step will need (Listmonk, not Brevo)
 
-### 3. Cloudflare API token
+The Brevo runbook that used to sit here is deleted, not superseded-in-place: a
+separate Brevo account, its DKIM and sender verification, the IP-authorization
+trap, and the DOI template are all work nobody should do now. Two of its
+requirements survive the provider change, because they belong to the domain
+rather than the vendor:
 
-Scopes: Workers Scripts:Edit and D1:Edit. Also grab the account id. Alchemy
-creates `conpaws-db` on first deploy — do not pre-create it, and never put a
-real `database_id` in `apps/web/wrangler.jsonc` (local dev and CI preview only).
+- **`conpaws.com` needs outbound DKIM and sender verification** before it can
+  send a single address anything. Still absent.
+- **Whatever sends must tolerate egress from rotating Worker IPs.** Brevo's
+  30-day IP-authorization learning phase was the sharp edge; check for the
+  equivalent in Listmonk's upstream SMTP provider before launch, not after.
 
-`ALCHEMY_PASSWORD` is the state-encryption passphrase. Generate a long random
-one and store it somewhere durable — losing it orphans the stack state.
-
-### 4. Set the config
-
-```bash
-gh secret set CLOUDFLARE_API_TOKEN
-gh secret set CLOUDFLARE_ACCOUNT_ID
-gh secret set ALCHEMY_PASSWORD
-gh secret set BREVO_API_KEY
-gh secret set TURNSTILE_SECRET_KEY
-
-gh variable set BREVO_LIST_ID --body '<list id>'
-gh variable set BREVO_DOI_TEMPLATE_ID --body '<template id>'
-gh variable set BREVO_DOI_REDIRECT_URL --body 'https://conpaws.com/confirmed'
-gh variable set NEXT_PUBLIC_TURNSTILE_SITE_KEY --body '<site key>'
-```
-
-**`BREVO_DOI_REDIRECT_URL` now has a page behind it.**
-`apps/web/src/app/(marketing)/confirmed/page.tsx` is the destination Brevo sends
-every confirming subscriber to after they click the link — without it the last
-step of signup is a 404. It is static and `noindex`: the confirmation already
-happened at the ESP before the redirect, so the page verifies nothing and reads
-no token off the URL.
-
-The redirect does **not** carry across to Listmonk. Listmonk serves its own
-confirmation page; pointing it at `/confirmed` is a separate setting to verify in
-the running instance. See `infra/listmonk/README.md` §5.
+**`/confirmed` is built and deployed, and currently nothing points at it.**
+`apps/web/src/app/(marketing)/confirmed/page.tsx` was the destination
+`BREVO_DOI_REDIRECT_URL` sent every confirming subscriber to. Listmonk serves
+its own confirmation page, so the redirect does not carry across — pointing it
+at `/confirmed` is a setting to verify inside the running instance. See
+`infra/listmonk/README.md` §5. The page is static and `noindex`; it verifies
+nothing and reads no token off the URL, because confirmation happens at the ESP
+before the redirect. Keep it: it is the same shape whichever provider lands.
 
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is deliberately a **variable, not a secret**.
 It is a build-time client var (`packages/env/src/web.ts`) that the deploy step
 inlines into the bundle; it ships to every visitor by design. Masking it in logs
-buys nothing and invites treating it as sensitive.
+buys nothing and invites treating it as sensitive. Without it the widget never
+renders, the client posts an empty token, and every real signup is rejected.
 
-Enable the deploy **last**, once everything above is set:
+### 6. Open the waitlist — BLOCKED on the ESP
 
-```bash
-gh variable set PRODUCTION_DEPLOY_ENABLED --body true
-```
+Blocked, not merely pending: `POST /api/waitlist` returns 503 by design while no
+provider is bound, so opening the form now would collect nothing.
 
-### 5. First deploy, routes still disabled
+The published privacy policy deliberately names **no** provider and commits to
+naming one here and in the policy *before* the form accepts a single address.
+That sentence is what has to change first.
 
-Leave `PRODUCTION_ROUTES_ENABLED=false`. Automatic rollback died with the
-wrangler pipeline, so Cloudflare needs a known-good version parked before
-`conpaws.com` points at anything. Verify the Worker and D1 came up, then flip
-routes on. Manual rollback:
-
-```bash
-cd apps/web && bunx wrangler rollback
-```
-
-### 6. Open the waitlist
-
-End-to-end test on the deployed site first: submit, confirm the D1 row lands
-with `synced_at` stamped, confirm the DOI email actually arrives. Then flip
-`WAITLIST_ACCEPTING_SIGNUPS` to `true` in `apps/web/src/components/waitlist.tsx`.
+Then, in order: end-to-end test on the deployed site — submit, confirm the D1
+row lands with `synced_at` stamped, confirm the confirmation email actually
+arrives — and only then flip `WAITLIST_ACCEPTING_SIGNUPS` to `true` in
+`apps/web/src/components/waitlist.tsx`.
 
 The CI smoke test asserting HTTP 503 does **not** change — it exercises the
 unconfigured local preview, not production.
@@ -374,3 +366,30 @@ Needs the CSV export from WordPress. Preserve `created_at` from the CSV; those
 timestamps are the only consent evidence those six people have. Use
 `source: 'seedprod-import'`, `status: 'confirmed'`. Send a "we moved" note,
 never a re-confirmation. Take the WordPress page down only after that.
+
+## Traps
+
+Found the hard way on 2026-08-26, during the rename and the first live deploy.
+Each one is quiet — nothing errors, and the wrong conclusion is the comfortable
+one.
+
+**Alchemy's `Skipped Resource (no changes)` is not evidence the resource
+exists.** Alchemy diffs the program against its own state store, never against
+Cloudflare. Delete something in the dashboard and Alchemy will keep reporting it
+as unchanged, indefinitely, because its state still describes it. Never read
+that line as a health check — check Cloudflare.
+
+**Detaching a Workers Custom Domain deletes the DNS record.** It is not a
+route-level unbind that leaves the hostname resolving; the hostname stops
+existing. This is why the Worker rename is an outage and not a no-op, and why
+`domains:` should not be toggled to "test something".
+
+**A red `Verify deploy` does not mean the deploy failed, and a green one is not
+currently achievable.** That ambiguity cost real time twice, once while hiding
+an actual outage. Do not trust the run's conclusion or a previous session's
+summary of it — check `https://conpaws.com/api/health` directly.
+
+**The WAF returns 403 on some legitimate requests.** Unresolved. `wrangler`'s
+OAuth token carries no WAF scope, so the rules cannot be read or changed from
+the CLI — it needs a scoped API token or dashboard access. Do not re-derive
+this; ask for credentials.
