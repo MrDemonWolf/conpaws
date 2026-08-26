@@ -22,6 +22,34 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // Send www to the apex.
+  //
+  // Both hostnames are attached to the Worker as custom domains
+  // (packages/infra/alchemy.run.ts), so without this the same page answers on
+  // two origins with no canonical tag: duplicate content, and two hostnames
+  // splitting whatever ranking the site earns. robots.txt already declares
+  // `Host: https://conpaws.com`, so apex was always the intent.
+  //
+  // This was briefly a proxy.ts (Next 16's rename of middleware) and could not
+  // stay one: opennextjs-cloudflare refuses to build a Node-runtime proxy —
+  // "Node.js middleware is not currently supported" — and Next 16 defaults it
+  // to Node. `next build` passes either way, so it is only the Worker build
+  // that catches it. A static redirect needs no runtime at all, which makes
+  // the whole question moot.
+  //
+  // permanent: true emits 308 rather than 301, so a POST to /api/waitlist from
+  // the www host keeps its method and body instead of silently becoming a GET.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.conpaws.com" }],
+        destination: "https://conpaws.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   // Pin the workspace root. Without this, Turbopack scans upward, finds the
   // bun.lock of whichever checkout sits above (the main clone when running
   // from a git worktree), and roots there — which can resolve modules from
