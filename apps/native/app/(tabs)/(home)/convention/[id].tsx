@@ -37,13 +37,14 @@ import {
   Badge,
   Button,
   EmptyState,
-  LoadingSpinner,
   SafeView,
+  ScheduleSkeleton,
   Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { confirmDiscardChanges } from "@/hooks/useUnsavedChangesGuard";
 import {
   conventionDayKey,
@@ -1197,6 +1198,8 @@ export default function ConventionDetailScreen() {
     previewState === "loading" ||
     (previewState !== "error" && (conventionLoading || eventsLoading));
 
+  const showLoading = useDelayedLoading(isLoading);
+
   if (isLoading) {
     return (
       <>
@@ -1206,24 +1209,11 @@ export default function ConventionDetailScreen() {
           }}
         />
         <SafeView>
-          <View className="flex-1 justify-center px-6">
-            <View
-              className="items-center gap-3 rounded-3xl border border-border bg-card px-6 py-8"
-              style={{ borderCurve: "continuous" }}
-              accessibilityLiveRegion="polite"
-            >
-              <LoadingSpinner size="large" className="h-12 flex-none" />
-              <Text variant="h3" className="text-center">
-                {t("convention.loadingTitle")}
-              </Text>
-              <Text
-                variant="body"
-                className="text-center text-muted-foreground"
-              >
-                {t("convention.loadingSubtitle")}
-              </Text>
-            </View>
-          </View>
+          {showLoading ? (
+            <ScheduleSkeleton />
+          ) : (
+            <View className="flex-1 bg-background" />
+          )}
         </SafeView>
       </>
     );

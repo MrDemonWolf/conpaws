@@ -22,8 +22,9 @@ import {
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
-import { LoadingSpinner, SafeView } from "@/components/ui";
+import { FormSkeleton, SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   CONVENTION_NAME_MAX_LENGTH,
@@ -228,12 +229,12 @@ export default function EditConventionScreen() {
     onDiscard: () => router.back(),
   });
 
+  const showLoading = useDelayedLoading(isLoading || !convention || !seeded);
+
   if (isLoading || !convention || !seeded) {
     return (
       <SafeView edges={FORM_SAFE_EDGES}>
-        <View className="flex-1 items-center justify-center">
-          <LoadingSpinner />
-        </View>
+        {showLoading ? <FormSkeleton /> : <View className="flex-1" />}
       </SafeView>
     );
   }

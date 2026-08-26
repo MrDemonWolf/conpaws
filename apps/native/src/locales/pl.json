@@ -134,7 +134,6 @@
     "import": "Importuj Harmonogram",
     "detail": "Szczegóły Konwentu",
     "loadingTitle": "Ładowanie konwentu",
-    "loadingSubtitle": "Przygotowywanie harmonogramu i zapisanych wydarzeń.",
     "loadErrorSubtitle": "Nie udało się wczytać konwentu lub jego wydarzeń.",
     "events": "Wydarzenia",
     "searchEvents": "Szukaj wydarzeń",

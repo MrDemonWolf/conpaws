@@ -134,7 +134,6 @@
     "import": "Importera Schema",
     "detail": "Konventdetaljer",
     "loadingTitle": "Läser in konvent",
-    "loadingSubtitle": "Förbereder schemat och sparade evenemang.",
     "loadErrorSubtitle": "Det gick inte att läsa in konventet eller dess evenemang.",
     "events": "Evenemang",
     "searchEvents": "Sök bland evenemang",
