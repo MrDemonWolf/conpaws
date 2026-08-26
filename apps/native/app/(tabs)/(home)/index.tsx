@@ -17,10 +17,11 @@ import {
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
-import { EmptyState, LoadingSpinner } from "@/components/ui";
+import { ConventionListSkeleton, EmptyState } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
+import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import {
   type ConventionSort,
   conventionDaysUntil,
@@ -228,11 +229,15 @@ export default function HomeScreen() {
     ]);
   }
 
+  const showLoading = useDelayedLoading(isLoading || (isError && isFetching));
+
   const content =
     isLoading || (isError && isFetching) ? (
-      <View className="flex-1 items-center justify-center bg-background">
-        <LoadingSpinner />
-      </View>
+      showLoading ? (
+        <ConventionListSkeleton />
+      ) : (
+        <View className="flex-1 bg-background" />
+      )
     ) : isError ? (
       <View className="flex-1 bg-background">
         <EmptyState

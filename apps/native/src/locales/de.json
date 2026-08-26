@@ -134,7 +134,6 @@
     "import": "Zeitplan importieren",
     "detail": "Convention-Details",
     "loadingTitle": "Convention wird geladen",
-    "loadingSubtitle": "Zeitplan und gespeicherte Events werden vorbereitet.",
     "loadErrorSubtitle": "Die Convention oder ihre Events konnten nicht geladen werden.",
     "events": "Events",
     "searchEvents": "Events suchen",

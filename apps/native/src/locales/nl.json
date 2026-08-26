@@ -134,7 +134,6 @@
     "import": "Rooster importeren",
     "detail": "Conventiedetails",
     "loadingTitle": "Conventie laden",
-    "loadingSubtitle": "Het programma en opgeslagen evenementen worden klaargezet.",
     "loadErrorSubtitle": "De conventie of de evenementen konden niet worden geladen.",
     "events": "Evenementen",
     "searchEvents": "Evenementen zoeken",

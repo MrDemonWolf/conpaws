@@ -134,7 +134,6 @@
     "import": "Importer le Programme",
     "detail": "Détails de la Convention",
     "loadingTitle": "Chargement de la convention",
-    "loadingSubtitle": "Préparation du programme et des événements enregistrés.",
     "loadErrorSubtitle": "Impossible de charger la convention ou ses événements.",
     "events": "Événements",
     "searchEvents": "Rechercher des événements",

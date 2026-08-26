@@ -134,7 +134,6 @@
     "import": "Importar Horario",
     "detail": "Detalles de la Convención",
     "loadingTitle": "Cargando convención",
-    "loadingSubtitle": "Preparando el horario y los eventos guardados.",
     "loadErrorSubtitle": "No se pudieron cargar la convención o sus eventos.",
     "events": "Eventos",
     "searchEvents": "Buscar eventos",
