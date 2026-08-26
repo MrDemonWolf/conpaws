@@ -319,32 +319,11 @@
       "resources": "Resources",
       "website": "Website",
       "builtWith": "Built with",
-      "technology": "Technology",
-      "technologyDescription": "Core tools that power ConPaws",
       "licenseDescription": "{{count}} packages and tools",
       "support": "Support",
       "email": "Email",
       "discordDescription": "Join the community",
       "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "technology": {
-      "title": "Technology",
-      "foundation": "Foundation",
-      "interface": "Interface",
-      "offlineData": "Offline and Data",
-      "localizationReliability": "Localization and Reliability",
-      "footer": "See Open Source Licenses for the complete package list and license text.",
-      "tools": {
-        "expo": "Native app platform and tooling",
-        "reactNative": "Cross-platform native foundation",
-        "expoRouter": "File-based navigation",
-        "expoUi": "Platform-native controls",
-        "expoSqlite": "Offline schedule storage",
-        "drizzle": "Typed local database layer",
-        "tanstackQuery": "Data loading and caching",
-        "i18next": "Eight-language localization",
-        "sentry": "Crash and performance monitoring"
-      }
     },
     "licenses": {
       "detailsTitle": "License Details",
