@@ -548,14 +548,29 @@ export default function Home() {
               MrDemonWolf,&nbsp;Inc.
             </a>
           </p>
-          <nav className="flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
-            <a href="/support" className="transition hover:text-primary">
+          {/* `min-h-11` is the 44px WCAG 2.5.8 target; the text is 12px, so
+              without it these are ~18px tall and miss by half. The negative
+              margin cancels the height it adds so the footer keeps its
+              spacing. The MrDemonWolf link above is left alone on purpose --
+              a link inside a sentence is exempt from the target-size rule,
+              and padding it would break the line it sits in. */}
+          <nav className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
+            <a
+              href="/support"
+              className="inline-flex min-h-11 items-center transition hover:text-primary"
+            >
               Support
             </a>
-            <a href="/privacy" className="transition hover:text-primary">
+            <a
+              href="/privacy"
+              className="inline-flex min-h-11 items-center transition hover:text-primary"
+            >
               Privacy
             </a>
-            <a href="/terms" className="transition hover:text-primary">
+            <a
+              href="/terms"
+              className="inline-flex min-h-11 items-center transition hover:text-primary"
+            >
               Terms
             </a>
           </nav>
