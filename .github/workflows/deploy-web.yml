@@ -153,15 +153,22 @@ jobs:
             && 'https://conpaws.com'
             || 'https://conpaws-web.mrdemonwolf.workers.dev' }}
         run: |
+          # 40 x 10s ~= 7 minutes. The old 20 x 3s gave up after about a
+          # minute, which was enough for a redeploy onto a live domain and not
+          # nearly enough the first time conpaws.com was attached: the custom
+          # domain was still activating, the health check failed, and the run
+          # went red over a deploy that was completely fine. A verification step
+          # that cries wolf is worse than none, because the next real failure
+          # gets waved through.
           deploy_ok=false
-          for _ in {1..20}; do
+          for _ in {1..40}; do
             response="$(curl --fail --silent --show-error --max-time 10 "$HEALTH_ORIGIN/api/health" || true)"
             if jq -e --arg sha "$RELEASE_SHA" '.ok == true and .release == $sha' \
               <<< "$response" >/dev/null 2>&1; then
               deploy_ok=true
               break
             fi
-            sleep 3
+            sleep 10
           done
 
           if [[ "$deploy_ok" != "true" ]]; then
