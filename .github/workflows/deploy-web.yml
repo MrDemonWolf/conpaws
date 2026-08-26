@@ -151,7 +151,7 @@ jobs:
           HEALTH_ORIGIN: >-
             ${{ vars.PRODUCTION_ROUTES_ENABLED == 'true'
             && 'https://conpaws.com'
-            || 'https://conpaws-web.mrdemonwolf.workers.dev' }}
+            || 'https://conpaws.mrdemonwolf.workers.dev' }}
         run: |
           # 40 x 10s ~= 7 minutes. The old 20 x 3s gave up after about a
           # minute, which was enough for a redeploy onto a live domain and not

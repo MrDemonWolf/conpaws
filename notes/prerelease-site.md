@@ -97,7 +97,7 @@ Release safety rules: PR code never receives Cloudflare credentials. `PRODUCTION
 
 The first verified deployment must run with routes disabled so Cloudflare has a known-good rollback version without exposing the site. At launch, enable the checked-in routes block and the routes switch.
 
-**Superseded by the Alchemy reversal above:** the canary-at-0%, version-override probe, exact-version promotion, and automatic rollback this section used to describe no longer exist. Alchemy applies the whole stack in one step. What survives is the post-deploy health check, which fails the run loudly but cannot undo the deploy — recovery is `cd apps/web && bunx wrangler rollback` against `conpaws-web`, or re-running the workflow on the last good SHA. The routes switch is the real safety mechanism now: it is the only thing between a bad deploy and the apex.
+**Superseded by the Alchemy reversal above:** the canary-at-0%, version-override probe, exact-version promotion, and automatic rollback this section used to describe no longer exist. Alchemy applies the whole stack in one step. What survives is the post-deploy health check, which fails the run loudly but cannot undo the deploy — recovery is `cd apps/web && bunx wrangler rollback` against `conpaws`, or re-running the workflow on the last good SHA. The routes switch is the real safety mechanism now: it is the only thing between a bad deploy and the apex.
 
 D1 migrations must always use expand/contract sequencing because schema changes outlive a Worker rollback — more so now that the rollback is a human typing a command. A newer `main` commit stops the release before and after migration.
 
