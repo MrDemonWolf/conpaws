@@ -41,10 +41,6 @@ export default function SettingsLayout() {
         options={{ title: t("settings.legal.about") }}
       />
       <Stack.Screen
-        name="technology"
-        options={{ title: t("settings.technology.title") }}
-      />
-      <Stack.Screen
         name="licenses/index"
         options={{ title: t("settings.legal.openSourceLicenses") }}
       />

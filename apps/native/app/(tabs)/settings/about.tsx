@@ -1,6 +1,5 @@
 import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
 import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
-import CodeIcon from "@expo/material-symbols/code.xml";
 import DescriptionIcon from "@expo/material-symbols/description.xml";
 import ForumIcon from "@expo/material-symbols/forum.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
@@ -30,10 +29,6 @@ import {
 import licenses from "@/generated/open-source-licenses.json";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 
-const TECHNOLOGY_ICON = Icon.select({
-  ios: "hammer.fill",
-  android: CodeIcon,
-});
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
 const CHEVRON_ICON = Icon.select({
   ios: "chevron.right",
@@ -145,9 +140,9 @@ export default function AboutScreen() {
         <FieldGroup.Section title={t("settings.about.support")}>
           <ListItem
             leading={<NativeIcon name={EMAIL_ICON} />}
-            supportingText="legal@mrdemonwolf.com"
+            supportingText="legal@conpaws.com"
             trailing={<ExternalIndicator />}
-            onPress={() => Linking.openURL("mailto:legal@mrdemonwolf.com")}
+            onPress={() => Linking.openURL("mailto:legal@conpaws.com")}
           >
             {t("settings.about.email")}
           </ListItem>
@@ -175,14 +170,6 @@ export default function AboutScreen() {
         </FieldGroup.Section>
 
         <FieldGroup.Section title={t("settings.about.builtWith")}>
-          <ListItem
-            leading={<NativeIcon name={TECHNOLOGY_ICON} />}
-            supportingText={t("settings.about.technologyDescription")}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/technology")}
-          >
-            {t("settings.about.technology")}
-          </ListItem>
           <ListItem
             leading={<NativeIcon name={LICENSE_ICON} />}
             supportingText={t("settings.about.licenseDescription", {
