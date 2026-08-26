@@ -7,7 +7,7 @@ Decision record for the pre-release marketing site. This captures what was settl
 ## TL;DR
 
 - **LIVE since 2026-08-26.** `conpaws.com` serves the Worker; `PRODUCTION_DEPLOY_ENABLED` and `PRODUCTION_ROUTES_ENABLED` are both `true`. Runbook steps 1-5 are done; 6 and 7 are blocked on the ESP. Read *Traps* before touching the deploy.
-- **Domain:** `conpaws.com` is canonical. `conpaws.app` is retired (removed from `app.config.ts`). `www` 308-redirects to the apex via a **zone-level Cloudflare Redirect Rule that is not in this repo** and is lost if the zone is rebuilt.
+- **Domain:** `conpaws.com` is canonical. `conpaws.app` is retired (removed from `app.config.ts`). `www` 308-redirects to the apex via a **zone-level Cloudflare Redirect Rule that is not in this repo** and is lost if the zone is rebuilt — recreate steps in *The www redirect*.
 - **Architecture:** One Cloudflare Worker, one domain, `apps/web`. No `app.` split. Future `/@handle` profiles are Next.js SSR, not Expo Web.
 - **Stack:** Next `16.2.12` (EXACT pin), `@opennextjs/cloudflare@1.20.2` (EXACT pin), `wrangler 4.86.0`. Never `@cloudflare/next-on-pages` (archived).
 - **Deploy:** **Alchemy** (`packages/infra/alchemy.run.ts`), adopted 2026-08-18 — reversing the rejection recorded below. `wrangler.jsonc` survives for local dev and CI preview only. See *Deployment* for what the reversal cost.
@@ -243,13 +243,39 @@ describes, and the ESP decision stands on its own.
 What follows from it:
 
 1. **The apex is live.** `conpaws.com` serves the Worker and `www.conpaws.com` 308-redirects to it, path preserved. Alchemy attaches both as Custom Domains (`domains:` in `alchemy.run.ts`, gated on `ROUTES_ENABLED`). The `routes` block in `apps/web/wrangler.jsonc` is not the mechanism and never became one — that file is local dev and CI preview only.
-2. **The www→apex redirect is a zone-level Cloudflare Redirect Rule, and it exists nowhere in this repo.** Not `next.config.ts` (no `redirects()`), not middleware (there is none, and Next 16 middleware is unsupported by OpenNext anyway). Evidence it fires at the edge rather than in the Worker: the 308 response carries no `content-security-policy` and no `x-nextjs-cache`, both of which the Worker's 200 does. Alchemy cannot manage Redirect Rules, so **if the zone is ever rebuilt this rule is lost silently** and `www` starts serving a duplicate copy of the site instead of redirecting. Re-create it by hand.
+2. **`www` redirects to the apex from a zone-level rule that is not in this repo.** See *The www redirect* below — it is the one piece of production behaviour with no representation in version control.
 3. **Email Routing MX is published, but the aliases are unverified from here.** DNS proves the zone is onboarded; it does not prove there is a verified destination address or an active rule for `hello@`, `privacy@`, `support@`. Confirm each in the dashboard before the privacy policy and the store listings name one.
 4. **`conpaws.com` still cannot send.** No outbound DKIM, no sender verification, with or without an ESP. That work is unchanged by the Brevo→Listmonk switch.
 
+### The www redirect
+
+**This is the only production behaviour with no representation in version control.** Alchemy cannot manage Redirect Rules, so nothing in `packages/infra` recreates it. If the zone is rebuilt, or the rule is deleted while tidying, `www` silently stops redirecting and starts serving a **second indexable copy of the site** — duplicate content, split canonical, and no error anywhere to notice it by.
+
+Measured behaviour (2026-08-26):
+
+| Request | Response |
+|---|---|
+| `https://www.conpaws.com/` | `308` → `https://conpaws.com/` |
+| `https://www.conpaws.com/terms?a=1&b=2` | `308` → `https://conpaws.com/terms?a=1&b=2` |
+| `http://www.conpaws.com/privacy` | `301` → `https://www.conpaws.com/privacy`, then `308` → apex |
+
+Path **and** query string are preserved. `308` (not `302`) so the method is preserved and the redirect is cacheable as permanent. The `http` case is two hops because Always Use HTTPS upgrades the scheme before the Redirect Rule ever matches — that is correct and not worth collapsing.
+
+**It fires at the edge, not in the Worker.** The `308` carries neither `content-security-policy` nor `x-nextjs-cache`, both of which the Worker's `200` does. That is the cheapest way to tell the two apart when debugging.
+
+**To recreate it** — Cloudflare dashboard, zone `conpaws.com`, Rules → Redirect Rules → Create rule:
+
+- **If:** `Hostname` `equals` `www.conpaws.com`
+- **Then:** Dynamic redirect, expression `concat("https://conpaws.com", http.request.uri.path)`
+- **Status:** `308`, **Preserve query string:** on
+
+Preconditions that are easy to miss: `www.conpaws.com` must exist as a **proxied** record (orange cloud) or the rule never runs — today `www` and the apex resolve to the same Cloudflare anycast addresses. Alchemy also attaches `www.conpaws.com` as a Worker Custom Domain (`domains:` in `alchemy.run.ts`); the Redirect Rule takes precedence, so the Custom Domain attachment is what keeps the hostname routable and is **not** redundant. Do not remove it to "clean up".
+
+**Reading or changing this from the CLI needs a scoped API token.** `wrangler`'s OAuth token has no Rules or Zone scope, which is the same wall the WAF 403 in *Traps* runs into.
+
 ### Terraform
 
-There is **no Terraform in this repo** and no `.tf` files anywhere in the tree. If the Cloudflare DNS/Email-Routing config is to be managed as code, decide first whether it belongs here or in a separate infra repo alongside `mrdemonwolf.com` — a `cloudflare_email_routing_rule` / `cloudflare_record` module split across two repos while one Cloudflare account owns both zones is a drift trap. **Open question, deliberately not answered here.** Note that `apps/web/wrangler.jsonc` is local-dev/CI-preview only now; Terraform would own DNS and Email Routing only; the Worker stack itself belongs to Alchemy (see Deployment).
+There is **no Terraform in this repo** and no `.tf` files anywhere in the tree. If the Cloudflare DNS/Email-Routing config is to be managed as code, decide first whether it belongs here or in a separate infra repo alongside `mrdemonwolf.com` — a `cloudflare_email_routing_rule` / `cloudflare_record` module split across two repos while one Cloudflare account owns both zones is a drift trap. **Open question, deliberately not answered here.** Note that `apps/web/wrangler.jsonc` is local-dev/CI-preview only now; Terraform would own DNS, Email Routing, **and the www Redirect Rule** — that rule is the concrete argument for doing this at all, since it is the one thing currently reproducible only from a screenshot and a memory. The Worker stack itself belongs to Alchemy (see Deployment).
 
 ## Going live: config runbook
 
