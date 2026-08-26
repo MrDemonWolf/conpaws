@@ -21,7 +21,11 @@ import { useTheme } from "expo-router/react-navigation";
 import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { useColorScheme, useWindowDimensions, View } from "react-native";
-import { EmptyState } from "@/components/ui";
+import {
+  ConventionListSkeleton,
+  EmptyState,
+  ScheduleSkeleton,
+} from "@/components/ui";
 import {
   getAppearancePreference,
   subscribeAppearancePreference,
@@ -37,8 +41,12 @@ const EMPTY_STATE_ICON = Icon.select({
   android: CalendarAddIcon,
 });
 const FORM_ICON = Icon.select({ ios: "square.and.pencil", android: FormsIcon });
+const SKELETON_ICON = Icon.select({
+  ios: "rectangle.on.rectangle",
+  android: FormsIcon,
+});
 
-type SheetPreview = "empty" | "form" | null;
+type SheetPreview = "empty" | "form" | "skeleton" | null;
 
 function NavigationIndicator() {
   return <Icon name={CHEVRON_ICON} size={15} />;
@@ -127,6 +135,14 @@ export default function UiSystemScreen() {
           >
             {t("convention.new")}
           </ListItem>
+          <ListItem
+            leading={<Icon name={SKELETON_ICON} size={22} />}
+            supportingText="Placeholders shown while a screen loads"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("skeleton")}
+          >
+            Loading skeletons
+          </ListItem>
         </FieldGroup.Section>
 
         <FieldGroup.Section title="Accessibility type">
@@ -177,6 +193,20 @@ export default function UiSystemScreen() {
                 secondaryCtaLabel={t("convention.import")}
                 onSecondaryCta={() => undefined}
               />
+            </View>
+          </RNHostView>
+        ) : sheetPreview === "skeleton" ? (
+          <RNHostView matchContents>
+            <View
+              className="h-[520px] bg-background"
+              style={{ width: sheetContentWidth }}
+            >
+              <View className="h-[200px]">
+                <ConventionListSkeleton rows={2} />
+              </View>
+              <View className="h-[280px]">
+                <ScheduleSkeleton sections={1} rowsPerSection={2} />
+              </View>
             </View>
           </RNHostView>
         ) : sheetPreview === "form" ? (

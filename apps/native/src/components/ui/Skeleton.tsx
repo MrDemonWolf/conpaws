@@ -30,8 +30,16 @@ import { cn } from "@/lib/utils";
  */
 
 const PULSE_DURATION_MS = 900;
-/** Dimmest point of the pulse. Stays legible against the card behind it. */
-const PULSE_MIN_OPACITY = 0.45;
+/**
+ * Dimmest point of the pulse.
+ *
+ * Measured rather than guessed: the blocks use `border` (#d1d1d6 on #ffffff,
+ * about 1.5:1) because `muted` is #e5e5ea, which lands near 1.15:1 against a
+ * light background and is effectively invisible. Dipping much below this took
+ * even the `border` tone back out of sight -- a placeholder nobody can see is
+ * the same as no placeholder at all.
+ */
+const PULSE_MIN_OPACITY = 0.55;
 
 function usePulseStyle() {
   // Respecting the OS "reduce motion" switch is not optional here: a pulsing
@@ -70,7 +78,7 @@ export function Skeleton({ className, style, ...props }: ViewProps) {
     <Animated.View
       {...props}
       style={[pulseStyle, style]}
-      className={cn("rounded-md bg-muted", className)}
+      className={cn("rounded-md bg-border", className)}
     />
   );
 }
