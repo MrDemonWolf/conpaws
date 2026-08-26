@@ -30,14 +30,29 @@ export default function LegalLayout({
           © {new Date().getFullYear()} ConPaws by MrDemonWolf, Inc. · Made with
           paws
         </span>
-        <nav aria-label="Legal and support" className="flex flex-wrap gap-4">
-          <Link className="transition hover:text-primary" href="/privacy">
+        {/* `min-h-11` is the 44px WCAG 2.5.8 target; at 10px text these are
+            ~15px tall without it. `-my-3` cancels the added height so the
+            footer keeps its spacing. */}
+        <nav
+          aria-label="Legal and support"
+          className="-my-3 flex flex-wrap gap-4"
+        >
+          <Link
+            className="inline-flex min-h-11 items-center transition hover:text-primary"
+            href="/privacy"
+          >
             Privacy
           </Link>
-          <Link className="transition hover:text-primary" href="/terms">
+          <Link
+            className="inline-flex min-h-11 items-center transition hover:text-primary"
+            href="/terms"
+          >
             Terms
           </Link>
-          <Link className="transition hover:text-primary" href="/support">
+          <Link
+            className="inline-flex min-h-11 items-center transition hover:text-primary"
+            href="/support"
+          >
             Support
           </Link>
         </nav>
