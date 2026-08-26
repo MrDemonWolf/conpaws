@@ -131,24 +131,14 @@ D1 migrations must always use expand/contract sequencing because schema changes 
 > to naming one here and in the policy *before* the form accepts a single
 > address. That sentence is what has to change first when Listmonk lands.
 >
-> Everything below is kept as the reasoning that led here — the blocklist
-> analysis is still correct and is exactly why a shared account was rejected.
-> Read it as history, not as the current plan.
+> The vendor comparison, the three routes out, and the portfolio analysis that
+> used to run to ~70 lines here were cut on 2026-08-26. They argued about which
+> Brevo account to open. Only the findings that outlive the vendor are kept,
+> below; the full text is in git history.
 
-Brevo won on zero ops burden, managed deliverability, a **dedicated DOI endpoint** (`POST /v3/contacts/doubleOptinConfirmation` — removes token/expiry/confirm-route logic from the Worker), 100k-contact free tier, and Divi 5 native support.
+Brevo won on zero ops burden, a **dedicated DOI endpoint** that kept token, expiry, and confirm-route logic out of the Worker, and a 100k-contact free tier. The plan was one account shared with `mrdemonwolf.com`, on a hard requirement of per-list unsubscribe scope. **That requirement is not satisfiable in a single Brevo account**, which is the one finding here worth carrying to any successor.
 
-The original plan put `mrdemonwolf.com` and `conpaws.com` in **one** account, on the hard requirement of per-list unsubscribe scope. **That requirement is not satisfiable in a single Brevo account** — see below.
-
-**Why the others lost:**
-
-- **Kit** — global unsubscribe with no preference center (two brands would need two accounts); frozen, deprecated V3 API behind the Divi connector; forced Recommendation ad slot on free.
-- **Mailchimp** — free tier is one audience; a contact in two audiences counts (and bills) twice.
-- **Omnisend** — not in Divi's 21-provider dropdown (which has no webhook escape hatch); its REST API bypasses double opt-in entirely.
-- **FluentCRM** — strong runner-up (no caps, free API), but it couples conpaws.com to mrdemonwolf.com's WordPress uptime and hands over cron reliability, WAF, plugin patching, SES sandbox, and deliverability ownership.
-
-### Unsubscribe scope — RESOLVED from Brevo's docs (2026-08-15)
-
-The planned empirical test was **cancelled as unnecessary**: Brevo documents the behaviour outright, so there was nothing left to discover.
+### Unsubscribe scope is an account property, not a list property
 
 **Brevo's blocklist is account-wide per channel, not per-list.** Verbatim from [FAQs - What are the different types of blocklisted contacts?](https://help.brevo.com/hc/en-us/articles/209458705-FAQs-What-are-the-different-types-of-blocklisted-contacts): "When a contact is blocklisted from your email campaigns, they **won't receive any of your email campaigns anymore**. That means that if you send an email campaign to a list that contains a blocklisted contact, **they will not be included as a recipient**." Any list, whole account. Sender domain is irrelevant — the blocklist is a property of the contact, not of the list or the From address.
 
@@ -156,36 +146,15 @@ Brevo's own workaround — a Profile Update form carrying a [multi-list subscrip
 
 **Consequence:** in a shared account, one person unsubscribing from the ConPaws waitlist is silently blocklisted from `mrdemonwolf.com` mail as well. The failure is invisible — D1 stays correct, Brevo reports a normal unsubscribe, and the other list just quietly stops reaching that address.
 
-### The three routes out
+**Generalised:** suppression scope is a property of whatever the vendor treats as the tenancy boundary, and it is almost never the list. Check it per vendor before assuming two products can share one account — Mailgun scopes per *sending domain*, Amazon SES defaults to *account-level* with per-product isolation available only via explicit SES tenants. Every product needs its own sending domain for DKIM and DMARC alignment regardless, so domain-scoped suppression tends to fall out for free and account-scoped suppression does not.
 
-**A. Separate Brevo account for `conpaws.com` — recommended.** The blocklist boundary *is* the account boundary, so isolation is total and one-click behaves correctly (a ConPaws unsubscribe means ConPaws only). Free tier, so $0. The apparent cost — "another account" — is mostly illusory: `conpaws.com` needs its own DKIM records, sender verification, and DMARC alignment regardless of which account it lives in, and it has **none** of them today. The true delta is one extra login.
+### The migration hazard: confirmation state
 
-**B. One account, ConPaws owns unsubscribe in D1.** D1 is already the source of truth; this flips the token decision (ConPaws issues confirm *and* unsubscribe tokens) and demotes Brevo to a transactional pipe via `POST /v3/smtp/email` with our own `List-Unsubscribe` / `List-Unsubscribe-Post` headers pointing at `conpaws.com/unsubscribe`. Brevo maintains blocked and unsubscribed transactional contacts, so D1-only unsubscribe ownership cannot be guaranteed. This also costs ~150 lines (token table, two routes, two templates) and forfeits the DOI endpoint that was a main reason to pick Brevo. **The real objection is not the code: it routes a bulk marketing blast through a transactional channel, against Brevo's AUP.** A suspension there takes `mrdemonwolf.com` sending down with it — strictly worse than a second login.
-
-**C. Mailjet.** Per-list unsubscribe is the default. But it is a new vendor and a new API to write against, still needs `conpaws.com` sender auth, and carries a 200 emails/day and 1,000-contact cap with no Divi integration and hand-built DOI. Only worth it for a single dashboard across both brands.
-
-> **DECIDED 2026-08-18: Route A.** A separate free Brevo account for `conpaws.com`. Isolation is total, one-click unsubscribe behaves correctly, the DOI endpoint is kept, and the true cost is one extra login — `conpaws.com` needs its own DKIM and sender verification either way, and has neither today.
-
-#### The portfolio question — RAISED AND CLOSED 2026-08-19
-
-Route A's honest weakness is that it does not scale: Brevo's blocklist boundary is the account boundary, so every future MrDemonWolf product with a waitlist means another Brevo account, another login, another API key to rotate, another IP-authorization trap to disarm. That objection is correct, and it is worth knowing it is **specific to Brevo**, not to email:
-
-- **Mailgun** keeps bounces, complaints, and unsubscribes per *sending domain* and has no account-level list at all. One account, N products — but the isolation is only as real as the domain split: two products sharing a sending domain share one suppression list, and suppressing an address across domains means adding it to each one separately. Every product needs its own sending domain, which it needs for DKIM and DMARC alignment anyway.
-- **Amazon SES** defaults to an *account-level* suppression list. Isolation is opt-in: create an SES tenant per product, assign the identity and configuration set to it, and keep an explicit tenant-to-product mapping. SES evaluates exactly one list per send, resolved configuration set → tenant → account, so a configuration set with `ACCOUNT` scope silently puts a product back on the shared list. The send itself has to name the tenant — pass `TenantName`, or use a configuration set associated with the tenant, or an identity whose default configuration set is. A send that names none of them is not isolated and can be rejected outright; over SMTP the only lever is the `X-SES-CONFIGURATION-SET` header. Roughly $0.10/1k sends.
-
-**Staying on Brevo anyway.** Both alternatives drop double opt-in on our side of the line: Brevo's DOI endpoint owns token generation, expiry, and the confirmation click, which is why there is deliberately no `confirm_token` column. Moving means building and owning that — token column, confirm route, expiry, replay protection — plus extracting it into something shareable across repos, plus SES's sandbox (200 messages per 24 hours, verified recipients only) sitting directly on the launch path. AWS commits to an initial Support response within 24 hours on a production-access request, and longer when it asks for more information — there is no documented approval SLA beyond that, so treat any turnaround figure as an estimate, not a schedule.
-
-What makes deferring cheap rather than reckless: **D1 is already the source of truth and the row is the consent record.** The consent history does not move, and nobody gets re-confirmed.
-
-What a switch actually costs, stated honestly, because "swap the sink" undersells it. Brevo is named in `apps/web/src/lib/brevo.ts`, `apps/web/src/lib/waitlist.ts`, the signup route, the reconciler, and the deploy-time bindings in `packages/infra/alchemy.run.ts` — five places, not one. And the migration's real hazard is **confirmation state**: the schema has `status` and `confirmed_at`, but no runtime path writes either. Nothing marks a row confirmed today, because Brevo owns the confirmation click. So the D1 rows alone cannot tell pending from confirmed, and a migration that reads only D1 either re-confirms people who already opted in or imports unconfirmed addresses as confirmed.
+**The schema has `status` and `confirmed_at`, and no runtime path writes either.** Nothing marks a D1 row confirmed, because the ESP owned the confirmation click. So the rows alone cannot distinguish pending from confirmed, and a migration reading only D1 either re-confirms people who already opted in or imports unconfirmed addresses as confirmed. This is why there is no `confirm_token` column, and it becomes live work under Listmonk, which hands token generation, expiry, and replay protection back to us.
 
 Before any provider move: export confirmation and suppression state from the outgoing ESP, reconcile it onto the D1 rows, and only then import. Skipping re-confirmation is correct **only** when the new provider ingests those contacts as already-confirmed without sending its own double opt-in. Re-confirming a list you already hold valid consent for throws away every subscriber who does not happen to open and click that one email, for no legal gain.
 
-**Revisit trigger:** the second product that needs a waitlist. Do it then, as a shared package, not under launch pressure. SES tenants is the target if the answer is still "one account for everything".
-
-**Setup requirements** (unchanged under A or B): disable (or CIDR-allowlist) Brevo's IP authorization before its 30-day learning phase arms — Workers egress from rotating IPs would silently drop signups a month post-launch. Create the DOI template first (the endpoint requires one); confirm `{{ params.DOIurl }}` renders.
-
-**Revisit at ~500 subscribers:** a 300-emails/day pool forces a manual daily resume past ~500-600 contacts: Marketing > Campaigns > Email, filter for Suspended, choose Resume campaign, and confirm. Send to new contacts is only for a completed campaign and reaches contacts added after that campaign. Paid tiers price by contact count (~$29/mo at 3,000 contacts vs FluentCRM's ~$114/yr), so the zero-ops premium grows with the list. Minor point in A's favour: a separate account gets its own 300/day rather than sharing one pool with `mrdemonwolf.com`.
+**Revisit trigger:** the second product that needs a waitlist. Do it then, as a shared package, not under launch pressure.
 
 ## Waitlist
 
