@@ -9,10 +9,11 @@ import { useTranslation } from "react-i18next";
 import { SectionList, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
 import { SectionHeader } from "@/components/SectionHeader";
-import { EmptyState, LoadingSpinner, Text } from "@/components/ui";
+import { EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { isValidTimeZone } from "@/lib/convention-time";
 import {
   groupPersonalScheduleByDay,
@@ -81,6 +82,7 @@ export default function ScheduleScreen() {
     queryKey: ["schedule"],
     queryFn: eventsRepo.getAllInSchedule,
   });
+  const showLoading = useDelayedLoading(isLoading);
   const { data: linkedConvention } = useQuery({
     queryKey: ["convention", conventionId],
     queryFn: () => conventionsRepo.getById(conventionId ?? ""),
@@ -120,10 +122,10 @@ export default function ScheduleScreen() {
   );
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <LoadingSpinner />
-      </View>
+    return showLoading ? (
+      <ScheduleSkeleton />
+    ) : (
+      <View className="flex-1 bg-background" />
     );
   }
 

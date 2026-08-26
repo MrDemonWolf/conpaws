@@ -134,7 +134,6 @@
     "import": "Importar Programação",
     "detail": "Detalhes da Convenção",
     "loadingTitle": "Carregando convenção",
-    "loadingSubtitle": "Preparando a programação e os eventos salvos.",
     "loadErrorSubtitle": "Não foi possível carregar a convenção ou seus eventos.",
     "events": "Eventos",
     "searchEvents": "Buscar eventos",

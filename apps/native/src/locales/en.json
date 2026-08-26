@@ -134,7 +134,6 @@
     "import": "Import Schedule",
     "detail": "Convention Details",
     "loadingTitle": "Loading convention",
-    "loadingSubtitle": "Getting the schedule and saved events ready.",
     "loadErrorSubtitle": "The convention or its events could not be loaded.",
     "events": "Events",
     "searchEvents": "Search events",
