@@ -122,6 +122,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ],
     },
     config: {
+      // ConPaws only talks HTTPS, which is exempt encryption under US export
+      // rules, so it needs no export compliance documentation. This writes
+      // ITSAppUsesNonExemptEncryption into Info.plist; without it App Store
+      // Connect asks the export question on every upload and holds the build.
       usesNonExemptEncryption: false,
     },
   },
