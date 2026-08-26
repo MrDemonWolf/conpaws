@@ -40,11 +40,27 @@ const nextConfig: NextConfig = {
   // permanent: true emits 308 rather than 301, so a POST to /api/waitlist from
   // the www host keeps its method and body instead of silently becoming a GET.
   async redirects() {
+    const fromWww = [{ type: "host" as const, value: "www.conpaws.com" }];
+
     return [
+      // The root is a separate rule on purpose. `:path*` matches zero or more
+      // segments, but on an empty match Next emits the pattern rather than
+      // substituting it, so `www.conpaws.com/` redirected to the literal
+      // `https://conpaws.com/:path*` — a broken URL, on the one page that
+      // matters most. Every non-empty path was fine, which is exactly what
+      // makes it easy to miss.
       {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.conpaws.com" }],
-        destination: "https://conpaws.com/:path*",
+        source: "/",
+        has: fromWww,
+        destination: "https://conpaws.com/",
+        permanent: true,
+      },
+      // `:path+` is one or more, so it can never take the empty match that
+      // produced the bug above.
+      {
+        source: "/:path+",
+        has: fromWww,
+        destination: "https://conpaws.com/:path+",
         permanent: true,
       },
     ];
