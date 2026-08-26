@@ -46,7 +46,7 @@ bun prebuild:clean        # Clean and regenerate native projects
 - **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
 - **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
 - **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. It ships to Cloudflare Workers through `@opennextjs/cloudflare` (1.20.2, also pinned exactly).
-- **Infrastructure (`packages/infra`):** **Alchemy** (`alchemy.run.ts`) owns production — the D1 database, the Worker bindings and secrets, migrations, and the hourly waitlist reconciler Worker. `bun run deploy` / `bun run destroy` from the repo root. `apps/web/wrangler.jsonc` is **local dev and CI preview only**; never put a real `database_id` in it. `alchemy` and the Effect packages are pinned exactly because 2.0 is still beta. Alchemy does not do canary or automatic rollback — rollback is manual. See `notes/prerelease-site.md` §Deployment.
+- **Infrastructure (`packages/infra`):** **Alchemy** (`alchemy.run.ts`) owns production — the D1 database, the Worker bindings and secrets, migrations, and the hourly waitlist reconciler Worker. `bun run deploy` / `bun run destroy` from the repo root. `apps/web/wrangler.jsonc` is **local dev and CI preview only**; never put a real `database_id` in it. `alchemy` and the Effect packages are pinned exactly because 2.0 is still beta. Alchemy does not do canary or automatic rollback — rollback is manual. See the **Prerelease Site** page in Notion (§Deployment).
 - **Waitlist:** implemented. `honeypot + timing gate → Turnstile siteverify → D1 insert → Brevo double opt-in in ctx.waitUntil`, with `apps/web/workers/reconcile.ts` replaying `synced_at IS NULL` rows hourly. D1 is the source of truth and the row **is** the consent record; Brevo owns confirmation tokens, so there is deliberately no `confirm_token` column. The public form is still closed (`WAITLIST_ACCEPTING_SIGNUPS` in `apps/web/src/components/waitlist.tsx`) and the route fails closed with 503 whenever the bindings or secrets are absent — CI asserts that 503.
 - **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 57/New Architecture compatibility is unverified; test on a dev build before building on it
 - **Payments (planned):** RevenueCat, entitlement `conpaws_plus`
@@ -102,7 +102,7 @@ conpaws/
 - **metro.config.js** — `withNativeWind(config)`. No `input` argument is passed; NativeWind resolves `global.css` itself. Metro is also wrapped in `getSentryExpoConfig`.
 - **postcss.config.mjs** — plugin is `@tailwindcss/postcss`
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./src/*`. `vitest.config.ts` mirrors it.
-- **OTA is required for the MVP but remains fail-closed:** the chosen host is one shared MrDemonWolf, Inc. xprem **3.1.1** control plane on Dokploy at `updates.mrdemonwolf.com`, not EAS Update. Do not create a ConPaws-only duplicate. Every product needs an isolated xprem app UUID, signing material, branches/channels, publisher token, and runtime; ConPaws client configuration must use only its record. The runtime MCP at `/mcp` is unavailable until deployment, authenticates dashboard users through OAuth rather than publisher tokens, and can reach multiple apps: list apps and confirm the exact app UUID before any mutation. The hardened descriptor and runbook are in `infra/xprem/`, but no service is deployed and the SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before production. See `notes/ota-updates.md`.
+- **OTA is required for the MVP but remains fail-closed:** the chosen host is one shared MrDemonWolf, Inc. xprem **3.1.1** control plane on Dokploy at `updates.mrdemonwolf.com`, not EAS Update. Do not create a ConPaws-only duplicate. Every product needs an isolated xprem app UUID, signing material, branches/channels, publisher token, and runtime; ConPaws client configuration must use only its record. The runtime MCP at `/mcp` is unavailable until deployment, authenticates dashboard users through OAuth rather than publisher tokens, and can reach multiple apps: list apps and confirm the exact app UUID before any mutation. The hardened descriptor and runbook are in `infra/xprem/`, but no service is deployed and the SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before production. See the **OTA Updates** page in Notion.
 
 ### Environment Variables
 
@@ -144,31 +144,46 @@ installed side by side. Never promote a preview build publicly.
 
 The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).
 
-The tab bar uses **`NativeTabs` from `expo-router/unstable-native-tabs`** (`app/(tabs)/_layout.tsx`). That API is still marked unstable upstream, so pin expectations to the installed version and re-check it on every Expo upgrade — but do not "fix" it back to classic JS tabs. `notes/plan.md` remains the source for unfinished MVP and later product scope.
+The tab bar uses **`NativeTabs` from `expo-router/unstable-native-tabs`** (`app/(tabs)/_layout.tsx`). That API is still marked unstable upstream, so pin expectations to the installed version and re-check it on every Expo upgrade — but do not "fix" it back to classic JS tabs. The **Technical Blueprint** in Notion remains the source for unfinished MVP and later product scope.
 
 ### Database Schema
 
-The local expo-sqlite/Drizzle schema in `apps/native/src/db/` contains `conventions`, `convention_events`, and `offline_queue`, plus versioned bootstrap/migration and repository tests. The planned cloud D1 schema includes `profiles`, `username_blocklist`, `convention_directory`, `shared_conventions`, `shared_events`, and `verification_requests`. Full cloud indexing rationale is in `notes/plan.md` §Data Model. D1 rules that shape the planned schema: index every queried column (billing counts scanned rows), 100 bound params per query (chunk bulk imports), `db.batch()` is the only transaction primitive, no RLS.
+The local expo-sqlite/Drizzle schema in `apps/native/src/db/` contains `conventions`, `convention_events`, and `offline_queue`, plus versioned bootstrap/migration and repository tests. The planned cloud D1 schema includes `profiles`, `username_blocklist`, `convention_directory`, `shared_conventions`, `shared_events`, and `verification_requests`. Full cloud indexing rationale is in the Technical Blueprint's **Data Model, Auth & Profiles** page in Notion. D1 rules that shape the planned schema: index every queried column (billing counts scanned rows), 100 bound params per query (chunk bulk imports), `db.batch()` is the only transaction primitive, no RLS.
 
 ### Schedule Import
 
 ICS files and Sched convention URLs are implemented. The importer handles convention IANA timezones/DST, recurring-event identities, cancellations and re-import reconciliation, simultaneous events, categories, rooms, and content warnings. Keep re-import behavior covered with fixtures in `test-data/` and tests next to the parser, import policy, repositories, and services.
 
-## Planning Notes
+## Planning Notes — moved to Notion (2026-08-26)
 
-Planning and design documents live in `notes/`. They mix implemented decisions with future scope; verify claims against the current code before changing behavior.
+**The planning docs are no longer in this repo.** They live under the **ConPaws**
+page in Nathanial's Notion, which is now the source of truth:
+<https://app.notion.com/p/3c8d61481c7b819d9d25c742524b4dc1>
 
-| File | What's Inside |
+| Notion page | What's Inside |
 |------|--------------|
-| `notes/prerelease-site.md` | **Decision record for the live site** — version pins and their expiry conditions, Alchemy deployment, ESP, waitlist, Cloudflare mail, config runbook, and a *Traps* section. Read before touching deploy or DNS |
-| `notes/ota-updates.md` | xprem OTA host decision and the pre-production gate checklist |
-| `notes/plan.md` | Full technical blueprint — tech stack (Cloudflare Workers/D1/R2), data models, screens, polling sync, iCal import, EAS production setup, dev phases |
-| `notes/marketing.md` | Marketing strategy — website, social media, YouTube, profitability projections |
-| `notes/pitchdeck.md` | Market research — fandom stats, convention data, competitive analysis (Barq), revenue projections |
-| `notes/ideas.md` | Future feature brainstorms + pre-launch gap analysis |
-| `notes/legal.md` | Privacy Policy and Terms of Service templates + App Store compliance checklist |
+| Prerelease Site | **Decision record for the live site** — version pins and their expiry conditions, Alchemy deployment, ESP, waitlist, Cloudflare mail, config runbook, and a *Traps* section. Read before touching deploy or DNS |
+| OTA Updates | xprem OTA host decision and the pre-production gate checklist |
+| App Store Release | Versioning policy, why a preview build can never be submitted, the free-1.0 decision |
+| Technical Blueprint | Full blueprint, split into sub-pages — stack, data model, sync, iCal import, engineering practices, roadmap |
+| Marketing | Website, social media, YouTube, profitability projections |
+| Pitch Deck | Market research — fandom stats, convention data, competitive analysis (Barq), revenue projections |
+| Ideas | Future feature brainstorms + pre-launch gap analysis |
+| Legal | Privacy Policy and Terms of Service templates + App Store compliance checklist |
 
-Each file has a **TL;DR** at the top for quick scanning. `plan.md` also has a table of contents.
+They mix implemented decisions with future scope; verify claims against the
+current code before changing behavior.
+
+**What this means for a Claude Code session.** You cannot read Notion unless the
+Notion connector is attached to this session — it is not attached by default. If
+you need the reasoning behind a decision (the D1 constraints, the Next pin, the
+OTA gate, the GPLv3 App Store exception), ask Nathanial to paste the relevant
+page rather than guessing or re-deriving it. Several of these documents record
+traps that cost real time to find, and re-discovering them is expensive.
+
+Anything that describes how the code itself works still belongs in this repo,
+next to the code: `apps/native/RELEASING.md`, `infra/xprem/`, and the comments in
+`app.config.ts`, `eas.json` and `wrangler.jsonc`.
 
 Test data for iCal import development lives in `test-data/`:
 - `test-data/indyfurcon2025.ics` — Real convention data (IndyFurCon 2025)

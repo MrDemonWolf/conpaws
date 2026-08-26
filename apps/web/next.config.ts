@@ -111,7 +111,7 @@ initOpenNextCloudflareForDev();
 
 const withMDX = createMDX({
   options: {
-    // notes/legal.md uses GFM tables; plain CommonMark drops them.
+    // The legal MDX pages use GFM tables; plain CommonMark drops them.
     remarkPlugins: [["remark-gfm"]],
   },
 });

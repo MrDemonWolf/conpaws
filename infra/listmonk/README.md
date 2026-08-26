@@ -124,5 +124,5 @@ The six SeedProd subscribers import as `status: confirmed` with `source: seedpro
 ## Related
 
 - `infra/xprem/` — the other MrDemonWolf Dokploy Compose application; same conventions
-- `notes/prerelease-site.md` — ESP decision record and the going-live runbook
+- **Prerelease Site** page in Notion — ESP decision record and the going-live runbook
 - Memory: `email-sending-stack`, `domain-ladder-for-projects`, `esp-choice-scales-per-product`

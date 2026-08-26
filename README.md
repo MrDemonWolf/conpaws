@@ -171,7 +171,7 @@ There is no automatic rollback. Roll back by hand:
 cd apps/web && bunx wrangler rollback
 ```
 
-See `notes/prerelease-site.md` for the full going-live runbook.
+The full going-live runbook lives on the **Prerelease Site** page in Notion.
 
 ### Mobile Releases and OTA Updates
 
@@ -181,7 +181,7 @@ TestFlight and Play Internal Testing and promoted manually. There is no
 auto-submit.
 
 - [Mobile release guide](apps/native/RELEASING.md)
-- [Self-hosted OTA decision guide](notes/ota-updates.md)
+- Self-hosted OTA decision guide — **OTA Updates** page in Notion
 - [Dokploy xprem deployment runbook](infra/xprem/README.md)
 
 OTA updates are required for the MVP. The selected path is signed
@@ -214,7 +214,6 @@ conpaws/
 ├── infra/
 │   ├── listmonk/    # Shared mailing list descriptor (not deployed)
 │   └── xprem/       # xprem OTA descriptor and runbook (not deployed)
-├── notes/           # Planning docs (plan.md is the technical blueprint)
 └── test-data/       # iCal fixtures for import development
 ```
 
