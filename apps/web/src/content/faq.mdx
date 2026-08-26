@@ -1,0 +1,50 @@
+{/*
+  The landing-page FAQ. Everything else on the landing page lives in
+  `landing.ts` — see the note at the top of that file for why records belong
+  in TypeScript and documents belong here. The section heading lives there
+  too, as FAQ_HEADING.
+
+  To edit: change the prose. To add a question: copy a block. The answer is
+  ordinary markdown, so links, `code` and **emphasis** all work.
+
+  <FaqItem> is injected by faq.tsx and needs no import here. It exists because
+  an accordion needs to know where each answer starts and stops, and MDX gives
+  a renderer no way to ask that of a heading — an earlier attempt tried to
+  split on `##` boundaries and rendered nothing at all, because a compiled MDX
+  component is opaque to Children.toArray. One wrapper tag per question is the
+  smallest honest price for markdown answers.
+
+  Order is page order. Keep the cheapest, most reassuring answer first — "Is
+  it free?" is the question people actually arrive with.
+*/}
+
+<FaqItem q="Is it free?">
+Yes. The schedule, imports, reminders, and offline mode are free. A ConPaws+
+upgrade with extras is planned later — nothing you see here moves behind it.
+</FaqItem>
+
+<FaqItem q="Do I need an account?">
+No. ConPaws works entirely without one. Your schedule lives on your phone, not
+on our servers.
+</FaqItem>
+
+<FaqItem q="What if the con WiFi dies?">
+Nothing happens. ConPaws is offline-first: every feature keeps working with
+zero bars in a basement dealers' den.
+</FaqItem>
+
+<FaqItem q="Which conventions does it work with?">
+Any that publish an `.ics` calendar or a [Sched](https://sched.com) page —
+which covers most furry cons. You can also build a schedule by hand for the
+ones that don't.
+</FaqItem>
+
+<FaqItem q="When does it launch?">
+The beta opens to the waitlist first, iOS and Android together. Join above and
+you'll get one email when your invite is ready.
+</FaqItem>
+
+<FaqItem q="Who makes it?">
+ConPaws is built by [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) —
+con-goers building the app we wished we had in the hallway line.
+</FaqItem>

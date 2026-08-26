@@ -1,5 +1,13 @@
 import { CompassPaw } from "@/components/compass-paw";
+import { FaqSection } from "@/components/faq";
 import { Waitlist } from "@/components/waitlist";
+import {
+  FAQ_HEADING,
+  LINEUP,
+  STATS,
+  STEPS,
+  TICKER_ITEMS,
+} from "@/content/landing";
 
 /**
  * The pre-release landing page, styled as a convention program guide — the
@@ -11,98 +19,6 @@ import { Waitlist } from "@/components/waitlist";
  * tokens. When real captures exist, each <PhoneFrame> body is swapped for an
  * <Image> without touching the layout around it.
  */
-
-const LINEUP = [
-  {
-    time: "10:00",
-    title: "Import any schedule",
-    body: "Drop in an .ics file or paste a Sched link. Re-import later without losing what you've picked.",
-    tag: "Core",
-    room: "Main Hall",
-  },
-  {
-    time: "13:30",
-    title: "Smart reminders",
-    body: "Nudges before the events you choose. Nothing else, ever.",
-    tag: "QoL",
-    room: "Panel Room 2",
-  },
-  {
-    time: "16:00",
-    title: "Content flags",
-    body: "18+ and photosensitivity warnings surfaced automatically from the schedule.",
-    tag: "Safety",
-    room: "Ops",
-  },
-  {
-    time: "23:59",
-    title: "Works offline",
-    body: "Everything lives on your phone. Con WiFi dying at peak hours is someone else's problem now.",
-    tag: "Core",
-    room: "Everywhere",
-  },
-] as const;
-
-const STEPS = [
-  {
-    n: "01",
-    title: "Download",
-    body: "Free on iOS and Android at launch.",
-  },
-  {
-    n: "02",
-    title: "Pick your convention",
-    body: "Import its schedule, or start one from scratch.",
-  },
-  {
-    n: "03",
-    title: "Build your weekend",
-    body: "Star what you want. Get nudged before it starts.",
-  },
-] as const;
-
-const STATS = [
-  { value: "100%", label: "of features work offline" },
-  { value: "0", label: "accounts needed to use it" },
-  { value: "1 link", label: "imports a whole schedule" },
-  { value: "∞", label: "conventions in one app" },
-] as const;
-
-const FAQ = [
-  {
-    q: "Is it free?",
-    a: "Yes. The schedule, imports, reminders, and offline mode are free. A ConPaws+ upgrade with extras is planned later — nothing you see here moves behind it.",
-  },
-  {
-    q: "Do I need an account?",
-    a: "No. ConPaws works entirely without one. Your schedule lives on your phone, not on our servers.",
-  },
-  {
-    q: "What if the con WiFi dies?",
-    a: "Nothing happens. ConPaws is offline-first: every feature keeps working with zero bars in a basement dealers' den.",
-  },
-  {
-    q: "Which conventions does it work with?",
-    a: "Any that publish an .ics calendar or a Sched page — which covers most furry cons. You can also build a schedule by hand for the ones that don't.",
-  },
-  {
-    q: "When does it launch?",
-    a: "The beta opens to the waitlist first, iOS and Android together. Join above and you'll get one email when your invite is ready.",
-  },
-  {
-    q: "Who makes it?",
-    a: "ConPaws is built by MrDemonWolf, Inc. — con-goers building the app we wished we had in the hallway line.",
-  },
-] as const;
-
-const TICKER_ITEMS = [
-  "Schedules",
-  "Offline first",
-  "Reminders",
-  "Content flags",
-  "iOS",
-  "Android",
-] as const;
 
 function Ticker() {
   const row = TICKER_ITEMS.map((item) => (
@@ -582,30 +498,11 @@ export default function Home() {
 
       {/* ---- FAQ ---- */}
       <section className="relative z-10 mt-28">
-        <SectionHeading eyebrow="Con ops desk" title="Questions, answered" />
-        <div className="mt-8 overflow-hidden rounded-2xl border border-border">
-          {FAQ.map((item, i) => (
-            <details
-              key={item.q}
-              className={`group bg-card/40 open:bg-card ${
-                i > 0 ? "border-border border-t" : ""
-              }`}
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-bold text-[15.5px] tracking-tight transition hover:text-primary [&::-webkit-details-marker]:hidden">
-                {item.q}
-                <span
-                  aria-hidden="true"
-                  className="text-[18px] text-primary transition group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <p className="max-w-[68ch] px-6 pb-5 text-[14.5px] text-muted-foreground leading-relaxed">
-                {item.a}
-              </p>
-            </details>
-          ))}
-        </div>
+        <SectionHeading
+          eyebrow={FAQ_HEADING.eyebrow}
+          title={FAQ_HEADING.title}
+        />
+        <FaqSection />
       </section>
 
       {/* ---- closing CTA ---- */}
