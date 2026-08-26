@@ -319,32 +319,11 @@
       "resources": "Recursos",
       "website": "Sitio web",
       "builtWith": "Creado con",
-      "technology": "Tecnología",
-      "technologyDescription": "Herramientas principales de ConPaws",
       "licenseDescription": "{{count}} paquetes y herramientas",
       "support": "Soporte",
       "email": "Correo electrónico",
       "discordDescription": "Únete a la comunidad",
       "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "technology": {
-      "title": "Tecnología",
-      "foundation": "Base",
-      "interface": "Interfaz",
-      "offlineData": "Uso sin conexión y datos",
-      "localizationReliability": "Localización y confiabilidad",
-      "footer": "Consulta Licencias de Código Abierto para ver la lista completa de paquetes y sus licencias.",
-      "tools": {
-        "expo": "Plataforma y herramientas para apps nativas",
-        "reactNative": "Base nativa multiplataforma",
-        "expoRouter": "Navegación basada en archivos",
-        "expoUi": "Controles nativos de cada plataforma",
-        "expoSqlite": "Almacenamiento de horarios sin conexión",
-        "drizzle": "Capa tipada de base de datos local",
-        "tanstackQuery": "Carga y almacenamiento en caché de datos",
-        "i18next": "Localización en ocho idiomas",
-        "sentry": "Monitoreo de fallos y rendimiento"
-      }
     },
     "licenses": {
       "detailsTitle": "Detalles de la licencia",

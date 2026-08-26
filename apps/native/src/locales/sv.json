@@ -319,32 +319,11 @@
       "resources": "Resurser",
       "website": "Webbplats",
       "builtWith": "Byggd med",
-      "technology": "Teknik",
-      "technologyDescription": "Viktiga verktyg bakom ConPaws",
       "licenseDescription": "{{count}} paket och verktyg",
       "support": "Support",
       "email": "E-post",
       "discordDescription": "Gå med i communityn",
       "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "technology": {
-      "title": "Teknik",
-      "foundation": "Grund",
-      "interface": "Gränssnitt",
-      "offlineData": "Offline och data",
-      "localizationReliability": "Lokalisering och tillförlitlighet",
-      "footer": "Se Öppen källkodslicenser för hela paketlistan och licenstexterna.",
-      "tools": {
-        "expo": "Plattform och verktyg för inbyggda appar",
-        "reactNative": "Plattformsoberoende inbyggd grund",
-        "expoRouter": "Filbaserad navigering",
-        "expoUi": "Plattformsinbyggda kontroller",
-        "expoSqlite": "Offlinelagring av scheman",
-        "drizzle": "Typsäkert lokalt databaslager",
-        "tanstackQuery": "Dataladdning och cachning",
-        "i18next": "Lokalisering på åtta språk",
-        "sentry": "Krasch- och prestandaövervakning"
-      }
     },
     "licenses": {
       "detailsTitle": "Licensdetaljer",

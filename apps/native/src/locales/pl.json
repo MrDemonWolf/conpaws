@@ -319,32 +319,11 @@
       "resources": "Zasoby",
       "website": "Witryna",
       "builtWith": "Stworzono z użyciem",
-      "technology": "Technologia",
-      "technologyDescription": "Główne narzędzia ConPaws",
       "licenseDescription": "{{count}} pakietów i narzędzi",
       "support": "Pomoc",
       "email": "E-mail",
       "discordDescription": "Dołącz do społeczności",
       "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "technology": {
-      "title": "Technologia",
-      "foundation": "Podstawa",
-      "interface": "Interfejs",
-      "offlineData": "Tryb offline i dane",
-      "localizationReliability": "Lokalizacja i niezawodność",
-      "footer": "Pełną listę pakietów i teksty licencji znajdziesz w sekcji Licencje Open Source.",
-      "tools": {
-        "expo": "Platforma i narzędzia do aplikacji natywnych",
-        "reactNative": "Wieloplatformowa podstawa natywna",
-        "expoRouter": "Nawigacja oparta na plikach",
-        "expoUi": "Natywne elementy sterujące platformy",
-        "expoSqlite": "Przechowywanie planu offline",
-        "drizzle": "Typowana warstwa lokalnej bazy danych",
-        "tanstackQuery": "Wczytywanie i buforowanie danych",
-        "i18next": "Lokalizacja w ośmiu językach",
-        "sentry": "Monitorowanie awarii i wydajności"
-      }
     },
     "licenses": {
       "detailsTitle": "Szczegóły licencji",

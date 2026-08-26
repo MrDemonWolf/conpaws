@@ -319,32 +319,11 @@
       "resources": "Bronnen",
       "website": "Website",
       "builtWith": "Gebouwd met",
-      "technology": "Technologie",
-      "technologyDescription": "Belangrijkste tools achter ConPaws",
       "licenseDescription": "{{count}} pakketten en tools",
       "support": "Ondersteuning",
       "email": "E-mail",
       "discordDescription": "Word lid van de community",
       "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "technology": {
-      "title": "Technologie",
-      "foundation": "Basis",
-      "interface": "Interface",
-      "offlineData": "Offline en gegevens",
-      "localizationReliability": "Lokalisatie en betrouwbaarheid",
-      "footer": "Bekijk Open Source-licenties voor de volledige pakketlijst en licentieteksten.",
-      "tools": {
-        "expo": "Platform en tools voor native apps",
-        "reactNative": "Platformoverschrijdende native basis",
-        "expoRouter": "Bestandsgebaseerde navigatie",
-        "expoUi": "Platformeigen bedieningselementen",
-        "expoSqlite": "Offline opslag van programma’s",
-        "drizzle": "Getypeerde lokale databaselaag",
-        "tanstackQuery": "Gegevens laden en cachen",
-        "i18next": "Lokalisatie in acht talen",
-        "sentry": "Crash- en prestatiebewaking"
-      }
     },
     "licenses": {
       "detailsTitle": "Licentiedetails",
