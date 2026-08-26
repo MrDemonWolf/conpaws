@@ -10,8 +10,8 @@ Decision record for the pre-release marketing site. This captures what was settl
 - **Architecture:** One Cloudflare Worker, one domain, `apps/web`. No `app.` split. Future `/@handle` profiles are Next.js SSR, not Expo Web.
 - **Stack:** Next `16.2.12` (EXACT pin), `@opennextjs/cloudflare@1.20.2` (EXACT pin), `wrangler 4.86.0`. Never `@cloudflare/next-on-pages` (archived).
 - **Deploy:** **Alchemy** (`packages/infra/alchemy.run.ts`), adopted 2026-08-18 — reversing the rejection recorded below. `wrangler.jsonc` survives for local dev and CI preview only. See *Deployment* for what the reversal cost.
-- **ESP:** Brevo, in a **separate free account owned by `conpaws.com`** (Route A, decided 2026-08-18). Its blocklist is account-wide, not per-list, so a shared account would let a ConPaws unsubscribe silently blocklist that address on `mrdemonwolf.com` too. The account boundary is the blocklist boundary.
-- **Waitlist:** D1 is the source of truth with full consent-record columns; Brevo's DOI endpoint owns confirmation tokens; `ctx.waitUntil` + a cron reconciler are both required.
+- **ESP: Brevo is OUT (2026-08-25).** Self-hosted **Listmonk** is the direction. Brevo was removed from the deploy path — `alchemy.run.ts` binds empty strings, the deploy workflow no longer requires Brevo config, and the signup route fails closed with 503. Nothing is bound today. See *ESP* below.
+- **Waitlist:** D1 is the source of truth with full consent-record columns; `ctx.waitUntil` + a cron reconciler are both required. Confirmation-token ownership moves to us with Listmonk — Brevo's DOI endpoint used to own it, which is why there is still no `confirm_token` column.
 - **Outbound vs inbound:** Cloudflare Email Routing is **inbound only** — it forwards mail to `conpaws.com` addresses and can never send the DOI or the launch email. Separate job from the ESP; `conpaws.com` has no MX today.
 - **Badge:** headless Rapier2D physics + SVG + DOM. WebGL removed after real context-loss failures.
 - **CMS:** none in Phase 1; Sveltia in Phase 2 (remember `skip_ci: false`).
@@ -103,7 +103,25 @@ D1 migrations must always use expand/contract sequencing because schema changes 
 
 Before the first launch, verify in the Cloudflare dashboard that the remote Worker also has `workers.dev` and preview URLs disabled; local config cannot prove historic remote trigger state while Wrangler is unauthenticated. Never set `"build": "opennextjs-cloudflare build"` in package.json (the adapter calls the build script), and do not use `turbo build --filter=web` as a deploy build because it skips the OpenNext transform. Cloudflare secrets survive version uploads; `--keep-vars` is not valid for `wrangler versions upload`.
 
-## ESP: Brevo
+## ESP: Brevo — SUPERSEDED 2026-08-25
+
+> **Brevo is not the ESP any more.** It was removed from the deploy path on
+> 2026-08-25: `packages/infra/alchemy.run.ts` binds empty strings for every
+> Brevo variable, `deploy-web.yml` no longer lists them as required config, and
+> `POST /api/waitlist` returns 503 because `readBrevoConfig` resolves to null.
+> The public form stays closed (`WAITLIST_ACCEPTING_SIGNUPS = false`).
+>
+> **The direction is self-hosted Listmonk**, on the Dokploy box, which is the
+> "run our own thing" option this record kept circling. It is blocked on AWS
+> SES production access for outbound.
+>
+> The published privacy policy deliberately names **no** provider and commits
+> to naming one here and in the policy *before* the form accepts a single
+> address. That sentence is what has to change first when Listmonk lands.
+>
+> Everything below is kept as the reasoning that led here — the blocklist
+> analysis is still correct and is exactly why a shared account was rejected.
+> Read it as history, not as the current plan.
 
 Brevo won on zero ops burden, managed deliverability, a **dedicated DOI endpoint** (`POST /v3/contacts/doubleOptinConfirmation` — removes token/expiry/confirm-route logic from the Worker), 100k-contact free tier, and Divi 5 native support.
 
