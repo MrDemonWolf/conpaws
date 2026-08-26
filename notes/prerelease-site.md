@@ -6,7 +6,8 @@ Decision record for the pre-release marketing site. This captures what was settl
 
 ## TL;DR
 
-- **Domain:** `conpaws.com` is canonical. `conpaws.app` is retired (removed from `app.config.ts`).
+- **LIVE since 2026-08-26.** `conpaws.com` serves the Worker; `PRODUCTION_DEPLOY_ENABLED` and `PRODUCTION_ROUTES_ENABLED` are both `true`. Runbook steps 1-5 are done; 6 and 7 are blocked on the ESP. Read *Traps* before touching the deploy.
+- **Domain:** `conpaws.com` is canonical. `conpaws.app` is retired (removed from `app.config.ts`). `www` 308-redirects to the apex via a **zone-level Cloudflare Redirect Rule that is not in this repo** and is lost if the zone is rebuilt.
 - **Architecture:** One Cloudflare Worker, one domain, `apps/web`. No `app.` split. Future `/@handle` profiles are Next.js SSR, not Expo Web.
 - **Stack:** Next `16.2.12` (EXACT pin), `@opennextjs/cloudflare@1.20.2` (EXACT pin), `wrangler 4.86.0`. Never `@cloudflare/next-on-pages` (archived).
 - **Deploy:** **Alchemy** (`packages/infra/alchemy.run.ts`), adopted 2026-08-18 — reversing the rejection recorded below. `wrangler.jsonc` survives for local dev and CI preview only. See *Deployment* for what the reversal cost.

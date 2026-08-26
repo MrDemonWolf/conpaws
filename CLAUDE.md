@@ -160,6 +160,8 @@ Planning and design documents live in `notes/`. They mix implemented decisions w
 
 | File | What's Inside |
 |------|--------------|
+| `notes/prerelease-site.md` | **Decision record for the live site** — version pins and their expiry conditions, Alchemy deployment, ESP, waitlist, Cloudflare mail, config runbook, and a *Traps* section. Read before touching deploy or DNS |
+| `notes/ota-updates.md` | xprem OTA host decision and the pre-production gate checklist |
 | `notes/plan.md` | Full technical blueprint — tech stack (Cloudflare Workers/D1/R2), data models, screens, polling sync, iCal import, EAS production setup, dev phases |
 | `notes/marketing.md` | Marketing strategy — website, social media, YouTube, profitability projections |
 | `notes/pitchdeck.md` | Market research — fandom stats, convention data, competitive analysis (Barq), revenue projections |
