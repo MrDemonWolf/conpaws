@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
 const APP_VARIANT = process.env.APP_VARIANT ?? "production";
@@ -16,6 +17,35 @@ const getBundleId = (): string => {
 const getScheme = (): string => {
   return APP_VARIANT === "development" ? "conpaws-dev" : "conpaws";
 };
+
+/**
+ * Build number, counted from git history.
+ *
+ * Apple and Google both reject an upload whose build number repeats one already
+ * seen for the same marketing version, and forgetting to bump it by hand is the
+ * usual way that happens. EAS solves this with a remote counter, but only for
+ * builds that run on EAS -- a local Xcode or Gradle build never touches it, and
+ * would otherwise stamp every archive with the Expo default of 1. The second
+ * TestFlight upload would then be rejected as a duplicate.
+ *
+ * Commit count is monotonic on a branch, needs nothing kept in sync by hand, and
+ * ties any build back to the exact commit it came from. It falls back to 1 when
+ * git is unavailable, which covers a tarball checkout and a shallow CI clone;
+ * neither of those uploads to a store, so a low number there is harmless.
+ */
+const getBuildNumber = (): number => {
+  try {
+    const count = execFileSync("git", ["rev-list", "--count", "HEAD"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return Number.parseInt(count, 10) || 1;
+  } catch {
+    return 1;
+  }
+};
+
+const BUILD_NUMBER = getBuildNumber();
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
@@ -73,6 +103,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     appleTeamId: "HBB7T99U79",
+    buildNumber: String(BUILD_NUMBER),
     icon:
       APP_VARIANT === "development"
         ? "./assets/images/ConPaws-development.icon"
@@ -96,6 +127,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     icon: getVariantPng("icon"),
+    versionCode: BUILD_NUMBER,
     permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
     adaptiveIcon: {
       foregroundImage: getVariantPng("android-icon-foreground"),
