@@ -109,11 +109,13 @@ function unfold(raw: string): string {
 
 /** Unescape iCal text: \n → newline, \, → comma, \; → semicolon, \\ → backslash */
 function unescapeText(text: string): string {
-  return text
-    .replace(/\\n/gi, "\n")
-    .replace(/\\,/g, ",")
-    .replace(/\\;/g, ";")
-    .replace(/\\\\/g, "\\");
+  // RFC 5545 resolves escapes in one left-to-right pass. Four sequential
+  // replaces do not: the \n pass reaches inside an escaped backslash, so the
+  // three characters \\n came out as a backslash and a newline instead of a
+  // backslash and a literal n, and no later pass could put it back.
+  return text.replace(/\\([nN,;\\])/g, (_, ch: string) =>
+    ch === "n" || ch === "N" ? "\n" : ch,
+  );
 }
 
 /** Decode common HTML entities */
@@ -125,7 +127,15 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
     .replace(/&nbsp;/gi, " ")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)));
+    .replace(/&#(\d+);/g, (match, code: string) => {
+      // String.fromCharCode truncates to 16 bits, so an emoji entity such as
+      // &#128512; used to land as a Private Use Area character and the
+      // mangling was then baked into the stored row.
+      const point = Number.parseInt(code, 10);
+      if (!Number.isFinite(point) || point > 0x10ffff) return match;
+      if (point >= 0xd800 && point <= 0xdfff) return match;
+      return String.fromCodePoint(point);
+    });
 }
 
 /** Parse iCal datetime string to Date.
@@ -348,13 +358,23 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   });
 
   for (const block of eventBlocks) {
-    const props: Record<string, string> = {};
-    const timeZones: Record<string, string | null> = {};
+    // Null-prototype maps: a feed is free to name a property __proto__, and on
+    // a plain object literal that assignment would reach Object.prototype
+    // instead of landing as a key.
+    const props: Record<string, string> = Object.create(null);
+    const timeZones: Record<string, string | null> = Object.create(null);
+
+    // CATEGORIES has cardinality "*" inside a VEVENT, so a producer that emits
+    // one line per tag must not have all but the last silently overwritten.
+    const categoryLines: string[] = [];
 
     for (const line of block) {
       if (!line) continue;
       const propName = extractPropName(line);
       const value = extractValue(line);
+      if (propName === "CATEGORIES") {
+        if (value) categoryLines.push(value);
+      }
       props[propName] = value;
       if (
         propName === "DTSTART" ||
@@ -422,7 +442,8 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       room = split.room;
     }
 
-    const rawCategory = props["CATEGORIES"] ?? null;
+    const rawCategory =
+      categoryLines.length > 0 ? categoryLines.join(",") : null;
     // CATEGORIES mixes audience ratings and topics in one comma list, in no
     // guaranteed order. Splitting them keeps both; taking [0] used to discard
     // whichever happened to come second.

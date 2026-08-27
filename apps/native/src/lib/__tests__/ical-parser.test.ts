@@ -453,4 +453,95 @@ END:VCALENDAR`;
     const ev = result.events[0];
     expect(ev.startTime.toISOString()).toBe("2026-06-12T00:00:00.000Z");
   });
+  it("keeps an astral-plane numeric entity intact", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Fursuit Parade &#128512;
+UID:emoji-entity
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(result.events[0].title).toBe("Fursuit Parade \u{1F600}");
+  });
+
+  it("leaves an out-of-range or lone-surrogate entity as written", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Bad &#1114112; and &#55296; entities
+UID:bad-entity
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(result.events[0].title).toBe("Bad &#1114112; and &#55296; entities");
+  });
+
+  it("keeps every tag when CATEGORIES is repeated across lines", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Late Night Panel
+UID:repeated-categories
+CATEGORIES:18+
+CATEGORIES:Panels
+CATEGORIES:Music
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+    const event = result.events[0];
+
+    expect(event.categories).toEqual(["Panels", "Music"]);
+    expect(event.category).toBe("Panels");
+    // The audience tag arrived on the first line, which used to be discarded.
+    expect(event.isAgeRestricted).toBe(true);
+    expect(result.categories.map((category) => category.name).sort()).toEqual([
+      "Music",
+      "Panels",
+    ]);
+  });
+
+  it("resolves an escaped backslash before an n as a literal n", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Regex Workshop
+DESCRIPTION:Match C:\\\\next\\, then \\; stop\\nSecond line
+UID:escaped-backslash
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(result.events[0].description).toBe(
+      "Match C:\\next, then ; stop\nSecond line",
+    );
+  });
+
+  it("does not let a __proto__ property line reach Object.prototype", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260612T160000Z
+SUMMARY:Injected
+UID:proto-line
+__proto__:polluted
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(result.events).toHaveLength(1);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+    expect(Object.hasOwn({}, "__proto__")).toBe(false);
+  });
 });

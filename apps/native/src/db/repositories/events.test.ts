@@ -1,13 +1,18 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConventionEvent } from "../schema";
 import {
   planSourceReconciliation,
   type SourceEventInput,
   type SourceOccurrenceIdentity,
   type SourceSnapshot,
+  upsertBySourceUid,
 } from "./events";
 
-vi.mock("../index", () => ({ db: {} }));
+const { mockDb } = vi.hoisted(() => ({
+  mockDb: { transaction: vi.fn() },
+}));
+
+vi.mock("../index", () => ({ db: mockDb }));
 
 function storedEvent(
   overrides: Partial<ConventionEvent> = {},
@@ -496,5 +501,131 @@ describe("source snapshot reconciliation", () => {
     expect(plan.inserts).toEqual([]);
     expect(plan.removals).toEqual([]);
     expect(plan.unresolvedSeries).toEqual([]);
+  });
+});
+
+/**
+ * Records what the transaction body writes. The drizzle expo-sqlite session
+ * runs the callback inline and returns its value, so a plain object with the
+ * same chained shape stands in for the real `tx`.
+ */
+function recordingTx(existing: ConventionEvent[]) {
+  const updates: Record<string, unknown>[] = [];
+  const inserts: Record<string, unknown>[] = [];
+  let deletes = 0;
+
+  const tx = {
+    select: () => ({
+      from: () => ({ where: () => ({ all: () => existing }) }),
+    }),
+    update: () => ({
+      set: (payload: Record<string, unknown>) => {
+        updates.push(payload);
+        return { where: () => ({ run: () => undefined }) };
+      },
+    }),
+    insert: () => ({
+      values: (row: Record<string, unknown>) => {
+        inserts.push(row);
+        return { run: () => undefined };
+      },
+    }),
+    delete: () => ({
+      where: () => ({
+        run: () => {
+          deletes++;
+        },
+      }),
+    }),
+  };
+
+  return { tx, updates, inserts, deletes: () => deletes };
+}
+
+describe("upsertBySourceUid transaction", () => {
+  beforeEach(() => {
+    mockDb.transaction.mockReset();
+  });
+
+  it("never writes isInSchedule or reminderMinutes when updating a matched row", async () => {
+    const starred = storedEvent({
+      id: "starred",
+      isInSchedule: true,
+      reminderMinutes: 30,
+      sourceUid: "panel-1",
+      startTime: "2026-06-12T16:00:00.000Z",
+    });
+    const recorder = recordingTx([starred]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+
+    const result = await upsertBySourceUid(
+      [
+        sourceEvent({
+          sourceUid: "panel-1",
+          legacySourceUid: null,
+          title: "Renamed panel",
+          isInSchedule: false,
+          reminderMinutes: null,
+        }),
+      ],
+      "convention-1",
+      snapshot(
+        [
+          occurrence({
+            sourceUid: "panel-1",
+            legacySourceUid: null,
+            startTime: "2026-06-12T16:00:00.000Z",
+            recurrenceTime: null,
+          }),
+        ],
+        [],
+        true,
+      ),
+    );
+
+    expect(result.updated).toBe(1);
+    expect(recorder.updates).toHaveLength(1);
+
+    const payload = recorder.updates[0];
+    expect(payload.title).toBe("Renamed panel");
+    // The star and the reminder are the user's, not the feed's. Adding a
+    // spread of the source row here would clear both on every re-import and
+    // the reconciliation tests above would stay green.
+    expect(Object.keys(payload)).not.toContain("isInSchedule");
+    expect(Object.keys(payload)).not.toContain("reminderMinutes");
+  });
+
+  it("does not carry legacySourceUid into an inserted row", async () => {
+    const recorder = recordingTx([]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+
+    const result = await upsertBySourceUid(
+      [sourceEvent({ sourceUid: "brand-new", legacySourceUid: "legacy-uid" })],
+      "convention-1",
+      snapshot(),
+    );
+
+    expect(result.added).toBe(1);
+    expect(recorder.inserts).toHaveLength(1);
+    expect(Object.keys(recorder.inserts[0])).not.toContain("legacySourceUid");
+    expect(recorder.inserts[0].sourceUid).toBe("brand-new");
+    expect(recorder.inserts[0].id).toEqual(expect.any(String));
+  });
+
+  it("deletes exactly the rows the plan removed", async () => {
+    const gone = storedEvent({ id: "gone", sourceUid: "dropped-panel" });
+    const recorder = recordingTx([gone]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+
+    const result = await upsertBySourceUid([], "convention-1", snapshot());
+
+    expect(result.removedEventIds).toEqual(["gone"]);
+    expect(recorder.deletes()).toBe(1);
   });
 });
