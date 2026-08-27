@@ -186,7 +186,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-document-picker",
     "expo-sharing",
     "expo-web-browser",
-    ...(APP_VARIANT === "development" ? [] : ["@sentry/react-native/expo"]),
+    // Org and project are not secret; naming them here writes sentry.properties
+    // at prebuild so a local Xcode/Gradle build finds them without relying on
+    // which .env file the bundler happened to load. The auth token stays in the
+    // SENTRY_AUTH_TOKEN environment variable and is never committed.
+    ...(APP_VARIANT === "development"
+      ? []
+      : [
+          [
+            "@sentry/react-native/expo",
+            { organization: "mrdemonwolf", project: "conpaws" },
+          ] as [string, Record<string, string>],
+        ]),
   ],
   experiments: {
     typedRoutes: true,
