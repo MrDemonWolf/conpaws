@@ -73,6 +73,16 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
 }
 
 public class ConPawsWidgetsModule: Module {
+  /// Snapshot schemas this binary knows how to render.
+  ///
+  /// The widget and complication read the App Group directly, so they can only
+  /// ever be as new as the installed binary -- while the JS that writes the
+  /// snapshot can be replaced under it by an update. Anything outside this
+  /// range has to clear the slot rather than be stored or silently ignored:
+  /// leaving the old payload in place freezes both surfaces on a schedule
+  /// weeks out of date, with no empty state to say so.
+  private static let supportedSchemaVersions = 1...1
+
   private let watchBridge = ConPawsWatchBridge()
 
   public func definition() -> ModuleDefinition {
@@ -93,7 +103,7 @@ public class ConPawsWidgetsModule: Module {
       guard
         let data = json.data(using: .utf8),
         let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-        object["schemaVersion"] as? Int == 1,
+        let schemaVersion = object["schemaVersion"] as? Int,
         let bundleIdentifier = Bundle.main.bundleIdentifier,
         let defaults = UserDefaults(suiteName: "group.\(bundleIdentifier)")
       else {
@@ -101,6 +111,13 @@ public class ConPawsWidgetsModule: Module {
       }
 
       let key = "conpaws.widget.snapshot.v1"
+
+      guard Self.supportedSchemaVersions.contains(schemaVersion) else {
+        defaults.removeObject(forKey: key)
+        WidgetCenter.shared.reloadAllTimelines()
+        return false
+      }
+
       let changed = defaults.string(forKey: key) != json
       defaults.set(json, forKey: key)
       if changed {

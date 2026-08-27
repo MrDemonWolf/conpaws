@@ -112,6 +112,7 @@ private struct ConPawsWatchEntryView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    .environment(\.locale, entry.snapshot.locale)
   }
 }
 
@@ -140,6 +141,7 @@ private struct ComingUpWidgetView: View {
 }
 
 private struct LeaveWidgetView: View {
+  @Environment(\.locale) private var locale
   let current: ConPawsEventSnapshot?
   let next: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
@@ -169,7 +171,7 @@ private struct LeaveWidgetView: View {
       }
 
       Text(
-        "NEXT · \(WidgetFormat.nextEventTime(next.startDate, relativeTo: now, in: convention)) · \(next.title)"
+        "NEXT · \(WidgetFormat.nextEventTime(next.startDate, relativeTo: now, in: convention, locale: locale)) · \(next.title)"
       )
         .font(.caption2)
         .lineLimit(1)
@@ -185,13 +187,14 @@ private struct LeaveWidgetView: View {
       in: convention.timeZone
     )
     if let current {
-      return "Leave in \(countdown). Current event: \(current.title). Next event: \(next.title), starts \(WidgetFormat.nextEventTime(next.startDate, relativeTo: now, in: convention))."
+      return "Leave in \(countdown). Current event: \(current.title). Next event: \(next.title), starts \(WidgetFormat.nextEventTime(next.startDate, relativeTo: now, in: convention, locale: locale))."
     }
-    return "Leave in \(countdown) for \(next.title), starts \(WidgetFormat.nextEventTime(next.startDate, relativeTo: now, in: convention))."
+    return "Leave in \(countdown) for \(next.title), starts \(WidgetFormat.nextEventTime(next.startDate, relativeTo: now, in: convention, locale: locale))."
   }
 }
 
 private struct NextWidgetView: View {
+  @Environment(\.locale) private var locale
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
   let now: Date
@@ -202,7 +205,7 @@ private struct NextWidgetView: View {
         Image(systemName: "calendar")
           .accessibilityHidden(true)
         Text(
-          "NEXT · \(WidgetFormat.nextEventTime(event.startDate, relativeTo: now, in: convention))"
+          "NEXT · \(WidgetFormat.nextEventTime(event.startDate, relativeTo: now, in: convention, locale: locale))"
         )
       }
       .font(.caption2.bold())
@@ -222,7 +225,7 @@ private struct NextWidgetView: View {
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
-      "Next event: \(event.title), starts \(WidgetFormat.nextEventTime(event.startDate, relativeTo: now, in: convention))\(WidgetFormat.location(event).map { ", \($0)" } ?? "")."
+      "Next event: \(event.title), starts \(WidgetFormat.nextEventTime(event.startDate, relativeTo: now, in: convention, locale: locale))\(WidgetFormat.location(event).map { ", \($0)" } ?? "")."
     )
   }
 }
@@ -258,17 +261,12 @@ private struct WidgetCountdownView: View {
 }
 
 struct ConPawsWatchWidget: Widget {
-  static let kind = "ConPawsWatchWidget"
+  static let kind = ConPawsWidgetKind.watchComplication
 
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: ConPawsWatchProvider()) { entry in
-      if #available(iOS 17.0, *) {
-        ConPawsWatchEntryView(entry: entry)
-          .containerBackground(Color.black, for: .widget)
-      } else {
-        ConPawsWatchEntryView(entry: entry)
-          .background(Color.black)
-      }
+      ConPawsWatchEntryView(entry: entry)
+        .containerBackground(Color.black, for: .widget)
     }
     .configurationDisplayName("ConPaws Schedule")
     .description("See your next event, leave reminder, or convention countdown.")
@@ -372,9 +370,13 @@ private struct WidgetScheduleProjection {
 }
 
 private enum WidgetFormat {
-  static func time(_ date: Date, in convention: ConPawsConventionSnapshot) -> String {
+  static func time(
+    _ date: Date,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
+  ) -> String {
     let formatter = DateFormatter()
-    formatter.locale = .autoupdatingCurrent
+    formatter.locale = locale
     formatter.timeZone = convention.timeZone
     formatter.timeStyle = .short
     return formatter.string(from: date)
@@ -383,11 +385,12 @@ private enum WidgetFormat {
   static func nextEventTime(
     _ date: Date,
     relativeTo now: Date,
-    in convention: ConPawsConventionSnapshot
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
   ) -> String {
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = convention.timeZone
-    let timeLabel = time(date, in: convention)
+    let timeLabel = time(date, in: convention, locale: locale)
     guard !calendar.isDate(date, inSameDayAs: now) else { return timeLabel }
 
     if
@@ -398,7 +401,7 @@ private enum WidgetFormat {
     }
 
     let formatter = DateFormatter()
-    formatter.locale = .autoupdatingCurrent
+    formatter.locale = locale
     formatter.timeZone = convention.timeZone
     formatter.setLocalizedDateFormatFromTemplate("EEEE")
     return "\(formatter.string(from: date)) · \(timeLabel)"
@@ -410,20 +413,6 @@ private enum WidgetFormat {
       .filter { !$0.isEmpty }
     if values.count == 2, values[0] == values[1] { return values[0] }
     return values.isEmpty ? nil : values.joined(separator: " • ")
-  }
-
-  static func countdown(from now: Date, to target: Date, in timeZone: TimeZone) -> String {
-    let seconds = max(0, target.timeIntervalSince(now))
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
-
-    if seconds >= 30 * 86_400 {
-      let parts = calendar.dateComponents([.month, .day], from: now, to: target)
-      return "\(max(0, parts.month ?? 0)) MO  \(max(0, parts.day ?? 0)) D"
-    }
-
-    let parts = calendar.dateComponents([.day, .hour], from: now, to: target)
-    return "\(max(0, parts.day ?? 0)) D  \(max(0, parts.hour ?? 0)) H"
   }
 
   static func countdownAccessibility(

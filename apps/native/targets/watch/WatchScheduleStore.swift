@@ -4,6 +4,17 @@ import WatchConnectivity
 import WidgetKit
 
 final class WatchScheduleStore: NSObject, ObservableObject {
+  /// How far behind the stored snapshot a candidate may be stamped before it
+  /// reads as a clock correction rather than a delivery that arrived late.
+  private static let rewindToleranceMs: Double = 3_600 * 1_000
+
+  /// How far ahead of this watch's clock a snapshot may be stamped.
+  ///
+  /// `generatedAtMs` is the phone's wall clock, so a phone that boots with a
+  /// bad RTC can stamp one years out. Nothing downstream would ever displace
+  /// it, so the ceiling belongs here, at the point the value is first trusted.
+  private static let futureToleranceMs: Double = 86_400 * 1_000
+
   private let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
   @Published private(set) var isReachable = false
@@ -47,9 +58,16 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     let persistedJSON = UserDefaults(
       suiteName: ConPawsSnapshotStore.appGroupIdentifier()
     )?.string(forKey: ConPawsSnapshotStore.snapshotKey)
+    let rewindMs = ConPawsSnapshotStore.load().generatedAtMs - candidate.generatedAtMs
     guard
       persistedJSON != json,
-      candidate.generatedAtMs >= ConPawsSnapshotStore.load().generatedAtMs,
+      // Newer wins, which is what keeps an out-of-order WatchConnectivity
+      // delivery from overwriting a fresher schedule. A candidate stamped far
+      // enough behind the stored one is the other case: the phone's clock was
+      // wrong and has been corrected, so it wins too. Without that second arm
+      // one snapshot from a phone with a bad RTC keeps the watch frozen for
+      // good, since nothing here ever lowers the stored timestamp.
+      rewindMs <= 0 || rewindMs > Self.rewindToleranceMs,
       ConPawsSnapshotStore.save(json: json)
     else {
       return
@@ -57,7 +75,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
     DispatchQueue.main.async { [weak self] in
       self?.snapshot = candidate
-      WidgetCenter.shared.reloadTimelines(ofKind: "ConPawsWatchWidget")
+      WidgetCenter.shared.reloadTimelines(ofKind: ConPawsWidgetKind.watchComplication)
     }
   }
 
@@ -66,6 +84,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
       snapshot.schemaVersion == 1,
       snapshot.generatedAtMs.isFinite,
       snapshot.generatedAtMs >= 0,
+      snapshot.generatedAtMs <= Date().timeIntervalSince1970 * 1_000 + Self.futureToleranceMs,
       Set(snapshot.conventions.map(\.id)).count == snapshot.conventions.count
     else {
       return false
