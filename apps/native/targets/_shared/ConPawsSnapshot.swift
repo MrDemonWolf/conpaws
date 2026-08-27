@@ -29,12 +29,21 @@ struct ConPawsSnapshot: Codable, Sendable {
     components.languageComponents = language
     return Locale(components: components)
   }
+
+  /// The words every date's neighbouring text is written in.
+  ///
+  /// Same source as `locale` and for the same reason: these targets follow the
+  /// app's language setting, not the phone's.
+  var strings: ConPawsStrings {
+    ConPawsStrings.resolve(localeIdentifier)
+  }
 }
 
 /// Widget kinds, named once because `WidgetCenter.reloadTimelines(ofKind:)`
 /// does nothing at all when handed a kind no widget answers to -- a rename that
 /// misses one call site fails silently and stays broken.
 enum ConPawsWidgetKind {
+  static let homeScreen = "ConPawsWidget"
   static let watchComplication = "ConPawsWatchWidget"
 }
 

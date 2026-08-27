@@ -3,8 +3,14 @@ import Foundation
 import WatchConnectivity
 import WidgetKit
 
+/// The App Group slot the widget, the complication and the watch app all read.
+///
+/// Named once for the same reason the widget kinds are: this string is a
+/// contract with code in another target that no compiler checks, so a rename
+/// that misses one spelling fails silently rather than failing to build.
+private let conPawsSnapshotKey = "conpaws.widget.snapshot.v1"
+
 private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
-  private static let snapshotKey = "conpaws.widget.snapshot.v1"
   private let queue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-sync")
   private var latestJSON: String?
   private var shouldTransferLatest = false
@@ -29,7 +35,7 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
     guard session.activationState == .activated, let latestJSON else { return }
 
     do {
-      try session.updateApplicationContext([Self.snapshotKey: latestJSON])
+      try session.updateApplicationContext([conPawsSnapshotKey: latestJSON])
     } catch {
       NSLog("ConPaws Watch snapshot sync failed: %@", error.localizedDescription)
       return
@@ -37,7 +43,7 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
 
     if shouldTransferLatest {
       guard session.isPaired, session.isWatchAppInstalled else { return }
-      session.transferUserInfo([Self.snapshotKey: latestJSON])
+      session.transferUserInfo([conPawsSnapshotKey: latestJSON])
       shouldTransferLatest = false
     }
     self.latestJSON = nil
@@ -110,7 +116,7 @@ public class ConPawsWidgetsModule: Module {
         return false
       }
 
-      let key = "conpaws.widget.snapshot.v1"
+      let key = conPawsSnapshotKey
 
       guard Self.supportedSchemaVersions.contains(schemaVersion) else {
         defaults.removeObject(forKey: key)
