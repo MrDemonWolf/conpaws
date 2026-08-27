@@ -22,31 +22,7 @@ import {
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
-
-interface ConventionRowContent {
-  name: string;
-  dateRange: string;
-  status: "upcoming" | "active" | "ended";
-  statusLabel: string;
-  moreAccessibilityLabel: string;
-}
-
-interface ConventionListProps<T extends { id: string }> {
-  data: T[];
-  archivedData: T[];
-  archiveExpanded: boolean;
-  archiveLabel: string;
-  archiveActionLabel: string;
-  currentEmptyLabel: string;
-  onToggleArchive: () => void;
-  getRowContent: (item: T) => ConventionRowContent;
-  onOpen: (item: T) => void;
-  deleteLabel: string;
-  onDelete: (item: T) => void;
-  archiveItemLabel: string;
-  onArchive: (item: T) => void;
-  onOpenActions: (item: T) => void;
-}
+import type { ConventionListProps } from "./ConventionList.types";
 
 export function ConventionList<T extends { id: string }>({
   data,

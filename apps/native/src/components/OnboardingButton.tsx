@@ -6,6 +6,7 @@ export function OnboardingButton({
   onPress,
   variant = "primary",
   disabled = false,
+  testID,
 }: OnboardingButtonProps) {
   return (
     <Button
@@ -19,6 +20,7 @@ export function OnboardingButton({
       }
       size="md"
       disabled={disabled}
+      testID={testID}
       className="min-h-11 w-full"
     >
       {label}
