@@ -1,18 +1,16 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Image, ScrollView, View } from "react-native";
 import { OnboardingButton } from "@/components/OnboardingButton";
 import { OnboardingProgress } from "@/components/OnboardingProgress";
 import { SafeView, Text } from "@/components/ui";
+import { markOnboardingComplete } from "@/lib/onboarding-storage";
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
 
   async function handleSkip() {
-    await AsyncStorage.setItem("hasCompletedOnboarding", "true").catch(
-      () => undefined,
-    );
+    await markOnboardingComplete();
     router.replace("/(tabs)/(home)");
   }
 

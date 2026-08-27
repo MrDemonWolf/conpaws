@@ -5,22 +5,23 @@ import {
   Button as NativeButton,
   Text as NativeText,
 } from "@expo/ui";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Application from "expo-application";
 import Constants from "expo-constants";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, AppState, Linking, useColorScheme } from "react-native";
+import { Alert, AppState, Linking } from "react-native";
 import {
   BLANK_PREVIEW_CONVENTION_ID,
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   type ConventionPreviewState,
   developerToolsEnabled,
 } from "@/lib/developer-tools";
+import { resetOnboarding } from "@/lib/onboarding-storage";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
@@ -49,9 +50,8 @@ export default function DebugScreen() {
   const [notificationPermission, setNotificationPermission] =
     useState<PermissionStatus>("undetermined");
   const presentationLock = useRef(false);
-  const colorScheme = useColorScheme();
   const { colors } = useTheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const enabled = developerToolsEnabled(__DEV__, appVariant);
   const version =
@@ -100,7 +100,7 @@ export default function DebugScreen() {
         {
           text: "Replay",
           onPress: async () => {
-            await AsyncStorage.removeItem("hasCompletedOnboarding");
+            await resetOnboarding();
             router.replace("/(onboarding)/welcome");
           },
         },

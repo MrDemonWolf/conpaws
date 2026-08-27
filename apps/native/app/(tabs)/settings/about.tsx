@@ -18,15 +18,9 @@ import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
-import {
-  Image,
-  Linking,
-  Text,
-  useColorScheme,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Image, Linking, Text, useWindowDimensions, View } from "react-native";
 import licenses from "@/generated/open-source-licenses.json";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
@@ -56,10 +50,9 @@ function NavigationIndicator() {
 
 export default function AboutScreen() {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
   const versionLabel = useVersionLabel();
   const heroWidth = Math.min(520, Math.max(260, width - 64));
 

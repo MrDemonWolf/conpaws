@@ -7,7 +7,8 @@ import { font } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, useColorScheme } from "react-native";
+import { Alert } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   APPEARANCE_PREFERENCES,
   type AppearancePreference,
@@ -31,7 +32,7 @@ const APPEARANCE_ICONS: Record<
 export default function AppearanceScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const colorScheme = useColorScheme();
+  const resolvedColorScheme = useResolvedColorScheme();
   const [appearance, setAppearance] = useState<AppearancePreference>(
     getAppearancePreference,
   );
@@ -55,7 +56,7 @@ export default function AppearanceScreen() {
 
   return (
     <Host
-      colorScheme={colorScheme === "dark" ? "dark" : "light"}
+      colorScheme={resolvedColorScheme}
       seedColor={colors.primary}
       style={{ flex: 1 }}
       useViewportSizeMeasurement

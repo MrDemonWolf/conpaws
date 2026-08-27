@@ -2,8 +2,6 @@ import AddIcon from "@expo/material-symbols/add.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
-import { Host, Icon } from "@expo/ui";
-import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import { getCalendars } from "expo-localization";
@@ -13,75 +11,66 @@ import {
   useFocusEffect,
   useLocalSearchParams,
 } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
-import * as WebBrowser from "expo-web-browser";
-import type { TFunction } from "i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
   Alert,
-  Modal,
+  AppState,
+  Linking,
   Pressable,
   ScrollView,
   SectionList,
-  Switch,
-  TextInput,
-  useColorScheme,
-  useWindowDimensions,
   View,
 } from "react-native";
-import { EventItem } from "@/components/EventItem";
-import { SectionHeader } from "@/components/SectionHeader";
 import {
-  Badge,
-  Button,
-  EmptyState,
-  SafeView,
-  ScheduleSkeleton,
-  Text,
-} from "@/components/ui";
+  BlankConventionState,
+  EMPTY_SCHEDULE_ICON,
+} from "@/components/convention-detail/BlankConventionState";
+import { ConventionEventRow } from "@/components/convention-detail/ConventionEventRow";
+import { EventActionSheet } from "@/components/convention-detail/EventActionSheet";
+import {
+  type ManualEventDraft,
+  ManualEventModal,
+} from "@/components/convention-detail/ManualEventModal";
+import { SectionHeader } from "@/components/SectionHeader";
+import { EmptyState, SafeView, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
-import { confirmDiscardChanges } from "@/hooks/useUnsavedChangesGuard";
 import {
   conventionDayKey,
-  formatInConventionTime,
-  fromConventionTime,
   isValidTimeZone,
   overlappingEventIds,
 } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
+import { deviceHour12 } from "@/lib/device-clock";
+import { shouldShowProvenance } from "@/lib/event-indicators";
 import {
-  getEventIndicators,
-  shouldShowProvenance,
-} from "@/lib/event-indicators";
-import {
-  createManualEventTimes,
-  type ManualEventTimes,
-  manualEventDayKey,
-  manualEventPickerDate,
-  updateManualEventDate,
-  updateManualEventEnd,
-  updateManualEventStart,
-  validatedManualEventEnd,
-} from "@/lib/manual-event-time";
+  formatConventionDate,
+  formatEventDayLabel,
+  formatEventTime,
+} from "@/lib/event-time-format";
+import { currentLocale } from "@/lib/i18n";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
-import { getNowAndNextEvents } from "@/lib/schedule-view";
-import { cn } from "@/lib/utils";
 import {
-  hapticLongPress,
-  hapticSuccess,
-  hapticTap,
-  hapticToggle,
-} from "@/services/haptics";
+  getReminderReconciliation,
+  resolveReminderNotice,
+} from "@/lib/reminder-notice";
+import {
+  SCHEDULE_EMPTY_CONTENT_STYLE,
+  SCHEDULE_LIST_CONTENT_STYLE,
+} from "@/lib/schedule-list-styles";
+import { getNowAndNextEvents } from "@/lib/schedule-view";
+import { hapticSuccess, hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
+  getNotificationPermissionStatus,
+  type PermissionStatus,
   scheduleEventReminder,
 } from "@/services/notifications";
 
@@ -93,22 +82,6 @@ interface DayGroup {
 
 type ScheduleView = "all" | "mine" | "now-next";
 
-const EMPTY_SCHEDULE_ICON = Icon.select({
-  ios: "calendar",
-  android: EventIcon,
-});
-const IMPORT_SCHEDULE_ICON = Icon.select({
-  ios: "square.and.arrow.down",
-  android: UploadIcon,
-});
-const ADD_EVENT_ICON = Icon.select({
-  ios: "calendar.badge.plus",
-  android: AddIcon,
-});
-const EMPTY_LIST_CONTENT_STYLE = { flexGrow: 1 } as const;
-// Populated lists need their own bottom padding: the empty-only style above
-// left the last event of the last day running under the system navigation bar.
-const LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
 const EMPTY_CONVENTION_CONTENT_STYLE = {
   flexGrow: 1,
   justifyContent: "center",
@@ -116,116 +89,17 @@ const EMPTY_CONVENTION_CONTENT_STYLE = {
   paddingTop: 24,
 } as const;
 
-interface BlankConventionStateProps {
-  title: string;
-  subtitle: string;
-  dateRange: string;
-  timeZoneLabel: string;
-  importLabel: string;
-  addLabel: string;
-  onImport: () => void;
-  onAdd: () => void;
+/** Why a reminder could not be set, so each cause gets its own message. */
+type ReminderFailure = "permission" | "too-late" | "cancel-failed" | "unknown";
+
+class ReminderError extends Error {
+  readonly failure: ReminderFailure;
+
+  constructor(failure: ReminderFailure) {
+    super(failure);
+    this.failure = failure;
+  }
 }
-
-function BlankConventionState({
-  title,
-  subtitle,
-  dateRange,
-  timeZoneLabel,
-  importLabel,
-  addLabel,
-  onImport,
-  onAdd,
-}: BlankConventionStateProps) {
-  const colorScheme = useColorScheme();
-  const { colors } = useTheme();
-
-  return (
-    <View className="flex-1 justify-center px-6 py-6">
-      <View className="items-center gap-3">
-        <Host
-          colorScheme={colorScheme === "dark" ? "dark" : "light"}
-          matchContents
-          pointerEvents="none"
-        >
-          <Icon name={EMPTY_SCHEDULE_ICON} size={32} color={colors.primary} />
-        </Host>
-        <View className="items-center gap-1.5">
-          <Text variant="h3" className="text-center">
-            {title}
-          </Text>
-          <Text variant="body" className="text-center text-muted-foreground">
-            {subtitle}
-          </Text>
-        </View>
-        <View className="items-center gap-1 pt-1">
-          <Text variant="label" className="text-center" selectable>
-            {dateRange}
-          </Text>
-          <Text variant="caption" className="text-center" selectable>
-            {timeZoneLabel}
-          </Text>
-        </View>
-      </View>
-      <View className="flex-row flex-wrap items-center justify-center gap-2 pt-4">
-        <Button accessibilityLabel={importLabel} size="sm" onPress={onImport}>
-          <View className="flex-row items-center gap-1.5">
-            <Host
-              colorScheme={colorScheme === "dark" ? "dark" : "light"}
-              matchContents
-              pointerEvents="none"
-              style={{ width: 18, height: 18 }}
-            >
-              <Icon
-                name={IMPORT_SCHEDULE_ICON}
-                size={18}
-                color={colors.background}
-              />
-            </Host>
-            <Text variant="label" className="text-primary-foreground">
-              {importLabel}
-            </Text>
-          </View>
-        </Button>
-        <Button
-          accessibilityLabel={addLabel}
-          size="sm"
-          variant="outline"
-          onPress={onAdd}
-        >
-          <View className="flex-row items-center gap-1.5">
-            <Host
-              colorScheme={colorScheme === "dark" ? "dark" : "light"}
-              matchContents
-              pointerEvents="none"
-              style={{ width: 18, height: 18 }}
-            >
-              <Icon name={ADD_EVENT_ICON} size={18} color={colors.primary} />
-            </Host>
-            <Text variant="label">{addLabel}</Text>
-          </View>
-        </Button>
-      </View>
-    </View>
-  );
-}
-
-interface ManualEventTextValues {
-  title: string;
-  room: string;
-}
-
-interface ManualEventDraft {
-  title: string;
-  startTime: string;
-  endTime: string | null;
-  room: string | null;
-}
-
-const EMPTY_MANUAL_EVENT_TEXT: ManualEventTextValues = {
-  title: "",
-  room: "",
-};
 
 function groupEventsByDay(
   events: ConventionEvent[],
@@ -242,12 +116,7 @@ function groupEventsByDay(
     } else {
       groups.push({
         key,
-        label: new Intl.DateTimeFormat(locale, {
-          timeZone,
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        }).format(new Date(event.startTime)),
+        label: formatEventDayLabel(event.startTime, timeZone, locale),
         data: [event],
       });
     }
@@ -256,699 +125,19 @@ function groupEventsByDay(
   return groups.sort((a, b) => a.key.localeCompare(b.key));
 }
 
-function formatTime(
-  isoString: string | null,
-  timeZone: string,
-  locale: string,
-): string {
-  if (!isoString) return "";
-  return new Intl.DateTimeFormat(locale, {
-    timeZone,
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(isoString));
-}
-
-function getEventIndicatorLabels(
-  event: Pick<ConventionEvent, "reminderMinutes" | "sourceUid">,
-  t: TFunction,
-): { provenanceLabel: string; reminderLabel?: string } {
-  const { provenance, reminder } = getEventIndicators(event);
-
-  return {
-    provenanceLabel: t(`convention.eventSource.${provenance}`),
-    reminderLabel: reminder
-      ? t(
-          reminder.kind === "hour"
-            ? "reminders.hourBefore"
-            : "reminders.minutesBefore",
-          { minutes: reminder.minutes },
-        )
-      : undefined,
-  };
-}
-
-interface ActionSheetProps {
-  event: ConventionEvent | null;
-  visible: boolean;
-  timeZone: string;
-  onClose: () => void;
-  onToggleSchedule: (event: ConventionEvent) => void;
-  onSelectReminder: (event: ConventionEvent, minutes: number | null) => void;
-}
-
-function EventActionSheet({
-  event,
-  visible,
-  timeZone,
-  onClose,
-  onToggleSchedule,
-  onSelectReminder,
-}: ActionSheetProps) {
-  const { t, i18n } = useTranslation();
-  const [mode, setMode] = useState<"actions" | "reminder">("actions");
-  if (!event) return null;
-
-  function closeSheet() {
-    setMode("actions");
-    onClose();
-  }
-
-  const room = event.room ?? event.location;
-  const sourceUrl = event.sourceUrl;
-  const locale = i18n.resolvedLanguage ?? i18n.language;
-  const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(event, t);
-  const scheduleAction = event.isInSchedule
-    ? t("convention.removeFromSchedule")
-    : t("convention.addToSchedule");
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={closeSheet}
-    >
-      <View className="flex-1 bg-black/50 justify-end">
-        <Pressable
-          accessible={false}
-          className="absolute inset-0"
-          onPress={closeSheet}
-        />
-        <Pressable
-          accessible={false}
-          accessibilityViewIsModal
-          onAccessibilityEscape={closeSheet}
-          className="z-10 bg-card rounded-t-2xl"
-          style={{ maxHeight: "85%" }}
-          testID={
-            mode === "reminder"
-              ? "convention-reminder-picker"
-              : "convention-event-actions"
-          }
-        >
-          {mode === "reminder" ? (
-            <ReminderPickerContent
-              event={event}
-              onClose={closeSheet}
-              onSelect={onSelectReminder}
-            />
-          ) : (
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 32 }}
-            >
-              <View className="w-10 h-1 bg-border rounded-full self-center mt-3 mb-4" />
-              <Text
-                variant="h3"
-                className="px-4"
-                accessibilityRole="header"
-                selectable
-              >
-                {event.title}
-              </Text>
-              <Text variant="caption" className="px-4 pt-1" selectable>
-                {new Intl.DateTimeFormat(locale, {
-                  timeZone,
-                  dateStyle: "full",
-                  timeStyle: "short",
-                }).format(new Date(event.startTime))}
-                {event.endTime
-                  ? ` ${t("convention.timeRangeTo", {
-                      time: formatTime(event.endTime, timeZone, locale),
-                    })}`
-                  : ""}
-                {room ? ` · ${room}` : ""}
-              </Text>
-              <View
-                accessible
-                accessibilityRole="text"
-                accessibilityLabel={[
-                  reminderLabel
-                    ? `${t("convention.reminderSet")}: ${reminderLabel}`
-                    : null,
-                  provenanceLabel,
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-                className="flex-row flex-wrap gap-1.5 px-4 pt-3"
-              >
-                {reminderLabel !== undefined ? (
-                  <Badge variant="info" label={reminderLabel} />
-                ) : null}
-                <Badge variant="neutral" label={provenanceLabel} />
-              </View>
-              {event.description ? (
-                <Text
-                  variant="body"
-                  className="px-4 pt-3 pb-1 text-muted-foreground"
-                  selectable
-                >
-                  {event.description}
-                </Text>
-              ) : null}
-
-              <Pressable
-                onPress={() => {
-                  onToggleSchedule(event);
-                  onClose();
-                }}
-                accessibilityRole="button"
-                accessibilityLabel={scheduleAction}
-                accessibilityHint={t("convention.scheduleActionHint")}
-                className="px-4 py-3.5 active:opacity-70"
-              >
-                <Text variant="body">{scheduleAction}</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => setMode("reminder")}
-                accessibilityRole="button"
-                accessibilityLabel={
-                  event.reminderMinutes !== null
-                    ? t("reminders.changeLeave")
-                    : t("reminders.setLeave")
-                }
-                accessibilityHint={t("reminders.pickerDescription", {
-                  event: event.title,
-                })}
-                className="px-4 py-3.5 active:opacity-70"
-              >
-                <Text variant="body">
-                  {event.reminderMinutes !== null
-                    ? t("reminders.changeLeave")
-                    : t("reminders.setLeave")}
-                </Text>
-              </Pressable>
-
-              {sourceUrl && (
-                <Pressable
-                  onPress={() => {
-                    WebBrowser.openBrowserAsync(sourceUrl);
-                    onClose();
-                  }}
-                  accessibilityRole="link"
-                  accessibilityLabel={t("convention.viewOnSchedLabel", {
-                    event: event.title,
-                  })}
-                  accessibilityHint={t("convention.openExternalHint")}
-                  className="px-4 py-3.5 active:opacity-70"
-                >
-                  <Text variant="body">{t("convention.viewOnSched")}</Text>
-                </Pressable>
-              )}
-
-              <Pressable
-                onPress={closeSheet}
-                accessibilityRole="button"
-                accessibilityLabel={t("convention.closeEventDetails")}
-                className="px-4 py-3.5 active:opacity-70 mt-2 border-t border-border"
-              >
-                <Text
-                  variant="body"
-                  className="text-muted-foreground text-center"
-                >
-                  {t("common.cancel")}
-                </Text>
-              </Pressable>
-            </ScrollView>
-          )}
-        </Pressable>
-      </View>
-    </Modal>
-  );
-}
-
-interface ReminderPickerContentProps {
-  event: ConventionEvent;
-  onClose: () => void;
-  onSelect: (event: ConventionEvent, minutes: number | null) => void;
-}
-
-const REMINDER_OPTIONS = [null, 5, 10, 15, 30, 60] as const;
-
-function ReminderPickerContent({
-  event,
-  onClose,
-  onSelect,
-}: ReminderPickerContentProps) {
-  const { t } = useTranslation();
-
-  return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 32 }}
-    >
-      <View className="w-10 h-1 bg-border rounded-full self-center mt-3 mb-4" />
-      <Text variant="label" className="px-4 pb-3" accessibilityRole="header">
-        {t("reminders.pickerTitle")}
-      </Text>
-      <Text variant="caption" className="px-4 pb-2">
-        {t("reminders.pickerDescription", { event: event.title })}
-      </Text>
-      {REMINDER_OPTIONS.map((minutes) => {
-        const label =
-          minutes === null
-            ? t("reminders.none")
-            : minutes === 60
-              ? t("reminders.hourBefore")
-              : t("reminders.minutesBefore", { minutes });
-        return (
-          <Pressable
-            key={String(minutes)}
-            testID={`convention-reminder-${minutes ?? "none"}`}
-            onPress={() => {
-              onSelect(event, minutes);
-              onClose();
-            }}
-            accessibilityRole="radio"
-            accessibilityLabel={label}
-            accessibilityState={{
-              checked: event.reminderMinutes === minutes,
-            }}
-            className="px-4 py-3.5 active:opacity-70 flex-row items-center justify-between"
-          >
-            <Text variant="body">{label}</Text>
-            {event.reminderMinutes === minutes && (
-              <Text className="text-primary">✓</Text>
-            )}
-          </Pressable>
-        );
-      })}
-      <Pressable
-        testID="convention-reminder-cancel"
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel={t("common.cancel")}
-        className="px-4 py-3.5 active:opacity-70 mt-2 border-t border-border"
-      >
-        <Text variant="body" className="text-muted-foreground text-center">
-          {t("common.cancel")}
-        </Text>
-      </Pressable>
-    </ScrollView>
-  );
-}
-
-interface NativeDateTimeFieldProps {
-  label: string;
-  value: Date;
-  mode: "date" | "time";
-  locale: string;
-  minimumDate?: Date;
-  maximumDate?: Date;
-  showDivider?: boolean;
-  testID: string;
-  onChange: (value: Date) => void;
-}
-
-function NativeDateTimeField({
-  label,
-  value,
-  mode,
-  locale,
-  minimumDate,
-  maximumDate,
-  showDivider = false,
-  testID,
-  onChange,
-}: NativeDateTimeFieldProps) {
-  const colorScheme = useColorScheme();
-  const { fontScale } = useWindowDimensions();
-  const [dialogVisible, setDialogVisible] = useState(false);
-  const formattedValue =
-    mode === "date"
-      ? value.toLocaleDateString(locale, { dateStyle: "medium" })
-      : value.toLocaleTimeString(locale, { timeStyle: "short" });
-  const fieldClassName = cn(
-    "min-h-14 flex-row items-center justify-between gap-4 px-4 py-2",
-    showDivider && "border-b border-border",
-  );
-  // The compact UIDatePicker stretches to fill the row and then overflows past
-  // its label, clipping the value against the card edge. It has no intrinsic
-  // width and ignores flexShrink, so the frame has to be set explicitly.
-  // ponytail: base widths fit the widest en-US value ("Sep 30, 2026" /
-  // "10:00 PM") and scale with Dynamic Type. If a locale renders wider than
-  // en-US, measure onLayout instead of widening these further.
-  const pickerWidth = Math.round(
-    (mode === "date" ? 148 : 112) * Math.min(Math.max(fontScale, 1), 1.6),
-  );
-
-  if (process.env.EXPO_OS === "ios") {
-    return (
-      <View className={fieldClassName}>
-        <Text variant="body" className="shrink" numberOfLines={1}>
-          {label}
-        </Text>
-        <DateTimePicker
-          style={{ width: pickerWidth }}
-          value={value}
-          mode={mode}
-          display="compact"
-          minimumDate={minimumDate}
-          maximumDate={maximumDate}
-          locale={locale}
-          themeVariant={colorScheme === "dark" ? "dark" : "light"}
-          testID={testID}
-          onValueChange={(_, nextValue) => onChange(nextValue)}
-        />
-      </View>
-    );
-  }
-
-  return (
-    <>
-      <Pressable
-        className={cn(fieldClassName, "active:opacity-70")}
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        testID={testID}
-        onPress={() => setDialogVisible(true)}
-      >
-        <Text variant="body">{label}</Text>
-        <Text variant="body" className="text-primary" selectable>
-          {formattedValue}
-        </Text>
-      </Pressable>
-      {dialogVisible ? (
-        <DateTimePicker
-          value={value}
-          mode={mode}
-          minimumDate={minimumDate}
-          maximumDate={maximumDate}
-          presentation="dialog"
-          onValueChange={(_, nextValue) => {
-            onChange(nextValue);
-            setDialogVisible(false);
-          }}
-          onDismiss={() => setDialogVisible(false)}
-        />
-      ) : null}
-    </>
-  );
-}
-
-interface ManualEventModalProps {
-  visible: boolean;
-  defaultDate: string;
-  minimumDate: string;
-  maximumDate: string;
-  timeZone: string;
-  onClose: () => void;
-  onSave: (event: ManualEventDraft) => Promise<void>;
-}
-
-function ManualEventModal(props: ManualEventModalProps) {
-  return props.visible ? <ManualEventModalContent {...props} /> : null;
-}
-
-function ManualEventModalContent({
-  defaultDate,
-  minimumDate,
-  maximumDate,
-  timeZone,
-  onClose,
-  onSave,
-}: ManualEventModalProps) {
-  const { t, i18n } = useTranslation();
-  const [values, setValues] = useState<ManualEventTextValues>(
-    EMPTY_MANUAL_EVENT_TEXT,
-  );
-  const [times, setTimes] = useState<ManualEventTimes>(() =>
-    createManualEventTimes(defaultDate, minimumDate, maximumDate),
-  );
-  const [includeEndTime, setIncludeEndTime] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  function updateValue(key: keyof ManualEventTextValues, value: string) {
-    setValues((current) => ({ ...current, [key]: value }));
-    setError(null);
-  }
-
-  const isDirty =
-    !saving &&
-    (values.title.trim().length > 0 || values.room.trim().length > 0);
-
-  function requestClose() {
-    if (!isDirty) {
-      onClose();
-      return;
-    }
-    confirmDiscardChanges(t, onClose);
-  }
-
-  async function handleSave() {
-    const title = values.title.trim();
-    if (!title) {
-      setError(t("convention.manualEvent.errors.title"));
-      return;
-    }
-
-    const dayKey = manualEventDayKey(times.date);
-    const date = {
-      year: times.date.getFullYear(),
-      month: times.date.getMonth() + 1,
-      day: times.date.getDate(),
-    };
-    const startParts = {
-      hour: times.startTime.getHours(),
-      minute: times.startTime.getMinutes(),
-    };
-    const endParts = {
-      hour: times.endTime.getHours(),
-      minute: times.endTime.getMinutes(),
-    };
-    const start = fromConventionTime({ ...date, ...startParts }, timeZone);
-    const normalizedStart = `${dayKey} ${String(startParts.hour).padStart(2, "0")}:${String(startParts.minute).padStart(2, "0")}`;
-    if (
-      formatInConventionTime(start, timeZone, "yyyy-MM-dd HH:mm") !==
-      normalizedStart
-    ) {
-      setError(t("convention.manualEvent.errors.startTimeZone"));
-      return;
-    }
-
-    const endCandidate = fromConventionTime({ ...date, ...endParts }, timeZone);
-    let end: Date | null;
-    try {
-      end = validatedManualEventEnd(start, endCandidate, includeEndTime);
-    } catch {
-      setError(t("convention.manualEvent.errors.order"));
-      return;
-    }
-    const normalizedEnd = `${dayKey} ${String(endParts.hour).padStart(2, "0")}:${String(endParts.minute).padStart(2, "0")}`;
-    if (
-      end &&
-      formatInConventionTime(end, timeZone, "yyyy-MM-dd HH:mm") !==
-        normalizedEnd
-    ) {
-      setError(t("convention.manualEvent.errors.endTimeZone"));
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    try {
-      await onSave({
-        title,
-        startTime: start.toISOString(),
-        endTime: end?.toISOString() ?? null,
-        room: values.room.trim() || null,
-      });
-      onClose();
-    } catch {
-      setError(t("convention.manualEvent.errors.save"));
-    }
-    setSaving(false);
-  }
-
-  return (
-    <Modal
-      visible
-      animationType="slide"
-      presentationStyle="pageSheet"
-      // Android needs both to draw under the system bars like the rest of the app.
-      statusBarTranslucent
-      navigationBarTranslucent
-      // Always handled: React Native requires this on Android, and passing
-      // undefined while saving leaves the back gesture with no handler at all.
-      onRequestClose={() => {
-        if (!saving) requestClose();
-      }}
-    >
-      <SafeView>
-        <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-          <Pressable
-            onPress={requestClose}
-            disabled={saving}
-            accessibilityRole="button"
-            accessibilityLabel={t("convention.manualEvent.cancelLabel")}
-            className="min-h-11 min-w-11 justify-center pr-3 active:opacity-70 disabled:opacity-50"
-          >
-            <Text className="text-primary">{t("common.cancel")}</Text>
-          </Pressable>
-          <Text variant="h3" accessibilityRole="header">
-            {t("convention.addEvent")}
-          </Text>
-          <Pressable
-            onPress={handleSave}
-            disabled={saving}
-            accessibilityRole="button"
-            accessibilityLabel={t("convention.manualEvent.saveLabel")}
-            accessibilityState={{ disabled: saving, busy: saving }}
-            className="min-h-11 min-w-11 justify-center pl-3 active:opacity-70 disabled:opacity-50"
-          >
-            <Text className="text-primary font-semibold">
-              {saving ? t("convention.manualEvent.saving") : t("common.save")}
-            </Text>
-          </Pressable>
-        </View>
-
-        <ScrollView
-          className="flex-1"
-          contentInsetAdjustmentBehavior="automatic"
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: 16, gap: 16 }}
-        >
-          <View className="gap-2">
-            <Text variant="label">
-              {t("convention.manualEvent.titleLabel")}
-            </Text>
-            <TextInput
-              value={values.title}
-              onChangeText={(value) => updateValue("title", value)}
-              placeholder={t("convention.manualEvent.titlePlaceholder")}
-              placeholderTextColor="#94A3B8"
-              autoFocus
-              accessibilityLabel={t(
-                "convention.manualEvent.titleAccessibility",
-              )}
-              className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-            />
-          </View>
-
-          <View className="overflow-hidden rounded-xl border border-border bg-card">
-            <NativeDateTimeField
-              label={t("convention.manualEvent.dateLabel")}
-              value={times.date}
-              mode="date"
-              locale={i18n.resolvedLanguage ?? i18n.language}
-              minimumDate={manualEventPickerDate(minimumDate)}
-              maximumDate={manualEventPickerDate(maximumDate)}
-              showDivider
-              testID="manual-event-date-picker"
-              onChange={(value) => {
-                setTimes((current) =>
-                  updateManualEventDate(
-                    current,
-                    value,
-                    minimumDate,
-                    maximumDate,
-                  ),
-                );
-                setError(null);
-              }}
-            />
-            <NativeDateTimeField
-              label={t("convention.manualEvent.startLabel")}
-              value={times.startTime}
-              mode="time"
-              locale={i18n.resolvedLanguage ?? i18n.language}
-              showDivider
-              testID="manual-event-start-picker"
-              onChange={(value) => {
-                setTimes((current) =>
-                  updateManualEventStart(current, value, includeEndTime),
-                );
-                setError(null);
-              }}
-            />
-            <View
-              className={cn(
-                "min-h-14 flex-row items-center justify-between gap-4 px-4 py-2",
-                includeEndTime && "border-b border-border",
-              )}
-            >
-              <Text variant="body">{t("convention.manualEvent.endLabel")}</Text>
-              <Switch
-                value={includeEndTime}
-                onValueChange={(value) => {
-                  if (value) {
-                    setTimes((current) =>
-                      updateManualEventStart(current, current.startTime, true),
-                    );
-                  }
-                  setIncludeEndTime(value);
-                  setError(null);
-                }}
-                accessibilityLabel={t(
-                  "convention.manualEvent.endAccessibility",
-                )}
-              />
-            </View>
-            {includeEndTime ? (
-              <NativeDateTimeField
-                label={t("convention.manualEvent.endLabel")}
-                value={times.endTime}
-                mode="time"
-                locale={i18n.resolvedLanguage ?? i18n.language}
-                minimumDate={times.startTime}
-                testID="manual-event-end-picker"
-                onChange={(value) => {
-                  setTimes((current) => updateManualEventEnd(current, value));
-                  setError(null);
-                }}
-              />
-            ) : null}
-          </View>
-
-          <View className="gap-2">
-            <Text variant="label">{t("convention.manualEvent.roomLabel")}</Text>
-            <TextInput
-              value={values.room}
-              onChangeText={(value) => updateValue("room", value)}
-              placeholder={t("convention.manualEvent.roomPlaceholder")}
-              placeholderTextColor="#94A3B8"
-              accessibilityLabel={t("convention.manualEvent.roomAccessibility")}
-              className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-            />
-          </View>
-
-          <Text variant="caption" selectable>
-            {t("convention.manualEvent.timeZoneHelp", { timeZone })}
-          </Text>
-          {error ? (
-            <Text
-              variant="body"
-              className="text-destructive"
-              accessibilityRole="alert"
-              selectable
-            >
-              {error}
-            </Text>
-          ) : null}
-        </ScrollView>
-      </SafeView>
-    </Modal>
-  );
-}
-
 export default function ConventionDetailScreen() {
   const { id, previewState: requestedPreviewState } = useLocalSearchParams<{
     id: string;
     previewState?: string;
   }>();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const locale = currentLocale();
+  const hour12 = deviceHour12();
   const previewState = resolveConventionPreviewState(
     requestedPreviewState,
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
-  );
-  const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
-    [locale],
   );
   const presentationLock = useRef(false);
 
@@ -957,12 +146,39 @@ export default function ConventionDetailScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [manualEventVisible, setManualEventVisible] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const [notificationPermission, setNotificationPermission] =
+    useState<PermissionStatus | null>(null);
   const [actionSheetEvent, setActionSheetEvent] =
     useState<ConventionEvent | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       resetPresentationLock(presentationLock);
+    }, []),
+  );
+
+  // Re-read on every focus and on every return to the foreground: turning
+  // notifications back on happens in the OS settings app, which does not
+  // re-mount this screen.
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      function readPermission() {
+        void getNotificationPermissionStatus()
+          .then((status) => {
+            if (active) setNotificationPermission(status);
+          })
+          .catch(() => undefined);
+      }
+
+      readPermission();
+      const subscription = AppState.addEventListener("change", (state) => {
+        if (state === "active") readPermission();
+      });
+      return () => {
+        active = false;
+        subscription.remove();
+      };
     }, []),
   );
 
@@ -1003,7 +219,20 @@ export default function ConventionDetailScreen() {
 
   const toggleScheduleMutation = useMutation({
     mutationFn: async (event: ConventionEvent) => {
-      await eventsRepo.update(event.id, { isInSchedule: !event.isInSchedule });
+      const isInSchedule = !event.isInSchedule;
+      if (isInSchedule || event.reminderMinutes === null) {
+        await eventsRepo.update(event.id, { isInSchedule });
+        return;
+      }
+
+      // An event taken off the schedule keeps no reminder: leaving one armed
+      // fires a "time to leave" notification for a panel the user has already
+      // dropped, and the row no longer shows a badge that would explain it.
+      await cancelEventReminder(event.id);
+      await eventsRepo.update(event.id, {
+        isInSchedule,
+        reminderMinutes: null,
+      });
     },
     onSuccess: (_, event) => {
       queryClient.invalidateQueries({ queryKey: ["events", id] });
@@ -1073,6 +302,23 @@ export default function ConventionDetailScreen() {
         room: event.room ?? event.location,
       };
 
+      /**
+       * `scheduleEventReminder` drops the request the OS is already holding
+       * before it tries the new one, so a rejected change leaves the reminder
+       * the user still has saved with nothing behind it. Putting it back is
+       * what keeps the row and the OS agreeing.
+       */
+      async function restorePreviousReminder() {
+        if (event.reminderMinutes === null) return;
+        try {
+          await scheduleEventReminder(reminderEvent, event.reminderMinutes, {
+            requestPermission: false,
+          });
+        } catch {
+          // Best effort: the next launch reconciles what is left.
+        }
+      }
+
       if (minutes !== null && event.startTime) {
         let notificationId: string | null = null;
         try {
@@ -1088,13 +334,18 @@ export default function ConventionDetailScreen() {
             },
           });
         } catch {
-          await eventsRepo.update(event.id, { reminderMinutes: null });
-          throw new Error("The operating system rejected the reminder");
+          // `reminderMinutes` is the only record that the user ever asked for
+          // a reminder. A failed attempt at a new lead time must not wipe the
+          // one they already had, so the row is left exactly as it was.
+          await restorePreviousReminder();
+          throw new ReminderError("unknown");
         }
         if (!notificationId) {
-          await eventsRepo.update(event.id, { reminderMinutes: null });
-          throw new Error(
-            "Reminder permission denied or event already started",
+          // Two very different causes, and the OS reports both the same way.
+          const permission = await getNotificationPermissionStatus();
+          if (permission === "granted") await restorePreviousReminder();
+          throw new ReminderError(
+            permission === "granted" ? "too-late" : "permission",
           );
         }
 
@@ -1102,29 +353,17 @@ export default function ConventionDetailScreen() {
           await eventsRepo.update(event.id, { reminderMinutes: minutes });
         } catch (error) {
           await cancelEventReminder(event.id);
-          if (event.reminderMinutes !== null) {
-            try {
-              await scheduleEventReminder(reminderEvent, event.reminderMinutes);
-            } catch {
-              // Best-effort rollback after a database failure.
-            }
-          }
+          await restorePreviousReminder();
           throw error;
         }
       } else {
         if (!(await cancelEventReminder(event.id))) {
-          throw new Error("The operating system could not cancel the reminder");
+          throw new ReminderError("cancel-failed");
         }
         try {
           await eventsRepo.update(event.id, { reminderMinutes: null });
         } catch (error) {
-          if (event.reminderMinutes !== null) {
-            try {
-              await scheduleEventReminder(reminderEvent, event.reminderMinutes);
-            } catch {
-              // Best-effort rollback after a database failure.
-            }
-          }
+          await restorePreviousReminder();
           throw error;
         }
       }
@@ -1140,10 +379,46 @@ export default function ConventionDetailScreen() {
         ),
       );
     },
-    onError: () => {
-      Alert.alert(t("reminders.errorTitle"), t("reminders.errorMessage"));
+    onError: (error) => {
+      const failure =
+        error instanceof ReminderError ? error.failure : "unknown";
+
+      if (failure === "permission") {
+        setNotificationPermission("denied");
+        Alert.alert(
+          t("reminders.permissionTitle"),
+          t("reminders.permissionMessage"),
+          [
+            { text: t("common.cancel"), style: "cancel" },
+            {
+              text: t("reminders.openSettings"),
+              onPress: () => {
+                void Linking.openSettings();
+              },
+            },
+          ],
+        );
+        return;
+      }
+
+      Alert.alert(
+        t(
+          failure === "too-late"
+            ? "reminders.tooLateTitle"
+            : "reminders.errorTitle",
+        ),
+        t(
+          failure === "too-late"
+            ? "reminders.tooLateMessage"
+            : "reminders.errorMessage",
+        ),
+      );
     },
   });
+
+  const openEventActions = useCallback((event: ConventionEvent) => {
+    setActionSheetEvent(event);
+  }, []);
 
   const scheduledEvents = events.filter((event) => event.isInSchedule);
   // One computation per render, not per row.
@@ -1193,6 +468,43 @@ export default function ConventionDetailScreen() {
     currentConventionDay <= (convention?.endDate ?? "")
       ? currentConventionDay
       : (convention?.startDate ?? currentConventionDay);
+
+  const reminderOverflow = getReminderReconciliation().overflow;
+  const reminderNotice = resolveReminderNotice({
+    permission: notificationPermission,
+    reminderCount: events.filter((event) => event.reminderMinutes !== null)
+      .length,
+    overflow: reminderOverflow,
+  });
+
+  const renderItem = useCallback(
+    ({ item }: { item: ConventionEvent }) => (
+      <ConventionEventRow
+        event={item}
+        timeZone={conventionTimeZone}
+        locale={locale}
+        hour12={hour12}
+        showProvenance={showProvenance}
+        hasConflict={conflictingEventIds.has(item.id)}
+        onSelect={openEventActions}
+      />
+    ),
+    [
+      conflictingEventIds,
+      conventionTimeZone,
+      hour12,
+      locale,
+      openEventActions,
+      showProvenance,
+    ],
+  );
+
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { label: string } }) => (
+      <SectionHeader title={section.label} />
+    ),
+    [],
+  );
 
   const isLoading =
     previewState === "loading" ||
@@ -1268,40 +580,21 @@ export default function ConventionDetailScreen() {
   }
 
   const conventionDateRange = t("home.dateRange", {
-    start: dateFormatter.format(new Date(`${convention.startDate}T12:00:00`)),
-    end: dateFormatter.format(new Date(`${convention.endDate}T12:00:00`)),
+    start: formatConventionDate(convention.startDate, locale),
+    end: formatConventionDate(convention.endDate, locale),
   });
 
   function renderEventRow(event: ConventionEvent) {
-    const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(
-      event,
-      t,
-    );
-
     return (
-      <EventItem
+      <ConventionEventRow
         key={event.id}
-        testID={`convention-event-${event.id}`}
-        title={event.title}
-        startTime={formatTime(event.startTime, conventionTimeZone, locale)}
-        endTime={formatTime(event.endTime, conventionTimeZone, locale)}
-        room={event.room ?? event.location ?? undefined}
-        category={event.category ?? undefined}
-        description={event.description}
-        ageRating={event.ageRating}
-        isInSchedule={event.isInSchedule}
-        reminderLabel={reminderLabel}
-        provenanceLabel={showProvenance ? provenanceLabel : undefined}
+        event={event}
+        timeZone={conventionTimeZone}
+        locale={locale}
+        hour12={hour12}
+        showProvenance={showProvenance}
         hasConflict={conflictingEventIds.has(event.id)}
-        contentWarning={event.contentWarning}
-        onPress={() => {
-          hapticTap();
-          setActionSheetEvent(event);
-        }}
-        onLongPress={() => {
-          hapticLongPress();
-          setActionSheetEvent(event);
-        }}
+        onSelect={openEventActions}
       />
     );
   }
@@ -1311,6 +604,39 @@ export default function ConventionDetailScreen() {
       <Text variant="caption" className="px-4 pt-1 pb-2 text-muted-foreground">
         {t("convention.timesShownIn", { timeZone: conventionTimeZone })}
       </Text>
+      {reminderNotice !== "none" ? (
+        <View className="mx-4 mb-2 rounded-xl bg-secondary px-3 py-2">
+          <Text variant="label" accessibilityRole="alert">
+            {t(
+              reminderNotice === "permission"
+                ? "reminders.pausedTitle"
+                : "reminders.overflowTitle",
+            )}
+          </Text>
+          <Text variant="caption" className="pt-0.5 text-muted-foreground">
+            {t(
+              reminderNotice === "permission"
+                ? "reminders.pausedMessage"
+                : "reminders.overflowMessage",
+              { count: reminderOverflow },
+            )}
+          </Text>
+          {reminderNotice === "permission" ? (
+            <Pressable
+              onPress={() => {
+                void Linking.openSettings();
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={t("reminders.openSettings")}
+              className="min-h-11 justify-center active:opacity-70"
+            >
+              <Text className="text-primary">
+                {t("reminders.openSettings")}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
       {conflictingEventIds.size > 0 ? (
         <View className="mx-4 mb-2 rounded-xl bg-secondary px-3 py-2">
           <Text variant="label" accessibilityRole="alert">
@@ -1480,10 +806,11 @@ export default function ConventionDetailScreen() {
                 title={
                   nowAndNext.next[0]
                     ? t("convention.nextAtCount", {
-                        time: formatTime(
+                        time: formatEventTime(
                           nowAndNext.next[0].startTime,
                           conventionTimeZone,
                           locale,
+                          hour12,
                         ),
                         eventCount: nowAndNext.next.length,
                       })
@@ -1524,14 +851,12 @@ export default function ConventionDetailScreen() {
             dayGroups.length === 0
               ? events.length === 0
                 ? EMPTY_CONVENTION_CONTENT_STYLE
-                : EMPTY_LIST_CONTENT_STYLE
-              : LIST_CONTENT_STYLE
+                : SCHEDULE_EMPTY_CONTENT_STYLE
+              : SCHEDULE_LIST_CONTENT_STYLE
           }
           ListHeaderComponent={dayGroups.length > 0 ? scheduleNotices : null}
-          renderSectionHeader={({ section }) => (
-            <SectionHeader title={section.label} />
-          )}
-          renderItem={({ item }) => renderEventRow(item)}
+          renderSectionHeader={renderSectionHeader}
+          renderItem={renderItem}
           ListEmptyComponent={
             hasActiveFilters ? (
               <EmptyState
@@ -1570,6 +895,7 @@ export default function ConventionDetailScreen() {
         event={actionSheetEvent}
         visible={actionSheetEvent !== null}
         timeZone={conventionTimeZone}
+        hour12={hour12}
         onClose={() => setActionSheetEvent(null)}
         onToggleSchedule={(event) => toggleScheduleMutation.mutate(event)}
         onSelectReminder={(event, minutes) =>

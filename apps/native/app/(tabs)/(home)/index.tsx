@@ -29,6 +29,7 @@ import {
   partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
+import { currentLocale } from "@/lib/i18n";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
@@ -101,13 +102,13 @@ function ConventionEmptyState({
 }
 
 export default function HomeScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { fontScale } = useWindowDimensions();
   const queryClient = useQueryClient();
   const [sort, setSort] = useState<ConventionSort>("upcoming");
   const [archiveExpanded, setArchiveExpanded] = useState(false);
   const presentationLock = useRef(false);
-  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const locale = currentLocale();
   const { date: dateFormatter, names: nameCollator } = localeFormatters(locale);
   const deviceTimeZone = DEVICE_TIME_ZONE;
 

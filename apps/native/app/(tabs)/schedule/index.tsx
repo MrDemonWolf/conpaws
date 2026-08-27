@@ -4,7 +4,7 @@ import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCalendars } from "expo-localization";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { SectionList, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
@@ -15,11 +15,18 @@ import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { isValidTimeZone } from "@/lib/convention-time";
+import { deviceHour12 } from "@/lib/device-clock";
+import { formatDayKeyLabel, formatEventTime } from "@/lib/event-time-format";
+import { currentLocale } from "@/lib/i18n";
 import {
   groupPersonalScheduleByDay,
   type PersonalScheduleEntry,
   spansMultipleConventions,
 } from "@/lib/personal-schedule";
+import {
+  SCHEDULE_EMPTY_CONTENT_STYLE,
+  SCHEDULE_LIST_CONTENT_STYLE,
+} from "@/lib/schedule-list-styles";
 
 const EMPTY_ICON = Icon.select({
   ios: "star",
@@ -31,47 +38,57 @@ const ERROR_ICON = Icon.select({
   android: WarningIcon,
 });
 
-const EMPTY_LIST_CONTENT_STYLE = { flexGrow: 1 } as const;
-// Populated lists need their own bottom padding: the empty-only style above
-// left the last row of the last day running under the system navigation bar.
-const LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
-
 interface ScheduleEntry extends PersonalScheduleEntry {
   event: ConventionEvent;
 }
 
-function formatTime(
-  isoString: string | null,
-  timeZone: string,
-  locale: string,
-): string {
-  if (!isoString) return "";
-  return new Intl.DateTimeFormat(locale, {
-    timeZone,
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(isoString));
+interface ScheduleRowProps {
+  entry: ScheduleEntry;
+  conventionName?: string;
+  locale: string;
+  hour12?: boolean;
 }
 
 /**
- * A day key is a plain calendar date, so it is formatted in UTC.
- *
- * Handing "2026-07-04" to a formatter in the device's zone renders it as the
- * 3rd anywhere west of Greenwich.
+ * Every prop is a primitive or an entry object rebuilt only when the query
+ * data changes, so a re-render that leaves the schedule alone -- a focus
+ * invalidation that returns the same rows, say -- repaints no rows at all.
  */
-function formatDayLabel(key: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
-    timeZone: "UTC",
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(`${key}T00:00:00Z`));
-}
+const ScheduleRow = memo(function ScheduleRow({
+  entry,
+  conventionName,
+  locale,
+  hour12,
+}: ScheduleRowProps) {
+  return (
+    <EventItem
+      title={entry.event.title}
+      startTime={formatEventTime(
+        entry.startTime,
+        entry.timeZone,
+        locale,
+        hour12,
+      )}
+      endTime={formatEventTime(entry.endTime, entry.timeZone, locale, hour12)}
+      room={entry.event.room ?? entry.event.location ?? undefined}
+      category={entry.event.category ?? undefined}
+      contextLabel={conventionName}
+      ageRating={entry.event.ageRating}
+      isInSchedule
+      contentWarning={entry.event.contentWarning}
+      // There is no standalone event screen -- the action sheet that owns
+      // stars and reminders lives on the convention. Send the row there
+      // rather than inventing a second place to edit the same event.
+      onPress={() => router.push(`/convention/${entry.conventionId}`)}
+    />
+  );
+});
 
 export default function ScheduleScreen() {
   const { conventionId } = useLocalSearchParams<{ conventionId?: string }>();
-  const { t, i18n } = useTranslation();
-  const locale = i18n.language;
+  const { t } = useTranslation();
+  const locale = currentLocale();
+  const hour12 = deviceHour12();
   const queryClient = useQueryClient();
 
   const {
@@ -121,6 +138,25 @@ export default function ScheduleScreen() {
     [entries],
   );
 
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { key: string } }) => (
+      <SectionHeader title={formatDayKeyLabel(section.key, locale)} />
+    ),
+    [locale],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: ScheduleEntry }) => (
+      <ScheduleRow
+        entry={item}
+        conventionName={showConventionName ? item.conventionName : undefined}
+        locale={locale}
+        hour12={hour12}
+      />
+    ),
+    [hour12, locale, showConventionName],
+  );
+
   if (isLoading) {
     return showLoading ? (
       <ScheduleSkeleton />
@@ -148,7 +184,9 @@ export default function ScheduleScreen() {
         keyExtractor={(entry) => entry.id}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={
-          days.length === 0 ? EMPTY_LIST_CONTENT_STYLE : LIST_CONTENT_STYLE
+          days.length === 0
+            ? SCHEDULE_EMPTY_CONTENT_STYLE
+            : SCHEDULE_LIST_CONTENT_STYLE
         }
         ListHeaderComponent={
           days.length > 0 ? (
@@ -162,26 +200,8 @@ export default function ScheduleScreen() {
             </View>
           ) : null
         }
-        renderSectionHeader={({ section }) => (
-          <SectionHeader title={formatDayLabel(section.key, locale)} />
-        )}
-        renderItem={({ item }) => (
-          <EventItem
-            title={item.event.title}
-            startTime={formatTime(item.startTime, item.timeZone, locale)}
-            endTime={formatTime(item.endTime, item.timeZone, locale)}
-            room={item.event.room ?? item.event.location ?? undefined}
-            category={item.event.category ?? undefined}
-            contextLabel={showConventionName ? item.conventionName : undefined}
-            ageRating={item.event.ageRating}
-            isInSchedule
-            contentWarning={item.event.contentWarning}
-            // There is no standalone event screen — the action sheet that owns
-            // stars and reminders lives on the convention. Send the row there
-            // rather than inventing a second place to edit the same event.
-            onPress={() => router.push(`/convention/${item.conventionId}`)}
-          />
-        )}
+        renderSectionHeader={renderSectionHeader}
+        renderItem={renderItem}
         ListEmptyComponent={
           linkedConvention ? (
             <EmptyState

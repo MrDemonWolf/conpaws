@@ -5,20 +5,23 @@ import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, useColorScheme } from "react-native";
+import { Alert } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import i18n, {
   changeLanguage,
   LANGUAGE_META,
   SUPPORTED_LANGUAGES,
   type SupportedLanguage,
 } from "@/lib/i18n";
+import { recordReminderReconciliation } from "@/lib/reminder-notice";
+import { reconcileEventReminders } from "@/services/notifications";
 
 const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 
 export default function LanguageScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const colorScheme = useColorScheme();
+  const resolvedColorScheme = useResolvedColorScheme();
   const [isChanging, setIsChanging] = useState(false);
   const currentLanguage = i18n.language as SupportedLanguage;
 
@@ -28,6 +31,13 @@ export default function LanguageScreen() {
     setIsChanging(true);
     try {
       await changeLanguage(code);
+      // A pending reminder carries the title and body that were composed when
+      // it was scheduled, so its text stays in the old language until
+      // something rewrites the OS request. Reconciling here is what makes
+      // tonight's reminder arrive in the language just chosen instead of only
+      // after the next cold start.
+      const reconciliation = await reconcileEventReminders().catch(() => null);
+      if (reconciliation) recordReminderReconciliation(reconciliation);
       router.back();
     } catch {
       setIsChanging(false);
@@ -37,7 +47,7 @@ export default function LanguageScreen() {
 
   return (
     <Host
-      colorScheme={colorScheme === "dark" ? "dark" : "light"}
+      colorScheme={resolvedColorScheme}
       seedColor={colors.primary}
       style={{ flex: 1 }}
       useViewportSizeMeasurement
