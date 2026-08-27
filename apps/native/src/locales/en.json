@@ -26,107 +26,6 @@
     "keepEditing": "Keep Editing",
     "discard": "Discard"
   },
-  "onboarding": {
-    "progress": "Step {{step}} of {{total}}",
-    "welcome": {
-      "tagline": "Your convention schedule, ready offline.",
-      "subtitle": "Plan around bad con Wi-Fi. Your schedule stays on your device.",
-      "continue": "Continue",
-      "skip": "Skip"
-    },
-    "features": {
-      "title": "Plan the whole con",
-      "subtitle": "Everything you need when the venue Wi-Fi gives up.",
-      "demo": {
-        "now": "Now",
-        "next": "Next",
-        "eventOne": "Opening Ceremonies",
-        "eventTwo": "Fursuit Parade",
-        "saved": "My Schedule"
-      },
-      "import": {
-        "title": "Import any schedule",
-        "description": "Add an .ics file or paste a Sched link."
-      },
-      "plan": {
-        "title": "Never miss a panel",
-        "description": "Build My Schedule, see Now & Next, and catch overlaps."
-      },
-      "offline": {
-        "title": "Private and offline",
-        "description": "Your convention data stays on this device."
-      },
-      "plus": {
-        "eyebrow": "Coming soon",
-        "title": "ConPaws+",
-        "description": "We plan to add optional premium cloud backup, sync, and social features. ConPaws works offline now and does not need an account."
-      },
-      "next": "Continue"
-    },
-    "getStarted": {
-      "title": "Ready for your next con?",
-      "subtitle": "Import a schedule now, or explore ConPaws first.",
-      "importSchedule": "Import a schedule",
-      "exploreFirst": "Explore first",
-      "localPrivacy": "No account required. Your data stays local."
-    }
-  },
-  "home": {
-    "title": "Conventions",
-    "addConvention": "Add Convention",
-    "empty": {
-      "title": "No conventions yet",
-      "subtitle": "Create one or import an existing schedule.",
-      "cta": "Create Convention"
-    },
-    "loadError": "Conventions could not be loaded.",
-    "dateRange": "{{start}} to {{end}}",
-    "upcoming": "Upcoming",
-    "active": "Active",
-    "past": "Past",
-    "countdown": {
-      "today": "Today",
-      "tomorrow": "Tomorrow",
-      "days": "In {{count}} days"
-    },
-    "archive": {
-      "title": "Archive ({{count}})",
-      "show": "Show",
-      "hide": "Hide",
-      "noCurrent": "No upcoming conventions.",
-      "success": "Archived {{name}}.",
-      "errorTitle": "Could Not Archive Convention",
-      "errorMessage": "Nothing was archived. Try again."
-    },
-    "moreActions": "More actions for {{name}}",
-    "sortBy": "Sort By",
-    "sort": {
-      "upcoming": "Upcoming First",
-      "name": "Name"
-    },
-    "delete": {
-      "title": "Delete {{name}}?",
-      "message": "This permanently deletes the convention, its schedule, and reminders.",
-      "success": "Deleted {{name}}.",
-      "errorTitle": "Could Not Delete Convention",
-      "errorMessage": "Nothing was deleted. Try again."
-    }
-  },
-  "schedule": {
-    "title": "Schedule",
-    "empty": {
-      "title": "Nothing starred yet",
-      "subtitle": "Star an event inside a convention and it lands here.",
-      "cta": "Open my conventions"
-    },
-    "timesShownInConventionTime": "Times are shown in each convention's local time.",
-    "loadError": "Your schedule could not be loaded.",
-    "conventionEmpty": {
-      "title": "Nothing saved for {{name}} yet",
-      "subtitle": "Star events in the convention schedule and they will appear here.",
-      "cta": "Open Convention"
-    }
-  },
   "convention": {
     "new": "New Convention",
     "create": "Create Convention",
@@ -248,96 +147,54 @@
     "updateError": "Couldn't save your changes.",
     "nameCounter": "{{count}} of {{max}}"
   },
-  "profile": {
-    "title": "Profile",
-    "signIn": "Sign In",
-    "notSignedIn": "Not signed in",
-    "notSignedInSubtitle": "Sign in to sync your schedule and connect with friends.",
-    "comingSoon": "Profile features coming soon",
-    "signInWithApple": "Sign in with Apple",
-    "signInWithGoogle": "Sign in with Google"
+  "errors": {
+    "database": {
+      "title": "ConPaws can't open its saved data",
+      "message": "Your conventions are still on this device. Restart ConPaws to try again."
+    },
+    "screen": {
+      "message": "This part of ConPaws stopped responding. The rest of the app still works."
+    }
   },
-  "settings": {
-    "title": "Settings",
-    "languages": {
-      "title": "Language",
-      "systemDefault": "Use device language",
-      "en": "English",
-      "es": "Spanish",
-      "nl": "Dutch",
-      "de": "German",
-      "fr": "French",
-      "pt-BR": "Portuguese (Brazil)",
-      "sv": "Swedish",
-      "pl": "Polish",
-      "description": "Choose the language used throughout ConPaws.",
-      "selected": "Selected",
-      "changeError": "ConPaws could not change the language. Try again."
+  "home": {
+    "title": "Conventions",
+    "addConvention": "Add Convention",
+    "empty": {
+      "title": "No conventions yet",
+      "subtitle": "Create one or import an existing schedule.",
+      "cta": "Create Convention"
     },
-    "appearance": {
-      "system": "System",
-      "light": "Light",
-      "dark": "Dark",
-      "description": "Choose how ConPaws looks on this device.",
-      "changeError": "ConPaws could not change the appearance. Try again."
+    "loadError": "Conventions could not be loaded.",
+    "dateRange": "{{start}} to {{end}}",
+    "upcoming": "Upcoming",
+    "active": "Active",
+    "past": "Past",
+    "countdown": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "days": "In {{count}} days"
     },
-    "account": {
-      "title": "Account",
-      "signIn": "Sign In",
-      "signOut": "Sign Out"
+    "archive": {
+      "title": "Archive ({{count}})",
+      "show": "Show",
+      "hide": "Hide",
+      "noCurrent": "No upcoming conventions.",
+      "success": "Archived {{name}}.",
+      "errorTitle": "Could Not Archive Convention",
+      "errorMessage": "Nothing was archived. Try again."
     },
-    "app": {
-      "title": "App",
-      "theme": "Theme",
-      "language": "Language",
-      "haptics": "Haptic Feedback",
-      "hapticsError": "Could not save your haptics setting",
-      "notifications": "Notifications"
+    "moreActions": "More actions for {{name}}",
+    "sortBy": "Sort By",
+    "sort": {
+      "upcoming": "Upcoming First",
+      "name": "Name"
     },
-    "data": {
-      "title": "Data",
-      "exportData": "Export Data",
-      "exportDescription": "Save a backup of your conventions and schedules.",
-      "exporting": "Preparing backup",
-      "exportError": "ConPaws could not export your data. Try again.",
-      "importData": "Import Data",
-      "importDescription": "Restore conventions and schedules from a backup.",
-      "importing": "Opening backup",
-      "resetOnboarding": "Reset Onboarding"
-    },
-    "legal": {
-      "title": "Legal",
-      "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
-      "about": "About ConPaws",
-      "openSourceLicenses": "Third-Party Licenses"
-    },
-    "about": {
-      "title": "About",
-      "contact": "hello@conpaws.com",
-      "tagline": "Your convention schedule, ready offline.",
-      "resources": "Resources",
-      "website": "Website",
-      "builtWith": "Built with",
-      "licenseDescription": "{{count}} packages and tools",
-      "support": "Support",
-      "email": "Email",
-      "discordDescription": "Join the community",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "License Details",
-      "packageCount": "{{count}} packages",
-      "searchPlaceholder": "Search packages or licenses",
-      "noResultsTitle": "No licenses found",
-      "noResultsDescription": "Try a different package or license name.",
-      "version": "Version {{version}}",
-      "license": "License: {{license}}",
-      "repository": "Repository",
-      "projectWebsite": "Project Website",
-      "packageNotFoundTitle": "Package not found",
-      "packageNotFoundDescription": "This package may no longer be included in this build.",
-      "licenseTextUnavailable": "The license text is not available in this build."
+    "delete": {
+      "title": "Delete {{name}}?",
+      "message": "This permanently deletes the convention, its schedule, and reminders.",
+      "success": "Deleted {{name}}.",
+      "errorTitle": "Could Not Delete Convention",
+      "errorMessage": "Nothing was deleted. Try again."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Import Failed"
     }
   },
+  "onboarding": {
+    "progress": "Step {{step}} of {{total}}",
+    "welcome": {
+      "tagline": "Your convention schedule, ready offline.",
+      "subtitle": "Plan around bad con Wi-Fi. Your schedule stays on your device.",
+      "continue": "Continue",
+      "skip": "Skip"
+    },
+    "features": {
+      "title": "Plan the whole con",
+      "subtitle": "Everything you need when the venue Wi-Fi gives up.",
+      "demo": {
+        "now": "Now",
+        "next": "Next",
+        "eventOne": "Opening Ceremonies",
+        "eventTwo": "Fursuit Parade",
+        "saved": "My Schedule"
+      },
+      "import": {
+        "title": "Import any schedule",
+        "description": "Add an .ics file or paste a Sched link."
+      },
+      "plan": {
+        "title": "Never miss a panel",
+        "description": "Build My Schedule, see Now & Next, and catch overlaps."
+      },
+      "offline": {
+        "title": "Private and offline",
+        "description": "Your convention data stays on this device."
+      },
+      "plus": {
+        "eyebrow": "Coming soon",
+        "title": "ConPaws+",
+        "description": "We plan to add optional premium cloud backup, sync, and social features. ConPaws works offline now and does not need an account."
+      },
+      "next": "Continue"
+    },
+    "getStarted": {
+      "title": "Ready for your next con?",
+      "subtitle": "Import a schedule now, or explore ConPaws first.",
+      "importSchedule": "Import a schedule",
+      "exploreFirst": "Explore first",
+      "localPrivacy": "No account required. Your data stays local."
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "signIn": "Sign In",
+    "notSignedIn": "Not signed in",
+    "notSignedInSubtitle": "Sign in to sync your schedule and connect with friends.",
+    "comingSoon": "Profile features coming soon",
+    "signInWithApple": "Sign in with Apple",
+    "signInWithGoogle": "Sign in with Google"
+  },
   "reminders": {
     "title": "Reminders",
     "add": "Add Reminder",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Leave reminder set for {{event}}.",
     "clearedAnnouncement": "Leave reminder cleared for {{event}}.",
     "errorTitle": "Reminder Not Set",
-    "errorMessage": "Enable notifications in Settings and choose a future event."
+    "errorMessage": "ConPaws could not update this reminder. Try again.",
+    "permissionTitle": "Notifications are off",
+    "permissionMessage": "ConPaws needs notification permission to remind you when to leave. Turn it on in Settings and set the reminder again.",
+    "openSettings": "Open Settings",
+    "tooLateTitle": "Event starts too soon",
+    "tooLateMessage": "This event starts sooner than that reminder. Pick a shorter lead time or a later event.",
+    "pausedTitle": "Reminders are paused",
+    "pausedMessage": "Notifications are off, so your saved reminders will not arrive. Your choices are kept and come back as soon as you turn notifications on.",
+    "overflowTitle": "Some reminders are waiting",
+    "overflowMessage": "This device holds a limited number of pending reminders, so this many of yours are waiting: {{count}}. The nearest ones are scheduled first."
+  },
+  "schedule": {
+    "title": "Schedule",
+    "empty": {
+      "title": "Nothing starred yet",
+      "subtitle": "Star an event inside a convention and it lands here.",
+      "cta": "Open my conventions"
+    },
+    "timesShownInConventionTime": "Times are shown in each convention's local time.",
+    "loadError": "Your schedule could not be loaded.",
+    "conventionEmpty": {
+      "title": "Nothing saved for {{name}} yet",
+      "subtitle": "Star events in the convention schedule and they will appear here.",
+      "cta": "Open Convention"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "languages": {
+      "title": "Language",
+      "systemDefault": "Use device language",
+      "en": "English",
+      "es": "Spanish",
+      "nl": "Dutch",
+      "de": "German",
+      "fr": "French",
+      "pt-BR": "Portuguese (Brazil)",
+      "sv": "Swedish",
+      "pl": "Polish",
+      "description": "Choose the language used throughout ConPaws.",
+      "selected": "Selected",
+      "changeError": "ConPaws could not change the language. Try again."
+    },
+    "appearance": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "description": "Choose how ConPaws looks on this device.",
+      "changeError": "ConPaws could not change the appearance. Try again."
+    },
+    "account": {
+      "title": "Account",
+      "signIn": "Sign In",
+      "signOut": "Sign Out"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Theme",
+      "language": "Language",
+      "haptics": "Haptic Feedback",
+      "hapticsError": "Could not save your haptics setting",
+      "notifications": "Notifications"
+    },
+    "data": {
+      "title": "Data",
+      "exportData": "Export Data",
+      "exportDescription": "Save a backup of your conventions and schedules.",
+      "exporting": "Preparing backup",
+      "exportError": "ConPaws could not export your data. Try again.",
+      "importData": "Import Data",
+      "importDescription": "Restore conventions and schedules from a backup.",
+      "importing": "Opening backup",
+      "resetOnboarding": "Reset Onboarding"
+    },
+    "dataImport": {
+      "confirmTitle": "Restore backup?",
+      "confirmMessage": "Conventions: {{conventions}} • Events: {{events}}. Restoring adds them to ConPaws and removes nothing.",
+      "confirmAction": "Restore",
+      "successTitle": "Backup restored",
+      "successSummary": "Conventions added: {{conventions}} • Events added: {{events}}.",
+      "successSkipped": "Already here or unreadable: {{count}}.",
+      "successNothing": "Everything in this backup was already on this device.",
+      "failedTitle": "Backup not restored",
+      "errors": {
+        "generic": "ConPaws could not read that backup. Try another file.",
+        "unreadable": "ConPaws could not open that file. Try another file.",
+        "fileTooLarge": "That file is too large to restore.",
+        "invalidJson": "That file is not a readable ConPaws backup.",
+        "unsupportedVersion": "That backup was made by a newer version of ConPaws.",
+        "notConPaws": "That file is not a ConPaws backup.",
+        "malformed": "That backup contains no conventions or events.",
+        "tooManyRows": "That backup has too many entries to restore.",
+        "writeFailed": "ConPaws could not save that backup to this device. Try again."
+      }
+    },
+    "legal": {
+      "title": "Legal",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "about": "About ConPaws",
+      "openSourceLicenses": "Third-Party Licenses"
+    },
+    "about": {
+      "title": "About",
+      "contact": "hello@conpaws.com",
+      "tagline": "Your convention schedule, ready offline.",
+      "resources": "Resources",
+      "website": "Website",
+      "builtWith": "Built with",
+      "licenseDescription": "{{count}} packages and tools",
+      "support": "Support",
+      "email": "Email",
+      "discordDescription": "Join the community",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "License Details",
+      "packageCount": "{{count}} packages",
+      "searchPlaceholder": "Search packages or licenses",
+      "noResultsTitle": "No licenses found",
+      "noResultsDescription": "Try a different package or license name.",
+      "version": "Version {{version}}",
+      "license": "License: {{license}}",
+      "repository": "Repository",
+      "projectWebsite": "Project Website",
+      "packageNotFoundTitle": "Package not found",
+      "packageNotFoundDescription": "This package may no longer be included in this build.",
+      "licenseTextUnavailable": "The license text is not available in this build."
+    }
   }
 }
