@@ -25,10 +25,6 @@ export async function resetPreviewConventions(
   const fixtures = getPreviewConventionFixtures(isDev, appVariant);
   if (!fixtures) return null;
 
-  await cancelConventionReminders(
-    fixtures.flatMap((fixture) => fixture.events.map((event) => event.id)),
-  );
-
   db.transaction((tx) => {
     for (const id of [PREVIEW_CONVENTION_ID, BLANK_PREVIEW_CONVENTION_ID]) {
       tx.delete(conventions).where(eq(conventions.id, id)).run();
@@ -40,6 +36,13 @@ export async function resetPreviewConventions(
       }
     }
   });
+
+  // Only once the rows are actually replaced. Cancelling is irreversible and a
+  // rolled-back transaction would otherwise leave the surviving preview rows
+  // claiming reminders the OS no longer holds.
+  await cancelConventionReminders(
+    fixtures.flatMap((fixture) => fixture.events.map((event) => event.id)),
+  );
 
   return PREVIEW_CONVENTION_ID;
 }

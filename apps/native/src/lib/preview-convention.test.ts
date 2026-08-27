@@ -83,7 +83,7 @@ describe("ConPaws Preview Con", () => {
     expect(firstEvents[1]?.reminderMinutes).toBe(15);
   });
 
-  it("cancels local reminders for every preview event before reset", async () => {
+  it("cancels local reminders for every preview event after the rows are replaced", async () => {
     const fixtures = getPreviewConventionFixtures(true, "development");
     const eventIds = fixtures?.flatMap((fixture) =>
       fixture.events.map((event) => event.id),
@@ -97,6 +97,6 @@ describe("ConPaws Preview Con", () => {
     );
     expect(
       notificationMocks.cancelConventionReminders.mock.invocationCallOrder[0],
-    ).toBeLessThan(database.transaction.mock.invocationCallOrder[0] ?? 0);
+    ).toBeGreaterThan(database.transaction.mock.invocationCallOrder[0] ?? 0);
   });
 });
