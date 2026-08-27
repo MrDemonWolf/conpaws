@@ -50,11 +50,10 @@ export const conventionEvents = sqliteTable("convention_events", {
   updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
 });
 
-export const offlineQueue = sqliteTable("offline_queue", {
-  id: text("id").primaryKey(),
-  payload: text("payload").notNull(),
-  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
-});
+// The `offline_queue` table that migration 1 creates has no reader or writer
+// and no Drizzle declaration on purpose. Rewriting a shipped migration is the
+// riskier change, so the empty table stays on disk until a future migration
+// drops it.
 
 export type Convention = typeof conventions.$inferSelect;
 export type NewConvention = typeof conventions.$inferInsert;
