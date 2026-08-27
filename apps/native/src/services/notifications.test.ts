@@ -118,31 +118,86 @@ describe("startup reminder reconciliation", () => {
     expect(result).toEqual({
       rescheduled: 1,
       cleared: 0,
+      paused: 0,
+      overflow: 0,
       staleCancelled: 1,
     });
   });
 
-  it("clears denied reminders without requesting permission", async () => {
+  it("keeps the saved choice when permission is missing and re-arms it later", async () => {
     eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
     notificationMocks.getPermissionsAsync.mockResolvedValue({
       status: "denied",
     });
 
-    const result = await reconcileEventReminders();
+    const denied = await reconcileEventReminders();
 
     expect(notificationMocks.requestPermissionsAsync).not.toHaveBeenCalled();
     expect(notificationMocks.scheduleNotificationAsync).not.toHaveBeenCalled();
     expect(
       notificationMocks.cancelScheduledNotificationAsync,
     ).toHaveBeenCalledWith("reminder-event-1");
-    expect(eventRepoMocks.update).toHaveBeenCalledWith("event-1", {
-      reminderMinutes: null,
-    });
-    expect(result).toEqual({
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
+    expect(denied).toEqual({
       rescheduled: 0,
-      cleared: 1,
+      cleared: 0,
+      paused: 1,
+      overflow: 0,
       staleCancelled: 0,
     });
+
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    const granted = await reconcileEventReminders();
+
+    expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ identifier: "reminder-event-1" }),
+    );
+    expect(granted.rescheduled).toBe(1);
+    expect(granted.paused).toBe(0);
+  });
+
+  it("keeps the saved choice when the OS rejects the request", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
+    notificationMocks.scheduleNotificationAsync.mockRejectedValue(
+      new Error("notification store unavailable"),
+    );
+
+    const result = await reconcileEventReminders();
+
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
+    expect(result.paused).toBe(1);
+    expect(result.rescheduled).toBe(0);
+    expect(result.cleared).toBe(0);
+  });
+
+  it("schedules the nearest reminders first and reports the rest as overflow", async () => {
+    const events = Array.from({ length: 62 }, (_, index) =>
+      reminderEvent({
+        id: `event-${index}`,
+        // Descending start times, so database order is the reverse of the
+        // order the reminders actually fire in.
+        startTime: new Date(
+          Date.parse("2026-08-17T13:00:00.000Z") + (62 - index) * 3_600_000,
+        ).toISOString(),
+      }),
+    );
+    eventRepoMocks.getAllWithReminders.mockResolvedValue(events);
+
+    const result = await reconcileEventReminders();
+
+    expect(result.rescheduled).toBe(60);
+    expect(result.overflow).toBe(2);
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
+
+    const scheduledIds =
+      notificationMocks.scheduleNotificationAsync.mock.calls.map(
+        ([request]) => request.identifier,
+      );
+    expect(scheduledIds[0]).toBe("reminder-event-61");
+    expect(scheduledIds).not.toContain("reminder-event-0");
+    expect(scheduledIds).not.toContain("reminder-event-1");
   });
 
   it("clears reminders whose trigger time has passed", async () => {
@@ -158,6 +213,24 @@ describe("startup reminder reconciliation", () => {
       reminderMinutes: null,
     });
     expect(result.cleared).toBe(1);
+  });
+
+  it("carries the event and convention on the reminder payload", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
+
+    await reconcileEventReminders();
+
+    expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({
+          data: {
+            kind: "event-reminder",
+            eventId: "event-1",
+            conventionId: "convention-1",
+          },
+        }),
+      }),
+    );
   });
 
   it("uses the active app language when a reminder is rebuilt", async () => {
