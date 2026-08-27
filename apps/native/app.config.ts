@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
 const APP_VARIANT = process.env.APP_VARIANT ?? "production";
@@ -19,33 +18,23 @@ const getScheme = (): string => {
 };
 
 /**
- * Build number, counted from git history.
+ * Build number, bumped by hand at release time.
  *
- * Apple and Google both reject an upload whose build number repeats one already
- * seen for the same marketing version, and forgetting to bump it by hand is the
- * usual way that happens. EAS solves this with a remote counter, but only for
- * builds that run on EAS -- a local Xcode or Gradle build never touches it, and
- * would otherwise stamp every archive with the Expo default of 1. The second
- * TestFlight upload would then be rejected as a duplicate.
+ * This used to be derived from `git rev-list --count HEAD`, which drifted: the
+ * count reached 208 while the shipped build was 203, because not every commit
+ * produces a build. A number that looks authoritative and is wrong is worse than
+ * one that has to be typed.
  *
- * Commit count is monotonic on a branch, needs nothing kept in sync by hand, and
- * ties any build back to the exact commit it came from. It falls back to 1 when
- * git is unavailable, which covers a tarball checkout and a shallow CI clone;
- * neither of those uploads to a store, so a low number there is harmless.
+ * EAS builds ignore this entirely -- eas.json sets `appVersionSource: "remote"`,
+ * so the remote counter wins there. It matters for the local Xcode Organizer
+ * archive that RELEASING.md describes, which is how ConPaws has actually shipped
+ * so far: prebuild writes this into CFBundleVersion and versionCode, and leaving
+ * it unset would stamp the archive with Expo's default of 1 and get the upload
+ * rejected as a duplicate of a lower build.
+ *
+ * Bump it in the same commit that tags the release.
  */
-const getBuildNumber = (): number => {
-  try {
-    const count = execFileSync("git", ["rev-list", "--count", "HEAD"], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-    return Number.parseInt(count, 10) || 1;
-  } catch {
-    return 1;
-  }
-};
-
-const BUILD_NUMBER = getBuildNumber();
+const BUILD_NUMBER = 203;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
@@ -133,6 +122,30 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     icon: getVariantPng("icon"),
     versionCode: BUILD_NUMBER,
     permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
+    // Permissions no ConPaws code path uses, removed from the merged manifest so
+    // they never reach the Play listing or the Android app-info screen.
+    //
+    // The location pair comes from expo-location -- both its own library
+    // manifest and its config plugin add it unconditionally. ConPaws only ever
+    // forward-geocodes a city the user typed, and Android refuses to geocode at
+    // all without a granted foreground-location permission, which ConPaws
+    // deliberately never asks for (see the expo-location plugin entry below).
+    // Removing the declarations therefore changes nothing at runtime: the
+    // permission was already ungranted, and iOS geocoding needs no permission.
+    //
+    // The other three are Expo's bare-template "optional permissions" block.
+    // File access here goes through the document picker and the app's own cache
+    // directory, neither of which needs external storage, and the only thing
+    // that wants SYSTEM_ALERT_WINDOW is React Native's debug FPS overlay -- a
+    // dev-only tool, and not worth a "display over other apps" line on a store
+    // listing.
+    blockedPermissions: [
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+    ],
     adaptiveIcon: {
       foregroundImage: getVariantPng("android-icon-foreground"),
       backgroundImage: "./assets/images/android-icon-background.png",
@@ -155,6 +168,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@bacons/apple-targets",
     "expo-sqlite",
+    // expo-location is autolinked, so this entry exists only to pass props. Left
+    // at its defaults the plugin writes four purpose strings into Info.plist --
+    // three location ones, including background "Always", plus Motion &
+    // Fitness -- all carrying its placeholder text. ConPaws raises none of those
+    // prompts: it calls Location.geocodeAsync on a typed city, which needs no
+    // authorization on iOS. A purpose string for a prompt the app cannot show is
+    // what App Review asks about under 5.1.1, so `false` deletes each key.
+    [
+      "expo-location",
+      {
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        locationWhenInUsePermission: false,
+        motionUsagePermission: false,
+      },
+    ],
     [
       "expo-localization",
       {
