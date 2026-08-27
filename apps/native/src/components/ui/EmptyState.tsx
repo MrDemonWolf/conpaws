@@ -1,6 +1,8 @@
 import { Host, Icon, type IconName, Button as NativeButton } from "@expo/ui";
+import { frame } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
-import { Platform, useColorScheme, View } from "react-native";
+import { Platform, View } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { cn } from "@/lib/utils";
 import { Button } from "./Button";
 import { Text } from "./Text";
@@ -22,6 +24,16 @@ interface EmptyStateProps {
   testID?: string;
 }
 
+/**
+ * The tap-target floor for the SwiftUI buttons, expressed as a minimum rather
+ * than a fixed height. The universal `style` prop cannot say this -- it maps
+ * only `width`/`height` onto SwiftUI's `frame`, and a fixed frame pins the
+ * label inside 44pt at Larger Accessibility Sizes while every other control
+ * grows -- so the modifier escape hatch is the only way to express a floor.
+ * iOS-only by construction: both call sites sit behind `Platform.OS === "ios"`.
+ */
+const IOS_MIN_TAP_TARGET = [frame({ minHeight: 44 })];
+
 export function EmptyState({
   icon,
   title,
@@ -38,9 +50,8 @@ export function EmptyState({
   className,
   testID,
 }: EmptyStateProps) {
-  const colorScheme = useColorScheme();
   const { colors } = useTheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
 
   return (
     <View
@@ -115,8 +126,8 @@ export function EmptyState({
             >
               <NativeButton
                 label={ctaLabel}
+                modifiers={IOS_MIN_TAP_TARGET}
                 onPress={onCta}
-                style={{ height: 44 }}
                 testID={ctaTestID}
               />
             </Host>
@@ -149,9 +160,9 @@ export function EmptyState({
             <Host colorScheme={resolvedColorScheme} matchContents>
               <NativeButton
                 label={secondaryCtaLabel}
+                modifiers={IOS_MIN_TAP_TARGET}
                 onPress={onSecondaryCta}
                 variant={secondaryCtaVariant}
-                style={{ height: 44 }}
                 testID={secondaryCtaTestID}
               />
             </Host>

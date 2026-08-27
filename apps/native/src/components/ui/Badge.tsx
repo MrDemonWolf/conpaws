@@ -75,6 +75,14 @@ const variantStyles: Record<
   },
 };
 
+/**
+ * On iOS `muted` is `tertiarySystemBackground`, which Apple publishes as pure
+ * white in light appearance -- the same colour as the surface behind the pill.
+ * These two variants therefore lose their shape entirely without the hairline
+ * border, so they carry it at every emphasis rather than only at `strong`.
+ */
+const alwaysBordered: readonly BadgeVariant[] = ["ended", "neutral"];
+
 export function Badge({
   variant,
   label,
@@ -83,13 +91,14 @@ export function Badge({
 }: BadgeProps) {
   const styles = variantStyles[variant];
   const strong = emphasis === "strong";
+  const bordered = strong || alwaysBordered.includes(variant);
 
   return (
     <View
       className={cn(
         "rounded-full px-2.5 py-1",
         styles.container,
-        strong && cn("border", styles.border),
+        bordered && cn("border", styles.border),
         className,
       )}
     >
