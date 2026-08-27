@@ -1,3 +1,7 @@
+// Schema changes ship as numbered steps on the SQLite `user_version` ladder
+// below, applied by `initializeDatabase`. There is no drizzle-kit pipeline:
+// nothing at runtime reads generated SQL, so a `drizzle-kit generate` file
+// would sit unapplied and drift from what the device actually has.
 export const CONNECTION_SQL = `
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;

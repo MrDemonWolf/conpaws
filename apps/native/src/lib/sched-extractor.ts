@@ -7,16 +7,6 @@ import {
 
 export { InvalidScheduleUrlError } from "./schedule-url";
 
-/** @deprecated Kept so existing catch blocks keep compiling. */
-export class InvalidSchedUrlError extends Error {
-  constructor(url: string) {
-    super(
-      `Invalid Sched URL: "${url}". Expected format: https://yourcon.sched.com`,
-    );
-    this.name = "InvalidSchedUrlError";
-  }
-}
-
 export class NetworkError extends Error {
   constructor(message: string) {
     super(message);
@@ -132,9 +122,4 @@ export async function fetchScheduleIcs(url: string): Promise<FetchedSchedule> {
   } finally {
     clearTimeout(timeout);
   }
-}
-
-/** @deprecated Use `fetchScheduleIcs`, which also accepts .ics and webcal. */
-export async function fetchSchedIcs(url: string): Promise<string> {
-  return (await fetchScheduleIcs(url)).icsContent;
 }

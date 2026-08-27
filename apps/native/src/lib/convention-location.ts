@@ -1,26 +1,8 @@
 import { isValidTimeZone } from "./convention-time";
 
-/**
- * How a convention's time zone was decided. Surfaced in the UI so the user can
- * tell an inferred zone from one they chose, and so an offline fallback never
- * masquerades as a confident answer.
- */
-export type TimeZoneSource =
-  /** Derived from coordinates for the entered location. */
-  | "location"
-  /** Chosen by hand in the Advanced picker. */
-  | "manual"
-  /** Nothing better was available — this device's zone. */
-  | "device";
-
 export interface Coordinates {
   latitude: number;
   longitude: number;
-}
-
-export interface ResolvedTimeZone {
-  timeZone: string;
-  source: TimeZoneSource;
 }
 
 /** Looks an IANA zone up from coordinates. Offline; no network, no permission. */
@@ -87,46 +69,6 @@ export async function inferTimeZoneFromLocation(
   } catch {
     return null;
   }
-}
-
-export interface ResolveOptions {
-  /** Coordinates for the entered location, when geocoding succeeded. */
-  coordinates?: unknown;
-  /** A zone the user picked by hand. Always wins. */
-  manualTimeZone?: string | null;
-  /** This device's zone, used when nothing better is known. */
-  deviceTimeZone: string;
-  lookup: CoordinateTimeZoneLookup;
-}
-
-/**
- * Decides a convention's time zone.
- *
- * Manual beats location beats device. Manual wins outright because the user
- * saying "this con runs on Chicago time" is better information than any
- * inference — and because offline users have no other way to correct a
- * fallback.
- */
-export function resolveConventionTimeZone({
-  coordinates,
-  manualTimeZone,
-  deviceTimeZone,
-  lookup,
-}: ResolveOptions): ResolvedTimeZone {
-  const manual = manualTimeZone?.trim();
-  if (manual && isValidTimeZone(manual)) {
-    return { timeZone: manual, source: "manual" };
-  }
-
-  const fromLocation = timeZoneFromCoordinates(coordinates, lookup);
-  if (fromLocation) return { timeZone: fromLocation, source: "location" };
-
-  // Last resort. isValidTimeZone guards against a device reporting something
-  // ICU cannot resolve, which would otherwise poison every stored timestamp.
-  return {
-    timeZone: isValidTimeZone(deviceTimeZone) ? deviceTimeZone : "UTC",
-    source: "device",
-  };
 }
 
 export interface LocationEditOptions {

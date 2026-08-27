@@ -4,7 +4,6 @@ import {
   inferTimeZoneFromLocation,
   isValidCoordinates,
   normalizeLocationName,
-  resolveConventionTimeZone,
   timeZoneFromCoordinates,
 } from "./convention-location";
 
@@ -87,66 +86,6 @@ describe("inferTimeZoneFromLocation", () => {
     await expect(
       inferTimeZoneFromLocation("Pittsburgh", geocode, lookup),
     ).resolves.toBe(null);
-  });
-});
-
-describe("resolveConventionTimeZone", () => {
-  it("prefers a manual choice over the location", () => {
-    expect(
-      resolveConventionTimeZone({
-        coordinates: PITTSBURGH,
-        manualTimeZone: "America/Chicago",
-        deviceTimeZone: "Europe/Berlin",
-        lookup,
-      }),
-    ).toEqual({ timeZone: "America/Chicago", source: "manual" });
-  });
-
-  it("uses the location when there is no manual choice", () => {
-    expect(
-      resolveConventionTimeZone({
-        coordinates: PITTSBURGH,
-        deviceTimeZone: "Europe/Berlin",
-        lookup,
-      }),
-    ).toEqual({ timeZone: "America/New_York", source: "location" });
-  });
-
-  it("falls back to the device when geocoding produced nothing", () => {
-    expect(
-      resolveConventionTimeZone({
-        deviceTimeZone: "Europe/Berlin",
-        lookup,
-      }),
-    ).toEqual({ timeZone: "Europe/Berlin", source: "device" });
-  });
-
-  it("ignores a manual value that is blank or unresolvable", () => {
-    expect(
-      resolveConventionTimeZone({
-        manualTimeZone: "   ",
-        deviceTimeZone: "Europe/Berlin",
-        lookup,
-      }).source,
-    ).toBe("device");
-
-    expect(
-      resolveConventionTimeZone({
-        manualTimeZone: "Not/AZone",
-        coordinates: PITTSBURGH,
-        deviceTimeZone: "Europe/Berlin",
-        lookup,
-      }),
-    ).toEqual({ timeZone: "America/New_York", source: "location" });
-  });
-
-  it("falls back to UTC when even the device zone is unresolvable", () => {
-    expect(
-      resolveConventionTimeZone({
-        deviceTimeZone: "Nowhere/Nothing",
-        lookup,
-      }),
-    ).toEqual({ timeZone: "UTC", source: "device" });
   });
 });
 
