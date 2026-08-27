@@ -19,27 +19,43 @@ import "@formatjs/intl-datetimeformat/locale-data/pt.js";
 import "@formatjs/intl-datetimeformat/locale-data/sv.js";
 import "@formatjs/intl-datetimeformat/add-all-tz.js";
 import "../src/global.css";
+// Starts Sentry from a bare import so it is running before the imports below
+// evaluate. `@/services/notifications` reaches `@/db`, which opens and migrates
+// SQLite during module evaluation, and that is the failure most worth seeing.
+import "@/lib/error-reporting-boot";
 
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as ExpoNotifications from "expo-notifications";
 import {
   DarkTheme,
   DefaultTheme,
   router,
   Stack,
   ThemeProvider,
+  usePathname,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppState, StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { getDatabaseInitError } from "@/db";
 import {
   applyAppearancePreference,
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
+import {
+  DatabaseUnavailableScreen,
+  ScreenErrorFallback,
+  TranslationsUnavailableScreen,
+} from "@/lib/error-fallback";
+import {
+  addReportBreadcrumb,
+  reportError,
+  reportMessage,
+} from "@/lib/error-reporting";
 import { loadHapticsPreference } from "@/lib/haptics-storage";
-import { initI18n } from "@/lib/i18n";
-import { getSentryOptions } from "@/lib/sentry-config";
+import i18nInstance, { initI18n } from "@/lib/i18n";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -47,17 +63,15 @@ import {
 import { consumePendingQuickAction } from "@/services/quick-actions";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
-const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
-const sentryOptions = getSentryOptions(__DEV__, sentryDsn);
-
-if (sentryOptions) {
-  Sentry.init(sentryOptions);
-}
-
 setupNotificationHandler();
 void SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+// A hung native call used to leave the app on the splash forever, because
+// nothing hides it until `ready` is set. Past this point the app renders with
+// whatever the bootstrap managed to load.
+const BOOTSTRAP_TIMEOUT_MS = 10_000;
 
 const lightNavigationTheme = {
   ...DefaultTheme,
@@ -75,23 +89,122 @@ const darkNavigationTheme = {
   },
 };
 
+async function withBootstrapTimeout(work: Promise<unknown>): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      work,
+      new Promise<void>((resolve) => {
+        timer = setTimeout(() => {
+          reportMessage(
+            `Launch bootstrap did not settle within ${BOOTSTRAP_TIMEOUT_MS}ms`,
+            { scope: "bootstrap.timeout" },
+          );
+          resolve();
+        }, BOOTSTRAP_TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    // Losing the race is the normal case, and an uncleared timer would report
+    // a timeout on every launch that succeeded.
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Loads everything the first paint depends on.
+ *
+ * Every step reports its own failure and then continues: a lost haptics
+ * preference must not stop the app from launching. Translations are the one
+ * exception -- see the retry, and the caller's `isInitialized` check.
+ */
+async function runLaunchBootstrap(): Promise<void> {
+  const appearance = await loadAppearancePreference().catch((error) => {
+    reportError(error, { scope: "bootstrap.appearanceLoad" });
+    return "system" as const;
+  });
+
+  try {
+    applyAppearancePreference(appearance);
+  } catch (error) {
+    reportError(error, { scope: "bootstrap.appearanceApply" });
+  }
+
+  await loadHapticsPreference().catch((error) => {
+    reportError(error, { scope: "bootstrap.haptics" });
+    return true;
+  });
+
+  try {
+    await initI18n();
+  } catch (error) {
+    reportError(error, { scope: "bootstrap.i18n" });
+    // The only await here that realistically rejects is the stored-language
+    // read, so a second attempt is worth making before giving up on every
+    // label in the app.
+    try {
+      await initI18n();
+    } catch (retryError) {
+      reportError(retryError, { scope: "bootstrap.i18nRetry" });
+    }
+  }
+}
+
 function RootLayout() {
   const [ready, setReady] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [translationsReady, setTranslationsReady] = useState(true);
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
+  const databaseInitError = getDatabaseInitError();
+
+  // `ready` deliberately stays true across a retry: the splash is long gone,
+  // so dropping back to it would blank the screen instead of leaving the
+  // message the user just acted on.
+  const retryBootstrap = useCallback(() => {
+    setAttempt((value) => value + 1);
+  }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     void (async () => {
-      const appearance = await loadAppearancePreference().catch(
-        () => "system" as const,
-      );
-      applyAppearancePreference(appearance);
-      await loadHapticsPreference().catch(() => true);
-      await initI18n().catch(() => undefined);
-      await reconcileEventReminders().catch(() => undefined);
-      await publishWidgetSnapshot().catch(() => false);
+      if (attempt > 0) {
+        addReportBreadcrumb(`Launch bootstrap retry ${attempt}`, {
+          scope: "bootstrap.retry",
+        });
+      }
+      await withBootstrapTimeout(runLaunchBootstrap());
+      if (cancelled) return;
+      setTranslationsReady(i18nInstance.isInitialized);
       setReady(true);
     })();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  // Neither of these affects what is painted, so they run after the first
+  // frame instead of holding the splash open.
+  useEffect(() => {
+    if (!ready || databaseInitError) return;
+
+    void reconcileEventReminders().catch((error) => {
+      reportError(error, { scope: "bootstrap.reconcileReminders" });
+    });
+    void publishWidgetSnapshot().catch((error) => {
+      reportError(error, { scope: "bootstrap.publishWidgetSnapshot" });
+    });
+  }, [ready, databaseInitError]);
+
+  useEffect(() => {
+    addReportBreadcrumb(pathname, { scope: "navigation" });
+  }, [pathname]);
+
+  // Neither a quick action nor a tapped reminder has anywhere to land while
+  // the database-unavailable screen is up: that branch renders no navigator.
+  const navigable = ready && !databaseInitError;
 
   useEffect(() => {
     function openPendingQuickAction() {
@@ -99,13 +212,23 @@ function RootLayout() {
       if (route) router.push(route as never);
     }
 
-    if (ready) openPendingQuickAction();
+    if (navigable) openPendingQuickAction();
     const appStateSubscription = AppState.addEventListener(
       "change",
       (state) => {
-        if (state === "active" && ready) {
+        if (state === "active" && navigable) {
           openPendingQuickAction();
-          void publishWidgetSnapshot().catch(() => false);
+          void publishWidgetSnapshot().catch((error) => {
+            reportError(error, { scope: "appState.publishWidgetSnapshot" });
+          });
+          // Reminders the OS refused for want of permission stay saved but
+          // unscheduled. Reconciling on every foreground re-arms them the moment
+          // the user comes back from granting it, rather than at the next cold
+          // launch. Safe to run this often only because reconciling no longer
+          // treats a missing permission as an instruction to forget the reminder.
+          void reconcileEventReminders().catch((error) => {
+            reportError(error, { scope: "appState.reconcileReminders" });
+          });
         }
       },
     );
@@ -116,14 +239,56 @@ function RootLayout() {
           event.type === "updated" &&
           event.mutation.state.status === "success"
         ) {
-          void publishWidgetSnapshot().catch(() => false);
+          void publishWidgetSnapshot().catch((error) => {
+            reportError(error, { scope: "mutation.publishWidgetSnapshot" });
+          });
         }
       });
     return () => {
       appStateSubscription.remove();
       unsubscribeMutations();
     };
-  }, [ready]);
+  }, [navigable]);
+
+  // A tapped reminder must land on the event's convention rather than wherever
+  // the app happened to be. The cold-start response arrives through
+  // getLastNotificationResponseAsync, the warm one through the listener, and
+  // the identifier set stops a cold start from navigating twice.
+  useEffect(() => {
+    if (!navigable) return;
+    const handled = new Set<string>();
+
+    function openReminderTarget(
+      response: ExpoNotifications.NotificationResponse | null,
+    ) {
+      if (!response) return;
+      const { content, identifier } = response.notification.request;
+      const data = content.data as Record<string, unknown> | undefined;
+      if (data?.kind !== "event-reminder") return;
+
+      const conventionId =
+        typeof data.conventionId === "string" ? data.conventionId : null;
+      if (!conventionId || handled.has(identifier)) return;
+
+      handled.add(identifier);
+      router.push({
+        pathname: "/convention/[id]",
+        params: { id: conventionId },
+      });
+    }
+
+    ExpoNotifications.getLastNotificationResponseAsync()
+      .then(openReminderTarget)
+      .catch((error) => {
+        reportError(error, { scope: "notifications.lastResponse" });
+      });
+
+    const subscription =
+      ExpoNotifications.addNotificationResponseReceivedListener(
+        openReminderTarget,
+      );
+    return () => subscription.remove();
+  }, [navigable]);
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
@@ -131,12 +296,31 @@ function RootLayout() {
 
   if (!ready) return null;
 
+  const navigationTheme =
+    colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
+
+  if (databaseInitError) {
+    return (
+      <ThemeProvider value={navigationTheme}>
+        <SafeAreaProvider>
+          <StatusBar
+            barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
+          />
+          <DatabaseUnavailableScreen error={databaseInitError} />
+        </SafeAreaProvider>
+      </ThemeProvider>
+    );
+  }
+
+  // Without an initialised i18next every label in the app renders as its own
+  // translation key, which looks like a broken app and says nothing. A plain
+  // English retry screen is the honest version of that state.
+  if (!translationsReady) {
+    return <TranslationsUnavailableScreen onRetry={retryBootstrap} />;
+  }
+
   return (
-    <ThemeProvider
-      value={
-        colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme
-      }
-    >
+    <ThemeProvider value={navigationTheme}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <StatusBar
@@ -148,5 +332,17 @@ function RootLayout() {
     </ThemeProvider>
   );
 }
+
+// Sentry.wrap does NOT install an error boundary in @sentry/react-native
+// 7.11.0 (verified in dist/js/sdk.js: it renders TouchEventBoundary, Profiler
+// and FeedbackWidgetProvider only), so these two exports are the app's only
+// boundaries. `screenErrorBoundary` is inherited through context by every
+// descendant leaf route, which keeps headers and the tab bar mounted; the
+// `ErrorBoundary` export is the last resort for a throw in this layout itself.
+export const unstable_settings = {
+  screenErrorBoundary: ScreenErrorFallback,
+};
+
+export const ErrorBoundary = ScreenErrorFallback;
 
 export default Sentry.wrap(RootLayout);
