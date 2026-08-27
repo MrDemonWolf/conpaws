@@ -26,107 +26,6 @@
     "keepEditing": "Fortsätt redigera",
     "discard": "Kasta"
   },
-  "onboarding": {
-    "progress": "Steg {{step}} av {{total}}",
-    "welcome": {
-      "tagline": "Ditt konventsschema, även offline.",
-      "subtitle": "Planera även när konventets wifi är dåligt. Schemat stannar på din enhet.",
-      "continue": "Fortsätt",
-      "skip": "Hoppa över"
-    },
-    "features": {
-      "title": "Planera hela konventet",
-      "subtitle": "Allt du behöver när lokalens wifi ger upp.",
-      "demo": {
-        "now": "Nu",
-        "next": "Härnäst",
-        "eventOne": "Invigningsceremoni",
-        "eventTwo": "Fursuitparad",
-        "saved": "Mitt schema"
-      },
-      "import": {
-        "title": "Importera vilket schema som helst",
-        "description": "Lägg till en .ics-fil eller klistra in en Sched-länk."
-      },
-      "plan": {
-        "title": "Missa aldrig en panel",
-        "description": "Skapa ditt schema, se vad som händer nu och härnäst och upptäck krockar."
-      },
-      "offline": {
-        "title": "Privat och offline",
-        "description": "Dina konventsdata stannar på den här enheten."
-      },
-      "plus": {
-        "eyebrow": "Kommer snart",
-        "title": "ConPaws+",
-        "description": "Valfri premiumbackup i molnet, synkronisering och sociala funktioner planeras. ConPaws fungerar offline redan idag. Inget konto krävs."
-      },
-      "next": "Fortsätt"
-    },
-    "getStarted": {
-      "title": "Redo för nästa konvent?",
-      "subtitle": "Importera ett schema nu eller utforska ConPaws först.",
-      "importSchedule": "Importera ett schema",
-      "exploreFirst": "Utforska först",
-      "localPrivacy": "Inget konto krävs. Dina data lagras lokalt."
-    }
-  },
-  "home": {
-    "title": "Konvent",
-    "addConvention": "Lägg till Konvent",
-    "empty": {
-      "title": "Inga konvent ännu",
-      "subtitle": "Skapa ett konvent eller importera ett befintligt schema.",
-      "cta": "Skapa konvent"
-    },
-    "loadError": "Det gick inte att läsa in konvent.",
-    "dateRange": "{{start}} till {{end}}",
-    "upcoming": "Kommande",
-    "active": "Aktiva",
-    "past": "Avslutade",
-    "countdown": {
-      "today": "I dag",
-      "tomorrow": "I morgon",
-      "days": "Om {{count}} dagar"
-    },
-    "archive": {
-      "title": "Arkiv ({{count}})",
-      "show": "Visa",
-      "hide": "Dölj",
-      "noCurrent": "Inga kommande konvent.",
-      "success": "{{name}} har arkiverats.",
-      "errorTitle": "Konventet kunde inte arkiveras",
-      "errorMessage": "Inget arkiverades. Försök igen."
-    },
-    "moreActions": "Fler åtgärder för {{name}}",
-    "sortBy": "Sortera efter",
-    "sort": {
-      "upcoming": "Kommande först",
-      "name": "Namn"
-    },
-    "delete": {
-      "title": "Ta bort {{name}}?",
-      "message": "Detta tar permanent bort konventet, dess schema och påminnelser.",
-      "success": "{{name}} har tagits bort.",
-      "errorTitle": "Det gick inte att ta bort konventet",
-      "errorMessage": "Inget togs bort. Försök igen."
-    }
-  },
-  "schedule": {
-    "title": "Schema",
-    "empty": {
-      "title": "Inget stjärnmärkt än",
-      "subtitle": "Stjärnmärk ett evenemang i ett konvent så dyker det upp här.",
-      "cta": "Öppna mina konvent"
-    },
-    "timesShownInConventionTime": "Tiderna visas i varje konvents lokala tid.",
-    "loadError": "Ditt schema kunde inte läsas in.",
-    "conventionEmpty": {
-      "title": "Inget sparat för {{name}} än",
-      "subtitle": "Stjärnmärk evenemang i konventets schema så visas de här.",
-      "cta": "Öppna konventet"
-    }
-  },
   "convention": {
     "new": "Nytt Konvent",
     "create": "Skapa konvent",
@@ -248,96 +147,54 @@
     "updateError": "Det gick inte att spara ändringarna.",
     "nameCounter": "{{count}} av {{max}}"
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Logga In",
-    "notSignedIn": "Inte inloggad",
-    "notSignedInSubtitle": "Logga in för att synkronisera ditt schema och ansluta med vänner.",
-    "comingSoon": "Profilfunktioner kommer snart",
-    "signInWithApple": "Logga in med Apple",
-    "signInWithGoogle": "Logga in med Google"
+  "errors": {
+    "database": {
+      "title": "ConPaws kan inte öppna sina sparade data",
+      "message": "Dina konvent finns kvar på den här enheten. Starta om ConPaws för att försöka igen."
+    },
+    "screen": {
+      "message": "Den här delen av ConPaws slutade svara. Resten av appen fungerar fortfarande."
+    }
   },
-  "settings": {
-    "title": "Inställningar",
-    "languages": {
-      "title": "Språk",
-      "systemDefault": "Använd enhetsspråk",
-      "en": "Engelska",
-      "es": "Spanska",
-      "nl": "Nederländska",
-      "de": "Tyska",
-      "fr": "Franska",
-      "pt-BR": "Portugisiska (Brasilien)",
-      "sv": "Svenska",
-      "pl": "Polska",
-      "description": "Välj språket som ConPaws använder.",
-      "selected": "Valt",
-      "changeError": "ConPaws kunde inte byta språk. Försök igen."
+  "home": {
+    "title": "Konvent",
+    "addConvention": "Lägg till Konvent",
+    "empty": {
+      "title": "Inga konvent ännu",
+      "subtitle": "Skapa ett konvent eller importera ett befintligt schema.",
+      "cta": "Skapa konvent"
     },
-    "appearance": {
-      "system": "System",
-      "light": "Ljust",
-      "dark": "Mörkt",
-      "description": "Välj hur ConPaws ska se ut på den här enheten.",
-      "changeError": "ConPaws kunde inte ändra utseendet. Försök igen."
+    "loadError": "Det gick inte att läsa in konvent.",
+    "dateRange": "{{start}} till {{end}}",
+    "upcoming": "Kommande",
+    "active": "Aktiva",
+    "past": "Avslutade",
+    "countdown": {
+      "today": "I dag",
+      "tomorrow": "I morgon",
+      "days": "Om {{count}} dagar"
     },
-    "account": {
-      "title": "Konto",
-      "signIn": "Logga In",
-      "signOut": "Logga Ut"
+    "archive": {
+      "title": "Arkiv ({{count}})",
+      "show": "Visa",
+      "hide": "Dölj",
+      "noCurrent": "Inga kommande konvent.",
+      "success": "{{name}} har arkiverats.",
+      "errorTitle": "Konventet kunde inte arkiveras",
+      "errorMessage": "Inget arkiverades. Försök igen."
     },
-    "app": {
-      "title": "App",
-      "theme": "Tema",
-      "language": "Språk",
-      "haptics": "Haptisk återkoppling",
-      "hapticsError": "Din haptikinställning kunde inte sparas",
-      "notifications": "Aviseringar"
+    "moreActions": "Fler åtgärder för {{name}}",
+    "sortBy": "Sortera efter",
+    "sort": {
+      "upcoming": "Kommande först",
+      "name": "Namn"
     },
-    "data": {
-      "title": "Data",
-      "exportData": "Exportera Data",
-      "exportDescription": "Spara en säkerhetskopia av dina konvent och scheman.",
-      "exporting": "Förbereder säkerhetskopia",
-      "exportError": "ConPaws kunde inte exportera dina data. Försök igen.",
-      "importData": "Importera Data",
-      "importDescription": "Återställ konvent och scheman från en säkerhetskopia.",
-      "importing": "Öppnar säkerhetskopia",
-      "resetOnboarding": "Återställ Introduktion"
-    },
-    "legal": {
-      "title": "Juridiskt",
-      "privacyPolicy": "Integritetspolicy",
-      "termsOfService": "Användarvillkor",
-      "about": "Om ConPaws",
-      "openSourceLicenses": "Tredjepartslicenser"
-    },
-    "about": {
-      "title": "Om",
-      "contact": "hello@conpaws.com",
-      "tagline": "Ditt konventsschema, tillgängligt offline.",
-      "resources": "Resurser",
-      "website": "Webbplats",
-      "builtWith": "Byggd med",
-      "licenseDescription": "{{count}} paket och verktyg",
-      "support": "Support",
-      "email": "E-post",
-      "discordDescription": "Gå med i communityn",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "Licensdetaljer",
-      "packageCount": "{{count}} paket",
-      "searchPlaceholder": "Sök paket eller licenser",
-      "noResultsTitle": "Inga licenser hittades",
-      "noResultsDescription": "Prova ett annat paket- eller licensnamn.",
-      "version": "Version {{version}}",
-      "license": "Licens: {{license}}",
-      "repository": "Kodarkiv",
-      "projectWebsite": "Projektwebbplats",
-      "packageNotFoundTitle": "Paketet hittades inte",
-      "packageNotFoundDescription": "Paketet kanske inte längre ingår i den här versionen.",
-      "licenseTextUnavailable": "Licenstexten är inte tillgänglig i den här versionen."
+    "delete": {
+      "title": "Ta bort {{name}}?",
+      "message": "Detta tar permanent bort konventet, dess schema och påminnelser.",
+      "success": "{{name}} har tagits bort.",
+      "errorTitle": "Det gick inte att ta bort konventet",
+      "errorMessage": "Inget togs bort. Försök igen."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Importen misslyckades"
     }
   },
+  "onboarding": {
+    "progress": "Steg {{step}} av {{total}}",
+    "welcome": {
+      "tagline": "Ditt konventsschema, även offline.",
+      "subtitle": "Planera även när konventets wifi är dåligt. Schemat stannar på din enhet.",
+      "continue": "Fortsätt",
+      "skip": "Hoppa över"
+    },
+    "features": {
+      "title": "Planera hela konventet",
+      "subtitle": "Allt du behöver när lokalens wifi ger upp.",
+      "demo": {
+        "now": "Nu",
+        "next": "Härnäst",
+        "eventOne": "Invigningsceremoni",
+        "eventTwo": "Fursuitparad",
+        "saved": "Mitt schema"
+      },
+      "import": {
+        "title": "Importera vilket schema som helst",
+        "description": "Lägg till en .ics-fil eller klistra in en Sched-länk."
+      },
+      "plan": {
+        "title": "Missa aldrig en panel",
+        "description": "Skapa ditt schema, se vad som händer nu och härnäst och upptäck krockar."
+      },
+      "offline": {
+        "title": "Privat och offline",
+        "description": "Dina konventsdata stannar på den här enheten."
+      },
+      "plus": {
+        "eyebrow": "Kommer snart",
+        "title": "ConPaws+",
+        "description": "Valfri premiumbackup i molnet, synkronisering och sociala funktioner planeras. ConPaws fungerar offline redan idag. Inget konto krävs."
+      },
+      "next": "Fortsätt"
+    },
+    "getStarted": {
+      "title": "Redo för nästa konvent?",
+      "subtitle": "Importera ett schema nu eller utforska ConPaws först.",
+      "importSchedule": "Importera ett schema",
+      "exploreFirst": "Utforska först",
+      "localPrivacy": "Inget konto krävs. Dina data lagras lokalt."
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "signIn": "Logga In",
+    "notSignedIn": "Inte inloggad",
+    "notSignedInSubtitle": "Logga in för att synkronisera ditt schema och ansluta med vänner.",
+    "comingSoon": "Profilfunktioner kommer snart",
+    "signInWithApple": "Logga in med Apple",
+    "signInWithGoogle": "Logga in med Google"
+  },
   "reminders": {
     "title": "Påminnelser",
     "add": "Lägg till Påminnelse",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Avgångspåminnelse inställd för {{event}}.",
     "clearedAnnouncement": "Avgångspåminnelse borttagen för {{event}}.",
     "errorTitle": "Påminnelsen ställdes inte in",
-    "errorMessage": "Aktivera notiser i Inställningar och välj ett framtida evenemang."
+    "errorMessage": "ConPaws kunde inte uppdatera den här påminnelsen. Försök igen.",
+    "permissionTitle": "Notiser är avstängda",
+    "permissionMessage": "ConPaws behöver notiser för att påminna dig om när du ska gå. Aktivera dem i Inställningar och ställ in påminnelsen igen.",
+    "openSettings": "Öppna Inställningar",
+    "tooLateTitle": "Evenemanget börjar för snart",
+    "tooLateMessage": "Det här evenemanget börjar tidigare än vad påminnelsen tillåter. Välj kortare framförhållning eller ett senare evenemang.",
+    "pausedTitle": "Påminnelser är pausade",
+    "pausedMessage": "Notiser är avstängda, så dina sparade påminnelser kommer inte fram. Dina val sparas och gäller igen så snart du aktiverar notiser.",
+    "overflowTitle": "Några påminnelser väntar",
+    "overflowMessage": "Enheten håller bara ett begränsat antal väntande påminnelser, så här många av dina väntar: {{count}}. De närmaste schemaläggs först."
+  },
+  "schedule": {
+    "title": "Schema",
+    "empty": {
+      "title": "Inget stjärnmärkt än",
+      "subtitle": "Stjärnmärk ett evenemang i ett konvent så dyker det upp här.",
+      "cta": "Öppna mina konvent"
+    },
+    "timesShownInConventionTime": "Tiderna visas i varje konvents lokala tid.",
+    "loadError": "Ditt schema kunde inte läsas in.",
+    "conventionEmpty": {
+      "title": "Inget sparat för {{name}} än",
+      "subtitle": "Stjärnmärk evenemang i konventets schema så visas de här.",
+      "cta": "Öppna konventet"
+    }
+  },
+  "settings": {
+    "title": "Inställningar",
+    "languages": {
+      "title": "Språk",
+      "systemDefault": "Använd enhetsspråk",
+      "en": "Engelska",
+      "es": "Spanska",
+      "nl": "Nederländska",
+      "de": "Tyska",
+      "fr": "Franska",
+      "pt-BR": "Portugisiska (Brasilien)",
+      "sv": "Svenska",
+      "pl": "Polska",
+      "description": "Välj språket som ConPaws använder.",
+      "selected": "Valt",
+      "changeError": "ConPaws kunde inte byta språk. Försök igen."
+    },
+    "appearance": {
+      "system": "System",
+      "light": "Ljust",
+      "dark": "Mörkt",
+      "description": "Välj hur ConPaws ska se ut på den här enheten.",
+      "changeError": "ConPaws kunde inte ändra utseendet. Försök igen."
+    },
+    "account": {
+      "title": "Konto",
+      "signIn": "Logga In",
+      "signOut": "Logga Ut"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Tema",
+      "language": "Språk",
+      "haptics": "Haptisk återkoppling",
+      "hapticsError": "Din haptikinställning kunde inte sparas",
+      "notifications": "Aviseringar"
+    },
+    "data": {
+      "title": "Data",
+      "exportData": "Exportera Data",
+      "exportDescription": "Spara en säkerhetskopia av dina konvent och scheman.",
+      "exporting": "Förbereder säkerhetskopia",
+      "exportError": "ConPaws kunde inte exportera dina data. Försök igen.",
+      "importData": "Importera Data",
+      "importDescription": "Återställ konvent och scheman från en säkerhetskopia.",
+      "importing": "Öppnar säkerhetskopia",
+      "resetOnboarding": "Återställ Introduktion"
+    },
+    "dataImport": {
+      "confirmTitle": "Återställa säkerhetskopian?",
+      "confirmMessage": "Konvent: {{conventions}} • Evenemang: {{events}}. Återställning lägger till dem i ConPaws och tar inte bort något.",
+      "confirmAction": "Återställ",
+      "successTitle": "Säkerhetskopia återställd",
+      "successSummary": "Tillagda konvent: {{conventions}} • Tillagda evenemang: {{events}}.",
+      "successSkipped": "Fanns redan eller gick inte att läsa: {{count}}.",
+      "successNothing": "Allt i den här säkerhetskopian fanns redan på enheten.",
+      "failedTitle": "Säkerhetskopian återställdes inte",
+      "errors": {
+        "generic": "ConPaws kunde inte läsa den säkerhetskopian. Prova en annan fil.",
+        "unreadable": "ConPaws kunde inte öppna den filen. Prova en annan fil.",
+        "fileTooLarge": "Den filen är för stor för att återställas.",
+        "invalidJson": "Den filen är inte en läsbar ConPaws-säkerhetskopia.",
+        "unsupportedVersion": "Den säkerhetskopian kommer från en nyare version av ConPaws.",
+        "notConPaws": "Den filen är inte en ConPaws-säkerhetskopia.",
+        "malformed": "Den säkerhetskopian innehåller varken konvent eller evenemang.",
+        "tooManyRows": "Den säkerhetskopian har för många poster för att återställas.",
+        "writeFailed": "ConPaws kunde inte spara den säkerhetskopian på enheten. Försök igen."
+      }
+    },
+    "legal": {
+      "title": "Juridiskt",
+      "privacyPolicy": "Integritetspolicy",
+      "termsOfService": "Användarvillkor",
+      "about": "Om ConPaws",
+      "openSourceLicenses": "Tredjepartslicenser"
+    },
+    "about": {
+      "title": "Om",
+      "contact": "hello@conpaws.com",
+      "tagline": "Ditt konventsschema, tillgängligt offline.",
+      "resources": "Resurser",
+      "website": "Webbplats",
+      "builtWith": "Byggd med",
+      "licenseDescription": "{{count}} paket och verktyg",
+      "support": "Support",
+      "email": "E-post",
+      "discordDescription": "Gå med i communityn",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "Licensdetaljer",
+      "packageCount": "{{count}} paket",
+      "searchPlaceholder": "Sök paket eller licenser",
+      "noResultsTitle": "Inga licenser hittades",
+      "noResultsDescription": "Prova ett annat paket- eller licensnamn.",
+      "version": "Version {{version}}",
+      "license": "Licens: {{license}}",
+      "repository": "Kodarkiv",
+      "projectWebsite": "Projektwebbplats",
+      "packageNotFoundTitle": "Paketet hittades inte",
+      "packageNotFoundDescription": "Paketet kanske inte längre ingår i den här versionen.",
+      "licenseTextUnavailable": "Licenstexten är inte tillgänglig i den här versionen."
+    }
   }
 }

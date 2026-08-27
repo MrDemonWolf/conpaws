@@ -26,107 +26,6 @@
     "keepEditing": "Weiter bearbeiten",
     "discard": "Verwerfen"
   },
-  "onboarding": {
-    "progress": "Schritt {{step}} von {{total}}",
-    "welcome": {
-      "tagline": "Dein Convention-Plan. Auch offline verfügbar.",
-      "subtitle": "Plane trotz schlechtem Con-WLAN. Dein Zeitplan bleibt auf deinem Gerät.",
-      "continue": "Weiter",
-      "skip": "Überspringen"
-    },
-    "features": {
-      "title": "Plane die ganze Con",
-      "subtitle": "Alles, was du brauchst, wenn das WLAN vor Ort versagt.",
-      "demo": {
-        "now": "Jetzt",
-        "next": "Als Nächstes",
-        "eventOne": "Eröffnungsfeier",
-        "eventTwo": "Fursuit-Parade",
-        "saved": "Mein Zeitplan"
-      },
-      "import": {
-        "title": "Jeden Zeitplan importieren",
-        "description": "Füge eine .ics-Datei hinzu oder einen Sched-Link ein."
-      },
-      "plan": {
-        "title": "Verpasse kein Panel",
-        "description": "Erstelle deinen Zeitplan, sieh, was jetzt und als Nächstes läuft, und erkenne Überschneidungen."
-      },
-      "offline": {
-        "title": "Privat und offline",
-        "description": "Deine Convention-Daten bleiben auf diesem Gerät."
-      },
-      "plus": {
-        "eyebrow": "Demnächst",
-        "title": "ConPaws+",
-        "description": "Optionale Premium-Funktionen für Cloud-Backups, Synchronisierung und Community sind geplant. ConPaws funktioniert schon heute offline, ganz ohne Konto."
-      },
-      "next": "Weiter"
-    },
-    "getStarted": {
-      "title": "Bereit für deine nächste Con?",
-      "subtitle": "Importiere jetzt einen Zeitplan oder sieh dich erst in ConPaws um.",
-      "importSchedule": "Zeitplan importieren",
-      "exploreFirst": "Erst ansehen",
-      "localPrivacy": "Kein Konto nötig. Deine Daten bleiben lokal."
-    }
-  },
-  "home": {
-    "title": "Conventions",
-    "addConvention": "Convention hinzufügen",
-    "empty": {
-      "title": "Noch keine Conventions",
-      "subtitle": "Erstelle eine Convention oder importiere einen vorhandenen Zeitplan.",
-      "cta": "Convention erstellen"
-    },
-    "loadError": "Conventions konnten nicht geladen werden.",
-    "dateRange": "{{start}} bis {{end}}",
-    "upcoming": "Bevorstehend",
-    "active": "Aktiv",
-    "past": "Vergangen",
-    "countdown": {
-      "today": "Heute",
-      "tomorrow": "Morgen",
-      "days": "In {{count}} Tagen"
-    },
-    "archive": {
-      "title": "Archiv ({{count}})",
-      "show": "Anzeigen",
-      "hide": "Ausblenden",
-      "noCurrent": "Keine bevorstehenden Conventions.",
-      "success": "{{name}} wurde archiviert.",
-      "errorTitle": "Convention konnte nicht archiviert werden",
-      "errorMessage": "Es wurde nichts archiviert. Versuche es erneut."
-    },
-    "moreActions": "Weitere Aktionen für {{name}}",
-    "sortBy": "Sortieren nach",
-    "sort": {
-      "upcoming": "Bevorstehende zuerst",
-      "name": "Name"
-    },
-    "delete": {
-      "title": "{{name}} löschen?",
-      "message": "Dadurch werden die Convention, ihr Zeitplan und ihre Erinnerungen dauerhaft gelöscht.",
-      "success": "{{name}} wurde gelöscht.",
-      "errorTitle": "Convention konnte nicht gelöscht werden",
-      "errorMessage": "Es wurde nichts gelöscht. Versuche es erneut."
-    }
-  },
-  "schedule": {
-    "title": "Zeitplan",
-    "empty": {
-      "title": "Noch nichts markiert",
-      "subtitle": "Markiere eine Veranstaltung in einer Convention, dann erscheint sie hier.",
-      "cta": "Meine Conventions öffnen"
-    },
-    "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
-    "loadError": "Dein Zeitplan konnte nicht geladen werden.",
-    "conventionEmpty": {
-      "title": "Noch nichts für {{name}} gespeichert",
-      "subtitle": "Markiere Veranstaltungen im Convention-Zeitplan, damit sie hier erscheinen.",
-      "cta": "Convention öffnen"
-    }
-  },
   "convention": {
     "new": "Neue Convention",
     "create": "Convention erstellen",
@@ -248,96 +147,54 @@
     "updateError": "Änderungen konnten nicht gespeichert werden.",
     "nameCounter": "{{count}} von {{max}}"
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Anmelden",
-    "notSignedIn": "Nicht angemeldet",
-    "notSignedInSubtitle": "Melde dich an, um deinen Zeitplan zu synchronisieren und Freunde zu verbinden.",
-    "comingSoon": "Profilfunktionen kommen bald",
-    "signInWithApple": "Mit Apple anmelden",
-    "signInWithGoogle": "Mit Google anmelden"
+  "errors": {
+    "database": {
+      "title": "ConPaws kann seine gespeicherten Daten nicht öffnen",
+      "message": "Deine Conventions sind weiterhin auf diesem Gerät. Starte ConPaws neu, um es erneut zu versuchen."
+    },
+    "screen": {
+      "message": "Dieser Teil von ConPaws reagiert nicht mehr. Der Rest der App funktioniert weiter."
+    }
   },
-  "settings": {
-    "title": "Einstellungen",
-    "languages": {
-      "title": "Sprache",
-      "systemDefault": "Gerätesprache verwenden",
-      "en": "Englisch",
-      "es": "Spanisch",
-      "nl": "Niederländisch",
-      "de": "Deutsch",
-      "fr": "Französisch",
-      "pt-BR": "Portugiesisch (Brasilien)",
-      "sv": "Schwedisch",
-      "pl": "Polnisch",
-      "description": "Wähle die Sprache für ConPaws.",
-      "selected": "Ausgewählt",
-      "changeError": "ConPaws konnte die Sprache nicht ändern. Versuche es erneut."
+  "home": {
+    "title": "Conventions",
+    "addConvention": "Convention hinzufügen",
+    "empty": {
+      "title": "Noch keine Conventions",
+      "subtitle": "Erstelle eine Convention oder importiere einen vorhandenen Zeitplan.",
+      "cta": "Convention erstellen"
     },
-    "appearance": {
-      "system": "System",
-      "light": "Hell",
-      "dark": "Dunkel",
-      "description": "Wähle, wie ConPaws auf diesem Gerät aussieht.",
-      "changeError": "ConPaws konnte das Design nicht ändern. Versuche es erneut."
+    "loadError": "Conventions konnten nicht geladen werden.",
+    "dateRange": "{{start}} bis {{end}}",
+    "upcoming": "Bevorstehend",
+    "active": "Aktiv",
+    "past": "Vergangen",
+    "countdown": {
+      "today": "Heute",
+      "tomorrow": "Morgen",
+      "days": "In {{count}} Tagen"
     },
-    "account": {
-      "title": "Konto",
-      "signIn": "Anmelden",
-      "signOut": "Abmelden"
+    "archive": {
+      "title": "Archiv ({{count}})",
+      "show": "Anzeigen",
+      "hide": "Ausblenden",
+      "noCurrent": "Keine bevorstehenden Conventions.",
+      "success": "{{name}} wurde archiviert.",
+      "errorTitle": "Convention konnte nicht archiviert werden",
+      "errorMessage": "Es wurde nichts archiviert. Versuche es erneut."
     },
-    "app": {
-      "title": "App",
-      "theme": "Design",
-      "language": "Sprache",
-      "haptics": "Haptisches Feedback",
-      "hapticsError": "Haptik-Einstellung konnte nicht gespeichert werden",
-      "notifications": "Benachrichtigungen"
+    "moreActions": "Weitere Aktionen für {{name}}",
+    "sortBy": "Sortieren nach",
+    "sort": {
+      "upcoming": "Bevorstehende zuerst",
+      "name": "Name"
     },
-    "data": {
-      "title": "Daten",
-      "exportData": "Daten exportieren",
-      "exportDescription": "Speichere eine Sicherung deiner Conventions und Zeitpläne.",
-      "exporting": "Sicherung wird vorbereitet",
-      "exportError": "ConPaws konnte deine Daten nicht exportieren. Versuche es erneut.",
-      "importData": "Daten importieren",
-      "importDescription": "Stelle Conventions und Zeitpläne aus einer Sicherung wieder her.",
-      "importing": "Sicherung wird geöffnet",
-      "resetOnboarding": "Onboarding zurücksetzen"
-    },
-    "legal": {
-      "title": "Rechtliches",
-      "privacyPolicy": "Datenschutzerklärung",
-      "termsOfService": "Nutzungsbedingungen",
-      "about": "Über ConPaws",
-      "openSourceLicenses": "Drittanbieter-Lizenzen"
-    },
-    "about": {
-      "title": "Über",
-      "contact": "hello@conpaws.com",
-      "tagline": "Dein Convention-Zeitplan, offline verfügbar.",
-      "resources": "Ressourcen",
-      "website": "Website",
-      "builtWith": "Entwickelt mit",
-      "licenseDescription": "{{count}} Pakete und Werkzeuge",
-      "support": "Support",
-      "email": "E-Mail",
-      "discordDescription": "Community beitreten",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "Lizenzdetails",
-      "packageCount": "{{count}} Pakete",
-      "searchPlaceholder": "Pakete oder Lizenzen suchen",
-      "noResultsTitle": "Keine Lizenzen gefunden",
-      "noResultsDescription": "Versuche es mit einem anderen Paket- oder Lizenznamen.",
-      "version": "Version {{version}}",
-      "license": "Lizenz: {{license}}",
-      "repository": "Repository",
-      "projectWebsite": "Projektwebsite",
-      "packageNotFoundTitle": "Paket nicht gefunden",
-      "packageNotFoundDescription": "Dieses Paket ist möglicherweise nicht mehr in diesem Build enthalten.",
-      "licenseTextUnavailable": "Der Lizenztext ist in diesem Build nicht verfügbar."
+    "delete": {
+      "title": "{{name}} löschen?",
+      "message": "Dadurch werden die Convention, ihr Zeitplan und ihre Erinnerungen dauerhaft gelöscht.",
+      "success": "{{name}} wurde gelöscht.",
+      "errorTitle": "Convention konnte nicht gelöscht werden",
+      "errorMessage": "Es wurde nichts gelöscht. Versuche es erneut."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Import fehlgeschlagen"
     }
   },
+  "onboarding": {
+    "progress": "Schritt {{step}} von {{total}}",
+    "welcome": {
+      "tagline": "Dein Convention-Plan. Auch offline verfügbar.",
+      "subtitle": "Plane trotz schlechtem Con-WLAN. Dein Zeitplan bleibt auf deinem Gerät.",
+      "continue": "Weiter",
+      "skip": "Überspringen"
+    },
+    "features": {
+      "title": "Plane die ganze Con",
+      "subtitle": "Alles, was du brauchst, wenn das WLAN vor Ort versagt.",
+      "demo": {
+        "now": "Jetzt",
+        "next": "Als Nächstes",
+        "eventOne": "Eröffnungsfeier",
+        "eventTwo": "Fursuit-Parade",
+        "saved": "Mein Zeitplan"
+      },
+      "import": {
+        "title": "Jeden Zeitplan importieren",
+        "description": "Füge eine .ics-Datei hinzu oder einen Sched-Link ein."
+      },
+      "plan": {
+        "title": "Verpasse kein Panel",
+        "description": "Erstelle deinen Zeitplan, sieh, was jetzt und als Nächstes läuft, und erkenne Überschneidungen."
+      },
+      "offline": {
+        "title": "Privat und offline",
+        "description": "Deine Convention-Daten bleiben auf diesem Gerät."
+      },
+      "plus": {
+        "eyebrow": "Demnächst",
+        "title": "ConPaws+",
+        "description": "Optionale Premium-Funktionen für Cloud-Backups, Synchronisierung und Community sind geplant. ConPaws funktioniert schon heute offline, ganz ohne Konto."
+      },
+      "next": "Weiter"
+    },
+    "getStarted": {
+      "title": "Bereit für deine nächste Con?",
+      "subtitle": "Importiere jetzt einen Zeitplan oder sieh dich erst in ConPaws um.",
+      "importSchedule": "Zeitplan importieren",
+      "exploreFirst": "Erst ansehen",
+      "localPrivacy": "Kein Konto nötig. Deine Daten bleiben lokal."
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "signIn": "Anmelden",
+    "notSignedIn": "Nicht angemeldet",
+    "notSignedInSubtitle": "Melde dich an, um deinen Zeitplan zu synchronisieren und Freunde zu verbinden.",
+    "comingSoon": "Profilfunktionen kommen bald",
+    "signInWithApple": "Mit Apple anmelden",
+    "signInWithGoogle": "Mit Google anmelden"
+  },
   "reminders": {
     "title": "Erinnerungen",
     "add": "Erinnerung hinzufügen",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Aufbruchserinnerung für {{event}} festgelegt.",
     "clearedAnnouncement": "Aufbruchserinnerung für {{event}} gelöscht.",
     "errorTitle": "Erinnerung nicht festgelegt",
-    "errorMessage": "Aktiviere Mitteilungen in den Einstellungen und wähle ein zukünftiges Event."
+    "errorMessage": "ConPaws konnte diese Erinnerung nicht aktualisieren. Versuche es erneut.",
+    "permissionTitle": "Mitteilungen sind aus",
+    "permissionMessage": "ConPaws braucht die Erlaubnis für Mitteilungen, um dich ans Aufbrechen zu erinnern. Aktiviere sie in den Einstellungen und lege die Erinnerung erneut fest.",
+    "openSettings": "Einstellungen öffnen",
+    "tooLateTitle": "Event beginnt zu bald",
+    "tooLateMessage": "Dieses Event beginnt früher, als diese Erinnerung erlaubt. Wähle eine kürzere Vorlaufzeit oder ein späteres Event.",
+    "pausedTitle": "Erinnerungen pausiert",
+    "pausedMessage": "Mitteilungen sind aus, deine gespeicherten Erinnerungen kommen also nicht an. Deine Auswahl bleibt erhalten und gilt wieder, sobald du Mitteilungen einschaltest.",
+    "overflowTitle": "Einige Erinnerungen warten",
+    "overflowMessage": "Dieses Gerät hält nur eine begrenzte Zahl offener Erinnerungen, so viele von deinen warten: {{count}}. Die nächstgelegenen werden zuerst geplant."
+  },
+  "schedule": {
+    "title": "Zeitplan",
+    "empty": {
+      "title": "Noch nichts markiert",
+      "subtitle": "Markiere eine Veranstaltung in einer Convention, dann erscheint sie hier.",
+      "cta": "Meine Conventions öffnen"
+    },
+    "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
+    "loadError": "Dein Zeitplan konnte nicht geladen werden.",
+    "conventionEmpty": {
+      "title": "Noch nichts für {{name}} gespeichert",
+      "subtitle": "Markiere Veranstaltungen im Convention-Zeitplan, damit sie hier erscheinen.",
+      "cta": "Convention öffnen"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "languages": {
+      "title": "Sprache",
+      "systemDefault": "Gerätesprache verwenden",
+      "en": "Englisch",
+      "es": "Spanisch",
+      "nl": "Niederländisch",
+      "de": "Deutsch",
+      "fr": "Französisch",
+      "pt-BR": "Portugiesisch (Brasilien)",
+      "sv": "Schwedisch",
+      "pl": "Polnisch",
+      "description": "Wähle die Sprache für ConPaws.",
+      "selected": "Ausgewählt",
+      "changeError": "ConPaws konnte die Sprache nicht ändern. Versuche es erneut."
+    },
+    "appearance": {
+      "system": "System",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "description": "Wähle, wie ConPaws auf diesem Gerät aussieht.",
+      "changeError": "ConPaws konnte das Design nicht ändern. Versuche es erneut."
+    },
+    "account": {
+      "title": "Konto",
+      "signIn": "Anmelden",
+      "signOut": "Abmelden"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Design",
+      "language": "Sprache",
+      "haptics": "Haptisches Feedback",
+      "hapticsError": "Haptik-Einstellung konnte nicht gespeichert werden",
+      "notifications": "Benachrichtigungen"
+    },
+    "data": {
+      "title": "Daten",
+      "exportData": "Daten exportieren",
+      "exportDescription": "Speichere eine Sicherung deiner Conventions und Zeitpläne.",
+      "exporting": "Sicherung wird vorbereitet",
+      "exportError": "ConPaws konnte deine Daten nicht exportieren. Versuche es erneut.",
+      "importData": "Daten importieren",
+      "importDescription": "Stelle Conventions und Zeitpläne aus einer Sicherung wieder her.",
+      "importing": "Sicherung wird geöffnet",
+      "resetOnboarding": "Onboarding zurücksetzen"
+    },
+    "dataImport": {
+      "confirmTitle": "Sicherung wiederherstellen?",
+      "confirmMessage": "Conventions: {{conventions}} • Events: {{events}}. Beim Wiederherstellen kommen sie zu ConPaws dazu, entfernt wird nichts.",
+      "confirmAction": "Wiederherstellen",
+      "successTitle": "Sicherung wiederhergestellt",
+      "successSummary": "Conventions hinzugefügt: {{conventions}} • Events hinzugefügt: {{events}}.",
+      "successSkipped": "Schon vorhanden oder unlesbar: {{count}}.",
+      "successNothing": "Alles aus dieser Sicherung war bereits auf diesem Gerät.",
+      "failedTitle": "Sicherung nicht wiederhergestellt",
+      "errors": {
+        "generic": "ConPaws konnte diese Sicherung nicht lesen. Versuche eine andere Datei.",
+        "unreadable": "ConPaws konnte diese Datei nicht öffnen. Versuche eine andere Datei.",
+        "fileTooLarge": "Diese Datei ist zu groß für eine Wiederherstellung.",
+        "invalidJson": "Diese Datei ist keine lesbare ConPaws-Sicherung.",
+        "unsupportedVersion": "Diese Sicherung stammt aus einer neueren ConPaws-Version.",
+        "notConPaws": "Diese Datei ist keine ConPaws-Sicherung.",
+        "malformed": "Diese Sicherung enthält keine Conventions und keine Events.",
+        "tooManyRows": "Diese Sicherung enthält zu viele Einträge für eine Wiederherstellung.",
+        "writeFailed": "ConPaws konnte diese Sicherung nicht auf dem Gerät speichern. Versuche es erneut."
+      }
+    },
+    "legal": {
+      "title": "Rechtliches",
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfService": "Nutzungsbedingungen",
+      "about": "Über ConPaws",
+      "openSourceLicenses": "Drittanbieter-Lizenzen"
+    },
+    "about": {
+      "title": "Über",
+      "contact": "hello@conpaws.com",
+      "tagline": "Dein Convention-Zeitplan, offline verfügbar.",
+      "resources": "Ressourcen",
+      "website": "Website",
+      "builtWith": "Entwickelt mit",
+      "licenseDescription": "{{count}} Pakete und Werkzeuge",
+      "support": "Support",
+      "email": "E-Mail",
+      "discordDescription": "Community beitreten",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "Lizenzdetails",
+      "packageCount": "{{count}} Pakete",
+      "searchPlaceholder": "Pakete oder Lizenzen suchen",
+      "noResultsTitle": "Keine Lizenzen gefunden",
+      "noResultsDescription": "Versuche es mit einem anderen Paket- oder Lizenznamen.",
+      "version": "Version {{version}}",
+      "license": "Lizenz: {{license}}",
+      "repository": "Repository",
+      "projectWebsite": "Projektwebsite",
+      "packageNotFoundTitle": "Paket nicht gefunden",
+      "packageNotFoundDescription": "Dieses Paket ist möglicherweise nicht mehr in diesem Build enthalten.",
+      "licenseTextUnavailable": "Der Lizenztext ist in diesem Build nicht verfügbar."
+    }
   }
 }

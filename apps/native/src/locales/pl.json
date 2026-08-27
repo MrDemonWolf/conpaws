@@ -26,107 +26,6 @@
     "keepEditing": "Kontynuuj edycję",
     "discard": "Odrzuć"
   },
-  "onboarding": {
-    "progress": "Krok {{step}} z {{total}}",
-    "welcome": {
-      "tagline": "Program konwentu zawsze pod ręką, także offline.",
-      "subtitle": "Planuj mimo słabego Wi-Fi na konwencie. Harmonogram zostaje na twoim urządzeniu.",
-      "continue": "Dalej",
-      "skip": "Pomiń"
-    },
-    "features": {
-      "title": "Zaplanuj cały konwent",
-      "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
-      "demo": {
-        "now": "Teraz",
-        "next": "Następnie",
-        "eventOne": "Ceremonia otwarcia",
-        "eventTwo": "Parada fursuitów",
-        "saved": "Mój harmonogram"
-      },
-      "import": {
-        "title": "Importuj dowolny harmonogram",
-        "description": "Dodaj plik .ics lub wklej link z Sched."
-      },
-      "plan": {
-        "title": "Nie przegap żadnego panelu",
-        "description": "Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje."
-      },
-      "offline": {
-        "title": "Prywatnie i offline",
-        "description": "Dane konwentu zostają na tym urządzeniu."
-      },
-      "plus": {
-        "eyebrow": "Wkrótce",
-        "title": "ConPaws+",
-        "description": "Planowane są opcjonalne funkcje premium: kopie zapasowe w chmurze, synchronizacja i funkcje społecznościowe. ConPaws już teraz działa offline bez konta."
-      },
-      "next": "Dalej"
-    },
-    "getStarted": {
-      "title": "Wszystko gotowe na kolejny konwent?",
-      "subtitle": "Zaimportuj harmonogram już teraz albo najpierw poznaj ConPaws.",
-      "importSchedule": "Importuj harmonogram",
-      "exploreFirst": "Najpierw poznaj aplikację",
-      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
-    }
-  },
-  "home": {
-    "title": "Konwenty",
-    "addConvention": "Dodaj Konwent",
-    "empty": {
-      "title": "Brak konwentów",
-      "subtitle": "Utwórz konwent lub zaimportuj istniejący harmonogram.",
-      "cta": "Utwórz konwent"
-    },
-    "loadError": "Nie udało się wczytać konwentów.",
-    "dateRange": "{{start}} do {{end}}",
-    "upcoming": "Nadchodzące",
-    "active": "Aktywne",
-    "past": "Minione",
-    "countdown": {
-      "today": "Dzisiaj",
-      "tomorrow": "Jutro",
-      "days": "Za {{count}} dni"
-    },
-    "archive": {
-      "title": "Archiwum ({{count}})",
-      "show": "Pokaż",
-      "hide": "Ukryj",
-      "noCurrent": "Brak nadchodzących konwentów.",
-      "success": "Zarchiwizowano {{name}}.",
-      "errorTitle": "Nie udało się zarchiwizować konwentu",
-      "errorMessage": "Nic nie zarchiwizowano. Spróbuj ponownie."
-    },
-    "moreActions": "Więcej działań dla {{name}}",
-    "sortBy": "Sortuj według",
-    "sort": {
-      "upcoming": "Nadchodzące najpierw",
-      "name": "Nazwa"
-    },
-    "delete": {
-      "title": "Usunąć {{name}}?",
-      "message": "To trwale usunie konwent, jego harmonogram i przypomnienia.",
-      "success": "Usunięto {{name}}.",
-      "errorTitle": "Nie udało się usunąć konwentu",
-      "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
-    }
-  },
-  "schedule": {
-    "title": "Harmonogram",
-    "empty": {
-      "title": "Nic jeszcze nie oznaczono",
-      "subtitle": "Oznacz wydarzenie gwiazdką na konwencie, a pojawi się tutaj.",
-      "cta": "Otwórz moje konwenty"
-    },
-    "timesShownInConventionTime": "Godziny podane w czasie lokalnym każdego konwentu.",
-    "loadError": "Nie udało się wczytać harmonogramu.",
-    "conventionEmpty": {
-      "title": "Brak zapisanych wydarzeń dla {{name}}",
-      "subtitle": "Oznacz wydarzenia gwiazdką w harmonogramie konwentu, aby pojawiły się tutaj.",
-      "cta": "Otwórz konwent"
-    }
-  },
   "convention": {
     "new": "Nowy Konwent",
     "create": "Utwórz konwent",
@@ -248,96 +147,54 @@
     "updateError": "Nie udało się zapisać zmian.",
     "nameCounter": "{{count}} z {{max}}"
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Zaloguj się",
-    "notSignedIn": "Niezalogowany",
-    "notSignedInSubtitle": "Zaloguj się, aby synchronizować harmonogram i łączyć się z przyjaciółmi.",
-    "comingSoon": "Funkcje profilu wkrótce",
-    "signInWithApple": "Zaloguj się przez Apple",
-    "signInWithGoogle": "Zaloguj się przez Google"
+  "errors": {
+    "database": {
+      "title": "ConPaws nie może otworzyć zapisanych danych",
+      "message": "Twoje konwenty nadal są na tym urządzeniu. Uruchom ConPaws ponownie, aby spróbować jeszcze raz."
+    },
+    "screen": {
+      "message": "Ta część ConPaws przestała odpowiadać. Reszta aplikacji działa normalnie."
+    }
   },
-  "settings": {
-    "title": "Ustawienia",
-    "languages": {
-      "title": "Język",
-      "systemDefault": "Użyj języka urządzenia",
-      "en": "Angielski",
-      "es": "Hiszpański",
-      "nl": "Niderlandzki",
-      "de": "Niemiecki",
-      "fr": "Francuski",
-      "pt-BR": "Portugalski (Brazylia)",
-      "sv": "Szwedzki",
-      "pl": "Polski",
-      "description": "Wybierz język używany w ConPaws.",
-      "selected": "Wybrano",
-      "changeError": "ConPaws nie mógł zmienić języka. Spróbuj ponownie."
+  "home": {
+    "title": "Konwenty",
+    "addConvention": "Dodaj Konwent",
+    "empty": {
+      "title": "Brak konwentów",
+      "subtitle": "Utwórz konwent lub zaimportuj istniejący harmonogram.",
+      "cta": "Utwórz konwent"
     },
-    "appearance": {
-      "system": "Systemowy",
-      "light": "Jasny",
-      "dark": "Ciemny",
-      "description": "Wybierz wygląd ConPaws na tym urządzeniu.",
-      "changeError": "Nie udało się zmienić wyglądu ConPaws. Spróbuj ponownie."
+    "loadError": "Nie udało się wczytać konwentów.",
+    "dateRange": "{{start}} do {{end}}",
+    "upcoming": "Nadchodzące",
+    "active": "Aktywne",
+    "past": "Minione",
+    "countdown": {
+      "today": "Dzisiaj",
+      "tomorrow": "Jutro",
+      "days": "Za {{count}} dni"
     },
-    "account": {
-      "title": "Konto",
-      "signIn": "Zaloguj się",
-      "signOut": "Wyloguj się"
+    "archive": {
+      "title": "Archiwum ({{count}})",
+      "show": "Pokaż",
+      "hide": "Ukryj",
+      "noCurrent": "Brak nadchodzących konwentów.",
+      "success": "Zarchiwizowano {{name}}.",
+      "errorTitle": "Nie udało się zarchiwizować konwentu",
+      "errorMessage": "Nic nie zarchiwizowano. Spróbuj ponownie."
     },
-    "app": {
-      "title": "Aplikacja",
-      "theme": "Motyw",
-      "language": "Język",
-      "haptics": "Wibracje dotykowe",
-      "hapticsError": "Nie udało się zapisać ustawienia wibracji",
-      "notifications": "Powiadomienia"
+    "moreActions": "Więcej działań dla {{name}}",
+    "sortBy": "Sortuj według",
+    "sort": {
+      "upcoming": "Nadchodzące najpierw",
+      "name": "Nazwa"
     },
-    "data": {
-      "title": "Dane",
-      "exportData": "Eksportuj Dane",
-      "exportDescription": "Zapisz kopię zapasową konwentów i harmonogramów.",
-      "exporting": "Przygotowywanie kopii",
-      "exportError": "ConPaws nie mógł wyeksportować danych. Spróbuj ponownie.",
-      "importData": "Importuj Dane",
-      "importDescription": "Przywróć konwenty i harmonogramy z kopii zapasowej.",
-      "importing": "Otwieranie kopii",
-      "resetOnboarding": "Zresetuj Wdrożenie"
-    },
-    "legal": {
-      "title": "Prawne",
-      "privacyPolicy": "Polityka Prywatności",
-      "termsOfService": "Warunki Korzystania",
-      "about": "O ConPaws",
-      "openSourceLicenses": "Licencje stron trzecich"
-    },
-    "about": {
-      "title": "O aplikacji",
-      "contact": "hello@conpaws.com",
-      "tagline": "Twój plan konwentu, dostępny offline.",
-      "resources": "Zasoby",
-      "website": "Witryna",
-      "builtWith": "Stworzono z użyciem",
-      "licenseDescription": "{{count}} pakietów i narzędzi",
-      "support": "Pomoc",
-      "email": "E-mail",
-      "discordDescription": "Dołącz do społeczności",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "Szczegóły licencji",
-      "packageCount": "Pakiety: {{count}}",
-      "searchPlaceholder": "Szukaj pakietów lub licencji",
-      "noResultsTitle": "Nie znaleziono licencji",
-      "noResultsDescription": "Spróbuj użyć innej nazwy pakietu lub licencji.",
-      "version": "Wersja {{version}}",
-      "license": "Licencja: {{license}}",
-      "repository": "Repozytorium",
-      "projectWebsite": "Witryna projektu",
-      "packageNotFoundTitle": "Nie znaleziono pakietu",
-      "packageNotFoundDescription": "Ten pakiet może nie być już zawarty w tej kompilacji.",
-      "licenseTextUnavailable": "Tekst licencji nie jest dostępny w tej kompilacji."
+    "delete": {
+      "title": "Usunąć {{name}}?",
+      "message": "To trwale usunie konwent, jego harmonogram i przypomnienia.",
+      "success": "Usunięto {{name}}.",
+      "errorTitle": "Nie udało się usunąć konwentu",
+      "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Import nie powiódł się"
     }
   },
+  "onboarding": {
+    "progress": "Krok {{step}} z {{total}}",
+    "welcome": {
+      "tagline": "Program konwentu zawsze pod ręką, także offline.",
+      "subtitle": "Planuj mimo słabego Wi-Fi na konwencie. Harmonogram zostaje na twoim urządzeniu.",
+      "continue": "Dalej",
+      "skip": "Pomiń"
+    },
+    "features": {
+      "title": "Zaplanuj cały konwent",
+      "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
+      "demo": {
+        "now": "Teraz",
+        "next": "Następnie",
+        "eventOne": "Ceremonia otwarcia",
+        "eventTwo": "Parada fursuitów",
+        "saved": "Mój harmonogram"
+      },
+      "import": {
+        "title": "Importuj dowolny harmonogram",
+        "description": "Dodaj plik .ics lub wklej link z Sched."
+      },
+      "plan": {
+        "title": "Nie przegap żadnego panelu",
+        "description": "Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje."
+      },
+      "offline": {
+        "title": "Prywatnie i offline",
+        "description": "Dane konwentu zostają na tym urządzeniu."
+      },
+      "plus": {
+        "eyebrow": "Wkrótce",
+        "title": "ConPaws+",
+        "description": "Planowane są opcjonalne funkcje premium: kopie zapasowe w chmurze, synchronizacja i funkcje społecznościowe. ConPaws już teraz działa offline bez konta."
+      },
+      "next": "Dalej"
+    },
+    "getStarted": {
+      "title": "Wszystko gotowe na kolejny konwent?",
+      "subtitle": "Zaimportuj harmonogram już teraz albo najpierw poznaj ConPaws.",
+      "importSchedule": "Importuj harmonogram",
+      "exploreFirst": "Najpierw poznaj aplikację",
+      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "signIn": "Zaloguj się",
+    "notSignedIn": "Niezalogowany",
+    "notSignedInSubtitle": "Zaloguj się, aby synchronizować harmonogram i łączyć się z przyjaciółmi.",
+    "comingSoon": "Funkcje profilu wkrótce",
+    "signInWithApple": "Zaloguj się przez Apple",
+    "signInWithGoogle": "Zaloguj się przez Google"
+  },
   "reminders": {
     "title": "Przypomnienia",
     "add": "Dodaj Przypomnienie",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Ustawiono przypomnienie o wyjściu na {{event}}.",
     "clearedAnnouncement": "Usunięto przypomnienie o wyjściu na {{event}}.",
     "errorTitle": "Nie ustawiono przypomnienia",
-    "errorMessage": "Włącz powiadomienia w Ustawieniach i wybierz przyszłe wydarzenie."
+    "errorMessage": "ConPaws nie mógł zaktualizować tego przypomnienia. Spróbuj ponownie.",
+    "permissionTitle": "Powiadomienia są wyłączone",
+    "permissionMessage": "ConPaws potrzebuje powiadomień, aby przypomnieć Ci o wyjściu. Włącz je w Ustawieniach i ustaw przypomnienie ponownie.",
+    "openSettings": "Otwórz Ustawienia",
+    "tooLateTitle": "Wydarzenie zaczyna się zbyt szybko",
+    "tooLateMessage": "To wydarzenie zaczyna się wcześniej, niż pozwala to przypomnienie. Wybierz krótszy czas wyprzedzenia albo późniejsze wydarzenie.",
+    "pausedTitle": "Przypomnienia wstrzymane",
+    "pausedMessage": "Powiadomienia są wyłączone, więc zapisane przypomnienia nie dotrą. Twoje ustawienia zostają zachowane i wrócą, gdy tylko włączysz powiadomienia.",
+    "overflowTitle": "Część przypomnień czeka",
+    "overflowMessage": "To urządzenie utrzymuje ograniczoną liczbę oczekujących przypomnień, więc tyle z Twoich czeka: {{count}}. Najbliższe planowane są w pierwszej kolejności."
+  },
+  "schedule": {
+    "title": "Harmonogram",
+    "empty": {
+      "title": "Nic jeszcze nie oznaczono",
+      "subtitle": "Oznacz wydarzenie gwiazdką na konwencie, a pojawi się tutaj.",
+      "cta": "Otwórz moje konwenty"
+    },
+    "timesShownInConventionTime": "Godziny podane w czasie lokalnym każdego konwentu.",
+    "loadError": "Nie udało się wczytać harmonogramu.",
+    "conventionEmpty": {
+      "title": "Brak zapisanych wydarzeń dla {{name}}",
+      "subtitle": "Oznacz wydarzenia gwiazdką w harmonogramie konwentu, aby pojawiły się tutaj.",
+      "cta": "Otwórz konwent"
+    }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "languages": {
+      "title": "Język",
+      "systemDefault": "Użyj języka urządzenia",
+      "en": "Angielski",
+      "es": "Hiszpański",
+      "nl": "Niderlandzki",
+      "de": "Niemiecki",
+      "fr": "Francuski",
+      "pt-BR": "Portugalski (Brazylia)",
+      "sv": "Szwedzki",
+      "pl": "Polski",
+      "description": "Wybierz język używany w ConPaws.",
+      "selected": "Wybrano",
+      "changeError": "ConPaws nie mógł zmienić języka. Spróbuj ponownie."
+    },
+    "appearance": {
+      "system": "Systemowy",
+      "light": "Jasny",
+      "dark": "Ciemny",
+      "description": "Wybierz wygląd ConPaws na tym urządzeniu.",
+      "changeError": "Nie udało się zmienić wyglądu ConPaws. Spróbuj ponownie."
+    },
+    "account": {
+      "title": "Konto",
+      "signIn": "Zaloguj się",
+      "signOut": "Wyloguj się"
+    },
+    "app": {
+      "title": "Aplikacja",
+      "theme": "Motyw",
+      "language": "Język",
+      "haptics": "Wibracje dotykowe",
+      "hapticsError": "Nie udało się zapisać ustawienia wibracji",
+      "notifications": "Powiadomienia"
+    },
+    "data": {
+      "title": "Dane",
+      "exportData": "Eksportuj Dane",
+      "exportDescription": "Zapisz kopię zapasową konwentów i harmonogramów.",
+      "exporting": "Przygotowywanie kopii",
+      "exportError": "ConPaws nie mógł wyeksportować danych. Spróbuj ponownie.",
+      "importData": "Importuj Dane",
+      "importDescription": "Przywróć konwenty i harmonogramy z kopii zapasowej.",
+      "importing": "Otwieranie kopii",
+      "resetOnboarding": "Zresetuj Wdrożenie"
+    },
+    "dataImport": {
+      "confirmTitle": "Przywrócić kopię zapasową?",
+      "confirmMessage": "Konwenty: {{conventions}} • Wydarzenia: {{events}}. Przywracanie dodaje je do ConPaws i niczego nie usuwa.",
+      "confirmAction": "Przywróć",
+      "successTitle": "Kopia przywrócona",
+      "successSummary": "Dodane konwenty: {{conventions}} • Dodane wydarzenia: {{events}}.",
+      "successSkipped": "Już obecne lub nieczytelne: {{count}}.",
+      "successNothing": "Wszystko z tej kopii było już na tym urządzeniu.",
+      "failedTitle": "Nie przywrócono kopii",
+      "errors": {
+        "generic": "ConPaws nie mógł odczytać tej kopii. Wybierz inny plik.",
+        "unreadable": "ConPaws nie mógł otworzyć tego pliku. Wybierz inny plik.",
+        "fileTooLarge": "Ten plik jest za duży, aby go przywrócić.",
+        "invalidJson": "Ten plik nie jest czytelną kopią zapasową ConPaws.",
+        "unsupportedVersion": "Ta kopia pochodzi z nowszej wersji ConPaws.",
+        "notConPaws": "Ten plik nie jest kopią zapasową ConPaws.",
+        "malformed": "Ta kopia nie zawiera konwentów ani wydarzeń.",
+        "tooManyRows": "Ta kopia ma zbyt wiele wpisów, aby ją przywrócić.",
+        "writeFailed": "ConPaws nie mógł zapisać tej kopii na tym urządzeniu. Spróbuj ponownie."
+      }
+    },
+    "legal": {
+      "title": "Prawne",
+      "privacyPolicy": "Polityka Prywatności",
+      "termsOfService": "Warunki Korzystania",
+      "about": "O ConPaws",
+      "openSourceLicenses": "Licencje stron trzecich"
+    },
+    "about": {
+      "title": "O aplikacji",
+      "contact": "hello@conpaws.com",
+      "tagline": "Twój plan konwentu, dostępny offline.",
+      "resources": "Zasoby",
+      "website": "Witryna",
+      "builtWith": "Stworzono z użyciem",
+      "licenseDescription": "{{count}} pakietów i narzędzi",
+      "support": "Pomoc",
+      "email": "E-mail",
+      "discordDescription": "Dołącz do społeczności",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "Szczegóły licencji",
+      "packageCount": "Pakiety: {{count}}",
+      "searchPlaceholder": "Szukaj pakietów lub licencji",
+      "noResultsTitle": "Nie znaleziono licencji",
+      "noResultsDescription": "Spróbuj użyć innej nazwy pakietu lub licencji.",
+      "version": "Wersja {{version}}",
+      "license": "Licencja: {{license}}",
+      "repository": "Repozytorium",
+      "projectWebsite": "Witryna projektu",
+      "packageNotFoundTitle": "Nie znaleziono pakietu",
+      "packageNotFoundDescription": "Ten pakiet może nie być już zawarty w tej kompilacji.",
+      "licenseTextUnavailable": "Tekst licencji nie jest dostępny w tej kompilacji."
+    }
   }
 }

@@ -26,107 +26,6 @@
     "keepEditing": "Seguir editando",
     "discard": "Descartar"
   },
-  "onboarding": {
-    "progress": "Paso {{step}} de {{total}}",
-    "welcome": {
-      "tagline": "Tu agenda de la convención, disponible sin conexión.",
-      "subtitle": "Organízate aunque falle el Wi-Fi de la convención: tu agenda se queda en tu dispositivo.",
-      "continue": "Continuar",
-      "skip": "Omitir"
-    },
-    "features": {
-      "title": "Planifica toda la convención",
-      "subtitle": "Todo lo que necesitas cuando falla el Wi-Fi del recinto.",
-      "demo": {
-        "now": "Ahora",
-        "next": "Después",
-        "eventOne": "Ceremonia de apertura",
-        "eventTwo": "Desfile de fursuits",
-        "saved": "Mi agenda"
-      },
-      "import": {
-        "title": "Importa cualquier agenda",
-        "description": "Añade un archivo .ics o pega un enlace de Sched."
-      },
-      "plan": {
-        "title": "No te pierdas ningún panel",
-        "description": "Crea tu agenda, consulta qué hay ahora y después, y detecta solapamientos."
-      },
-      "offline": {
-        "title": "Privado y sin conexión",
-        "description": "Los datos de la convención se quedan en este dispositivo."
-      },
-      "plus": {
-        "eyebrow": "Próximamente",
-        "title": "ConPaws+",
-        "description": "Está previsto añadir copias de seguridad en la nube, sincronización y funciones sociales prémium opcionales. ConPaws ya funciona sin conexión y no necesita una cuenta."
-      },
-      "next": "Continuar"
-    },
-    "getStarted": {
-      "title": "¿Todo listo para tu próxima convención?",
-      "subtitle": "Importa una agenda ahora o explora ConPaws primero.",
-      "importSchedule": "Importar una agenda",
-      "exploreFirst": "Explorar primero",
-      "localPrivacy": "No necesitas una cuenta. Tus datos se guardan localmente."
-    }
-  },
-  "home": {
-    "title": "Convenciones",
-    "addConvention": "Añadir Convención",
-    "empty": {
-      "title": "Sin convenciones aún",
-      "subtitle": "Crea una convención o importa un horario existente.",
-      "cta": "Crear convención"
-    },
-    "loadError": "No se pudieron cargar las convenciones.",
-    "dateRange": "{{start}} a {{end}}",
-    "upcoming": "Próximas",
-    "active": "Activas",
-    "past": "Pasadas",
-    "countdown": {
-      "today": "Hoy",
-      "tomorrow": "Mañana",
-      "days": "En {{count}} días"
-    },
-    "archive": {
-      "title": "Archivo ({{count}})",
-      "show": "Mostrar",
-      "hide": "Ocultar",
-      "noCurrent": "No hay próximas convenciones.",
-      "success": "Se archivó {{name}}.",
-      "errorTitle": "No se pudo archivar la convención",
-      "errorMessage": "No se archivó nada. Inténtalo de nuevo."
-    },
-    "moreActions": "Más acciones para {{name}}",
-    "sortBy": "Ordenar por",
-    "sort": {
-      "upcoming": "Próximas primero",
-      "name": "Nombre"
-    },
-    "delete": {
-      "title": "¿Eliminar {{name}}?",
-      "message": "Esto eliminará permanentemente la convención, su horario y sus recordatorios.",
-      "success": "Se eliminó {{name}}.",
-      "errorTitle": "No se pudo eliminar la convención",
-      "errorMessage": "No se eliminó nada. Inténtalo de nuevo."
-    }
-  },
-  "schedule": {
-    "title": "Horario",
-    "empty": {
-      "title": "Aún no hay nada destacado",
-      "subtitle": "Destaca un evento dentro de una convención y aparecerá aquí.",
-      "cta": "Abrir mis convenciones"
-    },
-    "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
-    "loadError": "No se pudo cargar tu horario.",
-    "conventionEmpty": {
-      "title": "Aún no hay nada guardado para {{name}}",
-      "subtitle": "Destaca eventos en el horario de la convención y aparecerán aquí.",
-      "cta": "Abrir convención"
-    }
-  },
   "convention": {
     "new": "Nueva Convención",
     "create": "Crear convención",
@@ -248,96 +147,54 @@
     "updateError": "No se pudieron guardar los cambios.",
     "nameCounter": "{{count}} de {{max}}"
   },
-  "profile": {
-    "title": "Perfil",
-    "signIn": "Iniciar Sesión",
-    "notSignedIn": "No has iniciado sesión",
-    "notSignedInSubtitle": "Inicia sesión para sincronizar tu horario y conectarte con amigos.",
-    "comingSoon": "Funciones de perfil próximamente",
-    "signInWithApple": "Iniciar sesión con Apple",
-    "signInWithGoogle": "Iniciar sesión con Google"
+  "errors": {
+    "database": {
+      "title": "ConPaws no puede abrir sus datos guardados",
+      "message": "Tus convenciones siguen en este dispositivo. Reinicia ConPaws para volver a intentarlo."
+    },
+    "screen": {
+      "message": "Esta parte de ConPaws dejó de responder. El resto de la app sigue funcionando."
+    }
   },
-  "settings": {
-    "title": "Ajustes",
-    "languages": {
-      "title": "Idioma",
-      "systemDefault": "Usar idioma del dispositivo",
-      "en": "Inglés",
-      "es": "Español",
-      "nl": "Neerlandés",
-      "de": "Alemán",
-      "fr": "Francés",
-      "pt-BR": "Portugués (Brasil)",
-      "sv": "Sueco",
-      "pl": "Polaco",
-      "description": "Elige el idioma que usa ConPaws.",
-      "selected": "Seleccionado",
-      "changeError": "ConPaws no pudo cambiar el idioma. Inténtalo de nuevo."
+  "home": {
+    "title": "Convenciones",
+    "addConvention": "Añadir Convención",
+    "empty": {
+      "title": "Sin convenciones aún",
+      "subtitle": "Crea una convención o importa un horario existente.",
+      "cta": "Crear convención"
     },
-    "appearance": {
-      "system": "Sistema",
-      "light": "Claro",
-      "dark": "Oscuro",
-      "description": "Elige cómo se ve ConPaws en este dispositivo.",
-      "changeError": "ConPaws no pudo cambiar la apariencia. Inténtalo de nuevo."
+    "loadError": "No se pudieron cargar las convenciones.",
+    "dateRange": "{{start}} a {{end}}",
+    "upcoming": "Próximas",
+    "active": "Activas",
+    "past": "Pasadas",
+    "countdown": {
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "days": "En {{count}} días"
     },
-    "account": {
-      "title": "Cuenta",
-      "signIn": "Iniciar Sesión",
-      "signOut": "Cerrar Sesión"
+    "archive": {
+      "title": "Archivo ({{count}})",
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "noCurrent": "No hay próximas convenciones.",
+      "success": "Se archivó {{name}}.",
+      "errorTitle": "No se pudo archivar la convención",
+      "errorMessage": "No se archivó nada. Inténtalo de nuevo."
     },
-    "app": {
-      "title": "Aplicación",
-      "theme": "Tema",
-      "language": "Idioma",
-      "haptics": "Respuesta háptica",
-      "hapticsError": "No se pudo guardar tu ajuste de háptica",
-      "notifications": "Notificaciones"
+    "moreActions": "Más acciones para {{name}}",
+    "sortBy": "Ordenar por",
+    "sort": {
+      "upcoming": "Próximas primero",
+      "name": "Nombre"
     },
-    "data": {
-      "title": "Datos",
-      "exportData": "Exportar Datos",
-      "exportDescription": "Guarda una copia de tus convenciones y horarios.",
-      "exporting": "Preparando copia",
-      "exportError": "ConPaws no pudo exportar tus datos. Inténtalo de nuevo.",
-      "importData": "Importar Datos",
-      "importDescription": "Restaura convenciones y horarios desde una copia.",
-      "importing": "Abriendo copia",
-      "resetOnboarding": "Restablecer Incorporación"
-    },
-    "legal": {
-      "title": "Legal",
-      "privacyPolicy": "Política de Privacidad",
-      "termsOfService": "Términos de Servicio",
-      "about": "Acerca de ConPaws",
-      "openSourceLicenses": "Licencias de terceros"
-    },
-    "about": {
-      "title": "Acerca de",
-      "contact": "hello@conpaws.com",
-      "tagline": "Tu horario de convenciones, disponible sin conexión.",
-      "resources": "Recursos",
-      "website": "Sitio web",
-      "builtWith": "Creado con",
-      "licenseDescription": "{{count}} paquetes y herramientas",
-      "support": "Soporte",
-      "email": "Correo electrónico",
-      "discordDescription": "Únete a la comunidad",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "Detalles de la licencia",
-      "packageCount": "{{count}} paquetes",
-      "searchPlaceholder": "Buscar paquetes o licencias",
-      "noResultsTitle": "No se encontraron licencias",
-      "noResultsDescription": "Prueba con otro nombre de paquete o licencia.",
-      "version": "Versión {{version}}",
-      "license": "Licencia: {{license}}",
-      "repository": "Repositorio",
-      "projectWebsite": "Sitio web del proyecto",
-      "packageNotFoundTitle": "Paquete no encontrado",
-      "packageNotFoundDescription": "Es posible que este paquete ya no esté incluido en esta compilación.",
-      "licenseTextUnavailable": "El texto de la licencia no está disponible en esta compilación."
+    "delete": {
+      "title": "¿Eliminar {{name}}?",
+      "message": "Esto eliminará permanentemente la convención, su horario y sus recordatorios.",
+      "success": "Se eliminó {{name}}.",
+      "errorTitle": "No se pudo eliminar la convención",
+      "errorMessage": "No se eliminó nada. Inténtalo de nuevo."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Error al importar"
     }
   },
+  "onboarding": {
+    "progress": "Paso {{step}} de {{total}}",
+    "welcome": {
+      "tagline": "Tu agenda de la convención, disponible sin conexión.",
+      "subtitle": "Organízate aunque falle el Wi-Fi de la convención: tu agenda se queda en tu dispositivo.",
+      "continue": "Continuar",
+      "skip": "Omitir"
+    },
+    "features": {
+      "title": "Planifica toda la convención",
+      "subtitle": "Todo lo que necesitas cuando falla el Wi-Fi del recinto.",
+      "demo": {
+        "now": "Ahora",
+        "next": "Después",
+        "eventOne": "Ceremonia de apertura",
+        "eventTwo": "Desfile de fursuits",
+        "saved": "Mi agenda"
+      },
+      "import": {
+        "title": "Importa cualquier agenda",
+        "description": "Añade un archivo .ics o pega un enlace de Sched."
+      },
+      "plan": {
+        "title": "No te pierdas ningún panel",
+        "description": "Crea tu agenda, consulta qué hay ahora y después, y detecta solapamientos."
+      },
+      "offline": {
+        "title": "Privado y sin conexión",
+        "description": "Los datos de la convención se quedan en este dispositivo."
+      },
+      "plus": {
+        "eyebrow": "Próximamente",
+        "title": "ConPaws+",
+        "description": "Está previsto añadir copias de seguridad en la nube, sincronización y funciones sociales prémium opcionales. ConPaws ya funciona sin conexión y no necesita una cuenta."
+      },
+      "next": "Continuar"
+    },
+    "getStarted": {
+      "title": "¿Todo listo para tu próxima convención?",
+      "subtitle": "Importa una agenda ahora o explora ConPaws primero.",
+      "importSchedule": "Importar una agenda",
+      "exploreFirst": "Explorar primero",
+      "localPrivacy": "No necesitas una cuenta. Tus datos se guardan localmente."
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "signIn": "Iniciar Sesión",
+    "notSignedIn": "No has iniciado sesión",
+    "notSignedInSubtitle": "Inicia sesión para sincronizar tu horario y conectarte con amigos.",
+    "comingSoon": "Funciones de perfil próximamente",
+    "signInWithApple": "Iniciar sesión con Apple",
+    "signInWithGoogle": "Iniciar sesión con Google"
+  },
   "reminders": {
     "title": "Recordatorios",
     "add": "Añadir Recordatorio",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Aviso de salida configurado para {{event}}.",
     "clearedAnnouncement": "Aviso de salida eliminado para {{event}}.",
     "errorTitle": "No se configuró el aviso",
-    "errorMessage": "Activa las notificaciones en Ajustes y elige un evento futuro."
+    "errorMessage": "ConPaws no ha podido actualizar este recordatorio. Inténtalo de nuevo.",
+    "permissionTitle": "Las notificaciones están desactivadas",
+    "permissionMessage": "ConPaws necesita permiso de notificaciones para avisarte de cuándo salir. Actívalo en Ajustes y vuelve a poner el recordatorio.",
+    "openSettings": "Abrir Ajustes",
+    "tooLateTitle": "El evento empieza demasiado pronto",
+    "tooLateMessage": "Este evento empieza antes de lo que permite ese recordatorio. Elige menos antelación o un evento posterior.",
+    "pausedTitle": "Recordatorios en pausa",
+    "pausedMessage": "Las notificaciones están desactivadas, así que tus recordatorios guardados no llegarán. Se conservan y vuelven en cuanto actives las notificaciones.",
+    "overflowTitle": "Algunos recordatorios están en espera",
+    "overflowMessage": "Este dispositivo admite un número limitado de recordatorios pendientes, así que hay esta cantidad en espera: {{count}}. Se programan primero los más cercanos."
+  },
+  "schedule": {
+    "title": "Horario",
+    "empty": {
+      "title": "Aún no hay nada destacado",
+      "subtitle": "Destaca un evento dentro de una convención y aparecerá aquí.",
+      "cta": "Abrir mis convenciones"
+    },
+    "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
+    "loadError": "No se pudo cargar tu horario.",
+    "conventionEmpty": {
+      "title": "Aún no hay nada guardado para {{name}}",
+      "subtitle": "Destaca eventos en el horario de la convención y aparecerán aquí.",
+      "cta": "Abrir convención"
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "languages": {
+      "title": "Idioma",
+      "systemDefault": "Usar idioma del dispositivo",
+      "en": "Inglés",
+      "es": "Español",
+      "nl": "Neerlandés",
+      "de": "Alemán",
+      "fr": "Francés",
+      "pt-BR": "Portugués (Brasil)",
+      "sv": "Sueco",
+      "pl": "Polaco",
+      "description": "Elige el idioma que usa ConPaws.",
+      "selected": "Seleccionado",
+      "changeError": "ConPaws no pudo cambiar el idioma. Inténtalo de nuevo."
+    },
+    "appearance": {
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "description": "Elige cómo se ve ConPaws en este dispositivo.",
+      "changeError": "ConPaws no pudo cambiar la apariencia. Inténtalo de nuevo."
+    },
+    "account": {
+      "title": "Cuenta",
+      "signIn": "Iniciar Sesión",
+      "signOut": "Cerrar Sesión"
+    },
+    "app": {
+      "title": "Aplicación",
+      "theme": "Tema",
+      "language": "Idioma",
+      "haptics": "Respuesta háptica",
+      "hapticsError": "No se pudo guardar tu ajuste de háptica",
+      "notifications": "Notificaciones"
+    },
+    "data": {
+      "title": "Datos",
+      "exportData": "Exportar Datos",
+      "exportDescription": "Guarda una copia de tus convenciones y horarios.",
+      "exporting": "Preparando copia",
+      "exportError": "ConPaws no pudo exportar tus datos. Inténtalo de nuevo.",
+      "importData": "Importar Datos",
+      "importDescription": "Restaura convenciones y horarios desde una copia.",
+      "importing": "Abriendo copia",
+      "resetOnboarding": "Restablecer Incorporación"
+    },
+    "dataImport": {
+      "confirmTitle": "¿Restaurar la copia?",
+      "confirmMessage": "Convenciones: {{conventions}} • Eventos: {{events}}. Al restaurar se añaden a ConPaws y no se elimina nada.",
+      "confirmAction": "Restaurar",
+      "successTitle": "Copia restaurada",
+      "successSummary": "Convenciones añadidas: {{conventions}} • Eventos añadidos: {{events}}.",
+      "successSkipped": "Ya estaban o no se han podido leer: {{count}}.",
+      "successNothing": "Todo lo de esta copia ya estaba en este dispositivo.",
+      "failedTitle": "No se ha restaurado la copia",
+      "errors": {
+        "generic": "ConPaws no ha podido leer esa copia. Prueba con otro archivo.",
+        "unreadable": "ConPaws no ha podido abrir ese archivo. Prueba con otro archivo.",
+        "fileTooLarge": "Ese archivo es demasiado grande para restaurarlo.",
+        "invalidJson": "Ese archivo no es una copia de ConPaws legible.",
+        "unsupportedVersion": "Esa copia se creó con una versión más reciente de ConPaws.",
+        "notConPaws": "Ese archivo no es una copia de ConPaws.",
+        "malformed": "Esa copia no contiene convenciones ni eventos.",
+        "tooManyRows": "Esa copia tiene demasiadas entradas para restaurarla.",
+        "writeFailed": "ConPaws no ha podido guardar esa copia en este dispositivo. Inténtalo de nuevo."
+      }
+    },
+    "legal": {
+      "title": "Legal",
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfService": "Términos de Servicio",
+      "about": "Acerca de ConPaws",
+      "openSourceLicenses": "Licencias de terceros"
+    },
+    "about": {
+      "title": "Acerca de",
+      "contact": "hello@conpaws.com",
+      "tagline": "Tu horario de convenciones, disponible sin conexión.",
+      "resources": "Recursos",
+      "website": "Sitio web",
+      "builtWith": "Creado con",
+      "licenseDescription": "{{count}} paquetes y herramientas",
+      "support": "Soporte",
+      "email": "Correo electrónico",
+      "discordDescription": "Únete a la comunidad",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "Detalles de la licencia",
+      "packageCount": "{{count}} paquetes",
+      "searchPlaceholder": "Buscar paquetes o licencias",
+      "noResultsTitle": "No se encontraron licencias",
+      "noResultsDescription": "Prueba con otro nombre de paquete o licencia.",
+      "version": "Versión {{version}}",
+      "license": "Licencia: {{license}}",
+      "repository": "Repositorio",
+      "projectWebsite": "Sitio web del proyecto",
+      "packageNotFoundTitle": "Paquete no encontrado",
+      "packageNotFoundDescription": "Es posible que este paquete ya no esté incluido en esta compilación.",
+      "licenseTextUnavailable": "El texto de la licencia no está disponible en esta compilación."
+    }
   }
 }

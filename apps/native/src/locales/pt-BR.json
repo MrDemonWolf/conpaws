@@ -26,107 +26,6 @@
     "keepEditing": "Continuar editando",
     "discard": "Descartar"
   },
-  "onboarding": {
-    "progress": "Etapa {{step}} de {{total}}",
-    "welcome": {
-      "tagline": "Sua programação do evento, disponível offline.",
-      "subtitle": "Planeje mesmo com o Wi-Fi ruim do evento. Sua programação fica no seu dispositivo.",
-      "continue": "Continuar",
-      "skip": "Pular"
-    },
-    "features": {
-      "title": "Planeje o evento inteiro",
-      "subtitle": "Tudo de que você precisa quando o Wi-Fi do local para de funcionar.",
-      "demo": {
-        "now": "Agora",
-        "next": "A seguir",
-        "eventOne": "Cerimônia de abertura",
-        "eventTwo": "Desfile de fursuits",
-        "saved": "Minha programação"
-      },
-      "import": {
-        "title": "Importe qualquer programação",
-        "description": "Adicione um arquivo .ics ou cole um link do Sched."
-      },
-      "plan": {
-        "title": "Não perca nenhum painel",
-        "description": "Monte sua programação, veja o que acontece agora e em seguida e identifique conflitos."
-      },
-      "offline": {
-        "title": "Privado e offline",
-        "description": "Os dados do evento ficam neste dispositivo."
-      },
-      "plus": {
-        "eyebrow": "Em breve",
-        "title": "ConPaws+",
-        "description": "Recursos premium opcionais de backup na nuvem, sincronização e interação social estão nos planos. ConPaws já funciona offline, sem precisar de conta."
-      },
-      "next": "Continuar"
-    },
-    "getStarted": {
-      "title": "Tudo pronto para o próximo evento?",
-      "subtitle": "Importe uma programação agora ou explore o ConPaws primeiro.",
-      "importSchedule": "Importar uma programação",
-      "exploreFirst": "Explorar primeiro",
-      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente."
-    }
-  },
-  "home": {
-    "title": "Convenções",
-    "addConvention": "Adicionar Convenção",
-    "empty": {
-      "title": "Nenhuma convenção ainda",
-      "subtitle": "Crie uma convenção ou importe uma programação existente.",
-      "cta": "Criar convenção"
-    },
-    "loadError": "Não foi possível carregar as convenções.",
-    "dateRange": "{{start}} a {{end}}",
-    "upcoming": "Próximas",
-    "active": "Ativas",
-    "past": "Passadas",
-    "countdown": {
-      "today": "Hoje",
-      "tomorrow": "Amanhã",
-      "days": "Em {{count}} dias"
-    },
-    "archive": {
-      "title": "Arquivo ({{count}})",
-      "show": "Mostrar",
-      "hide": "Ocultar",
-      "noCurrent": "Nenhuma convenção próxima.",
-      "success": "{{name}} foi arquivada.",
-      "errorTitle": "Não foi possível arquivar a convenção",
-      "errorMessage": "Nada foi arquivado. Tente novamente."
-    },
-    "moreActions": "Mais ações para {{name}}",
-    "sortBy": "Ordenar por",
-    "sort": {
-      "upcoming": "Próximas primeiro",
-      "name": "Nome"
-    },
-    "delete": {
-      "title": "Excluir {{name}}?",
-      "message": "Isso excluirá permanentemente a convenção, sua programação e seus lembretes.",
-      "success": "{{name}} foi excluída.",
-      "errorTitle": "Não foi possível excluir a convenção",
-      "errorMessage": "Nada foi excluído. Tente novamente."
-    }
-  },
-  "schedule": {
-    "title": "Programação",
-    "empty": {
-      "title": "Nada marcado ainda",
-      "subtitle": "Marque um evento dentro de uma convenção e ele aparece aqui.",
-      "cta": "Abrir minhas convenções"
-    },
-    "timesShownInConventionTime": "Os horários aparecem no fuso local de cada convenção.",
-    "loadError": "Não foi possível carregar sua programação.",
-    "conventionEmpty": {
-      "title": "Nada salvo para {{name}} ainda",
-      "subtitle": "Marque eventos na programação da convenção para que apareçam aqui.",
-      "cta": "Abrir convenção"
-    }
-  },
   "convention": {
     "new": "Nova Convenção",
     "create": "Criar convenção",
@@ -248,96 +147,54 @@
     "updateError": "Não foi possível salvar as alterações.",
     "nameCounter": "{{count}} de {{max}}"
   },
-  "profile": {
-    "title": "Perfil",
-    "signIn": "Entrar",
-    "notSignedIn": "Não conectado",
-    "notSignedInSubtitle": "Faça login para sincronizar sua programação e conectar com amigos.",
-    "comingSoon": "Recursos de perfil em breve",
-    "signInWithApple": "Entrar com Apple",
-    "signInWithGoogle": "Entrar com Google"
+  "errors": {
+    "database": {
+      "title": "O ConPaws não consegue abrir os dados salvos",
+      "message": "Suas convenções continuam neste aparelho. Reinicie o ConPaws para tentar de novo."
+    },
+    "screen": {
+      "message": "Esta parte do ConPaws parou de responder. O resto do app continua funcionando."
+    }
   },
-  "settings": {
-    "title": "Configurações",
-    "languages": {
-      "title": "Idioma",
-      "systemDefault": "Usar idioma do dispositivo",
-      "en": "Inglês",
-      "es": "Espanhol",
-      "nl": "Holandês",
-      "de": "Alemão",
-      "fr": "Francês",
-      "pt-BR": "Português (Brasil)",
-      "sv": "Sueco",
-      "pl": "Polonês",
-      "description": "Escolha o idioma usado no ConPaws.",
-      "selected": "Selecionado",
-      "changeError": "O ConPaws não conseguiu alterar o idioma. Tente novamente."
+  "home": {
+    "title": "Convenções",
+    "addConvention": "Adicionar Convenção",
+    "empty": {
+      "title": "Nenhuma convenção ainda",
+      "subtitle": "Crie uma convenção ou importe uma programação existente.",
+      "cta": "Criar convenção"
     },
-    "appearance": {
-      "system": "Sistema",
-      "light": "Claro",
-      "dark": "Escuro",
-      "description": "Escolha como o ConPaws aparece neste dispositivo.",
-      "changeError": "O ConPaws não conseguiu alterar a aparência. Tente novamente."
+    "loadError": "Não foi possível carregar as convenções.",
+    "dateRange": "{{start}} a {{end}}",
+    "upcoming": "Próximas",
+    "active": "Ativas",
+    "past": "Passadas",
+    "countdown": {
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "days": "Em {{count}} dias"
     },
-    "account": {
-      "title": "Conta",
-      "signIn": "Entrar",
-      "signOut": "Sair"
+    "archive": {
+      "title": "Arquivo ({{count}})",
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "noCurrent": "Nenhuma convenção próxima.",
+      "success": "{{name}} foi arquivada.",
+      "errorTitle": "Não foi possível arquivar a convenção",
+      "errorMessage": "Nada foi arquivado. Tente novamente."
     },
-    "app": {
-      "title": "Aplicativo",
-      "theme": "Tema",
-      "language": "Idioma",
-      "haptics": "Resposta tátil",
-      "hapticsError": "Não foi possível salvar sua configuração tátil",
-      "notifications": "Notificações"
+    "moreActions": "Mais ações para {{name}}",
+    "sortBy": "Ordenar por",
+    "sort": {
+      "upcoming": "Próximas primeiro",
+      "name": "Nome"
     },
-    "data": {
-      "title": "Dados",
-      "exportData": "Exportar Dados",
-      "exportDescription": "Salve um backup das suas convenções e programações.",
-      "exporting": "Preparando backup",
-      "exportError": "O ConPaws não conseguiu exportar seus dados. Tente novamente.",
-      "importData": "Importar Dados",
-      "importDescription": "Restaure convenções e programações de um backup.",
-      "importing": "Abrindo backup",
-      "resetOnboarding": "Redefinir Integração"
-    },
-    "legal": {
-      "title": "Legal",
-      "privacyPolicy": "Política de Privacidade",
-      "termsOfService": "Termos de Serviço",
-      "about": "Sobre o ConPaws",
-      "openSourceLicenses": "Licenças de terceiros"
-    },
-    "about": {
-      "title": "Sobre",
-      "contact": "hello@conpaws.com",
-      "tagline": "Sua programação de convenção, disponível offline.",
-      "resources": "Recursos",
-      "website": "Site",
-      "builtWith": "Desenvolvido com",
-      "licenseDescription": "{{count}} pacotes e ferramentas",
-      "support": "Suporte",
-      "email": "E-mail",
-      "discordDescription": "Participe da comunidade",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "Detalhes da licença",
-      "packageCount": "{{count}} pacotes",
-      "searchPlaceholder": "Buscar pacotes ou licenças",
-      "noResultsTitle": "Nenhuma licença encontrada",
-      "noResultsDescription": "Tente outro nome de pacote ou licença.",
-      "version": "Versão {{version}}",
-      "license": "Licença: {{license}}",
-      "repository": "Repositório",
-      "projectWebsite": "Site do projeto",
-      "packageNotFoundTitle": "Pacote não encontrado",
-      "packageNotFoundDescription": "Este pacote pode não estar mais incluído nesta compilação.",
-      "licenseTextUnavailable": "O texto da licença não está disponível nesta compilação."
+    "delete": {
+      "title": "Excluir {{name}}?",
+      "message": "Isso excluirá permanentemente a convenção, sua programação e seus lembretes.",
+      "success": "{{name}} foi excluída.",
+      "errorTitle": "Não foi possível excluir a convenção",
+      "errorMessage": "Nada foi excluído. Tente novamente."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Falha na importação"
     }
   },
+  "onboarding": {
+    "progress": "Etapa {{step}} de {{total}}",
+    "welcome": {
+      "tagline": "Sua programação do evento, disponível offline.",
+      "subtitle": "Planeje mesmo com o Wi-Fi ruim do evento. Sua programação fica no seu dispositivo.",
+      "continue": "Continuar",
+      "skip": "Pular"
+    },
+    "features": {
+      "title": "Planeje o evento inteiro",
+      "subtitle": "Tudo de que você precisa quando o Wi-Fi do local para de funcionar.",
+      "demo": {
+        "now": "Agora",
+        "next": "A seguir",
+        "eventOne": "Cerimônia de abertura",
+        "eventTwo": "Desfile de fursuits",
+        "saved": "Minha programação"
+      },
+      "import": {
+        "title": "Importe qualquer programação",
+        "description": "Adicione um arquivo .ics ou cole um link do Sched."
+      },
+      "plan": {
+        "title": "Não perca nenhum painel",
+        "description": "Monte sua programação, veja o que acontece agora e em seguida e identifique conflitos."
+      },
+      "offline": {
+        "title": "Privado e offline",
+        "description": "Os dados do evento ficam neste dispositivo."
+      },
+      "plus": {
+        "eyebrow": "Em breve",
+        "title": "ConPaws+",
+        "description": "Recursos premium opcionais de backup na nuvem, sincronização e interação social estão nos planos. ConPaws já funciona offline, sem precisar de conta."
+      },
+      "next": "Continuar"
+    },
+    "getStarted": {
+      "title": "Tudo pronto para o próximo evento?",
+      "subtitle": "Importe uma programação agora ou explore o ConPaws primeiro.",
+      "importSchedule": "Importar uma programação",
+      "exploreFirst": "Explorar primeiro",
+      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente."
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "signIn": "Entrar",
+    "notSignedIn": "Não conectado",
+    "notSignedInSubtitle": "Faça login para sincronizar sua programação e conectar com amigos.",
+    "comingSoon": "Recursos de perfil em breve",
+    "signInWithApple": "Entrar com Apple",
+    "signInWithGoogle": "Entrar com Google"
+  },
   "reminders": {
     "title": "Lembretes",
     "add": "Adicionar Lembrete",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Lembrete de saída definido para {{event}}.",
     "clearedAnnouncement": "Lembrete de saída removido para {{event}}.",
     "errorTitle": "Lembrete não definido",
-    "errorMessage": "Ative as notificações em Configurações e escolha um evento futuro."
+    "errorMessage": "O ConPaws não conseguiu atualizar este lembrete. Tente novamente.",
+    "permissionTitle": "As notificações estão desativadas",
+    "permissionMessage": "O ConPaws precisa de notificações para avisar quando sair. Ative em Configurações e defina o lembrete novamente.",
+    "openSettings": "Abrir Configurações",
+    "tooLateTitle": "O evento começa cedo demais",
+    "tooLateMessage": "Este evento começa antes do que esse lembrete permite. Escolha uma antecedência menor ou um evento mais tarde.",
+    "pausedTitle": "Lembretes pausados",
+    "pausedMessage": "As notificações estão desativadas, então seus lembretes salvos não vão chegar. Suas escolhas ficam guardadas e voltam assim que você ativar as notificações.",
+    "overflowTitle": "Alguns lembretes estão esperando",
+    "overflowMessage": "Este aparelho guarda um número limitado de lembretes pendentes, então esta quantidade dos seus está esperando: {{count}}. Os mais próximos são agendados primeiro."
+  },
+  "schedule": {
+    "title": "Programação",
+    "empty": {
+      "title": "Nada marcado ainda",
+      "subtitle": "Marque um evento dentro de uma convenção e ele aparece aqui.",
+      "cta": "Abrir minhas convenções"
+    },
+    "timesShownInConventionTime": "Os horários aparecem no fuso local de cada convenção.",
+    "loadError": "Não foi possível carregar sua programação.",
+    "conventionEmpty": {
+      "title": "Nada salvo para {{name}} ainda",
+      "subtitle": "Marque eventos na programação da convenção para que apareçam aqui.",
+      "cta": "Abrir convenção"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "languages": {
+      "title": "Idioma",
+      "systemDefault": "Usar idioma do dispositivo",
+      "en": "Inglês",
+      "es": "Espanhol",
+      "nl": "Holandês",
+      "de": "Alemão",
+      "fr": "Francês",
+      "pt-BR": "Português (Brasil)",
+      "sv": "Sueco",
+      "pl": "Polonês",
+      "description": "Escolha o idioma usado no ConPaws.",
+      "selected": "Selecionado",
+      "changeError": "O ConPaws não conseguiu alterar o idioma. Tente novamente."
+    },
+    "appearance": {
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Escuro",
+      "description": "Escolha como o ConPaws aparece neste dispositivo.",
+      "changeError": "O ConPaws não conseguiu alterar a aparência. Tente novamente."
+    },
+    "account": {
+      "title": "Conta",
+      "signIn": "Entrar",
+      "signOut": "Sair"
+    },
+    "app": {
+      "title": "Aplicativo",
+      "theme": "Tema",
+      "language": "Idioma",
+      "haptics": "Resposta tátil",
+      "hapticsError": "Não foi possível salvar sua configuração tátil",
+      "notifications": "Notificações"
+    },
+    "data": {
+      "title": "Dados",
+      "exportData": "Exportar Dados",
+      "exportDescription": "Salve um backup das suas convenções e programações.",
+      "exporting": "Preparando backup",
+      "exportError": "O ConPaws não conseguiu exportar seus dados. Tente novamente.",
+      "importData": "Importar Dados",
+      "importDescription": "Restaure convenções e programações de um backup.",
+      "importing": "Abrindo backup",
+      "resetOnboarding": "Redefinir Integração"
+    },
+    "dataImport": {
+      "confirmTitle": "Restaurar backup?",
+      "confirmMessage": "Convenções: {{conventions}} • Eventos: {{events}}. Restaurar adiciona tudo ao ConPaws e não remove nada.",
+      "confirmAction": "Restaurar",
+      "successTitle": "Backup restaurado",
+      "successSummary": "Convenções adicionadas: {{conventions}} • Eventos adicionados: {{events}}.",
+      "successSkipped": "Já estavam aqui ou ilegíveis: {{count}}.",
+      "successNothing": "Tudo neste backup já estava neste aparelho.",
+      "failedTitle": "Backup não restaurado",
+      "errors": {
+        "generic": "O ConPaws não conseguiu ler esse backup. Tente outro arquivo.",
+        "unreadable": "O ConPaws não conseguiu abrir esse arquivo. Tente outro arquivo.",
+        "fileTooLarge": "Esse arquivo é grande demais para restaurar.",
+        "invalidJson": "Esse arquivo não é um backup do ConPaws legível.",
+        "unsupportedVersion": "Esse backup foi feito por uma versão mais nova do ConPaws.",
+        "notConPaws": "Esse arquivo não é um backup do ConPaws.",
+        "malformed": "Esse backup não contém convenções nem eventos.",
+        "tooManyRows": "Esse backup tem entradas demais para restaurar.",
+        "writeFailed": "O ConPaws não conseguiu salvar esse backup neste aparelho. Tente novamente."
+      }
+    },
+    "legal": {
+      "title": "Legal",
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfService": "Termos de Serviço",
+      "about": "Sobre o ConPaws",
+      "openSourceLicenses": "Licenças de terceiros"
+    },
+    "about": {
+      "title": "Sobre",
+      "contact": "hello@conpaws.com",
+      "tagline": "Sua programação de convenção, disponível offline.",
+      "resources": "Recursos",
+      "website": "Site",
+      "builtWith": "Desenvolvido com",
+      "licenseDescription": "{{count}} pacotes e ferramentas",
+      "support": "Suporte",
+      "email": "E-mail",
+      "discordDescription": "Participe da comunidade",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "Detalhes da licença",
+      "packageCount": "{{count}} pacotes",
+      "searchPlaceholder": "Buscar pacotes ou licenças",
+      "noResultsTitle": "Nenhuma licença encontrada",
+      "noResultsDescription": "Tente outro nome de pacote ou licença.",
+      "version": "Versão {{version}}",
+      "license": "Licença: {{license}}",
+      "repository": "Repositório",
+      "projectWebsite": "Site do projeto",
+      "packageNotFoundTitle": "Pacote não encontrado",
+      "packageNotFoundDescription": "Este pacote pode não estar mais incluído nesta compilação.",
+      "licenseTextUnavailable": "O texto da licença não está disponível nesta compilação."
+    }
   }
 }

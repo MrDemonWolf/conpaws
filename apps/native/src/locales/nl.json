@@ -26,107 +26,6 @@
     "keepEditing": "Doorgaan met bewerken",
     "discard": "Verwerpen"
   },
-  "onboarding": {
-    "progress": "Stap {{step}} van {{total}}",
-    "welcome": {
-      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
-      "subtitle": "Plan vooruit, ook met slechte wifi op de con. Je programma blijft op je apparaat.",
-      "continue": "Doorgaan",
-      "skip": "Overslaan"
-    },
-    "features": {
-      "title": "Plan je hele con",
-      "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
-      "demo": {
-        "now": "Nu",
-        "next": "Hierna",
-        "eventOne": "Openingsceremonie",
-        "eventTwo": "Fursuitparade",
-        "saved": "Mijn planning"
-      },
-      "import": {
-        "title": "Importeer elk programma",
-        "description": "Voeg een .ics-bestand toe of plak een Sched-link."
-      },
-      "plan": {
-        "title": "Mis nooit een panel",
-        "description": "Maak je planning, zie wat er nu en hierna komt en ontdek overlap."
-      },
-      "offline": {
-        "title": "Privé en offline",
-        "description": "Je conventiegegevens blijven op dit apparaat."
-      },
-      "plus": {
-        "eyebrow": "Binnenkort",
-        "title": "ConPaws+",
-        "description": "Optionele premiumfuncties voor cloudback-ups, synchronisatie en sociale functies staan op de planning. ConPaws werkt nu al offline, zonder account."
-      },
-      "next": "Doorgaan"
-    },
-    "getStarted": {
-      "title": "Klaar voor je volgende con?",
-      "subtitle": "Importeer nu een programma of verken eerst ConPaws.",
-      "importSchedule": "Programma importeren",
-      "exploreFirst": "Eerst verkennen",
-      "localPrivacy": "Geen account nodig. Je gegevens blijven lokaal."
-    }
-  },
-  "home": {
-    "title": "Conventies",
-    "addConvention": "Conventie toevoegen",
-    "empty": {
-      "title": "Nog geen conventies",
-      "subtitle": "Maak een conventie of importeer een bestaand rooster.",
-      "cta": "Conventie maken"
-    },
-    "loadError": "Conventies konden niet worden geladen.",
-    "dateRange": "{{start}} tot {{end}}",
-    "upcoming": "Aankomend",
-    "active": "Actief",
-    "past": "Verleden",
-    "countdown": {
-      "today": "Vandaag",
-      "tomorrow": "Morgen",
-      "days": "Over {{count}} dagen"
-    },
-    "archive": {
-      "title": "Archief ({{count}})",
-      "show": "Tonen",
-      "hide": "Verbergen",
-      "noCurrent": "Geen aankomende conventies.",
-      "success": "{{name}} is gearchiveerd.",
-      "errorTitle": "Conventie kon niet worden gearchiveerd",
-      "errorMessage": "Er is niets gearchiveerd. Probeer het opnieuw."
-    },
-    "moreActions": "Meer acties voor {{name}}",
-    "sortBy": "Sorteren op",
-    "sort": {
-      "upcoming": "Aankomende eerst",
-      "name": "Naam"
-    },
-    "delete": {
-      "title": "{{name}} verwijderen?",
-      "message": "Hiermee worden de conventie, het programma en de herinneringen permanent verwijderd.",
-      "success": "{{name}} is verwijderd.",
-      "errorTitle": "Conventie kon niet worden verwijderd",
-      "errorMessage": "Er is niets verwijderd. Probeer het opnieuw."
-    }
-  },
-  "schedule": {
-    "title": "Programma",
-    "empty": {
-      "title": "Nog niets met een ster",
-      "subtitle": "Geef een evenement in een conventie een ster en het verschijnt hier.",
-      "cta": "Mijn conventies openen"
-    },
-    "timesShownInConventionTime": "Tijden staan in de lokale tijd van elke conventie.",
-    "loadError": "Je programma kon niet worden geladen.",
-    "conventionEmpty": {
-      "title": "Nog niets opgeslagen voor {{name}}",
-      "subtitle": "Geef evenementen in het conventieprogramma een ster om ze hier te zien.",
-      "cta": "Conventie openen"
-    }
-  },
   "convention": {
     "new": "Nieuwe Conventie",
     "create": "Conventie maken",
@@ -248,96 +147,54 @@
     "updateError": "Wijzigingen konden niet worden opgeslagen.",
     "nameCounter": "{{count}} van {{max}}"
   },
-  "profile": {
-    "title": "Profiel",
-    "signIn": "Inloggen",
-    "notSignedIn": "Niet ingelogd",
-    "notSignedInSubtitle": "Log in om je rooster te synchroniseren en vrienden te verbinden.",
-    "comingSoon": "Profielfuncties komen binnenkort",
-    "signInWithApple": "Inloggen met Apple",
-    "signInWithGoogle": "Inloggen met Google"
+  "errors": {
+    "database": {
+      "title": "ConPaws kan zijn opgeslagen gegevens niet openen",
+      "message": "Je conventions staan nog op dit apparaat. Start ConPaws opnieuw om het nog eens te proberen."
+    },
+    "screen": {
+      "message": "Dit deel van ConPaws reageert niet meer. De rest van de app werkt gewoon."
+    }
   },
-  "settings": {
-    "title": "Instellingen",
-    "languages": {
-      "title": "Taal",
-      "systemDefault": "Apparaattaal gebruiken",
-      "en": "Engels",
-      "es": "Spaans",
-      "nl": "Nederlands",
-      "de": "Duits",
-      "fr": "Frans",
-      "pt-BR": "Portugees (Brazilië)",
-      "sv": "Zweeds",
-      "pl": "Pools",
-      "description": "Kies de taal die ConPaws gebruikt.",
-      "selected": "Geselecteerd",
-      "changeError": "ConPaws kon de taal niet wijzigen. Probeer het opnieuw."
+  "home": {
+    "title": "Conventies",
+    "addConvention": "Conventie toevoegen",
+    "empty": {
+      "title": "Nog geen conventies",
+      "subtitle": "Maak een conventie of importeer een bestaand rooster.",
+      "cta": "Conventie maken"
     },
-    "appearance": {
-      "system": "Systeem",
-      "light": "Licht",
-      "dark": "Donker",
-      "description": "Kies hoe ConPaws eruitziet op dit apparaat.",
-      "changeError": "ConPaws kon de weergave niet wijzigen. Probeer het opnieuw."
+    "loadError": "Conventies konden niet worden geladen.",
+    "dateRange": "{{start}} tot {{end}}",
+    "upcoming": "Aankomend",
+    "active": "Actief",
+    "past": "Verleden",
+    "countdown": {
+      "today": "Vandaag",
+      "tomorrow": "Morgen",
+      "days": "Over {{count}} dagen"
     },
-    "account": {
-      "title": "Account",
-      "signIn": "Inloggen",
-      "signOut": "Uitloggen"
+    "archive": {
+      "title": "Archief ({{count}})",
+      "show": "Tonen",
+      "hide": "Verbergen",
+      "noCurrent": "Geen aankomende conventies.",
+      "success": "{{name}} is gearchiveerd.",
+      "errorTitle": "Conventie kon niet worden gearchiveerd",
+      "errorMessage": "Er is niets gearchiveerd. Probeer het opnieuw."
     },
-    "app": {
-      "title": "App",
-      "theme": "Thema",
-      "language": "Taal",
-      "haptics": "Haptische feedback",
-      "hapticsError": "Je haptische instelling kon niet worden opgeslagen",
-      "notifications": "Meldingen"
+    "moreActions": "Meer acties voor {{name}}",
+    "sortBy": "Sorteren op",
+    "sort": {
+      "upcoming": "Aankomende eerst",
+      "name": "Naam"
     },
-    "data": {
-      "title": "Gegevens",
-      "exportData": "Gegevens exporteren",
-      "exportDescription": "Bewaar een back-up van je conventies en programma's.",
-      "exporting": "Back-up voorbereiden",
-      "exportError": "ConPaws kon je gegevens niet exporteren. Probeer het opnieuw.",
-      "importData": "Gegevens importeren",
-      "importDescription": "Herstel conventies en programma's vanuit een back-up.",
-      "importing": "Back-up openen",
-      "resetOnboarding": "Onboarding resetten"
-    },
-    "legal": {
-      "title": "Juridisch",
-      "privacyPolicy": "Privacybeleid",
-      "termsOfService": "Servicevoorwaarden",
-      "about": "Over ConPaws",
-      "openSourceLicenses": "Licenties van derden"
-    },
-    "about": {
-      "title": "Over",
-      "contact": "hello@conpaws.com",
-      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
-      "resources": "Bronnen",
-      "website": "Website",
-      "builtWith": "Gebouwd met",
-      "licenseDescription": "{{count}} pakketten en tools",
-      "support": "Ondersteuning",
-      "email": "E-mail",
-      "discordDescription": "Word lid van de community",
-      "copyright": "ConPaws by MrDemonWolf, Inc."
-    },
-    "licenses": {
-      "detailsTitle": "Licentiedetails",
-      "packageCount": "{{count}} pakketten",
-      "searchPlaceholder": "Pakketten of licenties zoeken",
-      "noResultsTitle": "Geen licenties gevonden",
-      "noResultsDescription": "Probeer een andere pakket- of licentienaam.",
-      "version": "Versie {{version}}",
-      "license": "Licentie: {{license}}",
-      "repository": "Repository",
-      "projectWebsite": "Projectwebsite",
-      "packageNotFoundTitle": "Pakket niet gevonden",
-      "packageNotFoundDescription": "Dit pakket is mogelijk niet meer opgenomen in deze build.",
-      "licenseTextUnavailable": "De licentietekst is niet beschikbaar in deze build."
+    "delete": {
+      "title": "{{name}} verwijderen?",
+      "message": "Hiermee worden de conventie, het programma en de herinneringen permanent verwijderd.",
+      "success": "{{name}} is verwijderd.",
+      "errorTitle": "Conventie kon niet worden verwijderd",
+      "errorMessage": "Er is niets verwijderd. Probeer het opnieuw."
     }
   },
   "import": {
@@ -414,6 +271,60 @@
       "failedTitle": "Import mislukt"
     }
   },
+  "onboarding": {
+    "progress": "Stap {{step}} van {{total}}",
+    "welcome": {
+      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
+      "subtitle": "Plan vooruit, ook met slechte wifi op de con. Je programma blijft op je apparaat.",
+      "continue": "Doorgaan",
+      "skip": "Overslaan"
+    },
+    "features": {
+      "title": "Plan je hele con",
+      "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
+      "demo": {
+        "now": "Nu",
+        "next": "Hierna",
+        "eventOne": "Openingsceremonie",
+        "eventTwo": "Fursuitparade",
+        "saved": "Mijn planning"
+      },
+      "import": {
+        "title": "Importeer elk programma",
+        "description": "Voeg een .ics-bestand toe of plak een Sched-link."
+      },
+      "plan": {
+        "title": "Mis nooit een panel",
+        "description": "Maak je planning, zie wat er nu en hierna komt en ontdek overlap."
+      },
+      "offline": {
+        "title": "Privé en offline",
+        "description": "Je conventiegegevens blijven op dit apparaat."
+      },
+      "plus": {
+        "eyebrow": "Binnenkort",
+        "title": "ConPaws+",
+        "description": "Optionele premiumfuncties voor cloudback-ups, synchronisatie en sociale functies staan op de planning. ConPaws werkt nu al offline, zonder account."
+      },
+      "next": "Doorgaan"
+    },
+    "getStarted": {
+      "title": "Klaar voor je volgende con?",
+      "subtitle": "Importeer nu een programma of verken eerst ConPaws.",
+      "importSchedule": "Programma importeren",
+      "exploreFirst": "Eerst verkennen",
+      "localPrivacy": "Geen account nodig. Je gegevens blijven lokaal."
+    }
+  },
+  "profile": {
+    "title": "Profiel",
+    "signIn": "Inloggen",
+    "notSignedIn": "Niet ingelogd",
+    "notSignedInSubtitle": "Log in om je rooster te synchroniseren en vrienden te verbinden.",
+    "comingSoon": "Profielfuncties komen binnenkort",
+    "signInWithApple": "Inloggen met Apple",
+    "signInWithGoogle": "Inloggen met Google"
+  },
   "reminders": {
     "title": "Herinneringen",
     "add": "Herinnering toevoegen",
@@ -432,6 +343,134 @@
     "setAnnouncement": "Vertrekherinnering ingesteld voor {{event}}.",
     "clearedAnnouncement": "Vertrekherinnering gewist voor {{event}}.",
     "errorTitle": "Herinnering niet ingesteld",
-    "errorMessage": "Schakel meldingen in bij Instellingen en kies een toekomstig evenement."
+    "errorMessage": "ConPaws kon deze herinnering niet bijwerken. Probeer het opnieuw.",
+    "permissionTitle": "Meldingen staan uit",
+    "permissionMessage": "ConPaws heeft meldingen nodig om je te herinneren wanneer je moet vertrekken. Zet ze aan bij Instellingen en stel de herinnering opnieuw in.",
+    "openSettings": "Instellingen openen",
+    "tooLateTitle": "Evenement begint te snel",
+    "tooLateMessage": "Dit evenement begint eerder dan die herinnering toelaat. Kies een kortere vooraankondiging of een later evenement.",
+    "pausedTitle": "Herinneringen gepauzeerd",
+    "pausedMessage": "Meldingen staan uit, dus je opgeslagen herinneringen komen niet binnen. Je keuzes blijven bewaard en gelden weer zodra je meldingen aanzet.",
+    "overflowTitle": "Sommige herinneringen wachten",
+    "overflowMessage": "Dit apparaat bewaart maar een beperkt aantal openstaande herinneringen, zoveel van die van jou wachten nog: {{count}}. De eerstvolgende worden als eerste ingepland."
+  },
+  "schedule": {
+    "title": "Programma",
+    "empty": {
+      "title": "Nog niets met een ster",
+      "subtitle": "Geef een evenement in een conventie een ster en het verschijnt hier.",
+      "cta": "Mijn conventies openen"
+    },
+    "timesShownInConventionTime": "Tijden staan in de lokale tijd van elke conventie.",
+    "loadError": "Je programma kon niet worden geladen.",
+    "conventionEmpty": {
+      "title": "Nog niets opgeslagen voor {{name}}",
+      "subtitle": "Geef evenementen in het conventieprogramma een ster om ze hier te zien.",
+      "cta": "Conventie openen"
+    }
+  },
+  "settings": {
+    "title": "Instellingen",
+    "languages": {
+      "title": "Taal",
+      "systemDefault": "Apparaattaal gebruiken",
+      "en": "Engels",
+      "es": "Spaans",
+      "nl": "Nederlands",
+      "de": "Duits",
+      "fr": "Frans",
+      "pt-BR": "Portugees (Brazilië)",
+      "sv": "Zweeds",
+      "pl": "Pools",
+      "description": "Kies de taal die ConPaws gebruikt.",
+      "selected": "Geselecteerd",
+      "changeError": "ConPaws kon de taal niet wijzigen. Probeer het opnieuw."
+    },
+    "appearance": {
+      "system": "Systeem",
+      "light": "Licht",
+      "dark": "Donker",
+      "description": "Kies hoe ConPaws eruitziet op dit apparaat.",
+      "changeError": "ConPaws kon de weergave niet wijzigen. Probeer het opnieuw."
+    },
+    "account": {
+      "title": "Account",
+      "signIn": "Inloggen",
+      "signOut": "Uitloggen"
+    },
+    "app": {
+      "title": "App",
+      "theme": "Thema",
+      "language": "Taal",
+      "haptics": "Haptische feedback",
+      "hapticsError": "Je haptische instelling kon niet worden opgeslagen",
+      "notifications": "Meldingen"
+    },
+    "data": {
+      "title": "Gegevens",
+      "exportData": "Gegevens exporteren",
+      "exportDescription": "Bewaar een back-up van je conventies en programma's.",
+      "exporting": "Back-up voorbereiden",
+      "exportError": "ConPaws kon je gegevens niet exporteren. Probeer het opnieuw.",
+      "importData": "Gegevens importeren",
+      "importDescription": "Herstel conventies en programma's vanuit een back-up.",
+      "importing": "Back-up openen",
+      "resetOnboarding": "Onboarding resetten"
+    },
+    "dataImport": {
+      "confirmTitle": "Back-up herstellen?",
+      "confirmMessage": "Conventies: {{conventions}} • Evenementen: {{events}}. Bij herstellen komen ze erbij en wordt er niets verwijderd.",
+      "confirmAction": "Herstellen",
+      "successTitle": "Back-up hersteld",
+      "successSummary": "Conventies toegevoegd: {{conventions}} • Evenementen toegevoegd: {{events}}.",
+      "successSkipped": "Al aanwezig of onleesbaar: {{count}}.",
+      "successNothing": "Alles uit deze back-up stond al op dit apparaat.",
+      "failedTitle": "Back-up niet hersteld",
+      "errors": {
+        "generic": "ConPaws kon die back-up niet lezen. Probeer een ander bestand.",
+        "unreadable": "ConPaws kon dat bestand niet openen. Probeer een ander bestand.",
+        "fileTooLarge": "Dat bestand is te groot om te herstellen.",
+        "invalidJson": "Dat bestand is geen leesbare ConPaws-back-up.",
+        "unsupportedVersion": "Die back-up komt uit een nieuwere versie van ConPaws.",
+        "notConPaws": "Dat bestand is geen ConPaws-back-up.",
+        "malformed": "Die back-up bevat geen conventies en geen evenementen.",
+        "tooManyRows": "Die back-up bevat te veel items om te herstellen.",
+        "writeFailed": "ConPaws kon die back-up niet op dit apparaat opslaan. Probeer het opnieuw."
+      }
+    },
+    "legal": {
+      "title": "Juridisch",
+      "privacyPolicy": "Privacybeleid",
+      "termsOfService": "Servicevoorwaarden",
+      "about": "Over ConPaws",
+      "openSourceLicenses": "Licenties van derden"
+    },
+    "about": {
+      "title": "Over",
+      "contact": "hello@conpaws.com",
+      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
+      "resources": "Bronnen",
+      "website": "Website",
+      "builtWith": "Gebouwd met",
+      "licenseDescription": "{{count}} pakketten en tools",
+      "support": "Ondersteuning",
+      "email": "E-mail",
+      "discordDescription": "Word lid van de community",
+      "copyright": "ConPaws by MrDemonWolf, Inc."
+    },
+    "licenses": {
+      "detailsTitle": "Licentiedetails",
+      "packageCount": "{{count}} pakketten",
+      "searchPlaceholder": "Pakketten of licenties zoeken",
+      "noResultsTitle": "Geen licenties gevonden",
+      "noResultsDescription": "Probeer een andere pakket- of licentienaam.",
+      "version": "Versie {{version}}",
+      "license": "Licentie: {{license}}",
+      "repository": "Repository",
+      "projectWebsite": "Projectwebsite",
+      "packageNotFoundTitle": "Pakket niet gevonden",
+      "packageNotFoundDescription": "Dit pakket is mogelijk niet meer opgenomen in deze build.",
+      "licenseTextUnavailable": "De licentietekst is niet beschikbaar in deze build."
+    }
   }
 }

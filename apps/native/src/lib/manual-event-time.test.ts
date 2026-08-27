@@ -4,6 +4,7 @@ import {
   createManualEventTimes,
   manualEventDayKey,
   manualEventTimeParts,
+  resolveManualEventInstant,
   updateManualEventDate,
   updateManualEventEnd,
   updateManualEventStart,
@@ -182,6 +183,58 @@ describe("manual event picker times", () => {
     expect(validatedManualEventEnd(start, end, true)).toBe(end);
     expect(() => validatedManualEventEnd(start, start, true)).toThrow(
       "End time must be later than start time",
+    );
+  });
+});
+
+describe("resolveManualEventInstant", () => {
+  const timeZone = "America/Chicago";
+
+  it("resolves an ordinary wall clock", () => {
+    const instant = resolveManualEventInstant(
+      { year: 2026, month: 9, day: 4, hour: 14, minute: 30 },
+      timeZone,
+    );
+
+    expect(instant?.toISOString()).toBe("2026-09-04T19:30:00.000Z");
+  });
+
+  it("rejects a wall clock inside the spring-forward gap", () => {
+    // 2026-03-08 skips 02:00 to 03:00 in US Central, so 02:30 never happens.
+    expect(
+      resolveManualEventInstant(
+        { year: 2026, month: 3, day: 8, hour: 2, minute: 30 },
+        timeZone,
+      ),
+    ).toBeNull();
+  });
+
+  it("accepts the hour on either side of the spring-forward gap", () => {
+    expect(
+      resolveManualEventInstant(
+        { year: 2026, month: 3, day: 8, hour: 1, minute: 30 },
+        timeZone,
+      )?.toISOString(),
+    ).toBe("2026-03-08T07:30:00.000Z");
+    expect(
+      resolveManualEventInstant(
+        { year: 2026, month: 3, day: 8, hour: 3, minute: 30 },
+        timeZone,
+      )?.toISOString(),
+    ).toBe("2026-03-08T08:30:00.000Z");
+  });
+
+  it("resolves an ambiguous fall-back hour to one of its two instants", () => {
+    // 2026-11-01 repeats 01:00 to 02:00 in US Central. Either instant renders
+    // back as the wall clock the user picked, so the guard must not reject it.
+    const instant = resolveManualEventInstant(
+      { year: 2026, month: 11, day: 1, hour: 1, minute: 30 },
+      timeZone,
+    );
+
+    expect(instant).not.toBeNull();
+    expect(["2026-11-01T06:30:00.000Z", "2026-11-01T07:30:00.000Z"]).toContain(
+      instant?.toISOString(),
     );
   });
 });
