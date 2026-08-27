@@ -150,3 +150,20 @@ describe("IndyFurCon 2025 export", () => {
     expect(new Set(atOpeningHour.map((event) => event.room)).size).toBe(2);
   });
 });
+
+describe("category colours", () => {
+  it("gives every category in this convention a distinct colour", () => {
+    const colors = result.categories.map((category) => category.color);
+
+    expect(colors.length).toBeGreaterThan(1);
+    expect(new Set(colors).size).toBe(colors.length);
+  });
+
+  it("depends on the set of names, not the order they appeared", () => {
+    const again = parseIcs(fs.readFileSync(REAL_ICS_PATH, "utf-8"));
+    const asMap = (categories: typeof result.categories) =>
+      new Map(categories.map((category) => [category.name, category.color]));
+
+    expect(asMap(again.categories)).toEqual(asMap(result.categories));
+  });
+});
