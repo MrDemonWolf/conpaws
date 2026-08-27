@@ -7,6 +7,10 @@ const REMINDER_CHANNEL_ID = "event-reminders";
 const REMINDER_IDENTIFIER_PREFIX = "reminder-";
 const TEST_NOTIFICATION_IDENTIFIER_PREFIX = "developer-test-";
 
+// iOS keeps only the 64 soonest pending local notifications and silently
+// discards the rest, so leave headroom for the developer test notification.
+const MAX_PENDING_REMINDERS = 60;
+
 export type PermissionStatus = "granted" | "denied" | "undetermined";
 
 async function ensureReminderChannel(): Promise<void> {
@@ -91,14 +95,81 @@ interface EventForReminder {
   title: string;
   startTime: string; // ISO string
   room: string | null;
+  conventionId?: string | null;
+}
+
+interface ReminderNotificationContent {
+  title: string;
+  body: string;
 }
 
 interface ScheduleReminderOptions {
   requestPermission?: boolean;
-  notificationContent?: {
-    title: string;
-    body: string;
+  notificationContent?: ReminderNotificationContent;
+}
+
+function reminderNotificationContent(
+  event: EventForReminder,
+  minutesBefore: number,
+  override?: ReminderNotificationContent,
+): ReminderNotificationContent {
+  if (override) return override;
+  if (!i18n.isInitialized) {
+    return {
+      title: `Time to leave for ${event.title}`,
+      body: event.room
+        ? `Starts in ${minutesBefore} min · ${event.room}`
+        : `Starts in ${minutesBefore} min`,
+    };
+  }
+  return {
+    title: i18n.t("reminders.notificationTitle", { event: event.title }),
+    body: i18n.t(
+      event.room
+        ? "reminders.notificationBodyWithRoom"
+        : "reminders.notificationBody",
+      { minutes: minutesBefore, room: event.room },
+    ),
   };
+}
+
+/**
+ * Files the OS request only. The caller owns cancelling any previous request,
+ * checking permission and preparing the Android channel, so a batch can do each
+ * of those once instead of once per reminder.
+ */
+async function scheduleReminderRequest(
+  event: EventForReminder,
+  minutesBefore: number,
+  override?: ReminderNotificationContent,
+): Promise<string | null> {
+  const triggerMs =
+    new Date(event.startTime).getTime() - minutesBefore * 60 * 1000;
+  if (triggerMs <= Date.now()) {
+    return null; // In the past
+  }
+
+  const notificationId = `${REMINDER_IDENTIFIER_PREFIX}${event.id}`;
+  await ExpoNotifications.scheduleNotificationAsync({
+    identifier: notificationId,
+    content: {
+      ...reminderNotificationContent(event, minutesBefore, override),
+      sound: true,
+      // Carried so a tap can open the event instead of wherever the app was.
+      data: {
+        kind: "event-reminder",
+        eventId: event.id,
+        conventionId: event.conventionId ?? null,
+      },
+    },
+    trigger: {
+      type: ExpoNotifications.SchedulableTriggerInputTypes.DATE,
+      date: new Date(triggerMs),
+      channelId: REMINDER_CHANNEL_ID,
+    },
+  });
+
+  return notificationId;
 }
 
 export async function scheduleEventReminder(
@@ -122,48 +193,11 @@ export async function scheduleEventReminder(
   if (permission !== "granted") return null;
   await ensureReminderChannel();
 
-  const startMs = new Date(event.startTime).getTime();
-  const triggerMs = startMs - minutesBefore * 60 * 1000;
-
-  if (triggerMs <= Date.now()) {
-    return null; // In the past
-  }
-
-  const notificationContent =
-    options.notificationContent ??
-    (i18n.isInitialized
-      ? {
-          title: i18n.t("reminders.notificationTitle", {
-            event: event.title,
-          }),
-          body: i18n.t(
-            event.room
-              ? "reminders.notificationBodyWithRoom"
-              : "reminders.notificationBody",
-            { minutes: minutesBefore, room: event.room },
-          ),
-        }
-      : {
-          title: `Time to leave for ${event.title}`,
-          body: event.room
-            ? `Starts in ${minutesBefore} min · ${event.room}`
-            : `Starts in ${minutesBefore} min`,
-        });
-
-  await ExpoNotifications.scheduleNotificationAsync({
-    identifier: notificationId,
-    content: {
-      ...notificationContent,
-      sound: true,
-    },
-    trigger: {
-      type: ExpoNotifications.SchedulableTriggerInputTypes.DATE,
-      date: new Date(triggerMs),
-      channelId: REMINDER_CHANNEL_ID,
-    },
-  });
-
-  return notificationId;
+  return scheduleReminderRequest(
+    event,
+    minutesBefore,
+    options.notificationContent,
+  );
 }
 
 export async function cancelEventReminder(eventId: string): Promise<boolean> {
@@ -188,7 +222,12 @@ export async function cancelConventionReminders(
 
 export interface ReminderReconciliationResult {
   rescheduled: number;
+  /** Reminders whose fire time has passed; the saved choice is dropped. */
   cleared: number;
+  /** Reminders the user still wants but the OS is not holding a request for. */
+  paused: number;
+  /** Reminders beyond the pending-notification ceiling. */
+  overflow: number;
   staleCancelled: number;
 }
 
@@ -220,44 +259,82 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
     // A later launch retries cleanup if the OS notification store is unavailable.
   }
 
-  const permission = await getNotificationPermissionStatus();
-  let rescheduled = 0;
   let cleared = 0;
+  let paused = 0;
+  let overflow = 0;
+  let rescheduled = 0;
+
+  const pending: { event: (typeof events)[number]; minutes: number }[] = [];
 
   for (const event of events) {
     const minutes = event.reminderMinutes;
     if (minutes === null) continue;
     const triggerMs = new Date(event.startTime).getTime() - minutes * 60 * 1000;
 
-    if (permission !== "granted" || triggerMs <= Date.now()) {
+    if (triggerMs <= Date.now()) {
       await cancelEventReminder(event.id);
       await eventsRepo.update(event.id, { reminderMinutes: null });
       cleared++;
       continue;
     }
 
+    pending.push({ event, minutes });
+  }
+
+  const permission = await getNotificationPermissionStatus();
+  if (permission !== "granted") {
+    // reminderMinutes is the only record that the user asked for a reminder at
+    // all, and a permission the user can turn back on at any moment must not
+    // erase it. Drop the OS requests and leave every row intact: the next
+    // launch after permission returns re-arms all of them for free.
+    for (const { event } of pending) {
+      await cancelEventReminder(event.id);
+      paused++;
+    }
+    return { rescheduled, cleared, paused, overflow, staleCancelled };
+  }
+
+  await ensureReminderChannel();
+  // Nearest first, so the reminders the OS keeps when the ceiling is reached
+  // are the ones the user needs soonest rather than whichever rows the
+  // database happened to return first.
+  pending.sort(
+    (a, b) =>
+      new Date(a.event.startTime).getTime() -
+      a.minutes * 60 * 1000 -
+      (new Date(b.event.startTime).getTime() - b.minutes * 60 * 1000),
+  );
+
+  for (const { event, minutes } of pending) {
+    await cancelEventReminder(event.id);
+
+    if (rescheduled >= MAX_PENDING_REMINDERS) {
+      overflow++;
+      continue;
+    }
+
     try {
-      const notificationId = await scheduleEventReminder(
+      const notificationId = await scheduleReminderRequest(
         {
           id: event.id,
           title: event.title,
           startTime: event.startTime,
           room: event.room ?? event.location,
+          conventionId: event.conventionId,
         },
         minutes,
-        { requestPermission: false },
       );
       if (notificationId) {
         rescheduled++;
         continue;
       }
     } catch {
-      // Clear the saved state below; a failed OS request must not remain enabled.
+      // Fall through: a transient OS failure leaves the saved choice alone so
+      // the next launch can retry it.
     }
 
-    await eventsRepo.update(event.id, { reminderMinutes: null });
-    cleared++;
+    paused++;
   }
 
-  return { rescheduled, cleared, staleCancelled };
+  return { rescheduled, cleared, paused, overflow, staleCancelled };
 }
