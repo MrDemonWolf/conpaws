@@ -35,10 +35,30 @@ export const LANGUAGE_META: Record<SupportedLanguage, { nativeName: string }> =
     pl: { nativeName: "Polski" },
   };
 
+export function parseSupportedLanguage(
+  value: unknown,
+): SupportedLanguage | null {
+  return SUPPORTED_LANGUAGES.includes(value as SupportedLanguage)
+    ? (value as SupportedLanguage)
+    : null;
+}
+
+/**
+ * The one spelling of "the current locale", for formatters as well as text.
+ *
+ * `i18n.language` is what was asked for and `i18n.resolvedLanguage` is what
+ * i18next actually has resources for. They differ after a stored language is
+ * dropped from a build, and mixing the two spellings across screens rendered
+ * the same dates in two languages at once.
+ */
+export function currentLocale(): string {
+  return i18n.resolvedLanguage ?? i18n.language ?? "en";
+}
+
 export async function initI18n(): Promise<void> {
-  const saved = (await AsyncStorage.getItem(
-    "appLanguage",
-  )) as SupportedLanguage | null;
+  const saved = parseSupportedLanguage(
+    await AsyncStorage.getItem("appLanguage"),
+  );
   const deviceCode = Localization.getLocales()[0]?.languageCode ?? "en";
   const deviceLang = SUPPORTED_LANGUAGES.find(
     (l) => l === deviceCode || l.startsWith(deviceCode),

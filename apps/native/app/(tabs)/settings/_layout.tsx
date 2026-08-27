@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { ScreenErrorFallback } from "@/lib/error-fallback";
 
 export default function SettingsLayout() {
   const { t } = useTranslation();
@@ -55,3 +56,8 @@ export default function SettingsLayout() {
     </Stack>
   );
 }
+
+// A throw in this layout itself cannot reach the per-screen boundary the root
+// layout provides, so it needs its own. Leaf screens under it are already
+// covered and keep their chrome.
+export const ErrorBoundary = ScreenErrorFallback;
