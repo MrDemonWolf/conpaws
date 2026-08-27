@@ -56,6 +56,8 @@ import {
 } from "@/lib/error-reporting";
 import { loadHapticsPreference } from "@/lib/haptics-storage";
 import i18nInstance, { initI18n } from "@/lib/i18n";
+import { hasCompletedOnboarding } from "@/lib/onboarding-storage";
+import { resolveQuickActionRoute } from "@/lib/quick-action-routes";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -89,18 +91,21 @@ const darkNavigationTheme = {
   },
 };
 
-async function withBootstrapTimeout(work: Promise<unknown>): Promise<void> {
+async function withBootstrapTimeout<T>(
+  work: Promise<T>,
+  timedOutValue: T,
+): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    await Promise.race([
+    return await Promise.race([
       work,
-      new Promise<void>((resolve) => {
+      new Promise<T>((resolve) => {
         timer = setTimeout(() => {
           reportMessage(
             `Launch bootstrap did not settle within ${BOOTSTRAP_TIMEOUT_MS}ms`,
             { scope: "bootstrap.timeout" },
           );
-          resolve();
+          resolve(timedOutValue);
         }, BOOTSTRAP_TIMEOUT_MS);
       }),
     ]);
@@ -117,8 +122,11 @@ async function withBootstrapTimeout(work: Promise<unknown>): Promise<void> {
  * Every step reports its own failure and then continues: a lost haptics
  * preference must not stop the app from launching. Translations are the one
  * exception -- see the retry, and the caller's `isInitialized` check.
+ *
+ * Resolves to whether onboarding has been completed, which the caller needs
+ * before it may act on a parked quick action.
  */
-async function runLaunchBootstrap(): Promise<void> {
+async function runLaunchBootstrap(): Promise<boolean> {
   const appearance = await loadAppearancePreference().catch((error) => {
     reportError(error, { scope: "bootstrap.appearanceLoad" });
     return "system" as const;
@@ -148,12 +156,21 @@ async function runLaunchBootstrap(): Promise<void> {
       reportError(retryError, { scope: "bootstrap.i18nRetry" });
     }
   }
+
+  return hasCompletedOnboarding().catch((error) => {
+    reportError(error, { scope: "bootstrap.onboardingFlag" });
+    // Assuming onboarding is unfinished only parks a quick action for the next
+    // launch, where this read gets another chance. Assuming it is finished
+    // would push a form at someone who has never seen the app.
+    return false;
+  });
 }
 
 function RootLayout() {
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [translationsReady, setTranslationsReady] = useState(true);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
   const colorScheme = useColorScheme();
   const pathname = usePathname();
   const databaseInitError = getDatabaseInitError();
@@ -174,9 +191,10 @@ function RootLayout() {
           scope: "bootstrap.retry",
         });
       }
-      await withBootstrapTimeout(runLaunchBootstrap());
+      const onboarded = await withBootstrapTimeout(runLaunchBootstrap(), false);
       if (cancelled) return;
       setTranslationsReady(i18nInstance.isInitialized);
+      setOnboardingComplete(onboarded);
       setReady(true);
     })();
 
@@ -206,18 +224,36 @@ function RootLayout() {
   // the database-unavailable screen is up: that branch renders no navigator.
   const navigable = ready && !databaseInitError;
 
+  // The Home Screen shortcuts are installed at launch with no onboarding gate
+  // of their own, so acting on one before `app/index.tsx` has resolved the flag
+  // drops a brand new user straight into a form they have no context for.
+  // Leaving the action unconsumed parks it for the launch after onboarding.
+  const canOpenQuickAction = navigable && onboardingComplete;
+
   useEffect(() => {
     function openPendingQuickAction() {
-      const route = consumePendingQuickAction();
-      if (route) router.push(route as never);
+      const pending = consumePendingQuickAction();
+      if (!pending) return;
+
+      const route = resolveQuickActionRoute(pending);
+      if (!route) {
+        // A shortcut pointing at a screen this build does not have means a
+        // route was renamed without updating the table. Doing nothing quietly
+        // is what made that drift invisible, so say so instead.
+        reportMessage(`Unknown quick action route: ${pending}`, {
+          scope: "quickAction.unknownRoute",
+        });
+        return;
+      }
+      router.push(route);
     }
 
-    if (navigable) openPendingQuickAction();
+    if (canOpenQuickAction) openPendingQuickAction();
     const appStateSubscription = AppState.addEventListener(
       "change",
       (state) => {
         if (state === "active" && navigable) {
-          openPendingQuickAction();
+          if (canOpenQuickAction) openPendingQuickAction();
           void publishWidgetSnapshot().catch((error) => {
             reportError(error, { scope: "appState.publishWidgetSnapshot" });
           });
@@ -248,7 +284,7 @@ function RootLayout() {
       appStateSubscription.remove();
       unsubscribeMutations();
     };
-  }, [navigable]);
+  }, [navigable, canOpenQuickAction]);
 
   // A tapped reminder must land on the event's convention rather than wherever
   // the app happened to be. The cold-start response arrives through

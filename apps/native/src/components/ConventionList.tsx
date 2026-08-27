@@ -1,32 +1,14 @@
 import { FlatList, Pressable, View } from "react-native";
 import { Text } from "@/components/ui";
 import { ConventionCard } from "./ConventionCard";
+import type { ConventionListProps } from "./ConventionList.types";
 
-interface ConventionRowContent {
-  name: string;
-  dateRange: string;
-  status: "upcoming" | "active" | "ended";
-  statusLabel: string;
-  moreAccessibilityLabel: string;
-}
-
-interface ConventionListProps<T extends { id: string }> {
-  data: T[];
-  archivedData: T[];
-  archiveExpanded: boolean;
-  archiveLabel: string;
-  archiveActionLabel: string;
-  currentEmptyLabel: string;
-  onToggleArchive: () => void;
-  getRowContent: (item: T) => ConventionRowContent;
-  onOpen: (item: T) => void;
-  deleteLabel: string;
-  onDelete: (item: T) => void;
-  archiveItemLabel: string;
-  onArchive: (item: T) => void;
-  onOpenActions: (item: T) => void;
-}
-
+/**
+ * `deleteLabel`, `onDelete`, `archiveItemLabel` and `onArchive` are deliberately
+ * not destructured here: a `FlatList` row has no swipe affordance, so this
+ * implementation offers both actions through `onOpenActions` instead. See the
+ * note on those props in `ConventionList.types.ts`.
+ */
 export function ConventionList<T extends { id: string }>({
   data,
   archivedData,
