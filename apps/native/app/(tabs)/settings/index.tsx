@@ -18,19 +18,21 @@ import Constants from "expo-constants";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
-import { useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, useColorScheme } from "react-native";
+import { Alert } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 import {
   getAppearancePreference,
   subscribeAppearancePreference,
 } from "@/lib/appearance-storage";
+import { importOutcomeMessage } from "@/lib/data-import-messages";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
 import { useExportData } from "@/services/data-export";
-import { useImportData } from "@/services/data-import";
+import { type ImportOutcome, useImportData } from "@/services/data-import";
 import { getHapticsEnabled } from "@/services/haptics";
 
 const CHEVRON = Icon.select({
@@ -75,10 +77,8 @@ function ExternalIndicator() {
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const { exportData, isLoading: isExporting } = useExportData();
-  const { importData, isLoading: isImporting } = useImportData();
-  const colorScheme = useColorScheme();
   const { colors } = useTheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
   const versionLabel = useVersionLabel();
   const appearance = useSyncExternalStore(
     subscribeAppearancePreference,
@@ -108,6 +108,57 @@ export default function SettingsScreen() {
         Alert.alert(t("common.error"), t("settings.data.exportError")),
     });
   }
+
+  /**
+   * The restore prompt. It has to settle even when no button is pressed: on
+   * Android an Alert is dismissible with the back gesture, and a confirm that
+   * never resolves would pin the import mutation pending and leave the whole
+   * Data section disabled until the app restarts.
+   */
+  const confirmImport = useCallback(
+    ({
+      conventionCount,
+      eventCount,
+    }: {
+      conventionCount: number;
+      eventCount: number;
+    }) =>
+      new Promise<boolean>((resolve) => {
+        Alert.alert(
+          t("settings.dataImport.confirmTitle"),
+          t("settings.dataImport.confirmMessage", {
+            conventions: conventionCount,
+            events: eventCount,
+          }),
+          [
+            {
+              text: t("common.cancel"),
+              style: "cancel",
+              onPress: () => resolve(false),
+            },
+            {
+              text: t("settings.dataImport.confirmAction"),
+              onPress: () => resolve(true),
+            },
+          ],
+          { cancelable: true, onDismiss: () => resolve(false) },
+        );
+      }),
+    [t],
+  );
+
+  const handleImportOutcome = useCallback(
+    (outcome: ImportOutcome) => {
+      const message = importOutcomeMessage(outcome, t);
+      if (message) Alert.alert(message.title, message.body);
+    },
+    [t],
+  );
+
+  const { importData, isLoading: isImporting } = useImportData({
+    confirm: confirmImport,
+    onOutcome: handleImportOutcome,
+  });
 
   return (
     <Host

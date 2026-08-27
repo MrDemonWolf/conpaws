@@ -20,12 +20,14 @@ import { Redirect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { useColorScheme, useWindowDimensions, View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import {
   ConventionListSkeleton,
   EmptyState,
+  Input,
   ScheduleSkeleton,
 } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   getAppearancePreference,
   subscribeAppearancePreference,
@@ -46,7 +48,7 @@ const SKELETON_ICON = Icon.select({
   android: FormsIcon,
 });
 
-type SheetPreview = "empty" | "form" | "skeleton" | null;
+type SheetPreview = "empty" | "fields" | "form" | "skeleton" | null;
 
 function NavigationIndicator() {
   return <Icon name={CHEVRON_ICON} size={15} />;
@@ -55,7 +57,6 @@ function NavigationIndicator() {
 export default function UiSystemScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const systemColorScheme = useColorScheme();
   const appearancePreference = useSyncExternalStore(
     subscribeAppearancePreference,
     getAppearancePreference,
@@ -68,7 +69,7 @@ export default function UiSystemScreen() {
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
   );
-  const systemAppearance = systemColorScheme === "dark" ? "dark" : "light";
+  const systemAppearance = useResolvedColorScheme();
   const sheetContentWidth = Math.max(280, width - 32);
 
   if (!enabled) return <Redirect href="/(tabs)/settings" />;
@@ -134,6 +135,14 @@ export default function UiSystemScreen() {
             onPress={() => setSheetPreview("form")}
           >
             {t("convention.new")}
+          </ListItem>
+          <ListItem
+            leading={<Icon name={FORM_ICON} size={22} />}
+            supportingText="Themed text field, with label and error states"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("fields")}
+          >
+            Input
           </ListItem>
           <ListItem
             leading={<Icon name={SKELETON_ICON} size={22} />}
@@ -213,6 +222,27 @@ export default function UiSystemScreen() {
               <View className="h-[280px]">
                 <ScheduleSkeleton sections={1} rowsPerSection={2} />
               </View>
+            </View>
+          </RNHostView>
+        ) : sheetPreview === "fields" ? (
+          <RNHostView matchContents>
+            <View
+              className="gap-4 bg-background p-4"
+              style={{ width: sheetContentWidth }}
+            >
+              <Input
+                label={t("convention.name")}
+                placeholder={t("convention.namePlaceholder")}
+                value=""
+                onChangeText={() => undefined}
+              />
+              <Input
+                label={t("convention.location")}
+                placeholder={t("convention.locationPlaceholder")}
+                value=""
+                onChangeText={() => undefined}
+                error={t("convention.nameRequired")}
+              />
             </View>
           </RNHostView>
         ) : sheetPreview === "form" ? (

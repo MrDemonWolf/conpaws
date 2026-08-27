@@ -15,7 +15,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Keyboard, useColorScheme, View } from "react-native";
+import { Alert, Keyboard, View } from "react-native";
 import tzLookup from "tz-lookup";
 import {
   ConventionDateField,
@@ -25,6 +25,7 @@ import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { FormSkeleton, SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   CONVENTION_NAME_MAX_LENGTH,
@@ -41,6 +42,7 @@ import {
   conventionDayKey,
   conventionStatusForDay,
 } from "@/lib/convention-time";
+import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
@@ -52,10 +54,10 @@ function dayKeyToDate(dayKey: string): Date {
 
 export default function EditConventionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const colorScheme = useColorScheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
+  const locale = currentLocale();
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
@@ -331,7 +333,7 @@ export default function EditConventionScreen() {
             <ConventionDateField
               title={t("convention.startDate")}
               value={startDate}
-              locale={i18n.language}
+              locale={locale}
               timeZoneName={validation.errors.timeZone ? undefined : timeZone}
               colorScheme={resolvedColorScheme}
               onChange={updateStartDate}
@@ -340,7 +342,7 @@ export default function EditConventionScreen() {
               title={t("convention.endDate")}
               value={endDate}
               minimumDate={startDate}
-              locale={i18n.language}
+              locale={locale}
               timeZoneName={validation.errors.timeZone ? undefined : timeZone}
               colorScheme={resolvedColorScheme}
               onChange={(value) =>

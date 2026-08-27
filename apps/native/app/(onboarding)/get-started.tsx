@@ -1,23 +1,21 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { CalendarPlus, ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { OnboardingButton } from "@/components/OnboardingButton";
 import { OnboardingProgress } from "@/components/OnboardingProgress";
 import { SafeView, Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { markOnboardingComplete } from "@/lib/onboarding-storage";
 
 export default function GetStartedScreen() {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#18B7F2" : "#006F91";
+  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#006F91";
 
   async function finishOnboarding(
     destination: "/convention/new/import" | "/(tabs)/(home)",
   ) {
-    await AsyncStorage.setItem("hasCompletedOnboarding", "true").catch(
-      () => undefined,
-    );
+    await markOnboardingComplete();
     router.replace(destination);
   }
 

@@ -1,13 +1,15 @@
 import { router } from "expo-router";
 import { Cloud, ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
 import { OnboardingButton } from "@/components/OnboardingButton";
 import { OnboardingProgress } from "@/components/OnboardingProgress";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SafeView, Text } from "@/components/ui";
 import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { currentLocale } from "@/lib/i18n";
 
 const previewFixture = buildConPawsPreviewFixture();
 const previewEvents = previewFixture.events.slice(0, 2);
@@ -23,10 +25,9 @@ function formatTime(value: string | null | undefined, locale: string): string {
 }
 
 export default function FeaturesScreen() {
-  const { i18n, t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#18B7F2" : "#006F91";
-  const locale = i18n.resolvedLanguage ?? i18n.language ?? "en";
+  const { t } = useTranslation();
+  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#006F91";
+  const locale = currentLocale();
 
   return (
     <SafeView

@@ -18,17 +18,13 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccessibilityInfo,
-  Alert,
-  Keyboard,
-  useColorScheme,
-} from "react-native";
+import { AccessibilityInfo, Alert, Keyboard } from "react-native";
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   conventionDayKey,
@@ -83,8 +79,7 @@ interface PendingCalendar {
 export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const queryClient = useQueryClient();
@@ -92,6 +87,7 @@ export default function ImportScreen() {
   const didPrefill = useRef(false);
   const filePickerLock = useRef(false);
   const requestGeneration = useRef(0);
+  const isMounted = useRef(true);
   const urlInput = useNativeState("");
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
 
@@ -134,6 +130,13 @@ export default function ImportScreen() {
       ? [timeZone, ...matches]
       : matches;
   }, [timeZone, timeZoneSearch, timeZones]);
+
+  useEffect(
+    () => () => {
+      isMounted.current = false;
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!existingConvention || didPrefill.current) return;
@@ -571,6 +574,13 @@ export default function ImportScreen() {
       ]);
 
       hapticSuccess();
+      // The preview is spent: leaving it set makes the unsaved-changes guard
+      // treat the Done button as an attempt to abandon work.
+      setPreview(null);
+      // The write finished, but the sheet may be gone. An alert fired from a
+      // screen the user already closed arrives out of nowhere and its Done
+      // button navigates them somewhere they did not ask to go.
+      if (!isMounted.current) return;
 
       Alert.alert(
         t("import.alerts.successTitle"),
@@ -609,6 +619,7 @@ export default function ImportScreen() {
           // The original import error is still the useful failure to report.
         }
       }
+      if (!isMounted.current) return;
       Alert.alert(t("import.alerts.failedTitle"), t("import.errors.generic"));
     }
   }
@@ -664,9 +675,11 @@ export default function ImportScreen() {
     }
   };
 
-  // A built preview represents real work — parsing plus per-event selection.
+  // A built preview represents real work -- parsing plus per-event selection.
+  // A running import counts too: dismissing the sheet mid-write leaves the
+  // batch insert to finish against a screen that no longer exists.
   const { confirmDiscard: handleCancel } = useUnsavedChangesGuard({
-    isDirty: !importMutation.isPending && !!preview,
+    isDirty: importMutation.isPending || !!preview,
     onDiscard: closeImport,
   });
 
@@ -727,7 +740,10 @@ export default function ImportScreen() {
     <SafeView edges={FORM_SAFE_EDGES}>
       {process.env.EXPO_OS === "ios" ? (
         <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button onPress={handleCancel}>
+          <Stack.Toolbar.Button
+            onPress={handleCancel}
+            disabled={controlsDisabled}
+          >
             {t("common.cancel")}
           </Stack.Toolbar.Button>
         </Stack.Toolbar>
@@ -735,7 +751,9 @@ export default function ImportScreen() {
         <FormModalHeader
           title={t("import.title")}
           cancelLabel={t("common.cancel")}
-          onCancel={handleCancel}
+          // FormModalHeader has no disabled state for Cancel, so the press is
+          // dropped instead. See the handoff note in the audit report.
+          onCancel={controlsDisabled ? () => undefined : handleCancel}
         />
       )}
 

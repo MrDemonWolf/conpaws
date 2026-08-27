@@ -13,9 +13,9 @@ import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Keyboard, useColorScheme } from "react-native";
+import { Alert, Keyboard } from "react-native";
 import tzLookup from "tz-lookup";
 import {
   ConventionDateField,
@@ -24,6 +24,7 @@ import {
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   inferTimeZoneFromLocation,
@@ -34,15 +35,16 @@ import {
   conventionStatusForDay,
   isValidTimeZone,
 } from "@/lib/convention-time";
+import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 export default function CreateConventionScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const colorScheme = useColorScheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
+  const locale = currentLocale();
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
@@ -55,6 +57,7 @@ export default function CreateConventionScreen() {
     addDays(startOfDay(new Date()), 1),
   );
   const [saving, setSaving] = useState(false);
+  const isMounted = useRef(true);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   const timeZones = useMemo(
@@ -65,6 +68,13 @@ export default function CreateConventionScreen() {
       ),
     [deviceTimeZone],
   );
+  useEffect(
+    () => () => {
+      isMounted.current = false;
+    },
+    [],
+  );
+
   function updateStartDate(value: Date) {
     setStartDate(value);
     if (endDate < value) setEndDate(value);
@@ -123,15 +133,26 @@ export default function CreateConventionScreen() {
       return;
     }
 
+    // Set before the geocode, not after it. Resolving a time zone from a
+    // location is a throttled network call that can take seconds, and leaving
+    // the form live across that window let a second Save tap create a second
+    // convention.
+    setSaving(true);
     const resolvedTimeZone = await resolveTimeZoneForSave();
-    if (!resolvedTimeZone) return;
+    if (!resolvedTimeZone) {
+      setSaving(false);
+      return;
+    }
+    // The user may have left while the geocode was in flight. Writing a
+    // convention they walked away from, and then dragging them into it, is
+    // worse than doing nothing.
+    if (!isMounted.current) return;
 
     const startDateKey = format(startDate, "yyyy-MM-dd");
     const endDateKey = format(endDate, "yyyy-MM-dd");
     const today = conventionDayKey(new Date(), resolvedTimeZone);
     let conventionId: string;
 
-    setSaving(true);
     try {
       const convention = await conventionsRepo.create({
         name: trimmedName,
@@ -154,6 +175,7 @@ export default function CreateConventionScreen() {
     hapticSuccess();
     await queryClient.invalidateQueries({ queryKey: ["conventions"] });
     await publishWidgetSnapshot().catch(() => false);
+    if (!isMounted.current) return;
     router.replace(`/convention/${conventionId}`);
   }
 
@@ -174,7 +196,7 @@ export default function CreateConventionScreen() {
       {process.env.EXPO_OS === "ios" ? (
         <>
           <Stack.Toolbar placement="left">
-            <Stack.Toolbar.Button onPress={handleCancel}>
+            <Stack.Toolbar.Button onPress={handleCancel} disabled={saving}>
               {t("common.cancel")}
             </Stack.Toolbar.Button>
           </Stack.Toolbar>
@@ -192,7 +214,9 @@ export default function CreateConventionScreen() {
         <FormModalHeader
           title={t("convention.new")}
           cancelLabel={t("common.cancel")}
-          onCancel={handleCancel}
+          // FormModalHeader has no disabled state for Cancel, so the press is
+          // dropped instead. See the handoff note in the audit report.
+          onCancel={saving ? () => undefined : handleCancel}
           confirmLabel={t("common.add")}
           onConfirm={handleCreate}
           confirmDisabled={!canCreate}
@@ -240,7 +264,7 @@ export default function CreateConventionScreen() {
             <ConventionDateField
               title={t("convention.startDate")}
               value={startDate}
-              locale={i18n.language}
+              locale={locale}
               timeZoneName={validTimeZone}
               colorScheme={resolvedColorScheme}
               onChange={updateStartDate}
@@ -249,7 +273,7 @@ export default function CreateConventionScreen() {
               title={t("convention.endDate")}
               value={endDate}
               minimumDate={startDate}
-              locale={i18n.language}
+              locale={locale}
               timeZoneName={validTimeZone}
               colorScheme={resolvedColorScheme}
               onChange={(value) =>
