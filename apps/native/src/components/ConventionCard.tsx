@@ -2,8 +2,9 @@ import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import MoreVertIcon from "@expo/material-symbols/more_vert.xml";
 import { Host, Icon } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
-import { Pressable, useColorScheme, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { cn } from "@/lib/utils";
 
 interface ConventionCardProps {
@@ -49,7 +50,7 @@ export function ConventionCard({
   moreAccessibilityLabel,
   className,
 }: ConventionCardProps) {
-  const colorScheme = useColorScheme();
+  const colorScheme = useResolvedColorScheme();
   const { colors } = useTheme();
 
   return (
@@ -80,11 +81,7 @@ export function ConventionCard({
           </View>
         </View>
         {!onMorePress ? (
-          <Host
-            colorScheme={colorScheme === "dark" ? "dark" : "light"}
-            matchContents
-            pointerEvents="none"
-          >
+          <Host colorScheme={colorScheme} matchContents pointerEvents="none">
             <Icon name={CHEVRON_ICON} size={14} color={colors.text} />
           </Host>
         ) : null}
@@ -97,11 +94,7 @@ export function ConventionCard({
           onPress={onMorePress}
           className="w-11 items-center justify-center active:opacity-60"
         >
-          <Host
-            colorScheme={colorScheme === "dark" ? "dark" : "light"}
-            matchContents
-            pointerEvents="none"
-          >
+          <Host colorScheme={colorScheme} matchContents pointerEvents="none">
             <Icon name={MORE_ICON} size={22} color={colors.text} />
           </Host>
         </Pressable>

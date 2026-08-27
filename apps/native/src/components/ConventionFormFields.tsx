@@ -11,7 +11,7 @@ import {
   TextInput as RNTextInput,
   View,
 } from "react-native";
-import { SafeView, Text } from "@/components/ui";
+import { SafeView, Text, usePlaceholderTextColor } from "@/components/ui";
 import { searchTimeZones, type TimeZoneOption } from "@/lib/time-zone-search";
 
 /**
@@ -100,6 +100,7 @@ export function TimeZonePickerModal({
   onClose,
 }: TimeZonePickerModalProps) {
   const { t } = useTranslation();
+  const placeholderColor = usePlaceholderTextColor();
   const [query, setQuery] = useState("");
   const results = useMemo(
     () => searchTimeZones(options, query),
@@ -137,7 +138,7 @@ export function TimeZonePickerModal({
             value={query}
             onChangeText={setQuery}
             placeholder={t("convention.timeZoneSearchPlaceholder")}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={placeholderColor}
             autoCapitalize="none"
             autoCorrect={false}
             clearButtonMode="while-editing"

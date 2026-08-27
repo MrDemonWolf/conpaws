@@ -10,7 +10,8 @@ import {
   fillMaxWidth,
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import type { OnboardingButtonProps } from "./OnboardingButton.types";
 
 const buttonComponents = {
@@ -26,8 +27,7 @@ export function OnboardingButton({
   disabled = false,
   testID,
 }: OnboardingButtonProps) {
-  const colorScheme = useColorScheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
   const NativeButton = buttonComponents[variant];
   const modifiers = [
     fillMaxWidth(),

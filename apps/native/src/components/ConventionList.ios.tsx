@@ -21,7 +21,7 @@ import {
   padding,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
-import { useColorScheme } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 
 interface ConventionRowContent {
   name: string;
@@ -64,7 +64,7 @@ export function ConventionList<T extends { id: string }>({
   onArchive,
   onOpenActions,
 }: ConventionListProps<T>) {
-  const colorScheme = useColorScheme();
+  const colorScheme = useResolvedColorScheme();
 
   function renderConvention(item: T, isArchived = false) {
     const row = getRowContent(item);
@@ -189,10 +189,7 @@ export function ConventionList<T extends { id: string }>({
   }
 
   return (
-    <Host
-      colorScheme={colorScheme === "dark" ? "dark" : "light"}
-      style={{ flex: 1 }}
-    >
+    <Host colorScheme={colorScheme} style={{ flex: 1 }}>
       <List modifiers={[listStyle("plain")]}>
         {data.length === 0 && archivedData.length > 0 ? (
           <Text
