@@ -44,6 +44,7 @@ import {
 } from "@/lib/convention-time";
 import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
+import { commitConventionUpdate } from "@/services/convention-commit";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
@@ -193,8 +194,9 @@ export default function EditConventionScreen() {
     const today = conventionDayKey(new Date(), cleaned.timeZone);
 
     setSaving(true);
-    try {
-      await conventionsRepo.update(convention.id, {
+    const outcome = await commitConventionUpdate(
+      convention.id,
+      {
         name: cleaned.name,
         startDate: cleaned.startDate,
         endDate: cleaned.endDate,
@@ -207,21 +209,26 @@ export default function EditConventionScreen() {
           cleaned.endDate,
           today,
         ),
-      });
-    } catch {
+      },
+      {
+        update: conventionsRepo.update,
+        refreshCaches: (conventionId) =>
+          Promise.allSettled([
+            queryClient.invalidateQueries({
+              queryKey: ["convention", conventionId],
+            }),
+            queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+          ]),
+        publishSnapshot: publishWidgetSnapshot,
+        haptic: hapticSuccess,
+      },
+    );
+
+    if (!outcome.ok) {
       Alert.alert(t("common.error"), t("convention.updateError"));
       setSaving(false);
       return;
     }
-
-    hapticSuccess();
-    await Promise.allSettled([
-      queryClient.invalidateQueries({
-        queryKey: ["convention", convention.id],
-      }),
-      queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-    ]);
-    await publishWidgetSnapshot().catch(() => false);
     router.back();
   }
 

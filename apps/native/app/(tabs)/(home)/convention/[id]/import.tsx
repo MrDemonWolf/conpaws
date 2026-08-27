@@ -26,11 +26,7 @@ import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
-import {
-  conventionDayKey,
-  conventionStatusForDay,
-  isValidTimeZone,
-} from "@/lib/convention-time";
+import { isValidTimeZone } from "@/lib/convention-time";
 import {
   type CategoryMeta,
   type ParsedEvent,
@@ -51,6 +47,11 @@ import {
 } from "@/lib/sched-extractor";
 import { scheduleNameFromUrl } from "@/lib/schedule-url";
 import { hapticSuccess } from "@/services/haptics";
+import {
+  buildImportedConventionPatch,
+  commitScheduleImport,
+  deriveImportedConventionDates,
+} from "@/services/schedule-import-commit";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 type Tab = "file" | "url";
@@ -473,51 +474,26 @@ export default function ImportScreen() {
       if (!(await confirmEmptyScheduleUpdate(removalCount))) return;
     }
 
-    const timestamps = reparsed.events.map((event) =>
-      event.startTime.getTime(),
+    const dates = deriveImportedConventionDates(
+      reparsed.events,
+      selectedTimeZone,
+      new Date(),
     );
-    const dateRange =
-      timestamps.length > 0
-        ? {
-            startDate: conventionDayKey(
-              new Date(Math.min(...timestamps)),
-              selectedTimeZone,
-            ),
-            endDate: conventionDayKey(
-              new Date(Math.max(...timestamps)),
-              selectedTimeZone,
-            ),
-          }
-        : null;
-    const today = conventionDayKey(new Date(), selectedTimeZone);
-    const status = dateRange
-      ? conventionStatusForDay(dateRange.startDate, dateRange.endDate, today)
-      : null;
 
-    let createdConventionId: string | null = null;
-    let shouldRollbackCreatedConvention = false;
-
-    try {
-      let conventionId = id;
-      if (id === "new") {
-        if (!dateRange || !status) {
-          throw new Error("A new convention needs at least one active event");
-        }
-        const convention = await conventionsRepo.create({
-          name: preview.name,
-          ...dateRange,
-          timeZone: selectedTimeZone,
-          icalUrl: preview.sourceUrl,
-          status,
-        });
-        conventionId = convention.id;
-        createdConventionId = convention.id;
-        shouldRollbackCreatedConvention = true;
-      }
-
-      const result = await importMutation.mutateAsync({
+    const outcome = await commitScheduleImport(
+      {
+        conventionId: id,
+        draft: dates
+          ? {
+              name: preview.name,
+              startDate: dates.startDate,
+              endDate: dates.endDate,
+              timeZone: selectedTimeZone,
+              icalUrl: preview.sourceUrl,
+              status: dates.status,
+            }
+          : null,
         parsedEvents: eventsToImport,
-        conventionId,
         sourceSnapshot: {
           authoritative: preview.sourceUrl !== null,
           activeOccurrences: reparsed.events.map((event) => ({
@@ -537,91 +513,72 @@ export default function ImportScreen() {
             sourceUrl: event.sourceUrl,
           })),
         },
-      });
-      shouldRollbackCreatedConvention = false;
-      let conventionDetailsUpdated = true;
-      if (!createdConventionId) {
-        const sourceUpdate = preview.sourceUrl
-          ? { icalUrl: preview.sourceUrl }
-          : {};
-        try {
-          if (dateRange && status) {
-            await conventionsRepo.update(conventionId, {
-              ...dateRange,
-              ...sourceUpdate,
-              timeZone: selectedTimeZone,
-              status,
-            });
-          } else {
-            await conventionsRepo.update(conventionId, {
-              ...sourceUpdate,
-              timeZone: selectedTimeZone,
-            });
-          }
-        } catch {
-          conventionDetailsUpdated = false;
-        }
-        if (conventionDetailsUpdated) {
-          await publishWidgetSnapshot().catch(() => false);
-        }
-      }
-      await Promise.allSettled([
-        queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-        queryClient.invalidateQueries({
-          queryKey: ["convention", conventionId],
+        patch: buildImportedConventionPatch({
+          dates,
+          sourceUrl: preview.sourceUrl,
+          timeZone: selectedTimeZone,
         }),
-        queryClient.invalidateQueries({ queryKey: ["events", conventionId] }),
-      ]);
+      },
+      {
+        createConvention: conventionsRepo.create,
+        removeConvention: conventionsRepo.remove,
+        importEvents: (importInput) => importMutation.mutateAsync(importInput),
+        updateConvention: conventionsRepo.update,
+        publishSnapshot: publishWidgetSnapshot,
+        refreshCaches: (conventionId) =>
+          Promise.allSettled([
+            queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+            queryClient.invalidateQueries({
+              queryKey: ["convention", conventionId],
+            }),
+            queryClient.invalidateQueries({
+              queryKey: ["events", conventionId],
+            }),
+          ]),
+        haptic: hapticSuccess,
+      },
+    );
 
-      hapticSuccess();
-      // The preview is spent: leaving it set makes the unsaved-changes guard
-      // treat the Done button as an attempt to abandon work.
-      setPreview(null);
-      // The write finished, but the sheet may be gone. An alert fired from a
-      // screen the user already closed arrives out of nowhere and its Done
-      // button navigates them somewhere they did not ask to go.
-      if (!isMounted.current) return;
-
-      Alert.alert(
-        t("import.alerts.successTitle"),
-        [
-          t("import.alerts.successSummary", {
-            added: result.added,
-            updated: result.updated,
-            removed: result.removed,
-          }),
-          result.unresolved > 0
-            ? t("import.alerts.unresolvedSeries", {
-                count: result.unresolved,
-              })
-            : null,
-          conventionDetailsUpdated
-            ? null
-            : t("import.alerts.detailsNotUpdated"),
-        ]
-          .filter(Boolean)
-          .join(" "),
-        [
-          {
-            text: t("common.done"),
-            onPress: () =>
-              createdConventionId
-                ? router.replace(`/convention/${createdConventionId}`)
-                : closeImport(),
-          },
-        ],
-      );
-    } catch {
-      if (createdConventionId && shouldRollbackCreatedConvention) {
-        try {
-          await conventionsRepo.remove(createdConventionId);
-        } catch {
-          // The original import error is still the useful failure to report.
-        }
-      }
+    if (!outcome.ok) {
       if (!isMounted.current) return;
       Alert.alert(t("import.alerts.failedTitle"), t("import.errors.generic"));
+      return;
     }
+
+    const { createdConventionId, conventionDetailsUpdated, result } = outcome;
+    // The preview is spent: leaving it set makes the unsaved-changes guard
+    // treat the Done button as an attempt to abandon work.
+    setPreview(null);
+    // The write finished, but the sheet may be gone. An alert fired from a
+    // screen the user already closed arrives out of nowhere and its Done
+    // button navigates them somewhere they did not ask to go.
+    if (!isMounted.current) return;
+
+    Alert.alert(
+      t("import.alerts.successTitle"),
+      [
+        t("import.alerts.successSummary", {
+          added: result.added,
+          updated: result.updated,
+          removed: result.removed,
+        }),
+        result.unresolved > 0
+          ? t("import.alerts.unresolvedSeries", { count: result.unresolved })
+          : null,
+        conventionDetailsUpdated ? null : t("import.alerts.detailsNotUpdated"),
+      ]
+        .filter(Boolean)
+        .join(" "),
+      [
+        {
+          text: t("common.done"),
+          onPress: () =>
+            createdConventionId
+              ? router.replace(`/convention/${createdConventionId}`)
+              : closeImport(),
+        },
+      ],
+    );
   }
 
   const selectedCount = preview

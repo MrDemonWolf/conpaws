@@ -64,6 +64,7 @@ import {
 import {
   SCHEDULE_EMPTY_CONTENT_STYLE,
   SCHEDULE_LIST_CONTENT_STYLE,
+  shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 import { getNowAndNextEvents } from "@/lib/schedule-view";
 import { hapticSuccess, hapticToggle } from "@/services/haptics";
@@ -843,7 +844,7 @@ export default function ConventionDetailScreen() {
           // Bouncing off plus a schedule short enough to fit left the title
           // nowhere to go, so it painted over the first event row and hid its
           // start time.
-          alwaysBounceVertical={dayGroups.length > 0}
+          alwaysBounceVertical={shouldBounceSchedule(dayGroups)}
           sections={dayGroups}
           keyExtractor={(event) => event.id}
           contentInsetAdjustmentBehavior="automatic"
