@@ -109,11 +109,24 @@ interface MigrationDatabase {
   getFirstSync<T>(source: string): T | null;
 }
 
+/** The highest `user_version` the migration ladder below knows how to reach. */
+export const LATEST_SCHEMA_VERSION = 5;
+
 export function initializeDatabase(database: MigrationDatabase): void {
   database.execSync(CONNECTION_SQL);
   const version =
     database.getFirstSync<{ user_version: number }>("PRAGMA user_version")
       ?.user_version ?? 0;
+
+  // A database written by a newer build has a schema this code does not know.
+  // Falling through the ladder would report success and then fail on the first
+  // write, presented as a generic save error. Refusing here is the only way the
+  // failure names its own cause, and rollbacks become routine once OTA ships.
+  if (version > LATEST_SCHEMA_VERSION) {
+    throw new Error(
+      `conpaws.db is at schema version ${version}, newer than the ${LATEST_SCHEMA_VERSION} this build understands.`,
+    );
+  }
 
   if (version < 1) database.execSync(MIGRATION_1_SQL);
   if (version < 2) applyColumnMigration(database, "time_zone");
@@ -167,9 +180,23 @@ function applyColumnMigration(
       alreadyPresent ? migration.complete() : migration.migrate(),
     );
   } catch (error) {
+    const migrationError =
+      error instanceof Error ? error : new Error(String(error));
     try {
       database.execSync("ROLLBACK;");
-    } catch {}
-    throw error;
+    } catch (rollbackError) {
+      const reason =
+        rollbackError instanceof Error
+          ? rollbackError.message
+          : String(rollbackError);
+      // SQLite raises this when the migration failed before BEGIN IMMEDIATE
+      // ran, which is the expected path and loses nothing. Any other rollback
+      // failure means the database may still be inside a transaction, and that
+      // has to travel with the error it would otherwise hide.
+      if (!/no transaction is active/i.test(reason)) {
+        migrationError.message = `${migrationError.message} (rollback also failed: ${reason})`;
+      }
+    }
+    throw migrationError;
   }
 }
