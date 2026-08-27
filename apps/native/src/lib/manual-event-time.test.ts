@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { fromConventionTime } from "./convention-time";
 import {
   createManualEventTimes,
   manualEventDayKey,
+  manualEventTimeParts,
   updateManualEventDate,
   updateManualEventEnd,
   updateManualEventStart,
@@ -71,7 +73,7 @@ describe("manual event picker times", () => {
     );
   });
 
-  it("keeps an included end later than a last-minute start", () => {
+  it("keeps a last-minute start where the user put it and rolls the end past midnight", () => {
     const initial = createManualEventTimes(
       "2026-09-04",
       "2026-09-03",
@@ -94,10 +96,82 @@ describe("manual event picker times", () => {
     expect(includedEnd.endTime.getTime()).toBeGreaterThan(
       includedEnd.startTime.getTime(),
     );
-    expect(manualEventDayKey(includedEnd.endTime)).toBe("2026-09-04");
+    expect(localStamp(includedEnd.startTime)).toBe("2026-09-04-23-59");
+    expect(localStamp(includedEnd.endTime)).toBe("2026-09-05-00-00");
     expect(correctedEnd.endTime.getTime()).toBeGreaterThan(
       correctedEnd.startTime.getTime(),
     );
+  });
+
+  it("rolls an end earlier in the clock than the start into the next day", () => {
+    const initial = createManualEventTimes(
+      "2026-09-04",
+      "2026-09-03",
+      "2026-09-06",
+    );
+    const dance = updateManualEventEnd(
+      updateManualEventStart(initial, new Date(2026, 8, 4, 22, 0)),
+      new Date(2026, 8, 4, 1, 0),
+    );
+
+    expect(localStamp(dance.startTime)).toBe("2026-09-04-22-00");
+    expect(localStamp(dance.endTime)).toBe("2026-09-05-01-00");
+    expect(manualEventDayKey(dance.endTime)).toBe("2026-09-05");
+    expect(dance.endTime.getTime() - dance.startTime.getTime()).toBe(
+      3 * 60 * 60 * 1000,
+    );
+  });
+
+  it("keeps an overnight event overnight when the date moves", () => {
+    const initial = createManualEventTimes(
+      "2026-09-04",
+      "2026-09-03",
+      "2026-09-06",
+    );
+    const dance = updateManualEventEnd(
+      updateManualEventStart(initial, new Date(2026, 8, 4, 22, 0)),
+      new Date(2026, 8, 4, 1, 0),
+    );
+    const moved = updateManualEventDate(
+      dance,
+      new Date(2026, 8, 5, 12),
+      "2026-09-03",
+      "2026-09-06",
+    );
+
+    expect(localStamp(moved.startTime)).toBe("2026-09-05-22-00");
+    expect(localStamp(moved.endTime)).toBe("2026-09-06-01-00");
+  });
+
+  it("resolves an overnight event across a convention-zone DST change", () => {
+    // Chicago springs forward at 02:00 on 2026-03-08, so 23:00 to 03:00 is
+    // four hours on the wall clock but only three hours of real time.
+    const initial = createManualEventTimes(
+      "2026-03-07",
+      "2026-03-06",
+      "2026-03-09",
+    );
+    const overnight = updateManualEventEnd(
+      updateManualEventStart(initial, new Date(2026, 2, 7, 23, 0)),
+      new Date(2026, 2, 7, 3, 0),
+    );
+
+    expect(localStamp(overnight.startTime)).toBe("2026-03-07-23-00");
+    expect(localStamp(overnight.endTime)).toBe("2026-03-08-03-00");
+
+    const timeZone = "America/Chicago";
+    const start = fromConventionTime(
+      manualEventTimeParts(overnight.startTime),
+      timeZone,
+    );
+    const end = fromConventionTime(
+      manualEventTimeParts(overnight.endTime),
+      timeZone,
+    );
+
+    expect(start.toISOString()).toBe("2026-03-08T05:00:00.000Z");
+    expect(end.toISOString()).toBe("2026-03-08T08:00:00.000Z");
+    expect(end.getTime() - start.getTime()).toBe(3 * 60 * 60 * 1000);
   });
 
   it("keeps the end optional and rejects a zero-duration event", () => {
