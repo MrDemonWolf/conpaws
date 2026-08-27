@@ -212,7 +212,6 @@ conpaws/
 │   └── ui/          # Shared shadcn/ui components and styles
 ├── docs/            # Widget and Watch design docs and mockups
 ├── infra/
-│   ├── listmonk/    # Shared mailing list descriptor (not deployed)
 │   └── xprem/       # xprem OTA descriptor and runbook (not deployed)
 └── test-data/       # iCal fixtures for import development
 ```
