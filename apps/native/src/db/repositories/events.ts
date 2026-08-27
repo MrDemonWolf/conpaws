@@ -8,9 +8,7 @@ import {
 } from "../schema";
 
 function generateId(): string {
-  return (
-    "evt_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
-  );
+  return `evt_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function getByConventionId(

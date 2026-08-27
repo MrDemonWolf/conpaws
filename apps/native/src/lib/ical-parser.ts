@@ -435,30 +435,29 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     if (seenUids.has(dedupeKey)) continue;
     seenUids.add(dedupeKey);
 
-    const rawSummary = props["SUMMARY"] ?? "";
+    const rawSummary = props.SUMMARY ?? "";
     const title = decodeHtmlEntities(unescapeText(rawSummary)).trim();
     if (!title) continue;
 
-    const rawDesc = props["DESCRIPTION"] ?? null;
+    const rawDesc = props.DESCRIPTION ?? null;
     const description = rawDesc
       ? decodeHtmlEntities(unescapeText(rawDesc)).trim() || null
       : null;
 
-    const startTimeZone = timeZones["DTSTART"] ?? timezone;
-    const startTime = parseDateTime(props["DTSTART"] ?? "", startTimeZone);
+    const startTimeZone = timeZones.DTSTART ?? timezone;
+    const startTime = parseDateTime(props.DTSTART ?? "", startTimeZone);
     const recurrenceTime = recurrenceId
       ? parseDateTime(recurrenceId, timeZones["RECURRENCE-ID"] ?? startTimeZone)
       : null;
 
     if (!startTime) continue;
 
-    const endTime =
-      parseDateTime(
-        props["DTEND"] ?? "",
-        timeZones["DTEND"] ?? startTimeZone,
-      ) ?? null;
+    const endTime = parseDateTime(
+      props.DTEND ?? "",
+      timeZones.DTEND ?? startTimeZone,
+    );
 
-    const rawLocation = props["LOCATION"] ?? null;
+    const rawLocation = props.LOCATION ?? null;
     let location: string | null = null;
     let room: string | null = null;
     if (rawLocation) {
@@ -480,7 +479,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       );
     const category = topicCategories[0] ?? null;
 
-    const sourceUrl = props["URL"] ?? null;
+    const sourceUrl = props.URL ?? null;
 
     const checkText = `${title} ${description ?? ""}`;
     // Sched exports carry no audience tags at all, so prose is the only signal
