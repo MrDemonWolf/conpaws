@@ -38,10 +38,29 @@ export function scheduleFormatter(
   const cached = formatterCache.get(key);
   if (cached) return cached;
 
+  // `hour12` is asked for as a boolean but applied as an hour cycle, because
+  // `hour12: true` resolves to whichever 12-hour cycle the locale prefers, and
+  // for German and Japanese that is h11, which counts 0 to 11. A device set to
+  // 12-hour time then rendered half past midday as "0:30 PM". Naming h12 and
+  // h23 outright keeps the user's choice and skips the two cycles nobody wants.
+  const hourCycle =
+    hour12 === undefined
+      ? undefined
+      : hour12
+        ? ("h12" as const)
+        : ("h23" as const);
+
+  // A 24-hour clock pads the hour and a 12-hour one does not: "00:30" and
+  // "7:00 PM" are both what their readers expect, and "0:30" and "07:00 PM"
+  // are both slightly wrong.
+  const hourWidth =
+    hourCycle === "h23" ? ({ hour: "2-digit" } as const) : undefined;
+
   const formatter = new Intl.DateTimeFormat(locale, {
     ...FORMATTER_OPTIONS[kind],
     ...(timeZone === undefined ? {} : { timeZone }),
-    ...(hour12 === undefined ? {} : { hour12 }),
+    ...(hourCycle === undefined ? {} : { hourCycle }),
+    ...(kind === "time" && hourWidth ? hourWidth : {}),
   });
   formatterCache.set(key, formatter);
   return formatter;
