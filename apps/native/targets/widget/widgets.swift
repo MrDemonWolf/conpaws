@@ -12,6 +12,9 @@ private enum ConPawsWidgetState {
 struct ConPawsWidgetEntry: TimelineEntry {
   let date: Date
   let configuration: ConPawsWidgetIntent
+  /// The app's language, carried on the entry so every rendering formats in it
+  /// rather than in whatever language the phone happens to be set to.
+  let locale: Locale
   fileprivate let state: ConPawsWidgetState
 
   fileprivate var appURL: URL? {
@@ -30,6 +33,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
     ConPawsWidgetEntry(
       date: .now,
       configuration: ConPawsWidgetIntent(),
+      locale: ConPawsSnapshotStore.load().locale,
       state: .next(.sample, current: nil, upcoming: .sample)
     )
   }
@@ -63,8 +67,11 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
     }
 
     // Re-plan from the last entry rather than a fixed interval, so the next
-    // wake lands exactly when the pre-built run is exhausted.
-    let reload = entries.last?.date ?? nextRefresh(for: first)
+    // wake lands exactly when the pre-built run is exhausted. The states that
+    // build no change points have no run to exhaust, and asking for the last
+    // entry there would resolve to `now` -- a reload request for a moment that
+    // has already passed. Those ask nextRefresh for their single transition.
+    let reload = entries.dropFirst().last?.date ?? nextRefresh(for: first)
     return Timeline(entries: entries, policy: .after(reload))
   }
 
@@ -73,6 +80,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
     at date: Date
   ) -> ConPawsWidgetEntry {
     let snapshot = ConPawsSnapshotStore.load()
+    let locale = snapshot.locale
     let nowMs = date.timeIntervalSince1970 * 1_000
     let convention = configuration.convention.flatMap { selected in
       snapshot.conventions.first { $0.id == selected.id }
@@ -81,13 +89,19 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       .min { $0.startAtMs < $1.startAtMs }
 
     guard let convention else {
-      return ConPawsWidgetEntry(date: date, configuration: configuration, state: .empty(nil))
+      return ConPawsWidgetEntry(
+        date: date,
+        configuration: configuration,
+        locale: locale,
+        state: .empty(nil)
+      )
     }
 
     if date < convention.startDate, configuration.mode != .nextEvent {
       return ConPawsWidgetEntry(
         date: date,
         configuration: configuration,
+        locale: locale,
         state: .countdown(convention)
       )
     }
@@ -102,6 +116,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       return ConPawsWidgetEntry(
         date: date,
         configuration: configuration,
+        locale: locale,
         state: .empty(convention)
       )
     }
@@ -114,6 +129,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       return ConPawsWidgetEntry(
         date: date,
         configuration: configuration,
+        locale: locale,
         state: .leave(convention, current: current, upcoming: upcoming)
       )
     }
@@ -121,6 +137,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
     return ConPawsWidgetEntry(
       date: date,
       configuration: configuration,
+      locale: locale,
       state: .next(convention, current: current, upcoming: upcoming)
     )
   }
@@ -221,6 +238,7 @@ struct ConPawsWidgetEntryView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .environment(\.locale, entry.locale)
     .widgetURL(entry.appURL)
     .conPawsWidgetBackground(family: family)
   }
@@ -500,12 +518,14 @@ private struct ConPawsEyebrow: View {
 }
 
 private struct ConPawsEventTime: View {
+  @Environment(\.locale) private var locale
   let event: ConPawsEventSnapshot
   let timeZone: TimeZone
 
   private var formatStyle: Date.FormatStyle {
     var style = Date.FormatStyle.dateTime.weekday(.abbreviated).hour().minute()
     style.timeZone = timeZone
+    style.locale = locale
     return style
   }
 
@@ -536,9 +556,10 @@ private struct ConPawsLiveTimer: View {
 
 /// Clock time in the convention's zone. The Lock Screen families have no room
 /// for a weekday alongside it, unlike their Home Screen counterparts.
-private func conPawsClockStyle(_ timeZone: TimeZone) -> Date.FormatStyle {
+private func conPawsClockStyle(_ timeZone: TimeZone, locale: Locale) -> Date.FormatStyle {
   var style = Date.FormatStyle.dateTime.hour().minute()
   style.timeZone = timeZone
+  style.locale = locale
   return style
 }
 
@@ -661,7 +682,7 @@ private struct ConPawsRectangularView: View {
 
       case .next(let convention, _, let upcoming):
         ConPawsAccessoryEyebrow(
-          title: "NEXT · \(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone)))",
+          title: "NEXT · \(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: entry.locale)))",
           symbol: "calendar"
         )
         Text(upcoming.title)
@@ -720,7 +741,7 @@ private struct ConPawsInlineView: View {
       )
     case .next(let convention, _, let upcoming):
       Label(
-        "\(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone))) · \(upcoming.title)",
+        "\(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: entry.locale))) · \(upcoming.title)",
         systemImage: "calendar"
       )
     case .empty:

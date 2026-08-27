@@ -12,6 +12,30 @@ struct ConPawsSnapshot: Codable, Sendable {
     localeIdentifier: "en",
     conventions: []
   )
+
+  /// The locale every date, time and weekday in these targets is formatted in.
+  ///
+  /// `localeIdentifier` is the app's own language setting, which need not match
+  /// the device's -- and `dateRangeLabel` already arrives formatted in it, so a
+  /// target that formats anything else against the device locale renders a
+  /// bilingual card. The region is kept from the device because the app stores
+  /// a bare language code: reading it as a whole locale would hand an English
+  /// user in the UK the 12-hour clock the rest of their phone does not use.
+  var locale: Locale {
+    let device = Locale.autoupdatingCurrent
+    var components = Locale.Components(locale: device)
+    var language = Locale.Language.Components(identifier: localeIdentifier)
+    language.region = language.region ?? device.region
+    components.languageComponents = language
+    return Locale(components: components)
+  }
+}
+
+/// Widget kinds, named once because `WidgetCenter.reloadTimelines(ofKind:)`
+/// does nothing at all when handed a kind no widget answers to -- a rename that
+/// misses one call site fails silently and stays broken.
+enum ConPawsWidgetKind {
+  static let watchComplication = "ConPawsWatchWidget"
 }
 
 struct ConPawsConventionSnapshot: Codable, Identifiable, Hashable, Sendable {

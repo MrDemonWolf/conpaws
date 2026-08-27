@@ -56,6 +56,7 @@ private struct WatchRootView: View {
         }
       }
     }
+    .environment(\.locale, snapshot.locale)
   }
 }
 
@@ -106,6 +107,7 @@ private struct PreConventionView: View {
 }
 
 private struct ScheduleHomeView: View {
+  @Environment(\.locale) private var locale
   let schedule: WatchScheduleProjection
   let isUsingSavedSchedule: Bool
 
@@ -125,7 +127,7 @@ private struct ScheduleHomeView: View {
             label: "Now",
             event: current,
             convention: convention,
-            detail: WatchFormat.timeRange(current, in: convention)
+            detail: WatchFormat.timeRange(current, in: convention, locale: locale)
           )
         }
 
@@ -143,12 +145,12 @@ private struct ScheduleHomeView: View {
                   timeZone: convention.timeZone
                 )
                 Text(
-                  "• \(WatchFormat.nextEventTime(next.startDate, relativeTo: schedule.now, in: convention))"
+                  "• \(WatchFormat.nextEventTime(next.startDate, relativeTo: schedule.now, in: convention, locale: locale))"
                 )
               }
             } else {
               Text(
-                WatchFormat.nextEventTime(next.startDate, relativeTo: schedule.now, in: convention)
+                WatchFormat.nextEventTime(next.startDate, relativeTo: schedule.now, in: convention, locale: locale)
               )
             }
           }
@@ -162,7 +164,7 @@ private struct ScheduleHomeView: View {
 
           ForEach(schedule.laterEvents) { event in
             EventCard(
-              label: WatchFormat.time(event.startDate, in: convention),
+              label: WatchFormat.time(event.startDate, in: convention, locale: locale),
               event: event,
               convention: convention,
               detail: WatchFormat.location(event) ?? "Scheduled"
@@ -265,6 +267,7 @@ private struct EventCard<Detail: View>: View {
 }
 
 private struct TodayListView: View {
+  @Environment(\.locale) private var locale
   let events: [ConPawsEventSnapshot]
   let convention: ConPawsConventionSnapshot
 
@@ -284,14 +287,14 @@ private struct TodayListView: View {
               Text(event.title)
                 .font(.body.weight(.semibold))
                 .lineLimit(2)
-              Text(WatchFormat.timeRange(event, in: convention))
+              Text(WatchFormat.timeRange(event, in: convention, locale: locale))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             }
             .frame(minHeight: 44, alignment: .leading)
           }
           .accessibilityLabel(
-            "\(event.title), \(WatchFormat.timeRange(event, in: convention))"
+            "\(event.title), \(WatchFormat.timeRange(event, in: convention, locale: locale))"
           )
         }
         // ponytail: plain, not .carousel — carousel scales rows toward the
@@ -304,6 +307,7 @@ private struct TodayListView: View {
 }
 
 private struct EventDetailView: View {
+  @Environment(\.locale) private var locale
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
 
@@ -315,7 +319,7 @@ private struct EventDetailView: View {
           .fixedSize(horizontal: false, vertical: true)
 
         Label {
-          Text(WatchFormat.timeRange(event, in: convention))
+          Text(WatchFormat.timeRange(event, in: convention, locale: locale))
         } icon: {
           Image(systemName: "clock")
             .accessibilityHidden(true)
@@ -459,9 +463,13 @@ private struct WatchScheduleProjection {
 }
 
 private enum WatchFormat {
-  static func time(_ date: Date, in convention: ConPawsConventionSnapshot) -> String {
+  static func time(
+    _ date: Date,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
+  ) -> String {
     let formatter = DateFormatter()
-    formatter.locale = .autoupdatingCurrent
+    formatter.locale = locale
     formatter.timeZone = convention.timeZone
     formatter.timeStyle = .short
     return formatter.string(from: date)
@@ -470,11 +478,12 @@ private enum WatchFormat {
   static func nextEventTime(
     _ date: Date,
     relativeTo now: Date,
-    in convention: ConPawsConventionSnapshot
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
   ) -> String {
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = convention.timeZone
-    let timeLabel = time(date, in: convention)
+    let timeLabel = time(date, in: convention, locale: locale)
     guard !calendar.isDate(date, inSameDayAs: now) else { return timeLabel }
 
     if
@@ -485,7 +494,7 @@ private enum WatchFormat {
     }
 
     let formatter = DateFormatter()
-    formatter.locale = .autoupdatingCurrent
+    formatter.locale = locale
     formatter.timeZone = convention.timeZone
     formatter.setLocalizedDateFormatFromTemplate("EEEE")
     return "\(formatter.string(from: date)) · \(timeLabel)"
@@ -493,10 +502,13 @@ private enum WatchFormat {
 
   static func timeRange(
     _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
   ) -> String {
-    guard let end = event.endDate else { return time(event.startDate, in: convention) }
-    return "\(time(event.startDate, in: convention))–\(time(end, in: convention))"
+    guard let end = event.endDate else {
+      return time(event.startDate, in: convention, locale: locale)
+    }
+    return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
   }
 
   static func location(_ event: ConPawsEventSnapshot) -> String? {
@@ -583,13 +595,23 @@ func runWatchScheduleSelfCheck() {
   let deepLinkComponents = deepLink.flatMap {
     URLComponents(url: $0, resolvingAgainstBaseURL: false)
   }
-  assert(deepLinkComponents?.host == "convention")
-  assert(deepLinkComponents?.percentEncodedPath == "/con%20%2F%3F%23")
+  // The id travels as a query item, not a path segment, because the route it
+  // opens is /schedule reading a conventionId param. Round-tripping an id full
+  // of URL metacharacters is what this checks: percent encoding on the way out,
+  // the original string on the way back.
+  assert(deepLinkComponents?.host == "schedule")
+  assert(
+    deepLinkComponents?.queryItems?.first { $0.name == "conventionId" }?.value == "con /?#"
+  )
   assert(
     WatchFormat.nextEventTime(
       now.addingTimeInterval(86_400),
       relativeTo: now,
-      in: convention
+      in: convention,
+      // Pinned rather than read from the device: the prefix compared below is
+      // English, so a tester on a German Mac would fail this for the wrong
+      // reason.
+      locale: Locale(identifier: "en_US")
     ).hasPrefix("Tomorrow · ")
   )
   // Beyond a day out the app reads the shared ladder, not its own wording.
