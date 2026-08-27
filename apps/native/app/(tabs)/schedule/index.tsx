@@ -26,6 +26,7 @@ import {
 import {
   SCHEDULE_EMPTY_CONTENT_STYLE,
   SCHEDULE_LIST_CONTENT_STYLE,
+  shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 
 const EMPTY_ICON = Icon.select({
@@ -179,7 +180,7 @@ export default function ScheduleScreen() {
         // Same rule as the convention schedule: an empty panel must not
         // rubber-band, but a populated list has to scroll or the iOS large
         // title has no content inset to lay itself into.
-        alwaysBounceVertical={days.length > 0}
+        alwaysBounceVertical={shouldBounceSchedule(days)}
         sections={days}
         keyExtractor={(entry) => entry.id}
         contentInsetAdjustmentBehavior="automatic"

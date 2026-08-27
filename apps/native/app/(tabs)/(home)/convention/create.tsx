@@ -37,6 +37,7 @@ import {
 } from "@/lib/convention-time";
 import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
+import { commitNewConvention } from "@/services/convention-commit";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
@@ -151,10 +152,9 @@ export default function CreateConventionScreen() {
     const startDateKey = format(startDate, "yyyy-MM-dd");
     const endDateKey = format(endDate, "yyyy-MM-dd");
     const today = conventionDayKey(new Date(), resolvedTimeZone);
-    let conventionId: string;
 
-    try {
-      const convention = await conventionsRepo.create({
+    const outcome = await commitNewConvention(
+      {
         name: trimmedName,
         startDate: startDateKey,
         endDate: endDateKey,
@@ -162,21 +162,27 @@ export default function CreateConventionScreen() {
         location: normalizeLocationName(location) || null,
         icalUrl: null,
         status: conventionStatusForDay(startDateKey, endDateKey, today),
-      });
-      queryClient.setQueryData(["convention", convention.id], convention);
-      queryClient.setQueryData(["events", convention.id], []);
-      conventionId = convention.id;
-    } catch {
+      },
+      {
+        create: conventionsRepo.create,
+        seedCaches: (convention) => {
+          queryClient.setQueryData(["convention", convention.id], convention);
+          queryClient.setQueryData(["events", convention.id], []);
+        },
+        invalidateList: () =>
+          queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+        publishSnapshot: publishWidgetSnapshot,
+        haptic: hapticSuccess,
+      },
+    );
+
+    if (!outcome.ok) {
       Alert.alert(t("common.error"), t("convention.createError"));
       setSaving(false);
       return;
     }
-
-    hapticSuccess();
-    await queryClient.invalidateQueries({ queryKey: ["conventions"] });
-    await publishWidgetSnapshot().catch(() => false);
     if (!isMounted.current) return;
-    router.replace(`/convention/${conventionId}`);
+    router.replace(`/convention/${outcome.conventionId}`);
   }
 
   const validTimeZone = isValidTimeZone(timeZone) ? timeZone : undefined;
