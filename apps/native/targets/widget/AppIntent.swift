@@ -1,5 +1,11 @@
 import AppIntents
 
+// Every display string in this file is drawn by the system's widget
+// configuration sheet rather than by the widget, so it resolves against the
+// device's language through this extension's bundle. That makes it the one
+// place ConPawsStrings cannot help: translating these needs real .lproj or
+// String Catalog resources, which @bacons/apple-targets does not generate.
+
 enum ConPawsWidgetMode: String, AppEnum {
   case automatic
   case countdown

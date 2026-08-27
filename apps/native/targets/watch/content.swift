@@ -25,6 +25,11 @@ private struct WatchRootView: View {
     WatchScheduleProjection(snapshot: snapshot, now: now)
   }
 
+  /// The app's language, which is a setting on the phone rather than a setting
+  /// on this watch. It arrives with the schedule and is threaded down by hand
+  /// so no view can quietly fall back to the watch's own language.
+  private var strings: ConPawsStrings { snapshot.strings }
+
   var body: some View {
     NavigationStack {
       ZStack {
@@ -32,26 +37,28 @@ private struct WatchRootView: View {
 
         if snapshot.conventions.isEmpty {
           EmptyScheduleView(
-            title: "No schedule yet",
-            message: "Open ConPaws on your iPhone to sync a convention."
+            title: strings.noScheduleTitle,
+            message: strings.noScheduleMessage
           )
         } else if let convention = schedule.convention {
           if now < convention.startDate {
             PreConventionView(
               convention: convention,
               now: now,
-              isUsingSavedSchedule: isUsingSavedSchedule
+              isUsingSavedSchedule: isUsingSavedSchedule,
+              strings: strings
             )
           } else {
             ScheduleHomeView(
               schedule: schedule,
-              isUsingSavedSchedule: isUsingSavedSchedule
+              isUsingSavedSchedule: isUsingSavedSchedule,
+              strings: strings
             )
           }
         } else {
           EmptyScheduleView(
-            title: "Nothing upcoming",
-            message: "Your saved conventions have ended."
+            title: strings.nothingUpcomingTitle,
+            message: strings.nothingUpcomingMessage
           )
         }
       }
@@ -64,6 +71,7 @@ private struct PreConventionView: View {
   let convention: ConPawsConventionSnapshot
   let now: Date
   let isUsingSavedSchedule: Bool
+  let strings: ConPawsStrings
 
   var body: some View {
     // Kept scrollable for large Dynamic Type, but the content is sized to
@@ -80,13 +88,14 @@ private struct PreConventionView: View {
         AdaptiveCountdownView(
           target: convention.startDate,
           now: now,
-          timeZone: convention.timeZone
+          timeZone: convention.timeZone,
+          strings: strings
         )
         .font(.title2.bold())
         .foregroundStyle(.cyan)
         .monospacedDigit()
 
-        Text("Until the convention")
+        Text(strings.untilTheConvention)
           .font(.caption2)
           .foregroundStyle(.secondary)
 
@@ -95,14 +104,14 @@ private struct PreConventionView: View {
           .multilineTextAlignment(.center)
 
         if isUsingSavedSchedule {
-          SavedScheduleLabel()
+          SavedScheduleLabel(strings: strings)
         }
       }
       .padding(.horizontal, 8)
       .padding(.top, 10)
       .accessibilityElement(children: .combine)
     }
-    .navigationTitle("Coming Up")
+    .navigationTitle(strings.comingUpTitle)
   }
 }
 
@@ -110,6 +119,7 @@ private struct ScheduleHomeView: View {
   @Environment(\.locale) private var locale
   let schedule: WatchScheduleProjection
   let isUsingSavedSchedule: Bool
+  let strings: ConPawsStrings
 
   var body: some View {
     ScrollView {
@@ -124,40 +134,39 @@ private struct ScheduleHomeView: View {
 
         if let current = schedule.activeEvent, let convention = schedule.convention {
           EventCard(
-            label: "Now",
+            label: strings.nowCaps,
             event: current,
             convention: convention,
+            strings: strings,
             detail: WatchFormat.timeRange(current, in: convention, locale: locale)
           )
         }
 
         if let next = schedule.nextEvent, let convention = schedule.convention {
           EventCard(
-            label: schedule.isLeaveWindow ? "Leave in" : "Next",
+            label: schedule.isLeaveWindow ? strings.leaveInCaps : strings.nextCaps,
             event: next,
-            convention: convention
+            convention: convention,
+            strings: strings
           ) {
             if schedule.isLeaveWindow {
               HStack(spacing: 4) {
                 AdaptiveCountdownView(
                   target: next.startDate,
                   now: schedule.now,
-                  timeZone: convention.timeZone
+                  timeZone: convention.timeZone,
+                  strings: strings
                 )
-                Text(
-                  "• \(WatchFormat.nextEventTime(next.startDate, relativeTo: schedule.now, in: convention, locale: locale))"
-                )
+                Text("• \(nextEventTime(next, in: convention))")
               }
             } else {
-              Text(
-                WatchFormat.nextEventTime(next.startDate, relativeTo: schedule.now, in: convention, locale: locale)
-              )
+              Text(nextEventTime(next, in: convention))
             }
           }
         }
 
         if !schedule.laterEvents.isEmpty, let convention = schedule.convention {
-          Text("Later")
+          Text(strings.laterLabel)
             .font(.caption2.bold())
             .foregroundStyle(.secondary)
             .padding(.horizontal, 4)
@@ -167,17 +176,22 @@ private struct ScheduleHomeView: View {
               label: WatchFormat.time(event.startDate, in: convention, locale: locale),
               event: event,
               convention: convention,
-              detail: WatchFormat.location(event) ?? "Scheduled"
+              strings: strings,
+              detail: WatchFormat.location(event) ?? strings.scheduledLabel
             )
           }
         }
 
         if let convention = schedule.convention {
           NavigationLink {
-            TodayListView(events: schedule.todayEvents, convention: convention)
+            TodayListView(
+              events: schedule.todayEvents,
+              convention: convention,
+              strings: strings
+            )
           } label: {
             HStack {
-              Label("Today", systemImage: "list.bullet")
+              Label(strings.today, systemImage: "list.bullet")
               Spacer()
               Text("\(schedule.todayEvents.count)")
                 .foregroundStyle(.secondary)
@@ -188,25 +202,38 @@ private struct ScheduleHomeView: View {
             .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
           }
           .buttonStyle(.plain)
-          .accessibilityLabel("Today, \(schedule.todayEvents.count) events")
+          .accessibilityLabel("\(strings.today), \(strings.events(schedule.todayEvents.count))")
         }
 
         if schedule.activeEvent == nil && schedule.nextEvent == nil {
-          Text("No more events today")
+          Text(strings.noMoreEventsToday)
             .font(.callout)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, minHeight: 44)
         }
 
         if isUsingSavedSchedule {
-          SavedScheduleLabel()
+          SavedScheduleLabel(strings: strings)
             .frame(maxWidth: .infinity)
         }
       }
       .padding(.horizontal, 4)
       .padding(.bottom, 8)
     }
-    .navigationTitle("Schedule")
+    .navigationTitle(strings.scheduleTitle)
+  }
+
+  private func nextEventTime(
+    _ event: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot
+  ) -> String {
+    WatchFormat.nextEventTime(
+      event.startDate,
+      relativeTo: schedule.now,
+      in: convention,
+      locale: locale,
+      strings: strings
+    )
   }
 }
 
@@ -214,17 +241,20 @@ private struct EventCard<Detail: View>: View {
   let label: String
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
   let detail: Detail
 
   init(
     label: String,
     event: ConPawsEventSnapshot,
     convention: ConPawsConventionSnapshot,
+    strings: ConPawsStrings,
     @ViewBuilder detail: () -> Detail
   ) {
     self.label = label
     self.event = event
     self.convention = convention
+    self.strings = strings
     self.detail = detail()
   }
 
@@ -232,19 +262,23 @@ private struct EventCard<Detail: View>: View {
     label: String,
     event: ConPawsEventSnapshot,
     convention: ConPawsConventionSnapshot,
+    strings: ConPawsStrings,
     detail: String
   ) where Detail == Text {
-    self.init(label: label, event: event, convention: convention) {
+    self.init(label: label, event: event, convention: convention, strings: strings) {
       Text(detail)
     }
   }
 
   var body: some View {
     NavigationLink {
-      EventDetailView(event: event, convention: convention)
+      EventDetailView(event: event, convention: convention, strings: strings)
     } label: {
       VStack(alignment: .leading, spacing: 3) {
-        Text(label.uppercased())
+        // Callers hand this over in the case it is drawn in. Upper-casing here
+        // instead would also hit the clock times the later-event cards use as
+        // their label, and would do it with the wrong language's casing rules.
+        Text(label)
           .font(.caption2.bold())
           .foregroundStyle(.cyan)
         Text(event.title)
@@ -270,18 +304,19 @@ private struct TodayListView: View {
   @Environment(\.locale) private var locale
   let events: [ConPawsEventSnapshot]
   let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
 
   var body: some View {
     Group {
       if events.isEmpty {
         EmptyScheduleView(
-          title: "No events today",
-          message: "Your next saved event is on another day."
+          title: strings.noEventsTodayTitle,
+          message: strings.noEventsTodayMessage
         )
       } else {
         List(events) { event in
           NavigationLink {
-            EventDetailView(event: event, convention: convention)
+            EventDetailView(event: event, convention: convention, strings: strings)
           } label: {
             VStack(alignment: .leading, spacing: 2) {
               Text(event.title)
@@ -302,7 +337,7 @@ private struct TodayListView: View {
         .listStyle(.plain)
       }
     }
-    .navigationTitle("Today")
+    .navigationTitle(strings.today)
   }
 }
 
@@ -310,6 +345,7 @@ private struct EventDetailView: View {
   @Environment(\.locale) private var locale
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
 
   var body: some View {
     ScrollView {
@@ -336,7 +372,12 @@ private struct EventDetailView: View {
 
         if let minutes = event.reminderMinutes {
           Label {
-            Text("Leave reminder \(minutes) min before")
+            Text(
+              strings.text(
+                strings.leaveReminderFormat,
+                strings.text(strings.minutesBeforeFormat, String(minutes))
+              )
+            )
           } icon: {
             Image(systemName: "bell")
               .accessibilityHidden(true)
@@ -347,7 +388,7 @@ private struct EventDetailView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, 8)
     }
-    .navigationTitle("Event")
+    .navigationTitle(strings.eventTitle)
   }
 }
 
@@ -355,6 +396,7 @@ private struct AdaptiveCountdownView: View {
   let target: Date
   let now: Date
   let timeZone: TimeZone
+  let strings: ConPawsStrings
 
   var body: some View {
     if target.timeIntervalSince(now) < 86_400, target > now {
@@ -363,24 +405,30 @@ private struct AdaptiveCountdownView: View {
       // this is the stretch where that precision is worth having.
       Text(timerInterval: now...target, countsDown: true)
         .accessibilityLabel(
-          WatchFormat.countdownAccessibility(from: now, to: target, in: timeZone)
+          strings.remaining(
+            WatchFormat.countdownDuration(from: now, to: target, in: timeZone, strings: strings)
+          )
         )
     } else {
       // Further out, read the same ladder the complication and the iPhone
       // Lock Screen read. The app used to say "12 D 9 H" here while its own
       // complication said "In 12 days" about the same wait.
-      Text(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone))
-        .accessibilityLabel(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone))
+      Text(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone, strings: strings))
+        .accessibilityLabel(
+          ConPawsCountdown.label(from: now, to: target, timeZone: timeZone, strings: strings)
+        )
     }
   }
 }
 
 private struct SavedScheduleLabel: View {
+  let strings: ConPawsStrings
+
   var body: some View {
-    Label("Saved schedule", systemImage: "iphone.and.arrow.forward")
+    Label(strings.savedSchedule, systemImage: "iphone.and.arrow.forward")
       .font(.caption2)
       .foregroundStyle(.secondary)
-      .accessibilityLabel("Showing the latest schedule saved from your iPhone")
+      .accessibilityLabel(strings.savedScheduleA11y)
   }
 }
 
@@ -479,7 +527,8 @@ private enum WatchFormat {
     _ date: Date,
     relativeTo now: Date,
     in convention: ConPawsConventionSnapshot,
-    locale: Locale
+    locale: Locale,
+    strings: ConPawsStrings
   ) -> String {
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = convention.timeZone
@@ -490,7 +539,7 @@ private enum WatchFormat {
       let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
       calendar.isDate(date, inSameDayAs: tomorrow)
     {
-      return "Tomorrow · \(timeLabel)"
+      return "\(strings.tomorrow) · \(timeLabel)"
     }
 
     let formatter = DateFormatter()
@@ -519,22 +568,31 @@ private enum WatchFormat {
     return values.isEmpty ? nil : values.joined(separator: " • ")
   }
 
-  static func countdownAccessibility(
+  /// How long the wait is, spoken as two units.
+  ///
+  /// Deliberately without "remaining" or its equivalents: several languages
+  /// phrase that as a prefix rather than a suffix, so the caller wraps it.
+  static func countdownDuration(
     from now: Date,
     to target: Date,
-    in timeZone: TimeZone
+    in timeZone: TimeZone,
+    strings: ConPawsStrings
   ) -> String {
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = timeZone
     let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: now, to: target)
+    let months = max(0, parts.month ?? 0)
+    let days = max(0, parts.day ?? 0)
+    let hours = max(0, parts.hour ?? 0)
+    let minutes = max(0, parts.minute ?? 0)
 
     if target.timeIntervalSince(now) >= 30 * 86_400 {
-      return "\(max(0, parts.month ?? 0)) months, \(max(0, parts.day ?? 0)) days remaining"
+      return strings.duration(strings.months(months), strings.days(days))
     }
     if target.timeIntervalSince(now) >= 86_400 {
-      return "\(max(0, parts.day ?? 0)) days, \(max(0, parts.hour ?? 0)) hours remaining"
+      return strings.duration(strings.days(days), strings.hours(hours))
     }
-    return "\(max(0, parts.hour ?? 0)) hours, \(max(0, parts.minute ?? 0)) minutes remaining"
+    return strings.duration(strings.hours(hours), strings.minutes(minutes))
   }
 }
 
@@ -611,7 +669,8 @@ func runWatchScheduleSelfCheck() {
       // Pinned rather than read from the device: the prefix compared below is
       // English, so a tester on a German Mac would fail this for the wrong
       // reason.
-      locale: Locale(identifier: "en_US")
+      locale: Locale(identifier: "en_US"),
+      strings: .english
     ).hasPrefix("Tomorrow · ")
   )
   // Beyond a day out the app reads the shared ladder, not its own wording.
@@ -619,8 +678,19 @@ func runWatchScheduleSelfCheck() {
     ConPawsCountdown.label(
       from: now,
       to: now.addingTimeInterval(32 * 3_600),
-      timeZone: TimeZone(identifier: "UTC")!
+      timeZone: TimeZone(identifier: "UTC")!,
+      strings: .english
     ) == "Tomorrow"
+  )
+  // The same wait, in the language the snapshot asked for rather than the
+  // watch's. This is the whole point of carrying localeIdentifier across.
+  assert(
+    ConPawsCountdown.label(
+      from: now,
+      to: now.addingTimeInterval(32 * 3_600),
+      timeZone: TimeZone(identifier: "UTC")!,
+      strings: ConPawsStrings.resolve("sv")
+    ) == "I morgon"
   )
 }
 #endif

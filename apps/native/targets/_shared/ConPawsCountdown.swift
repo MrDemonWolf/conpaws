@@ -65,15 +65,21 @@ enum ConPawsCountdown {
   ///
   /// `timeZone` is the convention's, not the reader's: whether something is
   /// "Tomorrow" depends on the calendar day where the convention happens.
-  static func label(from: Date, to: Date, timeZone: TimeZone) -> String {
+  /// `strings` is the app's language, which is not the phone's either.
+  static func label(
+    from: Date,
+    to: Date,
+    timeZone: TimeZone,
+    strings: ConPawsStrings
+  ) -> String {
     switch remaining(from: from, to: to, timeZone: timeZone) {
-    case .now: "Now"
-    case .soon: "Starting soon"
-    case .hours(let hours): hours == 1 ? "In 1 hour" : "In \(hours) hours"
-    case .today: "Today"
-    case .tomorrow: "Tomorrow"
-    case .days(let days): "In \(days) days"
-    case .months(let months): months == 1 ? "In 1 month" : "In \(months) months"
+    case .now: strings.now
+    case .soon: strings.startingSoon
+    case .hours(let hours): strings.inHours(hours)
+    case .today: strings.today
+    case .tomorrow: strings.tomorrow
+    case .days(let days): strings.inDays(days)
+    case .months(let months): strings.inMonths(months)
     }
   }
 
@@ -83,14 +89,19 @@ enum ConPawsCountdown {
   /// `today` and `tomorrow` both read as "1d": both are a full day or more
   /// out, and `today` only arises when a DST-lengthened day pushes a 24-hour
   /// gap back onto the same calendar date.
-  static func compactLabel(from: Date, to: Date, timeZone: TimeZone) -> String {
+  static func compactLabel(
+    from: Date,
+    to: Date,
+    timeZone: TimeZone,
+    strings: ConPawsStrings
+  ) -> String {
     switch remaining(from: from, to: to, timeZone: timeZone) {
-    case .now: "Now"
-    case .soon: "Soon"
-    case .hours(let hours): "\(hours)h"
-    case .today, .tomorrow: "1d"
-    case .days(let days): "\(days)d"
-    case .months(let months): "\(months)mo"
+    case .now: strings.compactNow
+    case .soon: strings.compactSoon
+    case .hours(let hours): strings.compactHours(hours)
+    case .today, .tomorrow: strings.compactDays(1)
+    case .days(let days): strings.compactDays(days)
+    case .months(let months): strings.compactMonths(months)
     }
   }
 

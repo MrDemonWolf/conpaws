@@ -15,6 +15,8 @@ struct ConPawsWidgetEntry: TimelineEntry {
   /// The app's language, carried on the entry so every rendering formats in it
   /// rather than in whatever language the phone happens to be set to.
   let locale: Locale
+  /// The same language again, for the words that sit beside those dates.
+  let strings: ConPawsStrings
   fileprivate let state: ConPawsWidgetState
 
   fileprivate var appURL: URL? {
@@ -30,10 +32,12 @@ struct ConPawsWidgetEntry: TimelineEntry {
 @available(iOS 17.0, *)
 struct ConPawsWidgetProvider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> ConPawsWidgetEntry {
-    ConPawsWidgetEntry(
+    let snapshot = ConPawsSnapshotStore.load()
+    return ConPawsWidgetEntry(
       date: .now,
       configuration: ConPawsWidgetIntent(),
-      locale: ConPawsSnapshotStore.load().locale,
+      locale: snapshot.locale,
+      strings: snapshot.strings,
       state: .next(.sample, current: nil, upcoming: .sample)
     )
   }
@@ -81,6 +85,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
   ) -> ConPawsWidgetEntry {
     let snapshot = ConPawsSnapshotStore.load()
     let locale = snapshot.locale
+    let strings = snapshot.strings
     let nowMs = date.timeIntervalSince1970 * 1_000
     let convention = configuration.convention.flatMap { selected in
       snapshot.conventions.first { $0.id == selected.id }
@@ -93,6 +98,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
         date: date,
         configuration: configuration,
         locale: locale,
+        strings: strings,
         state: .empty(nil)
       )
     }
@@ -102,6 +108,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
         date: date,
         configuration: configuration,
         locale: locale,
+        strings: strings,
         state: .countdown(convention)
       )
     }
@@ -117,6 +124,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
         date: date,
         configuration: configuration,
         locale: locale,
+        strings: strings,
         state: .empty(convention)
       )
     }
@@ -130,6 +138,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
         date: date,
         configuration: configuration,
         locale: locale,
+        strings: strings,
         state: .leave(convention, current: current, upcoming: upcoming)
       )
     }
@@ -138,6 +147,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       date: date,
       configuration: configuration,
       locale: locale,
+      strings: strings,
       state: .next(convention, current: current, upcoming: upcoming)
     )
   }
@@ -247,13 +257,18 @@ struct ConPawsWidgetEntryView: View {
   private var homeScreenBody: some View {
     switch entry.state {
     case .countdown(let convention):
-      ConPawsCountdownView(entryDate: entry.date, convention: convention)
+      ConPawsCountdownView(
+        entryDate: entry.date,
+        convention: convention,
+        strings: entry.strings
+      )
     case .next(let convention, let current, let upcoming):
       ConPawsNextView(
         current: current,
         upcoming: upcoming,
         timeZone: convention.timeZone,
-        family: family
+        family: family,
+        strings: entry.strings
       )
     case .leave(let convention, let current, let upcoming):
       ConPawsLeaveView(
@@ -261,17 +276,18 @@ struct ConPawsWidgetEntryView: View {
         current: current,
         upcoming: upcoming,
         timeZone: convention.timeZone,
-        family: family
+        family: family,
+        strings: entry.strings
       )
     case .empty(let convention):
-      ConPawsEmptyView(convention: convention)
+      ConPawsEmptyView(convention: convention, strings: entry.strings)
     }
   }
 }
 
 @available(iOS 17.0, *)
 struct ConPawsWidget: Widget {
-  let kind = "ConPawsWidget"
+  let kind = ConPawsWidgetKind.homeScreen
 
   var body: some WidgetConfiguration {
     AppIntentConfiguration(
@@ -281,6 +297,12 @@ struct ConPawsWidget: Widget {
     ) { entry in
       ConPawsWidgetEntryView(entry: entry)
     }
+    // Left in English on purpose. These two are drawn by the widget gallery,
+    // not by us, and the system resolves them against the device's language
+    // through this extension's bundle. Translating them needs real .lproj or
+    // String Catalog resources, which the target generator cannot produce --
+    // see the note on ConPawsStrings. Everything the widget itself draws
+    // follows the app's language instead.
     .configurationDisplayName("ConPaws")
     .description("Convention countdowns, next events, and leave reminders.")
     .supportedFamilies([
@@ -296,10 +318,11 @@ struct ConPawsWidget: Widget {
 private struct ConPawsCountdownView: View {
   let entryDate: Date
   let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
 
   var body: some View {
     VStack(alignment: .leading, spacing: 7) {
-      ConPawsEyebrow(title: "COMING UP", symbol: "calendar")
+      ConPawsEyebrow(title: strings.comingUpCaps, symbol: "calendar")
       Text(convention.name)
         .font(.headline)
         .lineLimit(2)
@@ -308,7 +331,8 @@ private struct ConPawsCountdownView: View {
         ConPawsCountdown.label(
           from: entryDate,
           to: convention.startDate,
-          timeZone: convention.timeZone
+          timeZone: convention.timeZone,
+          strings: strings
         )
       )
       .font(.system(.title2, design: .rounded, weight: .bold))
@@ -332,12 +356,13 @@ private struct ConPawsNextView: View {
   let upcoming: ConPawsEventSnapshot
   let timeZone: TimeZone
   let family: WidgetFamily
+  let strings: ConPawsStrings
 
   var body: some View {
     if family == .systemMedium {
       HStack(alignment: .top, spacing: 14) {
         VStack(alignment: .leading, spacing: 6) {
-          ConPawsEyebrow(title: "NEXT", symbol: "calendar")
+          ConPawsEyebrow(title: strings.nextCaps, symbol: "calendar")
           Text(upcoming.title)
             .font(.title3.weight(.semibold))
             .lineLimit(3)
@@ -349,16 +374,16 @@ private struct ConPawsNextView: View {
         Divider()
 
         VStack(alignment: .leading, spacing: 6) {
-          Text("WHERE")
+          Text(strings.whereCaps)
             .font(.caption2.weight(.semibold))
             .foregroundStyle(.secondary)
-          Text(upcoming.place ?? "Location not set")
+          Text(upcoming.place ?? strings.locationNotSet)
             .font(.subheadline.weight(.medium))
             .foregroundStyle(upcoming.place == nil ? .secondary : .primary)
             .lineLimit(3)
           Spacer(minLength: 2)
           if let current {
-            Text("Now: \(current.title)")
+            Text(strings.text(strings.nowEventFormat, current.title))
               .font(.caption)
               .foregroundStyle(.secondary)
               .lineLimit(2)
@@ -369,7 +394,7 @@ private struct ConPawsNextView: View {
       .accessibilityElement(children: .combine)
     } else {
       VStack(alignment: .leading, spacing: 7) {
-        ConPawsEyebrow(title: "NEXT", symbol: "calendar")
+        ConPawsEyebrow(title: strings.nextCaps, symbol: "calendar")
         Text(upcoming.title)
           .font(.headline)
           .lineLimit(3)
@@ -393,25 +418,37 @@ private struct ConPawsLeaveView: View {
   let upcoming: ConPawsEventSnapshot
   let timeZone: TimeZone
   let family: WidgetFamily
+  let strings: ConPawsStrings
 
   var body: some View {
     if family == .systemMedium {
       VStack(spacing: 8) {
         HStack(alignment: .top, spacing: 12) {
-          ConPawsEventColumn(label: "NOW", event: current, timeZone: timeZone)
+          ConPawsEventColumn(
+            label: strings.nowCaps,
+            event: current,
+            timeZone: timeZone,
+            strings: strings
+          )
           Divider()
-          ConPawsEventColumn(label: "NEXT", event: upcoming, timeZone: timeZone)
+          ConPawsEventColumn(
+            label: strings.nextCaps,
+            event: upcoming,
+            timeZone: timeZone,
+            strings: strings
+          )
         }
         HStack(spacing: 6) {
           Image(systemName: "figure.walk")
             .accessibilityHidden(true)
-          Text("Leave in")
+          Text(strings.leaveIn)
             .font(.caption.weight(.semibold))
           Spacer()
           ConPawsLiveTimer(
             from: entryDate,
             to: upcoming.startDate,
-            timeZone: timeZone
+            timeZone: timeZone,
+            strings: strings
           )
         }
         .foregroundStyle(.tint)
@@ -423,14 +460,14 @@ private struct ConPawsLeaveView: View {
       .accessibilityElement(children: .combine)
     } else {
       VStack(alignment: .leading, spacing: 5) {
-        Text("NOW")
+        Text(strings.nowCaps)
           .font(.caption2.weight(.semibold))
           .foregroundStyle(.secondary)
-        Text(current?.title ?? "Free now")
+        Text(current?.title ?? strings.freeNow)
           .font(.caption.weight(.medium))
           .lineLimit(1)
         Divider()
-        Text("NEXT")
+        Text(strings.nextCaps)
           .font(.caption2.weight(.semibold))
           .foregroundStyle(.secondary)
         Text(upcoming.title)
@@ -440,13 +477,14 @@ private struct ConPawsLeaveView: View {
         HStack(spacing: 5) {
           Image(systemName: "figure.walk")
             .accessibilityHidden(true)
-          Text("Leave in")
+          Text(strings.leaveIn)
             .font(.caption2.weight(.semibold))
           Spacer()
           ConPawsLiveTimer(
             from: entryDate,
             to: upcoming.startDate,
-            timeZone: timeZone
+            timeZone: timeZone,
+            strings: strings
           )
         }
         .foregroundStyle(.tint)
@@ -461,13 +499,14 @@ private struct ConPawsEventColumn: View {
   let label: String
   let event: ConPawsEventSnapshot?
   let timeZone: TimeZone
+  let strings: ConPawsStrings
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       Text(label)
         .font(.caption2.weight(.semibold))
         .foregroundStyle(.secondary)
-      Text(event?.title ?? "Free now")
+      Text(event?.title ?? strings.freeNow)
         .font(.subheadline.weight(.semibold))
         .lineLimit(2)
       if let event {
@@ -480,6 +519,7 @@ private struct ConPawsEventColumn: View {
 
 private struct ConPawsEmptyView: View {
   let convention: ConPawsConventionSnapshot?
+  let strings: ConPawsStrings
 
   var body: some View {
     VStack(spacing: 7) {
@@ -488,13 +528,13 @@ private struct ConPawsEmptyView: View {
         .foregroundStyle(.tint)
         .widgetAccentable()
         .accessibilityHidden(true)
-      Text("No upcoming events")
+      Text(strings.noUpcomingEvents)
         .font(.headline)
         .multilineTextAlignment(.center)
       Text(
         convention == nil
-          ? "Add a convention in ConPaws."
-          : "Add or import a schedule in ConPaws."
+          ? strings.addConventionHint
+          : strings.addScheduleHint
       )
       .font(.caption)
       .foregroundStyle(.secondary)
@@ -543,9 +583,10 @@ private struct ConPawsLiveTimer: View {
   let from: Date
   let to: Date
   let timeZone: TimeZone
+  let strings: ConPawsStrings
 
   var body: some View {
-    Text(ConPawsCountdown.label(from: from, to: to, timeZone: timeZone))
+    Text(ConPawsCountdown.label(from: from, to: to, timeZone: timeZone, strings: strings))
       .font(.system(.subheadline, design: .rounded, weight: .bold))
       .monospacedDigit()
       .lineLimit(1)
@@ -575,19 +616,13 @@ private struct ConPawsCircularView: View {
       ) {
         Text(convention.name)
       } currentValueLabel: {
-        Text(
-          ConPawsCountdown.compactLabel(
-            from: entry.date,
-            to: convention.startDate,
-            timeZone: convention.timeZone
-          )
-        )
-        .minimumScaleFactor(0.6)
-        .lineLimit(1)
+        Text(compact(to: convention.startDate, in: convention.timeZone))
+          .minimumScaleFactor(0.6)
+          .lineLimit(1)
       }
       .gaugeStyle(.accessoryCircularCapacity)
       .accessibilityLabel(
-        "\(convention.name), \(ConPawsCountdown.label(from: entry.date, to: convention.startDate, timeZone: convention.timeZone))"
+        "\(convention.name), \(spoken(to: convention.startDate, in: convention.timeZone))"
       )
 
     case .leave(let convention, _, let upcoming):
@@ -595,26 +630,48 @@ private struct ConPawsCircularView: View {
       // read "Soon". The glyph is the message; the number adds nothing.
       ConPawsCircularStack(symbol: "figure.walk")
         .accessibilityLabel(
-          "Leave for \(upcoming.title), \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone))"
+          entry.strings.text(
+            entry.strings.leaveForA11yFormat,
+            upcoming.title,
+            spoken(to: upcoming.startDate, in: convention.timeZone)
+          )
         )
 
     case .next(let convention, _, let upcoming):
       ConPawsCircularStack(
         symbol: "calendar",
-        detail: ConPawsCountdown.compactLabel(
-          from: entry.date,
-          to: upcoming.startDate,
-          timeZone: convention.timeZone
-        )
+        detail: compact(to: upcoming.startDate, in: convention.timeZone)
       )
       .accessibilityLabel(
-        "Next: \(upcoming.title), \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone))"
+        entry.strings.text(
+          entry.strings.nextA11yFormat,
+          upcoming.title,
+          spoken(to: upcoming.startDate, in: convention.timeZone)
+        )
       )
 
     case .empty:
       ConPawsCircularStack(symbol: "calendar")
-        .accessibilityLabel("No upcoming events")
+        .accessibilityLabel(entry.strings.noUpcomingEvents)
     }
+  }
+
+  private func compact(to date: Date, in timeZone: TimeZone) -> String {
+    ConPawsCountdown.compactLabel(
+      from: entry.date,
+      to: date,
+      timeZone: timeZone,
+      strings: entry.strings
+    )
+  }
+
+  private func spoken(to date: Date, in timeZone: TimeZone) -> String {
+    ConPawsCountdown.label(
+      from: entry.date,
+      to: date,
+      timeZone: timeZone,
+      strings: entry.strings
+    )
   }
 }
 
@@ -649,25 +706,22 @@ private struct ConPawsRectangularView: View {
     VStack(alignment: .leading, spacing: 2) {
       switch entry.state {
       case .countdown(let convention):
-        ConPawsAccessoryEyebrow(title: "COMING UP", symbol: "calendar.badge.clock")
-        Text(
-          ConPawsCountdown.label(
-            from: entry.date,
-            to: convention.startDate,
-            timeZone: convention.timeZone
-          )
+        ConPawsAccessoryEyebrow(
+          title: entry.strings.comingUpCaps,
+          symbol: "calendar.badge.clock"
         )
-        .font(.headline)
-        .monospacedDigit()
-        .lineLimit(1)
-        .minimumScaleFactor(0.8)
+        Text(spoken(to: convention.startDate, in: convention.timeZone))
+          .font(.headline)
+          .monospacedDigit()
+          .lineLimit(1)
+          .minimumScaleFactor(0.8)
         Text(convention.name)
           .font(.caption2)
           .lineLimit(1)
 
       case .leave(let convention, _, let upcoming):
         ConPawsAccessoryEyebrow(
-          title: "LEAVE · \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone))",
+          title: "\(entry.strings.leaveCaps) · \(spoken(to: upcoming.startDate, in: convention.timeZone))",
           symbol: "figure.walk"
         )
         Text(upcoming.title)
@@ -682,7 +736,7 @@ private struct ConPawsRectangularView: View {
 
       case .next(let convention, _, let upcoming):
         ConPawsAccessoryEyebrow(
-          title: "NEXT · \(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: entry.locale)))",
+          title: "\(entry.strings.nextCaps) · \(clock(upcoming.startDate, in: convention.timeZone))",
           symbol: "calendar"
         )
         Text(upcoming.title)
@@ -696,14 +750,27 @@ private struct ConPawsRectangularView: View {
         }
 
       case .empty(let convention):
-        ConPawsAccessoryEyebrow(title: "NO EVENTS", symbol: "calendar")
-        Text(convention?.name ?? "Add a convention")
+        ConPawsAccessoryEyebrow(title: entry.strings.noEventsCaps, symbol: "calendar")
+        Text(convention?.name ?? entry.strings.addConvention)
           .font(.headline)
           .lineLimit(2)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     .accessibilityElement(children: .combine)
+  }
+
+  private func spoken(to date: Date, in timeZone: TimeZone) -> String {
+    ConPawsCountdown.label(
+      from: entry.date,
+      to: date,
+      timeZone: timeZone,
+      strings: entry.strings
+    )
+  }
+
+  private func clock(_ date: Date, in timeZone: TimeZone) -> String {
+    date.formatted(conPawsClockStyle(timeZone, locale: entry.locale))
   }
 }
 
@@ -731,12 +798,12 @@ private struct ConPawsInlineView: View {
       // hard, and the countdown is the part worth reading -- putting the
       // convention name first buries it behind an ellipsis.
       Label(
-        "\(ConPawsCountdown.label(from: entry.date, to: convention.startDate, timeZone: convention.timeZone)) · \(convention.name)",
+        "\(spoken(to: convention.startDate, in: convention.timeZone)) · \(convention.name)",
         systemImage: "calendar"
       )
     case .leave(let convention, _, let upcoming):
       Label(
-        "Leave \(ConPawsCountdown.label(from: entry.date, to: upcoming.startDate, timeZone: convention.timeZone).lowercased()) · \(upcoming.title)",
+        "\(leaveLead(to: upcoming.startDate, in: convention.timeZone)) · \(upcoming.title)",
         systemImage: "figure.walk"
       )
     case .next(let convention, _, let upcoming):
@@ -745,8 +812,27 @@ private struct ConPawsInlineView: View {
         systemImage: "calendar"
       )
     case .empty:
-      Label("No upcoming events", systemImage: "calendar")
+      Label(entry.strings.noUpcomingEvents, systemImage: "calendar")
     }
+  }
+
+  private func spoken(to date: Date, in timeZone: TimeZone) -> String {
+    ConPawsCountdown.label(
+      from: entry.date,
+      to: date,
+      timeZone: timeZone,
+      strings: entry.strings
+    )
+  }
+
+  /// "Leave in 3 hours", built from the shared countdown rather than a second
+  /// wording of the same wait.
+  private func leaveLead(to date: Date, in timeZone: TimeZone) -> String {
+    let strings = entry.strings
+    return strings.text(
+      strings.inlineLeaveFormat,
+      strings.midSentenceCountdown(spoken(to: date, in: timeZone))
+    )
   }
 }
 
@@ -822,15 +908,24 @@ func runConPawsWidgetSelfCheck() {
   // arithmetic below unambiguous.
   let now = Date(timeIntervalSince1970: 1_767_225_600)
 
+  // Pinned to English: the assertions below compare exact wording, so reading
+  // the app's language here would fail them on a translated build rather than
+  // on a broken ladder.
   func compact(_ seconds: TimeInterval) -> String {
     ConPawsCountdown.compactLabel(
       from: now,
       to: now.addingTimeInterval(seconds),
-      timeZone: zone
+      timeZone: zone,
+      strings: .english
     )
   }
   func prose(_ seconds: TimeInterval) -> String {
-    ConPawsCountdown.label(from: now, to: now.addingTimeInterval(seconds), timeZone: zone)
+    ConPawsCountdown.label(
+      from: now,
+      to: now.addingTimeInterval(seconds),
+      timeZone: zone,
+      strings: .english
+    )
   }
 
   assert(compact(-60) == "Now")
@@ -865,5 +960,22 @@ func runConPawsWidgetSelfCheck() {
     to: now.addingTimeInterval(3.5 * 86_400)
   )
   assert(abs(midweek - 0.5) < 0.000_1)
+
+  // Polish is the only language here that inflects 2-4 apart from 5 and up, so
+  // it is the only one whose plural rule can be wrong without English noticing.
+  let polish = ConPawsStrings.table(for: .pl)
+  assert(polish.hours(1) == "1 godzina")
+  assert(polish.hours(2) == "2 godziny")
+  assert(polish.hours(5) == "5 godzin")
+  assert(polish.hours(12) == "12 godzin")
+  assert(polish.hours(22) == "22 godziny")
+  assert(polish.inDays(3) == "Za 3 dni")
+
+  // A language the app does not ship, and a regionless Portuguese, both have to
+  // land somewhere renderable rather than on an empty string.
+  assert(ConPawsLanguage.resolve("ja") == .en)
+  assert(ConPawsLanguage.resolve("pt") == .ptBR)
+  assert(ConPawsLanguage.resolve("de_DE") == .de)
+  assert(ConPawsLanguage.resolve("pt-BR") == .ptBR)
 }
 #endif
