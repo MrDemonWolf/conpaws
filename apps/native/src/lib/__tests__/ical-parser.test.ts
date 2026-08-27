@@ -1,7 +1,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { parseIcs, UnsupportedRecurrenceError } from "../ical-parser";
+import {
+  type CategoryMeta,
+  type ParsedEvent,
+  type ParseResult,
+  parseIcs,
+  UnsupportedRecurrenceError,
+} from "../ical-parser";
 
 const SMALL_ICS_PATH = path.resolve(
   __dirname,
@@ -10,6 +16,25 @@ const SMALL_ICS_PATH = path.resolve(
 
 function loadSmallIcs(): string {
   return fs.readFileSync(SMALL_ICS_PATH, "utf-8");
+}
+
+// Throwing here rather than returning a possibly-undefined match keeps a missed
+// lookup reported as the missing event it is, instead of surfacing further down
+// as a property access on undefined.
+function findEvent(result: ParseResult, sourceUid: string): ParsedEvent {
+  const event = result.events.find((e) => e.sourceUid === sourceUid);
+  if (!event) {
+    throw new Error(`No parsed event with sourceUid "${sourceUid}"`);
+  }
+  return event;
+}
+
+function findCategory(result: ParseResult, name: string): CategoryMeta {
+  const category = result.categories.find((c) => c.name === name);
+  if (!category) {
+    throw new Error(`No parsed category named "${name}"`);
+  }
+  return category;
 }
 
 describe("parseIcs", () => {
@@ -110,33 +135,25 @@ END:VCALENDAR`;
 
   it("parses basic event fields (title, uid)", () => {
     const result = parseIcs(loadSmallIcs());
-    const opening = result.events.find(
-      (e) => e.sourceUid === "test-opening-001",
-    );
-    expect(opening).toBeDefined();
-    expect(opening!.title).toBe("Opening Ceremonies");
-    expect(opening!.sourceUid).toBe("test-opening-001");
+    const opening = findEvent(result, "test-opening-001");
+    expect(opening.title).toBe("Opening Ceremonies");
+    expect(opening.sourceUid).toBe("test-opening-001");
   });
 
   it("parses UTC datetime correctly", () => {
     const result = parseIcs(loadSmallIcs());
-    const opening = result.events.find(
-      (e) => e.sourceUid === "test-opening-001",
-    );
-    expect(opening).toBeDefined();
+    const opening = findEvent(result, "test-opening-001");
     // 20260612T160000Z = June 12, 2026 16:00 UTC
-    expect(opening!.startTime.getUTCFullYear()).toBe(2026);
-    expect(opening!.startTime.getUTCMonth()).toBe(5); // 0-indexed
-    expect(opening!.startTime.getUTCDate()).toBe(12);
-    expect(opening!.startTime.getUTCHours()).toBe(16);
+    expect(opening.startTime.getUTCFullYear()).toBe(2026);
+    expect(opening.startTime.getUTCMonth()).toBe(5); // 0-indexed
+    expect(opening.startTime.getUTCDate()).toBe(12);
+    expect(opening.startTime.getUTCHours()).toBe(16);
   });
 
   it("parses event source URL", () => {
     const result = parseIcs(loadSmallIcs());
-    const opening = result.events.find(
-      (e) => e.sourceUid === "test-opening-001",
-    );
-    expect(opening!.sourceUrl).toBe(
+    const opening = findEvent(result, "test-opening-001");
+    expect(opening.sourceUrl).toBe(
       "https://testcon2026.sched.com/event/test-opening-001",
     );
   });
@@ -160,8 +177,8 @@ END:VCALENDAR`;
   it("unescapes \\, in description", () => {
     const result = parseIcs(loadSmallIcs());
     // "Calling all wolves\\, dogs\\, foxes" should become "Calling all wolves, dogs, foxes"
-    const canine = result.events.find((e) => e.sourceUid === "test-canine-004");
-    expect(canine!.description).toContain("wolves, dogs");
+    const canine = findEvent(result, "test-canine-004");
+    expect(canine.description).toContain("wolves, dogs");
   });
 
   it("decodes HTML entities in description", () => {
@@ -203,23 +220,18 @@ END:VCALENDAR`;
 
   it("splits location into room and location", () => {
     const result = parseIcs(loadSmallIcs());
-    const opening = result.events.find(
-      (e) => e.sourceUid === "test-opening-001",
-    );
+    const opening = findEvent(result, "test-opening-001");
     // LOCATION:Main Stage\, Convention Center → room="Main Stage", location="Convention Center"
-    expect(opening!.room).toBe("Main Stage");
-    expect(opening!.location).toBe("Convention Center");
+    expect(opening.room).toBe("Main Stage");
+    expect(opening.location).toBe("Convention Center");
   });
 
   it("deduplicates categories and assigns colors", () => {
     const result = parseIcs(loadSmallIcs());
     // CONVENTION SERVICES appears for opening and closing (2 events)
-    const convServices = result.categories.find(
-      (c) => c.name === "CONVENTION SERVICES",
-    );
-    expect(convServices).toBeDefined();
-    expect(convServices!.count).toBe(2);
-    expect(convServices!.color).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    const convServices = findCategory(result, "CONVENTION SERVICES");
+    expect(convServices.count).toBe(2);
+    expect(convServices.color).toMatch(/^#[0-9A-Fa-f]{6}$/);
 
     // Each category should be unique
     const names = result.categories.map((c) => c.name);
@@ -229,15 +241,15 @@ END:VCALENDAR`;
   it("detects isAgeRestricted from title/description", () => {
     const result = parseIcs(loadSmallIcs());
     // test-trivia-009: "After Dark Trivia" with "18+ ONLY" in description
-    const trivia = result.events.find((e) => e.sourceUid === "test-trivia-009");
-    expect(trivia!.isAgeRestricted).toBe(true);
+    const trivia = findEvent(result, "test-trivia-009");
+    expect(trivia.isAgeRestricted).toBe(true);
   });
 
   it("detects contentWarning for strobe effects", () => {
     const result = parseIcs(loadSmallIcs());
     // test-dance-005: "Friday Night Dance" with "strobe effects" in description
-    const dance = result.events.find((e) => e.sourceUid === "test-dance-005");
-    expect(dance!.contentWarning).toBe(true);
+    const dance = findEvent(result, "test-dance-005");
+    expect(dance.contentWarning).toBe(true);
   });
 
   it("handles missing optional fields gracefully", () => {

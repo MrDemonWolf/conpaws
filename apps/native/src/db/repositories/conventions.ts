@@ -3,9 +3,7 @@ import { db } from "../index";
 import { type Convention, conventions, type NewConvention } from "../schema";
 
 function generateId(): string {
-  return (
-    "conv_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
-  );
+  return `conv_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function getAll(): Promise<Convention[]> {
@@ -28,7 +26,14 @@ export async function create(
   await db
     .insert(conventions)
     .values({ ...data, id, createdAt: now, updatedAt: now });
-  return (await getById(id))!;
+  const created = await getById(id);
+  if (!created) {
+    // The insert resolved without throwing, so a missing row here means the
+    // write did not land. Failing is better than handing the caller something
+    // typed Convention that is actually undefined.
+    throw new Error(`Convention ${id} could not be read back after insert`);
+  }
+  return created;
 }
 
 export async function update(
