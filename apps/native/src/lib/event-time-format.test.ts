@@ -83,3 +83,40 @@ describe("formatConventionDate", () => {
     expect(formatConventionDate("2026-07-04", "en-US")).toContain("Jul 4");
   });
 });
+
+describe("hour cycle", () => {
+  const NOON_THIRTY = "2026-07-04T17:30:00.000Z"; // 12:30 in Chicago
+  const HALF_PAST_MIDNIGHT = "2026-07-04T05:30:00.000Z"; // 00:30 in Chicago
+
+  // `hour12: true` resolves to whichever 12-hour cycle a locale prefers, and
+  // German prefers h11, which counts 0 to 11. Asking for it that way rendered
+  // half past midday as "0:30 PM" for a German user on a 12-hour device.
+  it("counts midday as 12, not 0, in a locale that prefers h11", () => {
+    const midday = formatEventTime(NOON_THIRTY, "America/Chicago", "de", true);
+    const midnight = formatEventTime(
+      HALF_PAST_MIDNIGHT,
+      "America/Chicago",
+      "de",
+      true,
+    );
+
+    expect(midday).toContain("12:30");
+    expect(midday).not.toMatch(/\b0:30/);
+    expect(midnight).toContain("12:30");
+    expect(midnight).not.toMatch(/\b0:30/);
+  });
+
+  it("counts midnight as 00 on a 24-hour clock", () => {
+    expect(
+      formatEventTime(HALF_PAST_MIDNIGHT, "America/Chicago", "de", false),
+    ).toMatch(/^00:30/);
+    expect(
+      formatEventTime(NOON_THIRTY, "America/Chicago", "de", false),
+    ).toMatch(/^12:30/);
+  });
+
+  it("leaves the locale's own convention alone when the device has no opinion", () => {
+    const german = formatEventTime(NOON_THIRTY, "America/Chicago", "de");
+    expect(german).not.toMatch(/AM|PM/);
+  });
+});
