@@ -1,7 +1,8 @@
 import { Host, Button as NativeButton } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 import { Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 
 /**
  * Header row for the Android form modals (create / edit / import).
@@ -41,8 +42,7 @@ export function FormModalHeader({
   onConfirm,
   confirmDisabled,
 }: FormModalHeaderProps) {
-  const colorScheme = useColorScheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
   const { colors } = useTheme();
 
   return (

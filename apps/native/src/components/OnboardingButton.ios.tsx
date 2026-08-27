@@ -6,7 +6,8 @@ import {
   disabled as disabledModifier,
   frame,
 } from "@expo/ui/swift-ui/modifiers";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import type { OnboardingButtonProps } from "./OnboardingButton.types";
 
 const buttonStyles = {
@@ -22,8 +23,7 @@ export function OnboardingButton({
   disabled = false,
   testID,
 }: OnboardingButtonProps) {
-  const colorScheme = useColorScheme();
-  const resolvedColorScheme = colorScheme === "dark" ? "dark" : "light";
+  const resolvedColorScheme = useResolvedColorScheme();
 
   return (
     <View className="w-full">
