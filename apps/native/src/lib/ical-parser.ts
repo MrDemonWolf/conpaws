@@ -98,8 +98,35 @@ function hashString(str: string): number {
   return Math.abs(hash);
 }
 
-function categoryColor(name: string): string {
-  return CATEGORY_PALETTE[hashString(name) % CATEGORY_PALETTE.length];
+/**
+ * Assigns each category a colour, distinct within one convention.
+ *
+ * Hashing the name alone keeps a category's colour stable across re-imports,
+ * which is worth having, but it collides: the real IndyFurCon feed puts SOCIAL
+ * and MUSIC & DANCE on the same swatch, so two of its nine chips cannot be told
+ * apart. Starting from the hash and probing forward to the next free slot keeps
+ * the stability and removes the collision, up to the palette size. Past that
+ * there are more categories than colours and repeats are unavoidable.
+ *
+ * Names are sorted first so the assignment depends only on the set of
+ * categories, not on the order events happened to appear in the feed.
+ */
+function assignCategoryColors(names: string[]): Map<string, string> {
+  const taken = new Set<number>();
+  const assigned = new Map<string, string>();
+
+  for (const name of [...names].sort()) {
+    const start = hashString(name) % CATEGORY_PALETTE.length;
+    let index = start;
+    for (let step = 0; step < CATEGORY_PALETTE.length; step++) {
+      index = (start + step) % CATEGORY_PALETTE.length;
+      if (!taken.has(index)) break;
+    }
+    taken.add(index);
+    assigned.set(name, CATEGORY_PALETTE[index]);
+  }
+
+  return assigned;
 }
 
 /** Unfold RFC 5545 line continuations (CRLF/LF followed by space/tab) */
@@ -491,11 +518,14 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   // Sort by start time
   parsedEvents.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
+  const categoryColors = assignCategoryColors(
+    Array.from(categoryCountMap.keys()),
+  );
   const categories: CategoryMeta[] = Array.from(categoryCountMap.entries()).map(
     ([name, count]) => ({
       name,
       count,
-      color: categoryColor(name),
+      color: categoryColors.get(name) ?? CATEGORY_PALETTE[0],
     }),
   );
 
