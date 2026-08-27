@@ -24,6 +24,57 @@ const scheduleScreenSource = readFileSync(
   "utf8",
 );
 
+/**
+ * The props of the one `<SectionList>` in a route, as written.
+ *
+ * Both schedule screens are `.tsx` route modules, and this suite runs under
+ * `environment: "node"` with no React Native renderer, so a rendered-props
+ * assertion is not available. Reading the opening tag is the next best thing,
+ * and reading the whole tag rather than matching from `<SectionList` forward
+ * keeps the check independent of the order the props happen to be written in.
+ */
+function sectionListProps(source: string, label: string): string {
+  const open = "<SectionList";
+  const start = source.indexOf(open);
+  if (start === -1) {
+    throw new Error(`No <SectionList> found in the ${label} source.`);
+  }
+
+  let depth = 0;
+  for (let i = start + open.length; i < source.length; i++) {
+    const char = source[i];
+    if (char === "{") depth++;
+    else if (char === "}") depth--;
+    else if (char === ">" && depth === 0) return source.slice(start, i);
+  }
+
+  throw new Error(`The <SectionList> tag in the ${label} source never closes.`);
+}
+
+/**
+ * Asserts the one rule both schedule lists follow: bouncing is bound to
+ * whether the sections it renders have any rows.
+ *
+ * Deriving the collection name from `sections=` rather than hard-coding it is
+ * what lets the local variable be renamed, or the list moved into a component,
+ * without the invariant losing its meaning.
+ */
+function expectBouncesOnlyWhenPopulated(source: string, label: string) {
+  const props = sectionListProps(source, label);
+  const sections = props.match(/sections=\{\s*([A-Za-z0-9_$.]+)\s*\}/)?.[1];
+  const bounce = props.match(/alwaysBounceVertical=\{([^}]*)\}/)?.[1];
+
+  expect(sections, `${label} must render a sections prop`).toBeDefined();
+  expect(
+    bounce,
+    `${label} must set alwaysBounceVertical explicitly`,
+  ).toBeDefined();
+  expect(
+    bounce?.replace(/\s+/g, ""),
+    `${label} must bounce exactly when ${sections} has rows`,
+  ).toBe(`${sections}.length>0`);
+}
+
 describe("Expo Router convention routes", () => {
   it("uses one detail route with its nested import screen", () => {
     expect(existsSync(`${conventionRoute}.tsx`)).toBe(true);
@@ -39,8 +90,9 @@ describe("Expo Router convention routes", () => {
   // that view can scroll. Hard-coding false put the title on top of the first
   // event row for any schedule short enough to fit on one screen.
   it("bounces the convention schedule only when it has rows", () => {
-    expect(conventionDetailSource).toMatch(
-      /<SectionList\s+(?:\/\/[^\n]*\n\s*)*alwaysBounceVertical=\{dayGroups\.length > 0\}/,
+    expectBouncesOnlyWhenPopulated(
+      conventionDetailSource,
+      "the convention schedule",
     );
   });
 
@@ -101,9 +153,7 @@ describe("Schedule tab", () => {
   // a list short enough to fit gives the iOS large title no content inset to
   // occupy, so it paints over the first row.
   it("bounces only when it has rows", () => {
-    expect(scheduleScreenSource).toMatch(
-      /<SectionList\s+(?:\/\/[^\n]*\n\s*)*alwaysBounceVertical=\{days\.length > 0\}/,
-    );
+    expectBouncesOnlyWhenPopulated(scheduleScreenSource, "the Schedule tab");
   });
 
   it("keeps scroll content connected to the native header", () => {
