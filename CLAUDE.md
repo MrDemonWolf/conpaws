@@ -32,12 +32,19 @@ bun android / bun ios     # Run on device/simulator
 bun build                 # turbo build
 bun lint                  # Biome (`biome check .`) — this repo uses Biome, NOT ESLint
 bun check-types           # TypeScript type checking across packages
-bun test                  # Run the workspace Vitest suites
+bun run test              # Run the workspace Vitest suites — NOT `bun test`
 bun prebuild              # Generate native projects
 bun prebuild:clean        # Clean and regenerate native projects
 bun ship:prep             # Bump BUILD_NUMBER, prebuild, verify — before every store or device build
 bun build-number:check    # Confirm ios/ and android/ carry the current BUILD_NUMBER
 ```
+
+**`bun test` is not the test command.** `test` is a Bun builtin, so bare `bun test`
+runs Bun's own runner instead of the `test` script and collapses with
+`vi.hoisted is not a function` plus a pile of unrelated module-resolution errors —
+none of which mean anything is wrong with the code. Always `bun run test`. The
+other scripts have no builtin of the same name, so `bun lint` and `bun check-types`
+are fine as written.
 
 ## Architecture
 
