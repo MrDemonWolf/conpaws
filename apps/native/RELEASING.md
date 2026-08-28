@@ -78,28 +78,36 @@ Android is less obvious, and worth reading once. The generated
 `android/app/build.gradle` sets the release build type to
 `signingConfig signingConfigs.debug` — that is Expo's CNG template default, and
 `expo prebuild` rewrites the file every time, so editing it is pointless. The
-real key is injected from **`~/.gradle/gradle.properties`** instead:
+real key arrives as AGP's `android.injected.signing.*` project properties, which
+override whatever the build file says. That is why signing survives every
+prebuild, and why Android Studio's signed-bundle dialog and `./gradlew` produce
+the same result.
+
+Those four properties live in **`~/.keystores/conpaws-signing.properties`**,
+mode `0600`, outside the repo:
 
 ```properties
-android.injected.signing.store.file=...
+android.injected.signing.store.file=/Users/<you>/.keystores/conpaws-upload.jks
 android.injected.signing.store.password=...
 android.injected.signing.key.alias=...
 android.injected.signing.key.password=...
 ```
 
-AGP applies those to any release build, overriding the config in the file. That
-is why signing survives every prebuild, and why it works from Android Studio's
-signed-bundle dialog and from `./gradlew` alike.
+`plugins/withUploadSigning.js` reads that file at prebuild and writes the values
+into the generated `android/gradle.properties`, which is covered by the
+`android/` entry in `.gitignore`, so they never reach version control.
 
-Two consequences worth knowing:
+They used to sit in `~/.gradle/gradle.properties`, which Gradle applies to
+**every** project on the machine — any other Android app released from this Mac
+would have been signed with the ConPaws upload key without a word about it. They
+were moved on 2026-08-28; `~/.gradle/gradle.properties.pre-conpaws-scoping.bak`
+holds the original if anything needs checking.
 
-- Those properties are **user-level, not project-level**. Every Android project
-  built on this Mac picks them up, so another app's release build here would be
-  signed with the ConPaws upload key unless it overrides them. If a second
-  Android app ever ships from this machine, move the values to a per-project
-  `gradle.properties` outside version control.
-- The passwords sit in plaintext in the home directory, which is the usual cost
-  of this mechanism. Keep the file readable only by you.
+On a machine without that file — CI, a fresh clone — the plugin does nothing and
+Gradle falls back to the debug key. That is deliberate, because prebuild runs
+constantly during development and must not require release credentials. It also
+means a release build there is silently debug-signed, which is why the signature
+check below is not optional.
 
 **The keystore is `~/.keystores/conpaws-upload.jks`, created 2026-08-26, and it
 is irreplaceable.** It is the upload key Play has on file. Losing it means
@@ -218,8 +226,23 @@ Commit `app.config.ts` afterwards so the constant records what shipped.
 **Android**, from `apps/native`:
 
 ```bash
-cd android && ./gradlew bundleRelease
+cd android
+ANDROID_HOME="$HOME/Library/Android/sdk" ./gradlew bundleRelease
 ```
+
+`ANDROID_HOME` is needed because `expo prebuild` deletes `android/`, and
+`local.properties` — which is where the SDK path normally lives — goes with it.
+Android Studio recreates that file on open, which is why the GUI path never hits
+this and the command line does. The failure is immediate and says `SDK location
+not found`.
+
+Sentry's Gradle step uploads source maps and needs `SENTRY_AUTH_TOKEN` from
+`apps/native/.env.production`. Source that file in the shell rather than passing
+the token on the command line. Without it the build fails at the very end, after
+about five minutes, on `createBundleReleaseJsAndAssets_SentryUpload`. Passing
+`SENTRY_DISABLE_AUTO_UPLOAD=true` skips the upload, which is fine for a
+throwaway verification build and wrong for a release — a release with no source
+maps produces unreadable stack traces in Sentry.
 
 The bundle lands in `android/app/build/outputs/bundle/release/`. Copy it to
 `apps/native/build/` named for its version and build number, matching
