@@ -6,46 +6,47 @@ Use this page when a build is ready for real devices or the stores.
 
 1. Pull clean `main` and confirm `CI / Verify` is green for that exact commit.
 2. Keep the public version, such as `1.0.0`, unchanged while testing release candidates.
-3. Move the build number first: `bun run ship:prep` for a local build, or the remote counters for an EAS build.
-4. Create signed `production` builds. Do not use auto-submit.
-5. Record what identifies each artifact — EAS build IDs, or the local build number and checksums — and keep those exact files.
+3. Bump the build number and regenerate the native projects: `bun run ship:prep`.
+4. Build signed artifacts on this Mac. Verify the Android signature before uploading.
+5. Record the build number, artifact filename, and SHA-256 for each platform.
 6. Upload the IPA with Apple Transporter and the AAB in Play Console.
 7. Test the store-delivered builds on physical devices.
 8. Promote those same tested builds. If code changes, make a new build and test again.
 
-Never use `--latest`. Never guess which artifact was tested.
+Never guess which artifact was tested.
 
-## Known drift: this guide says EAS, the last two builds were local
+## Builds are local, not EAS
 
-Builds `203` and `204` of `1.0.0` did not come from EAS. Both were produced on
-the Mac: iOS archived and uploaded from Xcode Organizer, Android assembled as a
-local Gradle release bundle. Treat every EAS-specific instruction below as
-documented intent rather than current practice, in particular:
+ConPaws ships from this Mac: an Xcode Organizer archive for iOS, a Gradle
+release bundle for Android. That is how `203` and `204` shipped, and as of
+2026-08-27 it is the decision rather than an accident — EAS Build capacity is
+paid per build, and nothing about this app needs a hosted builder.
 
-- The remote version counters in "Version and build-number rules". A local build
-  ignores them and stamps `CFBundleVersion` and `versionCode` from the
-  `BUILD_NUMBER` constant in `app.config.ts`. `eas.json` still sets
-  `appVersionSource: "remote"`, so the two numbering schemes can drift apart
-  silently, and an EAS build made today would not continue the local sequence.
-  The local path has its own tooling; see "Local builds: bun run ship:prep".
-- The `eas build` commands in step 2 of "Every release candidate", and the
-  `build:view` artifact-provenance step that follows them.
-- The EAS build ID fields in the release record template.
+What follows from that:
 
-Everything that is not EAS-specific still holds: the clean-tree and green-CI
-gate, manual upload through Transporter and Play Console, the physical-device
-smoke checklist, and promoting only the exact binary that was tested.
+- `BUILD_NUMBER` in `app.config.ts` is the only counter. `eas.json` now sets
+  `appVersionSource: "local"` with no `autoIncrement`, so even an EAS build
+  would read that constant instead of handing out a number from a remote
+  counter the stores have never seen.
+- `eas.json` is kept, not deleted. It costs nothing, it documents the build
+  profiles and the committed-tree guard, and it means an ad-hoc device build is
+  one command away if that is ever worth paying for. Nothing in the release path
+  runs it.
+- Signing material lives on this machine and nowhere else. See "One-time setup".
 
-Settle this before `1.0.1`. Either move release candidates back onto EAS, or
-rewrite this guide around local builds and drop `appVersionSource: "remote"`.
+The trade accepted here is that releases depend on one Mac and its keystore. A
+lost keystore cannot be regenerated; see the backup note below.
 
-## What each build profile is for
+## What each variant is for
 
-| Profile | Result | Use it for |
+`APP_VARIANT` selects these, in `app.config.ts`. The identically named `eas.json`
+profiles just set the same variable.
+
+| Variant | Result | Use it for |
 | --- | --- | --- |
-| `development` | Internal Expo development client using `com.mrdemonwolf.conpaws.dev` and the DEV icon | Local development with Metro |
-| `preview` | Store-signed build using `com.mrdemonwolf.conpaws`, the production icon, and owner debug tools | Internal TestFlight or Play testing; never public release |
-| `production` | Store-signed iOS IPA or Android AAB using `com.mrdemonwolf.conpaws` | TestFlight, Play Internal Testing, and store release |
+| `development` | Expo development client using `com.mrdemonwolf.conpaws.dev` and the DEV icon | Local development with Metro |
+| `preview` | Store build using `com.mrdemonwolf.conpaws`, the production icon, and owner debug tools | Internal TestFlight or Play testing; never public release |
+| `production` | Clean store IPA or AAB using `com.mrdemonwolf.conpaws` | TestFlight, Play Internal Testing, and store release |
 
 Preview and production builds belong to the same App Store Connect and Play
 Console records. They cannot be installed side by side. Preview is an
@@ -53,20 +54,59 @@ owner-only QA build and must never be promoted publicly because it includes
 debug tools. Always test a clean production build before release.
 
 iOS selects `ConPaws-development.icon` for development and `ConPaws.icon` for
-preview and production. The development badge never belongs on the splash screen.
+preview and production. There is no preview-badged icon — `assets/images/`
+contains only those two, so a preview build is visually identical to a release
+build on the Home Screen. The debug menu is the only way to tell them apart. The
+development badge never belongs on the splash screen.
 
 ## One-time setup
 
 Do these once before the first production build.
 
-### Expo and signing
+### Toolchain
 
 - Install Node.js `22.13.1` from `.node-version` and Bun `1.3.10`, then run all commands below from `apps/native`.
 - Use Xcode 26.4 or newer. Expo SDK 57 targets iOS 16.4 or newer, so older devices cannot install this app baseline.
-- Sign in with `npx eas-cli@22.0.0 login` and confirm the account with `npx eas-cli@22.0.0 whoami`.
-- Confirm access to the `mrdemonwolf-org/conpaws` EAS project. The project ID is already in `app.config.ts`; do not relink it casually.
-- Let the first interactive production build configure EAS-managed iOS and Android signing credentials, or select credentials that already belong to this app.
-- Save recovery details in an encrypted vault or password manager. Never commit certificates, provisioning profiles, keystores, service-account JSON, passwords, or tokens.
+- Install Android Studio with a current SDK and JDK 17. Gradle runs from the generated `android/` project.
+
+### Signing, and where it actually comes from
+
+iOS signs through Xcode with the Apple Distribution certificate and provisioning
+profile in the developer account. Nothing about it lives in this repo.
+
+Android is less obvious, and worth reading once. The generated
+`android/app/build.gradle` sets the release build type to
+`signingConfig signingConfigs.debug` — that is Expo's CNG template default, and
+`expo prebuild` rewrites the file every time, so editing it is pointless. The
+real key is injected from **`~/.gradle/gradle.properties`** instead:
+
+```properties
+android.injected.signing.store.file=...
+android.injected.signing.store.password=...
+android.injected.signing.key.alias=...
+android.injected.signing.key.password=...
+```
+
+AGP applies those to any release build, overriding the config in the file. That
+is why signing survives every prebuild, and why it works from Android Studio's
+signed-bundle dialog and from `./gradlew` alike.
+
+Two consequences worth knowing:
+
+- Those properties are **user-level, not project-level**. Every Android project
+  built on this Mac picks them up, so another app's release build here would be
+  signed with the ConPaws upload key unless it overrides them. If a second
+  Android app ever ships from this machine, move the values to a per-project
+  `gradle.properties` outside version control.
+- The passwords sit in plaintext in the home directory, which is the usual cost
+  of this mechanism. Keep the file readable only by you.
+
+**The keystore is `~/.keystores/conpaws-upload.jks`, created 2026-08-26, and it
+is irreplaceable.** It is the upload key Play has on file. Losing it means
+requesting an upload-key reset from Google and waiting days. Back up the file
+and its passwords to an encrypted vault now, not at the next release. Never
+commit certificates, provisioning profiles, keystores, service-account JSON,
+passwords, or tokens.
 
 ### Apple
 
@@ -88,43 +128,28 @@ There are two kinds of version:
 - Public version: the version customers see, such as `1.0.0`. It lives in `app.config.ts`.
 - Build number: an internal, always-increasing store number. Apple calls it `buildNumber`; Google calls it `versionCode`.
 
-The production EAS profile uses remote version counters and `autoIncrement`. EAS increments iOS and Android independently for every production build. The counters do not need to match, and gaps are normal.
+One number covers both platforms. `BUILD_NUMBER` in `app.config.ts` becomes
+`CFBundleVersion` on iOS and `versionCode` on Android, so unlike the EAS remote
+counters they never diverge. Gaps are normal and cost nothing.
 
 Example release-candidate history:
 
-| Candidate | Public version | iOS build | Android version code |
-| --- | --- | --- | --- |
-| RC 1 | `1.0.0` | `34` | `58` |
-| RC 2 | `1.0.0` | `35` | `59` |
-| RC 3, discarded | `1.0.0` | `36` | `60` |
-| Released build | `1.0.0` | `37` | `61` |
+| Candidate | Public version | Build number |
+| --- | --- | --- |
+| RC 1 | `1.0.0` | `205` |
+| RC 2 | `1.0.0` | `206` |
+| RC 3, discarded | `1.0.0` | `207` |
+| Released build | `1.0.0` | `208` |
 
-Do not recycle `36` or `60`. Keep the public version at `1.0.0` through all of these candidates. Change it to `1.0.1` or `1.1.0` only when starting that customer-facing release.
+Do not recycle `207`. Keep the public version at `1.0.0` through all of these candidates. Change it to `1.0.1` or `1.1.0` only when starting that customer-facing release.
 
-Check the current remote counters:
+A store rejects a reused or lower number, and the rejection arrives after the
+build and the upload, not before.
 
-```bash
-npx eas-cli@22.0.0 build:version:get --platform ios --profile production
-npx eas-cli@22.0.0 build:version:get --platform android --profile production
-```
+### Bumping it: `bun run ship:prep`
 
-If neither store has ever received ConPaws, let the first interactive production build initialize the counters, then record the values it produced.
-
-If either store already contains builds, first find the highest number in App Store Connect and Play Console. Set each EAS remote counter to that platform's highest existing value:
-
-```bash
-npx eas-cli@22.0.0 build:version:set --platform ios --profile production
-npx eas-cli@22.0.0 build:version:set --platform android --profile production
-```
-
-The commands prompt for the values. With `autoIncrement` enabled, the next production build should use the next number. Verify the number on the completed EAS build before uploading it. A store will reject a reused or lower number.
-
-### Local builds: `bun run ship:prep`
-
-A local archive never touches the EAS counters. It stamps `CFBundleVersion` and
-`versionCode` from the `BUILD_NUMBER` constant in `app.config.ts`, so that
-constant has to move before every candidate that reaches TestFlight, Play, or a
-registered device. From `apps/native`, use this instead of `expo prebuild`:
+The constant has to move before every candidate that reaches TestFlight, Play,
+or a registered device. From `apps/native`, use this instead of `expo prebuild`:
 
 ```bash
 bun run ship:prep
@@ -147,9 +172,8 @@ Commit `app.config.ts` with the release so the constant records what shipped.
 Burned numbers are fine. A discarded candidate that skips a number costs
 nothing, because both stores only require the number to increase.
 
-If release candidates ever move back to EAS, set the remote counters to the last
-locally shipped number first. They have not moved since local builds took over,
-so an EAS build today would hand out a number the stores have already seen.
+An EAS build, if one is ever run, reads the same constant — `eas.json` sets
+`appVersionSource: "local"` for exactly that reason.
 
 ## Every release candidate
 
@@ -163,7 +187,6 @@ git pull --ff-only
 git status --short
 git rev-parse HEAD
 gh run list --workflow ci.yml --branch main --limit 1
-npx eas-cli@22.0.0 whoami
 ```
 
 Stop unless all of these are true:
@@ -171,40 +194,76 @@ Stop unless all of these are true:
 - `git status --short` prints nothing.
 - The latest GitHub Actions run is for the displayed commit and its `CI / Verify` job is green.
 - The public version in `app.config.ts` is correct.
-- The signed-in Expo account is the intended account.
 - `https://conpaws.com/privacy`, `/terms`, and `/support` show their real pages,
   not the marketing fallback.
 - A production CNG prebuild contains the iPhone widget, Watch app, and Watch
   widget targets with production bundle identifiers and matching App Groups.
 
-`eas.json` requires a committed tree, but that is only one guard. A clean tree does not replace green CI.
+A clean tree does not replace green CI. Building locally means nothing verifies
+the commit for you.
 
-### 2. Build, without submitting
-
-Use a clear message and build each platform separately so the IDs are hard to mix up:
-
-```bash
-npx eas-cli@22.0.0 build --platform ios --profile production --message "1.0.0 RC 1"
-npx eas-cli@22.0.0 build --platform android --profile production --message "1.0.0 RC 1"
-```
-
-Do not add `--auto-submit`. These builds use paid EAS Build capacity, so only run them when you intend to create a candidate.
-
-As soon as each build starts, put its platform, EAS build ID, Git commit, and candidate name in the release record. When it finishes, inspect the exact ID:
+### 2. Bump the number and regenerate the native projects
 
 ```bash
-npx eas-cli@22.0.0 build:view IOS_EAS_BUILD_ID --json
-npx eas-cli@22.0.0 build:view ANDROID_EAS_BUILD_ID --json
+bun run ship:prep
 ```
 
-Open those exact build pages and download their artifacts. The production iOS artifact is an IPA; the production Android artifact is an AAB. Record each filename and SHA-256 checksum.
+This is the step that is easy to skip and expensive to skip. It bumps
+`BUILD_NUMBER`, runs `expo prebuild`, and then confirms the regenerated
+`ios/ConPaws/Info.plist` and `android/app/build.gradle` carry the new number.
+Commit `app.config.ts` afterwards so the constant records what shipped.
 
-Never select an artifact by "newest," and never use a submission command with `--latest`.
+### 3. Build both artifacts
 
-### 3. Upload iOS manually
+**Android**, from `apps/native`:
+
+```bash
+cd android && ./gradlew bundleRelease
+```
+
+The bundle lands in `android/app/build/outputs/bundle/release/`. Copy it to
+`apps/native/build/` named for its version and build number, matching
+`ConPaws-1.0.0-204.aab`, so the release record points at a file that still
+exists next month. `apps/native/build/` is gitignored.
+
+Android Studio's **Build > Generate Signed App Bundle** produces the same
+artifact; the signing key comes from the injected properties either way.
+
+**Verify the signature before uploading.** A bundle signed with the debug key
+looks normal until Play rejects it:
+
+```bash
+keytool -printcert -jarfile build/ConPaws-1.0.0-205.aab
+```
+
+The owner must read `CN=ConPaws, O=MrDemonWolf Inc., L=Beloit, ST=Wisconsin, C=US`
+with SHA-256 fingerprint:
+
+```
+16:B1:61:7A:50:8B:9A:BA:36:DB:67:A1:CC:4A:83:E8:57:94:19:13:B2:D7:05:84:18:93:18:EC:12:63:77:17
+```
+
+Anything else — in particular `CN=Android Debug` — means the injected signing
+properties were not picked up. Do not upload it.
+
+**iOS**: open `ios/ConPaws.xcworkspace` in Xcode, select **Any iOS Device**, then
+**Product > Archive**. Keep the archive; export the IPA from Organizer with
+**Distribute App > App Store Connect**. Save both under `apps/native/build/`
+alongside the AAB.
+
+Record each artifact's filename and SHA-256:
+
+```bash
+shasum -a 256 build/ConPaws-1.0.0-205.aab build/ConPaws-1.0.0-205.ipa
+```
+
+Never select an artifact by "newest". Two candidates of the same version differ
+only by build number, and the filenames are the only thing keeping them apart.
+
+### 4. Upload iOS manually
 
 1. Open Apple Transporter and sign in with the authorized App Store Connect account.
-2. Add the IPA downloaded from the recorded iOS EAS build ID.
+2. Add the IPA recorded in step 3, by filename.
 3. Confirm Transporter shows `com.mrdemonwolf.conpaws`, then deliver it.
 4. In App Store Connect, wait for processing and confirm the public version and build number match the release record.
 5. Add the processed build to the intended internal TestFlight group and fill in "What to Test."
@@ -214,11 +273,11 @@ When the candidate passes, select that same processed build for the App Store ve
 
 If the code changes after TestFlight testing, do not release the old result by accident. Build a new candidate, upload it, and repeat the tests.
 
-### 4. Upload Android manually
+### 5. Upload Android manually
 
 1. Open Play Console and choose ConPaws.
 2. Go to Testing, then Internal testing, and create a release.
-3. Upload the AAB downloaded from the recorded Android EAS build ID.
+3. Upload the AAB recorded in step 3, after the signature check passed.
 4. Confirm Play Console shows package `com.mrdemonwolf.conpaws`, the expected public version, and the recorded version code.
 5. Add release notes, review the warnings, and roll the release out to the internal track.
 6. Install it from Google Play on a physical Android phone and complete the smoke checklist below.
@@ -283,9 +342,9 @@ they also share the Watch bundle identifier. Installing one replaces the other.
 Promote only when all of these point to the same binary:
 
 - Git commit and green `CI / Verify` run
-- EAS build ID
+- Build number, the same on both platforms
 - IPA or AAB checksum
-- iOS build number or Android version code
+- Android signature fingerprint check
 - TestFlight or Play internal release that passed the physical-device checklist
 
 Stop and make a new candidate if the commit, code, configuration, signing identity, or artifact changes. Do not rebuild a passing candidate merely to call it "final"; promote the exact tested binary.
@@ -297,22 +356,20 @@ Copy this into the release issue or private release log. Do not put credentials 
 ```text
 ConPaws release candidate:
 Public version:
+Build number (both platforms):
 Candidate label:
 Git commit SHA:
 CI / Verify run URL:
 
-iOS EAS build ID:
-iOS build number:
 iOS IPA filename:
 iOS IPA SHA-256:
 TestFlight group/status:
 Widget/Watch paired-device result:
 Privacy/terms/support URL result:
 
-Android EAS build ID:
-Android version code:
 Android AAB filename:
 Android AAB SHA-256:
+Android signer fingerprint verified (y/n):
 Play internal release/status:
 
 Physical devices and OS versions:
@@ -345,44 +402,39 @@ notifications, which are what the app actually uses, work regardless -- the
 debug screen's test notification schedules and fires normally. The error goes
 away on any signed build.
 
-## Ad-hoc device builds (`preview-device`)
+## Owner preview builds
 
-`preview-device` is the same app as `preview` — production bundle identifier,
-production icon, debug tools — but built for **internal (ad-hoc) distribution** instead
-of the store. It exists so a build can be installed straight onto a registered
-device from a link, without waiting on TestFlight processing. Use it when you
-need a fast on-device check, especially of the embedded Watch app.
+Preview is the same store app with the QA icon and the owner debug menu. Build
+it exactly like a release candidate, with `APP_VARIANT=preview`, and upload the
+IPA to the ConPaws App Store Connect record for the owner's internal TestFlight
+group only, or the AAB to the internal Play track.
+
+A preview build still consumes a build number, because the stores do not care
+why the artifact exists. Never submit one for public review or promote it to
+production.
+
+## The EAS profiles, and when they would cost money
+
+`eas.json` still defines `development`, `preview`, `preview-device`, and
+`production`. Nothing in this guide runs them, and running one is a paid EAS
+Build. They are kept for two reasons: the profiles document what each variant is
+meant to produce, and `preview-device` is the only easy route to an **ad-hoc**
+iOS build that installs on a registered device from a link, without TestFlight
+processing.
+
+If that is ever worth paying for:
 
 ```bash
 bunx eas-cli@22 build --profile preview-device --platform ios
 ```
 
-Rules:
-
-- The device must be registered first (`eas device:create`, then
+- Register the device first (`eas device:create`, then
   `eas device:list --apple-team-id HBB7T99U79` to confirm).
-- It shares `com.mrdemonwolf.conpaws` with `preview` and `production`, so
-  installing it replaces any store build already on the device, and vice versa.
-- It deliberately does **not** set `autoIncrement`, so throwaway device builds
-  never advance the remote store build number.
-- Never promote a `preview-device` artifact. It is ad-hoc signed and cannot go
-  to the store. Release candidates still come from `production`.
-
-## Owner preview builds
-
-Preview is a store build of the real app with the QA icon and owner debug menu.
-Build it without auto-submit:
-
-```bash
-npx eas-cli@22.0.0 build --platform ios --profile preview --message "preview: short description"
-npx eas-cli@22.0.0 build --platform android --profile preview --message "preview: short description"
-```
-
-Upload the iOS IPA to the existing ConPaws App Store Connect record and add it
-only to the owner's internal TestFlight group. Upload the Android AAB to the
-internal Play track. Do not submit either preview build for public review or
-promote it to production. Build and test the `production` profile separately
-when the release candidate is ready.
+- It shares `com.mrdemonwolf.conpaws` with the store builds, so installing it
+  replaces whatever is on the device, and vice versa.
+- It reads `BUILD_NUMBER` like everything else now — `appVersionSource` is
+  `local` and no profile sets `autoIncrement`.
+- Never promote an ad-hoc artifact. It cannot go to the store.
 
 ## Official references
 

@@ -109,7 +109,8 @@ conpaws/
 ### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **eas.json** — EAS CLI 22.x, committed-tree guard, and remote app-version counters. `preview` creates owner-only store builds with the QA icon and debug tools; `production` creates clean store IPA/AAB artifacts. Store upload and release are manual; do not add auto-submit. See `apps/native/RELEASING.md` — note that guide prescribes EAS, but builds 203 and 204 both shipped from local Xcode/Gradle builds using the hand-bumped `BUILD_NUMBER` in `app.config.ts`; the drift is documented in its "Known drift" section and is unresolved.
+- **Releases are built locally, not on EAS** (decided 2026-08-27 — EAS Build is paid per build). Xcode Organizer archive for iOS, `./gradlew bundleRelease` for Android, manual upload to both stores. `bun run ship:prep` bumps `BUILD_NUMBER` in `app.config.ts`, prebuilds, and verifies the native projects picked the number up; that constant is the only build counter, on both platforms. Android signing comes from `android.injected.signing.*` in **`~/.gradle/gradle.properties`** pointing at `~/.keystores/conpaws-upload.jks` — the generated `build.gradle` still says `signingConfigs.debug`, and that is fine because AGP's injected properties override it. Verify the signer before every Play upload. Full process: `apps/native/RELEASING.md`.
+- **eas.json** — kept but unused by the release path. EAS CLI 22.x, committed-tree guard, `appVersionSource: "local"` and no `autoIncrement`, so an EAS build would read the same `BUILD_NUMBER` rather than a stale remote counter. Its `preview-device` profile is the only easy route to an ad-hoc iOS build; running any profile costs money. Do not add auto-submit.
 - **metro.config.js** — `withNativeWind(config)`. No `input` argument is passed; NativeWind resolves `global.css` itself. Metro is also wrapped in `getSentryExpoConfig`.
 - **postcss.config.mjs** — plugin is `@tailwindcss/postcss`
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./src/*`. `vitest.config.ts` mirrors it.
@@ -152,7 +153,7 @@ D1 also needs `bun run db:migrate:local` in `apps/web` before the route can inse
 
 `APP_VARIANT` controls build configuration:
 - `development` — `com.mrdemonwolf.conpaws.dev`, layered `ConPaws-development.icon` with a DEV badge, Expo dev client
-- `preview` — `com.mrdemonwolf.conpaws`, layered `ConPaws-preview.icon` with a QA badge, owner debug tools, TestFlight/Play internal only
+- `preview` — `com.mrdemonwolf.conpaws`, the clean `ConPaws.icon` (there is no preview-badged icon; `assets/images/` holds only `ConPaws.icon` and `ConPaws-development.icon`), owner debug tools, TestFlight/Play internal only
 - `production` (default) — `com.mrdemonwolf.conpaws`, clean `ConPaws.icon`, no debug tools
 
 Build badges apply only to app/launcher icons. Keep the splash, notification,
