@@ -180,6 +180,16 @@ Commit `app.config.ts` with the release so the constant records what shipped.
 Burned numbers are fine. A discarded candidate that skips a number costs
 nothing, because both stores only require the number to increase.
 
+`ship:prep` always bumps, because the normal case is that the current number is
+already on a store. When the constant has been moved ahead separately and that
+number has not shipped yet, bumping again would skip it — use the two halves
+instead, and the build comes out on the number already in the file:
+
+```bash
+bun prebuild
+bun run build-number:check
+```
+
 An EAS build, if one is ever run, reads the same constant — `eas.json` sets
 `appVersionSource: "local"` for exactly that reason.
 
