@@ -35,7 +35,7 @@ const getScheme = (): string => {
  *
  * Bump it in the same commit that tags the release.
  */
-const BUILD_NUMBER = 204;
+const BUILD_NUMBER = 205;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
