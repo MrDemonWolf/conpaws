@@ -37,8 +37,6 @@ bun prebuild              # Generate native projects
 bun prebuild:clean        # Clean and regenerate native projects
 bun ship:prep             # Bump BUILD_NUMBER, prebuild, verify — before every store or device build
 bun build-number:check    # Confirm ios/ and android/ carry the current BUILD_NUMBER
-bun ship:prep             # Bump BUILD_NUMBER, prebuild, verify — before every store or device build
-bun build-number:check    # Confirm ios/ and android/ carry the current BUILD_NUMBER
 ```
 
 ## Architecture
