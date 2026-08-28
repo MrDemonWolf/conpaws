@@ -100,9 +100,17 @@ jobs:
           #
           # The ESP is listmonk. Only LISTMONK_API_TOKEN is a secret; the base
           # URL, API user, and list id are repository variables because they are
-          # not credentials. All four are required: a partial set makes
-          # readListmonkConfig return null, which ships a waitlist that accepts
-          # addresses and mails nobody.
+          # not credentials.
+          #
+          # They are checked as a GROUP, not as required values. All four unset
+          # is the deliberate dormant state: readListmonkConfig returns null,
+          # the signup route 503s, and the reconciler no-ops. Requiring them
+          # outright broke every production deploy on 2026-08-28 for a waitlist
+          # that is not open yet — a deploy gate must not depend on credentials
+          # for a feature that ships switched off. A PARTIAL set is the actual
+          # danger and still fails: it reads as configured, but any missing
+          # value makes readListmonkConfig return null, so the form would accept
+          # addresses and mail nobody.
           #
           # NEXT_PUBLIC_TURNSTILE_SITE_KEY is the odd one out: it is a public,
           # build-time client var (packages/env/src/web.ts) that the deploy step
@@ -111,8 +119,7 @@ jobs:
           # gets a 400. Hence a variable, not a secret.
           missing=()
           for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN ALCHEMY_PASSWORD \
-            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY \
-            LISTMONK_BASE_URL LISTMONK_API_USER LISTMONK_API_TOKEN LISTMONK_LIST_ID; do
+            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
             fi
@@ -120,6 +127,20 @@ jobs:
 
           if (( ${#missing[@]} > 0 )); then
             echo "::error title=Missing deploy configuration::${missing[*]}"
+            exit 1
+          fi
+
+          listmonk_missing=()
+          for name in LISTMONK_BASE_URL LISTMONK_API_USER LISTMONK_API_TOKEN LISTMONK_LIST_ID; do
+            if [[ -z "${!name}" ]]; then
+              listmonk_missing+=("$name")
+            fi
+          done
+
+          if (( ${#listmonk_missing[@]} == 4 )); then
+            echo "::notice title=Waitlist dormant::No listmonk configuration set. The signup route will answer 503 and the reconciler will no-op, by design."
+          elif (( ${#listmonk_missing[@]} > 0 )); then
+            echo "::error title=Partial listmonk configuration::${listmonk_missing[*]} — a partial set fails closed, so the waitlist would accept addresses and mail nobody. Set all four or none."
             exit 1
           fi
 
