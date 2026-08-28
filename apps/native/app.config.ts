@@ -173,15 +173,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // three location ones, including background "Always", plus Motion &
     // Fitness -- all carrying its placeholder text. ConPaws raises none of those
     // prompts: it calls Location.geocodeAsync on a typed city, which needs no
-    // authorization on iOS. A purpose string for a prompt the app cannot show is
-    // what App Review asks about under 5.1.1, so `false` deletes each key.
+    // authorization on iOS.
+    //
+    // The three location keys are deleted with `false`, because a purpose string
+    // for a prompt the app cannot show is what App Review asks about under 5.1.1.
+    // Motion is different and must stay -- see the note on it below.
     [
       "expo-location",
       {
         locationAlwaysAndWhenInUsePermission: false,
         locationAlwaysPermission: false,
         locationWhenInUsePermission: false,
-        motionUsagePermission: false,
+        // Not `false`. Deleting this key got build 204 rejected with
+        // ITMS-90683: expo-location ships MotionActivityStreamer.swift, which
+        // references CoreMotion, and Apple's static analysis requires a purpose
+        // string for any referenced sensitive API whether or not the app calls
+        // it. ConPaws never does -- it only forward-geocodes a typed city -- so
+        // the string says exactly that rather than inventing a use.
+        motionUsagePermission:
+          "ConPaws does not use motion or fitness data. This notice is required because a component used to look up convention time zones is able to read motion activity.",
       },
     ],
     [
