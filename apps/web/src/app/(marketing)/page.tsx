@@ -531,9 +531,16 @@ export default function Home() {
 
       {/* ---- footer ---- */}
       <footer className="relative z-10 mt-28 overflow-hidden border-border border-t pt-10">
+        {/* Decorative wordmark. Hidden below `sm` on purpose: at 375px the
+            120px type is wider than the viewport, so it clipped to a
+            meaningless "nPaws" AND sat directly behind the footer links --
+            every one of the three was 100% covered, which is what made the
+            footer look broken on a phone. The stroke is also faint enough to
+            read as texture rather than as a second set of words competing with
+            the links it sits behind on desktop. */}
         <p
           aria-hidden="true"
-          className="pointer-events-none absolute right-0 bottom-[-30px] select-none font-bold text-[120px] text-transparent leading-none tracking-tighter [-webkit-text-stroke:1px_rgb(30_58_95/0.8)] sm:text-[170px]"
+          className="pointer-events-none absolute right-0 bottom-[-30px] hidden select-none font-bold text-transparent leading-none tracking-tighter [-webkit-text-stroke:1px_rgb(30_58_95/0.45)] sm:block sm:text-[170px]"
         >
           ConPaws
         </p>
