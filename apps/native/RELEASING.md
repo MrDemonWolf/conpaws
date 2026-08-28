@@ -14,6 +14,29 @@ Use this page when a build is ready for real devices or the stores.
 
 Never use `--latest`. Never guess which artifact was tested.
 
+## Known drift: this guide says EAS, the last two builds were local
+
+Builds `203` and `204` of `1.0.0` did not come from EAS. Both were produced on
+the Mac: iOS archived and uploaded from Xcode Organizer, Android assembled as a
+local Gradle release bundle. Treat every EAS-specific instruction below as
+documented intent rather than current practice, in particular:
+
+- The remote version counters in "Version and build-number rules". A local build
+  ignores them and stamps `CFBundleVersion` and `versionCode` from the
+  hand-bumped `BUILD_NUMBER` constant in `app.config.ts`. `eas.json` still sets
+  `appVersionSource: "remote"`, so the two numbering schemes can drift apart
+  silently, and an EAS build made today would not continue the local sequence.
+- The `eas build` commands in step 2 of "Every release candidate", and the
+  `build:view` artifact-provenance step that follows them.
+- The EAS build ID fields in the release record template.
+
+Everything that is not EAS-specific still holds: the clean-tree and green-CI
+gate, manual upload through Transporter and Play Console, the physical-device
+smoke checklist, and promoting only the exact binary that was tested.
+
+Settle this before `1.0.1`. Either move release candidates back onto EAS, or
+rewrite this guide around local builds and drop `appVersionSource: "remote"`.
+
 ## What each build profile is for
 
 | Profile | Result | Use it for |
