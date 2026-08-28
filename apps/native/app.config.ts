@@ -212,6 +212,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
+    // expo-dev-launcher writes NSLocalNetworkUsageDescription and the
+    // _expo._tcp Bonjour service at prebuild, and its own "Strip Local Network
+    // Keys for Release" build phase fails to take them back out again -- build
+    // 204's Release archive shipped both. The development variant keeps them,
+    // because that is the build that talks to Metro.
+    ...(APP_VARIANT === "development"
+      ? []
+      : ["./plugins/withoutDevLauncherLocalNetwork.js"]),
     "expo-document-picker",
     "expo-sharing",
     "expo-web-browser",
