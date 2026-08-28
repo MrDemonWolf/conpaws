@@ -88,22 +88,27 @@ const OBSERVABILITY = {
 } as const;
 
 /**
- * No ESP is bound yet — these are deliberately empty, not misconfigured.
+ * The ESP is self-hosted listmonk at lists.mrdemonwolf.com, sending via SES.
  *
- * The waitlist form is closed (WAITLIST_ACCEPTING_SIGNUPS in
- * apps/web/src/components/waitlist.tsx) and Listmonk has not replaced Brevo, so
- * there is no sender to name. Empty values make `readBrevoConfig` return null,
- * which is the signal the signup route and the reconciler already fail closed
- * on: 503 and a no-op respectively.
+ * These read from the deploy environment (packages/infra/.env locally, repo
+ * secrets in CI). Any missing value makes `readListmonkConfig` return null,
+ * which is the signal the signup route and the reconciler fail closed on: 503
+ * and a no-op respectively. That is the intended state while the public form is
+ * still closed (WAITLIST_ACCEPTING_SIGNUPS in
+ * apps/web/src/components/waitlist.tsx), so an unset token degrades safely
+ * rather than half-opening the waitlist.
  *
- * Replace with the Listmonk equivalents when the swap lands, and restore them
- * to the deploy workflow's required-configuration check at the same time.
+ * LISTMONK_LIST_ID is 3, the private double opt-in "ConPaws Waitlist" list.
+ * listmonk's /api is deliberately outside Cloudflare Access, so the API token
+ * is the only credential needed — no Access service token.
  */
 const waitlistSecrets = {
-  BREVO_API_KEY: "",
-  BREVO_LIST_ID: "",
-  BREVO_DOI_TEMPLATE_ID: "",
-  BREVO_DOI_REDIRECT_URL: "",
+  LISTMONK_BASE_URL: process.env.LISTMONK_BASE_URL ?? "",
+  LISTMONK_API_USER: process.env.LISTMONK_API_USER ?? "",
+  // The only real credential of the four, so it gets the same encrypted-at-rest
+  // treatment as TURNSTILE_SECRET_KEY. The other three are configuration.
+  LISTMONK_API_TOKEN: alchemy.secret(process.env.LISTMONK_API_TOKEN ?? ""),
+  LISTMONK_LIST_ID: process.env.LISTMONK_LIST_ID ?? "",
 };
 
 /**

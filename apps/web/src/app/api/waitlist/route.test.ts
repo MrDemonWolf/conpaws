@@ -10,10 +10,10 @@ vi.mock("../../../db", () => ({ createDb }));
 const ENV = {
   DB: {},
   TURNSTILE_SECRET_KEY: "turnstile-secret",
-  BREVO_API_KEY: "brevo-key",
-  BREVO_LIST_ID: "4",
-  BREVO_DOI_TEMPLATE_ID: "9",
-  BREVO_DOI_REDIRECT_URL: "https://conpaws.com/confirmed",
+  LISTMONK_BASE_URL: "https://lists.mrdemonwolf.com",
+  LISTMONK_API_USER: "conpaws-web",
+  LISTMONK_API_TOKEN: "listmonk-token",
+  LISTMONK_LIST_ID: "3",
 };
 
 /** Covers only the two query shapes the route builds. */
@@ -137,7 +137,7 @@ describe("POST /api/waitlist", () => {
     });
   });
 
-  it("stores the consent record and pushes to Brevo outside the response", async () => {
+  it("stores the consent record and pushes to listmonk outside the response", async () => {
     const { inserted, waitUntil } = wireWorker();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       Response.json({ success: true }),
@@ -180,11 +180,11 @@ describe("POST /api/waitlist", () => {
       String((inserted[0] as { consentCopy: string }).consentCopy),
     ).not.toBe("");
 
-    // Brevo is contacted after the response, never as part of it.
+    // listmonk is contacted after the response, never as part of it.
     expect(waitUntil).toHaveBeenCalledTimes(1);
   });
 
-  it("does not re-send confirmation to an address Brevo already accepted", async () => {
+  it("does not re-send confirmation to an address listmonk already accepted", async () => {
     const { inserted, waitUntil } = wireWorker([
       {
         id: "existing",
@@ -214,7 +214,7 @@ describe("POST /api/waitlist", () => {
     expect(waitUntil).not.toHaveBeenCalled();
   });
 
-  it("retries an address Brevo has never accepted", async () => {
+  it("retries an address listmonk has never accepted", async () => {
     const { waitUntil } = wireWorker([
       {
         id: "existing",
@@ -242,11 +242,11 @@ describe("POST /api/waitlist", () => {
     expect(waitUntil).toHaveBeenCalledTimes(1);
   });
 
-  it("fails closed when the Brevo configuration is incomplete", async () => {
+  it("fails closed when the listmonk configuration is incomplete", async () => {
     const { db } = fakeDb();
     createDb.mockReturnValue(db);
     getCloudflareContext.mockReturnValue({
-      env: { ...ENV, BREVO_API_KEY: undefined },
+      env: { ...ENV, LISTMONK_API_TOKEN: undefined },
       ctx: { waitUntil: vi.fn() },
     });
 

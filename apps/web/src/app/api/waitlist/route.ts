@@ -5,8 +5,8 @@ import { z } from "zod";
 import { createDb } from "../../../db";
 import { waitlist } from "../../../db/schema";
 import { readBodyWithLimit } from "../../../lib/body-limit";
-import { readBrevoConfig } from "../../../lib/brevo";
 import { CONSENT_COPY } from "../../../lib/consent";
+import { readListmonkConfig } from "../../../lib/listmonk";
 import { verifyTurnstile } from "../../../lib/turnstile";
 import {
   claimRow,
@@ -19,9 +19,9 @@ import {
  * Waitlist signup.
  *
  * Order of operations:
- *   honeypot + timing gate → Turnstile → D1 insert → Brevo DOI in waitUntil
+ *   honeypot + timing gate → Turnstile → D1 insert → listmonk DOI in waitUntil
  *
- * D1 is written before Brevo is contacted, deliberately. An ESP outage must
+ * D1 is written before listmonk is contacted, deliberately. An ESP outage must
  * never fail the visitor's submission — the row lands with `synced_at` NULL and
  * the hourly reconciler (apps/web/workers/reconcile.ts) replays it.
  *
@@ -96,9 +96,9 @@ export async function POST(request: Request) {
     return unavailable();
   }
 
-  const brevo = readBrevoConfig(env);
+  const listmonk = readListmonkConfig(env);
   const turnstileSecret = env.TURNSTILE_SECRET_KEY;
-  if (!env.DB || !brevo || !turnstileSecret) {
+  if (!env.DB || !listmonk || !turnstileSecret) {
     return unavailable();
   }
 
@@ -129,8 +129,9 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existing) {
-    // Already known. Re-sending the confirmation only makes sense while Brevo
-    // has never accepted this address, and never faster than the cooldown —
+    // Already known. Re-sending the confirmation only makes sense while
+    // listmonk has never accepted this address, and never faster than the
+    // cooldown —
     // otherwise the form is a way to mailbomb someone else's inbox one
     // submission at a time.
     const resendable =
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
       // row, so without this claim both would fire a confirmation email.
       if (await claimRow(db, existing)) {
         ctx.waitUntil(
-          syncRow(db, brevo, {
+          syncRow(db, listmonk, {
             ...existing,
             syncAttempts: existing.syncAttempts + 1,
           }),
@@ -186,7 +187,7 @@ export async function POST(request: Request) {
     .returning({ id: waitlist.id });
 
   if (inserted.length > 0) {
-    ctx.waitUntil(syncRow(db, brevo, row));
+    ctx.waitUntil(syncRow(db, listmonk, row));
   }
 
   return Response.json({ ok: true });

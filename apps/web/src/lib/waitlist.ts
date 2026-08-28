@@ -2,12 +2,12 @@ import { and, asc, eq, isNull, lt } from "drizzle-orm";
 
 import type { Db } from "../db";
 import { type WaitlistRow, waitlist } from "../db/schema";
-import { type BrevoConfig, sendDoubleOptIn } from "./brevo";
+import { type ListmonkConfig, sendDoubleOptIn } from "./listmonk";
 
 /**
  * How many times the reconciler retries one address before leaving it alone.
- * A permanently rejected address (Brevo blocklist, hard bounce) would otherwise
- * be retried hourly forever.
+ * A permanently rejected address (listmonk blocklist, hard bounce) would
+ * otherwise be retried hourly forever.
  */
 export const MAX_SYNC_ATTEMPTS = 5;
 
@@ -33,7 +33,7 @@ export function resendAllowed(
 }
 
 /**
- * Pushes one row to Brevo and records the outcome.
+ * Pushes one row to listmonk and records the outcome.
  *
  * Never throws: this runs inside `ctx.waitUntil` on the request path and inside
  * a scheduled handler on the cron path, and in neither place should a failure
@@ -42,11 +42,11 @@ export function resendAllowed(
  * reconciler able to find it again.
  *
  * Returns whether the address is now synced, so a D1 write that fails after a
- * successful Brevo call is reported as not-synced rather than as success.
+ * successful listmonk call is reported as not-synced rather than as success.
  */
 export async function syncRow(
   db: Db,
-  config: BrevoConfig,
+  config: ListmonkConfig,
   row: Pick<WaitlistRow, "id" | "email" | "name" | "syncAttempts">,
 ): Promise<boolean> {
   const result = await sendDoubleOptIn(config, {
@@ -55,8 +55,9 @@ export async function syncRow(
   });
 
   if (result.ok) {
-    // A D1 failure here is the bad case: Brevo already has the contact, but the
-    // row keeps synced_at NULL, so a later pass sends a second confirmation.
+    // A D1 failure here is the bad case: listmonk already has the subscriber,
+    // but the row keeps synced_at NULL, so a later pass sends a second
+    // confirmation.
     // Nothing better is available from inside the Worker — what matters is that
     // it does not take the rest of the batch down with it.
     return await settle(
@@ -129,16 +130,16 @@ export async function claimRow(
 }
 
 /**
- * Replays every signup Brevo has not accepted yet.
+ * Replays every signup listmonk has not accepted yet.
  *
  * This is not optional. `ctx.waitUntil` has no retry, so without this pass a
- * single Brevo hiccup silently loses a subscriber: D1 still holds a perfectly
- * correct row, Brevo never hears about it, and nothing anywhere reports a
- * problem.
+ * single listmonk hiccup silently loses a subscriber: D1 still holds a
+ * perfectly correct row, listmonk never hears about it, and nothing anywhere
+ * reports a problem.
  */
 export async function reconcile(
   db: Db,
-  config: BrevoConfig,
+  config: ListmonkConfig,
 ): Promise<{ attempted: number; synced: number; failed: number }> {
   const pending = await db
     .select({
@@ -160,8 +161,9 @@ export async function reconcile(
 
   let synced = 0;
 
-  // Sequential on purpose. Brevo rate-limits, and a parallel burst of a large
-  // backlog is the fastest way to get the account throttled.
+  // Sequential on purpose. Every send goes out through SES, and a parallel
+  // burst of a large backlog is the fastest way to spike the bounce rate on a
+  // domain that is still warming up.
   let attempted = 0;
   for (const row of pending) {
     if (!(await claimRow(db, row))) continue;

@@ -11,10 +11,10 @@ import {
 } from "./waitlist";
 
 const CONFIG = {
-  apiKey: "key",
-  listId: 4,
-  templateId: 9,
-  redirectionUrl: "https://conpaws.com/confirmed",
+  baseUrl: "https://lists.mrdemonwolf.com",
+  apiUser: "conpaws-web",
+  apiToken: "token",
+  listId: 3,
 };
 
 type PendingRow = {

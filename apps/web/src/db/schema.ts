@@ -15,7 +15,7 @@ import {
  * a boolean flag proves nothing. Hence `consent_copy`, `ip`, `user_agent`, and
  * `created_at` living alongside the address.
  *
- * There is deliberately no `confirm_token` column. Brevo's double-opt-in
+ * There is deliberately no `confirm_token` column. listmonk's double-opt-in
  * endpoint owns token generation, expiry, and the confirmation click; D1
  * records the outcome, not the mechanism.
  *
@@ -31,7 +31,7 @@ export const waitlist = sqliteTable(
     email: text("email").notNull(),
     name: text("name").notNull().default(""),
 
-    /** `pending` until Brevo reports the double opt-in was confirmed. */
+    /** `pending` until listmonk reports the double opt-in was confirmed. */
     status: text("status", {
       enum: ["pending", "confirmed", "unsubscribed"],
     })
@@ -57,7 +57,7 @@ export const waitlist = sqliteTable(
       .default(sql`(unixepoch() * 1000)`),
     confirmedAt: integer("confirmed_at", { mode: "timestamp_ms" }),
 
-    /** NULL means Brevo has not accepted this contact yet. The cron replays these. */
+    /** NULL means listmonk has not accepted this subscriber yet. The cron replays these. */
     syncedAt: integer("synced_at", { mode: "timestamp_ms" }),
 
     /** Last sync failure, kept so a stuck row can be diagnosed without logs. */

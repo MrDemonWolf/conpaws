@@ -3,7 +3,7 @@ name: Deploy web
 # Production deploy for conpaws.com.
 #
 # The apply step is Alchemy (packages/infra/alchemy.run.ts). It provisions the
-# D1 database, binds the Brevo and Turnstile secrets, applies migrations, and
+# D1 database, binds the listmonk and Turnstile secrets, applies migrations, and
 # uploads both Workers in one operation.
 #
 # SAFETY PROPERTIES GIVEN UP WHEN THIS MOVED OFF WRANGLER (2026-08-18):
@@ -90,15 +90,19 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          LISTMONK_BASE_URL: ${{ vars.LISTMONK_BASE_URL }}
+          LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
+          LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
+          LISTMONK_LIST_ID: ${{ vars.LISTMONK_LIST_ID }}
         run: |
           # Alchemy reads these at deploy time and binds them onto the Workers.
           # A missing one would deploy a broken site, so fail here instead.
           #
-          # No ESP credential is listed. The waitlist form is closed and no
-          # sender is bound, so the signup route is meant to 503 — see the ESP
-          # note in packages/infra/alchemy.run.ts. Add the Listmonk variables
-          # here when the swap lands, or the deploy will happily ship a waitlist
-          # that accepts addresses and mails nobody.
+          # The ESP is listmonk. Only LISTMONK_API_TOKEN is a secret; the base
+          # URL, API user, and list id are repository variables because they are
+          # not credentials. All four are required: a partial set makes
+          # readListmonkConfig return null, which ships a waitlist that accepts
+          # addresses and mails nobody.
           #
           # NEXT_PUBLIC_TURNSTILE_SITE_KEY is the odd one out: it is a public,
           # build-time client var (packages/env/src/web.ts) that the deploy step
@@ -107,7 +111,8 @@ jobs:
           # gets a 400. Hence a variable, not a secret.
           missing=()
           for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN ALCHEMY_PASSWORD \
-            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY; do
+            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY \
+            LISTMONK_BASE_URL LISTMONK_API_USER LISTMONK_API_TOKEN LISTMONK_LIST_ID; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
             fi
@@ -127,6 +132,10 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          LISTMONK_BASE_URL: ${{ vars.LISTMONK_BASE_URL }}
+          LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
+          LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
+          LISTMONK_LIST_ID: ${{ vars.LISTMONK_LIST_ID }}
         # Runs the Alchemy program directly under Node via tsx, matching every
         # other MrDemonWolf Alchemy project. Not `bun`: Bun segfaults executing
         # an Alchemy program. Not the `alchemy` CLI: the program owns its own
@@ -154,10 +163,17 @@ jobs:
       #
       # What actually made it red: Cloudflare Bot Fight Mode issued a Managed
       # Challenge to the GitHub Actions runner (Azure IPs), curl cannot solve a
-      # challenge, so every attempt 403'd for the full seven minutes. Bot Fight
-      # Mode is off as of 2026-08-27 — it was also challenging Googlebot, which
-      # mattered more. If a future zone change turns it back on, this step goes
-      # yellow instead of red and the deploy is unaffected.
+      # challenge, so every attempt 403'd for the full seven minutes.
+      #
+      # Bot Fight Mode is ON again as of 2026-08-28 (verified: the zone's
+      # bot_management API reports fight_mode true), so this step may well go
+      # yellow. It reports rather than gates, so the deploy is unaffected — but
+      # the earlier reason for turning it off still stands, namely that it also
+      # challenges Googlebot. Note it CANNOT be fixed with a WAF skip rule:
+      # Bot Fight Mode runs outside the Ruleset Engine, so Skip/Bypass/Allow do
+      # nothing to it. The only per-source exemption on a Free plan is an IP
+      # Access rule, which is how Amazon SNS reaches the listmonk bounce webhook
+      # on lists.mrdemonwolf.com.
       - name: Report live release
         continue-on-error: true
         env:
