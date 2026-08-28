@@ -6,11 +6,12 @@ Use this page when a build is ready for real devices or the stores.
 
 1. Pull clean `main` and confirm `CI / Verify` is green for that exact commit.
 2. Keep the public version, such as `1.0.0`, unchanged while testing release candidates.
-3. Create signed `production` builds with EAS. Do not use auto-submit.
-4. Record both EAS build IDs and download those exact artifacts.
-5. Upload the IPA with Apple Transporter and the AAB in Play Console.
-6. Test the store-delivered builds on physical devices.
-7. Promote those same tested builds. If code changes, make a new build and test again.
+3. Move the build number first: `bun run ship:prep` for a local build, or the remote counters for an EAS build.
+4. Create signed `production` builds. Do not use auto-submit.
+5. Record what identifies each artifact — EAS build IDs, or the local build number and checksums — and keep those exact files.
+6. Upload the IPA with Apple Transporter and the AAB in Play Console.
+7. Test the store-delivered builds on physical devices.
+8. Promote those same tested builds. If code changes, make a new build and test again.
 
 Never use `--latest`. Never guess which artifact was tested.
 
@@ -23,9 +24,10 @@ documented intent rather than current practice, in particular:
 
 - The remote version counters in "Version and build-number rules". A local build
   ignores them and stamps `CFBundleVersion` and `versionCode` from the
-  hand-bumped `BUILD_NUMBER` constant in `app.config.ts`. `eas.json` still sets
+  `BUILD_NUMBER` constant in `app.config.ts`. `eas.json` still sets
   `appVersionSource: "remote"`, so the two numbering schemes can drift apart
   silently, and an EAS build made today would not continue the local sequence.
+  The local path has its own tooling; see "Local builds: bun run ship:prep".
 - The `eas build` commands in step 2 of "Every release candidate", and the
   `build:view` artifact-provenance step that follows them.
 - The EAS build ID fields in the release record template.
@@ -116,6 +118,38 @@ npx eas-cli@22.0.0 build:version:set --platform android --profile production
 ```
 
 The commands prompt for the values. With `autoIncrement` enabled, the next production build should use the next number. Verify the number on the completed EAS build before uploading it. A store will reject a reused or lower number.
+
+### Local builds: `bun run ship:prep`
+
+A local archive never touches the EAS counters. It stamps `CFBundleVersion` and
+`versionCode` from the `BUILD_NUMBER` constant in `app.config.ts`, so that
+constant has to move before every candidate that reaches TestFlight, Play, or a
+registered device. From `apps/native`, use this instead of `expo prebuild`:
+
+```bash
+bun run ship:prep
+```
+
+It bumps the constant, regenerates the native projects, and then verifies that
+the regenerated `ios/ConPaws/Info.plist` and `android/app/build.gradle` carry
+the new number. That last step is the one that earns its keep: `ios/` and
+`android/` are gitignored CNG output, so a bump that is not followed by a
+prebuild leaves the archive on the previous number, and the store rejects the
+upload as a duplicate after the build has already been paid for in time.
+
+Inspect the current state without changing anything:
+
+```bash
+bun run build-number:check
+```
+
+Commit `app.config.ts` with the release so the constant records what shipped.
+Burned numbers are fine. A discarded candidate that skips a number costs
+nothing, because both stores only require the number to increase.
+
+If release candidates ever move back to EAS, set the remote counters to the last
+locally shipped number first. They have not moved since local builds took over,
+so an EAS build today would hand out a number the stores have already seen.
 
 ## Every release candidate
 

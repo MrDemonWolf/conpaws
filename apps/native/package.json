@@ -18,7 +18,10 @@
     "licenses:generate": "node scripts/generate-open-source-licenses.mjs",
     "licenses:check": "node scripts/generate-open-source-licenses.mjs --check",
     "prebuild": "expo prebuild",
-    "prebuild:clean": "expo prebuild --clean"
+    "prebuild:clean": "expo prebuild --clean",
+    "build-number:bump": "node scripts/build-number.mjs --bump",
+    "build-number:check": "node scripts/build-number.mjs --check",
+    "ship:prep": "node scripts/build-number.mjs --bump && expo prebuild && node scripts/build-number.mjs --check"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
