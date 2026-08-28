@@ -54,6 +54,44 @@ async function readDetail(response: Response): Promise<string> {
 }
 
 /**
+ * How many people have confirmed their double opt-in.
+ *
+ * listmonk is the only place that knows this. The local `waitlist.status`
+ * column has a `confirmed` value and a `confirmed_at` timestamp, but nothing
+ * ever writes them — listmonk owns the confirmation click and offers no
+ * callback — so counting D1 would report 0 forever.
+ *
+ * Reads `subscriber_statuses.confirmed` rather than `subscriber_count`: the
+ * latter is a cached total that includes unconfirmed and recently deleted
+ * subscribers, and was observed reporting 12 for a list holding 6 people.
+ *
+ * Returns null on any failure. Callers must treat that as "unknown" and show
+ * something honest, never zero — a confirmed count of 0 and a broken API call
+ * are very different claims to put on a page.
+ */
+export async function fetchConfirmedCount(
+  config: ListmonkConfig,
+): Promise<number | null> {
+  try {
+    const response = await fetch(
+      `${config.baseUrl}/api/lists/${config.listId}`,
+      { headers: headers(config), signal: AbortSignal.timeout(TIMEOUT_MS) },
+    );
+
+    if (!response.ok) return null;
+
+    const body = (await response.json().catch(() => null)) as {
+      data?: { subscriber_statuses?: { confirmed?: number } };
+    } | null;
+
+    const count = body?.data?.subscriber_statuses?.confirmed;
+    return typeof count === "number" && count >= 0 ? count : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Adds the address to the waitlist list and gets listmonk to send its
  * double-opt-in confirmation email.
  *
