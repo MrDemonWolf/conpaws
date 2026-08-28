@@ -33,7 +33,9 @@ const getScheme = (): string => {
  * leaving it unset would stamp the archive with Expo's default of 1 and get the
  * upload rejected as a duplicate of a lower build.
  *
- * Bump it in the same commit that tags the release.
+ * Do not edit it by hand. `bun run ship:prep` bumps it, regenerates the native
+ * projects, and checks that they picked the new number up; see the "Local
+ * builds" section of RELEASING.md. Commit it with the release.
  */
 const BUILD_NUMBER = 205;
 

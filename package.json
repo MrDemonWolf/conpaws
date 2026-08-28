@@ -29,6 +29,8 @@
     "web": "turbo -F @conpaws/native web",
     "prebuild": "turbo -F @conpaws/native prebuild",
     "prebuild:clean": "turbo -F @conpaws/native prebuild:clean",
+    "ship:prep": "bun run --filter @conpaws/native ship:prep",
+    "build-number:check": "bun run --filter @conpaws/native build-number:check",
     "type-check": "turbo -F @conpaws/native type-check",
     "deploy": "bun run --filter @conpaws/infra deploy",
     "destroy": "bun run --filter @conpaws/infra destroy",

@@ -3,9 +3,10 @@
  *
  * The build number matters because the marketing version barely moves -- every
  * TestFlight and Play internal build of 1.0.0 looks identical without it, and a
- * bug report that says "1.0.0" cannot be tied to a build. EAS hands out the
- * build number from remote version counters, so it is the only part of this
- * that reliably increments.
+ * bug report that says "1.0.0" cannot be tied to a build. The build number is
+ * the only part of this that reliably increments: `bun run ship:prep` moves
+ * `BUILD_NUMBER` in `app.config.ts` for local builds, and EAS hands it out from
+ * remote version counters when a build comes from there instead.
  */
 
 /**
