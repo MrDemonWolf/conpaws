@@ -132,11 +132,19 @@ Which file supplies those depends on how the Worker is being run, and the three 
 
 | Running | Reads |
 |---|---|
-| `bun run preview` / `wrangler dev` in `apps/web` | `apps/web/.dev.vars` (gitignored) |
+| `bunx opennextjs-cloudflare preview` / `wrangler dev` in `apps/web` | `apps/web/.dev.vars` (gitignored) |
 | `bun run deploy` from the repo root (Alchemy) | `packages/infra/.env` and `apps/web/.env`, loaded by dotenv at the top of `alchemy.run.ts` |
 | GitHub Actions production deploy | repo secrets and variables — see `.github/workflows/deploy-web.yml` |
 
 Putting the values only in `.dev.vars` and then running `bun run deploy` locally yields unresolved `Config` values, not a useful error.
+
+There is no `preview` script — run the two steps CI runs, from `apps/web`:
+`bunx opennextjs-cloudflare build` then `bunx opennextjs-cloudflare preview -- --port 8787`.
+The preview does not build for you, so a stale `.open-next/` silently serves the
+previous code. **`bun dev:web` is not a substitute for testing the waitlist**: it is
+plain `next dev` with no Cloudflare bindings at all, so `getCloudflareContext()`
+throws and `/api/waitlist` returns 503 no matter how the ESP is configured. Local
+D1 also needs `bun run db:migrate:local` in `apps/web` before the route can insert.
 
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` goes the other way: it is a **build-time client** var, so it has to be present wherever the OpenNext build runs (`apps/web/.env` locally, a repo variable in CI). Without it the widget never renders, the client posts an empty token, and every real signup is rejected.
 
