@@ -124,7 +124,24 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     icon: getVariantPng("icon"),
     versionCode: BUILD_NUMBER,
-    permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
+    // No SCHEDULE_EXACT_ALARM. It was declared here and never requested or
+    // checked anywhere in the app, which on Android 14 and newer means it was
+    // simply denied: the permission stopped being granted on install for apps
+    // whose core purpose is not an alarm clock or calendar, and nothing in
+    // ConPaws opens the settings screen that would let a user turn it on.
+    //
+    // Reminders do not need it. expo-notifications asks
+    // `AlarmManager.canScheduleExactAlarms()` and falls back to
+    // `setAndAllowWhileIdle` when the answer is no (ExpoSchedulingDelegate.kt),
+    // so a reminder still fires -- Doze may just batch it a few minutes late.
+    // That is already the behaviour on every Android 14+ device today; dropping
+    // the declaration only removes a permission line from the Play listing and
+    // the app-info screen, plus the policy declaration Google attaches to it.
+    //
+    // If reminder punctuality ever proves to matter more than that, the fix is
+    // to request it properly -- ACTION_REQUEST_SCHEDULE_EXACT_ALARM plus the
+    // Play declaration -- not to re-add the bare permission.
+    permissions: [],
     // Permissions no ConPaws code path uses, removed from the merged manifest so
     // they never reach the Play listing or the Android app-info screen.
     //
@@ -233,6 +250,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...(APP_VARIANT === "development"
       ? []
       : ["./plugins/withoutDevLauncherLocalNetwork.js"]),
+    // Writes the Android upload-signing properties into the generated
+    // android/gradle.properties, reading them from a file outside the repo.
+    // They used to sit in ~/.gradle/gradle.properties, where they signed every
+    // Android project on the machine. No-ops when that file is absent.
+    "./plugins/withUploadSigning.js",
     "expo-document-picker",
     "expo-sharing",
     "expo-web-browser",
