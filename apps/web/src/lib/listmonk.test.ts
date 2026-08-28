@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { readListmonkConfig, sendDoubleOptIn } from "./listmonk";
+import {
+  fetchConfirmedCount,
+  readListmonkConfig,
+  sendDoubleOptIn,
+} from "./listmonk";
 
 const CONFIG = {
   baseUrl: "https://lists.mrdemonwolf.com",
@@ -118,5 +122,54 @@ describe("sendDoubleOptIn", () => {
     await expect(
       sendDoubleOptIn(CONFIG, { email: "person@example.com", name: "" }),
     ).resolves.toEqual({ ok: false, status: 0, detail: "network down" });
+  });
+});
+
+describe("fetchConfirmedCount", () => {
+  it("reads the confirmed subscriber status for the list", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        data: { subscriber_count: 12, subscriber_statuses: { confirmed: 6 } },
+      }),
+    );
+
+    await expect(fetchConfirmedCount(CONFIG)).resolves.toBe(6);
+
+    const [url] = fetchSpy.mock.calls[0] as [string];
+    expect(url).toBe("https://lists.mrdemonwolf.com/api/lists/3");
+  });
+
+  it("ignores subscriber_count, which counts unconfirmed and deleted rows", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        data: { subscriber_count: 12, subscriber_statuses: { confirmed: 6 } },
+      }),
+    );
+
+    await expect(fetchConfirmedCount(CONFIG)).resolves.not.toBe(12);
+  });
+
+  it("returns null rather than zero when the count is unavailable", async () => {
+    for (const response of [
+      new Response("nope", { status: 500 }),
+      Response.json({ data: {} }),
+      Response.json({ data: { subscriber_statuses: {} } }),
+    ]) {
+      vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
+      await expect(fetchConfirmedCount(CONFIG)).resolves.toBeNull();
+    }
+  });
+
+  it("returns null rather than throwing on a network failure", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network down"));
+    await expect(fetchConfirmedCount(CONFIG)).resolves.toBeNull();
+  });
+
+  it("reports a genuine zero as zero, not null", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ data: { subscriber_statuses: { confirmed: 0 } } }),
+    );
+
+    await expect(fetchConfirmedCount(CONFIG)).resolves.toBe(0);
   });
 });

@@ -5,13 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { BadgeFace } from "./badge-face";
 
 /**
- * The badge number this settles on.
+ * The badge number shown until (or unless) a real count arrives.
  *
  * 0001 is deliberate and literal: the person looking at the page is the
- * founding badge. It is NOT a signup count — the waitlist is closed, and a
- * page that appeared to tick upward with real registrations would be claiming
- * something untrue. When signups open, this becomes the reader's confirmed
- * waitlist position (CON-28 only allows showing that after confirmation).
+ * founding badge. It is the fallback, not a placeholder to be "fixed" — the
+ * page must claim something true when the count is unavailable, and 0000 would
+ * assert that nobody has signed up.
  */
 const BADGE_NUMBER = 1;
 const BADGE_DIGITS = 4;
@@ -30,11 +29,35 @@ export function BadgeCard({ name }: { name: string }) {
   const frame = useRef<number>(0);
   const [motionOk, setMotionOk] = useState(false);
 
-  const settled = String(BADGE_NUMBER).padStart(BADGE_DIGITS, "0");
+  // Real confirmed signups, once they arrive. Null until then, and null
+  // forever if the count cannot be established — see /api/waitlist/count,
+  // which answers null rather than 0 so an outage never reads as "nobody
+  // signed up". Fetched client-side on purpose: the page itself stays static
+  // and cacheable, and a number this decorative must not delay first paint.
+  const [confirmed, setConfirmed] = useState<number | null>(null);
+
+  const settled = String(confirmed ?? BADGE_NUMBER).padStart(BADGE_DIGITS, "0");
   const [badgeNumber, setBadgeNumber] = useState(settled);
 
   useEffect(() => {
     setMotionOk(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch("/api/waitlist/count", { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body: { count?: number | null } | null) => {
+        if (typeof body?.count === "number" && body.count > 0) {
+          setConfirmed(body.count);
+        }
+      })
+      .catch(() => {
+        // Keep the fallback number. A badge is not worth surfacing an error.
+      });
+
+    return () => controller.abort();
   }, []);
 
   // Digits climb 0-9 and land left to right, like a printer stamping the
@@ -42,7 +65,12 @@ export function BadgeCard({ name }: { name: string }) {
   // instead of scrambling. Skipped entirely under reduced motion — the number
   // is simply correct from the first frame.
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // No roll, but the digits still have to be right: this effect is what
+      // applies a count that arrives after first paint.
+      setBadgeNumber(settled);
+      return;
+    }
 
     let raf = 0;
     let start: number | undefined;
