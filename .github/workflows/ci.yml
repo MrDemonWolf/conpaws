@@ -123,7 +123,7 @@ jobs:
               --data '{"email":"ci@example.com","name":"CI","elapsedMs":3000}' \
               http://127.0.0.1:8787/api/waitlist
           )"
-          # The local preview Worker has no Brevo or Turnstile secrets bound, so
+          # The local preview Worker has no listmonk or Turnstile secrets bound, so
           # a valid submission must fail closed rather than claim success. When
           # the waitlist opens, this assertion does NOT change: the check proves
           # the unconfigured path, not the production path. It would only change

@@ -2,19 +2,19 @@ import type { ScheduledController } from "@cloudflare/workers-types";
 import type { ReconcilerEnv } from "@conpaws/infra/alchemy.run";
 
 import { createDb } from "../src/db";
-import { readBrevoConfig } from "../src/lib/brevo";
+import { readListmonkConfig } from "../src/lib/listmonk";
 import { reconcile } from "../src/lib/waitlist";
 
 /**
  * Waitlist reconciler.
  *
  * Runs hourly (the schedule lives on the Worker in
- * packages/infra/alchemy.run.ts) and replays every signup Brevo has not
+ * packages/infra/alchemy.run.ts) and replays every signup listmonk has not
  * accepted yet.
  *
  * This exists because `ctx.waitUntil` on the signup path has no retry. Without
- * it, one Brevo hiccup loses a subscriber invisibly: the D1 row is correct,
- * Brevo never received the contact, and nothing reports a problem.
+ * it, one listmonk hiccup loses a subscriber invisibly: the D1 row is correct,
+ * listmonk never received the subscriber, and nothing reports a problem.
  *
  * It is a Worker of its own rather than a `scheduled` handler bolted onto the
  * site because the site's entry point is OpenNext's prebuilt bundle, which
@@ -22,9 +22,9 @@ import { reconcile } from "../src/lib/waitlist";
  */
 export default {
   async scheduled(_controller: ScheduledController, env: ReconcilerEnv) {
-    const config = readBrevoConfig(env);
+    const config = readListmonkConfig(env);
     if (!env.DB || !config) {
-      console.error("waitlist reconciler: bindings or Brevo config missing");
+      console.error("waitlist reconciler: bindings or listmonk config missing");
       return;
     }
 

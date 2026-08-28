@@ -4,7 +4,7 @@ import { z } from "zod";
 /**
  * Build-time / client environment for apps/web.
  *
- * Server-side secrets (BREVO_API_KEY, TURNSTILE_SECRET_KEY, …) are deliberately
+ * Server-side secrets (LISTMONK_API_TOKEN, TURNSTILE_SECRET_KEY, …) are deliberately
  * NOT declared here. On Cloudflare Workers those arrive as bindings and are read
  * per-request via `getCloudflareContext().env` — they do not exist in
  * `process.env` at build time, so validating them here would fail every build.

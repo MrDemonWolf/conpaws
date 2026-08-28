@@ -4,7 +4,12 @@ import Link from "next/link";
 import { CompassPaw } from "@/components/compass-paw";
 
 /**
- * Double opt-in landing page. The ESP (Brevo today, Listmonk next) redirects
+ * Double opt-in landing page. Currently unreachable: listmonk shows its own
+ * confirmation page on lists.mrdemonwolf.com and has no per-request redirect
+ * target, so nothing links here today. Kept because it is where a custom
+ * confirmation destination would go if listmonk's page is ever replaced.
+ *
+ * Historically the ESP redirected
  * every confirming subscriber here, so this route is the last step of signup —
  * it has to render for anyone, with no query params, no session, and no JS.
  *
