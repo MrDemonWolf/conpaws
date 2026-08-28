@@ -27,10 +27,11 @@ const getScheme = (): string => {
  *
  * EAS builds ignore this entirely -- eas.json sets `appVersionSource: "remote"`,
  * so the remote counter wins there. It matters for the local Xcode Organizer
- * archive that RELEASING.md describes, which is how ConPaws has actually shipped
- * so far: prebuild writes this into CFBundleVersion and versionCode, and leaving
- * it unset would stamp the archive with Expo's default of 1 and get the upload
- * rejected as a duplicate of a lower build.
+ * archive and local Gradle bundle, which is how ConPaws has actually shipped so
+ * far (203 and 204) even though RELEASING.md prescribes EAS; see its "Known
+ * drift" section. Prebuild writes this into CFBundleVersion and versionCode, and
+ * leaving it unset would stamp the archive with Expo's default of 1 and get the
+ * upload rejected as a duplicate of a lower build.
  *
  * Bump it in the same commit that tags the release.
  */
