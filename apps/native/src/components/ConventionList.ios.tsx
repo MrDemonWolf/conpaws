@@ -38,6 +38,8 @@ export function ConventionList<T extends { id: string }>({
   onDelete,
   archiveItemLabel,
   onArchive,
+  unarchiveItemLabel,
+  onUnarchive,
   onOpenActions,
 }: ConventionListProps<T>) {
   const colorScheme = useResolvedColorScheme();
@@ -148,6 +150,17 @@ export function ConventionList<T extends { id: string }>({
               label={archiveItemLabel}
               systemImage="archivebox"
               onPress={() => onArchive(item)}
+            />
+          </SwipeActions.Actions>
+        ) : row.canUnarchive ? (
+          // Only explicitly archived, not-yet-ended conventions offer
+          // Unarchive — for a naturally ended one the action would be a
+          // visual no-op (see canUnarchive in convention-list.ts).
+          <SwipeActions.Actions edge="leading" allowsFullSwipe>
+            <Button
+              label={unarchiveItemLabel}
+              systemImage="archivebox"
+              onPress={() => onUnarchive(item)}
             />
           </SwipeActions.Actions>
         ) : null}

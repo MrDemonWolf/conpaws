@@ -267,6 +267,12 @@ export default function CreateConventionScreen() {
             >
               {t("convention.location")}
             </ListItem>
+            {/* The location silently drives a geocode on save that sets the
+                time zone and can take seconds — say so instead of looking
+                like a cosmetic field. */}
+            <FieldGroup.SectionFooter>
+              <NativeText>{t("convention.locationTimeZoneNote")}</NativeText>
+            </FieldGroup.SectionFooter>
             <ConventionDateField
               title={t("convention.startDate")}
               value={startDate}

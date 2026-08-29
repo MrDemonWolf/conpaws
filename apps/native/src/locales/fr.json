@@ -5,10 +5,12 @@
     "settings": "Paramètres",
     "back": "Retour",
     "add": "Ajouter",
+    "remove": "Retirer",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "archive": "Archiver",
+    "unarchive": "Désarchiver",
     "edit": "Modifier",
     "done": "Terminé",
     "loading": "Chargement...",
@@ -74,9 +76,10 @@
     "name": "Nom de la Convention",
     "namePlaceholder": "ex. ConPaws Preview Con",
     "nameRequired": "Saisissez un nom pour la convention.",
-    "timeZoneInvalid": "Saisissez un fuseau horaire IANA valide, comme America/Chicago.",
+    "timeZoneInvalid": "Choisissez un fuseau horaire valide, par exemple Chicago (America/Chicago).",
     "location": "Lieu",
     "locationPlaceholder": "Ville, site ou adresse",
+    "locationTimeZoneNote": "Définit aussi automatiquement le fuseau horaire de la convention.",
     "timeZoneFallbackTitle": "Fuseau horaire introuvable",
     "timeZoneFallbackMessage": "ConPaws peut utiliser le fuseau de cet appareil ({{timeZone}}), ou vous pouvez choisir celui de la convention dans Avancé.",
     "setTimeZone": "Choisir le fuseau",
@@ -87,13 +90,14 @@
     "addToSchedule": "Ajouter à Mon programme",
     "removeFromSchedule": "Retirer de Mon programme",
     "scheduleActionHint": "Met à jour cet événement dans Mon programme.",
+    "scheduleHint": {
+      "body": "Touchez un événement pour l'ajouter à Mon programme. Les événements marqués apparaissent dans l'onglet Programme.",
+      "dismiss": "Masquer l'astuce"
+    },
     "scheduleAddedAnnouncement": "{{event}} a été ajouté à Mon programme.",
     "scheduleRemovedAnnouncement": "{{event}} a été retiré de Mon programme.",
     "scheduleUpdateErrorTitle": "Programme non mis à jour",
     "scheduleUpdateErrorMessage": "Impossible de modifier l'événement. Votre programme est resté inchangé.",
-    "viewOnSched": "Voir sur Sched",
-    "viewOnSchedLabel": "Voir {{event}} sur Sched",
-    "openExternalHint": "Ouvre la page de l'événement dans votre navigateur.",
     "closeEventDetails": "Fermer les détails de l'événement",
     "timeRangeTo": "à {{time}}",
     "eventTimeRange": "{{start}} à {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "Impossible d’archiver la convention",
       "errorMessage": "Rien n’a été archivé. Réessayez."
     },
+    "unarchive": {
+      "success": "{{name}} restaurée depuis les archives.",
+      "errorTitle": "Désarchivage impossible",
+      "errorMessage": "La convention n'a pas pu être restaurée. Réessayez."
+    },
     "moreActions": "Plus d’actions pour {{name}}",
     "sortBy": "Trier par",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Utilisez le lieu de la convention, pas la position actuelle de votre téléphone.",
       "requiredTitle": "Fuseau horaire requis",
-      "requiredMessage": "Choisissez le fuseau horaire IANA de la convention afin que les horaires restent corrects pendant vos déplacements.",
+      "requiredMessage": "Choisissez le fuseau horaire de la convention avant d'importer — prenez la ville où elle a lieu.",
       "choose": "Choisir un fuseau horaire",
       "use": "Utiliser ce fuseau horaire"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "Cette mise à jour Sched ne contient aucun événement actif. Son application supprimera exactement {{count}} événement importé de cette convention et annulera son rappel local. Les événements ajoutés manuellement seront conservés.",
       "emptyUpdateEvents": "Cette mise à jour Sched ne contient aucun événement actif. Son application supprimera exactement {{count}} événements importés de cette convention et annulera leurs rappels locaux. Les événements ajoutés manuellement seront conservés.",
       "invalidTimeZoneTitle": "Fuseau horaire non valide",
-      "invalidTimeZoneMessage": "Utilisez un fuseau horaire IANA tel que America/Chicago.",
+      "invalidTimeZoneMessage": "Choisissez le fuseau horaire de la convention dans la liste, par exemple Chicago.",
       "notAppliedTitle": "Importation non appliquée",
       "parseNotApplied": "Ce calendrier n'a pas pu être analysé de façon sûre. Rien n'a été modifié.",
       "nothingTitle": "Rien à importer",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Séries récurrentes laissées inchangées : {{count}}. Les anciens événements enregistrés n'ont pas pu être associés de façon sûre.",
       "detailsNotUpdated": "Les événements ont été enregistrés, mais les dates de la convention ou l'URL Sched enregistrée n'ont pas pu être actualisées.",
       "failedTitle": "Échec de l'importation"
+    },
+    "help": {
+      "title": "Où trouver cela ?",
+      "schedTitle": "La convention utilise Sched ?",
+      "sched": "La plupart des conventions publient leur programme sur Sched — le site ressemble à <nom>.sched.com. Copiez n'importe quelle page et collez-la ici.",
+      "icsTitle": "Vous avez un fichier calendrier ?",
+      "ics": "Un fichier .ics est un export de calendrier standard. Les conventions le proposent souvent sous « Ajouter au calendrier » ou « Flux calendrier » — les liens webcal:// fonctionnent aussi.",
+      "askTitle": "Vous ne trouvez ni l'un ni l'autre ?",
+      "ask": "Cherchez un lien vers le programme sur le site ou l'appli de la convention, ou demandez sur leurs réseaux sociaux quel format ils publient."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Planifiez toute la convention",
       "subtitle": "Tout ce qu’il vous faut quand le Wi-Fi du lieu abandonne.",
       "demo": {
-        "now": "Maintenant",
-        "next": "Ensuite",
-        "eventOne": "Cérémonie d’ouverture",
-        "eventTwo": "Défilé de fursuits",
         "saved": "Mon programme"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Rappels en pause",
     "pausedMessage": "Les notifications sont désactivées, vos rappels enregistrés n'arriveront donc pas. Vos choix sont conservés et reviennent dès que vous activez les notifications.",
     "overflowTitle": "Certains rappels sont en attente",
-    "overflowMessage": "Cet appareil ne conserve qu'un nombre limité de rappels en attente, en voici le nombre : {{count}}. Les plus proches sont programmés en premier."
+    "overflowMessage": "Cet appareil ne conserve qu'un nombre limité de rappels en attente, en voici le nombre : {{count}}. Les plus proches sont programmés en premier.",
+    "priming": {
+      "title": "Soyez prévenu avant les panels",
+      "message": "ConPaws peut vous rappeler quand il est temps de partir pour un panel. Votre téléphone demandera ensuite l'autorisation de notifications.",
+      "continue": "Continuer",
+      "notNow": "Pas maintenant"
+    }
   },
   "schedule": {
     "title": "Programme",
     "empty": {
       "title": "Rien en favori pour l'instant",
-      "subtitle": "Mettez un événement en favori dans une convention et il apparaîtra ici.",
+      "subtitle": "Touchez un événement dans une convention pour l'ajouter à Mon programme — il apparaîtra ici.",
       "cta": "Ouvrir mes conventions"
     },
     "timesShownInConventionTime": "Les horaires sont affichés dans le fuseau de chaque convention.",
     "loadError": "Impossible de charger votre programme.",
     "conventionEmpty": {
       "title": "Rien d’enregistré pour {{name}}",
-      "subtitle": "Ajoutez des événements en favori dans le programme de la convention pour les voir ici.",
+      "subtitle": "Ajoutez des événements depuis le programme de la convention et ils apparaîtront ici.",
       "cta": "Ouvrir la convention"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Paquet introuvable",
       "packageNotFoundDescription": "Ce paquet n’est peut-être plus inclus dans cette version.",
       "licenseTextUnavailable": "Le texte de la licence n’est pas disponible dans cette version."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "permission": "Autorisation de notifications",
+      "enabled": "Autorisées — les rappels peuvent arriver",
+      "disabled": "Désactivées — les rappels n'arriveront pas",
+      "notRequested": "Pas encore demandée",
+      "defaultLead": "Rappel de départ par défaut",
+      "defaultLeadDescription": "Présélectionné quand vous créez un rappel sur un nouvel événement.",
+      "noDefault": "Aucun"
+    },
+    "help": {
+      "gettingStarted": "Premiers pas",
+      "gettingStartedDescription": "Où trouver le programme de votre convention",
+      "importNow": "Importer un programme",
+      "importNowDescription": "Ajoutez un lien Sched ou un fichier .ics."
     }
   }
 }

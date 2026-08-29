@@ -1,11 +1,23 @@
+import { Redirect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "react-i18next";
 import { ScreenErrorFallback } from "@/lib/error-fallback";
+import { getCachedOnboardingFlag } from "@/lib/onboarding-storage";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+
+  // Inbound links resolve straight into the tabs without passing app/index's
+  // gate — a widget tap (conpaws://schedule) on a fresh install used to land
+  // an un-onboarded user inside the app. The launch bootstrap primes this
+  // cache before anything renders, so the read is synchronous; an unprimed
+  // cache (fast refresh) falls open rather than re-running onboarding on
+  // someone mid-session.
+  if (getCachedOnboardingFlag() === false) {
+    return <Redirect href="/(onboarding)/welcome" />;
+  }
 
   return (
     <NativeTabs

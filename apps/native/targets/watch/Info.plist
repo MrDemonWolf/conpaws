@@ -11,5 +11,10 @@
     <true/>
     <key>WKRunsIndependentlyOfCompanionApp</key>
     <false/>
+    <!-- A leave-countdown app that dismisses to the watch face on wrist-down
+         defeats its own purpose; opting in keeps the countdown glanceable.
+         content.swift dims via isLuminanceReduced. -->
+    <key>WKSupportsAlwaysOnDisplay</key>
+    <true/>
   </dict>
 </plist>

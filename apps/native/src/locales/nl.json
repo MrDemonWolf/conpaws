@@ -5,10 +5,12 @@
     "settings": "Instellingen",
     "back": "Terug",
     "add": "Toevoegen",
+    "remove": "Verwijderen",
     "save": "Opslaan",
     "cancel": "Annuleren",
     "delete": "Verwijderen",
     "archive": "Archiveren",
+    "unarchive": "Dearchiveren",
     "edit": "Bewerken",
     "done": "Klaar",
     "loading": "Laden...",
@@ -74,9 +76,10 @@
     "name": "Conventienaam",
     "namePlaceholder": "bijv. ConPaws Preview Con",
     "nameRequired": "Voer een naam voor de conventie in.",
-    "timeZoneInvalid": "Voer een geldige IANA-tijdzone in, zoals America/Chicago.",
+    "timeZoneInvalid": "Kies een geldige tijdzone, zoals Chicago (America/Chicago).",
     "location": "Locatie",
     "locationPlaceholder": "Stad, locatie of adres",
+    "locationTimeZoneNote": "Stelt ook automatisch de tijdzone van de conventie in.",
     "timeZoneFallbackTitle": "Tijdzone kon niet worden bepaald",
     "timeZoneFallbackMessage": "ConPaws kan de tijdzone van dit apparaat ({{timeZone}}) gebruiken. Je kunt ook de tijdzone van de conventie kiezen onder Geavanceerd.",
     "setTimeZone": "Tijdzone instellen",
@@ -87,13 +90,14 @@
     "addToSchedule": "Toevoegen aan Mijn programma",
     "removeFromSchedule": "Verwijderen uit Mijn programma",
     "scheduleActionHint": "Werkt dit evenement bij in Mijn programma.",
+    "scheduleHint": {
+      "body": "Tik op een evenement om het aan Mijn schema toe te voegen. Gemarkeerde evenementen verschijnen in het Schema-tabblad.",
+      "dismiss": "Tip verbergen"
+    },
     "scheduleAddedAnnouncement": "{{event}} is toegevoegd aan Mijn programma.",
     "scheduleRemovedAnnouncement": "{{event}} is verwijderd uit Mijn programma.",
     "scheduleUpdateErrorTitle": "Programma niet bijgewerkt",
     "scheduleUpdateErrorMessage": "Het evenement kon niet worden gewijzigd. Je programma is niet aangepast.",
-    "viewOnSched": "Bekijken op Sched",
-    "viewOnSchedLabel": "Bekijk {{event}} op Sched",
-    "openExternalHint": "Opent de evenementpagina in je browser.",
     "closeEventDetails": "Evenementdetails sluiten",
     "timeRangeTo": "tot {{time}}",
     "eventTimeRange": "{{start}} tot {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "Conventie kon niet worden gearchiveerd",
       "errorMessage": "Er is niets gearchiveerd. Probeer het opnieuw."
     },
+    "unarchive": {
+      "success": "{{name}} teruggezet uit het archief.",
+      "errorTitle": "Dearchiveren mislukt",
+      "errorMessage": "De conventie kon niet worden teruggezet. Probeer het opnieuw."
+    },
     "moreActions": "Meer acties voor {{name}}",
     "sortBy": "Sorteren op",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Gebruik de locatie van de conventie, niet de huidige locatie van je telefoon.",
       "requiredTitle": "Tijdzone vereist",
-      "requiredMessage": "Kies de IANA-tijdzone van de conventie zodat evenementtijden onderweg correct blijven.",
+      "requiredMessage": "Kies de tijdzone van de conventie vóór het importeren – kies de stad waar die plaatsvindt.",
       "choose": "Kies een tijdzone",
       "use": "Tijdzone gebruiken"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "Deze Sched-update heeft geen actieve evenementen. Als je deze toepast, wordt precies {{count}} geïmporteerd evenement uit deze conventie verwijderd en wordt de lokale herinnering geannuleerd. Handmatig toegevoegde evenementen blijven staan.",
       "emptyUpdateEvents": "Deze Sched-update heeft geen actieve evenementen. Als je deze toepast, worden precies {{count}} geïmporteerde evenementen uit deze conventie verwijderd en worden hun lokale herinneringen geannuleerd. Handmatig toegevoegde evenementen blijven staan.",
       "invalidTimeZoneTitle": "Ongeldige tijdzone",
-      "invalidTimeZoneMessage": "Gebruik een IANA-tijdzone zoals America/Chicago.",
+      "invalidTimeZoneMessage": "Kies de tijdzone van de conventie uit de lijst, zoals Chicago.",
       "notAppliedTitle": "Import niet toegepast",
       "parseNotApplied": "Deze agenda kon niet veilig worden verwerkt. Er is niets gewijzigd.",
       "nothingTitle": "Niets om te importeren",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Ongewijzigde terugkerende reeksen: {{count}}. Oudere opgeslagen evenementen konden niet veilig worden gekoppeld.",
       "detailsNotUpdated": "De evenementen zijn opgeslagen, maar de conventiedatums of opgeslagen Sched-URL konden niet worden bijgewerkt.",
       "failedTitle": "Import mislukt"
+    },
+    "help": {
+      "title": "Waar vind ik dit?",
+      "schedTitle": "Gebruikt de con Sched?",
+      "sched": "De meeste conventies publiceren hun schema op Sched – de site ziet eruit als <naam>.sched.com. Kopieer een willekeurige pagina en plak die hier.",
+      "icsTitle": "Heb je een agendabestand?",
+      "ics": "Een .ics-bestand is een standaard agenda-export. Conventies linken het vaak als 'Toevoegen aan agenda' of 'Agendafeed' – webcal://-links werken ook.",
+      "askTitle": "Geen van beide te vinden?",
+      "ask": "Zoek op de website of in de app van de conventie naar een schemalink, of vraag via hun sociale media welk formaat ze publiceren."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Plan je hele con",
       "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
       "demo": {
-        "now": "Nu",
-        "next": "Hierna",
-        "eventOne": "Openingsceremonie",
-        "eventTwo": "Fursuitparade",
         "saved": "Mijn planning"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Herinneringen gepauzeerd",
     "pausedMessage": "Meldingen staan uit, dus je opgeslagen herinneringen komen niet binnen. Je keuzes blijven bewaard en gelden weer zodra je meldingen aanzet.",
     "overflowTitle": "Sommige herinneringen wachten",
-    "overflowMessage": "Dit apparaat bewaart maar een beperkt aantal openstaande herinneringen, zoveel van die van jou wachten nog: {{count}}. De eerstvolgende worden als eerste ingepland."
+    "overflowMessage": "Dit apparaat bewaart maar een beperkt aantal openstaande herinneringen, zoveel van die van jou wachten nog: {{count}}. De eerstvolgende worden als eerste ingepland.",
+    "priming": {
+      "title": "Krijg een seintje vóór panels",
+      "message": "ConPaws kan je eraan herinneren wanneer het tijd is om naar een panel te vertrekken. Je telefoon vraagt hierna om meldingstoestemming.",
+      "continue": "Doorgaan",
+      "notNow": "Niet nu"
+    }
   },
   "schedule": {
     "title": "Programma",
     "empty": {
       "title": "Nog niets met een ster",
-      "subtitle": "Geef een evenement in een conventie een ster en het verschijnt hier.",
+      "subtitle": "Tik op een evenement in een conventie om het aan Mijn schema toe te voegen – het verschijnt hier.",
       "cta": "Mijn conventies openen"
     },
     "timesShownInConventionTime": "Tijden staan in de lokale tijd van elke conventie.",
     "loadError": "Je programma kon niet worden geladen.",
     "conventionEmpty": {
       "title": "Nog niets opgeslagen voor {{name}}",
-      "subtitle": "Geef evenementen in het conventieprogramma een ster om ze hier te zien.",
+      "subtitle": "Voeg evenementen toe vanuit het conventieschema en ze verschijnen hier.",
       "cta": "Conventie openen"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Pakket niet gevonden",
       "packageNotFoundDescription": "Dit pakket is mogelijk niet meer opgenomen in deze build.",
       "licenseTextUnavailable": "De licentietekst is niet beschikbaar in deze build."
+    },
+    "notifications": {
+      "title": "Meldingen",
+      "permission": "Meldingstoestemming",
+      "enabled": "Toegestaan – herinneringen kunnen aankomen",
+      "disabled": "Uit – herinneringen komen niet aan",
+      "notRequested": "Nog niet gevraagd",
+      "defaultLead": "Standaard vertrekherinnering",
+      "defaultLeadDescription": "Vooraf geselecteerd wanneer je een herinnering op een nieuw evenement zet.",
+      "noDefault": "Geen"
+    },
+    "help": {
+      "gettingStarted": "Aan de slag",
+      "gettingStartedDescription": "Waar je het schema van je conventie vindt",
+      "importNow": "Schema importeren",
+      "importNowDescription": "Voeg een Sched-link of een .ics-bestand toe."
     }
   }
 }

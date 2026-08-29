@@ -1,8 +1,9 @@
-import { AlertTriangle } from "lucide-react-native";
+import { AlertTriangle, Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, useColorScheme, View } from "react-native";
 import { Badge, type BadgeVariant, Text } from "@/components/ui";
 import type { AgeRating } from "@/lib/event-categories";
+import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
 
 /** Only ratings that restrict who may attend get a pill. */
@@ -37,6 +38,11 @@ interface EventItemProps {
   provenanceLabel?: string;
   hasConflict?: boolean;
   contentWarning?: boolean;
+  /**
+   * The Schedule tab sets this false: every row there is starred by
+   * definition, so a star on each would mean nothing.
+   */
+  showScheduleIndicator?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
   interactive?: boolean;
@@ -58,6 +64,7 @@ export function EventItem({
   provenanceLabel,
   hasConflict = false,
   contentWarning = false,
+  showScheduleIndicator = true,
   onPress,
   onLongPress,
   interactive = true,
@@ -151,8 +158,15 @@ export function EventItem({
                 color={isDark ? "#fed7aa" : "#7c2d12"}
               />
             ) : null}
-            {isInSchedule ? (
-              <Text className="text-primary text-base leading-none">✓</Text>
+            {isInSchedule && showScheduleIndicator ? (
+              // A filled star, matching the Schedule tab's icon and the
+              // "star an event" copy — the old ✓ glyph shared no vocabulary
+              // with either.
+              <Star
+                size={15}
+                color={themeTokens[isDark ? "dark" : "light"].primary}
+                fill={themeTokens[isDark ? "dark" : "light"].primary}
+              />
             ) : null}
           </View>
         </View>

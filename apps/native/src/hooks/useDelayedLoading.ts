@@ -11,6 +11,15 @@ import { useEffect, useState } from "react";
  * appears and vanishes is worse than one that never appeared. Waiting out this
  * delay means fast loads go straight from nothing to content, and only genuinely
  * slow ones (a large ICS import, a cold start on a tired phone) get a skeleton.
+ *
+ * The app's loading language, in full:
+ * 1. Under this delay: nothing — a background-colored view.
+ * 2. Past it, for a screen's first paint: a skeleton (Skeleton.tsx).
+ * 3. For a user-initiated operation of unknown length (import fetch/parse,
+ *    export): a native ActivityIndicator on the row that describes the work.
+ * There is deliberately no pull-to-refresh anywhere: every list reads local
+ * SQLite, so there is nothing remote to refresh and the gesture would be a
+ * fake affordance that spins and changes nothing.
  */
 const DEFAULT_DELAY_MS = 250;
 

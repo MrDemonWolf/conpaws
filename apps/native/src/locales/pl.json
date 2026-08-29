@@ -5,10 +5,12 @@
     "settings": "Ustawienia",
     "back": "Wstecz",
     "add": "Dodaj",
+    "remove": "Usuń",
     "save": "Zapisz",
     "cancel": "Anuluj",
     "delete": "Usuń",
     "archive": "Archiwizuj",
+    "unarchive": "Przywróć z archiwum",
     "edit": "Edytuj",
     "done": "Gotowe",
     "loading": "Ładowanie...",
@@ -74,9 +76,10 @@
     "name": "Nazwa Konwentu",
     "namePlaceholder": "np. ConPaws Preview Con",
     "nameRequired": "Wpisz nazwę konwentu.",
-    "timeZoneInvalid": "Wpisz prawidłową strefę czasową IANA, na przykład America/Chicago.",
+    "timeZoneInvalid": "Wybierz prawidłową strefę czasową, np. Chicago (America/Chicago).",
     "location": "Lokalizacja",
     "locationPlaceholder": "Miasto, obiekt lub adres",
+    "locationTimeZoneNote": "Ustawia też automatycznie strefę czasową konwentu.",
     "timeZoneFallbackTitle": "Nie udało się wykryć strefy czasowej",
     "timeZoneFallbackMessage": "ConPaws może użyć strefy czasowej tego urządzenia ({{timeZone}}). Strefę konwentu możesz też wybrać w sekcji Zaawansowane.",
     "setTimeZone": "Ustaw strefę czasową",
@@ -87,13 +90,14 @@
     "addToSchedule": "Dodaj do Mojego harmonogramu",
     "removeFromSchedule": "Usuń z Mojego harmonogramu",
     "scheduleActionHint": "Aktualizuje to wydarzenie w Moim harmonogramie.",
+    "scheduleHint": {
+      "body": "Dotknij wydarzenia, aby dodać je do Mojego planu. Oznaczone wydarzenia pojawią się w zakładce Plan.",
+      "dismiss": "Ukryj wskazówkę"
+    },
     "scheduleAddedAnnouncement": "Dodano {{event}} do Mojego harmonogramu.",
     "scheduleRemovedAnnouncement": "Usunięto {{event}} z Mojego harmonogramu.",
     "scheduleUpdateErrorTitle": "Harmonogram nie został zaktualizowany",
     "scheduleUpdateErrorMessage": "Nie udało się zmienić wydarzenia. Twój harmonogram pozostał bez zmian.",
-    "viewOnSched": "Zobacz w Sched",
-    "viewOnSchedLabel": "Zobacz {{event}} w Sched",
-    "openExternalHint": "Otwiera stronę wydarzenia w przeglądarce.",
     "closeEventDetails": "Zamknij szczegóły wydarzenia",
     "timeRangeTo": "do {{time}}",
     "eventTimeRange": "{{start}} do {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "Nie udało się zarchiwizować konwentu",
       "errorMessage": "Nic nie zarchiwizowano. Spróbuj ponownie."
     },
+    "unarchive": {
+      "success": "Przywrócono {{name}} z archiwum.",
+      "errorTitle": "Nie można przywrócić",
+      "errorMessage": "Nie udało się przywrócić konwentu. Spróbuj ponownie."
+    },
     "moreActions": "Więcej działań dla {{name}}",
     "sortBy": "Sortuj według",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Użyj lokalizacji konwentu, a nie bieżącej lokalizacji telefonu.",
       "requiredTitle": "Wymagana strefa czasowa",
-      "requiredMessage": "Wybierz strefę czasową IANA konwentu, aby godziny wydarzeń pozostały prawidłowe podczas podróży.",
+      "requiredMessage": "Przed importem wybierz strefę czasową konwentu — wybierz miasto, w którym się odbywa.",
       "choose": "Wybierz strefę czasową",
       "use": "Użyj strefy czasowej"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "Ta aktualizacja Sched nie zawiera aktywnych wydarzeń. Jej zastosowanie usunie z tego konwentu dokładnie {{count}} zaimportowane wydarzenie i anuluje jego lokalne przypomnienie. Ręcznie dodane wydarzenia pozostaną bez zmian.",
       "emptyUpdateEvents": "Ta aktualizacja Sched nie zawiera aktywnych wydarzeń. Liczba importowanych wydarzeń do usunięcia: {{count}}. Ich lokalne przypomnienia zostaną anulowane. Ręcznie dodane wydarzenia pozostaną bez zmian.",
       "invalidTimeZoneTitle": "Nieprawidłowa strefa czasowa",
-      "invalidTimeZoneMessage": "Użyj strefy czasowej IANA, na przykład America/Chicago.",
+      "invalidTimeZoneMessage": "Wybierz strefę czasową konwentu z listy, np. Chicago.",
       "notAppliedTitle": "Import nie został zastosowany",
       "parseNotApplied": "Nie udało się bezpiecznie przetworzyć tego kalendarza. Niczego nie zmieniono.",
       "nothingTitle": "Brak danych do importu",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Serie cykliczne pozostawione bez zmian: {{count}}. Nie udało się bezpiecznie dopasować starszych zapisanych wydarzeń.",
       "detailsNotUpdated": "Wydarzenia zostały zapisane, ale nie udało się odświeżyć dat konwentu lub zapisanego adresu URL Sched.",
       "failedTitle": "Import nie powiódł się"
+    },
+    "help": {
+      "title": "Gdzie to znaleźć?",
+      "schedTitle": "Konwent używa Sched?",
+      "sched": "Większość konwentów publikuje plan na Sched — strona wygląda jak <nazwa>.sched.com. Skopiuj dowolną stronę i wklej ją tutaj.",
+      "icsTitle": "Masz plik kalendarza?",
+      "ics": "Plik .ics to standardowy eksport kalendarza. Konwenty często podają go jako „Dodaj do kalendarza” lub „Kanał kalendarza” — linki webcal:// też działają.",
+      "askTitle": "Nie możesz znaleźć żadnego?",
+      "ask": "Poszukaj linku do planu na stronie lub w aplikacji konwentu, albo zapytaj w ich mediach społecznościowych, w jakim formacie publikują."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Zaplanuj cały konwent",
       "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
       "demo": {
-        "now": "Teraz",
-        "next": "Następnie",
-        "eventOne": "Ceremonia otwarcia",
-        "eventTwo": "Parada fursuitów",
         "saved": "Mój harmonogram"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Przypomnienia wstrzymane",
     "pausedMessage": "Powiadomienia są wyłączone, więc zapisane przypomnienia nie dotrą. Twoje ustawienia zostają zachowane i wrócą, gdy tylko włączysz powiadomienia.",
     "overflowTitle": "Część przypomnień czeka",
-    "overflowMessage": "To urządzenie utrzymuje ograniczoną liczbę oczekujących przypomnień, więc tyle z Twoich czeka: {{count}}. Najbliższe planowane są w pierwszej kolejności."
+    "overflowMessage": "To urządzenie utrzymuje ograniczoną liczbę oczekujących przypomnień, więc tyle z Twoich czeka: {{count}}. Najbliższe planowane są w pierwszej kolejności.",
+    "priming": {
+      "title": "Otrzymuj przypomnienia przed panelami",
+      "message": "ConPaws może przypomnieć ci, kiedy czas wyjść na panel. Telefon poprosi teraz o zgodę na powiadomienia.",
+      "continue": "Kontynuuj",
+      "notNow": "Nie teraz"
+    }
   },
   "schedule": {
     "title": "Harmonogram",
     "empty": {
       "title": "Nic jeszcze nie oznaczono",
-      "subtitle": "Oznacz wydarzenie gwiazdką na konwencie, a pojawi się tutaj.",
+      "subtitle": "Dotknij wydarzenia w konwencie, aby dodać je do Mojego planu — pojawi się tutaj.",
       "cta": "Otwórz moje konwenty"
     },
     "timesShownInConventionTime": "Godziny podane w czasie lokalnym każdego konwentu.",
     "loadError": "Nie udało się wczytać harmonogramu.",
     "conventionEmpty": {
       "title": "Brak zapisanych wydarzeń dla {{name}}",
-      "subtitle": "Oznacz wydarzenia gwiazdką w harmonogramie konwentu, aby pojawiły się tutaj.",
+      "subtitle": "Dodaj wydarzenia z planu konwentu, a pojawią się tutaj.",
       "cta": "Otwórz konwent"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Nie znaleziono pakietu",
       "packageNotFoundDescription": "Ten pakiet może nie być już zawarty w tej kompilacji.",
       "licenseTextUnavailable": "Tekst licencji nie jest dostępny w tej kompilacji."
+    },
+    "notifications": {
+      "title": "Powiadomienia",
+      "permission": "Zgoda na powiadomienia",
+      "enabled": "Dozwolone — przypomnienia mogą przychodzić",
+      "disabled": "Wyłączone — przypomnienia nie będą przychodzić",
+      "notRequested": "Jeszcze nie poproszono",
+      "defaultLead": "Domyślne przypomnienie o wyjściu",
+      "defaultLeadDescription": "Wstępnie wybrane przy ustawianiu przypomnienia dla nowego wydarzenia.",
+      "noDefault": "Brak"
+    },
+    "help": {
+      "gettingStarted": "Pierwsze kroki",
+      "gettingStartedDescription": "Gdzie znaleźć plan twojego konwentu",
+      "importNow": "Importuj plan",
+      "importNowDescription": "Dodaj link Sched lub plik .ics."
     }
   }
 }

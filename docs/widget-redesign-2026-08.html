@@ -1,0 +1,493 @@
+<title>ConPaws Widget Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f5f7f9;
+    --panel: #ffffff;
+    --ink: #14202b;
+    --ink-soft: #51616e;
+    --line: #d9e1e7;
+    --brand: #00729c;
+    --brand-small: #00618a;
+    --shade: #eef2f5;
+    --code-bg: #eef2f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1116;
+      --panel: #161b22;
+      --ink: #e8eef4;
+      --ink-soft: #93a3b1;
+      --line: #232c36;
+      --brand: #18b7f2;
+      --brand-small: #4cc4f2;
+      --shade: #1b222b;
+      --code-bg: #1b222b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0e1116;
+    --panel: #161b22;
+    --ink: #e8eef4;
+    --ink-soft: #93a3b1;
+    --line: #232c36;
+    --brand: #18b7f2;
+    --brand-small: #4cc4f2;
+    --shade: #1b222b;
+    --code-bg: #1b222b;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    margin: 0;
+    padding: 48px 24px 96px;
+  }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1, h2, h3 { font-family: "Sora", "IBM Plex Sans", sans-serif; text-wrap: balance; }
+  h1 { font-size: 2.1rem; margin: 0 0 4px; }
+  h2 { font-size: 1.35rem; margin: 56px 0 8px; padding-top: 24px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.02rem; margin: 28px 0 6px; }
+  p, li { max-width: 70ch; }
+  p.lede { color: var(--ink-soft); font-size: 1.02rem; max-width: 74ch; margin-top: 0; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--brand); display: block; margin-bottom: 10px;
+  }
+  code, .mono { font-family: "IBM Plex Mono", monospace; font-size: .85em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  .table-wrap { overflow-x: auto; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; font-size: .8rem; letter-spacing: .04em; }
+  td.mono, th.mono { font-family: "IBM Plex Mono", monospace; font-size: .82rem; }
+  .swatch { display: inline-block; width: 13px; height: 13px; border-radius: 3px; vertical-align: -1px; margin-right: 7px; border: 1px solid rgba(127,127,127,.35); }
+  .note {
+    border-left: 3px solid var(--brand); background: var(--shade);
+    padding: 10px 16px; border-radius: 0 8px 8px 0; margin: 18px 0; max-width: 74ch;
+  }
+  .note strong { color: var(--brand); }
+
+  /* ---- specimen shelves ---- */
+  .shelf { display: flex; flex-wrap: wrap; gap: 28px; margin: 18px 0 6px; }
+  .spec { display: flex; flex-direction: column; gap: 8px; }
+  .spec figcaption {
+    font-family: "IBM Plex Mono", monospace; font-size: .7rem;
+    color: var(--ink-soft); letter-spacing: .05em;
+  }
+  figure.spec { margin: 0; }
+
+  /* Widgets approximate SF with the system stack; sizes are true points. */
+  .w {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    border-radius: 22px; overflow: hidden; box-shadow: 0 4px 18px rgba(10,20,30,.18);
+    display: flex; flex-direction: column; box-sizing: border-box; flex-shrink: 0;
+  }
+  .w.small  { width: 170px; height: 170px; padding: 14px; }
+  .w.medium { width: 364px; height: 170px; padding: 14px 16px; }
+  .w.large  { width: 364px; height: 382px; padding: 16px; }
+
+  /* widget-local palettes (fixed, not page-theme driven: each specimen IS a theme) */
+  .wl { background: #ffffff; color: #1b2733; }
+  .wl .dim { color: #6b7a87; }
+  .wl .accent { color: #00729c; }
+  .wl .rail { background: #00729c; }
+  .wl .now-chip { background: rgba(0,114,156,.12); }
+  .wl .hair { border-color: rgba(27,39,51,.14); }
+  .wd { background: #1c1c1e; color: #f2f6f9; }
+  .wd .dim { color: #98a5b1; }
+  .wd .accent { color: #18b7f2; }
+  .wd .rail { background: #18b7f2; }
+  .wd .now-chip { background: rgba(24,183,242,.16); }
+  .wd .hair { border-color: rgba(242,246,249,.16); }
+  /* tinted rendering: the system desaturates and overlays its own tint. */
+  .wt { background: #202124; color: #e9eaec; }
+  .wt * { color: #e9eaec !important; }
+  .wt .rail, .wt .now-chip { background: rgba(233,234,236,.34) !important; }
+  .wt .dim { color: rgba(233,234,236,.62) !important; }
+
+  .w .eyebrow-w {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; display: flex; align-items: center; gap: 4px;
+  }
+  .w .con-name { font-size: 15px; font-weight: 600; line-height: 1.25; }
+  .w .big-count { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .w .date-range { font-size: 11px; }
+  .w .ev-title { font-size: 13px; font-weight: 600; line-height: 1.25; }
+  .w .ev-meta { font-size: 11px; }
+  .w .row { display: flex; gap: 8px; align-items: flex-start; }
+  .w .time-col { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; width: 52px; flex-shrink: 0; }
+  .w .rail { width: 3px; border-radius: 2px; align-self: stretch; flex-shrink: 0; }
+  .w .spacer { flex: 1; }
+  .w .foot { font-size: 10px; }
+  .w .day-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .w .now-chip { border-radius: 8px; padding: 6px 8px; margin: 2px 0; }
+  .w .rows { display: flex; flex-direction: column; gap: 7px; }
+  .w .hairline { border-top: 1px solid; margin: 8px 0; }
+  .paw { font-size: 22px; line-height: 1; }
+  .w .leave-strip {
+    display: flex; align-items: center; gap: 6px;
+    border-radius: 10px; padding: 7px 10px;
+    font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .wl .leave-strip { background: rgba(0,114,156,.12); color: #00618a; }
+  .wd .leave-strip { background: rgba(24,183,242,.16); color: #18b7f2; }
+  .wt .leave-strip { background: rgba(233,234,236,.34) !important; }
+</style>
+
+<main>
+<span class="eyebrow">ConPaws · design spec · 2026-08</span>
+<h1>ConPaws Widget Redesign</h1>
+<p class="lede">
+  Mockups and a buildable spec for the iOS Home&nbsp;Screen widgets. The shipped
+  widgets show at most one upcoming event in system colors; this redesign adds a
+  <strong>systemLarge day view</strong>, brings the brand into every family, and
+  richens systemMedium — all against snapshot schema&nbsp;v1, no data changes
+  required. Swift implementation is a separate later phase.
+</p>
+
+<div class="note">
+  <strong>Scope.</strong> This page specifies <em>presentation only</em>. Every
+  field referenced exists in today's <code>WidgetConventionSnapshot</code> /
+  <code>WidgetEventSnapshot</code> (schema v1). Additions that would need a
+  schema bump are flagged in §7 and are out of scope for the first build.
+</div>
+
+<h2>1 · Tokens</h2>
+<div class="table-wrap"><table>
+  <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+  <tr><td class="mono">BrandPrimary / light</td><td class="mono"><span class="swatch" style="background:#00729c"></span>#00729C</td><td>Time labels, rails, accents on white</td></tr>
+  <tr><td class="mono">BrandPrimary / dark</td><td class="mono"><span class="swatch" style="background:#18b7f2"></span>#18B7F2</td><td>Same roles on dark</td></tr>
+  <tr><td class="mono">BrandSmallText / light</td><td class="mono"><span class="swatch" style="background:#00618a"></span>#00618A</td><td>Brand-colored text under ~13&nbsp;pt in light mode</td></tr>
+  <tr><td>Background</td><td class="mono">systemBackground</td><td>Container background, both modes</td></tr>
+  <tr><td>Secondary text</td><td class="mono">.secondary</td><td>Rooms, dates, footers</td></tr>
+</table></div>
+<p>
+  <strong>Contrast flag:</strong> #00729C on white measures ≈4.7:1 — fine at
+  headline sizes, below the app's AAA bar for small text. That is why
+  <code>BrandSmallText</code> exists: use it for any brand-colored run below
+  ~13&nbsp;pt in light mode, and document the divergence from the app's AAA
+  policy in the asset catalog comment. Dark mode's #18B7F2 on #1C1C1E clears
+  8:1 and needs no variant.
+</p>
+<p>
+  Typography is all system text styles (SF): eyebrow
+  <code>caption2&nbsp;bold</code>, event titles <code>footnote&nbsp;semibold</code>,
+  countdown numerals <code>title2&nbsp;rounded&nbsp;bold&nbsp;monospacedDigit</code>,
+  times <code>caption2&nbsp;semibold&nbsp;monospacedDigit</code>.
+</p>
+
+<h2>2 · systemSmall — refined</h2>
+<p>One next event, brand-tinted time, room line. The paw compass replaces the generic calendar glyph in the empty state.</p>
+<div class="shelf">
+  <figure class="spec">
+    <div class="w small wl">
+      <div class="eyebrow-w accent">▲ Next</div>
+      <div class="spacer"></div>
+      <div class="time-col accent" style="width:auto;font-size:13px">7:00 PM</div>
+      <div class="ev-title">Fursuit Care 101</div>
+      <div class="ev-meta dim">Game Hall</div>
+      <div class="spacer"></div>
+      <div class="foot dim">ConPaws Preview Con</div>
+    </div>
+    <figcaption>small · upcoming · light</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w small wd">
+      <div class="eyebrow-w accent">▲ Next</div>
+      <div class="spacer"></div>
+      <div class="time-col accent" style="width:auto;font-size:13px">7:00 PM</div>
+      <div class="ev-title">Fursuit Care 101</div>
+      <div class="ev-meta dim">Game Hall</div>
+      <div class="spacer"></div>
+      <div class="foot dim">ConPaws Preview Con</div>
+    </div>
+    <figcaption>small · upcoming · dark</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w small wt">
+      <div class="eyebrow-w">▲ Next</div>
+      <div class="spacer"></div>
+      <div style="font-size:13px;font-weight:600">7:00 PM</div>
+      <div class="ev-title">Fursuit Care 101</div>
+      <div class="ev-meta dim">Game Hall</div>
+      <div class="spacer"></div>
+      <div class="foot dim">ConPaws Preview Con</div>
+    </div>
+    <figcaption>small · tinted rendering</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w small wd">
+      <div class="eyebrow-w accent">🚶 Leave in</div>
+      <div class="spacer"></div>
+      <div class="big-count accent" style="font-size:24px">18 min</div>
+      <div class="ev-title">Fursuit Care 101</div>
+      <div class="ev-meta dim">Game Hall · 7:00 PM</div>
+      <div class="spacer"></div>
+    </div>
+    <figcaption>small · leave window · dark</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w small wl" style="align-items:center;justify-content:center;text-align:center;gap:6px">
+      <div class="paw">🐾</div>
+      <div class="ev-title">No upcoming events</div>
+      <div class="ev-meta dim">Star events in ConPaws to see them here.</div>
+    </div>
+    <figcaption>small · empty · light</figcaption>
+  </figure>
+</div>
+<p>
+  <strong>Leave window:</strong> when <code>now</code> is inside
+  <code>startAtMs − reminderMinutes·60000 … startAtMs</code> for the next
+  event, the small widget swaps its Next layout for the countdown above — the
+  minutes figure is the hero, in <code>title2 rounded bold monospacedDigit</code>.
+</p>
+
+<h2>3 · systemMedium — richer</h2>
+<p>Current event plus the next two, room at equal weight with the title. In the leave window the bottom row is replaced by the leave strip — the redesign keeps that state first-class, not an afterthought.</p>
+<div class="shelf">
+  <figure class="spec">
+    <div class="w medium wl">
+      <div class="day-head">
+        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="ev-meta dim">Thu Sep 3</span>
+      </div>
+      <div class="rows">
+        <div class="row now-chip">
+          <span class="rail"></span>
+          <span class="time-col accent">Now</span>
+          <span class="ev-title">Community Stories 101 <span class="dim" style="font-weight:400">· Game Hall</span></span>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:00 PM</span>
+          <span class="ev-title">Dance Practice 101 <span class="dim" style="font-weight:400">· Community Room</span></span>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:30 PM</span>
+          <span class="ev-title">Improvisation 101 <span class="dim" style="font-weight:400">· Studio A</span></span>
+        </div>
+      </div>
+    </div>
+    <figcaption>medium · during con · light</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w medium wd">
+      <div class="day-head">
+        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="ev-meta dim">Thu Sep 3</span>
+      </div>
+      <div class="rows">
+        <div class="row now-chip">
+          <span class="rail"></span>
+          <span class="time-col accent">Now</span>
+          <span class="ev-title">Community Stories 101 <span class="dim" style="font-weight:400">· Game Hall</span></span>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:00 PM</span>
+          <span class="ev-title">Dance Practice 101 <span class="dim" style="font-weight:400">· Community Room</span></span>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:30 PM</span>
+          <span class="ev-title">Improvisation 101 <span class="dim" style="font-weight:400">· Studio A</span></span>
+        </div>
+      </div>
+    </div>
+    <figcaption>medium · during con · dark</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w medium wl">
+      <div class="day-head">
+        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="ev-meta dim">Thu Sep 3</span>
+      </div>
+      <div class="rows">
+        <div class="row now-chip">
+          <span class="rail"></span>
+          <span class="time-col accent">Now</span>
+          <span class="ev-title">Community Stories 101 <span class="dim" style="font-weight:400">· Game Hall</span></span>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:00 PM</span>
+          <span class="ev-title">Dance Practice 101 <span class="dim" style="font-weight:400">· Community Room</span></span>
+        </div>
+        <div class="leave-strip">🚶 Leave in 18 min · Dance Practice 101</div>
+      </div>
+    </div>
+    <figcaption>medium · leave window · light</figcaption>
+  </figure>
+</div>
+
+<h2>4 · systemLarge — the day view (new)</h2>
+<p>
+  The highest-value piece per the earlier specimen doc. Grammar borrowed from
+  the day views people already read — Apple Calendar and Fantastical large
+  widgets: date header, a time rail of stacked rows, the running event raised
+  on a brand chip, and an overflow count instead of clipped rows.
+</p>
+<div class="shelf">
+  <figure class="spec">
+    <div class="w large wl">
+      <div class="day-head">
+        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="ev-meta dim">Thursday · Sep 3</span>
+      </div>
+      <div class="rows">
+        <div class="row now-chip">
+          <span class="rail"></span>
+          <div>
+            <div class="time-col accent" style="width:auto">Now · ends 1:00 AM</div>
+            <div class="ev-title">Community Stories 101</div>
+            <div class="ev-meta dim">Game Hall</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="time-col accent">7:00 PM</span>
+          <div>
+            <div class="ev-title">Costume Crafting 101</div>
+            <div class="ev-meta dim">Game Hall</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:00 PM</span>
+          <div>
+            <div class="ev-title">Dance Practice 101</div>
+            <div class="ev-meta dim">Community Room</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:30 PM</span>
+          <div>
+            <div class="ev-title">Improvisation 101</div>
+            <div class="ev-meta dim">Studio A</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="time-col accent">9:30 PM</span>
+          <div>
+            <div class="ev-title">Maker Skills 101</div>
+            <div class="ev-meta dim">Community Room</div>
+          </div>
+        </div>
+      </div>
+      <div class="hairline hair"></div>
+      <div class="foot dim">+3 more today</div>
+    </div>
+    <figcaption>large · mid-con day · light</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w large wd">
+      <div class="day-head">
+        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="ev-meta dim">Coming up</span>
+      </div>
+      <div class="spacer"></div>
+      <div style="text-align:center">
+        <div class="big-count accent">In 6 days</div>
+        <div class="ev-meta dim" style="margin-top:4px">Sep 3 – Sep 6 · Until the convention</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="hairline hair"></div>
+      <div class="foot dim">8 events starred</div>
+    </div>
+    <figcaption>large · pre-con countdown · dark</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w large wl" style="align-items:center;justify-content:center;text-align:center;gap:8px">
+      <div class="paw">🐾</div>
+      <div class="ev-title">All done for today</div>
+      <div class="ev-meta dim" style="max-width:220px">First event tomorrow: Fursuit Care Workshop, 9:00 AM.</div>
+    </div>
+    <figcaption>large · evening "all done" · light</figcaption>
+  </figure>
+  <figure class="spec">
+    <div class="w large wd">
+      <div class="day-head">
+        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="ev-meta dim">Thursday · Sep 3</span>
+      </div>
+      <div class="leave-strip">🚶 Leave in 18 min · Dance Practice 101</div>
+      <div class="rows" style="margin-top:8px">
+        <div class="row now-chip">
+          <span class="rail"></span>
+          <div>
+            <div class="time-col accent" style="width:auto">Now · ends 1:00 AM</div>
+            <div class="ev-title">Community Stories 101</div>
+            <div class="ev-meta dim">Game Hall</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:00 PM</span>
+          <div>
+            <div class="ev-title">Dance Practice 101</div>
+            <div class="ev-meta dim">Community Room</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="time-col accent">8:30 PM</span>
+          <div>
+            <div class="ev-title">Improvisation 101</div>
+            <div class="ev-meta dim">Studio A</div>
+          </div>
+        </div>
+      </div>
+      <div class="hairline hair"></div>
+      <div class="foot dim">+5 more today</div>
+    </div>
+    <figcaption>large · leave window · dark</figcaption>
+  </figure>
+</div>
+
+<h2>5 · Rendering-mode rules</h2>
+<ul>
+  <li><strong>Accented/tinted:</strong> mark the time column, rails, and the now-chip <code>widgetAccentable()</code>. Hierarchy must survive recoloring — it is carried by weight and size, never by hue alone (the tinted specimens above are the test).</li>
+  <li><strong>Vibrant (Lock Screen families):</strong> unchanged from shipped; accessory families keep their current layouts.</li>
+  <li><strong>StandBy:</strong> container background stays <code>systemBackground</code> via <code>containerBackground(for: .widget)</code>; no full-bleed art.</li>
+</ul>
+
+<h2>6 · Buildable spec (schema v1 — no data changes)</h2>
+<div class="table-wrap"><table>
+  <tr><th>Family</th><th>Rows</th><th>Selection rule</th><th>Fields used</th></tr>
+  <tr>
+    <td>systemSmall</td><td class="mono">1</td>
+    <td>First event with <code>endAtMs&nbsp;&gt;&nbsp;now</code> (current preferred over next)</td>
+    <td class="mono">title, startAtMs, room ?? location</td>
+  </tr>
+  <tr>
+    <td>systemMedium</td><td class="mono">≤3</td>
+    <td>Current event (if any) + next two by <code>startAtMs</code></td>
+    <td class="mono">+ endAtMs for the Now chip</td>
+  </tr>
+  <tr>
+    <td>systemLarge</td><td class="mono">≤5 + overflow</td>
+    <td>Events whose day (in <code>timeZoneIdentifier</code>) is today; drop finished ones; count the remainder into "+N more today"</td>
+    <td class="mono">+ conventions[].dateRangeLabel, name</td>
+  </tr>
+</table></div>
+<ul>
+  <li><strong>Leave window (all families):</strong> active when the next event has
+      <code>reminderMinutes ≠ null</code> and <code>now ≥ startAtMs − reminderMinutes·60000</code>
+      and <code>now &lt; startAtMs</code>. Small swaps to the countdown layout; medium and
+      large pin the leave strip above the rows (large keeps the day list beneath it,
+      dropping one row to make room). The strip and its countdown are
+      <code>widgetAccentable()</code>. Timeline entries are pre-built at the window's
+      open and close instants — the shipped provider's change-point mechanism already
+      does this and carries over unchanged.</li>
+  <li>"Today" is computed in the convention's <code>timeZoneIdentifier</code>, never the device zone — same rule the app and watch already follow.</li>
+  <li>Pre-con: reuse the shipped countdown classifier (<code>ConPawsCountdown</code>) for the large countdown state; footer shows the starred-event count.</li>
+  <li>Empty and "all done" states both name the next actionable thing when one exists (first event tomorrow), else the star hint.</li>
+  <li>Truncation: titles 1 line all families except large's now-chip (2 lines); rooms always 1 line.</li>
+  <li>VoiceOver: one element per row — "7:00 PM, Costume Crafting 101, Game Hall"; the now-chip prepends "Now, ends 1:00 AM".</li>
+  <li>Deep links: unchanged — every family opens <code>conpaws://schedule?conventionId=…</code>.</li>
+</ul>
+
+<h2>7 · Flagged for later (needs schema v2 or other targets)</h2>
+<ul>
+  <li><code>ageRating</code> on <code>WidgetEventSnapshot</code> — enables the age pill on medium/large rows. Schema bump to v2; the module's version gate already handles mismatches safely.</li>
+  <li>Watch complication: replace the four hardcoded <code>.cyan</code> styles with the target's <code>$accent</code> asset (#0FACED) — <em>shipped in the 2026-08 watch pass; listed here for the record.</em></li>
+  <li>Optional: reuse the app's time-slot band alternation for large-widget row grouping once the first build lands. Not in scope for v1.</li>
+</ul>
+</main>

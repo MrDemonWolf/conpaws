@@ -64,6 +64,22 @@ export default function HomeLayout() {
         }}
       />
       <Stack.Screen
+        name="convention/[id]/event/[eventId]"
+        options={{
+          headerShown: false,
+          // Both platforms get a real sheet here — unlike the forms above,
+          // this screen has no keyboard, so the Android formSheet re-layout
+          // problem that pushed the forms to full-screen modals cannot occur.
+          // fitToContents requires the content to have NATURAL height — a
+          // flex-1 wrapper makes the measurement come back screen-sized and
+          // the sheet opens tall with the content pinned to its bottom edge.
+          // EventSheetContent is deliberately unflexed for this reason.
+          presentation: "formSheet",
+          sheetAllowedDetents: "fitToContents",
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
         name="convention/[id]/import"
         options={{
           title: t("import.title"),

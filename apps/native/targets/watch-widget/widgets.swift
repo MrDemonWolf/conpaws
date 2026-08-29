@@ -5,6 +5,10 @@ import WidgetKit
 private struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
+  /// Raises this card in the Smart Stack around the moments it matters —
+  /// event starts and leave windows. Without a relevance the stack never
+  /// surfaces the complication on its own.
+  var relevance: TimelineEntryRelevance?
 
   /// The app's language, not the watch's. The snapshot carries it precisely so
   /// this complication reads the same way the phone screen it mirrors does.
@@ -61,7 +65,7 @@ private struct ConPawsWatchProvider: TimelineProvider {
     let cached = ConPawsSnapshotStore.load()
     completion(context.isPreview
       ? .preview
-      : ConPawsWatchEntry(date: .now, snapshot: cached))
+      : ConPawsWatchEntry(date: .now, snapshot: cached, relevance: nil))
   }
 
   func getTimeline(
@@ -76,14 +80,30 @@ private struct ConPawsWatchProvider: TimelineProvider {
     // system waking this extension on time. Complications get an even smaller
     // refresh budget than Home Screen widgets, so a frozen label is likelier
     // here, not less.
-    var entries = [ConPawsWatchEntry(date: now, snapshot: snapshot)]
+    // Within 30 minutes of the countdown target (an event start or a leave
+    // moment) the card is at its most useful; score it accordingly so the
+    // Smart Stack rotates it up.
+    func relevance(at date: Date) -> TimelineEntryRelevance? {
+      guard let target = projection.countdownTarget else { return nil }
+      let minutesOut = target.timeIntervalSince(date) / 60
+      guard minutesOut > -30, minutesOut < 30 else { return nil }
+      return TimelineEntryRelevance(score: 100, duration: 30 * 60)
+    }
+
+    var entries = [
+      ConPawsWatchEntry(date: now, snapshot: snapshot, relevance: relevance(at: now))
+    ]
     if let target = projection.countdownTarget, let zone = projection.timeZone {
       for date in ConPawsCountdown.changePoints(from: now, to: target, timeZone: zone) {
-        entries.append(ConPawsWatchEntry(date: date, snapshot: snapshot))
+        entries.append(
+          ConPawsWatchEntry(date: date, snapshot: snapshot, relevance: relevance(at: date))
+        )
       }
     }
     if entries.count == 1 {
-      entries.append(ConPawsWatchEntry(date: projection.nextRefresh, snapshot: snapshot))
+      entries.append(
+        ConPawsWatchEntry(date: projection.nextRefresh, snapshot: snapshot, relevance: nil)
+      )
     }
 
     completion(Timeline(entries: entries, policy: .atEnd))
@@ -139,7 +159,7 @@ private struct ComingUpWidgetView: View {
     VStack(alignment: .leading, spacing: 2) {
       Label(strings.comingUpCaps, systemImage: "calendar.badge.clock")
         .font(.caption2.bold())
-        .foregroundStyle(.cyan)
+        .foregroundStyle(Color.accentColor)
         .widgetAccentable()
       WidgetCountdownView(
         target: convention.startDate,
@@ -194,7 +214,7 @@ private struct LeaveWidgetView: View {
         .monospacedDigit()
       }
       .font(.caption.bold())
-      .foregroundStyle(.cyan)
+      .foregroundStyle(Color.accentColor)
       .widgetAccentable()
 
       if let current {
@@ -260,7 +280,7 @@ private struct NextWidgetView: View {
         Text("\(strings.nextCaps) · \(startTime)")
       }
       .font(.caption2.bold())
-      .foregroundStyle(.cyan)
+      .foregroundStyle(Color.accentColor)
       .widgetAccentable()
 
       Text(event.title)
@@ -303,7 +323,7 @@ private struct BlankWidgetView: View {
     VStack(alignment: .leading, spacing: 3) {
       Label(strings.noUpcomingEvents, systemImage: "calendar")
         .font(.caption.bold())
-        .foregroundStyle(.cyan)
+        .foregroundStyle(Color.accentColor)
         .widgetAccentable()
       Text(convention?.name ?? strings.syncFromPhone)
         .font(.caption2)

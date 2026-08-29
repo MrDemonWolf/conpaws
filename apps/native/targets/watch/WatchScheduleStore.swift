@@ -19,8 +19,23 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
   @Published private(set) var isReachable = false
 
+  /// How old a snapshot may be before the UI calls it a saved copy. Radio
+  /// reachability was the old signal and answered the wrong question: a
+  /// snapshot synced seconds ago showed "saved schedule" the moment the phone
+  /// left range, and a days-old one showed nothing while the phone was near.
+  private static let staleAfterMs: Double = 30 * 60 * 1_000
+
   var isUsingSavedSchedule: Bool {
-    !isReachable && !snapshot.conventions.isEmpty
+    guard !snapshot.conventions.isEmpty else { return false }
+    let ageMs = Date().timeIntervalSince1970 * 1_000 - snapshot.generatedAtMs
+    return ageMs > Self.staleAfterMs
+  }
+
+  /// When the snapshot was produced on the phone, for the "Updated…" footer.
+  var snapshotDate: Date? {
+    snapshot.conventions.isEmpty
+      ? nil
+      : Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000)
   }
 
   override init() {

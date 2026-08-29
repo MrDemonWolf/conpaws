@@ -5,21 +5,30 @@ struct ContentView: View {
   @ObservedObject var store: WatchScheduleStore
 
   var body: some View {
-    TimelineView(.periodic(from: .now, by: 60)) { context in
-      WatchRootView(
-        snapshot: store.snapshot,
-        now: context.date,
-        isUsingSavedSchedule: store.isUsingSavedSchedule
-      )
+    // NavigationStack OUTSIDE the TimelineView: with the stack inside, the
+    // minute tick that changed the root branch (con started, snapshot
+    // emptied) rebuilt the stack and popped the reader out of a detail
+    // screen. `.everyMinute` aligns ticks to the minute boundary and is the
+    // cadence the system throttles correctly in Always On.
+    NavigationStack {
+      TimelineView(.everyMinute) { context in
+        WatchRootView(
+          snapshot: store.snapshot,
+          now: context.date,
+          isUsingSavedSchedule: store.isUsingSavedSchedule,
+          snapshotDate: store.snapshotDate
+        )
+      }
     }
-    .preferredColorScheme(.dark)
   }
 }
 
 private struct WatchRootView: View {
+  @Environment(\.isLuminanceReduced) private var isLuminanceReduced
   let snapshot: ConPawsSnapshot
   let now: Date
   let isUsingSavedSchedule: Bool
+  let snapshotDate: Date?
 
   private var schedule: WatchScheduleProjection {
     WatchScheduleProjection(snapshot: snapshot, now: now)
@@ -31,38 +40,41 @@ private struct WatchRootView: View {
   private var strings: ConPawsStrings { snapshot.strings }
 
   var body: some View {
-    NavigationStack {
-      ZStack {
-        Color.black.ignoresSafeArea()
-
-        if snapshot.conventions.isEmpty {
-          EmptyScheduleView(
-            title: strings.noScheduleTitle,
-            message: strings.noScheduleMessage
+    Group {
+      if snapshot.conventions.isEmpty {
+        EmptyScheduleView(
+          title: strings.noScheduleTitle,
+          message: strings.noScheduleMessage
+        )
+      } else if let convention = schedule.convention {
+        if now < convention.startDate {
+          PreConventionView(
+            convention: convention,
+            now: now,
+            isUsingSavedSchedule: isUsingSavedSchedule,
+            snapshotDate: snapshotDate,
+            strings: strings
           )
-        } else if let convention = schedule.convention {
-          if now < convention.startDate {
-            PreConventionView(
-              convention: convention,
-              now: now,
-              isUsingSavedSchedule: isUsingSavedSchedule,
-              strings: strings
-            )
-          } else {
-            ScheduleHomeView(
-              schedule: schedule,
-              isUsingSavedSchedule: isUsingSavedSchedule,
-              strings: strings
-            )
-          }
         } else {
-          EmptyScheduleView(
-            title: strings.nothingUpcomingTitle,
-            message: strings.nothingUpcomingMessage
+          ScheduleHomeView(
+            schedule: schedule,
+            isUsingSavedSchedule: isUsingSavedSchedule,
+            snapshotDate: snapshotDate,
+            strings: strings
           )
         }
+      } else {
+        EmptyScheduleView(
+          title: strings.nothingUpcomingTitle,
+          message: strings.nothingUpcomingMessage
+        )
       }
     }
+    // Always On: soften everything but keep the countdown legible. Event
+    // titles and rooms are readable at a glance in a crowded hall, so they
+    // redact on the dimmed wrist-down display.
+    .opacity(isLuminanceReduced ? 0.7 : 1)
+    .privacySensitive(isLuminanceReduced)
     .environment(\.locale, snapshot.locale)
   }
 }
@@ -71,6 +83,7 @@ private struct PreConventionView: View {
   let convention: ConPawsConventionSnapshot
   let now: Date
   let isUsingSavedSchedule: Bool
+  var snapshotDate: Date?
   let strings: ConPawsStrings
 
   var body: some View {
@@ -92,7 +105,7 @@ private struct PreConventionView: View {
           strings: strings
         )
         .font(.title2.bold())
-        .foregroundStyle(.cyan)
+        .foregroundStyle(Color.accentColor)
         .monospacedDigit()
 
         Text(strings.untilTheConvention)
@@ -104,7 +117,7 @@ private struct PreConventionView: View {
           .multilineTextAlignment(.center)
 
         if isUsingSavedSchedule {
-          SavedScheduleLabel(strings: strings)
+          SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate)
         }
       }
       .padding(.horizontal, 8)
@@ -119,6 +132,7 @@ private struct ScheduleHomeView: View {
   @Environment(\.locale) private var locale
   let schedule: WatchScheduleProjection
   let isUsingSavedSchedule: Bool
+  var snapshotDate: Date?
   let strings: ConPawsStrings
 
   var body: some View {
@@ -150,14 +164,21 @@ private struct ScheduleHomeView: View {
             strings: strings
           ) {
             if schedule.isLeaveWindow {
-              HStack(spacing: 4) {
+              // The mockups draw LEAVE IN as the hero of the screen; the
+              // shared caption2/secondary detail style buried the single most
+              // time-critical number in the app. monospacedDigit keeps the
+              // live timer from jittering the trailing time label.
+              VStack(alignment: .leading, spacing: 1) {
                 AdaptiveCountdownView(
                   target: next.startDate,
                   now: schedule.now,
                   timeZone: convention.timeZone,
                   strings: strings
                 )
-                Text("• \(nextEventTime(next, in: convention))")
+                .font(.title3.bold())
+                .monospacedDigit()
+                .foregroundStyle(Color.accentColor)
+                Text(nextEventTime(next, in: convention))
               }
             } else {
               Text(nextEventTime(next, in: convention))
@@ -177,6 +198,7 @@ private struct ScheduleHomeView: View {
               event: event,
               convention: convention,
               strings: strings,
+              accented: false,
               detail: WatchFormat.location(event) ?? strings.scheduledLabel
             )
           }
@@ -187,6 +209,7 @@ private struct ScheduleHomeView: View {
             TodayListView(
               events: schedule.todayEvents,
               convention: convention,
+              activeEventID: schedule.activeEvent?.id,
               strings: strings
             )
           } label: {
@@ -199,7 +222,7 @@ private struct ScheduleHomeView: View {
             .font(.body)
             .frame(minHeight: 44)
             .padding(.horizontal, 10)
-            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
           }
           .buttonStyle(.plain)
           .accessibilityLabel("\(strings.today), \(strings.events(schedule.todayEvents.count))")
@@ -213,7 +236,7 @@ private struct ScheduleHomeView: View {
         }
 
         if isUsingSavedSchedule {
-          SavedScheduleLabel(strings: strings)
+          SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate)
             .frame(maxWidth: .infinity)
         }
       }
@@ -242,6 +265,7 @@ private struct EventCard<Detail: View>: View {
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
   let strings: ConPawsStrings
+  let accented: Bool
   let detail: Detail
 
   init(
@@ -249,12 +273,14 @@ private struct EventCard<Detail: View>: View {
     event: ConPawsEventSnapshot,
     convention: ConPawsConventionSnapshot,
     strings: ConPawsStrings,
+    accented: Bool = true,
     @ViewBuilder detail: () -> Detail
   ) {
     self.label = label
     self.event = event
     self.convention = convention
     self.strings = strings
+    self.accented = accented
     self.detail = detail()
   }
 
@@ -263,9 +289,16 @@ private struct EventCard<Detail: View>: View {
     event: ConPawsEventSnapshot,
     convention: ConPawsConventionSnapshot,
     strings: ConPawsStrings,
+    accented: Bool = true,
     detail: String
   ) where Detail == Text {
-    self.init(label: label, event: event, convention: convention, strings: strings) {
+    self.init(
+      label: label,
+      event: event,
+      convention: convention,
+      strings: strings,
+      accented: accented
+    ) {
       Text(detail)
     }
   }
@@ -280,7 +313,7 @@ private struct EventCard<Detail: View>: View {
         // their label, and would do it with the wrong language's casing rules.
         Text(label)
           .font(.caption2.bold())
-          .foregroundStyle(.cyan)
+          .foregroundStyle(Color.accentColor)
         Text(event.title)
           .font(.headline)
           .lineLimit(2)
@@ -292,7 +325,7 @@ private struct EventCard<Detail: View>: View {
       .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
       .padding(.horizontal, 10)
       .padding(.vertical, 7)
-      .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+      .background(.quaternary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -304,6 +337,7 @@ private struct TodayListView: View {
   @Environment(\.locale) private var locale
   let events: [ConPawsEventSnapshot]
   let convention: ConPawsConventionSnapshot
+  var activeEventID: String?
   let strings: ConPawsStrings
 
   var body: some View {
@@ -318,13 +352,27 @@ private struct TodayListView: View {
           NavigationLink {
             EventDetailView(event: event, convention: convention, strings: strings)
           } label: {
-            VStack(alignment: .leading, spacing: 2) {
-              Text(event.title)
-                .font(.body.weight(.semibold))
-                .lineLimit(2)
-              Text(WatchFormat.timeRange(event, in: convention, locale: locale))
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            HStack(spacing: 6) {
+              if event.id == activeEventID {
+                // Mockup frame 2: the running event is marked, not styled by
+                // color alone — a bar plus the accent both carry it.
+                RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                  .fill(Color.accentColor)
+                  .frame(width: 3)
+                  .accessibilityHidden(true)
+              }
+              VStack(alignment: .leading, spacing: 2) {
+                Text(event.title)
+                  .font(.body.weight(.semibold))
+                  .lineLimit(2)
+                Text(WatchFormat.timeRange(event, in: convention, locale: locale))
+                  .font(.caption2)
+                  .foregroundStyle(
+                    event.id == activeEventID
+                      ? AnyShapeStyle(Color.accentColor)
+                      : AnyShapeStyle(.secondary)
+                  )
+              }
             }
             .frame(minHeight: 44, alignment: .leading)
           }
@@ -422,13 +470,32 @@ private struct AdaptiveCountdownView: View {
 }
 
 private struct SavedScheduleLabel: View {
+  @Environment(\.locale) private var locale
   let strings: ConPawsStrings
+  var snapshotDate: Date?
+
+  /// "Updated 12 min ago", in the app's language via the system formatter —
+  /// the plan drew this line and the code never shipped it, leaving a flat
+  /// "Saved schedule" that answered nothing about staleness.
+  private var updatedText: String? {
+    guard let snapshotDate else { return nil }
+    let formatter = RelativeDateTimeFormatter()
+    formatter.locale = Locale(identifier: locale.identifier)
+    formatter.unitsStyle = .short
+    return formatter.localizedString(for: snapshotDate, relativeTo: Date())
+  }
 
   var body: some View {
-    Label(strings.savedSchedule, systemImage: "iphone.and.arrow.forward")
-      .font(.caption2)
-      .foregroundStyle(.secondary)
-      .accessibilityLabel(strings.savedScheduleA11y)
+    VStack(alignment: .leading, spacing: 1) {
+      Label(strings.savedSchedule, systemImage: "iphone.and.arrow.forward")
+      if let updatedText {
+        Text(updatedText)
+      }
+    }
+    .font(.caption2)
+    .foregroundStyle(.secondary)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(strings.savedScheduleA11y)
   }
 }
 
@@ -437,20 +504,25 @@ private struct EmptyScheduleView: View {
   let message: String
 
   var body: some View {
-    VStack(spacing: 8) {
-      Image(systemName: "calendar")
-        .font(.title2)
-        .foregroundStyle(.cyan)
-        .accessibilityHidden(true)
-      Text(title)
-        .font(.headline)
-      Text(message)
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .multilineTextAlignment(.center)
+    // Scrollable for the same reason PreConventionView is: at accessibility
+    // type sizes the message — the only text telling the user how to recover
+    // — clipped with no way to reach it.
+    ScrollView {
+      VStack(spacing: 8) {
+        Image(systemName: "calendar")
+          .font(.title2)
+          .foregroundStyle(Color.accentColor)
+          .accessibilityHidden(true)
+        Text(title)
+          .font(.headline)
+        Text(message)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .multilineTextAlignment(.center)
+      }
+      .padding(.horizontal, 10)
+      .accessibilityElement(children: .combine)
     }
-    .padding(.horizontal, 10)
-    .accessibilityElement(children: .combine)
   }
 }
 

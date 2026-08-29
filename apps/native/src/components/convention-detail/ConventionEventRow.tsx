@@ -34,6 +34,8 @@ interface ConventionEventRowProps {
   showProvenance: boolean;
   hasConflict: boolean;
   onSelect: (event: ConventionEvent) => void;
+  /** Day-band background from the section renderer. */
+  className?: string;
 }
 
 /**
@@ -51,6 +53,7 @@ export const ConventionEventRow = memo(function ConventionEventRow({
   showProvenance,
   hasConflict,
   onSelect,
+  className,
 }: ConventionEventRowProps) {
   const { t } = useTranslation();
   const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(event, t);
@@ -58,6 +61,7 @@ export const ConventionEventRow = memo(function ConventionEventRow({
   return (
     <EventItem
       testID={`convention-event-${event.id}`}
+      className={className}
       title={event.title}
       startTime={formatEventTime(event.startTime, timeZone, locale, hour12)}
       endTime={formatEventTime(event.endTime, timeZone, locale, hour12)}

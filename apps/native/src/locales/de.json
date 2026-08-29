@@ -5,10 +5,12 @@
     "settings": "Einstellungen",
     "back": "Zurück",
     "add": "Hinzufügen",
+    "remove": "Entfernen",
     "save": "Speichern",
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "archive": "Archivieren",
+    "unarchive": "Wiederherstellen",
     "edit": "Bearbeiten",
     "done": "Fertig",
     "loading": "Laden...",
@@ -74,9 +76,10 @@
     "name": "Convention-Name",
     "namePlaceholder": "z.B. ConPaws Preview Con",
     "nameRequired": "Gib einen Namen für die Convention ein.",
-    "timeZoneInvalid": "Gib eine gültige IANA-Zeitzone ein, zum Beispiel America/Chicago.",
+    "timeZoneInvalid": "Wähle eine gültige Zeitzone, zum Beispiel Chicago (America/Chicago).",
     "location": "Ort",
     "locationPlaceholder": "Stadt, Veranstaltungsort oder Adresse",
+    "locationTimeZoneNote": "Legt auch automatisch die Zeitzone der Convention fest.",
     "timeZoneFallbackTitle": "Zeitzone konnte nicht erkannt werden",
     "timeZoneFallbackMessage": "ConPaws kann die Zeitzone dieses Geräts ({{timeZone}}) verwenden. Unter Erweitert kannst du auch die Zeitzone der Convention auswählen.",
     "setTimeZone": "Zeitzone festlegen",
@@ -87,13 +90,14 @@
     "addToSchedule": "Zu Mein Zeitplan hinzufügen",
     "removeFromSchedule": "Aus Mein Zeitplan entfernen",
     "scheduleActionHint": "Aktualisiert dieses Event in Mein Zeitplan.",
+    "scheduleHint": {
+      "body": "Tippe auf ein Event, um es zu Mein Zeitplan hinzuzufügen. Markierte Events erscheinen im Zeitplan-Tab.",
+      "dismiss": "Hinweis ausblenden"
+    },
     "scheduleAddedAnnouncement": "{{event}} wurde zu Mein Zeitplan hinzugefügt.",
     "scheduleRemovedAnnouncement": "{{event}} wurde aus Mein Zeitplan entfernt.",
     "scheduleUpdateErrorTitle": "Zeitplan nicht aktualisiert",
     "scheduleUpdateErrorMessage": "Das Event konnte nicht geändert werden. Dein Zeitplan blieb unverändert.",
-    "viewOnSched": "Auf Sched anzeigen",
-    "viewOnSchedLabel": "{{event}} auf Sched anzeigen",
-    "openExternalHint": "Öffnet die Eventseite in deinem Browser.",
     "closeEventDetails": "Eventdetails schließen",
     "timeRangeTo": "bis {{time}}",
     "eventTimeRange": "{{start}} bis {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "Convention konnte nicht archiviert werden",
       "errorMessage": "Es wurde nichts archiviert. Versuche es erneut."
     },
+    "unarchive": {
+      "success": "{{name}} aus dem Archiv wiederhergestellt.",
+      "errorTitle": "Wiederherstellen fehlgeschlagen",
+      "errorMessage": "Die Convention konnte nicht wiederhergestellt werden. Versuche es erneut."
+    },
     "moreActions": "Weitere Aktionen für {{name}}",
     "sortBy": "Sortieren nach",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Verwende den Standort der Convention, nicht den aktuellen Standort deines Smartphones.",
       "requiredTitle": "Zeitzone erforderlich",
-      "requiredMessage": "Wähle die IANA-Zeitzone der Convention, damit die Eventzeiten auf Reisen korrekt bleiben.",
+      "requiredMessage": "Wähle vor dem Import die Zeitzone der Convention – nimm die Stadt, in der sie stattfindet.",
       "choose": "Zeitzone auswählen",
       "use": "Zeitzone verwenden"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "Dieses Sched-Update enthält keine aktiven Events. Beim Anwenden wird genau {{count}} importiertes Event aus dieser Convention entfernt und seine lokale Erinnerung gelöscht. Manuell hinzugefügte Events bleiben erhalten.",
       "emptyUpdateEvents": "Dieses Sched-Update enthält keine aktiven Events. Beim Anwenden werden genau {{count}} importierte Events aus dieser Convention entfernt und ihre lokalen Erinnerungen gelöscht. Manuell hinzugefügte Events bleiben erhalten.",
       "invalidTimeZoneTitle": "Ungültige Zeitzone",
-      "invalidTimeZoneMessage": "Verwende eine IANA-Zeitzone wie America/Chicago.",
+      "invalidTimeZoneMessage": "Wähle die Zeitzone der Convention aus der Liste, zum Beispiel Chicago.",
       "notAppliedTitle": "Import nicht angewendet",
       "parseNotApplied": "Dieser Kalender konnte nicht sicher verarbeitet werden. Es wurde nichts geändert.",
       "nothingTitle": "Nichts zu importieren",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Unveränderte wiederkehrende Serien: {{count}}. Ältere gespeicherte Events konnten nicht sicher zugeordnet werden.",
       "detailsNotUpdated": "Die Events wurden gespeichert, aber die Convention-Daten oder die gespeicherte Sched-URL konnten nicht aktualisiert werden.",
       "failedTitle": "Import fehlgeschlagen"
+    },
+    "help": {
+      "title": "Wo finde ich das?",
+      "schedTitle": "Nutzt die Con Sched?",
+      "sched": "Die meisten Conventions veröffentlichen ihren Zeitplan auf Sched – die Seite sieht aus wie <name>.sched.com. Kopiere irgendeine Seite davon und füge sie hier ein.",
+      "icsTitle": "Hast du eine Kalenderdatei?",
+      "ics": "Eine .ics-Datei ist ein Standard-Kalenderexport. Conventions verlinken sie oft als „Zum Kalender hinzufügen“ oder „Kalender-Feed“ – webcal://-Links funktionieren auch.",
+      "askTitle": "Beides nicht auffindbar?",
+      "ask": "Suche auf der Website oder in der App der Convention nach einem Zeitplan-Link oder frage in ihren sozialen Medien nach dem Format."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Plane die ganze Con",
       "subtitle": "Alles, was du brauchst, wenn das WLAN vor Ort versagt.",
       "demo": {
-        "now": "Jetzt",
-        "next": "Als Nächstes",
-        "eventOne": "Eröffnungsfeier",
-        "eventTwo": "Fursuit-Parade",
         "saved": "Mein Zeitplan"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Erinnerungen pausiert",
     "pausedMessage": "Mitteilungen sind aus, deine gespeicherten Erinnerungen kommen also nicht an. Deine Auswahl bleibt erhalten und gilt wieder, sobald du Mitteilungen einschaltest.",
     "overflowTitle": "Einige Erinnerungen warten",
-    "overflowMessage": "Dieses Gerät hält nur eine begrenzte Zahl offener Erinnerungen, so viele von deinen warten: {{count}}. Die nächstgelegenen werden zuerst geplant."
+    "overflowMessage": "Dieses Gerät hält nur eine begrenzte Zahl offener Erinnerungen, so viele von deinen warten: {{count}}. Die nächstgelegenen werden zuerst geplant.",
+    "priming": {
+      "title": "Rechtzeitig an Panels erinnert werden",
+      "message": "ConPaws kann dich erinnern, wenn es Zeit ist, zu einem Panel aufzubrechen. Dein Handy fragt als Nächstes nach der Benachrichtigungsberechtigung.",
+      "continue": "Weiter",
+      "notNow": "Jetzt nicht"
+    }
   },
   "schedule": {
     "title": "Zeitplan",
     "empty": {
       "title": "Noch nichts markiert",
-      "subtitle": "Markiere eine Veranstaltung in einer Convention, dann erscheint sie hier.",
+      "subtitle": "Tippe in einer Convention auf ein Event, um es zu Mein Zeitplan hinzuzufügen – es erscheint hier.",
       "cta": "Meine Conventions öffnen"
     },
     "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
     "loadError": "Dein Zeitplan konnte nicht geladen werden.",
     "conventionEmpty": {
       "title": "Noch nichts für {{name}} gespeichert",
-      "subtitle": "Markiere Veranstaltungen im Convention-Zeitplan, damit sie hier erscheinen.",
+      "subtitle": "Füge Events aus dem Convention-Zeitplan hinzu und sie erscheinen hier.",
       "cta": "Convention öffnen"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Paket nicht gefunden",
       "packageNotFoundDescription": "Dieses Paket ist möglicherweise nicht mehr in diesem Build enthalten.",
       "licenseTextUnavailable": "Der Lizenztext ist in diesem Build nicht verfügbar."
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "permission": "Benachrichtigungsberechtigung",
+      "enabled": "Erlaubt – Erinnerungen können ankommen",
+      "disabled": "Aus – Erinnerungen kommen nicht an",
+      "notRequested": "Noch nicht angefragt",
+      "defaultLead": "Standard-Aufbruchserinnerung",
+      "defaultLeadDescription": "Vorausgewählt, wenn du bei einem neuen Event eine Erinnerung setzt.",
+      "noDefault": "Keine"
+    },
+    "help": {
+      "gettingStarted": "Erste Schritte",
+      "gettingStartedDescription": "Wo du den Zeitplan deiner Convention findest",
+      "importNow": "Zeitplan importieren",
+      "importNowDescription": "Einen Sched-Link oder eine .ics-Datei hinzufügen."
     }
   }
 }

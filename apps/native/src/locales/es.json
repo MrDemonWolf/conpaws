@@ -5,10 +5,12 @@
     "settings": "Ajustes",
     "back": "Atrás",
     "add": "Añadir",
+    "remove": "Quitar",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "archive": "Archivar",
+    "unarchive": "Desarchivar",
     "edit": "Editar",
     "done": "Hecho",
     "loading": "Cargando...",
@@ -74,9 +76,10 @@
     "name": "Nombre de la Convención",
     "namePlaceholder": "ej. ConPaws Preview Con",
     "nameRequired": "Introduce un nombre para la convención.",
-    "timeZoneInvalid": "Introduce una zona horaria IANA válida, como America/Chicago.",
+    "timeZoneInvalid": "Elige una zona horaria válida, como Chicago (America/Chicago).",
     "location": "Ubicación",
     "locationPlaceholder": "Ciudad, recinto o dirección",
+    "locationTimeZoneNote": "También establece automáticamente la zona horaria de la convención.",
     "timeZoneFallbackTitle": "No se pudo detectar la zona horaria",
     "timeZoneFallbackMessage": "ConPaws puede usar la zona horaria de este dispositivo ({{timeZone}}), o puedes elegir la de la convención en Avanzado.",
     "setTimeZone": "Elegir zona horaria",
@@ -87,13 +90,14 @@
     "addToSchedule": "Añadir a Mi horario",
     "removeFromSchedule": "Quitar de Mi horario",
     "scheduleActionHint": "Actualiza este evento en Mi horario.",
+    "scheduleHint": {
+      "body": "Toca un evento para añadirlo a Mi Agenda. Los eventos marcados aparecen en la pestaña Agenda.",
+      "dismiss": "Descartar aviso"
+    },
     "scheduleAddedAnnouncement": "{{event}} se añadió a Mi horario.",
     "scheduleRemovedAnnouncement": "{{event}} se quitó de Mi horario.",
     "scheduleUpdateErrorTitle": "Horario no actualizado",
     "scheduleUpdateErrorMessage": "No se pudo cambiar el evento. Tu horario no se modificó.",
-    "viewOnSched": "Ver en Sched",
-    "viewOnSchedLabel": "Ver {{event}} en Sched",
-    "openExternalHint": "Abre la página del evento en tu navegador.",
     "closeEventDetails": "Cerrar detalles del evento",
     "timeRangeTo": "a {{time}}",
     "eventTimeRange": "{{start}} a {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "No se pudo archivar la convención",
       "errorMessage": "No se archivó nada. Inténtalo de nuevo."
     },
+    "unarchive": {
+      "success": "{{name}} restaurada del archivo.",
+      "errorTitle": "No se pudo desarchivar",
+      "errorMessage": "No se pudo restaurar la convención. Inténtalo de nuevo."
+    },
     "moreActions": "Más acciones para {{name}}",
     "sortBy": "Ordenar por",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Usa la ubicación de la convención, no la ubicación actual del teléfono.",
       "requiredTitle": "Se necesita la zona horaria",
-      "requiredMessage": "Elige la zona horaria IANA de la convención para que las horas de los eventos sigan siendo correctas cuando viajes.",
+      "requiredMessage": "Elige la zona horaria de la convención antes de importar: elige la ciudad donde se celebra.",
       "choose": "Elige una zona horaria",
       "use": "Usar zona horaria"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "Esta actualización de Sched no tiene eventos activos. Al aplicarla, se eliminará exactamente {{count}} evento importado de esta convención y se cancelará su recordatorio local. Los eventos añadidos manualmente se conservarán.",
       "emptyUpdateEvents": "Esta actualización de Sched no tiene eventos activos. Al aplicarla, se eliminarán exactamente {{count}} eventos importados de esta convención y se cancelarán sus recordatorios locales. Los eventos añadidos manualmente se conservarán.",
       "invalidTimeZoneTitle": "Zona horaria no válida",
-      "invalidTimeZoneMessage": "Usa una zona horaria IANA como America/Chicago.",
+      "invalidTimeZoneMessage": "Elige la zona horaria de la convención en la lista, como Chicago.",
       "notAppliedTitle": "Importación no aplicada",
       "parseNotApplied": "Este calendario no se pudo procesar de forma segura. No se cambió nada.",
       "nothingTitle": "Nada que importar",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Series recurrentes sin cambios: {{count}}. Los eventos guardados anteriormente no se pudieron asociar de forma segura.",
       "detailsNotUpdated": "Los eventos se guardaron, pero no se pudieron actualizar las fechas de la convención o la URL de Sched guardada.",
       "failedTitle": "Error al importar"
+    },
+    "help": {
+      "title": "¿Dónde encuentro esto?",
+      "schedTitle": "¿Usan Sched?",
+      "sched": "La mayoría de las convenciones publican su programa en Sched: el sitio se ve como <nombre>.sched.com. Copia cualquier página de ahí y pégala aquí.",
+      "icsTitle": "¿Tienes un archivo de calendario?",
+      "ics": "Un archivo .ics es una exportación de calendario estándar. Las convenciones suelen enlazarlo como «Añadir al calendario» o «Feed de calendario»; los enlaces webcal:// también funcionan.",
+      "askTitle": "¿No encuentras ninguno?",
+      "ask": "Busca un enlace al programa en el sitio web o la app de la convención, o pregunta en sus redes sociales qué formato publican."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Planifica toda la convención",
       "subtitle": "Todo lo que necesitas cuando falla el Wi-Fi del recinto.",
       "demo": {
-        "now": "Ahora",
-        "next": "Después",
-        "eventOne": "Ceremonia de apertura",
-        "eventTwo": "Desfile de fursuits",
         "saved": "Mi agenda"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Recordatorios en pausa",
     "pausedMessage": "Las notificaciones están desactivadas, así que tus recordatorios guardados no llegarán. Se conservan y vuelven en cuanto actives las notificaciones.",
     "overflowTitle": "Algunos recordatorios están en espera",
-    "overflowMessage": "Este dispositivo admite un número limitado de recordatorios pendientes, así que hay esta cantidad en espera: {{count}}. Se programan primero los más cercanos."
+    "overflowMessage": "Este dispositivo admite un número limitado de recordatorios pendientes, así que hay esta cantidad en espera: {{count}}. Se programan primero los más cercanos.",
+    "priming": {
+      "title": "Recibe avisos antes de los paneles",
+      "message": "ConPaws puede avisarte cuando sea hora de salir hacia un panel. Tu teléfono pedirá permiso de notificaciones a continuación.",
+      "continue": "Continuar",
+      "notNow": "Ahora no"
+    }
   },
   "schedule": {
     "title": "Horario",
     "empty": {
       "title": "Aún no hay nada destacado",
-      "subtitle": "Destaca un evento dentro de una convención y aparecerá aquí.",
+      "subtitle": "Toca un evento dentro de una convención para añadirlo a Mi Agenda: aparecerá aquí.",
       "cta": "Abrir mis convenciones"
     },
     "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
     "loadError": "No se pudo cargar tu horario.",
     "conventionEmpty": {
       "title": "Aún no hay nada guardado para {{name}}",
-      "subtitle": "Destaca eventos en el horario de la convención y aparecerán aquí.",
+      "subtitle": "Añade eventos desde el programa de la convención y aparecerán aquí.",
       "cta": "Abrir convención"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Paquete no encontrado",
       "packageNotFoundDescription": "Es posible que este paquete ya no esté incluido en esta compilación.",
       "licenseTextUnavailable": "El texto de la licencia no está disponible en esta compilación."
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "permission": "Permiso de notificaciones",
+      "enabled": "Permitido: los recordatorios pueden llegar",
+      "disabled": "Desactivado: los recordatorios no llegarán",
+      "notRequested": "Aún no solicitado",
+      "defaultLead": "Recordatorio de salida predeterminado",
+      "defaultLeadDescription": "Preseleccionado al poner un recordatorio en un evento nuevo.",
+      "noDefault": "Ninguno"
+    },
+    "help": {
+      "gettingStarted": "Primeros pasos",
+      "gettingStartedDescription": "Dónde encontrar el programa de tu convención",
+      "importNow": "Importar un programa",
+      "importNowDescription": "Añade un enlace de Sched o un archivo .ics."
     }
   }
 }

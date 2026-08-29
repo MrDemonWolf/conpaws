@@ -8,13 +8,16 @@ import { memo, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { SectionList, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
+import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { isValidTimeZone } from "@/lib/convention-time";
+import { timeSlotBandClass, timeSlotBands } from "@/lib/day-band";
 import { deviceHour12 } from "@/lib/device-clock";
 import { formatDayKeyLabel, formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
@@ -23,6 +26,10 @@ import {
   type PersonalScheduleEntry,
   spansMultipleConventions,
 } from "@/lib/personal-schedule";
+import {
+  getReminderReconciliation,
+  resolveReminderNotice,
+} from "@/lib/reminder-notice";
 import {
   SCHEDULE_EMPTY_CONTENT_STYLE,
   SCHEDULE_LIST_CONTENT_STYLE,
@@ -48,6 +55,7 @@ interface ScheduleRowProps {
   conventionName?: string;
   locale: string;
   hour12?: boolean;
+  className?: string;
 }
 
 /**
@@ -60,6 +68,7 @@ const ScheduleRow = memo(function ScheduleRow({
   conventionName,
   locale,
   hour12,
+  className,
 }: ScheduleRowProps) {
   return (
     <EventItem
@@ -76,7 +85,11 @@ const ScheduleRow = memo(function ScheduleRow({
       contextLabel={conventionName}
       ageRating={entry.event.ageRating}
       isInSchedule
+      // Every row on this tab is starred by definition; a star per row would
+      // be pure noise.
+      showScheduleIndicator={false}
       contentWarning={entry.event.contentWarning}
+      className={className}
       // There is no standalone event screen -- the action sheet that owns
       // stars and reminders lives on the convention. Send the row there
       // rather than inventing a second place to edit the same event.
@@ -96,6 +109,7 @@ export default function ScheduleScreen() {
     data: rows,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["schedule"],
     queryFn: eventsRepo.getAllInSchedule,
@@ -134,9 +148,26 @@ export default function ScheduleScreen() {
   }, [conventionId, rows]);
 
   const days = useMemo(() => groupPersonalScheduleByDay(entries), [entries]);
+
+  const notificationPermission = useNotificationPermission();
+  const reminderOverflow = getReminderReconciliation().overflow;
+  const reminderNotice = resolveReminderNotice({
+    permission: notificationPermission,
+    reminderCount: entries.filter(
+      (entry) => entry.event.reminderMinutes !== null,
+    ).length,
+    overflow: reminderOverflow,
+  });
   const showConventionName = useMemo(
     () => spansMultipleConventions(entries),
     [entries],
+  );
+
+  // Rows sharing a start time share a shade; the shade flips when the clock
+  // moves. Keyed per day section.
+  const slotBandsByDay = useMemo(
+    () => new Map(days.map((day) => [day.key, timeSlotBands(day.data)])),
+    [days],
   );
 
   const renderSectionHeader = useCallback(
@@ -147,15 +178,26 @@ export default function ScheduleScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: ScheduleEntry }) => (
+    ({
+      item,
+      index,
+      section,
+    }: {
+      item: ScheduleEntry;
+      index: number;
+      section: { key: string };
+    }) => (
       <ScheduleRow
         entry={item}
         conventionName={showConventionName ? item.conventionName : undefined}
         locale={locale}
         hour12={hour12}
+        className={timeSlotBandClass(
+          slotBandsByDay.get(section.key)?.[index] ?? 0,
+        )}
       />
     ),
-    [hour12, locale, showConventionName],
+    [hour12, locale, showConventionName, slotBandsByDay],
   );
 
   if (isLoading) {
@@ -169,7 +211,14 @@ export default function ScheduleScreen() {
   if (isError) {
     return (
       <View className="flex-1 bg-background">
-        <EmptyState icon={ERROR_ICON} title={t("schedule.loadError")} />
+        <EmptyState
+          icon={ERROR_ICON}
+          title={t("schedule.loadError")}
+          ctaLabel={t("common.retry")}
+          onCta={() => {
+            void refetch();
+          }}
+        />
       </View>
     );
   }
@@ -191,13 +240,22 @@ export default function ScheduleScreen() {
         }
         ListHeaderComponent={
           days.length > 0 ? (
-            <View className="gap-1 px-4 pt-1 pb-2">
-              {linkedConvention ? (
-                <Text variant="label">{linkedConvention.name}</Text>
-              ) : null}
-              <Text variant="caption" className="text-muted-foreground">
-                {t("schedule.timesShownInConventionTime")}
-              </Text>
+            <View className="pb-1">
+              <View className="gap-1 px-4 pt-1 pb-2">
+                {linkedConvention ? (
+                  <Text variant="label">{linkedConvention.name}</Text>
+                ) : null}
+                <Text variant="caption" className="text-muted-foreground">
+                  {t("schedule.timesShownInConventionTime")}
+                </Text>
+              </View>
+              {/* Widget deep links land here, so this is where a user with
+                  notifications revoked most needs to hear reminders are
+                  paused. */}
+              <ReminderNoticeBanner
+                notice={reminderNotice}
+                overflow={reminderOverflow}
+              />
             </View>
           ) : null
         }

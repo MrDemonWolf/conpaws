@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Cloud, ShieldCheck } from "lucide-react-native";
+import { CalendarPlus, Cloud, ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
@@ -10,6 +10,7 @@ import { SafeView, Text } from "@/components/ui";
 import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { currentLocale } from "@/lib/i18n";
+import { markOnboardingComplete } from "@/lib/onboarding-storage";
 
 const previewFixture = buildConPawsPreviewFixture();
 const previewEvents = previewFixture.events.slice(0, 2);
@@ -26,6 +27,12 @@ function formatTime(value: string | null | undefined, locale: string): string {
 
 export default function FeaturesScreen() {
   const { t } = useTranslation();
+
+  async function handleSkip() {
+    await markOnboardingComplete();
+    router.replace("/(tabs)/(home)");
+  }
+
   const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#006F91";
   const locale = currentLocale();
 
@@ -80,14 +87,29 @@ export default function FeaturesScreen() {
                   className="bg-card"
                 />
               ))}
-              <View
-                accessible
-                accessibilityLabel={`${t("onboarding.features.offline.title")}. ${t("onboarding.features.offline.description")}`}
-                className="flex-row items-center gap-2 border-border border-t px-4 py-3"
-              >
+              <View className="flex-row items-center gap-2 border-border border-t px-4 py-3">
                 <ShieldCheck size={17} color={iconColor} />
-                <Text variant="caption" className="flex-1">
-                  {t("onboarding.features.offline.title")}
+                <View className="flex-1">
+                  <Text variant="caption" className="font-semibold">
+                    {t("onboarding.features.offline.title")}
+                  </Text>
+                  <Text variant="caption" className="text-muted-foreground">
+                    {t("onboarding.features.offline.description")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            {/* These two strings shipped translated in all eight locales and
+                were rendered nowhere — the only in-app explanation of what
+                "import" means. */}
+            <View className="flex-row items-center justify-center gap-2">
+              <CalendarPlus size={17} color={iconColor} />
+              <View>
+                <Text variant="label">
+                  {t("onboarding.features.import.title")}
+                </Text>
+                <Text variant="caption" className="text-muted-foreground">
+                  {t("onboarding.features.import.description")}
                 </Text>
               </View>
             </View>
@@ -99,25 +121,35 @@ export default function FeaturesScreen() {
                 {t("onboarding.features.plan.description")}
               </Text>
             </View>
-            <View
-              accessible
-              accessibilityLabel={`${t("onboarding.features.plus.eyebrow")}. ${t("onboarding.features.plus.title")}. ${t("onboarding.features.plus.description")}`}
-              className="flex-row items-center justify-center gap-2"
-            >
-              <Cloud size={16} color={iconColor} />
-              <Text variant="caption" className="font-semibold text-primary">
-                {t("onboarding.features.plus.eyebrow")}:{" "}
-                {t("onboarding.features.plus.title")}
+            <View className="items-center gap-1">
+              <View className="flex-row items-center justify-center gap-2">
+                <Cloud size={16} color={iconColor} />
+                <Text variant="caption" className="font-semibold text-primary">
+                  {t("onboarding.features.plus.eyebrow")}:{" "}
+                  {t("onboarding.features.plus.title")}
+                </Text>
+              </View>
+              <Text
+                variant="caption"
+                className="max-w-sm text-center text-muted-foreground"
+              >
+                {t("onboarding.features.plus.description")}
               </Text>
             </View>
           </View>
         </View>
       </ScrollView>
-      <View className="px-4 pt-1 pb-2">
+      <View className="gap-1 px-4 pt-1 pb-2">
         <OnboardingButton
           label={t("onboarding.features.next")}
           onPress={() => router.push("/(onboarding)/get-started")}
           testID="onboarding-features-continue"
+        />
+        <OnboardingButton
+          label={t("onboarding.welcome.skip")}
+          variant="text"
+          onPress={handleSkip}
+          testID="onboarding-features-skip"
         />
       </View>
     </SafeView>

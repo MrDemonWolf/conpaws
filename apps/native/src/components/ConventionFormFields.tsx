@@ -116,7 +116,14 @@ export function TimeZonePickerModal({
     <Modal
       visible={visible}
       animationType="slide"
-      presentationStyle="pageSheet"
+      // fullScreen, not pageSheet: this modal is presented from screens that
+      // are themselves formSheet routes (create/edit), and presenting a sheet
+      // from a sheet-presented controller is where iOS drops the presentation
+      // — the picker's visible flag stays true with nothing on screen. A
+      // full-screen cover cannot be interactively dismissed, fully occludes
+      // the parent sheet, and keeps the same slide + Done button. Android
+      // ignores presentationStyle entirely.
+      presentationStyle="fullScreen"
       onRequestClose={handleClose}
     >
       <SafeView edges={["top", "bottom"]}>
