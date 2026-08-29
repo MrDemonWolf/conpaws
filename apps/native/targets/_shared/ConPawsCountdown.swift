@@ -105,6 +105,99 @@ enum ConPawsCountdown {
     }
   }
 
+  /// The leave window's countdown: whole minutes inside the final hour
+  /// ("18 min"), the shared ladder above it.
+  ///
+  /// The leave window is the one place the hour floor gives way — it is
+  /// minutes wide by definition, and `leaveChangePoints` pre-builds an entry
+  /// for every minute so the label never overpromises.
+  static func leaveCountdown(
+    from: Date,
+    to: Date,
+    timeZone: TimeZone,
+    strings: ConPawsStrings
+  ) -> String {
+    guard let minutes = leaveMinutes(from: from, to: to) else {
+      return label(from: from, to: to, timeZone: timeZone, strings: strings)
+    }
+    return strings.compactMinutes(minutes)
+  }
+
+  /// The same countdown phrased as an instruction: "Leave in 18 min".
+  ///
+  /// Above an hour it falls back to the inline leave phrasing ("Leave in
+  /// 2 hours"), because gluing `leaveIn` onto a label that already carries
+  /// its own "In" reads twice.
+  static func leaveLead(
+    from: Date,
+    to: Date,
+    timeZone: TimeZone,
+    strings: ConPawsStrings
+  ) -> String {
+    guard let minutes = leaveMinutes(from: from, to: to) else {
+      return strings.text(
+        strings.inlineLeaveFormat,
+        strings.midSentenceCountdown(
+          label(from: from, to: to, timeZone: timeZone, strings: strings)
+        )
+      )
+    }
+    return "\(strings.leaveIn) \(strings.compactMinutes(minutes))"
+  }
+
+  /// Whole minutes remaining, or nil once the wait is an hour or more and the
+  /// shared ladder takes over. Never below 1: a "0 min" instruction to leave
+  /// reads as already too late, which "Now" handles instead.
+  static func leaveMinutes(from: Date, to: Date) -> Int? {
+    let remaining = to.timeIntervalSince(from)
+    guard remaining < 3_600 else { return nil }
+    return max(1, Int((remaining / 60).rounded(.up)))
+  }
+
+  /// Every moment between `from` and `to` at which the leave countdown would
+  /// change: hourly while it reads on the shared ladder, then every minute
+  /// inside the final hour. Capped like `changePoints`, and the caller
+  /// re-plans from the last entry the same way.
+  static func leaveChangePoints(
+    from: Date,
+    to: Date,
+    limit: Int = maximumEntries
+  ) -> [Date] {
+    guard limit > 0, to > from else { return [] }
+
+    var ticks: [Date] = []
+    let totalHours = Int(to.timeIntervalSince(from) / 3_600)
+    if totalHours >= 1 {
+      for hoursLeft in stride(from: totalHours, through: 1, by: -1) {
+        // The +1 lands just inside the new hour, same as the shared ladder.
+        ticks.append(to.addingTimeInterval(TimeInterval(-hoursLeft * 3_600) + 1))
+      }
+    }
+    let minutesSpan = min(59, Int(to.timeIntervalSince(from) / 60))
+    if minutesSpan >= 1 {
+      for minutesLeft in stride(from: minutesSpan, through: 1, by: -1) {
+        ticks.append(to.addingTimeInterval(TimeInterval(-minutesLeft * 60)))
+      }
+    }
+
+    var points = Array(ticks.filter { $0 > from }.sorted().prefix(limit))
+    if points.count < limit {
+      points.append(to)
+    }
+    return points
+  }
+
+  /// How full the leave window's circular gauge is, from 0 at the reminder to
+  /// 1 at the event. Scaled to the window itself: it is minutes wide, so
+  /// unlike the pre-con ring it can afford to move visibly.
+  static func leaveProgress(from: Date, to: Date, windowMinutes: Int) -> Double {
+    let window = TimeInterval(max(1, windowMinutes) * 60)
+    let remaining = to.timeIntervalSince(from)
+    if remaining <= 0 { return 1 }
+    if remaining >= window { return 0 }
+    return 1 - (remaining / window)
+  }
+
   /// The stretch of the wait a Lock Screen ring is scaled to.
   static let ringWindow: TimeInterval = 7 * 86_400
 

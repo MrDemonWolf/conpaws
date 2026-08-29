@@ -96,7 +96,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
   private static func isValid(_ snapshot: ConPawsSnapshot) -> Bool {
     guard
-      snapshot.schemaVersion == 1,
+      ConPawsSnapshotStore.supportedSchemaVersions.contains(snapshot.schemaVersion),
       snapshot.generatedAtMs.isFinite,
       snapshot.generatedAtMs >= 0,
       snapshot.generatedAtMs <= Date().timeIntervalSince1970 * 1_000 + Self.futureToleranceMs,

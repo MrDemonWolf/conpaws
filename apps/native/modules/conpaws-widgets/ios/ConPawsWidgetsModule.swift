@@ -87,7 +87,11 @@ public class ConPawsWidgetsModule: Module {
   /// range has to clear the slot rather than be stored or silently ignored:
   /// leaving the old payload in place freezes both surfaces on a schedule
   /// weeks out of date, with no empty state to say so.
-  private static let supportedSchemaVersions = 1...1
+  ///
+  /// Duplicated from `ConPawsSnapshotStore.supportedSchemaVersions` because
+  /// this module compiles as a pod, on the other side of a target boundary
+  /// from `_shared`. Keep the two in step.
+  private static let supportedSchemaVersions = 1...2
 
   private let watchBridge = ConPawsWatchBridge()
 

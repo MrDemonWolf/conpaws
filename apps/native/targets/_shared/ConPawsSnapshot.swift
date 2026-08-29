@@ -65,9 +65,20 @@ struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
   let location: String?
   let room: String?
   let reminderMinutes: Int?
+  /// Localized age-pill label ("13+ Teen"), pre-rendered by the app like
+  /// `dateRangeLabel`. Absent in schema v1 payloads and for all-ages events,
+  /// and optional here precisely so both decode to "no pill".
+  let ageRating: String?
 }
 
 enum ConPawsSnapshotStore {
+  /// Snapshot schemas this binary knows how to render.
+  ///
+  /// v1 payloads stay valid — v2 only adds optional fields, which decode as
+  /// absent — so an app updated under an older extension (or the reverse)
+  /// keeps rendering rather than falling back to the empty state.
+  static let supportedSchemaVersions = 1...2
+
   static let snapshotKey = "conpaws.widget.snapshot.v1"
 
   static func appGroupIdentifier(bundleIdentifier: String? = Bundle.main.bundleIdentifier) -> String {
@@ -85,7 +96,7 @@ enum ConPawsSnapshotStore {
       let json = defaults.string(forKey: snapshotKey),
       let data = json.data(using: .utf8),
       let snapshot = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
-      snapshot.schemaVersion == 1
+      supportedSchemaVersions.contains(snapshot.schemaVersion)
     else {
       return .empty
     }
@@ -96,7 +107,7 @@ enum ConPawsSnapshotStore {
     guard
       let data = json.data(using: .utf8),
       let snapshot = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
-      snapshot.schemaVersion == 1,
+      supportedSchemaVersions.contains(snapshot.schemaVersion),
       let defaults = UserDefaults(suiteName: appGroupIdentifier())
     else {
       return false

@@ -31,7 +31,8 @@ private struct ConPawsWatchEntry: TimelineEntry {
           endAtMs: now.addingTimeInterval(600).timeIntervalSince1970 * 1_000,
           location: "Convention Center",
           room: "Main Ballroom",
-          reminderMinutes: nil
+          reminderMinutes: nil,
+          ageRating: nil
         ),
         ConPawsEventSnapshot(
           id: "preview-next",
@@ -40,14 +41,15 @@ private struct ConPawsWatchEntry: TimelineEntry {
           endAtMs: now.addingTimeInterval(4_800).timeIntervalSince1970 * 1_000,
           location: "Convention Center",
           room: "Hall A",
-          reminderMinutes: 30
+          reminderMinutes: 30,
+          ageRating: nil
         ),
       ]
     )
     return ConPawsWatchEntry(
       date: now,
       snapshot: ConPawsSnapshot(
-        schemaVersion: 1,
+        schemaVersion: 2,
         generatedAtMs: now.timeIntervalSince1970 * 1_000,
         localeIdentifier: Locale.autoupdatingCurrent.identifier,
         conventions: [convention]
@@ -94,7 +96,12 @@ private struct ConPawsWatchProvider: TimelineProvider {
       ConPawsWatchEntry(date: now, snapshot: snapshot, relevance: relevance(at: now))
     ]
     if let target = projection.countdownTarget, let zone = projection.timeZone {
-      for date in ConPawsCountdown.changePoints(from: now, to: target, timeZone: zone) {
+      // The leave countdown reads in whole minutes, so it ticks per minute;
+      // every other countdown rides the shared hourly ladder.
+      let points = projection.isLeaveState
+        ? ConPawsCountdown.leaveChangePoints(from: now, to: target)
+        : ConPawsCountdown.changePoints(from: now, to: target, timeZone: zone)
+      for date in points {
         entries.append(
           ConPawsWatchEntry(date: date, snapshot: snapshot, relevance: relevance(at: date))
         )
@@ -150,6 +157,31 @@ private struct ConPawsWatchEntryView: View {
   }
 }
 
+/// Mark + one line of context: the complication's shared first line, matching
+/// the iPhone Lock Screen rectangular grammar. The walk symbol takes the
+/// mark's place in the leave window -- the only other glyph these families use.
+private struct WatchEyebrow: View {
+  let title: String
+  var symbol: String?
+
+  var body: some View {
+    HStack(spacing: 4) {
+      if let symbol {
+        Image(systemName: symbol)
+          .font(.caption2.bold())
+          .accessibilityHidden(true)
+      } else {
+        ConPawsMark(size: 11)
+      }
+      Text(title)
+        .lineLimit(1)
+    }
+    .font(.caption2.bold())
+    .foregroundStyle(Color.accentColor)
+    .widgetAccentable()
+  }
+}
+
 private struct ComingUpWidgetView: View {
   let convention: ConPawsConventionSnapshot
   let now: Date
@@ -157,10 +189,7 @@ private struct ComingUpWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      Label(strings.comingUpCaps, systemImage: "calendar.badge.clock")
-        .font(.caption2.bold())
-        .foregroundStyle(Color.accentColor)
-        .widgetAccentable()
+      WatchEyebrow(title: convention.name)
       WidgetCountdownView(
         target: convention.startDate,
         now: now,
@@ -169,9 +198,12 @@ private struct ComingUpWidgetView: View {
       )
       .font(.headline)
       .monospacedDigit()
-      Text(convention.name)
-        .font(.caption2)
-        .lineLimit(1)
+      Text(
+        convention.dateRangeLabel.isEmpty ? strings.comingUpTitle : convention.dateRangeLabel
+      )
+      .font(.caption2)
+      .foregroundStyle(.secondary)
+      .lineLimit(1)
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
@@ -201,35 +233,32 @@ private struct LeaveWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 1) {
-      HStack(spacing: 4) {
-        Image(systemName: "clock")
-          .accessibilityHidden(true)
-        Text(strings.leaveInCaps)
-        WidgetCountdownView(
-          target: next.startDate,
-          now: now,
+      WatchEyebrow(
+        title: ConPawsCountdown.leaveLead(
+          from: now,
+          to: next.startDate,
           timeZone: convention.timeZone,
           strings: strings
-        )
-        .monospacedDigit()
-      }
-      .font(.caption.bold())
-      .foregroundStyle(Color.accentColor)
-      .widgetAccentable()
+        ),
+        symbol: "figure.walk"
+      )
+      .monospacedDigit()
 
-      if let current {
-        Text("\(strings.nowCaps) · \(current.title)")
+      Text(next.title)
+        .font(.headline)
+        .lineLimit(1)
+
+      if let location = WidgetFormat.location(next) {
+        Text("\(nextTime) · \(location)")
           .font(.caption2)
+          .foregroundStyle(.secondary)
           .lineLimit(1)
       } else {
-        Text(strings.forCaps)
-          .font(.caption2.bold())
+        Text(nextTime)
+          .font(.caption2)
           .foregroundStyle(.secondary)
+          .lineLimit(1)
       }
-
-      Text("\(strings.nextCaps) · \(nextTime) · \(next.title)")
-        .font(.caption2)
-        .lineLimit(1)
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilitySummary)
@@ -274,21 +303,19 @@ private struct NextWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      HStack(spacing: 4) {
-        Image(systemName: "calendar")
-          .accessibilityHidden(true)
-        Text("\(strings.nextCaps) · \(startTime)")
-      }
-      .font(.caption2.bold())
-      .foregroundStyle(Color.accentColor)
-      .widgetAccentable()
+      WatchEyebrow(title: convention.name)
 
       Text(event.title)
         .font(.headline)
         .lineLimit(1)
 
       if let location = WidgetFormat.location(event) {
-        Text(location)
+        Text("\(startTime) · \(location)")
+          .font(.caption2)
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+      } else {
+        Text(startTime)
           .font(.caption2)
           .foregroundStyle(.secondary)
           .lineLimit(1)
@@ -321,12 +348,9 @@ private struct BlankWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
-      Label(strings.noUpcomingEvents, systemImage: "calendar")
-        .font(.caption.bold())
-        .foregroundStyle(Color.accentColor)
-        .widgetAccentable()
-      Text(convention?.name ?? strings.syncFromPhone)
-        .font(.caption2)
+      WatchEyebrow(title: convention?.name ?? strings.syncFromPhone)
+      Text(strings.noUpcomingEvents)
+        .font(.caption)
         .foregroundStyle(.secondary)
         .lineLimit(2)
     }
@@ -402,6 +426,13 @@ private struct WidgetScheduleProjection {
     case .leave(_, let upcoming, _): return upcoming.startDate
     case .next, .blank: return nil
     }
+  }
+
+  /// Whether the countdown on screen is the leave window's, which ticks in
+  /// minutes rather than on the hourly ladder.
+  var isLeaveState: Bool {
+    if case .leave = state { return true }
+    return false
   }
 
   var nextRefresh: Date {
