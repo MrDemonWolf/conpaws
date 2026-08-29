@@ -16,6 +16,30 @@ describe("resolveScheduleUrl", () => {
     expect(resolved.fetchUrl).toBe(
       "https://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
     );
+    // The canonical form is what gets persisted as the convention's feed URL
+    // and re-fetched on every later refresh, so a `webcal:` leaking through
+    // here would break re-import rather than just this one fetch.
+    expect(resolved.canonicalUrl).toBe(
+      "https://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
+    );
+  });
+
+  it("keeps a webcal feed's own path and port", () => {
+    const resolved = resolveScheduleUrl(
+      "webcal://schedule.examplecon.org:8443/exports/all.ics?key=abc",
+    );
+
+    expect(resolved.fetchUrl).toBe(
+      "https://schedule.examplecon.org:8443/exports/all.ics?key=abc",
+    );
+    expect(resolved.canonicalUrl).toBe(resolved.fetchUrl);
+  });
+
+  it("treats a webcal Sched address as Sched", () => {
+    const resolved = resolveScheduleUrl("webcal://examplecon2025.sched.com/");
+
+    expect(resolved.kind).toBe("sched");
+    expect(resolved.fetchUrl).toBe("https://examplecon2025.sched.com/all.ics");
   });
 
   it("accepts WEBCAL in any case", () => {

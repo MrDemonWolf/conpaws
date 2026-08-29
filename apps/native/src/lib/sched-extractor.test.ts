@@ -39,6 +39,24 @@ describe("fetchScheduleIcs", () => {
     expect(result.icsContent).toContain("Fursuit Parade");
   });
 
+  it("fetches a webcal feed over https and persists the https form", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(respondWith(CALENDAR));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchScheduleIcs(
+      "webcal://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
+    );
+
+    // `webcal:` is not a transport — nothing may ever reach fetch with it.
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "https://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
+    );
+    expect(result.canonicalUrl).toBe(
+      "https://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
+    );
+    expect(result.icsContent).toContain("Fursuit Parade");
+  });
+
   it("refuses before reading when Content-Length is over the cap", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       respondWith(CALENDAR, {
