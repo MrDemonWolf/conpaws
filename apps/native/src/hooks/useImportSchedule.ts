@@ -108,58 +108,69 @@ export async function rearmImportedReminders(
   return { rescheduled, cleared, paused };
 }
 
+/**
+ * The write half of an import, with no React in it.
+ *
+ * Lifted out of the mutation so an unattended re-check can reuse the exact
+ * path a hand-run import takes. A second implementation would be a second set
+ * of reconciliation bugs, on the one code path that deletes rows.
+ */
+export async function runScheduleImport({
+  parsedEvents,
+  conventionId,
+  sourceSnapshot,
+}: ImportInput): Promise<ImportResult> {
+  const mapped = toSourceEvents(parsedEvents, conventionId);
+
+  const result = await eventsRepo.upsertBySourceUid(
+    mapped,
+    conventionId,
+    sourceSnapshot,
+  );
+
+  let reminders: ReminderRearmResult = {
+    rescheduled: 0,
+    cleared: 0,
+    paused: 0,
+  };
+  try {
+    // Tombstoned events keep `reminderMinutes` — that column records what the
+    // user asked for, and they have not changed their mind. What must not
+    // survive is the OS request, or the phone would announce a panel the
+    // convention is no longer running.
+    await Promise.all(
+      [...result.removedEventIds, ...result.tombstonedEventIds].map((eventId) =>
+        cancelEventReminder(eventId),
+      ),
+    );
+    const importedUids = new Set(mapped.map((event) => event.sourceUid));
+    const importedEvents = (
+      await eventsRepo.getByConventionId(conventionId)
+    ).filter((event) => event.sourceUid && importedUids.has(event.sourceUid));
+
+    reminders = await rearmImportedReminders(importedEvents);
+  } catch (error) {
+    // SQLite already committed. Every reminder keeps its saved choice, so the
+    // next launch's reconciliation re-files whatever is missing.
+    reportError(error, { scope: "schedule-import.reminders" });
+  }
+
+  return {
+    added: result.added,
+    updated: result.updated,
+    removed: result.removedEventIds.length,
+    tombstoned: result.tombstonedEventIds.length,
+    unresolved: result.unresolvedSeries.length,
+    remindersCleared: reminders.cleared,
+    remindersPaused: reminders.paused,
+  };
+}
+
 export function useImportSchedule() {
   const queryClient = useQueryClient();
 
   return useMutation<ImportResult, Error, ImportInput>({
-    mutationFn: async ({ parsedEvents, conventionId, sourceSnapshot }) => {
-      const mapped = toSourceEvents(parsedEvents, conventionId);
-
-      const result = await eventsRepo.upsertBySourceUid(
-        mapped,
-        conventionId,
-        sourceSnapshot,
-      );
-
-      let reminders: ReminderRearmResult = {
-        rescheduled: 0,
-        cleared: 0,
-        paused: 0,
-      };
-      try {
-        // Tombstoned events keep `reminderMinutes` — that column records what
-        // the user asked for, and they have not changed their mind. What must
-        // not survive is the OS request, or the phone would announce a panel
-        // the convention is no longer running.
-        await Promise.all(
-          [...result.removedEventIds, ...result.tombstonedEventIds].map(
-            (eventId) => cancelEventReminder(eventId),
-          ),
-        );
-        const importedUids = new Set(mapped.map((event) => event.sourceUid));
-        const importedEvents = (
-          await eventsRepo.getByConventionId(conventionId)
-        ).filter(
-          (event) => event.sourceUid && importedUids.has(event.sourceUid),
-        );
-
-        reminders = await rearmImportedReminders(importedEvents);
-      } catch (error) {
-        // SQLite already committed. Every reminder keeps its saved choice, so
-        // the next launch's reconciliation re-files whatever is missing.
-        reportError(error, { scope: "schedule-import.reminders" });
-      }
-
-      return {
-        added: result.added,
-        updated: result.updated,
-        removed: result.removedEventIds.length,
-        tombstoned: result.tombstonedEventIds.length,
-        unresolved: result.unresolvedSeries.length,
-        remindersCleared: reminders.cleared,
-        remindersPaused: reminders.paused,
-      };
-    },
+    mutationFn: runScheduleImport,
     onSuccess: (_data, { conventionId }) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
     },
