@@ -151,7 +151,7 @@ export default function HomeScreen() {
         deviceTimeZone,
       );
       return partitionConventions(sorted, now, deviceTimeZone);
-    }, [conventions, sort, nameCollator, now, deviceTimeZone]);
+    }, [conventions, sort, nameCollator, now]);
 
   const deleteMutation = useMutation({
     mutationFn: async ({ id }: Pick<Convention, "id" | "name">) => {
@@ -308,7 +308,7 @@ export default function HomeScreen() {
         canUnarchive: canUnarchive(item, now, deviceTimeZone),
       };
     },
-    [dateFormatter, now, deviceTimeZone, t],
+    [dateFormatter, now, t],
   );
 
   const showLoading = useDelayedLoading(isLoading || (isError && isFetching));

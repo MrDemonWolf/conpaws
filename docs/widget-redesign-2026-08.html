@@ -104,10 +104,15 @@
   .wd .rail { background: #18b7f2; }
   .wd .now-chip { background: rgba(24,183,242,.16); }
   .wd .hair { border-color: rgba(242,246,249,.16); }
-  /* tinted rendering: the system desaturates and overlays its own tint. */
+  /* tinted rendering: the system desaturates and overlays its own tint.
+     !important is the point here: the mock has to crush every per-element
+     color exactly like iOS does. */
   .wt { background: #202124; color: #e9eaec; }
+  /* biome-ignore lint/complexity/noImportantStyles: simulates the OS override */
   .wt * { color: #e9eaec !important; }
+  /* biome-ignore lint/complexity/noImportantStyles: simulates the OS override */
   .wt .rail, .wt .now-chip { background: rgba(233,234,236,.34) !important; }
+  /* biome-ignore lint/complexity/noImportantStyles: simulates the OS override */
   .wt .dim { color: rgba(233,234,236,.62) !important; }
 
   .w .eyebrow-w {
@@ -141,6 +146,7 @@
   }
   .wl .leave-strip { background: rgba(0,114,156,.12); color: #00618a; }
   .wd .leave-strip { background: rgba(24,183,242,.16); color: #18b7f2; }
+  /* biome-ignore lint/complexity/noImportantStyles: simulates the OS override */
   .wt .leave-strip { background: rgba(233,234,236,.34) !important; }
 </style>
 
