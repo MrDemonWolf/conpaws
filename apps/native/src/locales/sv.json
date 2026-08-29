@@ -5,10 +5,12 @@
     "settings": "Inställningar",
     "back": "Tillbaka",
     "add": "Lägg till",
+    "remove": "Ta bort",
     "save": "Spara",
     "cancel": "Avbryt",
     "delete": "Ta bort",
     "archive": "Arkivera",
+    "unarchive": "Återställ",
     "edit": "Redigera",
     "done": "Klar",
     "loading": "Laddar...",
@@ -74,9 +76,10 @@
     "name": "Konventnamn",
     "namePlaceholder": "t.ex. ConPaws Preview Con",
     "nameRequired": "Ange ett namn på konventet.",
-    "timeZoneInvalid": "Ange en giltig IANA-tidszon, till exempel America/Chicago.",
+    "timeZoneInvalid": "Välj en giltig tidszon, till exempel Chicago (America/Chicago).",
     "location": "Plats",
     "locationPlaceholder": "Stad, lokal eller adress",
+    "locationTimeZoneNote": "Ställer också automatiskt in konventets tidszon.",
     "timeZoneFallbackTitle": "Tidszonen kunde inte identifieras",
     "timeZoneFallbackMessage": "ConPaws kan använda enhetens tidszon ({{timeZone}}), eller så kan du välja konventets tidszon under Avancerat.",
     "setTimeZone": "Ställ in tidszon",
@@ -87,13 +90,14 @@
     "addToSchedule": "Lägg till i Mitt schema",
     "removeFromSchedule": "Ta bort från Mitt schema",
     "scheduleActionHint": "Uppdaterar detta evenemang i Mitt schema.",
+    "scheduleHint": {
+      "body": "Tryck på ett evenemang för att lägga till det i Mitt schema. Markerade evenemang visas i fliken Schema.",
+      "dismiss": "Dölj tips"
+    },
     "scheduleAddedAnnouncement": "{{event}} har lagts till i Mitt schema.",
     "scheduleRemovedAnnouncement": "{{event}} har tagits bort från Mitt schema.",
     "scheduleUpdateErrorTitle": "Schemat uppdaterades inte",
     "scheduleUpdateErrorMessage": "Evenemanget kunde inte ändras. Ditt schema lämnades oförändrat.",
-    "viewOnSched": "Visa på Sched",
-    "viewOnSchedLabel": "Visa {{event}} på Sched",
-    "openExternalHint": "Öppnar evenemangssidan i din webbläsare.",
     "closeEventDetails": "Stäng evenemangsdetaljer",
     "timeRangeTo": "till {{time}}",
     "eventTimeRange": "{{start}} till {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "Konventet kunde inte arkiveras",
       "errorMessage": "Inget arkiverades. Försök igen."
     },
+    "unarchive": {
+      "success": "{{name}} återställd från arkivet.",
+      "errorTitle": "Kunde inte återställa",
+      "errorMessage": "Konventet kunde inte återställas. Försök igen."
+    },
     "moreActions": "Fler åtgärder för {{name}}",
     "sortBy": "Sortera efter",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Använd konventets plats, inte telefonens aktuella plats.",
       "requiredTitle": "Tidszon krävs",
-      "requiredMessage": "Välj konventets IANA-tidszon så att evenemangstiderna förblir korrekta när du reser.",
+      "requiredMessage": "Välj konventets tidszon innan du importerar – välj staden där det hålls.",
       "choose": "Välj en tidszon",
       "use": "Använd tidszon"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "Den här Sched-uppdateringen har inga aktiva evenemang. Om du tillämpar den tas exakt {{count}} importerat evenemang bort från konventet och dess lokala påminnelse avbryts. Manuellt tillagda evenemang finns kvar.",
       "emptyUpdateEvents": "Den här Sched-uppdateringen har inga aktiva evenemang. Om du tillämpar den tas exakt {{count}} importerade evenemang bort från konventet och deras lokala påminnelser avbryts. Manuellt tillagda evenemang finns kvar.",
       "invalidTimeZoneTitle": "Ogiltig tidszon",
-      "invalidTimeZoneMessage": "Använd en IANA-tidszon, till exempel America/Chicago.",
+      "invalidTimeZoneMessage": "Välj konventets tidszon i listan, till exempel Chicago.",
       "notAppliedTitle": "Importen tillämpades inte",
       "parseNotApplied": "Kalendern kunde inte behandlas på ett säkert sätt. Ingenting ändrades.",
       "nothingTitle": "Inget att importera",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Återkommande serier som lämnades oförändrade: {{count}}. Äldre sparade evenemang kunde inte matchas på ett säkert sätt.",
       "detailsNotUpdated": "Evenemangen sparades, men konventets datum eller den sparade Sched-URL:en kunde inte uppdateras.",
       "failedTitle": "Importen misslyckades"
+    },
+    "help": {
+      "title": "Var hittar jag detta?",
+      "schedTitle": "Använder konventet Sched?",
+      "sched": "De flesta konvent publicerar sitt schema på Sched – sajten ser ut som <namn>.sched.com. Kopiera valfri sida därifrån och klistra in den här.",
+      "icsTitle": "Har du en kalenderfil?",
+      "ics": "En .ics-fil är en standardkalenderexport. Konvent länkar den ofta som ”Lägg till i kalender” eller ”Kalenderflöde” – webcal://-länkar fungerar också.",
+      "askTitle": "Hittar du ingetdera?",
+      "ask": "Leta efter en schemalänk på konventets webbplats eller app, eller fråga i deras sociala medier vilket format de publicerar."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Planera hela konventet",
       "subtitle": "Allt du behöver när lokalens wifi ger upp.",
       "demo": {
-        "now": "Nu",
-        "next": "Härnäst",
-        "eventOne": "Invigningsceremoni",
-        "eventTwo": "Fursuitparad",
         "saved": "Mitt schema"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Påminnelser är pausade",
     "pausedMessage": "Notiser är avstängda, så dina sparade påminnelser kommer inte fram. Dina val sparas och gäller igen så snart du aktiverar notiser.",
     "overflowTitle": "Några påminnelser väntar",
-    "overflowMessage": "Enheten håller bara ett begränsat antal väntande påminnelser, så här många av dina väntar: {{count}}. De närmaste schemaläggs först."
+    "overflowMessage": "Enheten håller bara ett begränsat antal väntande påminnelser, så här många av dina väntar: {{count}}. De närmaste schemaläggs först.",
+    "priming": {
+      "title": "Få en påminnelse före paneler",
+      "message": "ConPaws kan påminna dig när det är dags att gå till en panel. Din telefon frågar härnäst om aviseringstillstånd.",
+      "continue": "Fortsätt",
+      "notNow": "Inte nu"
+    }
   },
   "schedule": {
     "title": "Schema",
     "empty": {
       "title": "Inget stjärnmärkt än",
-      "subtitle": "Stjärnmärk ett evenemang i ett konvent så dyker det upp här.",
+      "subtitle": "Tryck på ett evenemang i ett konvent för att lägga till det i Mitt schema – det hamnar här.",
       "cta": "Öppna mina konvent"
     },
     "timesShownInConventionTime": "Tiderna visas i varje konvents lokala tid.",
     "loadError": "Ditt schema kunde inte läsas in.",
     "conventionEmpty": {
       "title": "Inget sparat för {{name}} än",
-      "subtitle": "Stjärnmärk evenemang i konventets schema så visas de här.",
+      "subtitle": "Lägg till evenemang från konventets schema så visas de här.",
       "cta": "Öppna konventet"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Paketet hittades inte",
       "packageNotFoundDescription": "Paketet kanske inte längre ingår i den här versionen.",
       "licenseTextUnavailable": "Licenstexten är inte tillgänglig i den här versionen."
+    },
+    "notifications": {
+      "title": "Aviseringar",
+      "permission": "Aviseringstillstånd",
+      "enabled": "Tillåtet – påminnelser kan komma",
+      "disabled": "Av – påminnelser kommer inte fram",
+      "notRequested": "Inte begärt än",
+      "defaultLead": "Standardpåminnelse för avfärd",
+      "defaultLeadDescription": "Förvald när du sätter en påminnelse på ett nytt evenemang.",
+      "noDefault": "Ingen"
+    },
+    "help": {
+      "gettingStarted": "Kom igång",
+      "gettingStartedDescription": "Var du hittar konventets schema",
+      "importNow": "Importera ett schema",
+      "importNowDescription": "Lägg till en Sched-länk eller en .ics-fil."
     }
   }
 }

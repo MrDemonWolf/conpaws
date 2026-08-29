@@ -146,4 +146,57 @@ describe("database bootstrap", () => {
     });
     database.close();
   });
+
+  // v2 and v3 already have interrupted-repair coverage above; these complete
+  // the matrix so every rung of the ladder proves the same recovery property.
+  it.each([
+    { column: "archived_at", table: "conventions" },
+    { column: "age_rating", table: "convention_events" },
+  ])(
+    "repairs an interrupted $column migration without retrying ADD COLUMN",
+    ({ column, table }) => {
+      const database = new DatabaseSync(":memory:");
+      database.exec(MIGRATION_1_SQL);
+      database.exec(`
+        INSERT INTO conventions (id, name, start_date, end_date)
+        VALUES ('legacy-con', 'Legacy Con', '2026-01-01', '2026-01-02');
+        ALTER TABLE ${table} ADD COLUMN ${column} TEXT;
+      `);
+
+      initializeDatabase(migrationAdapter(database));
+      initializeDatabase(migrationAdapter(database));
+
+      expect(database.prepare("PRAGMA user_version").get()).toEqual({
+        user_version: 5,
+      });
+      expect(
+        database
+          .prepare("SELECT name FROM conventions WHERE id = ?")
+          .get("legacy-con"),
+      ).toEqual({ name: "Legacy Con" });
+      database.close();
+    },
+  );
+
+  it("keeps every migration past the initial schema additive-only", async () => {
+    // The no-data-loss guarantee rests on migrations never rewriting or
+    // dropping user data. Nothing structural enforces that, so this tripwire
+    // does: a future migration containing destructive SQL fails here and has
+    // to argue its case in a code review instead of shipping silently.
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("./bootstrap.ts", import.meta.url), "utf8"),
+    );
+    // Anchored on `export const` so the COMPLETE_MIGRATION_* version-bump
+    // constants (which legitimately contain no ADD COLUMN) don't match.
+    const migrations =
+      source.match(/export const MIGRATION_\d+_SQL = `([^`]+)`/g) ?? [];
+    expect(migrations.length).toBeGreaterThanOrEqual(5);
+    for (const migration of migrations) {
+      if (migration.includes("MIGRATION_1_SQL")) continue; // initial CREATEs
+      expect(migration).not.toMatch(
+        /\b(DROP|DELETE|TRUNCATE|UPDATE|REPLACE)\b/i,
+      );
+      expect(migration).toMatch(/ADD COLUMN/);
+    }
+  });
 });

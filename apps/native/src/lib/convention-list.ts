@@ -37,6 +37,28 @@ export function conventionDaysUntil(
   );
 }
 
+/**
+ * Whether the Unarchive action makes sense for this convention.
+ *
+ * The archive bucket holds two different things: conventions the user
+ * explicitly archived (`archivedAt` set) and conventions that simply ended
+ * (`partitionConventions` files those under archived with no flag at all).
+ * Unarchiving an ended convention would be a visual no-op — clearing the flag
+ * puts it straight back in the archived bucket — so the action is only offered
+ * when clearing the flag actually moves the row. The "Past" status label on
+ * the row is the explanation for the rest.
+ */
+export function canUnarchive(
+  convention: Convention,
+  now: Date,
+  deviceTimeZone: string,
+): boolean {
+  return (
+    Boolean(convention.archivedAt) &&
+    conventionStatusAt(convention, now, deviceTimeZone) !== "ended"
+  );
+}
+
 export function partitionConventions(
   conventions: readonly Convention[],
   now: Date,

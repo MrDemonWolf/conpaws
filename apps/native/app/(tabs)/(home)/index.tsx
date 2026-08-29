@@ -7,7 +7,7 @@ import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, Stack, useFocusEffect } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
@@ -24,6 +24,7 @@ import type { Convention } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import {
   type ConventionSort,
+  canUnarchive,
   conventionDaysUntil,
   conventionStatusAt,
   partitionConventions,
@@ -87,14 +88,18 @@ function ConventionEmptyState({
   onImport,
 }: ConventionEmptyStateProps) {
   return (
+    // Import is primary: it is the path that produces a populated schedule.
+    // Create used to be primary and led straight to a second empty state —
+    // and the last onboarding screen already promotes Import, so the two
+    // surfaces now agree about what a new user should do first.
     <EmptyState
       icon={EMPTY_ICON}
       title={title}
       subtitle={subtitle}
-      ctaLabel={createLabel}
-      onCta={onCreate}
-      secondaryCtaLabel={importLabel}
-      onSecondaryCta={onImport}
+      ctaLabel={importLabel}
+      onCta={onImport}
+      secondaryCtaLabel={createLabel}
+      onSecondaryCta={onCreate}
       secondaryCtaVariant="outlined"
       actionsInline
     />
@@ -107,14 +112,22 @@ export default function HomeScreen() {
   const queryClient = useQueryClient();
   const [sort, setSort] = useState<ConventionSort>("upcoming");
   const [archiveExpanded, setArchiveExpanded] = useState(false);
-  const presentationLock = useRef(false);
+  const presentationLock = useRef(0);
   const locale = currentLocale();
   const { date: dateFormatter, names: nameCollator } = localeFormatters(locale);
   const deviceTimeZone = DEVICE_TIME_ZONE;
 
+  // `now` is state refreshed on focus, not `new Date()` per render. The rows
+  // live inside a SwiftUI Host, and a value that changes every render rebuilds
+  // the entire SwiftUI tree on every state change — which visibly cancels an
+  // in-progress swipe action. Focus is also when the lock resets, so both
+  // "the screen came back" concerns update together.
+  const [now, setNow] = useState(() => new Date());
+
   useFocusEffect(
     useCallback(() => {
       resetPresentationLock(presentationLock);
+      setNow(new Date());
     }, []),
   );
 
@@ -128,16 +141,17 @@ export default function HomeScreen() {
     queryKey: ["conventions"],
     queryFn: conventionsRepo.getAll,
   });
-  const now = new Date();
-  const sortedConventions = sortConventions(
-    conventions,
-    sort,
-    nameCollator.compare,
-    now,
-    deviceTimeZone,
-  );
   const { current: currentConventions, archived: archivedConventions } =
-    partitionConventions(sortedConventions, now, deviceTimeZone);
+    useMemo(() => {
+      const sorted = sortConventions(
+        conventions,
+        sort,
+        nameCollator.compare,
+        now,
+        deviceTimeZone,
+      );
+      return partitionConventions(sorted, now, deviceTimeZone);
+    }, [conventions, sort, nameCollator, now, deviceTimeZone]);
 
   const deleteMutation = useMutation({
     mutationFn: async ({ id }: Pick<Convention, "id" | "name">) => {
@@ -173,6 +187,25 @@ export default function HomeScreen() {
     },
     onError: () => {
       Alert.alert(t("home.archive.errorTitle"), t("home.archive.errorMessage"));
+    },
+  });
+
+  const unarchiveMutation = useMutation({
+    mutationFn: conventionsRepo.unarchive,
+    onSuccess: async (_, id) => {
+      const convention = conventions.find((item) => item.id === id);
+      await queryClient.invalidateQueries({ queryKey: ["conventions"] });
+      if (convention) {
+        AccessibilityInfo.announceForAccessibility(
+          t("home.unarchive.success", { name: convention.name }),
+        );
+      }
+    },
+    onError: () => {
+      Alert.alert(
+        t("home.unarchive.errorTitle"),
+        t("home.unarchive.errorMessage"),
+      );
     },
   });
 
@@ -212,15 +245,30 @@ export default function HomeScreen() {
   }
 
   function showConventionActions(convention: Convention) {
+    // Archived rows swap Archive for Unarchive — when unarchiving would
+    // actually move the row (see canUnarchive). Ended conventions get
+    // neither: re-archiving is a timestamp rewrite and unarchiving a no-op.
+    const archiveAction = convention.archivedAt
+      ? canUnarchive(convention, now, deviceTimeZone)
+        ? {
+            text: t("common.unarchive"),
+            onPress: () => unarchiveMutation.mutate(convention.id),
+          }
+        : null
+      : {
+          text: t("common.archive"),
+          onPress: () => archiveMutation.mutate(convention.id),
+        };
+
     Alert.alert(convention.name, undefined, [
       {
         text: t("common.edit"),
-        onPress: () => router.push(`/convention/${convention.id}/edit`),
+        onPress: () => {
+          if (!tryAcquirePresentationLock(presentationLock)) return;
+          router.push(`/convention/${convention.id}/edit`);
+        },
       },
-      {
-        text: t("common.archive"),
-        onPress: () => archiveMutation.mutate(convention.id),
-      },
+      ...(archiveAction ? [archiveAction] : []),
       {
         text: t("common.delete"),
         style: "destructive",
@@ -229,6 +277,39 @@ export default function HomeScreen() {
       { text: t("common.cancel"), style: "cancel" },
     ]);
   }
+
+  // Stable across renders so the SwiftUI Host's child tree only re-diffs when
+  // an input actually changed — an inline closure here rebuilt every row on
+  // every render and cancelled in-progress swipe actions.
+  const getRowContent = useCallback(
+    (item: Convention) => {
+      const start = dateFormatter.format(
+        new Date(`${item.startDate}T12:00:00`),
+      );
+      const end = dateFormatter.format(new Date(`${item.endDate}T12:00:00`));
+      const status = conventionStatusAt(item, now, deviceTimeZone);
+      const daysUntil = conventionDaysUntil(item, now, deviceTimeZone);
+
+      return {
+        name: item.name,
+        dateRange: t("home.dateRange", { start, end }),
+        status,
+        statusLabel:
+          status !== "upcoming"
+            ? t(status === "ended" ? "home.past" : "home.active")
+            : daysUntil < 1
+              ? t("home.countdown.today")
+              : daysUntil === 1
+                ? t("home.countdown.tomorrow")
+                : t("home.countdown.days", { count: daysUntil }),
+        moreAccessibilityLabel: t("home.moreActions", {
+          name: item.name,
+        }),
+        canUnarchive: canUnarchive(item, now, deviceTimeZone),
+      };
+    },
+    [dateFormatter, now, deviceTimeZone, t],
+  );
 
   const showLoading = useDelayedLoading(isLoading || (isError && isFetching));
 
@@ -292,35 +373,11 @@ export default function HomeScreen() {
         onDelete={confirmDeleteConvention}
         archiveItemLabel={t("common.archive")}
         onArchive={(item) => archiveMutation.mutate(item.id)}
+        unarchiveItemLabel={t("common.unarchive")}
+        onUnarchive={(item) => unarchiveMutation.mutate(item.id)}
         onOpenActions={showConventionActions}
         onOpen={(item) => handleOpenConvention(item.id)}
-        getRowContent={(item) => {
-          const start = dateFormatter.format(
-            new Date(`${item.startDate}T12:00:00`),
-          );
-          const end = dateFormatter.format(
-            new Date(`${item.endDate}T12:00:00`),
-          );
-          const status = conventionStatusAt(item, now, deviceTimeZone);
-          const daysUntil = conventionDaysUntil(item, now, deviceTimeZone);
-
-          return {
-            name: item.name,
-            dateRange: t("home.dateRange", { start, end }),
-            status,
-            statusLabel:
-              status !== "upcoming"
-                ? t(status === "ended" ? "home.past" : "home.active")
-                : daysUntil < 1
-                  ? t("home.countdown.today")
-                  : daysUntil === 1
-                    ? t("home.countdown.tomorrow")
-                    : t("home.countdown.days", { count: daysUntil }),
-            moreAccessibilityLabel: t("home.moreActions", {
-              name: item.name,
-            }),
-          };
-        }}
+        getRowContent={getRowContent}
       />
     );
 

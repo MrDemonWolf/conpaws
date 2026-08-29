@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Convention } from "@/db/schema";
 import {
+  canUnarchive,
   conventionDaysUntil,
   conventionStatusAt,
   partitionConventions,
@@ -157,5 +158,39 @@ describe("convention list ordering", () => {
       "later",
       "older-past",
     ]);
+  });
+});
+
+describe("canUnarchive", () => {
+  const base = conventions.find(({ id }) => id === "later");
+  if (!base) throw new Error("fixture missing");
+  const now = new Date("2025-12-01T12:00:00.000Z");
+  const archived = { ...base, archivedAt: "2025-11-01T00:00:00.000Z" };
+
+  it("allows unarchiving an archived upcoming convention", () => {
+    expect(canUnarchive(archived, now, "UTC")).toBe(true);
+  });
+
+  it("allows unarchiving an archived active convention", () => {
+    const active = {
+      ...archived,
+      startDate: "2025-11-30",
+      endDate: "2025-12-02",
+    };
+    expect(canUnarchive(active, now, "UTC")).toBe(true);
+  });
+
+  it("hides unarchive for an archived convention that has ended", () => {
+    // Clearing the flag would put it straight back in the archive bucket.
+    const ended = {
+      ...archived,
+      startDate: "2025-01-01",
+      endDate: "2025-01-02",
+    };
+    expect(canUnarchive(ended, now, "UTC")).toBe(false);
+  });
+
+  it("hides unarchive for a convention that was never archived", () => {
+    expect(canUnarchive(base, now, "UTC")).toBe(false);
   });
 });

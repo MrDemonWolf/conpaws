@@ -39,6 +39,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
 import { AppState, StatusBar, useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { getDatabaseInitError } from "@/db";
 import {
@@ -57,8 +58,13 @@ import {
 } from "@/lib/error-reporting";
 import { loadHapticsPreference } from "@/lib/haptics-storage";
 import i18nInstance, { initI18n } from "@/lib/i18n";
-import { hasCompletedOnboarding } from "@/lib/onboarding-storage";
+import {
+  getCachedOnboardingFlag,
+  hasCompletedOnboarding,
+} from "@/lib/onboarding-storage";
 import { resolveQuickActionRoute } from "@/lib/quick-action-routes";
+import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
+import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -67,6 +73,9 @@ import { consumePendingQuickAction } from "@/services/quick-actions";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
+
+// Notification taps already routed this launch, keyed by request identifier.
+const handledNotificationResponses = new Set<string>();
 void SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
@@ -144,6 +153,9 @@ async function runLaunchBootstrap(): Promise<boolean> {
     return true;
   });
 
+  // Primes the cache the reminder picker reads synchronously.
+  await getDefaultReminderMinutes().catch(() => null);
+
   try {
     await initI18n();
   } catch (error) {
@@ -209,9 +221,11 @@ function RootLayout() {
   useEffect(() => {
     if (!ready || databaseInitError) return;
 
-    void reconcileEventReminders().catch((error) => {
-      reportError(error, { scope: "bootstrap.reconcileReminders" });
-    });
+    void reconcileEventReminders()
+      .then(recordReminderReconciliation)
+      .catch((error) => {
+        reportError(error, { scope: "bootstrap.reconcileReminders" });
+      });
     void publishWidgetSnapshot().catch((error) => {
       reportError(error, { scope: "bootstrap.publishWidgetSnapshot" });
     });
@@ -229,7 +243,13 @@ function RootLayout() {
   // of their own, so acting on one before `app/index.tsx` has resolved the flag
   // drops a brand new user straight into a form they have no context for.
   // Leaving the action unconsumed parks it for the launch after onboarding.
-  const canOpenQuickAction = navigable && onboardingComplete;
+  // The cache half covers finishing onboarding in THIS session:
+  // markOnboardingComplete primes it synchronously, while the
+  // `onboardingComplete` state is only re-read on the next bootstrap — a
+  // quick action tapped right after onboarding used to stay parked until the
+  // next cold launch.
+  const canOpenQuickAction =
+    navigable && (onboardingComplete || getCachedOnboardingFlag() === true);
 
   useEffect(() => {
     function openPendingQuickAction() {
@@ -246,6 +266,11 @@ function RootLayout() {
         });
         return;
       }
+      // Deliberately not behind a presentation lock: quick actions and
+      // notification taps are OS-triggered one-shots (the pending route is
+      // consumed on read, and notification responses dedupe by identifier),
+      // so the double-tap race the screen-level locks guard against cannot
+      // happen here.
       router.push(route);
     }
 
@@ -263,9 +288,11 @@ function RootLayout() {
           // the user comes back from granting it, rather than at the next cold
           // launch. Safe to run this often only because reconciling no longer
           // treats a missing permission as an instruction to forget the reminder.
-          void reconcileEventReminders().catch((error) => {
-            reportError(error, { scope: "appState.reconcileReminders" });
-          });
+          void reconcileEventReminders()
+            .then(recordReminderReconciliation)
+            .catch((error) => {
+              reportError(error, { scope: "appState.reconcileReminders" });
+            });
         }
       },
     );
@@ -293,7 +320,10 @@ function RootLayout() {
   // the identifier set stops a cold start from navigating twice.
   useEffect(() => {
     if (!navigable) return;
-    const handled = new Set<string>();
+    // Module-level, not effect-local: the effect re-runs when `navigable`
+    // flips (bootstrap retry), and a fresh set would let
+    // getLastNotificationResponseAsync re-push the same tap.
+    const handled = handledNotificationResponses;
 
     function openReminderTarget(
       response: ExpoNotifications.NotificationResponse | null,
@@ -308,9 +338,14 @@ function RootLayout() {
       if (!conventionId || handled.has(identifier)) return;
 
       handled.add(identifier);
+      const eventId = typeof data.eventId === "string" ? data.eventId : null;
       router.push({
         pathname: "/convention/[id]",
-        params: { id: conventionId },
+        // highlightEventId scrolls the schedule to the event that fired —
+        // landing on the convention with no focus made the tap feel broken.
+        params: eventId
+          ? { id: conventionId, highlightEventId: eventId }
+          : { id: conventionId },
       });
     }
 
@@ -357,16 +392,22 @@ function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={navigationTheme}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar
-            barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-          />
-          <Stack screenOptions={{ headerShown: false }} />
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    // GestureHandlerRootView hosts the swipeable event rows; the error
+    // branches above have no gestures and deliberately skip it.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={navigationTheme}>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <StatusBar
+              barStyle={
+                colorScheme === "dark" ? "light-content" : "dark-content"
+              }
+            />
+            <Stack screenOptions={{ headerShown: false }} />
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 

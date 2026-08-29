@@ -18,6 +18,22 @@ import { reconcileEventReminders } from "@/services/notifications";
 
 const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 
+/**
+ * A language is not a country, but a flag is the fastest visual anchor in a
+ * list of native names. The pick is the variant the app actually ships:
+ * pt-BR is Brazilian Portuguese, en is US English.
+ */
+const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
+  de: "🇩🇪",
+  en: "🇺🇸",
+  es: "🇪🇸",
+  fr: "🇫🇷",
+  nl: "🇳🇱",
+  pl: "🇵🇱",
+  "pt-BR": "🇧🇷",
+  sv: "🇸🇪",
+};
+
 export default function LanguageScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -77,7 +93,7 @@ export default function LanguageScreen() {
                 }
                 onPress={() => handleSelect(code)}
               >
-                {nativeName}
+                {`${LANGUAGE_FLAGS[code]}  ${nativeName}`}
               </ListItem>
             );
           })}

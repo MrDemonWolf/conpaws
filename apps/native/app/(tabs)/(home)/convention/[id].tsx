@@ -27,23 +27,27 @@ import {
   BlankConventionState,
   EMPTY_SCHEDULE_ICON,
 } from "@/components/convention-detail/BlankConventionState";
-import { ConventionEventRow } from "@/components/convention-detail/ConventionEventRow";
-import { EventActionSheet } from "@/components/convention-detail/EventActionSheet";
 import {
   type ManualEventDraft,
   ManualEventModal,
 } from "@/components/convention-detail/ManualEventModal";
+import { ScheduleHintCard } from "@/components/convention-detail/ScheduleHintCard";
+import { SwipeableEventRow } from "@/components/convention-detail/SwipeableEventRow";
+import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { EmptyState, SafeView, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
+import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import {
   conventionDayKey,
   isValidTimeZone,
   overlappingEventIds,
 } from "@/lib/convention-time";
+import { timeSlotBandClass, timeSlotBands } from "@/lib/day-band";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
 import { deviceHour12 } from "@/lib/device-clock";
 import { shouldShowProvenance } from "@/lib/event-indicators";
@@ -62,22 +66,26 @@ import {
   resolveReminderNotice,
 } from "@/lib/reminder-notice";
 import {
+  dismissScheduleHint,
+  isScheduleHintDismissed,
+} from "@/lib/schedule-hint-storage";
+import {
   SCHEDULE_EMPTY_CONTENT_STYLE,
   SCHEDULE_LIST_CONTENT_STYLE,
   shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 import { getNowAndNextEvents } from "@/lib/schedule-view";
-import { hapticSuccess, hapticToggle } from "@/services/haptics";
+import { hapticSuccess } from "@/services/haptics";
 import {
-  cancelEventReminder,
   getNotificationPermissionStatus,
   type PermissionStatus,
-  scheduleEventReminder,
 } from "@/services/notifications";
 
 interface DayGroup {
   key: string;
   label: string;
+  /** Per-row band index: rows sharing a start time share a band. */
+  slotBands: number[];
   data: ConventionEvent[];
 }
 
@@ -89,18 +97,6 @@ const EMPTY_CONVENTION_CONTENT_STYLE = {
   paddingBottom: 48,
   paddingTop: 24,
 } as const;
-
-/** Why a reminder could not be set, so each cause gets its own message. */
-type ReminderFailure = "permission" | "too-late" | "cancel-failed" | "unknown";
-
-class ReminderError extends Error {
-  readonly failure: ReminderFailure;
-
-  constructor(failure: ReminderFailure) {
-    super(failure);
-    this.failure = failure;
-  }
-}
 
 function groupEventsByDay(
   events: ConventionEvent[],
@@ -118,18 +114,29 @@ function groupEventsByDay(
       groups.push({
         key,
         label: formatEventDayLabel(event.startTime, timeZone, locale),
+        slotBands: [],
         data: [event],
       });
     }
   }
 
-  return groups.sort((a, b) => a.key.localeCompare(b.key));
+  groups.sort((a, b) => a.key.localeCompare(b.key));
+  for (const group of groups) {
+    group.slotBands = timeSlotBands(group.data);
+  }
+  return groups;
 }
 
 export default function ConventionDetailScreen() {
-  const { id, previewState: requestedPreviewState } = useLocalSearchParams<{
+  const {
+    id,
+    previewState: requestedPreviewState,
+    highlightEventId,
+  } = useLocalSearchParams<{
     id: string;
     previewState?: string;
+    /** From a notification tap: scroll to and briefly highlight this event. */
+    highlightEventId?: string;
   }>();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -140,17 +147,26 @@ export default function ConventionDetailScreen() {
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
   );
-  const presentationLock = useRef(false);
+  const presentationLock = useRef(0);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [scheduleView, setScheduleView] = useState<ScheduleView>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [manualEventVisible, setManualEventVisible] = useState(false);
   const [now, setNow] = useState(() => Date.now());
-  const [notificationPermission, setNotificationPermission] =
-    useState<PermissionStatus | null>(null);
-  const [actionSheetEvent, setActionSheetEvent] =
-    useState<ConventionEvent | null>(null);
+  const notificationPermission = useNotificationPermission();
+  // null while the dismissed flag is loading, so the hint never flashes.
+  const [hintDismissed, setHintDismissed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void isScheduleHintDismissed().then((dismissed) => {
+      if (active) setHintDismissed(dismissed);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -158,30 +174,11 @@ export default function ConventionDetailScreen() {
     }, []),
   );
 
-  // Re-read on every focus and on every return to the foreground: turning
-  // notifications back on happens in the OS settings app, which does not
-  // re-mount this screen.
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-      function readPermission() {
-        void getNotificationPermissionStatus()
-          .then((status) => {
-            if (active) setNotificationPermission(status);
-          })
-          .catch(() => undefined);
-      }
-
-      readPermission();
-      const subscription = AppState.addEventListener("change", (state) => {
-        if (state === "active") readPermission();
-      });
-      return () => {
-        active = false;
-        subscription.remove();
-      };
-    }, []),
+  const listRef = useRef<SectionList<ConventionEvent, DayGroup>>(null);
+  const [highlightedEventId, setHighlightedEventId] = useState<string | null>(
+    null,
   );
+  const scrolledToHighlight = useRef(false);
 
   function openImportSchedule() {
     if (!tryAcquirePresentationLock(presentationLock)) return;
@@ -218,42 +215,10 @@ export default function ConventionDetailScreen() {
   });
   const events = previewState === "empty" ? [] : storedEvents;
 
-  const toggleScheduleMutation = useMutation({
-    mutationFn: async (event: ConventionEvent) => {
-      const isInSchedule = !event.isInSchedule;
-      if (isInSchedule || event.reminderMinutes === null) {
-        await eventsRepo.update(event.id, { isInSchedule });
-        return;
-      }
-
-      // An event taken off the schedule keeps no reminder: leaving one armed
-      // fires a "time to leave" notification for a panel the user has already
-      // dropped, and the row no longer shows a badge that would explain it.
-      await cancelEventReminder(event.id);
-      await eventsRepo.update(event.id, {
-        isInSchedule,
-        reminderMinutes: null,
-      });
-    },
-    onSuccess: (_, event) => {
-      queryClient.invalidateQueries({ queryKey: ["events", id] });
-      // `isInSchedule` is the state before the toggle, so the new state is its negation.
-      hapticToggle(!event.isInSchedule);
-      AccessibilityInfo.announceForAccessibility(
-        t(
-          event.isInSchedule
-            ? "convention.scheduleRemovedAnnouncement"
-            : "convention.scheduleAddedAnnouncement",
-          { event: event.title },
-        ),
-      );
-    },
-    onError: () => {
-      Alert.alert(
-        t("convention.scheduleUpdateErrorTitle"),
-        t("convention.scheduleUpdateErrorMessage"),
-      );
-    },
+  // No onPermissionDenied flip needed: useNotificationPermission re-reads on
+  // focus and foreground, and the sheet route owns the deny alert.
+  const { toggleScheduleMutation } = useEventScheduleMutations({
+    conventionId: id,
   });
 
   const addManualEventMutation = useMutation({
@@ -288,138 +253,15 @@ export default function ConventionDetailScreen() {
     },
   });
 
-  const setReminderMutation = useMutation({
-    mutationFn: async ({
-      event,
-      minutes,
-    }: {
-      event: ConventionEvent;
-      minutes: number | null;
-    }) => {
-      const reminderEvent = {
-        id: event.id,
-        title: event.title,
-        startTime: event.startTime,
-        room: event.room ?? event.location,
-      };
-
-      /**
-       * `scheduleEventReminder` drops the request the OS is already holding
-       * before it tries the new one, so a rejected change leaves the reminder
-       * the user still has saved with nothing behind it. Putting it back is
-       * what keeps the row and the OS agreeing.
-       */
-      async function restorePreviousReminder() {
-        if (event.reminderMinutes === null) return;
-        try {
-          await scheduleEventReminder(reminderEvent, event.reminderMinutes, {
-            requestPermission: false,
-          });
-        } catch {
-          // Best effort: the next launch reconciles what is left.
-        }
-      }
-
-      if (minutes !== null && event.startTime) {
-        let notificationId: string | null = null;
-        try {
-          notificationId = await scheduleEventReminder(reminderEvent, minutes, {
-            notificationContent: {
-              title: t("reminders.notificationTitle", { event: event.title }),
-              body: t(
-                reminderEvent.room
-                  ? "reminders.notificationBodyWithRoom"
-                  : "reminders.notificationBody",
-                { minutes, room: reminderEvent.room },
-              ),
-            },
-          });
-        } catch {
-          // `reminderMinutes` is the only record that the user ever asked for
-          // a reminder. A failed attempt at a new lead time must not wipe the
-          // one they already had, so the row is left exactly as it was.
-          await restorePreviousReminder();
-          throw new ReminderError("unknown");
-        }
-        if (!notificationId) {
-          // Two very different causes, and the OS reports both the same way.
-          const permission = await getNotificationPermissionStatus();
-          if (permission === "granted") await restorePreviousReminder();
-          throw new ReminderError(
-            permission === "granted" ? "too-late" : "permission",
-          );
-        }
-
-        try {
-          await eventsRepo.update(event.id, { reminderMinutes: minutes });
-        } catch (error) {
-          await cancelEventReminder(event.id);
-          await restorePreviousReminder();
-          throw error;
-        }
-      } else {
-        if (!(await cancelEventReminder(event.id))) {
-          throw new ReminderError("cancel-failed");
-        }
-        try {
-          await eventsRepo.update(event.id, { reminderMinutes: null });
-        } catch (error) {
-          await restorePreviousReminder();
-          throw error;
-        }
-      }
+  const openEventActions = useCallback(
+    (event: ConventionEvent) => {
+      // The sheet is a pushed formSheet route, so the same double-tap guard
+      // that protects every other push applies here too.
+      if (!tryAcquirePresentationLock(presentationLock)) return;
+      router.push(`/convention/${id}/event/${event.id}`);
     },
-    onSuccess: (_, { event, minutes }) => {
-      queryClient.invalidateQueries({ queryKey: ["events", id] });
-      AccessibilityInfo.announceForAccessibility(
-        t(
-          minutes === null
-            ? "reminders.clearedAnnouncement"
-            : "reminders.setAnnouncement",
-          { event: event.title, minutes },
-        ),
-      );
-    },
-    onError: (error) => {
-      const failure =
-        error instanceof ReminderError ? error.failure : "unknown";
-
-      if (failure === "permission") {
-        setNotificationPermission("denied");
-        Alert.alert(
-          t("reminders.permissionTitle"),
-          t("reminders.permissionMessage"),
-          [
-            { text: t("common.cancel"), style: "cancel" },
-            {
-              text: t("reminders.openSettings"),
-              onPress: () => {
-                void Linking.openSettings();
-              },
-            },
-          ],
-        );
-        return;
-      }
-
-      Alert.alert(
-        t(
-          failure === "too-late"
-            ? "reminders.tooLateTitle"
-            : "reminders.errorTitle",
-        ),
-        t(
-          failure === "too-late"
-            ? "reminders.tooLateMessage"
-            : "reminders.errorMessage",
-        ),
-      );
-    },
-  });
-
-  const openEventActions = useCallback((event: ConventionEvent) => {
-    setActionSheetEvent(event);
-  }, []);
+    [id],
+  );
 
   const scheduledEvents = events.filter((event) => event.isInSchedule);
   // One computation per render, not per row.
@@ -478,9 +320,51 @@ export default function ConventionDetailScreen() {
     overflow: reminderOverflow,
   });
 
+  // Stable so the memoised swipe rows only re-render when their inputs change.
+  const toggleSchedule = useCallback(
+    (event: ConventionEvent) => toggleScheduleMutation.mutate(event),
+    [toggleScheduleMutation.mutate],
+  );
+
+  // Scroll once to the event a notification tap named, then let the pulse
+  // fade. Runs after the day groups exist; a stale or deleted event id is
+  // silently ignored.
+  useEffect(() => {
+    if (!highlightEventId || scrolledToHighlight.current) return;
+    for (
+      let sectionIndex = 0;
+      sectionIndex < dayGroups.length;
+      sectionIndex++
+    ) {
+      const itemIndex = dayGroups[sectionIndex].data.findIndex(
+        (event) => event.id === highlightEventId,
+      );
+      if (itemIndex >= 0) {
+        scrolledToHighlight.current = true;
+        setHighlightedEventId(highlightEventId);
+        listRef.current?.scrollToLocation({
+          sectionIndex,
+          itemIndex,
+          animated: true,
+          viewPosition: 0.3,
+        });
+        const timer = setTimeout(() => setHighlightedEventId(null), 2500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [highlightEventId, dayGroups]);
+
   const renderItem = useCallback(
-    ({ item }: { item: ConventionEvent }) => (
-      <ConventionEventRow
+    ({
+      item,
+      index,
+      section,
+    }: {
+      item: ConventionEvent;
+      index: number;
+      section: DayGroup;
+    }) => (
+      <SwipeableEventRow
         event={item}
         timeZone={conventionTimeZone}
         locale={locale}
@@ -488,6 +372,12 @@ export default function ConventionDetailScreen() {
         showProvenance={showProvenance}
         hasConflict={conflictingEventIds.has(item.id)}
         onSelect={openEventActions}
+        onToggleSchedule={toggleSchedule}
+        className={
+          item.id === highlightedEventId
+            ? "bg-info"
+            : timeSlotBandClass(section.slotBands[index] ?? 0)
+        }
       />
     ),
     [
@@ -497,11 +387,13 @@ export default function ConventionDetailScreen() {
       locale,
       openEventActions,
       showProvenance,
+      toggleSchedule,
+      highlightedEventId,
     ],
   );
 
   const renderSectionHeader = useCallback(
-    ({ section }: { section: { label: string } }) => (
+    ({ section }: { section: DayGroup }) => (
       <SectionHeader title={section.label} />
     ),
     [],
@@ -587,7 +479,7 @@ export default function ConventionDetailScreen() {
 
   function renderEventRow(event: ConventionEvent) {
     return (
-      <ConventionEventRow
+      <SwipeableEventRow
         key={event.id}
         event={event}
         timeZone={conventionTimeZone}
@@ -596,48 +488,35 @@ export default function ConventionDetailScreen() {
         showProvenance={showProvenance}
         hasConflict={conflictingEventIds.has(event.id)}
         onSelect={openEventActions}
+        onToggleSchedule={toggleSchedule}
       />
     );
   }
+
+  // Teach the star mechanic exactly once: only while there are events, none
+  // are starred, and the user has never dismissed the card.
+  const showScheduleHint =
+    hintDismissed === false &&
+    events.length > 0 &&
+    scheduledEvents.length === 0;
 
   const scheduleNotices = (
     <View className="pb-1">
       <Text variant="caption" className="px-4 pt-1 pb-2 text-muted-foreground">
         {t("convention.timesShownIn", { timeZone: conventionTimeZone })}
       </Text>
-      {reminderNotice !== "none" ? (
-        <View className="mx-4 mb-2 rounded-xl bg-secondary px-3 py-2">
-          <Text variant="label" accessibilityRole="alert">
-            {t(
-              reminderNotice === "permission"
-                ? "reminders.pausedTitle"
-                : "reminders.overflowTitle",
-            )}
-          </Text>
-          <Text variant="caption" className="pt-0.5 text-muted-foreground">
-            {t(
-              reminderNotice === "permission"
-                ? "reminders.pausedMessage"
-                : "reminders.overflowMessage",
-              { count: reminderOverflow },
-            )}
-          </Text>
-          {reminderNotice === "permission" ? (
-            <Pressable
-              onPress={() => {
-                void Linking.openSettings();
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={t("reminders.openSettings")}
-              className="min-h-11 justify-center active:opacity-70"
-            >
-              <Text className="text-primary">
-                {t("reminders.openSettings")}
-              </Text>
-            </Pressable>
-          ) : null}
-        </View>
+      {showScheduleHint ? (
+        <ScheduleHintCard
+          onDismiss={() => {
+            setHintDismissed(true);
+            void dismissScheduleHint();
+          }}
+        />
       ) : null}
+      <ReminderNoticeBanner
+        notice={reminderNotice}
+        overflow={reminderOverflow}
+      />
       {conflictingEventIds.size > 0 ? (
         <View className="mx-4 mb-2 rounded-xl bg-secondary px-3 py-2">
           <Text variant="label" accessibilityRole="alert">
@@ -674,7 +553,10 @@ export default function ConventionDetailScreen() {
       ) : null}
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
-          onPress={() => router.push(`/convention/${convention.id}/edit`)}
+          onPress={() => {
+            if (!tryAcquirePresentationLock(presentationLock)) return;
+            router.push(`/convention/${convention.id}/edit`);
+          }}
         >
           {t("common.edit")}
         </Stack.Toolbar.Button>
@@ -833,6 +715,17 @@ export default function ConventionDetailScreen() {
         </ScrollView>
       ) : (
         <SectionList
+          ref={listRef}
+          // scrollToLocation on unmeasured rows throws; retry once after layout.
+          onScrollToIndexFailed={(info) => {
+            setTimeout(() => {
+              listRef.current?.scrollToLocation({
+                sectionIndex: 0,
+                itemIndex: info.index,
+                animated: true,
+              });
+            }, 250);
+          }}
           // Bounce only when there is a schedule to show.
           //
           // Empty states must not bounce -- a centred "no events" panel that
@@ -890,19 +783,6 @@ export default function ConventionDetailScreen() {
           }
         />
       )}
-
-      {/* Action Sheet */}
-      <EventActionSheet
-        event={actionSheetEvent}
-        visible={actionSheetEvent !== null}
-        timeZone={conventionTimeZone}
-        hour12={hour12}
-        onClose={() => setActionSheetEvent(null)}
-        onToggleSchedule={(event) => toggleScheduleMutation.mutate(event)}
-        onSelectReminder={(event, minutes) =>
-          setReminderMutation.mutate({ event, minutes })
-        }
-      />
 
       <ManualEventModal
         visible={manualEventVisible}

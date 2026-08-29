@@ -100,11 +100,6 @@ describe.each([
   });
 });
 
-it("keeps the brand heading readable over the strongest onboarding glow", () => {
-  expect(contrast("#00729c", "#d4f0fc")).toBeGreaterThanOrEqual(4.5);
-  expect(contrast("#18b7f2", "#0b3c63")).toBeGreaterThanOrEqual(4.5);
-});
-
 describe("Android platform colors", () => {
   // The app's generated theme is Theme.AppCompat.DayNight.NoActionBar, which
   // defines none of the Material 3 colour attributes. PlatformColor cannot

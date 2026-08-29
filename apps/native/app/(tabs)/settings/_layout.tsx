@@ -38,6 +38,10 @@ export default function SettingsLayout() {
         options={{ title: t("settings.app.theme") }}
       />
       <Stack.Screen
+        name="getting-started"
+        options={{ title: t("settings.help.gettingStarted") }}
+      />
+      <Stack.Screen
         name="about"
         options={{ title: t("settings.legal.about") }}
       />

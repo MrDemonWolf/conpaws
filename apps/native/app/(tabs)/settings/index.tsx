@@ -1,26 +1,33 @@
 import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
-import BugReportIcon from "@expo/material-symbols/bug_report.xml";
-import DescriptionIcon from "@expo/material-symbols/description.xml";
-import DownloadIcon from "@expo/material-symbols/download.xml";
-import InfoIcon from "@expo/material-symbols/info.xml";
-import LanguageIcon from "@expo/material-symbols/language.xml";
-import PaletteIcon from "@expo/material-symbols/palette.xml";
-import PrivacyIcon from "@expo/material-symbols/privacy_tip.xml";
-import UploadIcon from "@expo/material-symbols/upload.xml";
 import {
   FieldGroup,
   Host,
   Icon,
   ListItem,
   Switch as NativeSwitch,
+  Picker,
 } from "@expo/ui";
 import Constants from "expo-constants";
-import { router } from "expo-router";
+import { type Href, router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
-import { useCallback, useState, useSyncExternalStore } from "react";
+import {
+  Bell,
+  Bug,
+  CircleHelp,
+  Download,
+  FileText,
+  Globe,
+  Hand,
+  Info,
+  type LucideIcon,
+  Palette,
+  Share,
+} from "lucide-react-native";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert } from "react-native";
+import { ActivityIndicator, Alert, Linking } from "react-native";
+import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 import {
@@ -31,6 +38,14 @@ import { importOutcomeMessage } from "@/lib/data-import-messages";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
+import {
+  getCachedDefaultReminderMinutes,
+  getDefaultReminderMinutes,
+  REMINDER_DEFAULT_OPTIONS,
+  setDefaultReminderMinutes,
+} from "@/lib/reminder-default-storage";
+import { resetScheduleHint } from "@/lib/schedule-hint-storage";
+import { themeTokens } from "@/lib/theme-tokens";
 import { useExportData } from "@/services/data-export";
 import { type ImportOutcome, useImportData } from "@/services/data-import";
 import { getHapticsEnabled } from "@/services/haptics";
@@ -43,27 +58,15 @@ const EXTERNAL_LINK = Icon.select({
   ios: "arrow.up.right",
   android: ArrowOutwardIcon,
 });
-const LANGUAGE = Icon.select({ ios: "globe", android: LanguageIcon });
-const ABOUT = Icon.select({ ios: "info.circle", android: InfoIcon });
-const EXPORT = Icon.select({
-  ios: "square.and.arrow.up",
-  android: UploadIcon,
-});
-const IMPORT = Icon.select({
-  ios: "square.and.arrow.down",
-  android: DownloadIcon,
-});
-const PRIVACY = Icon.select({ ios: "hand.raised", android: PrivacyIcon });
-const TERMS = Icon.select({ ios: "doc.text", android: DescriptionIcon });
-const DEBUG = Icon.select({ ios: "ladybug", android: BugReportIcon });
-const UI_SYSTEM = Icon.select({ ios: "paintpalette", android: PaletteIcon });
-const APPEARANCE = Icon.select({
-  ios: "circle.lefthalf.filled",
-  android: PaletteIcon,
-});
 
-function LeadingIcon({ name }: { name: ReturnType<typeof Icon.select> }) {
-  return <Icon name={name} size={22} />;
+/**
+ * Plain leading glyph (lucide, JS-rendered): @expo/ui's native Icon collapses
+ * inside RN wrapper views, and colored icon tiles were tried and rejected —
+ * bare monochrome glyphs match the rest of the app's chrome.
+ */
+function LeadingIcon({ icon: IconComponent }: { icon: LucideIcon }) {
+  const scheme = useResolvedColorScheme();
+  return <IconComponent size={21} color={themeTokens[scheme].foreground} />;
 }
 
 function NavigationIndicator() {
@@ -160,6 +163,14 @@ export default function SettingsScreen() {
     onOutcome: handleImportOutcome,
   });
 
+  const notificationPermission = useNotificationPermission();
+  const [defaultLead, setDefaultLead] = useState<number | null>(
+    getCachedDefaultReminderMinutes,
+  );
+  useEffect(() => {
+    void getDefaultReminderMinutes().then(setDefaultLead);
+  }, []);
+
   return (
     <Host
       colorScheme={resolvedColorScheme}
@@ -170,7 +181,7 @@ export default function SettingsScreen() {
       <FieldGroup>
         <FieldGroup.Section title={t("settings.app.title")}>
           <ListItem
-            leading={<LeadingIcon name={APPEARANCE} />}
+            leading={<LeadingIcon icon={Palette} />}
             supportingText={t(`settings.appearance.${appearance}`)}
             trailing={<NavigationIndicator />}
             onPress={() => router.push("/settings/appearance")}
@@ -178,7 +189,7 @@ export default function SettingsScreen() {
             {t("settings.app.theme")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon name={LANGUAGE} />}
+            leading={<LeadingIcon icon={Globe} />}
             supportingText={t(
               `settings.languages.${i18n.language as SupportedLanguage}`,
               { defaultValue: "English" },
@@ -196,27 +207,86 @@ export default function SettingsScreen() {
           />
         </FieldGroup.Section>
 
+        <FieldGroup.Section title={t("settings.notifications.title")}>
+          <ListItem
+            leading={<LeadingIcon icon={Bell} />}
+            supportingText={
+              notificationPermission === "granted"
+                ? t("settings.notifications.enabled")
+                : notificationPermission === "denied"
+                  ? t("settings.notifications.disabled")
+                  : t("settings.notifications.notRequested")
+            }
+            trailing={<ExternalIndicator />}
+            onPress={() => {
+              void Linking.openSettings();
+            }}
+          >
+            {t("settings.notifications.permission")}
+          </ListItem>
+          <ListItem
+            supportingText={t("settings.notifications.defaultLeadDescription")}
+            trailing={
+              <Picker
+                selectedValue={String(defaultLead ?? "")}
+                onValueChange={(value) => {
+                  const parsed = value === "" ? null : Number(value);
+                  setDefaultLead(parsed);
+                  void setDefaultReminderMinutes(parsed);
+                }}
+                appearance="menu"
+              >
+                <Picker.Item
+                  label={t("settings.notifications.noDefault")}
+                  value=""
+                />
+                {REMINDER_DEFAULT_OPTIONS.map((minutes) => (
+                  <Picker.Item
+                    key={String(minutes)}
+                    label={
+                      minutes === 0
+                        ? t("reminders.atTime")
+                        : minutes === 60
+                          ? t("reminders.hourBefore")
+                          : t("reminders.minutesBefore", { minutes })
+                    }
+                    value={String(minutes)}
+                  />
+                ))}
+              </Picker>
+            }
+          >
+            {t("settings.notifications.defaultLead")}
+          </ListItem>
+        </FieldGroup.Section>
+
         <FieldGroup.Section
           title={t("settings.data.title")}
           disabled={isExporting || isImporting}
         >
           <ListItem
-            leading={<LeadingIcon name={EXPORT} />}
+            leading={<LeadingIcon icon={Share} />}
             supportingText={
               isExporting
                 ? t("settings.data.exporting")
                 : t("settings.data.exportDescription")
+            }
+            trailing={
+              isExporting ? <ActivityIndicator size="small" /> : undefined
             }
             onPress={isExporting ? undefined : handleExport}
           >
             {t("settings.data.exportData")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon name={IMPORT} />}
+            leading={<LeadingIcon icon={Download} />}
             supportingText={
               isImporting
                 ? t("settings.data.importing")
                 : t("settings.data.importDescription")
+            }
+            trailing={
+              isImporting ? <ActivityIndicator size="small" /> : undefined
             }
             onPress={isImporting ? undefined : () => importData()}
           >
@@ -226,7 +296,7 @@ export default function SettingsScreen() {
 
         <FieldGroup.Section title={t("settings.about.title")}>
           <ListItem
-            leading={<LeadingIcon name={ABOUT} />}
+            leading={<LeadingIcon icon={Info} />}
             supportingText={versionLabel}
             trailing={<NavigationIndicator />}
             onPress={() => router.push("/settings/about")}
@@ -234,7 +304,15 @@ export default function SettingsScreen() {
             {t("settings.legal.about")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon name={PRIVACY} />}
+            leading={<LeadingIcon icon={CircleHelp} />}
+            supportingText={t("settings.help.gettingStartedDescription")}
+            trailing={<NavigationIndicator />}
+            onPress={() => router.push("/settings/getting-started" as Href)}
+          >
+            {t("settings.help.gettingStarted")}
+          </ListItem>
+          <ListItem
+            leading={<LeadingIcon icon={Hand} />}
             trailing={<ExternalIndicator />}
             onPress={() =>
               WebBrowser.openBrowserAsync("https://conpaws.com/privacy")
@@ -243,7 +321,7 @@ export default function SettingsScreen() {
             {t("settings.legal.privacyPolicy")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon name={TERMS} />}
+            leading={<LeadingIcon icon={FileText} />}
             trailing={<ExternalIndicator />}
             onPress={() =>
               WebBrowser.openBrowserAsync("https://conpaws.com/terms")
@@ -256,7 +334,7 @@ export default function SettingsScreen() {
         {showDeveloperTools ? (
           <FieldGroup.Section title="Developer">
             <ListItem
-              leading={<LeadingIcon name={DEBUG} />}
+              leading={<LeadingIcon icon={Bug} />}
               supportingText="Replay onboarding safely"
               trailing={<NavigationIndicator />}
               onPress={() => router.push("/settings/debug")}
@@ -264,7 +342,18 @@ export default function SettingsScreen() {
               Debug Tools
             </ListItem>
             <ListItem
-              leading={<LeadingIcon name={UI_SYSTEM} />}
+              leading={<LeadingIcon icon={Bug} />}
+              supportingText="Show the schedule hint card again"
+              onPress={() => {
+                void resetScheduleHint().then(() =>
+                  Alert.alert("Hints reset", "The hint will show again."),
+                );
+              }}
+            >
+              Reset Hints
+            </ListItem>
+            <ListItem
+              leading={<LeadingIcon icon={Palette} />}
               supportingText="Preview app controls and states"
               trailing={<NavigationIndicator />}
               onPress={() => router.push("/settings/ui-system")}

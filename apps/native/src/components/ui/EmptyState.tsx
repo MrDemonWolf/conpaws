@@ -171,7 +171,9 @@ export function EmptyState({
               className="min-h-12 self-center px-6"
               onPress={onSecondaryCta}
               testID={secondaryCtaTestID}
-              variant="ghost"
+              // Honor the requested variant — hardcoding ghost made the
+              // secondary action visually weaker on Android than on iOS.
+              variant={secondaryCtaVariant === "outlined" ? "outline" : "ghost"}
             >
               {secondaryCtaLabel}
             </Button>

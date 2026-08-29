@@ -4,6 +4,12 @@ export interface ConventionRowContent {
   status: "upcoming" | "active" | "ended";
   statusLabel: string;
   moreAccessibilityLabel: string;
+  /**
+   * Whether Unarchive is offered for this row — true only for explicitly
+   * archived conventions that have not ended (see `canUnarchive` in
+   * convention-list.ts for why ended ones are excluded).
+   */
+  canUnarchive: boolean;
 }
 
 export interface ConventionListProps<T extends { id: string }> {
@@ -32,4 +38,6 @@ export interface ConventionListProps<T extends { id: string }> {
   onDelete: (item: T) => void;
   archiveItemLabel: string;
   onArchive: (item: T) => void;
+  unarchiveItemLabel: string;
+  onUnarchive: (item: T) => void;
 }

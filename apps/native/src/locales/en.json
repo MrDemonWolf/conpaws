@@ -5,10 +5,12 @@
     "settings": "Settings",
     "back": "Back",
     "add": "Add",
+    "remove": "Remove",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
     "archive": "Archive",
+    "unarchive": "Unarchive",
     "edit": "Edit",
     "done": "Done",
     "loading": "Loading...",
@@ -74,9 +76,10 @@
     "name": "Convention Name",
     "namePlaceholder": "e.g. ConPaws Preview Con",
     "nameRequired": "Enter a convention name.",
-    "timeZoneInvalid": "Enter a valid IANA time zone, such as America/Chicago.",
+    "timeZoneInvalid": "Choose a valid time zone, such as Chicago (America/Chicago).",
     "location": "Location",
     "locationPlaceholder": "City, venue, or address",
+    "locationTimeZoneNote": "Also sets the convention's time zone automatically.",
     "timeZoneFallbackTitle": "Time Zone Could Not Be Detected",
     "timeZoneFallbackMessage": "ConPaws can use this device's time zone ({{timeZone}}), or you can choose the convention's time zone under Advanced.",
     "setTimeZone": "Set Time Zone",
@@ -87,13 +90,14 @@
     "addToSchedule": "Add to My Schedule",
     "removeFromSchedule": "Remove from My Schedule",
     "scheduleActionHint": "Updates this event in My Schedule.",
+    "scheduleHint": {
+      "body": "Tap an event to add it to My Schedule. Starred events show up in the Schedule tab.",
+      "dismiss": "Dismiss hint"
+    },
     "scheduleAddedAnnouncement": "{{event}} added to My Schedule.",
     "scheduleRemovedAnnouncement": "{{event}} removed from My Schedule.",
     "scheduleUpdateErrorTitle": "Schedule Not Updated",
     "scheduleUpdateErrorMessage": "The event could not be changed. Your schedule was left as it was.",
-    "viewOnSched": "View on Sched",
-    "viewOnSchedLabel": "View {{event}} on Sched",
-    "openExternalHint": "Opens the event page in your browser.",
     "closeEventDetails": "Close event details",
     "timeRangeTo": "to {{time}}",
     "eventTimeRange": "{{start}} to {{end}}",
@@ -183,6 +187,11 @@
       "errorTitle": "Could Not Archive Convention",
       "errorMessage": "Nothing was archived. Try again."
     },
+    "unarchive": {
+      "success": "{{name}} restored from the archive.",
+      "errorTitle": "Could Not Unarchive",
+      "errorMessage": "The convention could not be restored. Try again."
+    },
     "moreActions": "More actions for {{name}}",
     "sortBy": "Sort By",
     "sort": {
@@ -236,7 +245,7 @@
       "placeholder": "America/Chicago",
       "help": "Use the convention's location, not your phone's current location.",
       "requiredTitle": "Time Zone Required",
-      "requiredMessage": "Choose the convention's IANA time zone so event times stay correct when you travel.",
+      "requiredMessage": "Choose the convention's time zone before importing — pick the city the convention is in.",
       "choose": "Choose a time zone",
       "use": "Use Time Zone"
     },
@@ -257,7 +266,7 @@
       "emptyUpdateEvent": "This Sched update has no active events. Applying it will remove exactly {{count}} imported event from this convention and cancel its local reminder. Manually added events will stay.",
       "emptyUpdateEvents": "This Sched update has no active events. Applying it will remove exactly {{count}} imported events from this convention and cancel their local reminders. Manually added events will stay.",
       "invalidTimeZoneTitle": "Invalid Time Zone",
-      "invalidTimeZoneMessage": "Use an IANA time zone such as America/Chicago.",
+      "invalidTimeZoneMessage": "Pick the convention's time zone from the list, such as Chicago.",
       "notAppliedTitle": "Import Not Applied",
       "parseNotApplied": "This calendar couldn't be parsed safely. Nothing was changed.",
       "nothingTitle": "Nothing to Import",
@@ -269,6 +278,15 @@
       "unresolvedSeries": "Recurring series left unchanged: {{count}}. Older saved events couldn't be matched safely.",
       "detailsNotUpdated": "Events were saved, but the convention dates or saved Sched URL couldn't be refreshed.",
       "failedTitle": "Import Failed"
+    },
+    "help": {
+      "title": "Where do I find this?",
+      "schedTitle": "Using Sched?",
+      "sched": "Most conventions publish their schedule on Sched — the site looks like <name>.sched.com. Copy any page from it and paste it here.",
+      "icsTitle": "Have a calendar file?",
+      "ics": "An .ics file is a standard calendar export. Conventions often link it as \"Add to calendar\" or \"Calendar feed\" — webcal:// links work too.",
+      "askTitle": "Can't find either?",
+      "ask": "Check the convention's website or app for a schedule link, or ask their social media which format they publish."
     }
   },
   "onboarding": {
@@ -283,10 +301,6 @@
       "title": "Plan the whole con",
       "subtitle": "Everything you need when the venue Wi-Fi gives up.",
       "demo": {
-        "now": "Now",
-        "next": "Next",
-        "eventOne": "Opening Ceremonies",
-        "eventTwo": "Fursuit Parade",
         "saved": "My Schedule"
       },
       "import": {
@@ -352,20 +366,26 @@
     "pausedTitle": "Reminders are paused",
     "pausedMessage": "Notifications are off, so your saved reminders will not arrive. Your choices are kept and come back as soon as you turn notifications on.",
     "overflowTitle": "Some reminders are waiting",
-    "overflowMessage": "This device holds a limited number of pending reminders, so this many of yours are waiting: {{count}}. The nearest ones are scheduled first."
+    "overflowMessage": "This device holds a limited number of pending reminders, so this many of yours are waiting: {{count}}. The nearest ones are scheduled first.",
+    "priming": {
+      "title": "Get a heads-up before panels",
+      "message": "ConPaws can remind you when it's time to leave for a panel. Your phone will ask for notification permission next.",
+      "continue": "Continue",
+      "notNow": "Not now"
+    }
   },
   "schedule": {
     "title": "Schedule",
     "empty": {
       "title": "Nothing starred yet",
-      "subtitle": "Star an event inside a convention and it lands here.",
+      "subtitle": "Tap an event inside a convention to add it to My Schedule — it lands here.",
       "cta": "Open my conventions"
     },
     "timesShownInConventionTime": "Times are shown in each convention's local time.",
     "loadError": "Your schedule could not be loaded.",
     "conventionEmpty": {
       "title": "Nothing saved for {{name}} yet",
-      "subtitle": "Star events in the convention schedule and they will appear here.",
+      "subtitle": "Add events from the convention schedule and they will appear here.",
       "cta": "Open Convention"
     }
   },
@@ -471,6 +491,22 @@
       "packageNotFoundTitle": "Package not found",
       "packageNotFoundDescription": "This package may no longer be included in this build.",
       "licenseTextUnavailable": "The license text is not available in this build."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "permission": "Notification permission",
+      "enabled": "Allowed — reminders can arrive",
+      "disabled": "Off — reminders will not arrive",
+      "notRequested": "Not requested yet",
+      "defaultLead": "Default leave reminder",
+      "defaultLeadDescription": "Pre-selected when you set a reminder on a new event.",
+      "noDefault": "None"
+    },
+    "help": {
+      "gettingStarted": "Getting started",
+      "gettingStartedDescription": "Where to find your convention's schedule",
+      "importNow": "Import a schedule",
+      "importNowDescription": "Bring in a Sched link or an .ics file."
     }
   }
 }

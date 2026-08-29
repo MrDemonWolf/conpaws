@@ -49,7 +49,7 @@ export default function DebugScreen() {
   >(null);
   const [notificationPermission, setNotificationPermission] =
     useState<PermissionStatus>("undetermined");
-  const presentationLock = useRef(false);
+  const presentationLock = useRef(0);
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
   const appVariant = Constants.expoConfig?.extra?.appVariant;

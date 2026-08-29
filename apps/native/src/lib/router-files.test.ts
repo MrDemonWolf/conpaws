@@ -31,6 +31,22 @@ describe("Expo Router convention routes", () => {
     expect(existsSync(path.join(conventionRoute, "import.tsx"))).toBe(true);
   });
 
+  it("presents the event sheet as a nested route without its own layout", () => {
+    // The sheet is a pushed formSheet route so the system owns its dismissal
+    // (the old RN-Modal version could be unmounted mid-dismiss and strand a
+    // touch-eating window). It must stay inside the [id] group with no nested
+    // _layout.tsx, or the group would stop sharing the (home) stack.
+    expect(
+      existsSync(path.join(conventionRoute, "event", "[eventId].tsx")),
+    ).toBe(true);
+    expect(existsSync(path.join(conventionRoute, "event", "_layout.tsx"))).toBe(
+      false,
+    );
+    expect(homeLayoutSource).toContain(
+      'name="convention/[id]/event/[eventId]"',
+    );
+  });
+
   // Bouncing is tied to whether there are rows, and both halves matter.
   //
   // Off when empty: a centred "no events" panel that rubber-bands reads as

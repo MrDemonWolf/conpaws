@@ -1,12 +1,12 @@
 import {
   Checkbox,
+  Collapsible,
   FieldGroup,
   Host,
   ListItem,
   Button as NativeButton,
   Text as NativeText,
   TextInput as NativeTextInput,
-  Picker,
   useNativeState,
 } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
@@ -18,7 +18,8 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, Keyboard } from "react-native";
+import { AccessibilityInfo, ActivityIndicator, Alert } from "react-native";
+import { TimeZonePickerModal } from "@/components/ConventionFormFields";
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
@@ -46,6 +47,7 @@ import {
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
 import { scheduleNameFromUrl } from "@/lib/schedule-url";
+import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { hapticSuccess } from "@/services/haptics";
 import {
   buildImportedConventionPatch,
@@ -86,7 +88,9 @@ export default function ImportScreen() {
   const queryClient = useQueryClient();
   const importMutation = useImportSchedule();
   const didPrefill = useRef(false);
-  const filePickerLock = useRef(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
+  const filePickerLock = useRef(0);
   const requestGeneration = useRef(0);
   const isMounted = useRef(true);
   const urlInput = useNativeState("");
@@ -111,26 +115,14 @@ export default function ImportScreen() {
   const [pendingCalendar, setPendingCalendar] =
     useState<PendingCalendar | null>(null);
   const [timeZone, setTimeZone] = useState("");
-  const [timeZoneSearch, setTimeZoneSearch] = useState("");
-  const timeZones = useMemo(
-    () => [
-      deviceTimeZone,
-      ...[...new Set(["UTC", ...supportedValuesOf("timeZone")])]
-        .filter((value) => value !== deviceTimeZone)
-        .sort(),
-    ],
-    [deviceTimeZone],
+  const timeZoneOptions = useMemo(
+    () =>
+      buildTimeZoneOptions(
+        ["UTC", ...supportedValuesOf("timeZone")],
+        getCalendars()[0]?.timeZone ?? "UTC",
+      ),
+    [],
   );
-  const filteredTimeZones = useMemo(() => {
-    const query = timeZoneSearch.trim().toLocaleLowerCase();
-    const matches = query
-      ? timeZones.filter((value) => value.toLocaleLowerCase().includes(query))
-      : timeZones;
-
-    return isValidTimeZone(timeZone) && !matches.includes(timeZone)
-      ? [timeZone, ...matches]
-      : matches;
-  }, [timeZone, timeZoneSearch, timeZones]);
 
   useEffect(
     () => () => {
@@ -650,47 +642,22 @@ export default function ImportScreen() {
       : t(selectedCount === 1 ? "import.importEvent" : "import.importEvents", {
           count: selectedCount,
         });
+  // Same city/region searchable picker the create form uses — this section
+  // used to be a substring filter over raw IANA identifiers, which handed a
+  // first-time user strings like "America/Kentucky/Monticello" plus the word
+  // "IANA" in three error messages.
   const timeZoneFields = (
-    <>
-      <ListItem
-        supportingText={
-          <NativeTextInput
-            defaultValue={timeZoneSearch}
-            onChangeText={setTimeZoneSearch}
-            placeholder={t("convention.timeZoneSearchPlaceholder")}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!controlsDisabled}
-            returnKeyType="search"
-            onSubmitEditing={Keyboard.dismiss}
-            testID="time-zone-search-input"
-          />
-        }
-      >
-        {t("convention.timeZoneSearch")}
-      </ListItem>
-      <ListItem
-        trailing={
-          <Picker
-            selectedValue={isValidTimeZone(timeZone) ? timeZone : ""}
-            onValueChange={(value) => {
-              setTimeZoneValue(String(value));
-              Keyboard.dismiss();
-            }}
-            appearance="menu"
-            enabled={!controlsDisabled}
-            testID="time-zone-picker"
-          >
-            <Picker.Item label={t("import.timeZone.choose")} value="" />
-            {filteredTimeZones.map((value) => (
-              <Picker.Item key={value} label={value} value={value} />
-            ))}
-          </Picker>
-        }
-      >
-        {t("import.timeZone.label")}
-      </ListItem>
-    </>
+    <ListItem
+      supportingText={
+        isValidTimeZone(timeZone) ? timeZoneLabel(timeZone) : undefined
+      }
+      testID="time-zone-picker"
+      onPress={
+        controlsDisabled ? undefined : () => setTimeZonePickerVisible(true)
+      }
+    >
+      {t("import.timeZone.label")}
+    </ListItem>
   );
 
   return (
@@ -765,9 +732,34 @@ export default function ImportScreen() {
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>
 
+          {/* The single biggest first-run stall was this screen assuming the
+              user already knows what Sched or an .ics file is. */}
+          <FieldGroup.Section>
+            <Collapsible
+              label={t("import.help.title")}
+              isOpen={helpOpen}
+              onOpenChange={setHelpOpen}
+            >
+              <ListItem supportingText={t("import.help.sched")}>
+                {t("import.help.schedTitle")}
+              </ListItem>
+              <ListItem supportingText={t("import.help.ics")}>
+                {t("import.help.icsTitle")}
+              </ListItem>
+              <ListItem supportingText={t("import.help.ask")}>
+                {t("import.help.askTitle")}
+              </ListItem>
+            </Collapsible>
+          </FieldGroup.Section>
+
           {loading ? (
             <FieldGroup.Section>
-              <ListItem supportingText={t("import.loadingDescription")}>
+              {/* Untinted UIActivityIndicatorView — system gray, matching the
+                  "checking…" rows in iOS Settings. */}
+              <ListItem
+                supportingText={t("import.loadingDescription")}
+                trailing={<ActivityIndicator size="small" />}
+              >
                 {t("import.loading")}
               </ListItem>
             </FieldGroup.Section>
@@ -876,6 +868,15 @@ export default function ImportScreen() {
           ) : null}
         </FieldGroup>
       </Host>
+      <TimeZonePickerModal
+        visible={timeZonePickerVisible}
+        options={timeZoneOptions}
+        selected={isValidTimeZone(timeZone) ? timeZone : ""}
+        onSelect={(value) => {
+          setTimeZoneValue(value);
+        }}
+        onClose={() => setTimeZonePickerVisible(false)}
+      />
     </SafeView>
   );
 }
