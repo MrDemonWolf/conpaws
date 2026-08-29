@@ -17,7 +17,11 @@ import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { isValidTimeZone } from "@/lib/convention-time";
-import { timeSlotBandClass, timeSlotBands } from "@/lib/day-band";
+import {
+  type ClusterPosition,
+  type OverlapInfo,
+  overlapInfo,
+} from "@/lib/day-band";
 import { deviceHour12 } from "@/lib/device-clock";
 import { formatDayKeyLabel, formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
@@ -55,6 +59,10 @@ interface ScheduleRowProps {
   conventionName?: string;
   locale: string;
   hour12?: boolean;
+  /** Overlap grouping from `overlapInfo`, forwarded to the row chrome. */
+  overlapPosition?: ClusterPosition;
+  overlapGroupSize?: number;
+  overlapCount?: number;
   className?: string;
 }
 
@@ -68,6 +76,9 @@ const ScheduleRow = memo(function ScheduleRow({
   conventionName,
   locale,
   hour12,
+  overlapPosition,
+  overlapGroupSize,
+  overlapCount,
   className,
 }: ScheduleRowProps) {
   return (
@@ -89,6 +100,9 @@ const ScheduleRow = memo(function ScheduleRow({
       // be pure noise.
       showScheduleIndicator={false}
       contentWarning={entry.event.contentWarning}
+      overlapPosition={overlapPosition}
+      overlapGroupSize={overlapGroupSize}
+      overlapCount={overlapCount}
       className={className}
       // There is no standalone event screen -- the action sheet that owns
       // stars and reminders lives on the convention. Send the row there
@@ -172,10 +186,13 @@ export default function ScheduleScreen() {
     [entries],
   );
 
-  // Rows sharing a start time share a shade; the shade flips when the clock
-  // moves. Keyed per day section.
-  const slotBandsByDay = useMemo(
-    () => new Map(days.map((day) => [day.key, timeSlotBands(day.data)])),
+  // Which events actually share a timeframe, per day — drives the grouped
+  // tint, accent edge, and header on each row.
+  const overlapsByDay = useMemo(
+    () =>
+      new Map<string, OverlapInfo[]>(
+        days.map((day) => [day.key, overlapInfo(day.data)]),
+      ),
     [days],
   );
 
@@ -201,12 +218,12 @@ export default function ScheduleScreen() {
         conventionName={showConventionName ? item.conventionName : undefined}
         locale={locale}
         hour12={hour12}
-        className={timeSlotBandClass(
-          slotBandsByDay.get(section.key)?.[index] ?? 0,
-        )}
+        overlapPosition={overlapsByDay.get(section.key)?.[index]?.position}
+        overlapGroupSize={overlapsByDay.get(section.key)?.[index]?.clusterSize}
+        overlapCount={overlapsByDay.get(section.key)?.[index]?.overlapCount}
       />
     ),
-    [hour12, locale, showConventionName, slotBandsByDay],
+    [hour12, locale, showConventionName, overlapsByDay],
   );
 
   if (isLoading) {

@@ -1,18 +1,15 @@
 /**
- * Alternating background for blocks of events that overlap in time, so
- * everything running together reads as one visual cluster and the shade flips
- * when a genuinely new block starts — the "eight things all around 7:00 PM"
- * problem.
+ * Overlap grouping for a day's events: events whose times chain together
+ * (each starts before everything earlier has ended) form one cluster, and the
+ * rows of a cluster render as a visually grouped block — tinted background,
+ * accent edge, and a "N events at the same time" header on the first row.
+ * This replaced the old alternating background bands: the tint now means
+ * "these events overlap", not merely "a new block started".
  *
- * The two classes are the existing `background` and `card` tokens, never raw
- * hex: on iOS both resolve to PlatformColor (systemBackground and
- * tertiarySystemBackground), so the bands keep tracking dark-elevated and
- * Increase Contrast the way every other surface does. A hex band would
- * override that and freeze the row background.
+ * SectionList constraint: rows are independent virtualized items, so a
+ * cluster cannot be one wrapper view. Instead every row carries its position
+ * (first/middle/last) and draws its own share of the group chrome.
  */
-export function timeSlotBandClass(slotIndex: number): string {
-  return slotIndex % 2 === 1 ? "bg-card" : "bg-background";
-}
 
 /**
  * An event with no end time is treated as an hour long — the same fallback
@@ -20,31 +17,92 @@ export function timeSlotBandClass(slotIndex: number): string {
  */
 const NO_END_FALLBACK_MS = 60 * 60 * 1000;
 
+export type ClusterPosition = "solo" | "first" | "middle" | "last";
+
+export interface OverlapInfo {
+  /** Where this row sits in its overlap cluster; "solo" = nothing overlaps. */
+  position: ClusterPosition;
+  /** Total events in this row's cluster (1 for solo rows). */
+  clusterSize: number;
+  /** Exact number of other events whose time range intersects this one. */
+  overlapCount: number;
+}
+
 /**
- * Per-row band indices for a day's events: an event that overlaps the block
- * before it joins that block; the index advances only when an event starts
- * after everything before it has ended. Assumes start-time order, which both
- * day-grouped lists guarantee.
+ * Per-row overlap grouping for a day's events. Assumes start-time order,
+ * which both day-grouped lists guarantee.
  */
-export function timeSlotBands(
+export function overlapInfo(
   events: readonly { startTime: string; endTime?: string | null }[],
-): number[] {
-  let slot = 0;
+): OverlapInfo[] {
+  const times = events.map((event) => {
+    const start = Date.parse(event.startTime);
+    const end = event.endTime
+      ? Date.parse(event.endTime)
+      : start + NO_END_FALLBACK_MS;
+    return { start, end };
+  });
+
+  const result: OverlapInfo[] = [];
+  let clusterStart = 0;
   let blockEndMs = Number.NEGATIVE_INFINITY;
 
-  return events.map((event) => {
-    const startMs = Date.parse(event.startTime);
-    const endMs = event.endTime
-      ? Date.parse(event.endTime)
-      : startMs + NO_END_FALLBACK_MS;
-
-    if (startMs >= blockEndMs) {
-      // Nothing from the previous block is still running: new cluster.
-      if (blockEndMs !== Number.NEGATIVE_INFINITY) slot++;
-      blockEndMs = endMs;
-    } else {
-      blockEndMs = Math.max(blockEndMs, endMs);
+  const closeCluster = (endIndex: number) => {
+    const size = endIndex - clusterStart;
+    for (let i = clusterStart; i < endIndex; i++) {
+      result[i].clusterSize = size;
+      result[i].position =
+        size === 1
+          ? "solo"
+          : i === clusterStart
+            ? "first"
+            : i === endIndex - 1
+              ? "last"
+              : "middle";
     }
-    return slot;
+  };
+
+  times.forEach((time, index) => {
+    if (time.start >= blockEndMs) {
+      // Nothing from the previous cluster is still running: close it out.
+      closeCluster(index);
+      clusterStart = index;
+      blockEndMs = time.end;
+    } else {
+      blockEndMs = Math.max(blockEndMs, time.end);
+    }
+
+    // ponytail: O(n²) intersection count — day lists are small; sweep if a
+    // convention day ever gets big enough to matter.
+    let overlapCount = 0;
+    for (let j = 0; j < times.length; j++) {
+      if (j === index) continue;
+      if (times[j].start < time.end && time.start < times[j].end) {
+        overlapCount++;
+      }
+    }
+
+    result.push({ position: "solo", clusterSize: 1, overlapCount });
   });
+  closeCluster(times.length);
+
+  return result;
+}
+
+const SOLO: OverlapInfo = { position: "solo", clusterSize: 1, overlapCount: 0 };
+
+/**
+ * `overlapInfo`, but computed only among the events the predicate accepts;
+ * every other row comes back solo. The convention screen groups only starred
+ * events this way — on a dense con day almost everything overlaps something,
+ * so grouping all events tinted whole days into one meaningless block. A
+ * clash only matters between panels the user actually saved.
+ */
+export function overlapInfoAmong<
+  T extends { startTime: string; endTime?: string | null },
+>(events: readonly T[], include: (event: T) => boolean): OverlapInfo[] {
+  const included = events.filter(include);
+  const info = overlapInfo(included);
+  let next = 0;
+  return events.map((event) => (include(event) ? info[next++] : SOLO));
 }
