@@ -4,7 +4,7 @@ import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCalendars } from "expo-localization";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SectionList, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
@@ -123,8 +123,14 @@ export default function ScheduleScreen() {
 
   // Stars are toggled from the convention screen and its action sheet, so the
   // pooled list is stale by definition every time it comes back into view.
+  // `now` must refresh alongside it: react-query's structural sharing keeps
+  // `rows` reference-stable when the data is unchanged, so a `new Date()`
+  // captured inside the grouping memo would freeze at first render and the
+  // list would never re-evaluate which events have started or finished.
+  const [now, setNow] = useState(() => new Date());
   useFocusEffect(
     useCallback(() => {
+      setNow(new Date());
       queryClient.invalidateQueries({ queryKey: ["schedule"] });
     }, [queryClient]),
   );
@@ -147,7 +153,10 @@ export default function ScheduleScreen() {
       }));
   }, [conventionId, rows]);
 
-  const days = useMemo(() => groupPersonalScheduleByDay(entries), [entries]);
+  const days = useMemo(
+    () => groupPersonalScheduleByDay(entries, now),
+    [entries, now],
+  );
 
   const notificationPermission = useNotificationPermission();
   const reminderOverflow = getReminderReconciliation().overflow;
