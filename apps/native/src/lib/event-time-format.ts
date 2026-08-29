@@ -13,13 +13,21 @@
  * never grows unbounded.
  */
 
-type FormatterKind = "time" | "dayLabel" | "date" | "dateAndTime";
+import { conventionDayKey } from "./convention-time";
+
+type FormatterKind =
+  | "time"
+  | "dayLabel"
+  | "date"
+  | "dateAndTime"
+  | "weekdayShort";
 
 const FORMATTER_OPTIONS: Record<FormatterKind, Intl.DateTimeFormatOptions> = {
   time: { hour: "numeric", minute: "2-digit" },
   dayLabel: { weekday: "long", month: "long", day: "numeric" },
   date: { dateStyle: "medium" },
   dateAndTime: { dateStyle: "full", timeStyle: "short" },
+  weekdayShort: { weekday: "short" },
 };
 
 const formatterCache = new Map<string, Intl.DateTimeFormat>();
@@ -77,6 +85,82 @@ export function formatEventTime(
   const value = new Date(isoString);
   if (Number.isNaN(value.getTime())) return "";
   return scheduleFormatter("time", locale, timeZone, hour12).format(value);
+}
+
+/**
+ * How many convention-local days later than the start the end falls, counting
+ * calendar days rather than elapsed hours: an event running 10 PM to 1 AM
+ * spans one day, and so does one running 1 AM to 11 PM.
+ *
+ * Zero when either instant is missing or unparseable, so callers fall back to
+ * the plain clock time rather than inventing a day boundary.
+ */
+export function eventEndDayOffset(
+  startIso: string,
+  endIso: string | null,
+  timeZone: string,
+): number {
+  if (!endIso) return 0;
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
+
+  const startKey = conventionDayKey(start, timeZone);
+  const endKey = conventionDayKey(end, timeZone);
+  if (startKey === endKey) return 0;
+
+  const days =
+    (Date.parse(`${endKey}T00:00:00Z`) - Date.parse(`${startKey}T00:00:00Z`)) /
+    86_400_000;
+  return Number.isFinite(days) ? Math.round(days) : 0;
+}
+
+/**
+ * The end of an event, for the two-line time column on a schedule row.
+ *
+ * A bare clock time is a lie for anything that crosses midnight: IndyFurCon's
+ * three-day "Tabletop Gaming" rendered as "10:00 PM" over "9:00 PM", which
+ * reads as ending before it starts. When the end lands on a different
+ * convention-local day it carries an abbreviated weekday — "Sun 9:00 PM" —
+ * matching what the iOS widget's `conPawsTimeLabel` already does. The weekday
+ * comes from `Intl`, so it needs no new translated strings.
+ */
+export function formatEventEndTime(
+  startIso: string,
+  endIso: string | null,
+  timeZone: string,
+  locale: string,
+  hour12?: boolean,
+): string {
+  const clock = formatEventTime(endIso, timeZone, locale, hour12);
+  if (!clock || !endIso) return clock;
+  if (eventEndDayOffset(startIso, endIso, timeZone) === 0) return clock;
+
+  const weekday = scheduleFormatter("weekdayShort", locale, timeZone).format(
+    new Date(endIso),
+  );
+  return `${weekday} ${clock}`;
+}
+
+/**
+ * The end of an event for the action sheet, which prints the start as a full
+ * date and time and has the width to match. A same-day end stays a clock time
+ * so the common row does not repeat the date it just said.
+ */
+export function formatEventEndDateTime(
+  startIso: string,
+  endIso: string | null,
+  timeZone: string,
+  locale: string,
+  hour12?: boolean,
+): string {
+  if (!endIso) return "";
+  const end = new Date(endIso);
+  if (Number.isNaN(end.getTime())) return "";
+  if (eventEndDayOffset(startIso, endIso, timeZone) === 0) {
+    return formatEventTime(endIso, timeZone, locale, hour12);
+  }
+  return scheduleFormatter("dateAndTime", locale, timeZone, hour12).format(end);
 }
 
 /** The day heading for a group of events, in the convention's zone. */
