@@ -97,7 +97,8 @@ export function summarizeScheduleChanges(
   // A calendar that parsed cleanly but holds no events is far more often a
   // server having a bad minute than a convention cancelling itself. Treating
   // it as a change would wipe the schedule at the worst possible moment.
-  if (feedActive.length === 0) return { status: "untrusted", reason: "empty-feed" };
+  if (feedActive.length === 0)
+    return { status: "untrusted", reason: "empty-feed" };
 
   const activeByUid = new Map<string, ScheduleOccurrence>();
   for (const event of feedActive) {
