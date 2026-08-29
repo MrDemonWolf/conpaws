@@ -845,6 +845,9 @@ export default function ImportScreen() {
                   </ListItem>
                 ) : null}
               </FieldGroup.Section>
+              <FieldGroup.SectionFooter>
+                <NativeText>{t("import.previewFooter")}</NativeText>
+              </FieldGroup.SectionFooter>
 
               <FieldGroup.Section title={t("import.timeZone.sectionTitle")}>
                 {timeZoneFields}

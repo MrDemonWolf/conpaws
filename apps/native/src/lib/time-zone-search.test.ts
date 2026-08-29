@@ -144,11 +144,21 @@ describe("buildTimeZoneOptions", () => {
 });
 
 describe("timeZoneLabel", () => {
-  it("reads as a place, not an identifier", () => {
-    expect(timeZoneLabel("America/New_York")).toBe("New York, America");
-    expect(timeZoneLabel("America/Indiana/Indianapolis")).toBe(
-      "Indianapolis, America",
+  it("names the city and what its clock reads, never the tz-db realm", () => {
+    // "America" in America/New_York is a tz-database realm, not a country.
+    // "New York, America" is not a place, and it read as a bug to anyone
+    // checking whether the app had guessed their convention's zone right.
+    expect(timeZoneLabel("America/New_York")).toMatch(/^New York · GMT[+-]\d/);
+    expect(timeZoneLabel("America/Indiana/Indianapolis")).toMatch(
+      /^Indianapolis · GMT[+-]\d/,
     );
+  });
+
+  it("drops a bare GMT that would add nothing", () => {
     expect(timeZoneLabel("UTC")).toBe("UTC");
+  });
+
+  it("falls back to the city for an id this runtime does not know", () => {
+    expect(timeZoneLabel("Mars/Olympus_Mons")).toBe("Olympus Mons");
   });
 });

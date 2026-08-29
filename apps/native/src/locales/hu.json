@@ -245,19 +245,19 @@
     "couldNotLoad": "A programot nem sikerült betölteni",
     "importedConvention": "Importált con",
     "preview": "Előnézet",
-    "eventFound": "{{count}} aktív esemény található",
-    "eventsFound": "{{count}} aktív esemény található",
+    "eventFound": "{{count}} program importálásra kész",
+    "eventsFound": "{{count}} program importálásra kész",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} lemondás lesz egyeztetve",
-    "cancellations": "{{count}} lemondás lesz egyeztetve",
+    "cancellation": "A rendezvény {{count}} programot törölt",
+    "cancellations": "A rendezvény {{count}} programot törölt",
     "emptyUpdateTitle": "Nincsenek aktív események",
     "emptyUpdateMessage": "Mielőtt bármi megváltozna, láthatod az eltávolítások pontos számát.",
     "categories": "Kategóriák",
-    "categoryEvent": "{{name}}, {{count}} esemény",
-    "categoryEvents": "{{name}}, {{count}} esemény",
+    "categoryEvent": "{{name}} · {{count}} program",
+    "categoryEvents": "{{name}} · {{count}} program",
     "importEvent": "{{count}} esemény importálása",
     "importEvents": "{{count}} esemény importálása",
     "importing": "Importálás...",
@@ -313,7 +313,8 @@
       "ics": "Az .ics-fájl szabványos naptárexport. A conok gyakran „Hozzáadás a naptárhoz” vagy „Naptár-feed” néven linkelik — a webcal://-linkek is működnek.",
       "askTitle": "Egyiket sem találod?",
       "ask": "Keress programlinket a con weboldalán vagy alkalmazásában, vagy kérdezd meg a közösségi oldalaikon, milyen formátumban teszik közzé."
-    }
+    },
+    "previewFooter": "Semmi sem mentődik, amíg meg nem érinted az Importálást."
   },
   "onboarding": {
     "progress": "{{step}}. lépés / {{total}}",

@@ -245,19 +245,19 @@
     "couldNotLoad": "일정표를 불러오지 못했어요",
     "importedConvention": "가져온 컨벤션",
     "preview": "미리보기",
-    "eventFound": "유효한 이벤트 {{count}}개를 찾았어요",
-    "eventsFound": "유효한 이벤트 {{count}}개를 찾았어요",
+    "eventFound": "가져올 수 있는 이벤트 {{count}}개",
+    "eventsFound": "가져올 수 있는 이벤트 {{count}}개",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "취소 {{count}}건이 반영될 예정이에요",
-    "cancellations": "취소 {{count}}건이 반영될 예정이에요",
+    "cancellation": "컨벤션이 취소한 이벤트 {{count}}개",
+    "cancellations": "컨벤션이 취소한 이벤트 {{count}}개",
     "emptyUpdateTitle": "유효한 이벤트가 없어요",
     "emptyUpdateMessage": "변경이 적용되기 전에 정확히 몇 개가 제거되는지 먼저 확인할 수 있어요.",
     "categories": "카테고리",
-    "categoryEvent": "{{name}}, 이벤트 {{count}}개",
-    "categoryEvents": "{{name}}, 이벤트 {{count}}개",
+    "categoryEvent": "{{name}} · {{count}}개",
+    "categoryEvents": "{{name}} · {{count}}개",
     "importEvent": "이벤트 {{count}}개 가져오기",
     "importEvents": "이벤트 {{count}}개 가져오기",
     "importing": "가져오는 중...",
@@ -313,7 +313,8 @@
       "ics": ".ics 파일은 표준 캘린더 내보내기 형식이에요. 컨벤션에서는 보통 \"캘린더에 추가\"나 \"캘린더 피드\"로 링크해요. webcal:// 링크도 사용할 수 있어요.",
       "askTitle": "둘 다 못 찾겠나요?",
       "ask": "컨벤션 웹사이트나 앱에서 일정표 링크를 찾아보거나, SNS로 어떤 형식으로 올리는지 물어보세요."
-    }
+    },
+    "previewFooter": "가져오기를 누르기 전까지는 아무것도 저장되지 않습니다."
   },
   "onboarding": {
     "progress": "{{total}}단계 중 {{step}}단계",

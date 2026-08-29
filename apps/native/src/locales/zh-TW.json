@@ -245,19 +245,19 @@
     "couldNotLoad": "無法載入行程表",
     "importedConvention": "已匯入的展會",
     "preview": "預覽",
-    "eventFound": "找到 {{count}} 個有效活動",
-    "eventsFound": "找到 {{count}} 個有效活動",
+    "eventFound": "{{count}} 個活動可匯入",
+    "eventsFound": "{{count}} 個活動可匯入",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "將同步 {{count}} 項取消",
-    "cancellations": "將同步 {{count}} 項取消",
+    "cancellation": "展會已取消 {{count}} 個活動",
+    "cancellations": "展會已取消 {{count}} 個活動",
     "emptyUpdateTitle": "沒有有效活動",
     "emptyUpdateMessage": "在任何變更發生之前，你都能先確認將被移除的確切數量。",
     "categories": "分類",
-    "categoryEvent": "{{name}}，{{count}} 個活動",
-    "categoryEvents": "{{name}}，{{count}} 個活動",
+    "categoryEvent": "{{name}} · {{count}} 個",
+    "categoryEvents": "{{name}} · {{count}} 個",
     "importEvent": "匯入 {{count}} 個活動",
     "importEvents": "匯入 {{count}} 個活動",
     "importing": "匯入中...",
@@ -313,7 +313,8 @@
       "ics": ".ics 檔案是標準的行事曆匯出格式。展會通常以「加入行事曆」或「行事曆訂閱」的形式提供——webcal:// 連結也可以使用。",
       "askTitle": "兩個都找不到？",
       "ask": "到展會的官網或 App 尋找行程表連結，或在他們的社群媒體上詢問發布的是哪種格式。"
-    }
+    },
+    "previewFooter": "點一下「匯入」前不會儲存任何內容。"
   },
   "onboarding": {
     "progress": "第 {{step}} 步，共 {{total}} 步",

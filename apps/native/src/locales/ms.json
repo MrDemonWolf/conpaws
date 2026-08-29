@@ -245,19 +245,19 @@
     "couldNotLoad": "Jadual Tidak Dapat Dimuatkan",
     "importedConvention": "Konvensyen Diimport",
     "preview": "Pratonton",
-    "eventFound": "{{count}} acara aktif ditemui",
-    "eventsFound": "{{count}} acara aktif ditemui",
+    "eventFound": "{{count}} acara sedia diimport",
+    "eventsFound": "{{count}} acara sedia diimport",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} pembatalan akan diselaraskan",
-    "cancellations": "{{count}} pembatalan akan diselaraskan",
+    "cancellation": "{{count}} acara dibatalkan oleh konvensyen",
+    "cancellations": "{{count}} acara dibatalkan oleh konvensyen",
     "emptyUpdateTitle": "Tiada Acara Aktif",
     "emptyUpdateMessage": "Anda akan menyemak jumlah tepat yang dialih keluar sebelum apa-apa berubah.",
     "categories": "Kategori",
-    "categoryEvent": "{{name}}, {{count}} acara",
-    "categoryEvents": "{{name}}, {{count}} acara",
+    "categoryEvent": "{{name}} · {{count}} acara",
+    "categoryEvents": "{{name}} · {{count}} acara",
     "importEvent": "Import {{count}} Acara",
     "importEvents": "Import {{count}} Acara",
     "importing": "Mengimport...",
@@ -313,7 +313,8 @@
       "ics": "Fail .ics ialah eksport kalendar piawai. Konvensyen sering memautkannya sebagai \"Tambah ke kalendar\" atau \"Suapan kalendar\" — pautan webcal:// juga berfungsi.",
       "askTitle": "Tidak jumpa kedua-duanya?",
       "ask": "Semak laman web atau aplikasi konvensyen untuk pautan jadual, atau tanya media sosial mereka format apa yang diterbitkan."
-    }
+    },
+    "previewFooter": "Tiada apa-apa disimpan sehingga anda ketik Import."
   },
   "onboarding": {
     "progress": "Langkah {{step}} daripada {{total}}",

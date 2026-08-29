@@ -245,19 +245,19 @@
     "couldNotLoad": "Nie udało się wczytać harmonogramu",
     "importedConvention": "Zaimportowany konwent",
     "preview": "Podgląd",
-    "eventFound": "Znaleziono {{count}} aktywne wydarzenie",
-    "eventsFound": "Liczba znalezionych aktywnych wydarzeń: {{count}}",
+    "eventFound": "{{count}} wydarzenie gotowe do zaimportowania",
+    "eventsFound": "Wydarzeń gotowych do zaimportowania: {{count}}",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "Zostanie uzgodnione {{count}} anulowanie",
-    "cancellations": "Liczba anulowań do uzgodnienia: {{count}}",
+    "cancellation": "Organizator odwołał {{count}} wydarzenie",
+    "cancellations": "Organizator odwołał wydarzeń: {{count}}",
     "emptyUpdateTitle": "Brak aktywnych wydarzeń",
     "emptyUpdateMessage": "Przed wprowadzeniem zmian sprawdzisz dokładną liczbę usuwanych wydarzeń.",
     "categories": "Kategorie",
-    "categoryEvent": "{{name}}, {{count}} wydarzenie",
-    "categoryEvents": "{{name}}, wydarzenia: {{count}}",
+    "categoryEvent": "{{name}} · {{count}} wydarzenie",
+    "categoryEvents": "{{name}} · {{count}}",
     "importEvent": "Importuj {{count}} wydarzenie",
     "importEvents": "Importuj wydarzenia ({{count}})",
     "importing": "Importowanie...",
@@ -313,7 +313,8 @@
       "ics": "Plik .ics to standardowy eksport kalendarza. Konwenty często podają go jako „Dodaj do kalendarza” lub „Kanał kalendarza” — linki webcal:// też działają.",
       "askTitle": "Nie możesz znaleźć żadnego?",
       "ask": "Poszukaj linku do planu na stronie lub w aplikacji konwentu, albo zapytaj w ich mediach społecznościowych, w jakim formacie publikują."
-    }
+    },
+    "previewFooter": "Nic nie zostanie zapisane, dopóki nie dotkniesz Importuj."
   },
   "onboarding": {
     "progress": "Krok {{step}} z {{total}}",

@@ -245,19 +245,19 @@
     "couldNotLoad": "Не вдалося завантажити розклад",
     "importedConvention": "Імпортований конвент",
     "preview": "Попередній перегляд",
-    "eventFound": "Знайдено активних подій: {{count}}",
-    "eventsFound": "Знайдено активних подій: {{count}}",
+    "eventFound": "{{count}} подія готова до імпорту",
+    "eventsFound": "Подій готово до імпорту: {{count}}",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "Буде узгоджено скасувань: {{count}}",
-    "cancellations": "Буде узгоджено скасувань: {{count}}",
+    "cancellation": "Організатори скасували {{count}} подію",
+    "cancellations": "Організатори скасували подій: {{count}}",
     "emptyUpdateTitle": "Немає активних подій",
     "emptyUpdateMessage": "Перш ніж щось зміниться, ви побачите точну кількість вилучень.",
     "categories": "Категорії",
-    "categoryEvent": "{{name}}, подій: {{count}}",
-    "categoryEvents": "{{name}}, подій: {{count}}",
+    "categoryEvent": "{{name}} · {{count}} подія",
+    "categoryEvents": "{{name}} · {{count}}",
     "importEvent": "Імпортувати подій: {{count}}",
     "importEvents": "Імпортувати подій: {{count}}",
     "importing": "Імпортування...",
@@ -313,7 +313,8 @@
       "ics": "Файл .ics — це стандартний експорт календаря. Конвенти часто дають на нього посилання «Додати в календар» або «Стрічка календаря» — посилання webcal:// теж працюють.",
       "askTitle": "Не знайшли ні того, ні іншого?",
       "ask": "Пошукайте посилання на розклад на сайті чи в застосунку конвенту або запитайте в їхніх соцмережах, у якому форматі вони його публікують."
-    }
+    },
+    "previewFooter": "Нічого не збережеться, доки ви не натиснете «Імпортувати»."
   },
   "onboarding": {
     "progress": "Крок {{step}} із {{total}}",

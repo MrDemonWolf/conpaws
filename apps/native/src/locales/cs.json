@@ -245,19 +245,19 @@
     "couldNotLoad": "Program se nepodařilo načíst",
     "importedConvention": "Importovaný con",
     "preview": "Náhled",
-    "eventFound": "Nalezena {{count}} aktivní událost",
-    "eventsFound": "Nalezeno aktivních událostí: {{count}}",
+    "eventFound": "{{count}} akce připravena k importu",
+    "eventsFound": "Akcí připravených k importu: {{count}}",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "Bude sladěno {{count}} zrušení",
-    "cancellations": "Bude sladěno zrušení: {{count}}",
+    "cancellation": "{{count}} akci zrušil pořadatel",
+    "cancellations": "Pořadatel zrušil akcí: {{count}}",
     "emptyUpdateTitle": "Žádné aktivní události",
     "emptyUpdateMessage": "Než se cokoli změní, uvidíte přesný počet odebraných událostí.",
     "categories": "Kategorie",
-    "categoryEvent": "{{name}}, {{count}} událost",
-    "categoryEvents": "{{name}}, události: {{count}}",
+    "categoryEvent": "{{name}} · {{count}} akce",
+    "categoryEvents": "{{name}} · {{count}}",
     "importEvent": "Importovat {{count}} událost",
     "importEvents": "Importovat události: {{count}}",
     "importing": "Importování...",
@@ -313,7 +313,8 @@
       "ics": "Soubor .ics je standardní export kalendáře. Cony ho často nabízejí jako „Přidat do kalendáře“ nebo „Kalendářový kanál“ — fungují i odkazy webcal://.",
       "askTitle": "Nemůžete najít ani jedno?",
       "ask": "Hledejte odkaz na program na webu nebo v aplikaci conu, případně se zeptejte na jejich sociálních sítích, v jakém formátu program zveřejňují."
-    }
+    },
+    "previewFooter": "Nic se neuloží, dokud neklepneš na Importovat."
   },
   "onboarding": {
     "progress": "Krok {{step}} z {{total}}",

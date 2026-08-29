@@ -245,19 +245,19 @@
     "couldNotLoad": "No se pudo cargar el horario",
     "importedConvention": "Convención importada",
     "preview": "Vista previa",
-    "eventFound": "Se encontró {{count}} evento activo",
-    "eventsFound": "Se encontraron {{count}} eventos activos",
+    "eventFound": "{{count}} evento listo para importar",
+    "eventsFound": "{{count}} eventos listos para importar",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "Se conciliará {{count}} cancelación",
-    "cancellations": "Se conciliarán {{count}} cancelaciones",
+    "cancellation": "La convención ha cancelado {{count}} evento",
+    "cancellations": "La convención ha cancelado {{count}} eventos",
     "emptyUpdateTitle": "No hay eventos activos",
     "emptyUpdateMessage": "Revisarás la cantidad exacta de eliminaciones antes de que cambie nada.",
     "categories": "Categorías",
-    "categoryEvent": "{{name}}, {{count}} evento",
-    "categoryEvents": "{{name}}, {{count}} eventos",
+    "categoryEvent": "{{name}} · {{count}} evento",
+    "categoryEvents": "{{name}} · {{count}} eventos",
     "importEvent": "Importar {{count}} evento",
     "importEvents": "Importar {{count}} eventos",
     "importing": "Importando...",
@@ -313,7 +313,8 @@
       "ics": "Un archivo .ics es una exportación de calendario estándar. Las convenciones suelen enlazarlo como «Añadir al calendario» o «Feed de calendario»; los enlaces webcal:// también funcionan.",
       "askTitle": "¿No encuentras ninguno?",
       "ask": "Busca un enlace al programa en el sitio web o la app de la convención, o pregunta en sus redes sociales qué formato publican."
-    }
+    },
+    "previewFooter": "No se guarda nada hasta que toques Importar."
   },
   "onboarding": {
     "progress": "Paso {{step}} de {{total}}",

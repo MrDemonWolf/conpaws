@@ -245,19 +245,19 @@
     "couldNotLoad": "Zeitplan konnte nicht geladen werden",
     "importedConvention": "Importierte Convention",
     "preview": "Vorschau",
-    "eventFound": "{{count}} aktives Event gefunden",
-    "eventsFound": "{{count}} aktive Events gefunden",
+    "eventFound": "{{count}} Programmpunkt bereit zum Import",
+    "eventsFound": "{{count}} Programmpunkte bereit zum Import",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} Absage wird abgeglichen",
-    "cancellations": "{{count}} Absagen werden abgeglichen",
+    "cancellation": "{{count}} Programmpunkt wurde von der Convention abgesagt",
+    "cancellations": "{{count}} Programmpunkte wurden von der Convention abgesagt",
     "emptyUpdateTitle": "Keine aktiven Events",
     "emptyUpdateMessage": "Du prüfst die genaue Anzahl der Löschungen, bevor etwas geändert wird.",
     "categories": "Kategorien",
-    "categoryEvent": "{{name}}, {{count}} Event",
-    "categoryEvents": "{{name}}, {{count}} Events",
+    "categoryEvent": "{{name}} · {{count}} Programmpunkt",
+    "categoryEvents": "{{name}} · {{count}} Programmpunkte",
     "importEvent": "{{count}} Event importieren",
     "importEvents": "{{count}} Events importieren",
     "importing": "Importieren...",
@@ -313,7 +313,8 @@
       "ics": "Eine .ics-Datei ist ein Standard-Kalenderexport. Conventions verlinken sie oft als „Zum Kalender hinzufügen“ oder „Kalender-Feed“ – webcal://-Links funktionieren auch.",
       "askTitle": "Beides nicht auffindbar?",
       "ask": "Suche auf der Website oder in der App der Convention nach einem Zeitplan-Link oder frage in ihren sozialen Medien nach dem Format."
-    }
+    },
+    "previewFooter": "Es wird nichts gespeichert, bis du auf Importieren tippst."
   },
   "onboarding": {
     "progress": "Schritt {{step}} von {{total}}",

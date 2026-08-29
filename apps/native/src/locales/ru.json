@@ -245,19 +245,19 @@
     "couldNotLoad": "Не удалось загрузить расписание",
     "importedConvention": "Импортированный конвент",
     "preview": "Предпросмотр",
-    "eventFound": "Найдено активных событий: {{count}}",
-    "eventsFound": "Найдено активных событий: {{count}}",
+    "eventFound": "{{count}} событие готово к импорту",
+    "eventsFound": "Событий готово к импорту: {{count}}",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "Будет учтено отмен: {{count}}",
-    "cancellations": "Будет учтено отмен: {{count}}",
+    "cancellation": "Организаторы отменили {{count}} событие",
+    "cancellations": "Организаторы отменили событий: {{count}}",
     "emptyUpdateTitle": "Нет активных событий",
     "emptyUpdateMessage": "Прежде чем что-то изменится, вы увидите точное число удалений.",
     "categories": "Категории",
-    "categoryEvent": "{{name}}, событий: {{count}}",
-    "categoryEvents": "{{name}}, событий: {{count}}",
+    "categoryEvent": "{{name}} · {{count}} событие",
+    "categoryEvents": "{{name}} · {{count}}",
     "importEvent": "Импортировать событий: {{count}}",
     "importEvents": "Импортировать событий: {{count}}",
     "importing": "Импорт...",
@@ -313,7 +313,8 @@
       "ics": "Файл .ics — это стандартный экспорт календаря. Конвенты часто дают на него ссылку «Добавить в календарь» или «Лента календаря» — ссылки webcal:// тоже подойдут.",
       "askTitle": "Не нашли ни того, ни другого?",
       "ask": "Поищите ссылку на расписание на сайте или в приложении конвента либо спросите в их соцсетях, в каком формате они его публикуют."
-    }
+    },
+    "previewFooter": "Ничего не сохранится, пока вы не нажмёте «Импорт»."
   },
   "onboarding": {
     "progress": "Шаг {{step}} из {{total}}",

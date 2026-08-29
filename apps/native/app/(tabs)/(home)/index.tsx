@@ -35,6 +35,7 @@ import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
+import { clearScheduleRefreshState } from "@/lib/schedule-refresh-storage";
 import { cancelConventionReminders } from "@/services/notifications";
 
 const EMPTY_ICON = Icon.select({
@@ -165,6 +166,10 @@ export default function HomeScreen() {
         .invalidateQueries({ queryKey: ["conventions"] })
         .catch(() => undefined);
       await cancelConventionReminders(eventIds);
+      // The feed bookkeeping is keyed by convention id, so without this a
+      // deleted convention leaves its "last checked" behind for a future id
+      // to inherit.
+      await clearScheduleRefreshState(id);
       AccessibilityInfo.announceForAccessibility(
         t("home.delete.success", { name }),
       );

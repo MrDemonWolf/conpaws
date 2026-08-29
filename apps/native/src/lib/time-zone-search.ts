@@ -114,7 +114,56 @@ export function buildTimeZoneOptions(
  * identifier in UI — `America/Argentina/Buenos_Aires` means nothing to a
  * convention-goer.
  */
+/**
+ * The current GMT offset for a zone, as "GMT-5".
+ *
+ * Cached because the time-zone picker renders a few hundred rows and building
+ * an `Intl.DateTimeFormat` per row per render is not free.
+ */
+const offsetCache = new Map<string, string>();
+
+function timeZoneOffset(id: string): string | null {
+  const cached = offsetCache.get(id);
+  if (cached !== undefined) return cached;
+
+  let offset: string | null = null;
+  try {
+    const part = new Intl.DateTimeFormat("en-US", {
+      timeZone: id,
+      timeZoneName: "shortOffset",
+    })
+      .formatToParts(new Date())
+      .find((candidate) => candidate.type === "timeZoneName");
+    // A zero-offset zone formats as a bare "GMT", which says nothing next to
+    // a city name and is dropped.
+    offset = part && part.value !== "GMT" ? part.value : null;
+  } catch {
+    // An id this runtime does not know. The city alone still identifies it.
+    offset = null;
+  }
+
+  offsetCache.set(id, offset ?? "");
+  return offset;
+}
+
+/**
+ * A time zone as a person would read it: the city, and what the clock there
+ * says relative to GMT.
+ *
+ * The region segment of an IANA id is deliberately not shown. "America" in
+ * `America/Chicago` is a tz-database realm, not a country, so pairing them
+ * produced "Chicago, America" — a place that does not exist and that reads as
+ * a bug to anyone checking whether the app guessed their convention right.
+ * The offset does the disambiguating work instead, and does it better: it is
+ * the thing the reader is actually verifying.
+ *
+ * ponytail: the offset is today's, so it reflects daylight saving as it stands
+ * now rather than during a convention six months out. It is a label, never a
+ * calculation — every stored time is an instant, and `convention-time.ts` owns
+ * the arithmetic.
+ */
 export function timeZoneLabel(id: string): string {
-  const { city, region } = describeTimeZone(id);
-  return region ? `${city}, ${region.split(SEGMENT_SEPARATOR)[0]}` : city;
+  const { city } = describeTimeZone(id);
+  const offset = timeZoneOffset(id);
+  return offset ? `${city} · ${offset}` : city;
 }
