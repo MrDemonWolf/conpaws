@@ -35,7 +35,10 @@ import {
   parseIcs,
   UnsupportedRecurrenceError,
 } from "@/lib/ical-parser";
-import { canApplyScheduleImport } from "@/lib/import-policy";
+import {
+  canApplyScheduleImport,
+  parseIcsPreferringFeedTimeZone,
+} from "@/lib/import-policy";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
@@ -212,15 +215,15 @@ export default function ImportScreen() {
   function processIcs(
     icsContent: string,
     name: string,
-    selectedTimeZone?: string,
+    fallbackTimeZone?: string,
     sourceUrl: string | null = null,
   ) {
     let result: ReturnType<typeof parseIcs>;
     try {
-      result = parseIcs(
-        icsContent,
-        selectedTimeZone ? { timeZone: selectedTimeZone } : undefined,
-      );
+      // Fallback, not override: the calendar's own zone has to win, or a
+      // convention whose saved zone differs from its feed's gets every event
+      // retimed. See parseIcsPreferringFeedTimeZone.
+      result = parseIcsPreferringFeedTimeZone(icsContent, fallbackTimeZone);
     } catch (parseError) {
       setPreview(null);
       setPendingCalendar(null);
@@ -238,7 +241,7 @@ export default function ImportScreen() {
 
     if (result.requiresTimeZone) {
       setPendingCalendar({ name, icsContent, sourceUrl });
-      setTimeZoneValue(selectedTimeZone ?? "");
+      setTimeZoneValue(fallbackTimeZone ?? "");
       setError({
         type: "timezone",
         message: t("import.timeZone.requiredMessage"),
@@ -277,7 +280,7 @@ export default function ImportScreen() {
     });
     setPendingCalendar(null);
     setTimeZoneValue(
-      result.timezone ?? selectedTimeZone ?? storedTimeZone ?? "",
+      result.timezone ?? fallbackTimeZone ?? storedTimeZone ?? "",
     );
   }
 
