@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  eventEndDayOffset,
   formatConventionDate,
   formatDayKeyLabel,
   formatEventDayLabel,
+  formatEventEndDateTime,
+  formatEventEndTime,
   formatEventTime,
   scheduleFormatter,
 } from "./event-time-format";
@@ -118,5 +121,140 @@ describe("hour cycle", () => {
   it("leaves the locale's own convention alone when the device has no opinion", () => {
     const german = formatEventTime(NOON_THIRTY, "America/Chicago", "de");
     expect(german).not.toMatch(/AM|PM/);
+  });
+});
+
+/**
+ * IndyFurCon 2025's "Tabletop Gaming" — DTSTART 2025-08-14T22:00:00Z,
+ * DTEND 2025-08-17T21:00:00Z — used to render "10:00 PM" over "9:00 PM",
+ * which reads as ending three hours before it starts.
+ */
+const CON_ZONE = "America/Indiana/Indianapolis";
+const TABLETOP_START = "2025-08-14T22:00:00.000Z";
+const TABLETOP_END = "2025-08-17T21:00:00.000Z";
+
+describe("eventEndDayOffset", () => {
+  it("is zero for an event that ends the same convention day", () => {
+    expect(
+      eventEndDayOffset(
+        "2025-08-14T18:00:00.000Z",
+        "2025-08-14T20:00:00.000Z",
+        CON_ZONE,
+      ),
+    ).toBe(0);
+  });
+
+  it("is one for an event that crosses midnight", () => {
+    // 8 PM to 1 AM Eastern: four hours, but two calendar days.
+    expect(
+      eventEndDayOffset(
+        "2025-08-15T00:00:00.000Z",
+        "2025-08-15T05:00:00.000Z",
+        CON_ZONE,
+      ),
+    ).toBe(1);
+  });
+
+  it("counts whole days, not elapsed hours", () => {
+    expect(eventEndDayOffset(TABLETOP_START, TABLETOP_END, CON_ZONE)).toBe(3);
+  });
+
+  // The convention zone decides the boundary, not the device or UTC: this
+  // event is the 15th in Indianapolis but already the 16th in UTC.
+  it("uses the convention zone to place the boundary", () => {
+    const start = "2025-08-16T01:00:00.000Z";
+    const end = "2025-08-16T03:00:00.000Z";
+
+    expect(eventEndDayOffset(start, end, CON_ZONE)).toBe(0);
+    expect(eventEndDayOffset(start, end, "UTC")).toBe(0);
+    expect(eventEndDayOffset("2025-08-15T23:00:00.000Z", end, "UTC")).toBe(1);
+  });
+
+  it("is zero without a usable end", () => {
+    expect(eventEndDayOffset(TABLETOP_START, null, CON_ZONE)).toBe(0);
+    expect(eventEndDayOffset(TABLETOP_START, "not a date", CON_ZONE)).toBe(0);
+    expect(eventEndDayOffset("not a date", TABLETOP_END, CON_ZONE)).toBe(0);
+  });
+});
+
+describe("formatEventEndTime", () => {
+  it("is a bare clock time when the event ends the same day", () => {
+    expect(
+      formatEventEndTime(
+        "2025-08-14T18:00:00.000Z",
+        "2025-08-14T20:00:00.000Z",
+        CON_ZONE,
+        "en",
+        true,
+      ),
+    ).toBe("4:00 PM");
+  });
+
+  it("names the weekday when the event ends the next day", () => {
+    expect(
+      formatEventEndTime(
+        "2025-08-15T00:00:00.000Z",
+        "2025-08-15T05:00:00.000Z",
+        CON_ZONE,
+        "en",
+        true,
+      ),
+    ).toBe("Fri 1:00 AM");
+  });
+
+  it("names the weekday for a multi-day event", () => {
+    expect(
+      formatEventEndTime(TABLETOP_START, TABLETOP_END, CON_ZONE, "en", true),
+    ).toBe("Sun 5:00 PM");
+  });
+
+  it("returns an empty string without an end", () => {
+    expect(formatEventEndTime(TABLETOP_START, null, CON_ZONE, "en")).toBe("");
+    expect(
+      formatEventEndTime(TABLETOP_START, "not a date", CON_ZONE, "en"),
+    ).toBe("");
+  });
+
+  it("respects the device clock preference", () => {
+    expect(
+      formatEventEndTime(TABLETOP_START, TABLETOP_END, CON_ZONE, "en", false),
+    ).toBe("Sun 17:00");
+  });
+});
+
+describe("formatEventEndDateTime", () => {
+  it("stays a clock time when the sheet already printed that date", () => {
+    expect(
+      formatEventEndDateTime(
+        "2025-08-14T18:00:00.000Z",
+        "2025-08-14T20:00:00.000Z",
+        CON_ZONE,
+        "en",
+        true,
+      ),
+    ).toBe("4:00 PM");
+  });
+
+  it("spells out the date when the event ends on another day", () => {
+    const label = formatEventEndDateTime(
+      TABLETOP_START,
+      TABLETOP_END,
+      CON_ZONE,
+      "en",
+      true,
+    );
+
+    expect(label).toContain("August 17, 2025");
+    expect(label).toContain("5:00 PM");
+    expect(label).toContain("Sunday");
+  });
+
+  it("returns an empty string without an end", () => {
+    expect(formatEventEndDateTime(TABLETOP_START, null, CON_ZONE, "en")).toBe(
+      "",
+    );
+    expect(
+      formatEventEndDateTime(TABLETOP_START, "not a date", CON_ZONE, "en"),
+    ).toBe("");
   });
 });

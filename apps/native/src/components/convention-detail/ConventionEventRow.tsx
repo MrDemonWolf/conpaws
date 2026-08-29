@@ -5,7 +5,7 @@ import { EventItem } from "@/components/EventItem";
 import type { ConventionEvent } from "@/db/schema";
 import type { ClusterPosition } from "@/lib/day-band";
 import { getEventIndicators } from "@/lib/event-indicators";
-import { formatEventTime } from "@/lib/event-time-format";
+import { formatEventEndTime, formatEventTime } from "@/lib/event-time-format";
 import { hapticLongPress, hapticTap } from "@/services/haptics";
 
 export function getEventIndicatorLabels(
@@ -72,7 +72,13 @@ export const ConventionEventRow = memo(function ConventionEventRow({
       className={className}
       title={event.title}
       startTime={formatEventTime(event.startTime, timeZone, locale, hour12)}
-      endTime={formatEventTime(event.endTime, timeZone, locale, hour12)}
+      endTime={formatEventEndTime(
+        event.startTime,
+        event.endTime,
+        timeZone,
+        locale,
+        hour12,
+      )}
       room={event.room ?? event.location ?? undefined}
       category={event.category ?? undefined}
       description={event.description}
