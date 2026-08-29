@@ -228,6 +228,10 @@
     "preview": "미리보기",
     "eventFound": "유효한 이벤트 {{count}}개를 찾았어요",
     "eventsFound": "유효한 이벤트 {{count}}개를 찾았어요",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "취소 {{count}}건이 반영될 예정이에요",
     "cancellations": "취소 {{count}}건이 반영될 예정이에요",
     "emptyUpdateTitle": "유효한 이벤트가 없어요",

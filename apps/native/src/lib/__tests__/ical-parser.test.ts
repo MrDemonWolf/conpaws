@@ -226,6 +226,77 @@ END:VCALENDAR`;
     expect(opening.location).toBe("Convention Center");
   });
 
+  describe("location separators", () => {
+    function locationOf(raw: string) {
+      const result = parseIcs(
+        [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "X-WR-TIMEZONE:UTC",
+          "BEGIN:VEVENT",
+          "UID:loc-001",
+          "DTSTART:20260612T170000Z",
+          "DTEND:20260612T180000Z",
+          "SUMMARY:Location Probe",
+          `LOCATION:${raw}`,
+          "END:VEVENT",
+          "END:VCALENDAR",
+        ].join("\r\n"),
+      );
+      const event = result.events[0];
+      return { location: event.location, room: event.room };
+    }
+
+    it("splits a spaced en-dash into area and room", () => {
+      expect(locationOf("Secondary Events \u2013 Harbor Ballroom E-F")).toEqual(
+        {
+          location: "Secondary Events",
+          room: "Harbor Ballroom E-F",
+        },
+      );
+    });
+
+    it("splits a spaced em-dash the same way", () => {
+      expect(locationOf("Tabletop \u2014 Vision")).toEqual({
+        location: "Tabletop",
+        room: "Vision",
+      });
+    });
+
+    it("leaves a hyphenated room range alone", () => {
+      // No spaces around the hyphen, so this is one room name, not a split.
+      expect(locationOf("Harbor Ballroom A-D")).toEqual({
+        location: "Harbor Ballroom A-D",
+        room: null,
+      });
+    });
+
+    it("prefers the comma when a location has both", () => {
+      expect(
+        locationOf(
+          "Main Events \u2013 Harbor Ballroom G, Riverside Grand Hotel",
+        ),
+      ).toEqual({
+        location: "Riverside Grand Hotel",
+        room: "Main Events \u2013 Harbor Ballroom G",
+      });
+    });
+
+    it("keeps a bare single-name location as the location", () => {
+      expect(locationOf("Around the con")).toEqual({
+        location: "Around the con",
+        room: null,
+      });
+    });
+
+    it("ignores a dash with nothing on one side of it", () => {
+      expect(locationOf("\u2013 Studio Five")).toEqual({
+        location: "\u2013 Studio Five",
+        room: null,
+      });
+    });
+  });
+
   it("deduplicates categories and assigns colors", () => {
     const result = parseIcs(loadSmallIcs());
     // CONVENTION SERVICES appears for opening and closing (2 events)

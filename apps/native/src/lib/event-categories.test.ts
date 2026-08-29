@@ -24,12 +24,26 @@ describe("splitCategories", () => {
 });
 
 describe("ageRatingFromCategory", () => {
-  // Exactly the values IndyFurCon's calendar feed emits.
+  // Exactly the values a ticketing export's calendar feed emits.
   it("reads the ratings the real feed uses", () => {
     expect(ageRatingFromCategory("General (All Ages)")).toBe("all-ages");
     expect(ageRatingFromCategory("13+ Teen")).toBe("teen");
     expect(ageRatingFromCategory("Mature 17+")).toBe("mature");
     expect(ageRatingFromCategory("Adult 18+")).toBe("adult");
+  });
+
+  it("reads the bare 'Age <n>' tags a ticketing export emits", () => {
+    // No plus sign and no keyword, so none of the other checks catch these.
+    expect(ageRatingFromCategory("Age all")).toBe("all-ages");
+    expect(ageRatingFromCategory("Age 13")).toBe("teen");
+    expect(ageRatingFromCategory("Age 17")).toBe("mature");
+    expect(ageRatingFromCategory("Age 18")).toBe("adult");
+    expect(ageRatingFromCategory("AGE ALL")).toBe("all-ages");
+  });
+
+  it("leaves a topic that merely starts with 'Age' alone", () => {
+    expect(ageRatingFromCategory("Age of Sail")).toBeNull();
+    expect(ageRatingFromCategory("Ageless Crafts")).toBeNull();
   });
 
   it("prefers the number over the word so 'Mature 17+' is not misread", () => {

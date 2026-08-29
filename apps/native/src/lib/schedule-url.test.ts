@@ -9,12 +9,12 @@ import {
 describe("resolveScheduleUrl", () => {
   it("rewrites a webcal link to https and keeps the query string", () => {
     const resolved = resolveScheduleUrl(
-      "webcal://indyfurcon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
+      "webcal://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
     );
 
     expect(resolved.kind).toBe("ics");
     expect(resolved.fetchUrl).toBe(
-      "https://indyfurcon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
+      "https://examplecon.org/?post_type=tribe_events&ical=1&eventDisplay=list",
     );
   });
 
@@ -26,17 +26,17 @@ describe("resolveScheduleUrl", () => {
 
   it("turns any page on a Sched site into the full schedule feed", () => {
     for (const input of [
-      "https://indyfurcon2025.sched.com",
-      "https://indyfurcon2025.sched.com/",
-      "https://indyfurcon2025.sched.com/event/abc123",
-      "  https://IndyFurCon2025.sched.com/directory/speakers  ",
+      "https://examplecon2025.sched.com",
+      "https://examplecon2025.sched.com/",
+      "https://examplecon2025.sched.com/event/abc123",
+      "  https://ExampleCon2025.sched.com/directory/speakers  ",
     ]) {
       const resolved = resolveScheduleUrl(input);
       expect(resolved.kind).toBe("sched");
       expect(resolved.fetchUrl).toBe(
-        "https://indyfurcon2025.sched.com/all.ics",
+        "https://examplecon2025.sched.com/all.ics",
       );
-      expect(resolved.canonicalUrl).toBe("https://indyfurcon2025.sched.com");
+      expect(resolved.canonicalUrl).toBe("https://examplecon2025.sched.com");
     }
   });
 
@@ -70,7 +70,7 @@ describe("resolveScheduleUrl", () => {
   it("rejects empty input and bare hostnames rather than guessing", () => {
     expect(() => resolveScheduleUrl("")).toThrow(InvalidScheduleUrlError);
     expect(() => resolveScheduleUrl("   ")).toThrow(InvalidScheduleUrlError);
-    expect(() => resolveScheduleUrl("indyfurcon.org")).toThrow(
+    expect(() => resolveScheduleUrl("examplecon.org")).toThrow(
       InvalidScheduleUrlError,
     );
   });
@@ -102,13 +102,13 @@ describe("looksLikeCalendar", () => {
 describe("scheduleNameFromUrl", () => {
   it("uses the Sched subdomain as the convention name", () => {
     expect(
-      scheduleNameFromUrl("https://indyfurcon2025.sched.com/all.ics"),
-    ).toBe("indyfurcon2025");
+      scheduleNameFromUrl("https://examplecon2025.sched.com/all.ics"),
+    ).toBe("examplecon2025");
   });
 
   it("falls back to the bare host for other feeds", () => {
-    expect(scheduleNameFromUrl("https://www.indyfurcon.org/?ical=1")).toBe(
-      "indyfurcon.org",
+    expect(scheduleNameFromUrl("https://www.examplecon.org/?ical=1")).toBe(
+      "examplecon.org",
     );
   });
 

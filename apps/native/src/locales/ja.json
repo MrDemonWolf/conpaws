@@ -228,6 +228,10 @@
     "preview": "プレビュー",
     "eventFound": "{{count}}件の有効なイベントが見つかりました",
     "eventsFound": "{{count}}件の有効なイベントが見つかりました",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}}件のキャンセルが反映されます",
     "cancellations": "{{count}}件のキャンセルが反映されます",
     "emptyUpdateTitle": "有効なイベントがありません",

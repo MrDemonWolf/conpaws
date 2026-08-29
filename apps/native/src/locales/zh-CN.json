@@ -228,6 +228,10 @@
     "preview": "预览",
     "eventFound": "找到 {{count}} 个有效活动",
     "eventsFound": "找到 {{count}} 个有效活动",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "将同步 {{count}} 项取消",
     "cancellations": "将同步 {{count}} 项取消",
     "emptyUpdateTitle": "没有有效活动",

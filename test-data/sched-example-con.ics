@@ -1,0 +1,2529 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-CALNAME:schedexamplecon
+X-WR-CALDESC:Event Calendar
+METHOD:PUBLISH
+CALSCALE:GREGORIAN
+PRODID:-//Sched.com Sched Example Con//EN
+X-WR-TIMEZONE:UTC
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T220000Z
+DTEND:20250817T210000Z
+SUMMARY:Cardboard Workshop
+DESCRIPTION:Bring a notebook and something to write with.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d2296563db930ac1c22064f743704a83
+URL:http://schedexamplecon.sched.com/event/d2296563db930ac1c22064f743704a83
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T230000Z
+DTEND:20250815T000000Z
+SUMMARY:Screen Printing Clinic
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Secondary Events - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e5c9671aaf2da88702fdd138d8d627f4
+URL:http://schedexamplecon.sched.com/event/e5c9671aaf2da88702fdd138d8d627f4
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T230000Z
+DTEND:20250815T020000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length.
+CATEGORIES:SOCIAL
+LOCATION:Tabletop Gaming - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7bdc2eb25e7d069216f970091b210e83
+URL:http://schedexamplecon.sched.com/event/7bdc2eb25e7d069216f970091b210e83
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T000000Z
+DTEND:20250815T010000Z
+SUMMARY:Ember Sing-Along
+DESCRIPTION:We start with a short demonstration and&nbsp\;then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:COSTUMING
+LOCATION:Video Gaming - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9d1d84e9b476be2d5897486789e0267b
+URL:http://schedexamplecon.sched.com/event/9d1d84e9b476be2d5897486789e0267b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T000000Z
+DTEND:20250815T010000Z
+SUMMARY:Screen Printing Tournament
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:73107b7240150f7e944183ec27b3e426
+URL:http://schedexamplecon.sched.com/event/73107b7240150f7e944183ec27b3e426
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T003000Z
+DTEND:20250815T040000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Artist Alley - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:303b9cf16d057aece5f48c028033d21a
+URL:http://schedexamplecon.sched.com/event/303b9cf16d057aece5f48c028033d21a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T010000Z
+DTEND:20250815T040000Z
+SUMMARY:Foxglove Playtest
+DESCRIPTION:Materials are shared so please be patient with the good scissors.
+CATEGORIES:MEET & GREET
+LOCATION:Headless Lounge - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:8d2fa68da6cad04fa0e8b3e7bff244ff
+URL:http://schedexamplecon.sched.com/event/8d2fa68da6cad04fa0e8b3e7bff244ff
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T010000Z
+DTEND:20250815T033000Z
+SUMMARY:Screen Printing Practice
+DESCRIPTION:Everything you need is provided at the table. Newcomers are welcome and&nbsp\;no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps.
+CATEGORIES:WRITING
+LOCATION:Night Market - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b684d8cb104074a093ab96c61283ee53
+URL:http://schedexamplecon.sched.com/event/b684d8cb104074a093ab96c61283ee53
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T013000Z
+DTEND:20250815T023000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with.
+CATEGORIES:GAMING
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bc9093d5921bd31c0ec849cb181a1065
+URL:http://schedexamplecon.sched.com/event/bc9093d5921bd31c0ec849cb181a1065
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T020000Z
+DTEND:20250815T060000Z
+SUMMARY:Beacon Practice
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:PRESENTATION
+LOCATION:Registration - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:db49d79e28b8586211d0ae47271e98dc
+URL:http://schedexamplecon.sched.com/event/db49d79e28b8586211d0ae47271e98dc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T023000Z
+DTEND:20250815T033000Z
+SUMMARY:Screen Printing Jam Session
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Main Events - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1422b7b900a87a5063c16292fb013281
+URL:http://schedexamplecon.sched.com/event/1422b7b900a87a5063c16292fb013281
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T030000Z
+DTEND:20250815T060000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and something to write with. Everything you need is provided at the table.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Secondary Events - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:cb8e6757eabcfe21b06fab3abde2fd6d
+URL:http://schedexamplecon.sched.com/event/cb8e6757eabcfe21b06fab3abde2fd6d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T030000Z
+DTEND:20250815T040000Z
+SUMMARY:Saltbox Story Circle
+DESCRIPTION:This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end. Bring a notebook and something to write with.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ea69666a591ef2f41c7636d23f4c80c2
+URL:http://schedexamplecon.sched.com/event/ea69666a591ef2f41c7636d23f4c80c2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T120000Z
+DTEND:20250816T000000Z
+SUMMARY:Screen Printing Screening
+DESCRIPTION:The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Video Gaming - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9b550eb4fe619aabe5c250cbf43dcb09
+URL:http://schedexamplecon.sched.com/event/9b550eb4fe619aabe5c250cbf43dcb09
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T123000Z
+DTEND:20250815T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice.
+CATEGORIES:SOCIAL
+LOCATION:Dealers Hall - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:28f98242b3bcc382c3e914a9db38af2a
+URL:http://schedexamplecon.sched.com/event/28f98242b3bcc382c3e914a9db38af2a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T130000Z
+DTEND:20250816T020000Z
+SUMMARY:Glasshouse Q&A
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with.
+CATEGORIES:COSTUMING
+LOCATION:Artist Alley - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6c8adeb5f4d635e72e2a6fc6cf225842
+URL:http://schedexamplecon.sched.com/event/6c8adeb5f4d635e72e2a6fc6cf225842
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T130000Z
+DTEND:20250815T220000Z
+SUMMARY:Screen Printing Social
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5e02a8ba4cdee1d592db2ceae24dd15e
+URL:http://schedexamplecon.sched.com/event/5e02a8ba4cdee1d592db2ceae24dd15e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T130000Z
+DTEND:20250815T140000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Night Market - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:12c07fb7b29f47112929da219cc90832
+URL:http://schedexamplecon.sched.com/event/12c07fb7b29f47112929da219cc90832
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T140000Z
+DTEND:20250816T010000Z
+SUMMARY:Northwind Meetup
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with. Everything you need is provided at the table.
+CATEGORIES:MEET & GREET
+LOCATION:Charity Desk - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:36f8d8cebc0b90456fb58b7901618bea
+URL:http://schedexamplecon.sched.com/event/36f8d8cebc0b90456fb58b7901618bea
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T140000Z
+DTEND:20250815T150000Z
+SUMMARY:Screen Printing Q&A
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table.
+CATEGORIES:WRITING
+LOCATION:Registration - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e6ae17ba7f4bff0c0548860ecaf7f0fa
+URL:http://schedexamplecon.sched.com/event/e6ae17ba7f4bff0c0548860ecaf7f0fa
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T140000Z
+DTEND:20250815T160000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e036c0432904bac91bb05c7b0742e9fd
+URL:http://schedexamplecon.sched.com/event/e036c0432904bac91bb05c7b0742e9fd
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T140000Z
+DTEND:20250815T150000Z
+SUMMARY:Meadow Panel
+DESCRIPTION:We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PRESENTATION
+LOCATION:Secondary Events - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c3254402ed40c357b263b9c1248db677
+URL:http://schedexamplecon.sched.com/event/c3254402ed40c357b263b9c1248db677
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T220000Z
+SUMMARY:Screen Printing Workshop
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Tabletop Gaming - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:edac6da44b4e361c0f87dee7f827ecd9
+URL:http://schedexamplecon.sched.com/event/edac6da44b4e361c0f87dee7f827ecd9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Video Gaming - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:39aac1854bb9b6c3832dbf032b7b73b1
+URL:http://schedexamplecon.sched.com/event/39aac1854bb9b6c3832dbf032b7b73b1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250816T020000Z
+SUMMARY:Cardboard Tournament
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7b03442b735c3596d6651f42da664f5f
+URL:http://schedexamplecon.sched.com/event/7b03442b735c3596d6651f42da664f5f
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T160000Z
+SUMMARY:Screen Printing Lab
+DESCRIPTION:Everything you need is provided at the table.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Artist Alley - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:4cf71cb92e8a2af0035c87de010e191d
+URL:http://schedexamplecon.sched.com/event/4cf71cb92e8a2af0035c87de010e191d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T160000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end.
+CATEGORIES:SOCIAL
+LOCATION:Headless Lounge - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c78b0b86318f112c4a706bfa4d38dfda
+URL:http://schedexamplecon.sched.com/event/c78b0b86318f112c4a706bfa4d38dfda
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T163000Z
+SUMMARY:Ember Walkthrough
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:COSTUMING
+LOCATION:Night Market - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:713eb62a07aeede66c6410be2a7d9dba
+URL:http://schedexamplecon.sched.com/event/713eb62a07aeede66c6410be2a7d9dba
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T153000Z
+SUMMARY:Screen Printing Demo Hour
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PERFORMANCE
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a59169c37bbcd927068ff4a54bffdadc
+URL:http://schedexamplecon.sched.com/event/a59169c37bbcd927068ff4a54bffdadc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T160000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and something to write with.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Registration - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b5b30054198cc0a62d1bede904eba619
+URL:http://schedexamplecon.sched.com/event/b5b30054198cc0a62d1bede904eba619
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T160000Z
+DTEND:20250815T220000Z
+SUMMARY:Foxglove Social
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:MEET & GREET
+LOCATION:Main Events - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:2b861c6b56906319ee4c2eef22d63a8c
+URL:http://schedexamplecon.sched.com/event/2b861c6b56906319ee4c2eef22d63a8c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T160000Z
+DTEND:20250815T200000Z
+SUMMARY:Screen Printing Panel
+DESCRIPTION:The first half is guided and the second half is open practice. Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length.
+CATEGORIES:WRITING
+LOCATION:Secondary Events - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3d6e5089d31f74e5fcca0a4cf5f336cd
+URL:http://schedexamplecon.sched.com/event/3d6e5089d31f74e5fcca0a4cf5f336cd
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T160000Z
+DTEND:20250815T180000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:425cd17045790ee825ed49ad05693143
+URL:http://schedexamplecon.sched.com/event/425cd17045790ee825ed49ad05693143
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T160000Z
+DTEND:20250815T220000Z
+SUMMARY:Beacon Sketch Swap
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end. Bring a notebook and something to write with. Everything you need is provided at the table. Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice.
+CATEGORIES:PRESENTATION
+LOCATION:Video Gaming - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f5bbe2351c1ce3eb731cd77014b81964
+URL:http://schedexamplecon.sched.com/event/f5bbe2351c1ce3eb731cd77014b81964
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T160000Z
+DTEND:20250815T170000Z
+SUMMARY:Screen Printing Playtest
+DESCRIPTION:We will finish with a short show and&nbsp\;tell for anyone who wants one. Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Dealers Hall - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f252585905a40aa10793f03880d635f5
+URL:http://schedexamplecon.sched.com/event/f252585905a40aa10793f03880d635f5
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T163000Z
+DTEND:20250815T173000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Artist Alley - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e08274ef68914107f203e2f59fda1d3b
+URL:http://schedexamplecon.sched.com/event/e08274ef68914107f203e2f59fda1d3b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T163000Z
+DTEND:20250815T173000Z
+SUMMARY:Saltbox Demo Hour
+DESCRIPTION:Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a1473e74fde1d10c19b99e705a9a9158
+URL:http://schedexamplecon.sched.com/event/a1473e74fde1d10c19b99e705a9a9158
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T163000Z
+DTEND:20250815T173000Z
+SUMMARY:Screen Printing Open Studio
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Night Market - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:91756559b77acaf77a78b849c7999465
+URL:http://schedexamplecon.sched.com/event/91756559b77acaf77a78b849c7999465
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T170000Z
+DTEND:20250815T200000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length.
+CATEGORIES:SOCIAL
+LOCATION:Charity Desk - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ce7a0fd5a3c1c2d9ea9d1b41965f2b05
+URL:http://schedexamplecon.sched.com/event/ce7a0fd5a3c1c2d9ea9d1b41965f2b05
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T170000Z
+DTEND:20250815T180000Z
+SUMMARY:Glasshouse Clinic
+DESCRIPTION:We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:COSTUMING
+LOCATION:Registration - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1c186c85a8193cca184e713620e50ead
+URL:http://schedexamplecon.sched.com/event/1c186c85a8193cca184e713620e50ead
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T170000Z
+DTEND:20250815T180000Z
+SUMMARY:Screen Printing Roundtable
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:PERFORMANCE
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d32557b7a6c44f0098a5c89b45dca144
+URL:http://schedexamplecon.sched.com/event/d32557b7a6c44f0098a5c89b45dca144
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T173000Z
+DTEND:20250815T183000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Secondary Events - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:169e1107d26ee29ec130dcffc361b0b1
+URL:http://schedexamplecon.sched.com/event/169e1107d26ee29ec130dcffc361b0b1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T180000Z
+DTEND:20250815T200000Z
+SUMMARY:Northwind Roundtable
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:MEET & GREET
+LOCATION:Tabletop Gaming - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:352caedfda09d215697b6db25ebef7bc
+URL:http://schedexamplecon.sched.com/event/352caedfda09d215697b6db25ebef7bc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T180000Z
+DTEND:20250815T200000Z
+SUMMARY:Screen Printing Walkthrough
+DESCRIPTION:Everything you need is provided at the table. Newcomers are welcome and no experience is assumed.
+CATEGORIES:WRITING
+LOCATION:Video Gaming - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a9bbbbb2fd2f7ec8253e209ce0801abe
+URL:http://schedexamplecon.sched.com/event/a9bbbbb2fd2f7ec8253e209ce0801abe
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T180000Z
+DTEND:20250815T190000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:GAMING
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:acd806470bf469090955a80f1ed2c086
+URL:http://schedexamplecon.sched.com/event/acd806470bf469090955a80f1ed2c086
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T180000Z
+DTEND:20250815T190000Z
+SUMMARY:Meadow Screening
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PRESENTATION
+LOCATION:Artist Alley - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a60fc89229af00bb5076a46ab93871b8
+URL:http://schedexamplecon.sched.com/event/a60fc89229af00bb5076a46ab93871b8
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T183000Z
+DTEND:20250815T200000Z
+SUMMARY:Screen Printing Story Circle
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Headless Lounge - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ab4d7a197cb72655572e18784ab69f7d
+URL:http://schedexamplecon.sched.com/event/ab4d7a197cb72655572e18784ab69f7d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T183000Z
+DTEND:20250815T193000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Night Market - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:fe01ddda797d618672eca6c1433596bf
+URL:http://schedexamplecon.sched.com/event/fe01ddda797d618672eca6c1433596bf
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T190000Z
+DTEND:20250815T203000Z
+SUMMARY:Cardboard Critique
+DESCRIPTION:This runs long so plan your schedule around it.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:11b994a03fecddb4a3908766d11cc29d
+URL:http://schedexamplecon.sched.com/event/11b994a03fecddb4a3908766d11cc29d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T190000Z
+DTEND:20250815T200000Z
+SUMMARY:Screen Printing Showcase
+DESCRIPTION:The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Registration - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f1a5c875052882efdf56249682cd5e17
+URL:http://schedexamplecon.sched.com/event/f1a5c875052882efdf56249682cd5e17
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T193000Z
+DTEND:20250815T203000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and&nbsp\;no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:SOCIAL
+LOCATION:Main Events - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ed53c44767395ea0f3045f5eef602b1c
+URL:http://schedexamplecon.sched.com/event/ed53c44767395ea0f3045f5eef602b1c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T200000Z
+DTEND:20250816T000000Z
+SUMMARY:Ember Lab
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end. Bring a notebook and something to write with. Everything you need is provided at the table. Newcomers are welcome and no experience is assumed.
+CATEGORIES:COSTUMING
+LOCATION:Secondary Events - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:589ffd19a08457fa1a0117c2e196fafd
+URL:http://schedexamplecon.sched.com/event/589ffd19a08457fa1a0117c2e196fafd
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T200000Z
+DTEND:20250815T210000Z
+SUMMARY:Screen Printing Critique
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:abbf77486aea1bc06347138f324b14d9
+URL:http://schedexamplecon.sched.com/event/abbf77486aea1bc06347138f324b14d9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T200000Z
+DTEND:20250815T210000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Video Gaming - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:03536e0f46bb81418c4d8c9bcbf8265d
+URL:http://schedexamplecon.sched.com/event/03536e0f46bb81418c4d8c9bcbf8265d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T203000Z
+DTEND:20250815T220000Z
+SUMMARY:Foxglove Reading
+DESCRIPTION:Bring a notebook and something to write with.
+CATEGORIES:MEET & GREET
+LOCATION:Dealers Hall - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:488296dd4802ad7ee0463b92752d03ba
+URL:http://schedexamplecon.sched.com/event/488296dd4802ad7ee0463b92752d03ba
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T203000Z
+DTEND:20250815T233000Z
+SUMMARY:Screen Printing Sketch Swap
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy.
+CATEGORIES:WRITING
+LOCATION:Artist Alley - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b2d93a69d239f4b1084e2d7f0c44c265
+URL:http://schedexamplecon.sched.com/event/b2d93a69d239f4b1084e2d7f0c44c265
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T203000Z
+DTEND:20250816T000000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and&nbsp\;tell for anyone who wants one.
+CATEGORIES:GAMING
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:31996ea3f2e9dee4bd0022d1d6ddc221
+URL:http://schedexamplecon.sched.com/event/31996ea3f2e9dee4bd0022d1d6ddc221
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T203000Z
+DTEND:20250815T220000Z
+SUMMARY:Beacon Open Studio
+DESCRIPTION:We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PRESENTATION
+LOCATION:Night Market - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:15c0ea545b0bf142f4760fc7bd6caea2
+URL:http://schedexamplecon.sched.com/event/15c0ea545b0bf142f4760fc7bd6caea2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T203000Z
+DTEND:20250815T213000Z
+SUMMARY:Screen Printing Meetup
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Charity Desk - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ce85c20d47acfefe8fbaf461d87f7a6b
+URL:http://schedexamplecon.sched.com/event/ce85c20d47acfefe8fbaf461d87f7a6b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T210000Z
+DTEND:20250816T000000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Registration - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:79aed52dc7892865b5fa005bba74d0fc
+URL:http://schedexamplecon.sched.com/event/79aed52dc7892865b5fa005bba74d0fc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T210000Z
+DTEND:20250815T220000Z
+SUMMARY:Saltbox Jam Session
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:340cb33f84ab7c54182639265ed215e2
+URL:http://schedexamplecon.sched.com/event/340cb33f84ab7c54182639265ed215e2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T213000Z
+DTEND:20250815T223000Z
+SUMMARY:Screen Printing Sing-Along
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Secondary Events - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6662ab42a39e04039402938e118e8a01
+URL:http://schedexamplecon.sched.com/event/6662ab42a39e04039402938e118e8a01
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T213000Z
+DTEND:20250815T230000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy.
+CATEGORIES:SOCIAL
+LOCATION:Tabletop Gaming - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d75cd9e0b1d7fd3f54ab7fadeea92bdc
+URL:http://schedexamplecon.sched.com/event/d75cd9e0b1d7fd3f54ab7fadeea92bdc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T220000Z
+DTEND:20250815T230000Z
+SUMMARY:Glasshouse Showcase
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and&nbsp\;tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy.
+CATEGORIES:COSTUMING
+LOCATION:Video Gaming - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e4ac4a7487fa9400ea26eb90e8375ff3
+URL:http://schedexamplecon.sched.com/event/e4ac4a7487fa9400ea26eb90e8375ff3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T220000Z
+DTEND:20250815T230000Z
+SUMMARY:Screen Printing Reading
+DESCRIPTION:Seating is limited so arriving a few minutes early helps.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a698f09c5fd0104bc2b92bbc194f5d38
+URL:http://schedexamplecon.sched.com/event/a698f09c5fd0104bc2b92bbc194f5d38
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T223000Z
+DTEND:20250815T230000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and&nbsp\;something to write with. Everything you need is provided at the table. Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Artist Alley - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3da08fe964c24db8d458976cd282949a
+URL:http://schedexamplecon.sched.com/event/3da08fe964c24db8d458976cd282949a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T223000Z
+DTEND:20250815T233000Z
+SUMMARY:Northwind Workshop
+DESCRIPTION:This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather.
+CATEGORIES:MEET & GREET
+LOCATION:Headless Lounge - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:19fd5e5510706756815064646cf5ecfc
+URL:http://schedexamplecon.sched.com/event/19fd5e5510706756815064646cf5ecfc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T230000Z
+DTEND:20250815T233000Z
+SUMMARY:Screen Printing Clinic
+DESCRIPTION:The first half is guided and&nbsp\;the second half is open practice. Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:WRITING
+LOCATION:Night Market - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e4ec163af3b45f8f852b05ca40239277
+URL:http://schedexamplecon.sched.com/event/e4ec163af3b45f8f852b05ca40239277
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T230000Z
+DTEND:20250816T000000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice. Come for the whole session or drop in when you can.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:06fb0d1e1d7372fa54cac051870d5a3f
+URL:http://schedexamplecon.sched.com/event/06fb0d1e1d7372fa54cac051870d5a3f
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T233000Z
+DTEND:20250816T003000Z
+SUMMARY:Meadow Sing-Along
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with.
+CATEGORIES:PRESENTATION
+LOCATION:Registration - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:463f4772c18db50bf19b556d7c7d9714
+URL:http://schedexamplecon.sched.com/event/463f4772c18db50bf19b556d7c7d9714
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T233000Z
+DTEND:20250816T010000Z
+SUMMARY:Screen Printing Tournament
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Main Events - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:98186c3f93ba51235384931a9ca17918
+URL:http://schedexamplecon.sched.com/event/98186c3f93ba51235384931a9ca17918
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T233000Z
+DTEND:20250816T003000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Secondary Events - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5c3ac84ed2a5a819cd6033bc63684499
+URL:http://schedexamplecon.sched.com/event/5c3ac84ed2a5a819cd6033bc63684499
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T000000Z
+DTEND:20250816T010000Z
+SUMMARY:Cardboard Playtest
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5b7e7422cd5164293f3bb780b02d808e
+URL:http://schedexamplecon.sched.com/event/5b7e7422cd5164293f3bb780b02d808e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T000000Z
+DTEND:20250816T010000Z
+SUMMARY:Screen Printing Practice
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Video Gaming - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c09d3a6db7ab542f91c242617c9181d3
+URL:http://schedexamplecon.sched.com/event/c09d3a6db7ab542f91c242617c9181d3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T003000Z
+DTEND:20250816T023000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and&nbsp\;tell for anyone who wants one.
+CATEGORIES:SOCIAL
+LOCATION:Dealers Hall - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b27f38d0a09d0861bdc0e3e6a4b7d1e6
+URL:http://schedexamplecon.sched.com/event/b27f38d0a09d0861bdc0e3e6a4b7d1e6
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T020000Z
+SUMMARY:Ember Practice
+DESCRIPTION:We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors.
+CATEGORIES:COSTUMING
+LOCATION:Artist Alley - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:8fc8a939958d297d1a59b981ef623eba
+URL:http://schedexamplecon.sched.com/event/8fc8a939958d297d1a59b981ef623eba
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T043000Z
+SUMMARY:Screen Printing Jam Session
+DESCRIPTION:Photos are fine but please ask the people in them first.
+CATEGORIES:PERFORMANCE
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:afcadabfc1f062d97b3820b03e5e2d87
+URL:http://schedexamplecon.sched.com/event/afcadabfc1f062d97b3820b03e5e2d87
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T040000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Night Market - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d5315f1c9aaa1f573e9d3c760c1a9cdc
+URL:http://schedexamplecon.sched.com/event/d5315f1c9aaa1f573e9d3c760c1a9cdc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T030000Z
+SUMMARY:Foxglove Story Circle
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:MEET & GREET
+LOCATION:Charity Desk - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9ce857702626b93343a5e77a157874cc
+URL:http://schedexamplecon.sched.com/event/9ce857702626b93343a5e77a157874cc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T020000Z
+SUMMARY:Screen Printing Screening
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice.
+CATEGORIES:WRITING
+LOCATION:Registration - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:887d81d9300ead3b25c60a39bc010141
+URL:http://schedexamplecon.sched.com/event/887d81d9300ead3b25c60a39bc010141
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T013000Z
+DTEND:20250816T033000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7f026cc5a2fe2ee5dbce98038cd929f0
+URL:http://schedexamplecon.sched.com/event/7f026cc5a2fe2ee5dbce98038cd929f0
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T013000Z
+DTEND:20250816T023000Z
+SUMMARY:Beacon Q&A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PRESENTATION
+LOCATION:Secondary Events - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:8885cfb2efd321af235637e1619384e6
+URL:http://schedexamplecon.sched.com/event/8885cfb2efd321af235637e1619384e6
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T020000Z
+DTEND:20250816T030000Z
+SUMMARY:Screen Printing Social
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Tabletop Gaming - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9089df9d4d5cb52da7f3d433b6232372
+URL:http://schedexamplecon.sched.com/event/9089df9d4d5cb52da7f3d433b6232372
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T023000Z
+DTEND:20250816T033000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Video Gaming - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6c88310cdaa8740b5c90d38550285f84
+URL:http://schedexamplecon.sched.com/event/6c88310cdaa8740b5c90d38550285f84
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T030000Z
+DTEND:20250816T050000Z
+SUMMARY:Saltbox Meetup
+DESCRIPTION:This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:590e0126538eaf64a26039e78e42c934
+URL:http://schedexamplecon.sched.com/event/590e0126538eaf64a26039e78e42c934
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T030000Z
+DTEND:20250816T060000Z
+SUMMARY:Screen Printing Q&A
+DESCRIPTION:The first half is guided and&nbsp\;the second half is open practice. Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Artist Alley - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6d5029c88110f43ab42d17e9e38a6e3e
+URL:http://schedexamplecon.sched.com/event/6d5029c88110f43ab42d17e9e38a6e3e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T030000Z
+DTEND:20250816T060000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice.
+CATEGORIES:SOCIAL
+LOCATION:Headless Lounge - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5d02c0d24ba6d3423c15b60f6ebfcaeb
+URL:http://schedexamplecon.sched.com/event/5d02c0d24ba6d3423c15b60f6ebfcaeb
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T030000Z
+DTEND:20250816T060000Z
+SUMMARY:Glasshouse Panel
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed.
+CATEGORIES:COSTUMING
+LOCATION:Night Market - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:35fd82b7702a65ba685904eb79beaeca
+URL:http://schedexamplecon.sched.com/event/35fd82b7702a65ba685904eb79beaeca
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T040000Z
+DTEND:20250816T060000Z
+SUMMARY:Screen Printing Workshop
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:PERFORMANCE
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:2105ae1f3418fbab5d0c12f6b0c65e46
+URL:http://schedexamplecon.sched.com/event/2105ae1f3418fbab5d0c12f6b0c65e46
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T040000Z
+DTEND:20250816T050000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Registration - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6344d42f54b5d416b4e687b49ef33ba4
+URL:http://schedexamplecon.sched.com/event/6344d42f54b5d416b4e687b49ef33ba4
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T120000Z
+DTEND:20250817T000000Z
+SUMMARY:Northwind Tournament
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:MEET & GREET
+LOCATION:Main Events - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bc97ffff6310d10fcff08a750601944f
+URL:http://schedexamplecon.sched.com/event/bc97ffff6310d10fcff08a750601944f
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T123000Z
+DTEND:20250816T220000Z
+SUMMARY:Screen Printing Lab
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table.
+CATEGORIES:WRITING
+LOCATION:Secondary Events - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:38bfed348c14d5965426d9bf5b90386a
+URL:http://schedexamplecon.sched.com/event/38bfed348c14d5965426d9bf5b90386a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T130000Z
+DTEND:20250817T020000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length.
+CATEGORIES:GAMING
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ff3c7a65b5a2aa507090c480991ef7df
+URL:http://schedexamplecon.sched.com/event/ff3c7a65b5a2aa507090c480991ef7df
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T130000Z
+DTEND:20250816T220000Z
+SUMMARY:Meadow Walkthrough
+DESCRIPTION:We start with a short demonstration and then work at our own pace.
+CATEGORIES:PRESENTATION
+LOCATION:Video Gaming - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ef9deb1088661739087a13d82f857b7b
+URL:http://schedexamplecon.sched.com/event/ef9deb1088661739087a13d82f857b7b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T130000Z
+DTEND:20250816T140000Z
+SUMMARY:Screen Printing Demo Hour
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Dealers Hall - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:df2cd294cbf2c3bceb8c398ad7093f82
+URL:http://schedexamplecon.sched.com/event/df2cd294cbf2c3bceb8c398ad7093f82
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T130000Z
+DTEND:20250816T140000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Artist Alley - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:03ed41fbaaee32a10d09df32962b0e47
+URL:http://schedexamplecon.sched.com/event/03ed41fbaaee32a10d09df32962b0e47
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T133000Z
+DTEND:20250816T153000Z
+SUMMARY:Cardboard Social
+DESCRIPTION:Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice. Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bf3608375949135be7f7133adb1e4d9d
+URL:http://schedexamplecon.sched.com/event/bf3608375949135be7f7133adb1e4d9d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T133000Z
+DTEND:20250816T143000Z
+SUMMARY:Screen Printing Panel
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Night Market - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d3b8b2b9011a00183651acfcd5144f96
+URL:http://schedexamplecon.sched.com/event/d3b8b2b9011a00183651acfcd5144f96
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T133000Z
+DTEND:20250816T143000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy.
+CATEGORIES:SOCIAL
+LOCATION:Charity Desk - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5393bff49853ef8e33dfe2f110bfd6c1
+URL:http://schedexamplecon.sched.com/event/5393bff49853ef8e33dfe2f110bfd6c1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T133000Z
+DTEND:20250816T150000Z
+SUMMARY:Ember Sketch Swap
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy.
+CATEGORIES:COSTUMING
+LOCATION:Registration - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:0b69ececbe6266a27a0d83bc91365b55
+URL:http://schedexamplecon.sched.com/event/0b69ececbe6266a27a0d83bc91365b55
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T140000Z
+DTEND:20250816T220000Z
+SUMMARY:Screen Printing Playtest
+DESCRIPTION:Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3e88a0bfd39c288544e1910e2aacc75e
+URL:http://schedexamplecon.sched.com/event/3e88a0bfd39c288544e1910e2aacc75e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T140000Z
+DTEND:20250816T150000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and&nbsp\;something to write with.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Secondary Events - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:ac79334ab2e96113cd479ad92e322a94
+URL:http://schedexamplecon.sched.com/event/ac79334ab2e96113cd479ad92e322a94
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T140000Z
+DTEND:20250817T020000Z
+SUMMARY:Foxglove Demo Hour
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:MEET & GREET
+LOCATION:Tabletop Gaming - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:aee8534f7f7d64a85ee4a35b3111bd63
+URL:http://schedexamplecon.sched.com/event/aee8534f7f7d64a85ee4a35b3111bd63
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T140000Z
+DTEND:20250816T170000Z
+SUMMARY:Screen Printing Open Studio
+DESCRIPTION:The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length.
+CATEGORIES:WRITING
+LOCATION:Video Gaming - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:526fc17a1cf59da266994673a56326ca
+URL:http://schedexamplecon.sched.com/event/526fc17a1cf59da266994673a56326ca
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T143000Z
+DTEND:20250816T153000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:GAMING
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6cc7bf58fdfeadda906acb277ff16cf4
+URL:http://schedexamplecon.sched.com/event/6cc7bf58fdfeadda906acb277ff16cf4
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T143000Z
+DTEND:20250816T153000Z
+SUMMARY:Beacon Clinic
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:PRESENTATION
+LOCATION:Artist Alley - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c1953009ecdc4fcd10488c5c5d60eebf
+URL:http://schedexamplecon.sched.com/event/c1953009ecdc4fcd10488c5c5d60eebf
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T150000Z
+DTEND:20250816T220000Z
+SUMMARY:Screen Printing Roundtable
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Headless Lounge - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5f99867e2dcc2062226215d43096a69e
+URL:http://schedexamplecon.sched.com/event/5f99867e2dcc2062226215d43096a69e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T150000Z
+DTEND:20250816T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Night Market - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:99fc1c580890d295f28e33cb6db7a212
+URL:http://schedexamplecon.sched.com/event/99fc1c580890d295f28e33cb6db7a212
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T150000Z
+DTEND:20250816T163000Z
+SUMMARY:Saltbox Roundtable
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f8bf31c0f745cd47337ace36333af4b7
+URL:http://schedexamplecon.sched.com/event/f8bf31c0f745cd47337ace36333af4b7
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T160000Z
+DTEND:20250816T200000Z
+SUMMARY:Screen Printing Walkthrough
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Registration - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d59320f71e8b69f9cc99d2e57fbd1c1a
+URL:http://schedexamplecon.sched.com/event/d59320f71e8b69f9cc99d2e57fbd1c1a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T160000Z
+DTEND:20250816T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end. Bring a notebook and something to write with.
+CATEGORIES:SOCIAL
+LOCATION:Main Events - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:cc17d010d6c5561a8d270b3176b73b3b
+URL:http://schedexamplecon.sched.com/event/cc17d010d6c5561a8d270b3176b73b3b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T200000Z
+SUMMARY:Glasshouse Screening
+DESCRIPTION:We start with a short demonstration and&nbsp\;then work at our own pace. Seating is limited so arriving a few minutes early helps.
+CATEGORIES:COSTUMING
+LOCATION:Secondary Events - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:58bae451c14ace1044ebcd50c5fafd9b
+URL:http://schedexamplecon.sched.com/event/58bae451c14ace1044ebcd50c5fafd9b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T200000Z
+SUMMARY:Screen Printing Story Circle
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3f695fa18ed2c723f91973628db4d469
+URL:http://schedexamplecon.sched.com/event/3f695fa18ed2c723f91973628db4d469
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T180000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and&nbsp\;a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Video Gaming - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:71b06c239f2753ecf101db2d6bbf477e
+URL:http://schedexamplecon.sched.com/event/71b06c239f2753ecf101db2d6bbf477e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T180000Z
+SUMMARY:Northwind Critique
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length.
+CATEGORIES:MEET & GREET
+LOCATION:Dealers Hall - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:cb5011dad68c0e25e5e51c33060f8b06
+URL:http://schedexamplecon.sched.com/event/cb5011dad68c0e25e5e51c33060f8b06
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T180000Z
+SUMMARY:Screen Printing Showcase
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps.
+CATEGORIES:WRITING
+LOCATION:Artist Alley - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5c3acc5f4d6ff3bbe575093383a398a9
+URL:http://schedexamplecon.sched.com/event/5c3acc5f4d6ff3bbe575093383a398a9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T173000Z
+DTEND:20250816T190000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:fd333cfad0530c339d663a04b5ee705e
+URL:http://schedexamplecon.sched.com/event/fd333cfad0530c339d663a04b5ee705e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T173000Z
+DTEND:20250816T183000Z
+SUMMARY:Meadow Lab
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:PRESENTATION
+LOCATION:Night Market - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:4c4f4ed51ccad329fee19b9406df95d6
+URL:http://schedexamplecon.sched.com/event/4c4f4ed51ccad329fee19b9406df95d6
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T180000Z
+DTEND:20250816T200000Z
+SUMMARY:Screen Printing Critique
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one…
+CATEGORIES:ENTERTAINMENT
+LOCATION:Charity Desk - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6186dd24f5ba2879ebcbde63ec055542
+URL:http://schedexamplecon.sched.com/event/6186dd24f5ba2879ebcbde63ec055542
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T180000Z
+DTEND:20250816T210000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Registration - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:141f3aca0baa6e9abbea05b2f69b3f98
+URL:http://schedexamplecon.sched.com/event/141f3aca0baa6e9abbea05b2f69b3f98
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T183000Z
+DTEND:20250816T200000Z
+SUMMARY:Cardboard Reading
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:81ee964dffdc391613ead96998ae5de2
+URL:http://schedexamplecon.sched.com/event/81ee964dffdc391613ead96998ae5de2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T183000Z
+DTEND:20250816T193000Z
+SUMMARY:Screen Printing Sketch Swap
+DESCRIPTION:The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Secondary Events - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:67cbf60ec9735d36e84c89173f349f6a
+URL:http://schedexamplecon.sched.com/event/67cbf60ec9735d36e84c89173f349f6a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T183000Z
+DTEND:20250816T193000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:SOCIAL
+LOCATION:Tabletop Gaming - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f032edd16923e79940f07cfe139a25d1
+URL:http://schedexamplecon.sched.com/event/f032edd16923e79940f07cfe139a25d1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T190000Z
+DTEND:20250816T210000Z
+SUMMARY:Ember Open Studio
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with.
+CATEGORIES:COSTUMING
+LOCATION:Video Gaming - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:0cd98d8ab6a4b981fe35c9a68a69d511
+URL:http://schedexamplecon.sched.com/event/0cd98d8ab6a4b981fe35c9a68a69d511
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T190000Z
+DTEND:20250816T203000Z
+SUMMARY:Screen Printing Meetup
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PERFORMANCE
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bd0e61a75625d4b0fda940ddbc3c46dd
+URL:http://schedexamplecon.sched.com/event/bd0e61a75625d4b0fda940ddbc3c46dd
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T190000Z
+DTEND:20250816T200000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Artist Alley - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:4e19a4e88d777ed602723f836709bc29
+URL:http://schedexamplecon.sched.com/event/4e19a4e88d777ed602723f836709bc29
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T200000Z
+DTEND:20250816T210000Z
+SUMMARY:Foxglove Jam Session
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:MEET & GREET
+LOCATION:Headless Lounge - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:76993a9a277af175fe9d7adf146ae08c
+URL:http://schedexamplecon.sched.com/event/76993a9a277af175fe9d7adf146ae08c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T200000Z
+DTEND:20250816T210000Z
+SUMMARY:Screen Printing Sing-Along
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy.
+CATEGORIES:WRITING
+LOCATION:Night Market - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:269dd162532e0edf792a50dfde5a32e9
+URL:http://schedexamplecon.sched.com/event/269dd162532e0edf792a50dfde5a32e9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T200000Z
+DTEND:20250817T000000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3ceaf4672c638103b32f7646a555db14
+URL:http://schedexamplecon.sched.com/event/3ceaf4672c638103b32f7646a555db14
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T203000Z
+DTEND:20250816T213000Z
+SUMMARY:Beacon Showcase
+DESCRIPTION:We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:PRESENTATION
+LOCATION:Registration - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:89612a868e7ba0014fb6f7207263f470
+URL:http://schedexamplecon.sched.com/event/89612a868e7ba0014fb6f7207263f470
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T203000Z
+DTEND:20250816T220000Z
+SUMMARY:Screen Printing Reading
+DESCRIPTION:Photos are fine but please ask the people in them first.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Main Events - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:cefc3c915374dead7980848b18f4a2f3
+URL:http://schedexamplecon.sched.com/event/cefc3c915374dead7980848b18f4a2f3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T203000Z
+DTEND:20250816T213000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Secondary Events - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e6f30e79f102bb33123b6f8b46709b82
+URL:http://schedexamplecon.sched.com/event/e6f30e79f102bb33123b6f8b46709b82
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T203000Z
+DTEND:20250816T223000Z
+SUMMARY:Saltbox Workshop
+DESCRIPTION:Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice. Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f94833c50a72b33dee6dea3ddd591a58
+URL:http://schedexamplecon.sched.com/event/f94833c50a72b33dee6dea3ddd591a58
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T210000Z
+DTEND:20250816T233000Z
+SUMMARY:Screen Printing Clinic
+DESCRIPTION:Everything you need is provided at the table.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Video Gaming - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5bfdac1a7423014717cb614e7c790ac7
+URL:http://schedexamplecon.sched.com/event/5bfdac1a7423014717cb614e7c790ac7
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T213000Z
+DTEND:20250816T223000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end. Bring a notebook and&nbsp\;something to write with.
+CATEGORIES:SOCIAL
+LOCATION:Dealers Hall - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:6d1e20efd94a638206fa1edb3f5555f7
+URL:http://schedexamplecon.sched.com/event/6d1e20efd94a638206fa1edb3f5555f7
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T213000Z
+DTEND:20250816T223000Z
+SUMMARY:Glasshouse Sing-Along
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather.
+CATEGORIES:COSTUMING
+LOCATION:Artist Alley - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bdb57af65bde6285bfe75ca6cb2186d2
+URL:http://schedexamplecon.sched.com/event/bdb57af65bde6285bfe75ca6cb2186d2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T213000Z
+DTEND:20250816T223000Z
+SUMMARY:Screen Printing Tournament
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:PERFORMANCE
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:94e4e0ad24e6787648e9d965e864b893
+URL:http://schedexamplecon.sched.com/event/94e4e0ad24e6787648e9d965e864b893
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T220000Z
+DTEND:20250816T233000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Night Market - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:e77540f3e61b6358bdd3a0aa77dfd00c
+URL:http://schedexamplecon.sched.com/event/e77540f3e61b6358bdd3a0aa77dfd00c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T220000Z
+DTEND:20250816T230000Z
+SUMMARY:Northwind Playtest
+DESCRIPTION:This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end.
+CATEGORIES:MEET & GREET
+LOCATION:Charity Desk - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:2263b7a821735903825fcb173edd38f5
+URL:http://schedexamplecon.sched.com/event/2263b7a821735903825fcb173edd38f5
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T220000Z
+DTEND:20250816T230000Z
+SUMMARY:Screen Printing Practice
+DESCRIPTION:The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:WRITING
+LOCATION:Registration - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:eb85da599760b166f7c656e407d1acf6
+URL:http://schedexamplecon.sched.com/event/eb85da599760b166f7c656e407d1acf6
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T230000Z
+DTEND:20250817T020000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and&nbsp\;no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps.
+CATEGORIES:GAMING
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:923cca69c0e9c7327e2b7809bf40cbbf
+URL:http://schedexamplecon.sched.com/event/923cca69c0e9c7327e2b7809bf40cbbf
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T230000Z
+DTEND:20250817T020000Z
+SUMMARY:Meadow Practice
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with.
+CATEGORIES:PRESENTATION
+LOCATION:Secondary Events - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:89def6bf1a618ef7f7b8b7cf3588cb67
+URL:http://schedexamplecon.sched.com/event/89def6bf1a618ef7f7b8b7cf3588cb67
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T230000Z
+DTEND:20250817T000000Z
+SUMMARY:Screen Printing Jam Session
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Tabletop Gaming - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a02a6ce3f5b3496a8928caa8c6861bc8
+URL:http://schedexamplecon.sched.com/event/a02a6ce3f5b3496a8928caa8c6861bc8
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T230000Z
+DTEND:20250817T000000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Video Gaming - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1b19a2e4bf293958a0b821a9988f9374
+URL:http://schedexamplecon.sched.com/event/1b19a2e4bf293958a0b821a9988f9374
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T230000Z
+DTEND:20250817T000000Z
+SUMMARY:Cardboard Story Circle
+DESCRIPTION:Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:344794ac663640bad866bbec8f6c83f1
+URL:http://schedexamplecon.sched.com/event/344794ac663640bad866bbec8f6c83f1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T230000Z
+DTEND:20250817T000000Z
+SUMMARY:Screen Printing Screening
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Artist Alley - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:26119826f9ab6c70d51d0f49e34788c0
+URL:http://schedexamplecon.sched.com/event/26119826f9ab6c70d51d0f49e34788c0
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T233000Z
+DTEND:20250817T003000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:SOCIAL
+LOCATION:Headless Lounge - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:4f03b9392ec70471d272950c744535e1
+URL:http://schedexamplecon.sched.com/event/4f03b9392ec70471d272950c744535e1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T233000Z
+DTEND:20250817T010000Z
+SUMMARY:Ember Q&A
+DESCRIPTION:We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps.
+CATEGORIES:COSTUMING
+LOCATION:Night Market - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:8abcf75c94dae3cd5e472b67a86dc6b8
+URL:http://schedexamplecon.sched.com/event/8abcf75c94dae3cd5e472b67a86dc6b8
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T003000Z
+DTEND:20250817T013000Z
+SUMMARY:Screen Printing Social
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end. Bring a notebook and&nbsp\;something to write with. Everything you need is provided at the table. Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1918e60094c0ecb9ef01e87ff4306186
+URL:http://schedexamplecon.sched.com/event/1918e60094c0ecb9ef01e87ff4306186
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T003000Z
+DTEND:20250817T013000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Registration - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d18fdaf113110592ee90fe30f0e80ab3
+URL:http://schedexamplecon.sched.com/event/d18fdaf113110592ee90fe30f0e80ab3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T010000Z
+DTEND:20250817T043000Z
+SUMMARY:Foxglove Meetup
+DESCRIPTION:Materials are shared so please be patient with the good scissors.
+CATEGORIES:MEET & GREET
+LOCATION:Main Events - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:240eafda2fdc117575b20204bf55300a
+URL:http://schedexamplecon.sched.com/event/240eafda2fdc117575b20204bf55300a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T010000Z
+DTEND:20250817T013000Z
+SUMMARY:Screen Printing Q&A
+DESCRIPTION:Everything you need is provided at the table. Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace.
+CATEGORIES:WRITING
+LOCATION:Secondary Events - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1910a26471b2cb7714fd86f7d8dadb37
+URL:http://schedexamplecon.sched.com/event/1910a26471b2cb7714fd86f7d8dadb37
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T010000Z
+DTEND:20250817T020000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and&nbsp\;something to write with.
+CATEGORIES:GAMING
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:df3832ffd8e073a76c0d96f6abc2631d
+URL:http://schedexamplecon.sched.com/event/df3832ffd8e073a76c0d96f6abc2631d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T013000Z
+DTEND:20250817T030000Z
+SUMMARY:Beacon Panel
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through. We will finish with a short show and&nbsp\;tell for anyone who wants one.
+CATEGORIES:PRESENTATION
+LOCATION:Video Gaming - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b6c1aeb044d48be056a43671a3e9f6a8
+URL:http://schedexamplecon.sched.com/event/b6c1aeb044d48be056a43671a3e9f6a8
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T020000Z
+DTEND:20250817T030000Z
+SUMMARY:Screen Printing Workshop
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Dealers Hall - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:0b3ef55749b351bbaacb9a01e43d61f4
+URL:http://schedexamplecon.sched.com/event/0b3ef55749b351bbaacb9a01e43d61f4
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T020000Z
+DTEND:20250817T030000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and something to write with.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Artist Alley - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1070ea8a21a7cac1eafccf0a88f2b150
+URL:http://schedexamplecon.sched.com/event/1070ea8a21a7cac1eafccf0a88f2b150
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T020000Z
+DTEND:20250817T060000Z
+SUMMARY:Saltbox Tournament
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9f501a4e789d9af51b5ce0479c8471b5
+URL:http://schedexamplecon.sched.com/event/9f501a4e789d9af51b5ce0479c8471b5
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T023000Z
+DTEND:20250817T033000Z
+SUMMARY:Screen Printing Lab
+DESCRIPTION:The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Night Market - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a1a8bc65352f1f29fb4926e7f0dee75a
+URL:http://schedexamplecon.sched.com/event/a1a8bc65352f1f29fb4926e7f0dee75a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T023000Z
+DTEND:20250817T033000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed. We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice.
+CATEGORIES:SOCIAL
+LOCATION:Charity Desk - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7e941d55d7d9ce5809b686390e5567d0
+URL:http://schedexamplecon.sched.com/event/7e941d55d7d9ce5809b686390e5567d0
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T030000Z
+DTEND:20250817T060000Z
+SUMMARY:Glasshouse Walkthrough
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed.
+CATEGORIES:COSTUMING
+LOCATION:Registration - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b42237e010ed2f98a3b6d892c57c4b74
+URL:http://schedexamplecon.sched.com/event/b42237e010ed2f98a3b6d892c57c4b74
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T033000Z
+DTEND:20250817T060000Z
+SUMMARY:Screen Printing Demo Hour
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:cc55b8071ce381cc971f7aae8a588c24
+URL:http://schedexamplecon.sched.com/event/cc55b8071ce381cc971f7aae8a588c24
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T033000Z
+DTEND:20250817T043000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Secondary Events - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:386a1d8e3d13477be43b21c8291bf20d
+URL:http://schedexamplecon.sched.com/event/386a1d8e3d13477be43b21c8291bf20d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T040000Z
+DTEND:20250817T050000Z
+SUMMARY:Northwind Social
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps.
+CATEGORIES:MEET & GREET
+LOCATION:Tabletop Gaming - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3030913866666273e06f337b7508f0c2
+URL:http://schedexamplecon.sched.com/event/3030913866666273e06f337b7508f0c2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T040000Z
+DTEND:20250817T050000Z
+SUMMARY:Screen Printing Panel
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:WRITING
+LOCATION:Video Gaming - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:62b6f0d0caf060e48ccc63095cf210b9
+URL:http://schedexamplecon.sched.com/event/62b6f0d0caf060e48ccc63095cf210b9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T120000Z
+DTEND:20250817T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and&nbsp\;tell for anyone who wants one\, Water and a snack are a good idea for a session this length.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:598960f4bd4582f9918435de017c90bd
+URL:http://schedexamplecon.sched.com/event/598960f4bd4582f9918435de017c90bd
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T123000Z
+DTEND:20250817T160000Z
+SUMMARY:Meadow Sketch Swap
+DESCRIPTION:We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:PRESENTATION
+LOCATION:Artist Alley - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7b681b0a33f199199c6d00974dd6283c
+URL:http://schedexamplecon.sched.com/event/7b681b0a33f199199c6d00974dd6283c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T220000Z
+SUMMARY:Screen Printing Playtest
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Headless Lounge - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bdf8f13a4a0b0430fe91d8f693b1a1cd
+URL:http://schedexamplecon.sched.com/event/bdf8f13a4a0b0430fe91d8f693b1a1cd
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T160000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Night Market - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:44d6189bcc16ee176a8cd34abc748f50
+URL:http://schedexamplecon.sched.com/event/44d6189bcc16ee176a8cd34abc748f50
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T143000Z
+SUMMARY:Cardboard Demo Hour
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:12f7dba80d74d0349948ff612a24e30b
+URL:http://schedexamplecon.sched.com/event/12f7dba80d74d0349948ff612a24e30b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T150000Z
+SUMMARY:Screen Printing Open Studio
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Registration - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:80fcbae3f1baf788adf0901b1d76d748
+URL:http://schedexamplecon.sched.com/event/80fcbae3f1baf788adf0901b1d76d748
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T160000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace.
+CATEGORIES:SOCIAL
+LOCATION:Main Events - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:5d89c7e1a816f95bd97e926d2dff2882
+URL:http://schedexamplecon.sched.com/event/5d89c7e1a816f95bd97e926d2dff2882
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T140000Z
+SUMMARY:Ember Clinic
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length.
+CATEGORIES:COSTUMING
+LOCATION:Secondary Events - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9229f658a9ab83965f5e143276009c21
+URL:http://schedexamplecon.sched.com/event/9229f658a9ab83965f5e143276009c21
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T130000Z
+DTEND:20250817T140000Z
+SUMMARY:Screen Printing Roundtable
+DESCRIPTION:Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice.
+CATEGORIES:PERFORMANCE
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:154c62bbdd5d7facd88ac899ba6c3986
+URL:http://schedexamplecon.sched.com/event/154c62bbdd5d7facd88ac899ba6c3986
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T133000Z
+DTEND:20250817T143000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and&nbsp\;something to write with. Everything you need is provided at the table. Newcomers are welcome and no experience is assumed.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Video Gaming - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a1890cd733e0c7167d3ee421d5286dd7
+URL:http://schedexamplecon.sched.com/event/a1890cd733e0c7167d3ee421d5286dd7
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T140000Z
+DTEND:20250817T200000Z
+SUMMARY:Foxglove Roundtable
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:MEET & GREET
+LOCATION:Dealers Hall - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:de341abbebd3cb3beed084295a98f9f8
+URL:http://schedexamplecon.sched.com/event/de341abbebd3cb3beed084295a98f9f8
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T140000Z
+DTEND:20250817T200000Z
+SUMMARY:Screen Printing Walkthrough
+DESCRIPTION:The first half is guided and the second half is open practice. Come for the whole session or drop in when you can.
+CATEGORIES:WRITING
+LOCATION:Artist Alley - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:02369ecad41c06dde23aa1aea1e7afc4
+URL:http://schedexamplecon.sched.com/event/02369ecad41c06dde23aa1aea1e7afc4
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T140000Z
+DTEND:20250817T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and&nbsp\;no experience is assumed. We start with a short demonstration and then work at our own pace.
+CATEGORIES:GAMING
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:a6c952b21834ff864d29b1d154aa1f27
+URL:http://schedexamplecon.sched.com/event/a6c952b21834ff864d29b1d154aa1f27
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T140000Z
+DTEND:20250817T170000Z
+SUMMARY:Beacon Screening
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table.
+CATEGORIES:PRESENTATION
+LOCATION:Night Market - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7911a5156853dab33d466857e4c1b060
+URL:http://schedexamplecon.sched.com/event/7911a5156853dab33d466857e4c1b060
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T140000Z
+DTEND:20250817T170000Z
+SUMMARY:Screen Printing Story Circle
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Charity Desk - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:0b580aa60e70b37dad470e5ea9bd130a
+URL:http://schedexamplecon.sched.com/event/0b580aa60e70b37dad470e5ea9bd130a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T143000Z
+DTEND:20250817T153000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Registration - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:729019420ec0ae965ce8bca2ba73cb79
+URL:http://schedexamplecon.sched.com/event/729019420ec0ae965ce8bca2ba73cb79
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T143000Z
+DTEND:20250817T153000Z
+SUMMARY:Saltbox Critique
+DESCRIPTION:Bring a notebook and&nbsp\;something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7898a12fea2a7be6280d7013f9a39331
+URL:http://schedexamplecon.sched.com/event/7898a12fea2a7be6280d7013f9a39331
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T150000Z
+DTEND:20250817T220000Z
+SUMMARY:Screen Printing Showcase
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Secondary Events - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:fa52c2fb4993b14c91cd3fc8e21e8561
+URL:http://schedexamplecon.sched.com/event/fa52c2fb4993b14c91cd3fc8e21e8561
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T150000Z
+DTEND:20250817T163000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can.
+CATEGORIES:SOCIAL
+LOCATION:Tabletop Gaming - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7de87aef54224b9c15254dfa014cf6b1
+URL:http://schedexamplecon.sched.com/event/7de87aef54224b9c15254dfa014cf6b1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T150000Z
+DTEND:20250817T160000Z
+SUMMARY:Glasshouse Lab
+DESCRIPTION:We start with a short demonstration and then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions. Materials are shared so please be patient with the good scissors. The first half is guided and the second half is open practice.
+CATEGORIES:COSTUMING
+LOCATION:Video Gaming - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c7868231cac4087d3e81ba99ec06b8fe
+URL:http://schedexamplecon.sched.com/event/c7868231cac4087d3e81ba99ec06b8fe
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T150000Z
+DTEND:20250817T160000Z
+SUMMARY:Screen Printing Critique
+DESCRIPTION:Photos are fine but please ask the people in them first\, Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed.
+CATEGORIES:PERFORMANCE
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:df41ada4b072f9d50b51cea99a628fe2
+URL:http://schedexamplecon.sched.com/event/df41ada4b072f9d50b51cea99a628fe2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T160000Z
+DTEND:20250817T170000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Artist Alley - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c9b6d42ba4d16abdc1bfcaa3854002b2
+URL:http://schedexamplecon.sched.com/event/c9b6d42ba4d16abdc1bfcaa3854002b2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T160000Z
+DTEND:20250817T170000Z
+SUMMARY:Northwind Reading
+DESCRIPTION:Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:MEET & GREET
+LOCATION:Headless Lounge - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:07e78666246381a96bb311d2346ecf4d
+URL:http://schedexamplecon.sched.com/event/07e78666246381a96bb311d2346ecf4d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T163000Z
+DTEND:20250817T183000Z
+SUMMARY:Screen Printing Sketch Swap
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps.
+CATEGORIES:WRITING
+LOCATION:Night Market - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:190866d7c249009da7c24d9f498032b9
+URL:http://schedexamplecon.sched.com/event/190866d7c249009da7c24d9f498032b9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T163000Z
+DTEND:20250817T173000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first.
+CATEGORIES:GAMING
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:0292f226c866eec67987dd86c25f1f60
+URL:http://schedexamplecon.sched.com/event/0292f226c866eec67987dd86c25f1f60
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T163000Z
+DTEND:20250817T173000Z
+SUMMARY:Meadow Open Studio
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through. We will finish with a short show and&nbsp\;tell for anyone who wants one. Water and a snack are a good idea for a session this length.
+CATEGORIES:PRESENTATION
+LOCATION:Registration - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9dac019cd6e4e773dce2e0920055dd9b
+URL:http://schedexamplecon.sched.com/event/9dac019cd6e4e773dce2e0920055dd9b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T170000Z
+DTEND:20250817T200000Z
+SUMMARY:Screen Printing Meetup
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and&nbsp\;the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Main Events - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d2e9f9ad11ad542e0399ad3bb966eb84
+URL:http://schedexamplecon.sched.com/event/d2e9f9ad11ad542e0399ad3bb966eb84
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T170000Z
+DTEND:20250817T183000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Secondary Events - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7f5ab12443063b5b62abbeca11a08fdc
+URL:http://schedexamplecon.sched.com/event/7f5ab12443063b5b62abbeca11a08fdc
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T173000Z
+DTEND:20250817T183000Z
+SUMMARY:Cardboard Jam Session
+DESCRIPTION:This runs long so plan your schedule around it. A quieter corner is set aside for anyone who needs a break. Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b8ca054027cdb87e9854c08ce5042dc3
+URL:http://schedexamplecon.sched.com/event/b8ca054027cdb87e9854c08ce5042dc3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T173000Z
+DTEND:20250817T183000Z
+SUMMARY:Screen Printing Sing-Along
+DESCRIPTION:The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can\, Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Video Gaming - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7e3bbf5a9ff959b92806656a927c4c4d
+URL:http://schedexamplecon.sched.com/event/7e3bbf5a9ff959b92806656a927c4c4d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T180000Z
+DTEND:20250817T210000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice\, Come for the whole session or drop in when you can.
+CATEGORIES:SOCIAL
+LOCATION:Dealers Hall - Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:9f8f6f8e773f9006b4315ba634b90ec1
+URL:http://schedexamplecon.sched.com/event/9f8f6f8e773f9006b4315ba634b90ec1
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T180000Z
+DTEND:20250817T190000Z
+SUMMARY:Ember Showcase
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end.
+CATEGORIES:COSTUMING
+LOCATION:Artist Alley - Laurel Gallery\, Riverside Grand Hotel
+SEQUENCE:0
+UID:94d9660bf5c90b65b1072ad37262e331
+URL:http://schedexamplecon.sched.com/event/94d9660bf5c90b65b1072ad37262e331
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T180000Z
+DTEND:20250817T190000Z
+SUMMARY:Screen Printing Reading
+DESCRIPTION:We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 7\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bdaa47feba6328dbc2f3eb98042f1ee3
+URL:http://schedexamplecon.sched.com/event/bdaa47feba6328dbc2f3eb98042f1ee3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T183000Z
+DTEND:20250817T200000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Night Market - Birch Room 3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:cd24403e186272ae8fb4d5a53e262890
+URL:http://schedexamplecon.sched.com/event/cd24403e186272ae8fb4d5a53e262890
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T190000Z
+DTEND:20250817T200000Z
+SUMMARY:Foxglove Workshop
+DESCRIPTION:Bring a notebook and something to write with\, Everything you need is provided at the table\, Newcomers are welcome and no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions\, Materials are shared so please be patient with the good scissors\, The first half is guided and the second half is open practice.
+CATEGORIES:MEET & GREET
+LOCATION:Charity Desk - Juniper Suite\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7a99df9ce7ded138ce9301f15f26974d
+URL:http://schedexamplecon.sched.com/event/7a99df9ce7ded138ce9301f15f26974d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T190000Z
+DTEND:20250817T210000Z
+SUMMARY:Screen Printing Clinic
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy\, Photos are fine but please ask the people in them first.
+CATEGORIES:WRITING
+LOCATION:Registration - Cedar Ballroom 6\, Riverside Grand Hotel
+SEQUENCE:0
+UID:157ab753ffa904ff8c617405af65d411
+URL:http://schedexamplecon.sched.com/event/157ab753ffa904ff8c617405af65d411
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T193000Z
+DTEND:20250817T203000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers will be circulating if you get stuck partway through. We will finish with a short show and tell for anyone who wants one. Water and a snack are a good idea for a session this length. This runs long so plan your schedule around it.
+CATEGORIES:GAMING
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:17a70e3424c01f599c4d7a7dda215ab3
+URL:http://schedexamplecon.sched.com/event/17a70e3424c01f599c4d7a7dda215ab3
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T193000Z
+DTEND:20250817T203000Z
+SUMMARY:Beacon Sing-Along
+DESCRIPTION:We start with a short demonstration and&nbsp\;then work at our own pace. Seating is limited so arriving a few minutes early helps. Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PRESENTATION
+LOCATION:Secondary Events - Front Entrance\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d119e87d1debb40e2852b0f4fc2372ae
+URL:http://schedexamplecon.sched.com/event/d119e87d1debb40e2852b0f4fc2372ae
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T200000Z
+DTEND:20250817T210000Z
+SUMMARY:Screen Printing Tournament
+DESCRIPTION:Photos are fine but please ask the people in them first.
+CATEGORIES:ENTERTAINMENT
+LOCATION:Tabletop Gaming - Cedar Ballroom 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:99d89ecf7a69456ffbcff38a9102991e
+URL:http://schedexamplecon.sched.com/event/99d89ecf7a69456ffbcff38a9102991e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T203000Z
+DTEND:20250817T213000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Water and&nbsp\;a snack are a good idea for a session this length\, This runs long so plan your schedule around it\, A quieter corner is set aside for anyone who needs a break\, Bring a project you are already working on if you would rather\, We keep the music low so conversation stays easy.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Video Gaming - Birch Room 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b1325c5eac02f43bf9a33ae455cc881a
+URL:http://schedexamplecon.sched.com/event/b1325c5eac02f43bf9a33ae455cc881a
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T203000Z
+DTEND:20250817T220000Z
+SUMMARY:Saltbox Playtest
+DESCRIPTION:Materials are shared so please be patient with the good scissors. The first half is guided and&nbsp\;the second half is open practice. Come for the whole session or drop in when you can.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Aspen Atrium\, Riverside Grand Hotel
+SEQUENCE:0
+UID:f7ed7b8049d6ce34c6dbdc2372dbbc2b
+URL:http://schedexamplecon.sched.com/event/f7ed7b8049d6ce34c6dbdc2372dbbc2b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T210000Z
+DTEND:20250817T220000Z
+SUMMARY:Screen Printing Practice
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are welcome and&nbsp\;no experience is assumed\, We start with a short demonstration and then work at our own pace\, Seating is limited so arriving a few minutes early helps\, Expect a relaxed hour with plenty of room for questions.
+CATEGORIES:PARTNER EVENTS
+LOCATION:Artist Alley - Cedar Ballroom 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:3cf55803e9b85ba955f87db1e56b3133
+URL:http://schedexamplecon.sched.com/event/3cf55803e9b85ba955f87db1e56b3133
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T210000Z
+DTEND:20250817T220000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Bring a project you are already working on if you would rather. We keep the music low so conversation stays easy. Photos are fine but please ask the people in them first. Leftover materials go back in the bin at the end.
+CATEGORIES:SOCIAL
+LOCATION:Headless Lounge - Maple Hall E-F\, Riverside Grand Hotel
+SEQUENCE:0
+UID:211177be475ce06d19953de23680ab73
+URL:http://schedexamplecon.sched.com/event/211177be475ce06d19953de23680ab73
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T210000Z
+DTEND:20250817T220000Z
+SUMMARY:Glasshouse Practice
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through\, We will finish with a short show and tell for anyone who wants one\, Water and a snack are a good idea for a session this length\, This runs long so plan your schedule around it.
+CATEGORIES:COSTUMING
+LOCATION:Night Market - Willow Preconvene\, Riverside Grand Hotel
+SEQUENCE:0
+UID:bd882c39becbb2537071fc2dee4eef6c
+URL:http://schedexamplecon.sched.com/event/bd882c39becbb2537071fc2dee4eef6c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T220000Z
+DTEND:20250817T233000Z
+SUMMARY:Screen Printing Jam Session
+DESCRIPTION:Seating is limited so arriving a few minutes early helps.
+CATEGORIES:PERFORMANCE
+LOCATION:Cedar Ballroom 1\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1f94b307ca81d432503c3c2f4fac2370
+URL:http://schedexamplecon.sched.com/event/1f94b307ca81d432503c3c2f4fac2370
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250818T000000Z
+DTEND:20250818T020000Z
+SUMMARY:Puppetry for Beginners
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a notebook and&nbsp\;something to write with. Everything you need is provided at the table.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Registration - Maple Hall A-D\, Riverside Grand Hotel
+SEQUENCE:0
+UID:082706dea46c92db704941b43146835d
+URL:http://schedexamplecon.sched.com/event/082706dea46c92db704941b43146835d
+END:VEVENT
+END:VCALENDAR

@@ -228,6 +228,10 @@
     "preview": "Voorbeeld",
     "eventFound": "{{count}} actief evenement gevonden",
     "eventsFound": "{{count}} actieve evenementen gevonden",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} annulering wordt verwerkt",
     "cancellations": "{{count}} annuleringen worden verwerkt",
     "emptyUpdateTitle": "Geen actieve evenementen",

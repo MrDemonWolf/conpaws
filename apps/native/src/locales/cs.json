@@ -228,6 +228,10 @@
     "preview": "Náhled",
     "eventFound": "Nalezena {{count}} aktivní událost",
     "eventsFound": "Nalezeno aktivních událostí: {{count}}",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "Bude sladěno {{count}} zrušení",
     "cancellations": "Bude sladěno zrušení: {{count}}",
     "emptyUpdateTitle": "Žádné aktivní události",
