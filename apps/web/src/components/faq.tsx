@@ -1,26 +1,57 @@
 import type { ReactNode } from "react";
 
-import Faq from "@/content/faq.mdx";
+import { parseInline } from "@/i18n";
 
 /**
- * Renders `content/faq.mdx` as an accordion.
+ * Renders the FAQ accordion from the locale catalog.
  *
- * The MDX file wraps each question in `<FaqItem q="…">` and writes the answer
- * as ordinary markdown. This module supplies `FaqItem` through the MDX
- * components map, so the content file imports nothing and whoever edits it
- * never sees a `<details>`, an `open:` variant, or a rotation transform.
+ * This used to render `content/faq.mdx` through the MDX components map, which
+ * was the right call while the site was English-only: answers are prose, and
+ * markdown beats JSX for prose.
  *
- * Why a wrapper tag rather than splitting on `##` headings: an accordion has
- * to know where each answer begins and ends, and a compiled MDX component is
- * opaque — `Children.toArray(<Faq />)` returns the element itself, not the
- * headings and paragraphs inside it, so a heading-splitting version rendered
- * an empty list. Introspecting the output would mean rendering it first,
- * which a server component cannot do to itself. One tag per question is the
- * smallest honest price for keeping the answers in markdown.
+ * It reads from the catalog now because the FAQ has to exist in 23 languages.
+ * Keeping MDX for English and JSON for everyone else would mean two sources
+ * for the same six answers, and the English one would drift the first time
+ * somebody edited a question without touching the other 22 files. One source
+ * that all locales share is worth losing the MDX authoring for.
  *
- * Borders come from `not-first:` rather than an index, because MDX hands these
- * to us as siblings and there is no map to carry a counter.
+ * The cost is that answers are now plain strings with a two-feature inline
+ * syntax (`[label](url)` and `` `code` ``) instead of full markdown. That is
+ * all the answers ever used. `content/faq.mdx` is now unreferenced and should
+ * be deleted once this has been reviewed.
  */
+
+function Answer({ text }: { text: string }) {
+  return (
+    <p className="max-w-[68ch] px-6 pb-5 text-[14.5px] text-muted-foreground leading-relaxed">
+      {parseInline(text).map((part, i) => {
+        if (part.kind === "link") {
+          return (
+            <a
+              // biome-ignore lint/suspicious/noArrayIndexKey: parts are positional within one immutable string
+              key={i}
+              href={part.href}
+              rel="noopener"
+              className="text-primary underline-offset-2 hover:underline"
+            >
+              {part.value}
+            </a>
+          );
+        }
+        if (part.kind === "code") {
+          return (
+            // biome-ignore lint/suspicious/noArrayIndexKey: as above
+            <code key={i} className="font-tech text-[13px] text-foreground">
+              {part.value}
+            </code>
+          );
+        }
+        // biome-ignore lint/suspicious/noArrayIndexKey: as above
+        return <span key={i}>{part.value}</span>;
+      })}
+    </p>
+  );
+}
 
 function FaqItem({ q, children }: { q: string; children?: ReactNode }) {
   return (
@@ -39,36 +70,18 @@ function FaqItem({ q, children }: { q: string; children?: ReactNode }) {
   );
 }
 
-export function FaqSection() {
+export function FaqSection({
+  items,
+}: {
+  items: readonly { q: string; a: string }[];
+}) {
   return (
     <div className="mt-8 overflow-hidden rounded-2xl border border-border">
-      <Faq
-        components={{
-          FaqItem,
-          // Scoped to this render. The globals in `mdx-components.tsx` style
-          // the legal pages, where a paragraph is body copy; here every
-          // paragraph sits inside a <details> and needs the answer padding.
-          p: ({ children }: { children?: ReactNode }) => (
-            <p className="max-w-[68ch] px-6 pb-5 text-[14.5px] text-muted-foreground leading-relaxed">
-              {children}
-            </p>
-          ),
-          a: ({ href, children }: { href?: string; children?: ReactNode }) => (
-            <a
-              href={href}
-              rel="noopener"
-              className="text-primary underline-offset-2 hover:underline"
-            >
-              {children}
-            </a>
-          ),
-          code: ({ children }: { children?: ReactNode }) => (
-            <code className="font-tech text-[13px] text-foreground">
-              {children}
-            </code>
-          ),
-        }}
-      />
+      {items.map((item) => (
+        <FaqItem key={item.q} q={item.q}>
+          <Answer text={item.a} />
+        </FaqItem>
+      ))}
     </div>
   );
 }

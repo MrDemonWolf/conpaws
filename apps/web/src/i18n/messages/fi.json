@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — kumppanisi furry-coneissa",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Tuo tapahtuman ohjelma, kokoa omasi, saa muistutukset — kaikki toimii offline-tilassa. iOS ja Android.",
+    "descriptionShort": "Tuo tapahtuman ohjelma, kokoa omasi, saa muistutukset — kaikki toimii offline-tilassa.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Vuodesta 2025",
+    "languageLabel": "Kieli"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Ohjelmat, offline ensin, muistutukset, sisältövaroitukset, iOS, Android.",
+    "items": [
+      "Ohjelmat",
+      "Offline ensin",
+      "Muistutukset",
+      "Sisältövaroitukset",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Kurkistus sisään",
+    "title": "Koko viikonloppu, yhdellä peukalolla",
+    "blurb": "Kuvitukset oikeista näkymistä, piirrettynä vastaamaan niitä. Kokoamasi ohjelma on se ohjelma, jonka näet — ei syötettä, ei algoritmia, ei vedä-päivittääksesi.",
+    "frameSchedule": "Kokoa viikonloppusi",
+    "frameEvent": "Älä missaa mitään",
+    "frameOffline": "Wi-Fi valinnainen"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Tapahtumat",
+      "schedule": "Ohjelma",
+      "settings": "Asetukset"
+    },
+    "scheduleTitle": "Ohjelma",
+    "scheduleTimezoneNote": "Ajat näytetään kunkin tapahtuman paikallisajassa.",
+    "offlineTitle": "Nyt ja seuraavaksi",
+    "offlineTimezoneNote": "Ajat vyöhykkeellä America/Chicago",
+    "daySaturdayFull": "Lauantai 4. heinäkuuta",
+    "daySundayFull": "Sunnuntai 5. heinäkuuta",
+    "daySaturday": "Lauantai",
+    "nowCount": "Nyt (1)",
+    "nextAt": "Seuraavaksi klo 14:30 (2)",
+    "events": {
+      "fursuitParade": "Fursuit-paraati",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ-ilta",
+      "closingCeremonies": "Päätösseremonia",
+      "drawingForBeginners": "Piirtämistä aloittelijoille",
+      "writingFurryFiction": "Furry-fiktion kirjoittaminen",
+      "fursuitRepairClinic": "Fursuit-korjauspaja"
+    },
+    "rooms": {
+      "mainHall": "Pääsali",
+      "hallB": "Sali B",
+      "ballroom": "Juhlasali",
+      "panel1": "Paneelihuone 1",
+      "panel2": "Paneelihuone 2",
+      "panel3": "Paneelihuone 3"
+    },
+    "sheet": {
+      "when": "Lauantai 4. heinäkuuta klo 10:00–11:00 · Pääsali",
+      "reminderChip": "15 min ennen",
+      "importedChip": "Tuotu",
+      "note": "Kokoontuminen parvelle klo 9:40 mennessä. Reitti päättyy kuvaseinälle.",
+      "actionRemove": "Poista omasta ohjelmasta",
+      "actionChangeReminder": "Muuta lähtömuistutusta",
+      "actionViewOnSched": "Näytä Schedissä",
+      "close": "Sulje"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Tämän päivän ohjelma",
+    "title": "Tehty tapahtumakäyttöön",
+    "dayCounter": "Päivä 1 / ∞",
+    "tags": {
+      "Core": "Perus",
+      "QoL": "Mukavuus",
+      "Safety": "Turvallisuus"
+    },
+    "items": [
+      {
+        "title": "Tuo mikä tahansa ohjelma",
+        "body": "Pudota .ics-tiedosto tai liitä Sched-linkki. Tuo myöhemmin uudelleen menettämättä valintojasi.",
+        "room": "Pääsali"
+      },
+      {
+        "title": "Fiksut muistutukset",
+        "body": "Tönäisy ennen valitsemiasi ohjelmanumeroita. Ei mitään muuta, koskaan.",
+        "room": "Paneelihuone 2"
+      },
+      {
+        "title": "Sisältövaroitukset",
+        "body": "K-18- ja valoherkkyysvaroitukset poimitaan ohjelmasta automaattisesti.",
+        "room": "Järjestäjät"
+      },
+      {
+        "title": "Toimii offline-tilassa",
+        "body": "Kaikki on puhelimessasi. Se, että tapahtuman Wi-Fi kaatuu ruuhka-aikaan, on nyt jonkun muun ongelma.",
+        "room": "Kaikkialla"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws lyhyesti",
+    "labels": [
+      "ominaisuuksista toimii offline-tilassa",
+      "tiliä tarvitaan käyttöön",
+      "tuo koko ohjelman",
+      "tapahtumaa yhdessä sovelluksessa"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Näin se toimii",
+    "title": "Kolme askelta, ei asetuksia",
+    "items": [
+      {
+        "title": "Lataa",
+        "body": "Ilmainen iOS:lle ja Androidille julkaisussa."
+      },
+      {
+        "title": "Valitse tapahtumasi",
+        "body": "Tuo sen ohjelma tai aloita tyhjästä."
+      },
+      {
+        "title": "Kokoa viikonloppusi",
+        "body": "Tähditä mitä haluat. Tönäisemme ennen kuin se alkaa."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Järjestäjien tiski",
+    "title": "Kysymyksiä ja vastauksia",
+    "items": [
+      {
+        "q": "Onko se ilmainen?",
+        "a": "Kyllä. Ohjelma, tuonnit, muistutukset ja offline-tila ovat ilmaisia. ConPaws+-päivitys lisäominaisuuksineen on suunnitteilla myöhemmin — mikään täällä näkyvä ei siirry sen taakse."
+      },
+      {
+        "q": "Tarvitsenko tilin?",
+        "a": "Et. ConPaws toimii täysin ilman tiliä. Ohjelmasi asuu puhelimessasi, ei meidän palvelimillamme."
+      },
+      {
+        "q": "Entä jos tapahtuman Wi-Fi kaatuu?",
+        "a": "Ei mitään. ConPaws on offline ensin: kaikki toimii edelleen ilman yhtään palkkia kellarin Dealers' Denissä."
+      },
+      {
+        "q": "Minkä tapahtumien kanssa se toimii?",
+        "a": "Kaikkien, jotka julkaisevat `.ics`-kalenterin tai [Sched](https://sched.com)-sivun — mikä kattaa useimmat furry-tapahtumat. Muille voit koota ohjelman käsin."
+      },
+      {
+        "q": "Milloin se julkaistaan?",
+        "a": "Beta avautuu ensin jonotuslistalle, iOS ja Android yhtä aikaa. Liity yllä, niin saat yhden sähköpostin kun kutsusi on valmis."
+      },
+      {
+        "q": "Kuka sen tekee?",
+        "a": "ConPawsin tekee [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — tapahtumakävijöitä, jotka rakentavat sovelluksen, jonka olisivat itse halunneet käytävän jonossa."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Ilmoittautumisjono",
+    "title": "Badgesi odottaa vastaanotossa",
+    "body": "Liity jonotuslistalle, niin saat tasan yhden sähköpostin kun beta avautuu — ei mitään muuta, koskaan.",
+    "button": "Mene jonoon →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws –",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Tuki",
+    "privacy": "Tietosuoja",
+    "terms": "Ehdot"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Betan jonotuslista auki",
+    "badgeSoon": "Betan jonotuslista aukeaa pian",
+    "title": "Tapahtuman ohjelmasi, järjestyksessä.",
+    "titleAccent": "Tapahtuman ohjelmasi",
+    "body": "Tuo tapahtuman ohjelma, kokoa omasi, saa muistutukset — kaikki offline-tilassa, koska tapahtuman Wi-Fi ei koskaan ole.",
+    "nameLabel": "Nimesi tai fursonasi",
+    "emailLabel": "Sähköposti",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "sina@esimerkki.fi",
+    "honeypotLabel": "Yritys",
+    "submit": "Ilmoittaudu betaan →",
+    "submitting": "Ilmoittaudutaan…",
+    "submitClosed": "Ilmoittautuminen aukeaa pian",
+    "successToast": "Vahvista paikkasi sähköpostistasi.",
+    "errorGeneric": "Jokin meni pieleen.",
+    "errorRetry": "Jokin meni pieleen. Yritetäänkö uudelleen?",
+    "doneTitle": "Olet listalla.",
+    "doneBody": "Lähetimme vahvistuslinkin sähköpostiisi. Klikkaa sitä, niin paikkasi on varmistettu — emme kirjoita uudelleen ennen kuin on jotain avaamisen arvoista.",
+    "closedNotice": "Viimeistelemme turvallista ilmoittautumista ja sähköpostivahvistusta. Osoitteita ei vielä oteta vastaan.",
+    "privacyLink": "Tietosuoja"
+  },
+
+  "confirmed": {
+    "title": "Olet listalla",
+    "description": "Paikkasi ConPaws-betan jonotuslistalla on vahvistettu.",
+    "cards": [
+      {
+        "title": "Nyt ei tarvitse tehdä mitään",
+        "body": "Paikkasi on varattu. Emme lähetä sähköpostia uudelleen ennen kuin beta on oikeasti auki."
+      },
+      {
+        "title": "Yksi sähköposti, sitten kutsu",
+        "body": "Kun TestFlight- ja Play-testaus alkaa, saat linkin — iOS ja Android yhtä aikaa."
+      },
+      {
+        "title": "Poistu milloin haluat",
+        "body": "Jokaisessa lähettämässämme sähköpostissa on peruutuslinkki. Yksi klikkaus, ei kysymyksiä."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Sivua ei löytynyt",
+    "description": "Tuo sivu ei ole ohjelmassa.",
+    "links": [
+      {
+        "label": "Pääohjelma",
+        "hint": "Mikä ConPaws on, ja jonotuslista"
+      },
+      { "label": "Tuki", "hint": "Jos jokin on oikeasti rikki" },
+      {
+        "label": "Tietosuojaseloste",
+        "hint": "Mitä tallennamme, ja mitä emme"
+      }
+    ]
+  }
+}

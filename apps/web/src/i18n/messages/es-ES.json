@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — tu compañero para convenciones furry",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Importa el horario de una convención, monta el tuyo, recibe recordatorios — todo funciona sin conexión. iOS y Android.",
+    "descriptionShort": "Importa el horario de una convención, monta el tuyo, recibe recordatorios — todo funciona sin conexión.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Desde 2025",
+    "languageLabel": "Idioma"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Horarios, sin conexión primero, recordatorios, avisos de contenido, iOS, Android.",
+    "items": [
+      "Horarios",
+      "Sin conexión",
+      "Recordatorios",
+      "Avisos de contenido",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Un vistazo por dentro",
+    "title": "Todo tu fin de semana, con un pulgar",
+    "blurb": "Ilustraciones fieles de las pantallas reales. El horario que montas es el que ves — sin feeds, sin algoritmo, sin desliza-para-actualizar.",
+    "frameSchedule": "Monta tu fin de semana",
+    "frameEvent": "No te pierdas nada",
+    "frameOffline": "WiFi opcional"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Convenciones",
+      "schedule": "Horario",
+      "settings": "Ajustes"
+    },
+    "scheduleTitle": "Horario",
+    "scheduleTimezoneNote": "Las horas se muestran en la hora local de cada convención.",
+    "offlineTitle": "Ahora y a continuación",
+    "offlineTimezoneNote": "Horas en America/Chicago",
+    "daySaturdayFull": "Sábado 4 de julio",
+    "daySundayFull": "Domingo 5 de julio",
+    "daySaturday": "Sábado",
+    "nowCount": "Ahora (1)",
+    "nextAt": "A continuación a las 14:30 (2)",
+    "events": {
+      "fursuitParade": "Desfile de fursuits",
+      "dealersDen": "Dealers' Den",
+      "djNight": "Noche de DJ",
+      "closingCeremonies": "Ceremonia de clausura",
+      "drawingForBeginners": "Dibujo para principiantes",
+      "writingFurryFiction": "Escribir ficción furry",
+      "fursuitRepairClinic": "Taller de reparación de fursuits"
+    },
+    "rooms": {
+      "mainHall": "Sala principal",
+      "hallB": "Sala B",
+      "ballroom": "Salón de baile",
+      "panel1": "Sala de charlas 1",
+      "panel2": "Sala de charlas 2",
+      "panel3": "Sala de charlas 3"
+    },
+    "sheet": {
+      "when": "Sábado 4 de julio de 10:00 a 11:00 · Sala principal",
+      "reminderChip": "15 min antes",
+      "importedChip": "Importado",
+      "note": "Concentración en el entresuelo antes de las 9:40. El recorrido acaba en el muro de fotos.",
+      "actionRemove": "Quitar de mi horario",
+      "actionChangeReminder": "Cambiar recordatorio de salida",
+      "actionViewOnSched": "Ver en Sched",
+      "close": "Cerrar"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Programa de hoy",
+    "title": "Hecho para el día a día de la con",
+    "dayCounter": "Día 1 de ∞",
+    "tags": {
+      "Core": "Esencial",
+      "QoL": "Comodidad",
+      "Safety": "Seguridad"
+    },
+    "items": [
+      {
+        "title": "Importa cualquier horario",
+        "body": "Suelta un archivo .ics o pega un enlace de Sched. Vuelve a importar más tarde sin perder lo que has elegido.",
+        "room": "Sala principal"
+      },
+      {
+        "title": "Recordatorios inteligentes",
+        "body": "Un aviso antes de los eventos que elijas. Nada más, nunca.",
+        "room": "Sala de charlas 2"
+      },
+      {
+        "title": "Avisos de contenido",
+        "body": "Las advertencias de 18+ y fotosensibilidad se extraen automáticamente del horario.",
+        "room": "Organización"
+      },
+      {
+        "title": "Funciona sin conexión",
+        "body": "Todo vive en tu móvil. Que el WiFi de la con se caiga en hora punta ya es problema de otro.",
+        "room": "En todas partes"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws de un vistazo",
+    "labels": [
+      "de las funciones van sin conexión",
+      "cuentas hacen falta para usarlo",
+      "importa un horario entero",
+      "convenciones en una sola app"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Cómo funciona",
+    "title": "Tres pasos, cero configuración",
+    "items": [
+      {
+        "title": "Descárgala",
+        "body": "Gratis en iOS y Android desde el lanzamiento."
+      },
+      {
+        "title": "Elige tu convención",
+        "body": "Importa su horario, o empieza uno desde cero."
+      },
+      {
+        "title": "Monta tu fin de semana",
+        "body": "Marca lo que quieras. Te avisamos antes de que empiece."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Mesa de organización",
+    "title": "Preguntas, respondidas",
+    "items": [
+      {
+        "q": "¿Es gratis?",
+        "a": "Sí. El horario, las importaciones, los recordatorios y el modo sin conexión son gratis. Más adelante habrá una mejora ConPaws+ con extras — nada de lo que ves aquí pasa detrás de un pago."
+      },
+      {
+        "q": "¿Necesito una cuenta?",
+        "a": "No. ConPaws funciona por completo sin ella. Tu horario vive en tu móvil, no en nuestros servidores."
+      },
+      {
+        "q": "¿Y si el WiFi de la con se cae?",
+        "a": "No pasa nada. ConPaws funciona sin conexión primero: todo sigue funcionando sin una sola barra en un Dealers' Den en el sótano."
+      },
+      {
+        "q": "¿Con qué convenciones funciona?",
+        "a": "Con cualquiera que publique un calendario `.ics` o una página de [Sched](https://sched.com) — que son la mayoría de las convenciones furry. Para las demás puedes montar el horario a mano."
+      },
+      {
+        "q": "¿Cuándo se lanza?",
+        "a": "La beta abre primero para la lista de espera, iOS y Android a la vez. Apúntate arriba y recibirás un correo cuando tu invitación esté lista."
+      },
+      {
+        "q": "¿Quién la hace?",
+        "a": "ConPaws la construye [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — gente de convenciones haciendo la app que les habría gustado tener en la cola del pasillo."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Cola de registro",
+    "title": "Tu acreditación te espera en recepción",
+    "body": "Únete a la lista de espera y recibirás exactamente un correo cuando abra la beta — nada más, nunca.",
+    "button": "Ponte a la cola →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws por",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Soporte",
+    "privacy": "Privacidad",
+    "terms": "Términos"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Lista de espera de la beta abierta",
+    "badgeSoon": "Lista de espera de la beta muy pronto",
+    "title": "Tu horario de la con, resuelto.",
+    "titleAccent": "horario de la con",
+    "body": "Importa el horario de una convención, monta el tuyo, recibe recordatorios — todo sin conexión, porque el WiFi de la con nunca lo está.",
+    "nameLabel": "Tu nombre o fursona",
+    "emailLabel": "Correo",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "honeypotLabel": "Empresa",
+    "submit": "Apuntarme a la beta →",
+    "submitting": "Registrando…",
+    "submitClosed": "El registro abre pronto",
+    "successToast": "Revisa tu correo para confirmar tu plaza.",
+    "errorGeneric": "Algo ha salido mal.",
+    "errorRetry": "Algo ha salido mal. ¿Reintentar?",
+    "doneTitle": "Estás en la lista.",
+    "doneBody": "Te hemos enviado un enlace de confirmación al correo. Haz clic y tu plaza queda asegurada — no volveremos a escribirte hasta que haya algo que merezca la pena abrir.",
+    "closedNotice": "Estamos terminando el registro seguro y la confirmación por correo. Todavía no aceptamos direcciones.",
+    "privacyLink": "Privacidad"
+  },
+
+  "confirmed": {
+    "title": "Estás en la lista",
+    "description": "Tu plaza en la lista de espera de la beta de ConPaws está confirmada.",
+    "cards": [
+      {
+        "title": "Nada que hacer ahora",
+        "body": "Tu plaza está reservada. No volveremos a escribirte hasta que la beta esté realmente abierta."
+      },
+      {
+        "title": "Un correo, luego una invitación",
+        "body": "Cuando arranquen las pruebas en TestFlight y Play, te llega el enlace — iOS y Android a la vez."
+      },
+      {
+        "title": "Vete cuando quieras",
+        "body": "Cada correo que enviamos lleva un enlace para darte de baja. Un clic, sin preguntas."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "Esa página no está en el programa.",
+    "links": [
+      {
+        "label": "El programa principal",
+        "hint": "Qué es ConPaws, y la lista de espera"
+      },
+      { "label": "Soporte", "hint": "Si de verdad algo está roto" },
+      {
+        "label": "Política de privacidad",
+        "hint": "Qué guardamos, y qué no"
+      }
+    ]
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — dein Begleiter für Furry-Conventions",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Importiere einen Convention-Zeitplan, stelle deinen eigenen zusammen, erhalte Erinnerungen — alles auch offline. iOS und Android.",
+    "descriptionShort": "Importiere einen Convention-Zeitplan, stelle deinen eigenen zusammen, erhalte Erinnerungen — alles auch offline.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Seit 2025",
+    "languageLabel": "Sprache"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Zeitpläne, Offline zuerst, Erinnerungen, Inhaltshinweise, iOS, Android.",
+    "items": [
+      "Zeitpläne",
+      "Offline zuerst",
+      "Erinnerungen",
+      "Inhaltshinweise",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Ein Blick hinein",
+    "title": "Dein ganzes Wochenende, ein Daumen",
+    "blurb": "Illustrationen der echten Bildschirme, originalgetreu gezeichnet. Der Zeitplan, den du baust, ist der Zeitplan, den du siehst — kein Feed, kein Algorithmus, kein Ziehen zum Aktualisieren.",
+    "frameSchedule": "Bau dir dein Wochenende",
+    "frameEvent": "Verpasse nie ein Programm",
+    "frameOffline": "WLAN optional"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Conventions",
+      "schedule": "Zeitplan",
+      "settings": "Einstellungen"
+    },
+    "scheduleTitle": "Zeitplan",
+    "scheduleTimezoneNote": "Zeiten werden in der Ortszeit der jeweiligen Convention angezeigt.",
+    "offlineTitle": "Jetzt und als Nächstes",
+    "offlineTimezoneNote": "Zeiten in America/Chicago",
+    "daySaturdayFull": "Samstag, 4. Juli",
+    "daySundayFull": "Sonntag, 5. Juli",
+    "daySaturday": "Samstag",
+    "nowCount": "Jetzt (1)",
+    "nextAt": "Als Nächstes um 14:30 (2)",
+    "events": {
+      "fursuitParade": "Fursuit-Parade",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ-Nacht",
+      "closingCeremonies": "Abschlusszeremonie",
+      "drawingForBeginners": "Zeichnen für Anfänger",
+      "writingFurryFiction": "Furry-Geschichten schreiben",
+      "fursuitRepairClinic": "Fursuit-Reparaturwerkstatt"
+    },
+    "rooms": {
+      "mainHall": "Haupthalle",
+      "hallB": "Halle B",
+      "ballroom": "Ballsaal",
+      "panel1": "Panelraum 1",
+      "panel2": "Panelraum 2",
+      "panel3": "Panelraum 3"
+    },
+    "sheet": {
+      "when": "Samstag, 4. Juli, 10:00 bis 11:00 · Haupthalle",
+      "reminderChip": "15 Min. vorher",
+      "importedChip": "Importiert",
+      "note": "Aufstellung im Zwischengeschoss bis 9:40. Die Route endet an der Fotowand.",
+      "actionRemove": "Aus meinem Zeitplan entfernen",
+      "actionChangeReminder": "Erinnerung zum Losgehen ändern",
+      "actionViewOnSched": "Auf Sched ansehen",
+      "close": "Schließen"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Programm für heute",
+    "title": "Gemacht für den Con-Alltag",
+    "dayCounter": "Tag 1 von ∞",
+    "tags": {
+      "Core": "Basis",
+      "QoL": "Komfort",
+      "Safety": "Sicherheit"
+    },
+    "items": [
+      {
+        "title": "Jeden Zeitplan importieren",
+        "body": "Lege eine .ics-Datei ab oder füge einen Sched-Link ein. Später neu importieren, ohne deine Auswahl zu verlieren.",
+        "room": "Haupthalle"
+      },
+      {
+        "title": "Clevere Erinnerungen",
+        "body": "Ein Stups vor den Programmpunkten, die du wählst. Sonst nichts, niemals.",
+        "room": "Panelraum 2"
+      },
+      {
+        "title": "Inhaltshinweise",
+        "body": "Hinweise auf 18+ und Fotosensibilität werden automatisch aus dem Zeitplan übernommen.",
+        "room": "Orga"
+      },
+      {
+        "title": "Funktioniert offline",
+        "body": "Alles liegt auf deinem Handy. Dass das Con-WLAN zur Stoßzeit zusammenbricht, ist jetzt das Problem von jemand anderem.",
+        "room": "Überall"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws auf einen Blick",
+    "labels": [
+      "der Funktionen laufen offline",
+      "Konten nötig zur Nutzung",
+      "importiert einen ganzen Zeitplan",
+      "Conventions in einer App"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "So funktioniert's",
+    "title": "Drei Schritte, keine Einrichtung",
+    "items": [
+      {
+        "title": "Herunterladen",
+        "body": "Zum Start kostenlos für iOS und Android."
+      },
+      {
+        "title": "Convention wählen",
+        "body": "Importiere ihren Zeitplan oder fange bei null an."
+      },
+      {
+        "title": "Wochenende zusammenstellen",
+        "body": "Markiere, was du willst. Wir stupsen dich rechtzeitig an."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Con-Orga-Schalter",
+    "title": "Fragen, beantwortet",
+    "items": [
+      {
+        "q": "Ist es kostenlos?",
+        "a": "Ja. Zeitplan, Importe, Erinnerungen und der Offline-Modus sind kostenlos. Ein ConPaws+-Upgrade mit Extras ist später geplant — nichts, was du hier siehst, wandert dahinter."
+      },
+      {
+        "q": "Brauche ich ein Konto?",
+        "a": "Nein. ConPaws funktioniert vollständig ohne. Dein Zeitplan liegt auf deinem Handy, nicht auf unseren Servern."
+      },
+      {
+        "q": "Was, wenn das Con-WLAN ausfällt?",
+        "a": "Gar nichts. ConPaws ist offline-first: Jede Funktion läuft weiter, auch ohne einen einzigen Balken im Dealers' Den im Keller."
+      },
+      {
+        "q": "Mit welchen Conventions funktioniert es?",
+        "a": "Mit allen, die einen `.ics`-Kalender oder eine [Sched](https://sched.com)-Seite veröffentlichen — das deckt die meisten Furry-Cons ab. Für die anderen kannst du einen Zeitplan von Hand anlegen."
+      },
+      {
+        "q": "Wann erscheint es?",
+        "a": "Die Beta öffnet zuerst für die Warteliste, iOS und Android gemeinsam. Trag dich oben ein und du bekommst eine E-Mail, sobald deine Einladung bereit ist."
+      },
+      {
+        "q": "Wer macht das?",
+        "a": "ConPaws wird von [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) gebaut — Con-Besucher, die die App bauen, die sie sich in der Warteschlange gewünscht hätten."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Anmeldeschlange",
+    "title": "Dein Badge liegt am Empfang bereit",
+    "body": "Trag dich in die Warteliste ein und du bekommst genau eine E-Mail, wenn die Beta öffnet — sonst nichts, niemals.",
+    "button": "Anstellen →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws von",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Support",
+    "privacy": "Datenschutz",
+    "terms": "AGB"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Beta-Warteliste offen",
+    "badgeSoon": "Beta-Warteliste bald verfügbar",
+    "title": "Dein Con-Zeitplan, sortiert.",
+    "titleAccent": "Con-Zeitplan",
+    "body": "Importiere einen Convention-Zeitplan, stelle deinen eigenen zusammen, erhalte Erinnerungen — alles auch offline, denn das Con-WLAN ist es nie.",
+    "nameLabel": "Dein Name oder deine Fursona",
+    "emailLabel": "E-Mail",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "du@beispiel.de",
+    "honeypotLabel": "Firma",
+    "submit": "Für die Beta registrieren →",
+    "submitting": "Wird registriert…",
+    "submitClosed": "Anmeldung öffnet bald",
+    "successToast": "Schau in dein Postfach, um deinen Platz zu bestätigen.",
+    "errorGeneric": "Etwas ist schiefgelaufen.",
+    "errorRetry": "Etwas ist schiefgelaufen. Nochmal versuchen?",
+    "doneTitle": "Du stehst auf der Liste.",
+    "doneBody": "Wir haben dir einen Bestätigungslink geschickt. Klick ihn an und dein Platz ist sicher — wir schreiben dir erst wieder, wenn es etwas zu öffnen gibt.",
+    "closedNotice": "Wir stellen gerade die sichere Anmeldung und die E-Mail-Bestätigung fertig. Es werden noch keine Adressen angenommen.",
+    "privacyLink": "Datenschutz"
+  },
+
+  "confirmed": {
+    "title": "Du stehst auf der Liste",
+    "description": "Dein Platz auf der ConPaws-Beta-Warteliste ist bestätigt.",
+    "cards": [
+      {
+        "title": "Jetzt ist nichts zu tun",
+        "body": "Dein Platz ist reserviert. Wir schreiben dir erst wieder, wenn die Beta wirklich offen ist."
+      },
+      {
+        "title": "Eine E-Mail, dann eine Einladung",
+        "body": "Wenn TestFlight und der Play-Test starten, bekommst du den Link — iOS und Android gemeinsam."
+      },
+      {
+        "title": "Jederzeit abmelden",
+        "body": "Jede E-Mail von uns enthält einen Abmeldelink. Ein Klick, keine Rückfragen."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Diese Seite steht nicht im Programm.",
+    "links": [
+      {
+        "label": "Das Hauptprogramm",
+        "hint": "Was ConPaws ist, und die Warteliste"
+      },
+      { "label": "Support", "hint": "Wenn wirklich etwas kaputt ist" },
+      {
+        "label": "Datenschutzerklärung",
+        "hint": "Was wir speichern und was nicht"
+      }
+    ]
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — din ledsager til furry-konventer",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Importér et konvents program, byg dit eget, få påmindelser — det hele virker offline. iOS og Android.",
+    "descriptionShort": "Importér et konvents program, byg dit eget, få påmindelser — det hele virker offline.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Siden 2025",
+    "languageLabel": "Sprog"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Programmer, offline først, påmindelser, indholdsadvarsler, iOS, Android.",
+    "items": [
+      "Programmer",
+      "Offline først",
+      "Påmindelser",
+      "Indholdsadvarsler",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Et kig indenfor",
+    "title": "Hele din weekend, med én tommelfinger",
+    "blurb": "Illustrationer af de rigtige skærme, tegnet så det passer. Det program, du bygger, er det program, du ser — intet feed, ingen algoritme, ingen træk-for-at-opdatere.",
+    "frameSchedule": "Byg din weekend",
+    "frameEvent": "Gå aldrig glip af noget",
+    "frameOffline": "Wi-Fi valgfrit"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Konventer",
+      "schedule": "Program",
+      "settings": "Indstillinger"
+    },
+    "scheduleTitle": "Program",
+    "scheduleTimezoneNote": "Tider vises i hvert konvents lokale tid.",
+    "offlineTitle": "Nu og næste",
+    "offlineTimezoneNote": "Tider vist i America/Chicago",
+    "daySaturdayFull": "Lørdag den 4. juli",
+    "daySundayFull": "Søndag den 5. juli",
+    "daySaturday": "Lørdag",
+    "nowCount": "Nu (1)",
+    "nextAt": "Næste kl. 14:30 (2)",
+    "events": {
+      "fursuitParade": "Fursuit-parade",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ-aften",
+      "closingCeremonies": "Afslutningsceremoni",
+      "drawingForBeginners": "Tegning for begyndere",
+      "writingFurryFiction": "At skrive furry-fiktion",
+      "fursuitRepairClinic": "Fursuit-reparationsværksted"
+    },
+    "rooms": {
+      "mainHall": "Store sal",
+      "hallB": "Sal B",
+      "ballroom": "Balsal",
+      "panel1": "Panelrum 1",
+      "panel2": "Panelrum 2",
+      "panel3": "Panelrum 3"
+    },
+    "sheet": {
+      "when": "Lørdag den 4. juli kl. 10:00–11:00 · Store sal",
+      "reminderChip": "15 min før",
+      "importedChip": "Importeret",
+      "note": "Opstilling på mezzaninen senest 9:40. Ruten slutter ved fotovæggen.",
+      "actionRemove": "Fjern fra mit program",
+      "actionChangeReminder": "Skift påmindelse om afgang",
+      "actionViewOnSched": "Se på Sched",
+      "close": "Luk"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Dagens program",
+    "title": "Bygget til konventgulvet",
+    "dayCounter": "Dag 1 af ∞",
+    "tags": {
+      "Core": "Basis",
+      "QoL": "Komfort",
+      "Safety": "Tryghed"
+    },
+    "items": [
+      {
+        "title": "Importér ethvert program",
+        "body": "Smid en .ics-fil ind, eller indsæt et Sched-link. Importér igen senere uden at miste det, du har valgt.",
+        "room": "Store sal"
+      },
+      {
+        "title": "Kloge påmindelser",
+        "body": "Et prik før de programpunkter, du vælger. Intet andet, nogensinde.",
+        "room": "Panelrum 2"
+      },
+      {
+        "title": "Indholdsadvarsler",
+        "body": "18+ og advarsler om lysfølsomhed hentes automatisk fra programmet.",
+        "room": "Crew"
+      },
+      {
+        "title": "Virker offline",
+        "body": "Alt bor på din telefon. At konventets Wi-Fi dør i myldretiden er nu en andens problem.",
+        "room": "Overalt"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws kort fortalt",
+    "labels": [
+      "af funktionerne virker offline",
+      "konti kræves for at bruge den",
+      "importerer et helt program",
+      "konventer i én app"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Sådan virker det",
+    "title": "Tre trin, nul opsætning",
+    "items": [
+      {
+        "title": "Hent den",
+        "body": "Gratis på iOS og Android ved lanceringen."
+      },
+      {
+        "title": "Vælg dit konvent",
+        "body": "Importér dets program, eller start et fra bunden."
+      },
+      {
+        "title": "Byg din weekend",
+        "body": "Sæt stjerne ved det, du vil. Vi prikker dig, før det går i gang."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Crew-skranken",
+    "title": "Spørgsmål, besvaret",
+    "items": [
+      {
+        "q": "Er det gratis?",
+        "a": "Ja. Programmet, importer, påmindelser og offline-tilstand er gratis. En ConPaws+-opgradering med ekstra er planlagt senere — intet af det, du ser her, flytter bagom den."
+      },
+      {
+        "q": "Skal jeg have en konto?",
+        "a": "Nej. ConPaws virker fuldstændig uden. Dit program bor på din telefon, ikke på vores servere."
+      },
+      {
+        "q": "Hvad hvis konventets Wi-Fi dør?",
+        "a": "Der sker ingenting. ConPaws er offline først: alt bliver ved med at virke uden en eneste bjælke i en Dealers' Den i kælderen."
+      },
+      {
+        "q": "Hvilke konventer virker det med?",
+        "a": "Alle, der udgiver en `.ics`-kalender eller en [Sched](https://sched.com)-side — hvilket dækker de fleste furry-konventer. Du kan også bygge et program i hånden til dem, der ikke gør."
+      },
+      {
+        "q": "Hvornår udkommer den?",
+        "a": "Betaen åbner først for ventelisten, iOS og Android samtidig. Skriv dig op ovenfor, så får du én mail, når din invitation er klar."
+      },
+      {
+        "q": "Hvem laver den?",
+        "a": "ConPaws er bygget af [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — konventgængere, der bygger den app, de selv ønskede sig i køen på gangen."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Registreringskøen",
+    "title": "Dit badge venter i receptionen",
+    "body": "Skriv dig på ventelisten, så får du præcis én mail, når betaen åbner — intet andet, nogensinde.",
+    "button": "Stil dig i kø →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws af",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Support",
+    "privacy": "Privatliv",
+    "terms": "Vilkår"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Venteliste til beta er åben",
+    "badgeSoon": "Venteliste til beta åbner snart",
+    "title": "Dit konventprogram, styr på.",
+    "titleAccent": "konventprogram",
+    "body": "Importér et konvents program, byg dit eget, få påmindelser — det hele offline, for det er konventets Wi-Fi aldrig.",
+    "nameLabel": "Dit navn eller fursona",
+    "emailLabel": "E-mail",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "dig@eksempel.dk",
+    "honeypotLabel": "Virksomhed",
+    "submit": "Tilmeld dig betaen →",
+    "submitting": "Tilmelder…",
+    "submitClosed": "Tilmelding åbner snart",
+    "successToast": "Tjek din indbakke for at bekræfte din plads.",
+    "errorGeneric": "Noget gik galt.",
+    "errorRetry": "Noget gik galt. Prøv igen?",
+    "doneTitle": "Du er på listen.",
+    "doneBody": "Vi har sendt et bekræftelseslink til din indbakke. Klik på det, så er din plads sikret — vi skriver ikke igen, før der er noget værd at åbne.",
+    "closedNotice": "Vi er ved at færdiggøre sikker tilmelding og e-mailbekræftelse. Der modtages ingen adresser endnu.",
+    "privacyLink": "Privatliv"
+  },
+
+  "confirmed": {
+    "title": "Du er på listen",
+    "description": "Din plads på ventelisten til ConPaws-betaen er bekræftet.",
+    "cards": [
+      {
+        "title": "Der er ikke noget at gøre nu",
+        "body": "Din plads er reserveret. Vi skriver ikke igen, før betaen faktisk er åben."
+      },
+      {
+        "title": "Én mail, så en invitation",
+        "body": "Når TestFlight og Play-test går i luften, får du linket — iOS og Android samtidig."
+      },
+      {
+        "title": "Meld dig fra når som helst",
+        "body": "Hver mail, vi sender, har et afmeldingslink. Ét klik, ingen spørgsmål."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Siden blev ikke fundet",
+    "description": "Den side står ikke på programmet.",
+    "links": [
+      {
+        "label": "Hovedprogrammet",
+        "hint": "Hvad ConPaws er, og ventelisten"
+      },
+      { "label": "Support", "hint": "Hvis noget faktisk er i stykker" },
+      {
+        "label": "Privatlivspolitik",
+        "hint": "Hvad vi gemmer, og hvad vi ikke gemmer"
+      }
+    ]
+  }
+}

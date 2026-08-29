@@ -5,10 +5,12 @@ import Script from "next/script";
 import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import type { Messages } from "@/i18n";
 import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
 
 type Status = "idle" | "submitting" | "done";
+type WaitlistMessages = Messages["waitlist"];
 
 declare global {
   interface Window {
@@ -28,7 +30,7 @@ const WAITLIST_ACCEPTING_SIGNUPS = true;
 const INPUT_CLASS =
   "w-full rounded-xl border border-input bg-card/70 px-4 py-3.5 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
 
-export function Waitlist() {
+export function Waitlist({ messages }: { messages: WaitlistMessages }) {
   const nameId = useId();
   const emailId = useId();
   const hpId = useId();
@@ -77,11 +79,11 @@ export function Waitlist() {
         const body = (await res.json().catch(() => ({}))) as {
           error?: string;
         };
-        throw new Error(body.error ?? "Something went wrong. Try again?");
+        throw new Error(body.error ?? messages.errorRetry);
       }
 
       setStatus("done");
-      toast.success("Check your inbox to confirm your spot.");
+      toast.success(messages.successToast);
     } catch (error) {
       setStatus("idle");
       // Turnstile tokens are single-use. Without this reset the hidden field
@@ -89,7 +91,7 @@ export function Waitlist() {
       // again — the user would be stuck with no way out but a page reload.
       window.turnstile?.reset();
       toast.error(
-        error instanceof Error ? error.message : "Something went wrong.",
+        error instanceof Error ? error.message : messages.errorGeneric,
       );
     }
   }
@@ -109,22 +111,34 @@ export function Waitlist() {
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
           </span>
-          {WAITLIST_ACCEPTING_SIGNUPS
-            ? "Beta waitlist open"
-            : "Beta waitlist coming soon"}
+          {WAITLIST_ACCEPTING_SIGNUPS ? messages.badgeOpen : messages.badgeSoon}
         </span>
 
-        <h1 className="motion-safe:animate-rise mt-6 font-bold text-[clamp(42px,6.2vw,76px)] leading-[0.95] tracking-[-0.03em] [animation-delay:80ms]">
-          Your con
-          <br />
-          <span className="text-primary">schedule</span>,
-          <br />
-          sorted.
+        {/*
+          The accent word is highlighted by splitting the headline on it rather
+          than by hardcoding line breaks around it, which is what this used to
+          do. Fixed <br>s only work for one word order: "schedule" lands in the
+          middle in English and at the end in German, and CJK has no space to
+          break on at all. Splitting on the accent keeps the emphasis wherever
+          the translator put the word, and falls back to a plain headline if
+          they rephrased it away.
+        */}
+        <h1 className="motion-safe:animate-rise mt-6 text-balance font-bold text-[clamp(42px,6.2vw,76px)] leading-[0.95] tracking-[-0.03em] [animation-delay:80ms]">
+          {(() => {
+            const at = messages.title.indexOf(messages.titleAccent);
+            if (at === -1 || !messages.titleAccent) return messages.title;
+            return (
+              <>
+                {messages.title.slice(0, at)}
+                <span className="text-primary">{messages.titleAccent}</span>
+                {messages.title.slice(at + messages.titleAccent.length)}
+              </>
+            );
+          })()}
         </h1>
 
         <p className="motion-safe:animate-rise mt-6 max-w-[42ch] text-[16px] text-muted-foreground leading-relaxed [animation-delay:160ms]">
-          Import a convention schedule, build your own, get reminders — all of
-          it working offline, because con WiFi never does.
+          {messages.body}
         </p>
       </div>
 
@@ -140,11 +154,9 @@ export function Waitlist() {
       <div className="relative z-10 md:col-start-1 md:row-start-2">
         {status === "done" ? (
           <div className="max-w-[440px] rounded-2xl border border-primary/40 bg-primary/10 p-6">
-            <p className="font-bold text-[17px]">You&rsquo;re on the list.</p>
+            <p className="font-bold text-[17px]">{messages.doneTitle}</p>
             <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed">
-              We sent a confirmation link to your inbox. Click it and your spot
-              is locked in — we won&rsquo;t email you again until there&rsquo;s
-              something worth opening.
+              {messages.doneBody}
             </p>
           </div>
         ) : (
@@ -158,7 +170,7 @@ export function Waitlist() {
                   htmlFor={nameId}
                   className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
                 >
-                  Your name or fursona
+                  {messages.nameLabel}
                 </label>
                 {/* Deliberately never disabled: the badge filling in as you
                     type is the page's one interactive moment, and it works
@@ -167,7 +179,7 @@ export function Waitlist() {
                   id={nameId}
                   name="name"
                   autoComplete="name"
-                  placeholder="Luna Starfall"
+                  placeholder={messages.namePlaceholder}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={60}
@@ -180,7 +192,7 @@ export function Waitlist() {
                   htmlFor={emailId}
                   className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
                 >
-                  Email
+                  {messages.emailLabel}
                 </label>
                 <input
                   id={emailId}
@@ -189,7 +201,7 @@ export function Waitlist() {
                   required
                   disabled={!WAITLIST_ACCEPTING_SIGNUPS}
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={messages.emailPlaceholder}
                   className={INPUT_CLASS}
                 />
               </div>
@@ -201,7 +213,7 @@ export function Waitlist() {
               aria-hidden="true"
               className="-left-[9999px] absolute h-0 w-0 overflow-hidden"
             >
-              <label htmlFor={hpId}>Company</label>
+              <label htmlFor={hpId}>{messages.honeypotLabel}</label>
               <input
                 id={hpId}
                 name="company"
@@ -232,23 +244,35 @@ export function Waitlist() {
               className="mt-5 w-full rounded-xl bg-primary px-5 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             >
               {!WAITLIST_ACCEPTING_SIGNUPS
-                ? "Registration opening soon"
+                ? messages.submitClosed
                 : status === "submitting"
-                  ? "Registering…"
-                  : "Register for the beta →"}
+                  ? messages.submitting
+                  : messages.submit}
             </button>
 
+            {/*
+              CONSENT_COPY is deliberately NOT translated.
+
+              This exact string is written verbatim onto every waitlist row, so
+              that each person keeps the wording they actually agreed to. Show a
+              German sentence here while storing the English one and the record
+              no longer matches what was consented to, which is the whole reason
+              the text is stored rather than a boolean.
+
+              Localising it properly means the server picking the string by
+              locale from its own copy of the catalogs and storing that — never
+              trusting a client-supplied consent string, which would be
+              tamperable. Until that lands, English is the honest option: the
+              text shown and the text stored are the same.
+            */}
             <p className="mt-3.5 text-[13px] text-muted-foreground leading-relaxed">
               {WAITLIST_ACCEPTING_SIGNUPS ? (
-                CONSENT_COPY
+                <span lang="en">{CONSENT_COPY}</span>
               ) : (
-                <>
-                  We&rsquo;re finishing secure signup and email confirmation. No
-                  addresses are being accepted yet.
-                </>
+                messages.closedNotice
               )}{" "}
               <a href="/privacy" className="text-primary hover:underline">
-                Privacy
+                {messages.privacyLink}
               </a>
             </p>
           </form>
