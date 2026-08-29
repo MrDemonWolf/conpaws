@@ -245,19 +245,19 @@
     "couldNotLoad": "Ohjelmaa ei voitu ladata",
     "importedConvention": "Tuotu coni",
     "preview": "Esikatselu",
-    "eventFound": "Löytyi {{count}} aktiivinen tapahtuma",
-    "eventsFound": "Löytyi {{count}} aktiivista tapahtumaa",
+    "eventFound": "{{count}} tapahtuma valmiina tuotavaksi",
+    "eventsFound": "{{count}} tapahtumaa valmiina tuotavaksi",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} peruutus täsmäytetään",
-    "cancellations": "{{count}} peruutusta täsmäytetään",
+    "cancellation": "Tapahtuma peruttiin: {{count}}",
+    "cancellations": "Tapahtumia peruttiin: {{count}}",
     "emptyUpdateTitle": "Ei aktiivisia tapahtumia",
     "emptyUpdateMessage": "Näet poistettavien tarkan määrän ennen kuin mitään muutetaan.",
     "categories": "Kategoriat",
-    "categoryEvent": "{{name}}, {{count}} tapahtuma",
-    "categoryEvents": "{{name}}, {{count}} tapahtumaa",
+    "categoryEvent": "{{name}} · {{count}} tapahtuma",
+    "categoryEvents": "{{name}} · {{count}} tapahtumaa",
     "importEvent": "Tuo {{count}} tapahtuma",
     "importEvents": "Tuo {{count}} tapahtumaa",
     "importing": "Tuodaan...",
@@ -313,7 +313,8 @@
       "ics": ".ics-tiedosto on vakiomuotoinen kalenterivienti. Conit linkittävät sen usein nimellä ”Lisää kalenteriin” tai ”Kalenterisyöte” — myös webcal://-linkit toimivat.",
       "askTitle": "Etkö löydä kumpaakaan?",
       "ask": "Etsi ohjelmalinkkiä conin verkkosivuilta tai sovelluksesta, tai kysy heidän somestaan, missä muodossa ohjelma julkaistaan."
-    }
+    },
+    "previewFooter": "Mitään ei tallenneta, ennen kuin napautat Tuo."
   },
   "onboarding": {
     "progress": "Vaihe {{step}}/{{total}}",

@@ -245,19 +245,19 @@
     "couldNotLoad": "スケジュールを読み込めませんでした",
     "importedConvention": "読み込んだコンベンション",
     "preview": "プレビュー",
-    "eventFound": "{{count}}件の有効なイベントが見つかりました",
-    "eventsFound": "{{count}}件の有効なイベントが見つかりました",
+    "eventFound": "インポート可能なイベント {{count}} 件",
+    "eventsFound": "インポート可能なイベント {{count}} 件",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}}件のキャンセルが反映されます",
-    "cancellations": "{{count}}件のキャンセルが反映されます",
+    "cancellation": "コンベンションが中止したイベント {{count}} 件",
+    "cancellations": "コンベンションが中止したイベント {{count}} 件",
     "emptyUpdateTitle": "有効なイベントがありません",
     "emptyUpdateMessage": "変更が行われる前に、削除される正確な件数を確認できます。",
     "categories": "カテゴリ",
-    "categoryEvent": "{{name}}、{{count}}件のイベント",
-    "categoryEvents": "{{name}}、{{count}}件のイベント",
+    "categoryEvent": "{{name}} · {{count}} 件",
+    "categoryEvents": "{{name}} · {{count}} 件",
     "importEvent": "{{count}}件のイベントを読み込む",
     "importEvents": "{{count}}件のイベントを読み込む",
     "importing": "読み込み中...",
@@ -313,7 +313,8 @@
       "ics": ".icsファイルは標準的なカレンダーの書き出し形式です。コンベンションでは「カレンダーに追加」や「カレンダーフィード」としてリンクされていることが多く、webcal://リンクも使えます。",
       "askTitle": "どちらも見つかりませんか？",
       "ask": "コンベンションのウェブサイトやアプリでスケジュールのリンクを探すか、SNSでどの形式で公開しているか問い合わせてみてください。"
-    }
+    },
+    "previewFooter": "「インポート」をタップするまで何も保存されません。"
   },
   "onboarding": {
     "progress": "ステップ{{step}}/{{total}}",

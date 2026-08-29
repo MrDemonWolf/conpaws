@@ -20,8 +20,10 @@ import {
   listStyle,
   padding,
   shapes,
+  tint,
 } from "@expo/ui/swift-ui/modifiers";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { themeTokens } from "@/lib/theme-tokens";
 import type { ConventionListProps } from "./ConventionList.types";
 
 export function ConventionList<T extends { id: string }>({
@@ -174,8 +176,19 @@ export function ConventionList<T extends { id: string }>({
             // confirmation Alert resolves. Cancelling then left the row
             // missing (and the list blank rather than showing the empty
             // state) until the screen remounted, even though nothing was
-            // deleted. The red tint keeps the affordance without that.
-            modifiers={[foregroundStyle("#FF3B30")]}
+            // deleted.
+            //
+            // `tint` is what restores the red, and it has to be `tint` rather
+            // than `foregroundStyle`: a swipe action's colour is its
+            // background, and foregroundStyle only reaches the label. Losing
+            // the red would be a real regression -- it is the one signal that
+            // separates this action from Archive at a glance.
+            modifiers={[
+              tint(
+                themeTokens[colorScheme === "dark" ? "dark" : "light"]
+                  .destructive,
+              ),
+            ]}
             onPress={() => onDelete(item)}
           />
         </SwipeActions.Actions>

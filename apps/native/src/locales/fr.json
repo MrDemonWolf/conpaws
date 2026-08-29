@@ -245,19 +245,19 @@
     "couldNotLoad": "Impossible de charger le programme",
     "importedConvention": "Convention importée",
     "preview": "Aperçu",
-    "eventFound": "{{count}} événement actif trouvé",
-    "eventsFound": "{{count}} événements actifs trouvés",
+    "eventFound": "{{count}} événement prêt à importer",
+    "eventsFound": "{{count}} événements prêts à importer",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} annulation sera rapprochée",
-    "cancellations": "{{count}} annulations seront rapprochées",
+    "cancellation": "{{count}} événement a été annulé par la convention",
+    "cancellations": "{{count}} événements ont été annulés par la convention",
     "emptyUpdateTitle": "Aucun événement actif",
     "emptyUpdateMessage": "Vous vérifierez le nombre exact de suppressions avant toute modification.",
     "categories": "Catégories",
-    "categoryEvent": "{{name}}, {{count}} événement",
-    "categoryEvents": "{{name}}, {{count}} événements",
+    "categoryEvent": "{{name}} · {{count}} événement",
+    "categoryEvents": "{{name}} · {{count}} événements",
     "importEvent": "Importer {{count}} événement",
     "importEvents": "Importer {{count}} événements",
     "importing": "Importation...",
@@ -313,7 +313,8 @@
       "ics": "Un fichier .ics est un export de calendrier standard. Les conventions le proposent souvent sous « Ajouter au calendrier » ou « Flux calendrier » — les liens webcal:// fonctionnent aussi.",
       "askTitle": "Vous ne trouvez ni l'un ni l'autre ?",
       "ask": "Cherchez un lien vers le programme sur le site ou l'appli de la convention, ou demandez sur leurs réseaux sociaux quel format ils publient."
-    }
+    },
+    "previewFooter": "Rien n'est enregistré tant que vous n'appuyez pas sur Importer."
   },
   "onboarding": {
     "progress": "Étape {{step}} sur {{total}}",

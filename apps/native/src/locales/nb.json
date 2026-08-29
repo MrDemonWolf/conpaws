@@ -245,19 +245,19 @@
     "couldNotLoad": "Kunne ikke laste programmet",
     "importedConvention": "Importert konvent",
     "preview": "Forhåndsvisning",
-    "eventFound": "{{count}} aktiv hendelse funnet",
-    "eventsFound": "{{count}} aktive hendelser funnet",
+    "eventFound": "{{count}} arrangement klart til import",
+    "eventsFound": "{{count}} arrangementer klare til import",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} avlysning vil bli avstemt",
-    "cancellations": "{{count}} avlysninger vil bli avstemt",
+    "cancellation": "{{count}} arrangement ble avlyst av stevnet",
+    "cancellations": "{{count}} arrangementer ble avlyst av stevnet",
     "emptyUpdateTitle": "Ingen aktive hendelser",
     "emptyUpdateMessage": "Du får se det nøyaktige antallet som fjernes, før noe endres.",
     "categories": "Kategorier",
-    "categoryEvent": "{{name}}, {{count}} hendelse",
-    "categoryEvents": "{{name}}, {{count}} hendelser",
+    "categoryEvent": "{{name}} · {{count}} arrangement",
+    "categoryEvents": "{{name}} · {{count}} arrangementer",
     "importEvent": "Importer {{count}} hendelse",
     "importEvents": "Importer {{count}} hendelser",
     "importing": "Importerer...",
@@ -313,7 +313,8 @@
       "ics": "En .ics-fil er en standard kalendereksport. Konventer lenker den ofte som «Legg til i kalender» eller «Kalenderstrøm» — webcal://-lenker fungerer også.",
       "askTitle": "Finner du ingen av delene?",
       "ask": "Sjekk konventets nettsted eller app etter en programlenke, eller spør på sosiale medier hvilket format de publiserer."
-    }
+    },
+    "previewFooter": "Ingenting lagres før du trykker på Importer."
   },
   "onboarding": {
     "progress": "Trinn {{step}} av {{total}}",

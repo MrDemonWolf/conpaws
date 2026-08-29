@@ -245,19 +245,19 @@
     "couldNotLoad": "无法加载日程",
     "importedConvention": "已导入的展会",
     "preview": "预览",
-    "eventFound": "找到 {{count}} 个有效活动",
-    "eventsFound": "找到 {{count}} 个有效活动",
+    "eventFound": "{{count}} 个活动可导入",
+    "eventsFound": "{{count}} 个活动可导入",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "将同步 {{count}} 项取消",
-    "cancellations": "将同步 {{count}} 项取消",
+    "cancellation": "展会已取消 {{count}} 个活动",
+    "cancellations": "展会已取消 {{count}} 个活动",
     "emptyUpdateTitle": "没有有效活动",
     "emptyUpdateMessage": "在任何更改发生之前，你都可以先确认将被移除的确切数量。",
     "categories": "分类",
-    "categoryEvent": "{{name}}，{{count}} 个活动",
-    "categoryEvents": "{{name}}，{{count}} 个活动",
+    "categoryEvent": "{{name}} · {{count}} 个",
+    "categoryEvents": "{{name}} · {{count}} 个",
     "importEvent": "导入 {{count}} 个活动",
     "importEvents": "导入 {{count}} 个活动",
     "importing": "导入中...",
@@ -313,7 +313,8 @@
       "ics": ".ics 文件是标准的日历导出格式。展会通常以“添加到日历”或“日历订阅”的形式提供——webcal:// 链接也可以用。",
       "askTitle": "两个都找不到？",
       "ask": "去展会的官网或应用里找日程链接，或在他们的社交媒体上询问发布的是哪种格式。"
-    }
+    },
+    "previewFooter": "点按“导入”前不会保存任何内容。"
   },
   "onboarding": {
     "progress": "第 {{step}} 步，共 {{total}} 步",

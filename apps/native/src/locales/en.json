@@ -245,19 +245,19 @@
     "couldNotLoad": "Couldn't Load Schedule",
     "importedConvention": "Imported Convention",
     "preview": "Preview",
-    "eventFound": "{{count}} active event found",
-    "eventsFound": "{{count}} active events found",
+    "eventFound": "{{count}} event ready to import",
+    "eventsFound": "{{count}} events ready to import",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} cancellation will be reconciled",
-    "cancellations": "{{count}} cancellations will be reconciled",
+    "cancellation": "{{count}} event was cancelled by the convention",
+    "cancellations": "{{count}} events were cancelled by the convention",
     "emptyUpdateTitle": "No Active Events",
     "emptyUpdateMessage": "You'll review the exact removal count before anything changes.",
     "categories": "Categories",
-    "categoryEvent": "{{name}}, {{count}} event",
-    "categoryEvents": "{{name}}, {{count}} events",
+    "categoryEvent": "{{name}} · {{count}} event",
+    "categoryEvents": "{{name}} · {{count}} events",
     "importEvent": "Import {{count}} Event",
     "importEvents": "Import {{count}} Events",
     "importing": "Importing...",
@@ -313,7 +313,8 @@
       "ics": "An .ics file is a standard calendar export. Conventions often link it as \"Add to calendar\" or \"Calendar feed\" — webcal:// links work too.",
       "askTitle": "Can't find either?",
       "ask": "Check the convention's website or app for a schedule link, or ask their social media which format they publish."
-    }
+    },
+    "previewFooter": "Nothing is saved until you tap Import."
   },
   "onboarding": {
     "progress": "Step {{step}} of {{total}}",

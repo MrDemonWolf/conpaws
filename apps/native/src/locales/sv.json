@@ -245,19 +245,19 @@
     "couldNotLoad": "Det gick inte att läsa in schemat",
     "importedConvention": "Importerat konvent",
     "preview": "Förhandsvisning",
-    "eventFound": "{{count}} aktivt evenemang hittades",
-    "eventsFound": "{{count}} aktiva evenemang hittades",
+    "eventFound": "{{count}} programpunkt redo att importeras",
+    "eventsFound": "{{count}} programpunkter redo att importeras",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} inställning kommer att stämmas av",
-    "cancellations": "{{count}} inställningar kommer att stämmas av",
+    "cancellation": "{{count}} programpunkt ställdes in av konventet",
+    "cancellations": "{{count}} programpunkter ställdes in av konventet",
     "emptyUpdateTitle": "Inga aktiva evenemang",
     "emptyUpdateMessage": "Du får granska det exakta antalet borttagningar innan något ändras.",
     "categories": "Kategorier",
-    "categoryEvent": "{{name}}, {{count}} evenemang",
-    "categoryEvents": "{{name}}, {{count}} evenemang",
+    "categoryEvent": "{{name}} · {{count}} programpunkt",
+    "categoryEvents": "{{name}} · {{count}} programpunkter",
     "importEvent": "Importera {{count}} evenemang",
     "importEvents": "Importera {{count}} evenemang",
     "importing": "Importerar...",
@@ -313,7 +313,8 @@
       "ics": "En .ics-fil är en standardkalenderexport. Konvent länkar den ofta som ”Lägg till i kalender” eller ”Kalenderflöde” – webcal://-länkar fungerar också.",
       "askTitle": "Hittar du ingetdera?",
       "ask": "Leta efter en schemalänk på konventets webbplats eller app, eller fråga i deras sociala medier vilket format de publicerar."
-    }
+    },
+    "previewFooter": "Inget sparas förrän du trycker på Importera."
   },
   "onboarding": {
     "progress": "Steg {{step}} av {{total}}",

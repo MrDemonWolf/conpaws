@@ -245,19 +245,19 @@
     "couldNotLoad": "Rooster kon niet worden geladen",
     "importedConvention": "Geïmporteerde conventie",
     "preview": "Voorbeeld",
-    "eventFound": "{{count}} actief evenement gevonden",
-    "eventsFound": "{{count}} actieve evenementen gevonden",
+    "eventFound": "{{count}} programmaonderdeel klaar om te importeren",
+    "eventsFound": "{{count}} programmaonderdelen klaar om te importeren",
     "feedSource": {
       "sched": "Sched feed",
       "generic": "Calendar feed"
     },
-    "cancellation": "{{count}} annulering wordt verwerkt",
-    "cancellations": "{{count}} annuleringen worden verwerkt",
+    "cancellation": "{{count}} programmaonderdeel is geannuleerd door de conventie",
+    "cancellations": "{{count}} programmaonderdelen zijn geannuleerd door de conventie",
     "emptyUpdateTitle": "Geen actieve evenementen",
     "emptyUpdateMessage": "Je controleert het exacte aantal verwijderingen voordat er iets verandert.",
     "categories": "Categorieën",
-    "categoryEvent": "{{name}}, {{count}} evenement",
-    "categoryEvents": "{{name}}, {{count}} evenementen",
+    "categoryEvent": "{{name}} · {{count}} onderdeel",
+    "categoryEvents": "{{name}} · {{count}} onderdelen",
     "importEvent": "{{count}} evenement importeren",
     "importEvents": "{{count}} evenementen importeren",
     "importing": "Importeren...",
@@ -313,7 +313,8 @@
       "ics": "Een .ics-bestand is een standaard agenda-export. Conventies linken het vaak als 'Toevoegen aan agenda' of 'Agendafeed' – webcal://-links werken ook.",
       "askTitle": "Geen van beide te vinden?",
       "ask": "Zoek op de website of in de app van de conventie naar een schemalink, of vraag via hun sociale media welk formaat ze publiceren."
-    }
+    },
+    "previewFooter": "Er wordt niets opgeslagen totdat je op Importeren tikt."
   },
   "onboarding": {
     "progress": "Stap {{step}} van {{total}}",
