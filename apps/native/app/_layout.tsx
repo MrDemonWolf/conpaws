@@ -89,7 +89,7 @@ const lightNavigationTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#00729C",
+    primary: "#005575",
   },
 };
 

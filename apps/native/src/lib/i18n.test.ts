@@ -6,7 +6,7 @@ const asyncStorage = vi.hoisted(() => ({
 }));
 
 const localization = vi.hoisted(() => ({
-  getLocales: vi.fn(() => [{ languageCode: "en" }]),
+  getLocales: vi.fn(() => [{ languageTag: "en-US", languageCode: "en" }]),
 }));
 
 const i18next = vi.hoisted(() => {
@@ -37,6 +37,7 @@ import {
   changeLanguage,
   initI18n,
   parseSupportedLanguage,
+  resolveDeviceLocale,
   SUPPORTED_LANGUAGES,
 } from "./i18n";
 
@@ -45,10 +46,12 @@ function initialisedLanguage(): unknown {
   return i18next.init.mock.calls.at(-1)?.[0]?.lng;
 }
 
-async function resolve(saved: string | null, deviceCode: string | undefined) {
+async function resolve(saved: string | null, deviceTag: string | undefined) {
   asyncStorage.getItem.mockResolvedValueOnce(saved);
   localization.getLocales.mockReturnValueOnce(
-    deviceCode === undefined ? [] : [{ languageCode: deviceCode }],
+    deviceTag === undefined
+      ? []
+      : [{ languageTag: deviceTag, languageCode: deviceTag.split("-")[0] }],
   );
   await initI18n();
   return initialisedLanguage();
@@ -62,6 +65,7 @@ describe("stored language validation", () => {
     // A code written by another build, a truncated write, or a hostile
     // backup must not become `i18n.language`.
     expect(parseSupportedLanguage("pt")).toBeNull();
+    expect(parseSupportedLanguage("es")).toBeNull();
     expect(parseSupportedLanguage("klingon")).toBeNull();
     expect(parseSupportedLanguage("")).toBeNull();
     expect(parseSupportedLanguage(null)).toBeNull();
@@ -69,10 +73,69 @@ describe("stored language validation", () => {
   });
 });
 
+describe("resolveDeviceLocale", () => {
+  it("takes an exact match on the full tag", () => {
+    expect(resolveDeviceLocale("de")).toBe("de");
+    expect(resolveDeviceLocale("pt-BR")).toBe("pt-BR");
+    expect(resolveDeviceLocale("es-419")).toBe("es-419");
+    expect(resolveDeviceLocale("zh-TW")).toBe("zh-TW");
+  });
+
+  it("maps bare base codes to their regional default", () => {
+    expect(resolveDeviceLocale("es")).toBe("es-419");
+    expect(resolveDeviceLocale("pt")).toBe("pt-BR");
+    expect(resolveDeviceLocale("zh")).toBe("zh-CN");
+  });
+
+  it("sends only Spain to es-ES and every other Spanish region to es-419", () => {
+    expect(resolveDeviceLocale("es-ES")).toBe("es-ES");
+    expect(resolveDeviceLocale("es-MX")).toBe("es-419");
+    expect(resolveDeviceLocale("es-AR")).toBe("es-419");
+    expect(resolveDeviceLocale("es-US")).toBe("es-419");
+  });
+
+  it("sends only Portugal to pt-PT and every other Portuguese region to pt-BR", () => {
+    expect(resolveDeviceLocale("pt-PT")).toBe("pt-PT");
+    expect(resolveDeviceLocale("pt-AO")).toBe("pt-BR");
+  });
+
+  it("resolves Chinese by script, with region as the fallback signal", () => {
+    expect(resolveDeviceLocale("zh-Hans")).toBe("zh-CN");
+    expect(resolveDeviceLocale("zh-Hans-CN")).toBe("zh-CN");
+    expect(resolveDeviceLocale("zh-Hant")).toBe("zh-TW");
+    expect(resolveDeviceLocale("zh-Hant-TW")).toBe("zh-TW");
+    expect(resolveDeviceLocale("zh-HK")).toBe("zh-TW");
+    expect(resolveDeviceLocale("zh-MO")).toBe("zh-TW");
+    expect(resolveDeviceLocale("zh-SG")).toBe("zh-CN");
+  });
+
+  it("reads both written Norwegians as the Bokmål build", () => {
+    expect(resolveDeviceLocale("nb")).toBe("nb");
+    expect(resolveDeviceLocale("nb-NO")).toBe("nb");
+    expect(resolveDeviceLocale("no")).toBe("nb");
+    expect(resolveDeviceLocale("nn")).toBe("nb");
+    expect(resolveDeviceLocale("nn-NO")).toBe("nb");
+  });
+
+  it("matches regional device tags of single-build languages by base code", () => {
+    expect(resolveDeviceLocale("de-AT")).toBe("de");
+    expect(resolveDeviceLocale("fr-CA")).toBe("fr");
+    expect(resolveDeviceLocale("ja-JP")).toBe("ja");
+  });
+
+  it("returns null for a language this build does not ship", () => {
+    expect(resolveDeviceLocale("th")).toBeNull();
+    expect(resolveDeviceLocale("")).toBeNull();
+    expect(resolveDeviceLocale(undefined)).toBeNull();
+  });
+});
+
 describe("initial language resolution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localization.getLocales.mockReturnValue([{ languageCode: "en" }]);
+    localization.getLocales.mockReturnValue([
+      { languageTag: "en-US", languageCode: "en" },
+    ]);
   });
 
   it("takes an exact device match", async () => {
@@ -81,12 +144,20 @@ describe("initial language resolution", () => {
   });
 
   it("matches a bare device code to its regional build", async () => {
-    // A Brazilian device reports "pt", not "pt-BR".
+    // A Brazilian device may report "pt", not "pt-BR".
     await expect(resolve(null, "pt")).resolves.toBe("pt-BR");
+    await expect(resolve(null, "es")).resolves.toBe("es-419");
+  });
+
+  it("resolves regional device tags through the explicit table", async () => {
+    await expect(resolve(null, "es-MX")).resolves.toBe("es-419");
+    await expect(resolve(null, "es-ES")).resolves.toBe("es-ES");
+    await expect(resolve(null, "zh-Hant-TW")).resolves.toBe("zh-TW");
+    await expect(resolve(null, "no")).resolves.toBe("nb");
   });
 
   it("falls back to English for a language this build does not ship", async () => {
-    await expect(resolve(null, "ja")).resolves.toBe("en");
+    await expect(resolve(null, "th")).resolves.toBe("en");
   });
 
   it("falls back to English when the device reports no locale at all", async () => {
@@ -95,6 +166,12 @@ describe("initial language resolution", () => {
 
   it("lets a stored choice beat the device", async () => {
     await expect(resolve("sv", "de")).resolves.toBe("sv");
+  });
+
+  it('migrates the pre-split stored "es" to es-419', async () => {
+    // Builds before the es-419/es-ES split stored "es". That choice must
+    // keep meaning Spanish, even on a non-Spanish device.
+    await expect(resolve("es", "fr")).resolves.toBe("es-419");
   });
 
   it("ignores a stored value that is not a shipped language", async () => {
@@ -113,14 +190,13 @@ describe("initial language resolution", () => {
     expect(i18next.init.mock.calls.at(-1)?.[0]?.fallbackLng).toBe("en");
   });
 
-  // The device match takes the FIRST entry whose code starts with the device's
-  // bare code, so two regional builds of one language would make the result
-  // depend on declaration order: adding "pt-PT" above "pt-BR" would silently
-  // move every Brazilian device to European Portuguese. Keep the list free of
-  // that ambiguity, or replace the prefix match with an explicit table.
-  it("has no two languages sharing a base code", () => {
-    const bases = SUPPORTED_LANGUAGES.map((code) => code.split("-")[0]);
-    expect(new Set(bases).size).toBe(bases.length);
+  // es, pt, and zh each ship two regional builds, so a bare prefix match
+  // over SUPPORTED_LANGUAGES would depend on declaration order. The
+  // resolver therefore carries an explicit per-language table; these two
+  // assertions pin the defaults that table must preserve.
+  it("keeps the regional defaults order-independent", async () => {
+    await expect(resolve(null, "es")).resolves.toBe("es-419");
+    await expect(resolve(null, "zh")).resolves.toBe("zh-CN");
   });
 });
 

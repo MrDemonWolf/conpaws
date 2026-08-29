@@ -19,16 +19,31 @@ function flattenKeys(value: unknown, prefix = ""): string[] {
 describe("locale parity", () => {
   const files = readdirSync(localesDir).filter((f) => f.endsWith(".json"));
 
-  it("has all eight locales", () => {
+  it("has all 23 locales", () => {
     expect(files.sort()).toEqual([
+      "cs.json",
+      "da.json",
       "de.json",
       "en.json",
-      "es.json",
+      "es-419.json",
+      "es-ES.json",
+      "fi.json",
       "fr.json",
+      "hu.json",
+      "it.json",
+      "ja.json",
+      "ko.json",
+      "ms.json",
+      "nb.json",
       "nl.json",
       "pl.json",
       "pt-BR.json",
+      "pt-PT.json",
+      "ru.json",
       "sv.json",
+      "uk.json",
+      "zh-CN.json",
+      "zh-TW.json",
     ]);
   });
 

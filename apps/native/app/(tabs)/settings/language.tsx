@@ -21,17 +21,33 @@ const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 /**
  * A language is not a country, but a flag is the fastest visual anchor in a
  * list of native names. The pick is the variant the app actually ships:
- * pt-BR is Brazilian Portuguese, en is US English.
+ * pt-BR is Brazilian Portuguese, es-419 shows Mexico for Latin American
+ * Spanish, en is US English.
  */
 const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
-  de: "🇩🇪",
   en: "🇺🇸",
-  es: "🇪🇸",
-  fr: "🇫🇷",
-  nl: "🇳🇱",
-  pl: "🇵🇱",
+  "es-419": "🇲🇽",
+  "es-ES": "🇪🇸",
   "pt-BR": "🇧🇷",
+  "pt-PT": "🇵🇹",
+  ja: "🇯🇵",
+  "zh-TW": "🇹🇼",
+  "zh-CN": "🇨🇳",
+  ko: "🇰🇷",
+  de: "🇩🇪",
+  fr: "🇫🇷",
+  pl: "🇵🇱",
+  it: "🇮🇹",
+  nl: "🇳🇱",
+  ms: "🇲🇾",
   sv: "🇸🇪",
+  da: "🇩🇰",
+  nb: "🇳🇴",
+  fi: "🇫🇮",
+  cs: "🇨🇿",
+  hu: "🇭🇺",
+  uk: "🇺🇦",
+  ru: "🇷🇺",
 };
 
 export default function LanguageScreen() {
