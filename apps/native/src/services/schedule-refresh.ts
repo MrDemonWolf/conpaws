@@ -1,8 +1,12 @@
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
-import { type ImportResult, runScheduleImport } from "@/hooks/useImportSchedule";
+import {
+  type ImportResult,
+  runScheduleImport,
+} from "@/hooks/useImportSchedule";
 import { reportError } from "@/lib/error-reporting";
 import { parseIcs } from "@/lib/ical-parser";
+import { fetchScheduleIcs } from "@/lib/sched-extractor";
 import {
   type ScheduleChangeSummary,
   summarizeScheduleChanges,
@@ -15,7 +19,6 @@ import {
   setScheduleCheckedAt,
 } from "@/lib/schedule-refresh-storage";
 import { toSourceSnapshot } from "@/lib/schedule-source";
-import { fetchScheduleIcs } from "@/lib/sched-extractor";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /**
@@ -144,6 +147,11 @@ export async function refreshConventionSchedule(
       return { status: "failed" };
     }
 
+    // Stamped BEFORE the caches are invalidated, and that order is
+    // load-bearing. Invalidating re-fetches the convention row, which changes
+    // the identity of the hook's callback and re-fires the focus effect that
+    // called this. The fresh stamp is what makes that second pass skip on the
+    // interval instead of fetching and applying the same feed again, forever.
     await setScheduleCheckedAt(convention.id, now);
     // The widget and Watch read the events this just rewrote, and the caller's
     // cache invalidation is what redraws the screen underneath the user.
