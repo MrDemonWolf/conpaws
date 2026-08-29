@@ -55,6 +55,11 @@ export interface UpsertResult {
   updated: number;
   identityUpdated: number;
   removedEventIds: string[];
+  /**
+   * Saved events the feed dropped. They are still in the table, marked — but
+   * their reminders must be cancelled, which happens outside the transaction.
+   */
+  tombstonedEventIds: string[];
   unresolvedSeries: string[];
 }
 
@@ -89,11 +94,30 @@ export interface PlannedIdentityUpdate {
   existingId: string;
   sourceUid: string;
 }
+
+export type FeedStatus = "cancelled" | "removed";
+
+/**
+ * An event the user saved that the feed stopped publishing.
+ *
+ * It is deliberately not a removal. Deleting it would take the user's own
+ * decision with it — the star, the reminder, and any memory that the panel was
+ * ever on the schedule — on nothing more than one fetch of a file we do not
+ * control. Marking the row keeps the answer to "wasn't there something at
+ * three?" on screen, where the question gets asked.
+ */
+export interface PlannedTombstone {
+  existingId: string;
+  status: FeedStatus;
+}
+
 export interface SourceReconciliationPlan {
   inserts: SourceEventInput[];
   updates: PlannedUpdate[];
   identityUpdates: PlannedIdentityUpdate[];
   removals: ConventionEvent[];
+  /** Saved events the feed dropped. Marked in place rather than deleted. */
+  tombstones: PlannedTombstone[];
   unresolvedSeries: string[];
 }
 
@@ -203,12 +227,24 @@ export function planSourceReconciliation(
   const updates: PlannedUpdate[] = [];
   const identityUpdates: PlannedIdentityUpdate[] = [];
   const removalsById = new Map<string, ConventionEvent>();
+  const tombstonesById = new Map<string, PlannedTombstone>();
   const handledIds = new Set<string>();
   const protectedIds = new Set<string>();
   const unresolvedSeries: string[] = [];
 
-  function addRemoval(event: ConventionEvent): void {
-    removalsById.set(event.id, event);
+  /**
+   * The one choke point every disappearance passes through.
+   *
+   * An event the user saved is marked, not deleted — see `PlannedTombstone`.
+   * Everything else is still dropped, because a schedule that kept every panel
+   * a convention ever published would be unreadable within a day.
+   */
+  function addRemoval(event: ConventionEvent, status: FeedStatus): void {
+    if (event.isInSchedule) {
+      tombstonesById.set(event.id, { existingId: event.id, status });
+    } else {
+      removalsById.set(event.id, event);
+    }
     handledIds.add(event.id);
   }
 
@@ -231,7 +267,8 @@ export function planSourceReconciliation(
 
     if (hasSeriesTombstone) {
       for (const event of sourceRows) {
-        if (sameSeries(event.sourceUid, group.baseUid)) addRemoval(event);
+        if (sameSeries(event.sourceUid, group.baseUid))
+          addRemoval(event, "cancelled");
       }
       continue;
     }
@@ -365,11 +402,13 @@ export function planSourceReconciliation(
 
     for (const identity of group.cancelled.values()) {
       const matched = assignments.get(identity.sourceUid);
-      if (matched) addRemoval(matched);
+      if (matched) addRemoval(matched, "cancelled");
     }
 
     if (snapshot.authoritative) {
-      for (const event of remainingBare) addRemoval(event);
+      // Left over inside a group the feed still publishes: the occurrence is
+      // gone rather than announced as cancelled, so it earns the weaker word.
+      for (const event of remainingBare) addRemoval(event, "removed");
     }
   }
 
@@ -383,7 +422,7 @@ export function planSourceReconciliation(
       ) {
         continue;
       }
-      if (!activeSourceUids.has(event.sourceUid)) addRemoval(event);
+      if (!activeSourceUids.has(event.sourceUid)) addRemoval(event, "removed");
     }
   }
 
@@ -392,6 +431,7 @@ export function planSourceReconciliation(
     updates,
     identityUpdates,
     removals: Array.from(removalsById.values()),
+    tombstones: Array.from(tombstonesById.values()),
     unresolvedSeries: unresolvedSeries.sort(),
   };
 }
@@ -426,6 +466,11 @@ export async function upsertBySourceUid(
           isAgeRestricted: event.isAgeRestricted,
           ageRating: event.ageRating,
           contentWarning: event.contentWarning,
+          // The feed is publishing this event again, so any mark it collected
+          // while missing is stale. Feeds churn their identifiers routinely;
+          // clearing here is what makes a tombstone recoverable instead of a
+          // one-way door.
+          feedStatus: null,
           updatedAt: now,
         })
         .where(eq(conventionEvents.id, existingId))
@@ -435,9 +480,20 @@ export async function upsertBySourceUid(
       tx.update(conventionEvents)
         .set({
           sourceUid: identityUpdate.sourceUid,
+          feedStatus: null,
           updatedAt: now,
         })
         .where(eq(conventionEvents.id, identityUpdate.existingId))
+        .run();
+    }
+    for (const tombstone of plan.tombstones) {
+      // `isInSchedule` and `reminderMinutes` are left alone on purpose: they
+      // record what the user decided, and the user has not decided anything.
+      // The OS notification is cancelled by the caller, outside this
+      // transaction, so the row keeps the intent while nothing fires.
+      tx.update(conventionEvents)
+        .set({ feedStatus: tombstone.status, updatedAt: now })
+        .where(eq(conventionEvents.id, tombstone.existingId))
         .run();
     }
     for (const event of plan.inserts) {
@@ -463,6 +519,9 @@ export async function upsertBySourceUid(
       updated: plan.updates.length,
       identityUpdated: plan.identityUpdates.length,
       removedEventIds: plan.removals.map((event) => event.id),
+      tombstonedEventIds: plan.tombstones.map(
+        (tombstone) => tombstone.existingId,
+      ),
       unresolvedSeries: plan.unresolvedSeries,
     };
   });

@@ -38,7 +38,7 @@ describe("database bootstrap", () => {
     const version = database.prepare("PRAGMA user_version").get();
 
     expect(eventCount).toEqual({ count: 0 });
-    expect(version).toEqual({ user_version: 5 });
+    expect(version).toEqual({ user_version: 6 });
     database.close();
   });
 
@@ -103,7 +103,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 5,
+      user_version: 6,
     });
     expect(
       database
@@ -130,7 +130,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 5,
+      user_version: 6,
     });
     expect(
       database
@@ -152,6 +152,7 @@ describe("database bootstrap", () => {
   it.each([
     { column: "archived_at", table: "conventions" },
     { column: "age_rating", table: "convention_events" },
+    { column: "feed_status", table: "convention_events" },
   ])(
     "repairs an interrupted $column migration without retrying ADD COLUMN",
     ({ column, table }) => {
@@ -167,7 +168,7 @@ describe("database bootstrap", () => {
       initializeDatabase(migrationAdapter(database));
 
       expect(database.prepare("PRAGMA user_version").get()).toEqual({
-        user_version: 5,
+        user_version: 6,
       });
       expect(
         database

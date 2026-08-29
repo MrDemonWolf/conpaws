@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as eventsRepo from "@/db/repositories/events";
 import { reportError } from "@/lib/error-reporting";
 import type { ParsedEvent } from "@/lib/ical-parser";
+import { toSourceEvents } from "@/lib/schedule-source";
 import {
   cancelEventReminder,
   scheduleEventReminder,
@@ -18,6 +19,11 @@ export interface ImportResult {
   updated: number;
   unresolved: number;
   removed: number;
+  /**
+   * Saved events the feed stopped publishing. They are still on the schedule,
+   * marked, so this is a count of things to look at rather than things lost.
+   */
+  tombstoned: number;
   /** Reminders whose moment has passed; the saved choice went with it. */
   remindersCleared: number;
   /**
@@ -107,25 +113,7 @@ export function useImportSchedule() {
 
   return useMutation<ImportResult, Error, ImportInput>({
     mutationFn: async ({ parsedEvents, conventionId, sourceSnapshot }) => {
-      const mapped = parsedEvents.map((e) => ({
-        conventionId,
-        title: e.title,
-        description: e.description,
-        startTime: e.startTime.toISOString(),
-        endTime: e.endTime?.toISOString() ?? null,
-        location: e.location,
-        room: e.room,
-        category: e.category,
-        type: null,
-        isInSchedule: false,
-        reminderMinutes: null,
-        sourceUid: e.sourceUid,
-        legacySourceUid: e.legacySourceUid,
-        sourceUrl: e.sourceUrl,
-        isAgeRestricted: e.isAgeRestricted,
-        ageRating: e.ageRating,
-        contentWarning: e.contentWarning,
-      }));
+      const mapped = toSourceEvents(parsedEvents, conventionId);
 
       const result = await eventsRepo.upsertBySourceUid(
         mapped,
@@ -139,8 +127,14 @@ export function useImportSchedule() {
         paused: 0,
       };
       try {
+        // Tombstoned events keep `reminderMinutes` — that column records what
+        // the user asked for, and they have not changed their mind. What must
+        // not survive is the OS request, or the phone would announce a panel
+        // the convention is no longer running.
         await Promise.all(
-          result.removedEventIds.map((eventId) => cancelEventReminder(eventId)),
+          [...result.removedEventIds, ...result.tombstonedEventIds].map(
+            (eventId) => cancelEventReminder(eventId),
+          ),
         );
         const importedUids = new Set(mapped.map((event) => event.sourceUid));
         const importedEvents = (
@@ -160,6 +154,7 @@ export function useImportSchedule() {
         added: result.added,
         updated: result.updated,
         removed: result.removedEventIds.length,
+        tombstoned: result.tombstonedEventIds.length,
         unresolved: result.unresolvedSeries.length,
         remindersCleared: reminders.cleared,
         remindersPaused: reminders.paused,

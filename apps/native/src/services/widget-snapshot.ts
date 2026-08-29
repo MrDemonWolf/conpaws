@@ -85,6 +85,11 @@ function eventSnapshot(
   localeIdentifier: string,
 ): WidgetEventSnapshot | null {
   if (!event.isInSchedule) return null;
+  // A marked event stays on the phone's schedule so the user can see what
+  // happened to it, but the widget and the Watch answer "what is next" — and
+  // the answer is never a panel the convention stopped running. There is no
+  // room on those surfaces to explain the difference.
+  if (event.feedStatus !== null) return null;
   const startAtMs = Date.parse(event.startTime);
   if (!Number.isFinite(startAtMs)) return null;
   const parsedEnd = event.endTime ? Date.parse(event.endTime) : Number.NaN;

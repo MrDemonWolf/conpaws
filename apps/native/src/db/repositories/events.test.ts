@@ -35,6 +35,7 @@ function storedEvent(
     isAgeRestricted: false,
     ageRating: null,
     contentWarning: false,
+    feedStatus: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
     ...overrides,
@@ -62,6 +63,7 @@ function sourceEvent(
     isAgeRestricted: false,
     ageRating: null,
     contentWarning: false,
+    feedStatus: null,
     ...overrides,
   };
 }
@@ -180,9 +182,47 @@ describe("source snapshot reconciliation", () => {
 
     expect(plan.updates).toEqual([]);
     expect(plan.inserts).toEqual([]);
-    expect(plan.removals.map((event) => event.id).sort()).toEqual([
-      "cancelled",
-      "missing",
+    // Every row here is saved (the fixture stars by default), so none of them
+    // is deleted. The two marks differ because the feed said different things:
+    // the series was announced cancelled, the other row merely stopped
+    // appearing.
+    expect(plan.removals).toEqual([]);
+    expect(
+      plan.tombstones
+        .map((tombstone) => `${tombstone.existingId}:${tombstone.status}`)
+        .sort(),
+    ).toEqual(["cancelled:cancelled", "missing:removed"]);
+  });
+
+  it("still deletes an unsaved event the feed dropped", () => {
+    const unsaved = storedEvent({
+      id: "unsaved",
+      sourceUid: "feed-missing",
+      isInSchedule: false,
+    });
+
+    const plan = planSourceReconciliation([unsaved], [], snapshot([], []));
+
+    // The mark exists to protect a decision the user made. Nobody decided
+    // anything about this row, and keeping every panel a convention ever
+    // published would make the schedule unreadable within a day.
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals.map((event) => event.id)).toEqual(["unsaved"]);
+  });
+
+  it("leaves a saved event in place when the feed drops it", () => {
+    const saved = storedEvent({
+      id: "saved",
+      sourceUid: "feed-missing",
+      isInSchedule: true,
+      reminderMinutes: 15,
+    });
+
+    const plan = planSourceReconciliation([saved], [], snapshot([], []));
+
+    expect(plan.removals).toEqual([]);
+    expect(plan.tombstones).toEqual([
+      { existingId: "saved", status: "removed" },
     ]);
   });
 
@@ -191,9 +231,13 @@ describe("source snapshot reconciliation", () => {
       id: "unrelated",
       sourceUid: "another-feed-event",
     });
+    // Unsaved on purpose: this test is about which row the planner picks, not
+    // about the protection saved rows get. `leaves a saved event in place`
+    // covers that.
     const cancelled = storedEvent({
       id: "cancelled",
       sourceUid: "cancelled-event",
+      isInSchedule: false,
     });
 
     const plan = planSourceReconciliation(
@@ -314,6 +358,7 @@ describe("source snapshot reconciliation", () => {
       id: "cancelled-composite",
       sourceUid: "recurring-event|20260612T160000Z",
       startTime: "2026-06-12T18:00:00.000Z",
+      isInSchedule: false,
     });
     const sibling = storedEvent({
       id: "active-composite",
@@ -345,6 +390,7 @@ describe("source snapshot reconciliation", () => {
     const cancelled = storedEvent({
       id: "cancelled-legacy",
       startTime: "2026-06-12T16:00:00.000Z",
+      isInSchedule: false,
     });
     const sibling = storedEvent({
       id: "active-legacy",
@@ -426,10 +472,11 @@ describe("source snapshot reconciliation", () => {
   });
 
   it("removes every absent source row from an authoritative empty snapshot", () => {
-    const bare = storedEvent({ id: "bare" });
+    const bare = storedEvent({ id: "bare", isInSchedule: false });
     const composite = storedEvent({
       id: "composite",
       sourceUid: "recurring-event|20260612T160000Z",
+      isInSchedule: false,
     });
     const manual = storedEvent({ id: "manual", sourceUid: null });
 
@@ -617,7 +664,11 @@ describe("upsertBySourceUid transaction", () => {
   });
 
   it("deletes exactly the rows the plan removed", async () => {
-    const gone = storedEvent({ id: "gone", sourceUid: "dropped-panel" });
+    const gone = storedEvent({
+      id: "gone",
+      sourceUid: "dropped-panel",
+      isInSchedule: false,
+    });
     const recorder = recordingTx([gone]);
     mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
       body(recorder.tx),

@@ -51,6 +51,7 @@ function event(
     isAgeRestricted: false,
     ageRating: null,
     contentWarning: false,
+    feedStatus: null,
     createdAt: "2026-01-01",
     updatedAt: "2026-01-01",
   };
@@ -82,6 +83,37 @@ describe("buildWidgetSnapshot", () => {
     expect(snapshot.conventions[0]?.events.map(({ id }) => id)).toEqual([
       "first",
       "later",
+    ]);
+  });
+
+  it("leaves a saved event out once the feed stops publishing it", () => {
+    const snapshot = buildWidgetSnapshot(
+      [convention],
+      new Map([
+        [
+          convention.id,
+          [
+            {
+              ...event("cancelled", "2026-09-03T15:00:00-05:00", true),
+              feedStatus: "cancelled" as const,
+            },
+            {
+              ...event("dropped", "2026-09-03T16:00:00-05:00", true),
+              feedStatus: "removed" as const,
+            },
+            event("running", "2026-09-03T17:00:00-05:00", true),
+          ],
+        ],
+      ]),
+      "en",
+      123,
+    );
+
+    // The phone still shows these, marked, because the user needs to know what
+    // happened. The widget and the Watch only answer "what is next", and a
+    // panel that is not happening is never the answer.
+    expect(snapshot.conventions[0]?.events.map(({ id }) => id)).toEqual([
+      "running",
     ]);
   });
 
