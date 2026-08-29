@@ -1232,7 +1232,7 @@ private struct ConPawsRectangularView: View {
             .lineLimit(1)
         }
 
-      case .next(let convention, _, let upcoming):
+      case .next(let convention, let current, let upcoming):
         // A set leave reminder takes the eyebrow: "when do I go" beats the
         // convention's name, which the rest of the lock screen already implies.
         if let leaveBy = conPawsLeaveByLabel(
@@ -1245,9 +1245,17 @@ private struct ConPawsRectangularView: View {
         } else {
           ConPawsAccessoryEyebrow(title: convention.name)
         }
-        Text(upcoming.title)
-          .font(.headline)
-          .lineLimit(1)
+        // A running event owns the headline -- what is happening now beats
+        // what comes later; the next event keeps the detail line either way.
+        if let current {
+          Text("\(entry.strings.now) · \(current.title)")
+            .font(.headline)
+            .lineLimit(1)
+        } else {
+          Text(upcoming.title)
+            .font(.headline)
+            .lineLimit(1)
+        }
         Text(nextDetail(for: upcoming, in: convention))
           .font(.caption2)
           .foregroundStyle(.secondary)
