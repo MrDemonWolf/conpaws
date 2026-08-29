@@ -93,7 +93,9 @@ export function Button({
       testID={testID}
       className={cn(
         // 48 satisfies both minimums: HIG asks 44pt, Material 3 asks 48dp.
-        "min-h-[48px] flex-row items-center justify-center",
+        // active: gives every button the iOS press-dim; raw Pressables across
+        // the app use the same modifier, so pressed feedback stays uniform.
+        "min-h-[48px] flex-row items-center justify-center active:opacity-60",
         variantStyles[variant],
         sizeStyles[size],
         isDisabled && "opacity-50",

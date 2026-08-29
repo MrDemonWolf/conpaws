@@ -128,7 +128,12 @@
   .w .now-chip { border-radius: 8px; padding: 6px 8px; margin: 2px 0; }
   .w .rows { display: flex; flex-direction: column; gap: 7px; }
   .w .hairline { border-top: 1px solid; margin: 8px 0; }
-  .paw { font-size: 22px; line-height: 1; }
+  .paw { line-height: 0; }
+  .paw svg { width: 26px; height: 26px; }
+  .wl .paw { color: #00729c; }
+  .wd .paw { color: #18b7f2; }
+  .sf { width: 12px; height: 12px; flex-shrink: 0; align-self: center; }
+  .logo-mark { width: 13px; height: 13px; }
   .w .leave-strip {
     display: flex; align-items: center; gap: 6px;
     border-radius: 10px; padding: 7px 10px;
@@ -144,20 +149,24 @@
 <h1>ConPaws Widget Redesign</h1>
 <p class="lede">
   Mockups and a buildable spec for the iOS Home&nbsp;Screen widgets. The shipped
-  widgets show at most one upcoming event in system colors; this redesign adds a
-  <strong>systemLarge day view</strong>, brings the brand into every family, and
-  richens systemMedium — all against snapshot schema&nbsp;v1, no data changes
-  required. Swift implementation is a separate later phase.
+  widgets show at most one upcoming event in system colors. This redesign adds a
+  <strong>systemLarge day view</strong>, puts the brand color to work in every
+  family, gives systemMedium real rows, and — per the 2026-08-28 scope call —
+  covers the Lock&nbsp;Screen accessory families and the watch Smart&nbsp;Stack
+  complication in the same build, on snapshot schema&nbsp;v2. Swift
+  implementation comes later, as its own phase.
 </p>
 
 <div class="note">
-  <strong>Scope.</strong> This page specifies <em>presentation only</em>. Every
-  field referenced exists in today's <code>WidgetConventionSnapshot</code> /
-  <code>WidgetEventSnapshot</code> (schema v1). Additions that would need a
-  schema bump are flagged in §7 and are out of scope for the first build.
+  <strong>Scope.</strong> This page specifies <em>presentation only</em>. The
+  first build targets <strong>snapshot schema v2</strong>: everything in
+  today's <code>WidgetConventionSnapshot</code> / <code>WidgetEventSnapshot</code>
+  plus one new field, <code>ageRating</code> on events (§6). The module's
+  version gate already handles v1/v2 mismatches safely — an old watch build
+  reading a v2 payload keeps working because unknown fields decode as absent.
 </div>
 
-<h2>1 · Tokens</h2>
+<h2>1 · Tokens &amp; iconography</h2>
 <div class="table-wrap"><table>
   <tr><th>Token</th><th>Value</th><th>Use</th></tr>
   <tr><td class="mono">BrandPrimary / light</td><td class="mono"><span class="swatch" style="background:#00729c"></span>#00729C</td><td>Time labels, rails, accents on white</td></tr>
@@ -181,12 +190,28 @@
   times <code>caption2&nbsp;semibold&nbsp;monospacedDigit</code>.
 </p>
 
+<div class="note">
+  <strong>The mark, not the icon — and no emoji.</strong> Apple's widget
+  guidance warns against dropping your app icon into a widget, and the concern
+  is real: the system already names the app, and a full-color icon turns to mud
+  under iOS&nbsp;18 tinted rendering. ConPaws still carries its brand here,
+  deliberately: a small <em>monochrome</em> compass-paw mark sits before the
+  convention name in every header, and a larger one anchors the empty and
+  "all done" states. It ships as a template-rendered vector asset
+  (<code>ConPawsMark</code>) in the widget target, so accented, tinted, and
+  vibrant modes recolor it exactly like the text beside it — brand presence
+  without the full-color icon Apple is warning about. Emoji stay banned for the
+  same mechanical reason: they render as color bitmaps that ignore rendering
+  modes and glare on a tinted Home Screen. The only other glyph is
+  <code>figure.walk</code> on the leave strip.</div>
+
 <h2>2 · systemSmall — refined</h2>
-<p>One next event, brand-tinted time, room line. The paw compass replaces the generic calendar glyph in the empty state.</p>
+<p>One next event, brand-tinted time, room line. The empty state swaps the old
+generic calendar glyph for the ConPaws mark.</p>
 <div class="shelf">
   <figure class="spec">
     <div class="w small wl">
-      <div class="eyebrow-w accent">▲ Next</div>
+      <div class="eyebrow-w accent">Next</div>
       <div class="spacer"></div>
       <div class="time-col accent" style="width:auto;font-size:13px">7:00 PM</div>
       <div class="ev-title">Fursuit Care 101</div>
@@ -198,7 +223,7 @@
   </figure>
   <figure class="spec">
     <div class="w small wd">
-      <div class="eyebrow-w accent">▲ Next</div>
+      <div class="eyebrow-w accent">Next</div>
       <div class="spacer"></div>
       <div class="time-col accent" style="width:auto;font-size:13px">7:00 PM</div>
       <div class="ev-title">Fursuit Care 101</div>
@@ -210,7 +235,7 @@
   </figure>
   <figure class="spec">
     <div class="w small wt">
-      <div class="eyebrow-w">▲ Next</div>
+      <div class="eyebrow-w">Next</div>
       <div class="spacer"></div>
       <div style="font-size:13px;font-weight:600">7:00 PM</div>
       <div class="ev-title">Fursuit Care 101</div>
@@ -222,7 +247,7 @@
   </figure>
   <figure class="spec">
     <div class="w small wd">
-      <div class="eyebrow-w accent">🚶 Leave in</div>
+      <div class="eyebrow-w accent"><svg class="sf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="walk"><circle cx="13.5" cy="4" r="1.9" fill="currentColor" stroke="none"/><path d="M13.2 7.3l-1.8 4.9 2.9 2.8v5"/><path d="M11.4 12.2l-2.9 1.9-.9 3.9"/><path d="M13.4 8.9l2.8 2 2.3.9"/></svg> Leave in</div>
       <div class="spacer"></div>
       <div class="big-count accent" style="font-size:24px">18 min</div>
       <div class="ev-title">Fursuit Care 101</div>
@@ -233,7 +258,7 @@
   </figure>
   <figure class="spec">
     <div class="w small wl" style="align-items:center;justify-content:center;text-align:center;gap:6px">
-      <div class="paw">🐾</div>
+      <div class="paw"><svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg></div>
       <div class="ev-title">No upcoming events</div>
       <div class="ev-meta dim">Star events in ConPaws to see them here.</div>
     </div>
@@ -253,7 +278,7 @@
   <figure class="spec">
     <div class="w medium wl">
       <div class="day-head">
-        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="eyebrow-w accent"><svg class="sf logo-mark" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg> ConPaws Preview Con</span>
         <span class="ev-meta dim">Thu Sep 3</span>
       </div>
       <div class="rows">
@@ -277,7 +302,7 @@
   <figure class="spec">
     <div class="w medium wd">
       <div class="day-head">
-        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="eyebrow-w accent"><svg class="sf logo-mark" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg> ConPaws Preview Con</span>
         <span class="ev-meta dim">Thu Sep 3</span>
       </div>
       <div class="rows">
@@ -301,7 +326,7 @@
   <figure class="spec">
     <div class="w medium wl">
       <div class="day-head">
-        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="eyebrow-w accent"><svg class="sf logo-mark" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg> ConPaws Preview Con</span>
         <span class="ev-meta dim">Thu Sep 3</span>
       </div>
       <div class="rows">
@@ -314,7 +339,7 @@
           <span class="time-col accent">8:00 PM</span>
           <span class="ev-title">Dance Practice 101 <span class="dim" style="font-weight:400">· Community Room</span></span>
         </div>
-        <div class="leave-strip">🚶 Leave in 18 min · Dance Practice 101</div>
+        <div class="leave-strip"><svg class="sf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="walk"><circle cx="13.5" cy="4" r="1.9" fill="currentColor" stroke="none"/><path d="M13.2 7.3l-1.8 4.9 2.9 2.8v5"/><path d="M11.4 12.2l-2.9 1.9-.9 3.9"/><path d="M13.4 8.9l2.8 2 2.3.9"/></svg> Leave in 18 min · Dance Practice 101</div>
       </div>
     </div>
     <figcaption>medium · leave window · light</figcaption>
@@ -332,7 +357,7 @@
   <figure class="spec">
     <div class="w large wl">
       <div class="day-head">
-        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="eyebrow-w accent"><svg class="sf logo-mark" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg> ConPaws Preview Con</span>
         <span class="ev-meta dim">Thursday · Sep 3</span>
       </div>
       <div class="rows">
@@ -381,7 +406,7 @@
   <figure class="spec">
     <div class="w large wd">
       <div class="day-head">
-        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="eyebrow-w accent"><svg class="sf logo-mark" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg> ConPaws Preview Con</span>
         <span class="ev-meta dim">Coming up</span>
       </div>
       <div class="spacer"></div>
@@ -397,7 +422,7 @@
   </figure>
   <figure class="spec">
     <div class="w large wl" style="align-items:center;justify-content:center;text-align:center;gap:8px">
-      <div class="paw">🐾</div>
+      <div class="paw"><svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg></div>
       <div class="ev-title">All done for today</div>
       <div class="ev-meta dim" style="max-width:220px">First event tomorrow: Fursuit Care Workshop, 9:00 AM.</div>
     </div>
@@ -406,10 +431,10 @@
   <figure class="spec">
     <div class="w large wd">
       <div class="day-head">
-        <span class="eyebrow-w accent">🐾 ConPaws Preview Con</span>
+        <span class="eyebrow-w accent"><svg class="sf logo-mark" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="ConPaws"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.2l1.6 3.6h-3.2z"/><path d="M12 22.8l-1.6-3.6h3.2z"/><path d="M1.2 12l3.6-1.6v3.2z"/><path d="M22.8 12l-3.6 1.6v-3.2z"/><ellipse cx="10.4" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="13.6" cy="9.9" rx=".95" ry="1.3"/><ellipse cx="8.9" cy="12" rx=".85" ry="1.15"/><ellipse cx="15.1" cy="12" rx=".85" ry="1.15"/><path d="M12 11.4c-1.6 0-3 1.5-3 2.9 0 .95.75 1.6 1.65 1.6.55 0 .95-.25 1.35-.25s.8.25 1.35.25c.9 0 1.65-.65 1.65-1.6 0-1.4-1.4-2.9-3-2.9z"/></svg> ConPaws Preview Con</span>
         <span class="ev-meta dim">Thursday · Sep 3</span>
       </div>
-      <div class="leave-strip">🚶 Leave in 18 min · Dance Practice 101</div>
+      <div class="leave-strip"><svg class="sf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="walk"><circle cx="13.5" cy="4" r="1.9" fill="currentColor" stroke="none"/><path d="M13.2 7.3l-1.8 4.9 2.9 2.8v5"/><path d="M11.4 12.2l-2.9 1.9-.9 3.9"/><path d="M13.4 8.9l2.8 2 2.3.9"/></svg> Leave in 18 min · Dance Practice 101</div>
       <div class="rows" style="margin-top:8px">
         <div class="row now-chip">
           <span class="rail"></span>
@@ -445,10 +470,11 @@
 <ul>
   <li><strong>Accented/tinted:</strong> mark the time column, rails, and the now-chip <code>widgetAccentable()</code>. Hierarchy must survive recoloring — it is carried by weight and size, never by hue alone (the tinted specimens above are the test).</li>
   <li><strong>Vibrant (Lock Screen families):</strong> unchanged from shipped; accessory families keep their current layouts.</li>
+  <li><strong>Symbols:</strong> two glyphs only — the <code>ConPawsMark</code> template vector and SF Symbol <code>figure.walk</code> — both template-rendered and sized with the text style beside them, so accented/tinted/vibrant modes recolor them with the text. No emoji anywhere in a widget.</li>
   <li><strong>StandBy:</strong> container background stays <code>systemBackground</code> via <code>containerBackground(for: .widget)</code>; no full-bleed art.</li>
 </ul>
 
-<h2>6 · Buildable spec (schema v1 — no data changes)</h2>
+<h2>6 · Buildable spec (schema v2)</h2>
 <div class="table-wrap"><table>
   <tr><th>Family</th><th>Rows</th><th>Selection rule</th><th>Fields used</th></tr>
   <tr>
@@ -482,11 +508,41 @@
   <li>Truncation: titles 1 line all families except large's now-chip (2 lines); rooms always 1 line.</li>
   <li>VoiceOver: one element per row — "7:00 PM, Costume Crafting 101, Game Hall"; the now-chip prepends "Now, ends 1:00 AM".</li>
   <li>Deep links: unchanged — every family opens <code>conpaws://schedule?conventionId=…</code>.</li>
+  <li><strong>Age pill (schema v2):</strong> <code>ageRating</code> (string, absent = all-ages) rides on <code>WidgetEventSnapshot</code>. Medium and large rows render it as the same pill the app uses ("13+ Teen", "18+"); small and the accessory families skip it — no room at those sizes.</li>
+  <li><strong>Which convention (decided 2026-08-28: both):</strong> by default every widget picks automatically — active convention first, else the nearest upcoming one, the same rule the watch follows. Long-press → Edit Widget adds an optional per-widget pin via an AppIntent configuration (<code>ConventionEntity</code> query over the snapshot). A pinned convention that later disappears falls back to automatic instead of rendering an error.</li>
 </ul>
 
-<h2>7 · Flagged for later (needs schema v2 or other targets)</h2>
+<h2>7 · Lock Screen &amp; watch families</h2>
+<p>Same data, same selection rules, vibrant-rendering-safe by construction
+(mark + SF Symbol only). These ship in the first build per the scope call.</p>
+<div class="table-wrap"><table>
+  <tr><th>Family</th><th>Layout</th><th>Leave window</th></tr>
+  <tr>
+    <td class="mono">accessoryCircular</td>
+    <td>Next-event start time over its weekday-free short title initial; ConPaws mark when idle or empty</td>
+    <td>Countdown minutes in a closed <code>Gauge</code> ring</td>
+  </tr>
+  <tr>
+    <td class="mono">accessoryRectangular</td>
+    <td>Mark + convention name eyebrow, then title · time · room (three lines, title bold)</td>
+    <td>First line swaps to "Leave in N min", title beneath</td>
+  </tr>
+  <tr>
+    <td class="mono">accessoryInline</td>
+    <td>"7:00 PM · Fursuit Care 101" (system truncates tail)</td>
+    <td>"Leave in 18 min · Fursuit Care 101"</td>
+  </tr>
+  <tr>
+    <td class="mono">watch Smart Stack</td>
+    <td>watchOS accessoryRectangular reuses the same layout; the shipped <code>TimelineEntryRelevance</code> (±30 min of a countdown target) carries over unchanged</td>
+    <td>Same swap as rectangular</td>
+  </tr>
+</table></div>
+<p>The accessory families always render vibrant/monochrome, which is why the
+mark had to be a template vector in the first place — nothing else changes.</p>
+
+<h2>8 · Flagged for later</h2>
 <ul>
-  <li><code>ageRating</code> on <code>WidgetEventSnapshot</code> — enables the age pill on medium/large rows. Schema bump to v2; the module's version gate already handles mismatches safely.</li>
   <li>Watch complication: replace the four hardcoded <code>.cyan</code> styles with the target's <code>$accent</code> asset (#0FACED) — <em>shipped in the 2026-08 watch pass; listed here for the record.</em></li>
   <li>Optional: reuse the app's time-slot band alternation for large-widget row grouping once the first build lands. Not in scope for v1.</li>
 </ul>
