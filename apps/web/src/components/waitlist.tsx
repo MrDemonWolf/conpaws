@@ -16,8 +16,14 @@ declare global {
   }
 }
 
-// Keep the public form closed until D1 persistence, DOI, and retries land.
-const WAITLIST_ACCEPTING_SIGNUPS = false;
+// Open as of 2026-08-28. The gate this waited on is done: D1 persistence, the
+// listmonk double opt-in, the resend cooldown, and the hourly reconciler are all
+// live and verified against production.
+//
+// Setting this to false is still the kill switch if signups need to stop — the
+// route keeps working, so it closes the form without touching the API or losing
+// the addresses already collected.
+const WAITLIST_ACCEPTING_SIGNUPS = true;
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-input bg-card/70 px-4 py-3.5 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
@@ -103,7 +109,9 @@ export function Waitlist() {
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
           </span>
-          Beta waitlist coming soon
+          {WAITLIST_ACCEPTING_SIGNUPS
+            ? "Beta waitlist open"
+            : "Beta waitlist coming soon"}
         </span>
 
         <h1 className="motion-safe:animate-rise mt-6 font-bold text-[clamp(42px,6.2vw,76px)] leading-[0.95] tracking-[-0.03em] [animation-delay:80ms]">
