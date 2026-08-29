@@ -461,7 +461,11 @@ private struct ConPawsRail: View {
   var body: some View {
     RoundedRectangle(cornerRadius: 1.5)
       .fill(ConPawsBrand.primary)
+      // Width fixed, height capped to the row: a bare Shape accepts every
+      // point a widget has spare, which blew the Now card up to fill the
+      // whole family. The row's fixedSize keeps the card hugging its text.
       .frame(width: 3)
+      .frame(maxHeight: .infinity)
       .widgetAccentable()
   }
 }
@@ -730,12 +734,8 @@ private struct ConPawsMediumView: View {
           wide: false
         )
       )
-      if let current {
-        nowRow(current)
-      }
-      ForEach(upcomingRows) { event in
-        eventRow(event)
-      }
+      // Urgency descends with the reading order: leave (act now), then the
+      // running event, then what comes later. Matches the large family.
       if isLeave {
         ConPawsLeaveStrip(
           entryDate: entryDate,
@@ -743,6 +743,12 @@ private struct ConPawsMediumView: View {
           timeZone: convention.timeZone,
           strings: strings
         )
+      }
+      if let current {
+        nowRow(current)
+      }
+      ForEach(upcomingRows) { event in
+        eventRow(event)
       }
       Spacer(minLength: 0)
     }
@@ -771,6 +777,7 @@ private struct ConPawsMediumView: View {
         ConPawsAgePill(label: pill)
       }
     }
+    .fixedSize(horizontal: false, vertical: true)
     .padding(.horizontal, 7)
     .padding(.vertical, 5)
     .background(ConPawsBrand.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
@@ -872,19 +879,18 @@ private struct ConPawsLargeView: View {
     }
   }
 
-  /// The day view's rows: the running event, then today's not-yet-started
-  /// events (today in the convention's zone, never the device's), capped to
-  /// what fits. Whatever does not fit is counted, not clipped -- "+N more
-  /// today" instead of a half-drawn row.
+  /// The day view's rows: the running event, then the next starred events by
+  /// start time -- like medium, spilling past midnight once today is
+  /// exhausted, so a late evening still fills the family instead of leaving a
+  /// half-empty card. Cross-day rows carry a weekday prefix. The overflow
+  /// counter stays scoped to today ("+N more today"), and today's events sort
+  /// first, so the wording never counts tomorrow.
   private var todayRows: (shown: [ConPawsEventSnapshot], overflow: Int) {
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = convention.timeZone
-    let upcomingToday = convention.events
+    let upcomingAll = convention.events
       .sorted { $0.startAtMs < $1.startAtMs }
-      .filter { event in
-        event.startDate > entryDate
-          && calendar.isDate(event.startDate, inSameDayAs: entryDate)
-      }
+      .filter { $0.startDate > entryDate }
 
     // The leave strip takes a row's worth of height, so the list gives one up.
     let capacity = isLeave ? 4 : 5
@@ -893,8 +899,11 @@ private struct ConPawsLargeView: View {
       shown.append(current)
     }
     let room = max(0, capacity - shown.count)
-    shown.append(contentsOf: upcomingToday.prefix(room))
-    return (shown, max(0, upcomingToday.count - room))
+    shown.append(contentsOf: upcomingAll.prefix(room))
+    let overflowToday = upcomingAll.dropFirst(room)
+      .filter { calendar.isDate($0.startDate, inSameDayAs: entryDate) }
+      .count
+    return (shown, overflowToday)
   }
 
   @ViewBuilder
@@ -961,6 +970,7 @@ private struct ConPawsLargeView: View {
         ConPawsAgePill(label: pill)
       }
     }
+    .fixedSize(horizontal: false, vertical: true)
     .padding(8)
     .background(ConPawsBrand.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
     .accessibilityElement(children: .combine)
@@ -974,13 +984,22 @@ private struct ConPawsLargeView: View {
 
   private func eventRow(_ event: ConPawsEventSnapshot) -> some View {
     HStack(alignment: .top, spacing: 8) {
-      Text(event.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: locale)))
+      // Day-prefixed once the list spills past midnight; large has the width
+      // for a "Sat 10:00 AM" column that medium has to squeeze.
+      Text(
+        conPawsTimeLabel(
+          event.startDate,
+          now: entryDate,
+          timeZone: convention.timeZone,
+          locale: locale
+        )
+      )
         .font(.caption2.weight(.semibold))
         .monospacedDigit()
         .foregroundStyle(ConPawsBrand.smallText)
         .lineLimit(1)
         .minimumScaleFactor(0.85)
-        .frame(width: 54, alignment: .leading)
+        .frame(width: 74, alignment: .leading)
         .widgetAccentable()
       VStack(alignment: .leading, spacing: 1) {
         Text(event.title)
