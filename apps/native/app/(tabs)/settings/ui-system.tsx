@@ -187,98 +187,98 @@ export default function UiSystemScreen() {
           onDismiss fires after the close animation, so unmounting here does
           not cut the dismissal short. */}
       {sheetPreview !== null ? (
-      <BottomSheet
-        isPresented
-        onDismiss={() => setSheetPreview(null)}
-        snapPoints={["half", "full"]}
-      >
-        {sheetPreview === "empty" ? (
-          <RNHostView matchContents>
-            <View
-              className="h-[360px] bg-background"
-              style={{ width: sheetContentWidth }}
-            >
-              <EmptyState
-                icon={EMPTY_STATE_ICON}
-                title={t("home.empty.title")}
-                subtitle={t("home.empty.subtitle")}
-                ctaLabel={t("home.empty.cta")}
-                onCta={() => undefined}
-                secondaryCtaLabel={t("convention.import")}
-                onSecondaryCta={() => undefined}
-              />
-            </View>
-          </RNHostView>
-        ) : sheetPreview === "skeleton" ? (
-          <RNHostView matchContents>
-            <View
-              // Both skeletons carry their own "loading" live region, which is
-              // right on a real screen and wrong here: nothing is loading, and
-              // a screen reader would announce it twice for a static sample.
-              // The gallery row that opened this sheet already named it.
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-              className="h-[520px] bg-background"
-              style={{ width: sheetContentWidth }}
-            >
-              <View className="h-[200px]">
-                <ConventionListSkeleton rows={2} />
-              </View>
-              <View className="h-[280px]">
-                <ScheduleSkeleton sections={1} rowsPerSection={2} />
-              </View>
-            </View>
-          </RNHostView>
-        ) : sheetPreview === "fields" ? (
-          <RNHostView matchContents>
-            <View
-              className="gap-4 bg-background p-4"
-              style={{ width: sheetContentWidth }}
-            >
-              <Input
-                label={t("convention.name")}
-                placeholder={t("convention.namePlaceholder")}
-                value=""
-                onChangeText={() => undefined}
-              />
-              <Input
-                label={t("convention.location")}
-                placeholder={t("convention.locationPlaceholder")}
-                value=""
-                onChangeText={() => undefined}
-                error={t("convention.nameRequired")}
-              />
-            </View>
-          </RNHostView>
-        ) : sheetPreview === "form" ? (
-          <FieldGroup style={{ width: sheetContentWidth, height: 400 }}>
-            <FieldGroup.Section title={t("convention.new")}>
-              <NativeTextInput
-                placeholder={t("convention.namePlaceholder")}
-                returnKeyType="done"
-              />
-              <NativeSwitch
-                label={t("settings.app.notifications")}
-                value={switchValue}
-                onValueChange={setSwitchValue}
-              />
-            </FieldGroup.Section>
-            <FieldGroup.Section>
-              <Row alignment="center" spacing={12}>
-                <NativeButton
-                  label={t("common.cancel")}
-                  variant="text"
-                  onPress={() => setSheetPreview(null)}
+        <BottomSheet
+          isPresented
+          onDismiss={() => setSheetPreview(null)}
+          snapPoints={["half", "full"]}
+        >
+          {sheetPreview === "empty" ? (
+            <RNHostView matchContents>
+              <View
+                className="h-[360px] bg-background"
+                style={{ width: sheetContentWidth }}
+              >
+                <EmptyState
+                  icon={EMPTY_STATE_ICON}
+                  title={t("home.empty.title")}
+                  subtitle={t("home.empty.subtitle")}
+                  ctaLabel={t("home.empty.cta")}
+                  onCta={() => undefined}
+                  secondaryCtaLabel={t("convention.import")}
+                  onSecondaryCta={() => undefined}
                 />
-                <NativeButton
-                  label={t("common.save")}
-                  onPress={() => setSheetPreview(null)}
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "skeleton" ? (
+            <RNHostView matchContents>
+              <View
+                // Both skeletons carry their own "loading" live region, which is
+                // right on a real screen and wrong here: nothing is loading, and
+                // a screen reader would announce it twice for a static sample.
+                // The gallery row that opened this sheet already named it.
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+                className="h-[520px] bg-background"
+                style={{ width: sheetContentWidth }}
+              >
+                <View className="h-[200px]">
+                  <ConventionListSkeleton rows={2} />
+                </View>
+                <View className="h-[280px]">
+                  <ScheduleSkeleton sections={1} rowsPerSection={2} />
+                </View>
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "fields" ? (
+            <RNHostView matchContents>
+              <View
+                className="gap-4 bg-background p-4"
+                style={{ width: sheetContentWidth }}
+              >
+                <Input
+                  label={t("convention.name")}
+                  placeholder={t("convention.namePlaceholder")}
+                  value=""
+                  onChangeText={() => undefined}
                 />
-              </Row>
-            </FieldGroup.Section>
-          </FieldGroup>
-        ) : null}
-      </BottomSheet>
+                <Input
+                  label={t("convention.location")}
+                  placeholder={t("convention.locationPlaceholder")}
+                  value=""
+                  onChangeText={() => undefined}
+                  error={t("convention.nameRequired")}
+                />
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "form" ? (
+            <FieldGroup style={{ width: sheetContentWidth, height: 400 }}>
+              <FieldGroup.Section title={t("convention.new")}>
+                <NativeTextInput
+                  placeholder={t("convention.namePlaceholder")}
+                  returnKeyType="done"
+                />
+                <NativeSwitch
+                  label={t("settings.app.notifications")}
+                  value={switchValue}
+                  onValueChange={setSwitchValue}
+                />
+              </FieldGroup.Section>
+              <FieldGroup.Section>
+                <Row alignment="center" spacing={12}>
+                  <NativeButton
+                    label={t("common.cancel")}
+                    variant="text"
+                    onPress={() => setSheetPreview(null)}
+                  />
+                  <NativeButton
+                    label={t("common.save")}
+                    onPress={() => setSheetPreview(null)}
+                  />
+                </Row>
+              </FieldGroup.Section>
+            </FieldGroup>
+          ) : null}
+        </BottomSheet>
       ) : null}
     </Host>
   );

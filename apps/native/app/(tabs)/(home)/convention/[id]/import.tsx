@@ -94,7 +94,6 @@ export default function ImportScreen() {
   const requestGeneration = useRef(0);
   const isMounted = useRef(true);
   const urlInput = useNativeState("");
-  const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
 
   const { data: existingConvention } = useQuery({
     queryKey: ["convention", id],

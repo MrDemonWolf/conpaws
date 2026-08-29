@@ -15,9 +15,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
-  Alert,
-  AppState,
-  Linking,
   Pressable,
   ScrollView,
   SectionList,
@@ -76,10 +73,6 @@ import {
 } from "@/lib/schedule-list-styles";
 import { getNowAndNextEvents } from "@/lib/schedule-view";
 import { hapticSuccess } from "@/services/haptics";
-import {
-  getNotificationPermissionStatus,
-  type PermissionStatus,
-} from "@/services/notifications";
 
 interface DayGroup {
   key: string;
