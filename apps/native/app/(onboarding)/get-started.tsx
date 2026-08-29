@@ -10,7 +10,7 @@ import { markOnboardingComplete } from "@/lib/onboarding-storage";
 
 export default function GetStartedScreen() {
   const { t } = useTranslation();
-  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#006F91";
+  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#005575";
 
   async function finishOnboarding(
     destination: "/convention/new/import" | "/(tabs)/(home)",

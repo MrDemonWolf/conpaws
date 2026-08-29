@@ -49,24 +49,27 @@ describe.each([
   ["light", light],
   ["dark", dark],
 ])("%s theme contrast", (_, theme) => {
-  it("keeps primary and muted text at WCAG AA", () => {
+  // Raised from 4.5 to 7 on 2026-08-28: brand text and button fills must
+  // clear AAA in both themes, not just AA. Light primary/destructive were
+  // darkened (#00729c -> #005575, #dc2626 -> #991b1b) to get there.
+  it("keeps primary text and button fills at WCAG AAA", () => {
     for (const surface of ["background", "card"]) {
       expect(
         contrast(color(theme, "primary"), color(theme, surface)),
-      ).toBeGreaterThanOrEqual(4.5);
+      ).toBeGreaterThanOrEqual(7);
       expect(
         contrast(color(theme, "muted-foreground"), color(theme, surface)),
       ).toBeGreaterThanOrEqual(4.5);
     }
     expect(
       contrast(color(theme, "primary-foreground"), color(theme, "primary")),
-    ).toBeGreaterThanOrEqual(4.5);
+    ).toBeGreaterThanOrEqual(7);
     expect(
       contrast(
         color(theme, "destructive-foreground"),
         color(theme, "destructive"),
       ),
-    ).toBeGreaterThanOrEqual(4.5);
+    ).toBeGreaterThanOrEqual(7);
   });
 
   // These pairs were previously hardcoded Tailwind palette classes inside

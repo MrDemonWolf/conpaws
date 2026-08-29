@@ -10,7 +10,7 @@
  */
 export const themeTokens = {
   light: {
-    primary: "#00729c",
+    primary: "#005575",
     primaryForeground: "#ffffff",
     foreground: "#0f172a",
     destructiveForeground: "#ffffff",

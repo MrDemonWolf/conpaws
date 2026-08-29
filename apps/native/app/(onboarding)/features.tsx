@@ -33,7 +33,7 @@ export default function FeaturesScreen() {
     router.replace("/(tabs)/(home)");
   }
 
-  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#006F91";
+  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#005575";
   const locale = currentLocale();
 
   return (

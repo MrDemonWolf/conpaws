@@ -91,7 +91,7 @@
     "removeFromSchedule": "Quitar de Mi horario",
     "scheduleActionHint": "Actualiza este evento en Mi horario.",
     "scheduleHint": {
-      "body": "Toca un evento para añadirlo a Mi Agenda. Los eventos marcados aparecen en la pestaña Agenda.",
+      "body": "Toca un evento para añadirlo a Mi horario. Los eventos marcados aparecen en la pestaña Horario.",
       "dismiss": "Descartar aviso"
     },
     "scheduleAddedAnnouncement": "{{event}} se añadió a Mi horario.",
@@ -243,7 +243,7 @@
       "sectionTitle": "Zona horaria",
       "label": "Zona horaria de la convención",
       "placeholder": "America/Chicago",
-      "help": "Usa la ubicación de la convención, no la ubicación actual del teléfono.",
+      "help": "Usa la ubicación de la convención, no la ubicación actual del móvil.",
       "requiredTitle": "Se necesita la zona horaria",
       "requiredMessage": "Elige la zona horaria de la convención antes de importar: elige la ciudad donde se celebra.",
       "choose": "Elige una zona horaria",
@@ -301,7 +301,7 @@
       "title": "Planifica toda la convención",
       "subtitle": "Todo lo que necesitas cuando falla el Wi-Fi del recinto.",
       "demo": {
-        "saved": "Mi agenda"
+        "saved": "Mi horario"
       },
       "import": {
         "title": "Importa cualquier agenda",
@@ -369,7 +369,7 @@
     "overflowMessage": "Este dispositivo admite un número limitado de recordatorios pendientes, así que hay esta cantidad en espera: {{count}}. Se programan primero los más cercanos.",
     "priming": {
       "title": "Recibe avisos antes de los paneles",
-      "message": "ConPaws puede avisarte cuando sea hora de salir hacia un panel. Tu teléfono pedirá permiso de notificaciones a continuación.",
+      "message": "ConPaws puede avisarte cuando sea hora de salir hacia un panel. Tu móvil pedirá permiso de notificaciones a continuación.",
       "continue": "Continuar",
       "notNow": "Ahora no"
     }
@@ -378,7 +378,7 @@
     "title": "Horario",
     "empty": {
       "title": "Aún no hay nada destacado",
-      "subtitle": "Toca un evento dentro de una convención para añadirlo a Mi Agenda: aparecerá aquí.",
+      "subtitle": "Toca un evento dentro de una convención para añadirlo a Mi horario: aparecerá aquí.",
       "cta": "Abrir mis convenciones"
     },
     "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
@@ -395,13 +395,28 @@
       "title": "Idioma",
       "systemDefault": "Usar idioma del dispositivo",
       "en": "Inglés",
-      "es": "Español",
-      "nl": "Neerlandés",
+      "es-419": "Español (Latinoamérica)",
+      "es-ES": "Español (España)",
+      "pt-BR": "Portugués (Brasil)",
+      "pt-PT": "Portugués (Portugal)",
+      "ja": "Japonés",
+      "zh-TW": "Chino (tradicional)",
+      "zh-CN": "Chino (simplificado)",
+      "ko": "Coreano",
       "de": "Alemán",
       "fr": "Francés",
-      "pt-BR": "Portugués (Brasil)",
-      "sv": "Sueco",
       "pl": "Polaco",
+      "it": "Italiano",
+      "nl": "Neerlandés",
+      "ms": "Malayo",
+      "sv": "Sueco",
+      "da": "Danés",
+      "nb": "Noruego (bokmål)",
+      "fi": "Finés",
+      "cs": "Checo",
+      "hu": "Húngaro",
+      "uk": "Ucraniano",
+      "ru": "Ruso",
       "description": "Elige el idioma que usa ConPaws.",
       "selected": "Seleccionado",
       "changeError": "ConPaws no pudo cambiar el idioma. Inténtalo de nuevo."

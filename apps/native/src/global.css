@@ -5,7 +5,7 @@
 @import "nativewind/theme";
 
 @theme {
-  --color-primary: #00729c;
+  --color-primary: #005575;
   --color-primary-foreground: #ffffff;
   --color-background: #ffffff;
   --color-foreground: #0f172a;
@@ -17,11 +17,11 @@
   --color-muted-foreground: #5c667a;
   --color-accent: #e5e5ea;
   --color-accent-foreground: #0f172a;
-  --color-destructive: #dc2626;
+  --color-destructive: #991b1b;
   --color-destructive-foreground: #ffffff;
   --color-border: #d1d1d6;
   --color-input: #d1d1d6;
-  --color-ring: #00729c;
+  --color-ring: #005575;
 
   /* Audience ratings and status pills. Every foreground/background pair here
      is asserted at WCAG AAA (7:1) by theme-contrast.test.ts, because pill text

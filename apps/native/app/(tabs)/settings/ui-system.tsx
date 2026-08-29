@@ -182,8 +182,13 @@ export default function UiSystemScreen() {
         </FieldGroup.Section>
       </FieldGroup>
 
+      {/* Mounted only while presented: an always-mounted BottomSheet sibling
+          leaves its anchor view over the Form and the page stops scrolling.
+          onDismiss fires after the close animation, so unmounting here does
+          not cut the dismissal short. */}
+      {sheetPreview !== null ? (
       <BottomSheet
-        isPresented={sheetPreview !== null}
+        isPresented
         onDismiss={() => setSheetPreview(null)}
         snapPoints={["half", "full"]}
       >
@@ -274,6 +279,7 @@ export default function UiSystemScreen() {
           </FieldGroup>
         ) : null}
       </BottomSheet>
+      ) : null}
     </Host>
   );
 }

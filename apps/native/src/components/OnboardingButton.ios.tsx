@@ -31,10 +31,10 @@ export function OnboardingButton({
         colorScheme={resolvedColorScheme}
         seedColor={
           variant === "primary"
-            ? "#006F91"
+            ? "#005575"
             : resolvedColorScheme === "dark"
               ? "#18B7F2"
-              : "#006F91"
+              : "#005575"
         }
         matchContents={{ vertical: true }}
         style={{ alignSelf: "stretch" }}
