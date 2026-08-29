@@ -46,6 +46,13 @@ export const conventionEvents = sqliteTable("convention_events", {
   contentWarning: integer("content_warning", { mode: "boolean" })
     .notNull()
     .default(false),
+  /**
+   * Set only on an event the user saved that the feed stopped publishing.
+   * Null is the ordinary case. `cancelled` means the feed said so; `removed`
+   * means it merely stopped listing the event, which is a weaker claim and is
+   * worded more cautiously on screen. Re-appearing in a later import clears it.
+   */
+  feedStatus: text("feed_status", { enum: ["cancelled", "removed"] }),
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
   updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
 });

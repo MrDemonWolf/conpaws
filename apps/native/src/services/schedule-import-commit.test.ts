@@ -30,6 +30,7 @@ const IMPORT_RESULT: ImportResult = {
   updated: 1,
   unresolved: 0,
   removed: 2,
+  tombstoned: 0,
   remindersCleared: 0,
   remindersPaused: 0,
 };

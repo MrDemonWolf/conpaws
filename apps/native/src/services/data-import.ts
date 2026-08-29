@@ -41,6 +41,7 @@ const MAX_INSTANT_MS = Date.UTC(2200, 0, 1);
 
 const CONVENTION_STATUSES = ["upcoming", "active", "ended"] as const;
 const AGE_RATINGS = ["all-ages", "teen", "mature", "adult"] as const;
+const FEED_STATUSES = ["cancelled", "removed"] as const;
 
 /**
  * Why an import produced nothing. `cancelled` is not a failure: the user
@@ -354,6 +355,10 @@ export function validateEventRow(
       sourceUrl,
       isAgeRestricted: optionalBoolean(row, "isAgeRestricted"),
       ageRating: oneOf(row, "ageRating", AGE_RATINGS),
+      // Restored as-is. A backup taken while an event was marked should come
+      // back marked; the next successful import of that feed clears it, which
+      // is the same way the mark clears anywhere else.
+      feedStatus: oneOf(row, "feedStatus", FEED_STATUSES),
       contentWarning: optionalBoolean(row, "contentWarning"),
       createdAt: timestampOrNow(row, "createdAt", now),
       updatedAt: timestampOrNow(row, "updatedAt", now),

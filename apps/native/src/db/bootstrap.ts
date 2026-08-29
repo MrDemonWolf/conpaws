@@ -98,6 +98,34 @@ PRAGMA user_version = 5;
 COMMIT;
 `;
 
+/**
+ * Why a saved event can outlive its feed entry.
+ *
+ * Reconciliation used to hard-delete any imported row the feed stopped
+ * publishing, without ever asking whether the user had saved it. A convention
+ * republishing a partial export therefore took saved panels with it, silently,
+ * along with their reminders — and the user's only evidence was a number in a
+ * dialog they may already have dismissed.
+ *
+ * `feed_status` keeps the row instead. NULL is an ordinary event;
+ * `'cancelled'` is a feed that said so outright; `'removed'` is one that simply
+ * stopped listing it, which is a weaker claim and is worded that way on screen.
+ * A later import that finds the event again clears the column, so feed churn
+ * that rewrites identifiers no longer costs the user their schedule.
+ */
+export const MIGRATION_6_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE convention_events ADD COLUMN feed_status TEXT;
+PRAGMA user_version = 6;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_6_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 6;
+COMMIT;
+`;
+
 const COMPLETE_MIGRATION_4_SQL = `
 BEGIN IMMEDIATE;
 PRAGMA user_version = 4;
@@ -110,7 +138,7 @@ interface MigrationDatabase {
 }
 
 /** The highest `user_version` the migration ladder below knows how to reach. */
-export const LATEST_SCHEMA_VERSION = 5;
+export const LATEST_SCHEMA_VERSION = 6;
 
 export function initializeDatabase(database: MigrationDatabase): void {
   database.execSync(CONNECTION_SQL);
@@ -133,6 +161,7 @@ export function initializeDatabase(database: MigrationDatabase): void {
   if (version < 3) applyColumnMigration(database, "location");
   if (version < 4) applyColumnMigration(database, "age_rating");
   if (version < 5) applyColumnMigration(database, "archived_at");
+  if (version < 6) applyColumnMigration(database, "feed_status");
 }
 
 const COLUMN_MIGRATIONS = {
@@ -155,6 +184,11 @@ const COLUMN_MIGRATIONS = {
     table: "conventions",
     migrate: () => MIGRATION_5_SQL,
     complete: () => COMPLETE_MIGRATION_5_SQL,
+  },
+  feed_status: {
+    table: "convention_events",
+    migrate: () => MIGRATION_6_SQL,
+    complete: () => COMPLETE_MIGRATION_6_SQL,
   },
 } as const;
 
