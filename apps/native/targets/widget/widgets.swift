@@ -497,6 +497,24 @@ private func conPawsTimeLabel(
   return "\(date.formatted(weekday)) \(clock)"
 }
 
+/// "Leave 11:40 PM" for an upcoming event that has a leave reminder set,
+/// shown before the window opens so the lock screen answers "when do I have
+/// to go" instead of only "when does it start". Nil without a reminder.
+/// Reuses the localized inline leave format -- no new strings.
+private func conPawsLeaveByLabel(
+  _ upcoming: ConPawsEventSnapshot,
+  timeZone: TimeZone,
+  locale: Locale,
+  strings: ConPawsStrings
+) -> String? {
+  guard let minutes = upcoming.reminderMinutes, minutes > 0 else { return nil }
+  let leaveAt = upcoming.startDate.addingTimeInterval(TimeInterval(-minutes * 60))
+  return strings.text(
+    strings.inlineLeaveFormat,
+    leaveAt.formatted(conPawsClockStyle(timeZone, locale: locale))
+  )
+}
+
 /// The header's date, in the convention's zone: "Thu, Sep 3" on medium,
 /// "Thursday · Sep 3" on large.
 private func conPawsDayLabel(
@@ -1215,7 +1233,18 @@ private struct ConPawsRectangularView: View {
         }
 
       case .next(let convention, _, let upcoming):
-        ConPawsAccessoryEyebrow(title: convention.name)
+        // A set leave reminder takes the eyebrow: "when do I go" beats the
+        // convention's name, which the rest of the lock screen already implies.
+        if let leaveBy = conPawsLeaveByLabel(
+          upcoming,
+          timeZone: convention.timeZone,
+          locale: entry.locale,
+          strings: entry.strings
+        ) {
+          ConPawsAccessoryEyebrow(title: leaveBy, symbol: "figure.walk")
+        } else {
+          ConPawsAccessoryEyebrow(title: convention.name)
+        }
         Text(upcoming.title)
           .font(.headline)
           .lineLimit(1)
@@ -1298,9 +1327,20 @@ private struct ConPawsInlineView: View {
         systemImage: "figure.walk"
       )
     case .next(let convention, _, let upcoming):
-      Text(
-        "\(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: entry.locale))) · \(upcoming.title)"
-      )
+      // With a leave reminder set, the leave-by time is the actionable half —
+      // inline truncates hard, so it wins the slot over the start time.
+      if let leaveBy = conPawsLeaveByLabel(
+        upcoming,
+        timeZone: convention.timeZone,
+        locale: entry.locale,
+        strings: entry.strings
+      ) {
+        Label("\(leaveBy) · \(upcoming.title)", systemImage: "figure.walk")
+      } else {
+        Text(
+          "\(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: entry.locale))) · \(upcoming.title)"
+        )
+      }
     case .empty:
       Text(entry.strings.noUpcomingEvents)
     }
