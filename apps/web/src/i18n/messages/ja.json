@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — ファーリーコンベンションのおともに",
+    "titleTemplate": "%s · ConPaws",
+    "description": "コンベンションのスケジュールを取り込み、自分だけの予定を組み、リマインダーを受け取る。すべてオフラインで動作。iOS と Android 対応。",
+    "descriptionShort": "コンベンションのスケジュールを取り込み、自分だけの予定を組み、リマインダーを受け取る。すべてオフラインで動作。",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Est. 2025",
+    "languageLabel": "言語"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "スケジュール、オフライン優先、リマインダー、コンテンツ警告、iOS、Android。",
+    "items": [
+      "スケジュール",
+      "オフライン優先",
+      "リマインダー",
+      "コンテンツ警告",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "中身を見る",
+    "title": "週末まるごと、親指ひとつで",
+    "blurb": "実際の画面を忠実に描いたイラストです。自分で組んだスケジュールが、そのまま表示されます。フィードもアルゴリズムも、引っぱって更新もありません。",
+    "frameSchedule": "週末を組み立てる",
+    "frameEvent": "見逃さない",
+    "frameOffline": "Wi-Fi は任意"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "コンベンション",
+      "schedule": "スケジュール",
+      "settings": "設定"
+    },
+    "scheduleTitle": "スケジュール",
+    "scheduleTimezoneNote": "時刻は各コンベンションの現地時間で表示されます。",
+    "offlineTitle": "現在と次の予定",
+    "offlineTimezoneNote": "時刻は America/Chicago 表示",
+    "daySaturdayFull": "7月4日（土）",
+    "daySundayFull": "7月5日（日）",
+    "daySaturday": "土曜日",
+    "nowCount": "現在（1件）",
+    "nextAt": "次は 14:30（2件）",
+    "events": {
+      "fursuitParade": "ファーストパレード",
+      "dealersDen": "ディーラーズデン",
+      "djNight": "DJ ナイト",
+      "closingCeremonies": "閉会式",
+      "drawingForBeginners": "はじめてのお絵かき",
+      "writingFurryFiction": "ファーリー小説の書き方",
+      "fursuitRepairClinic": "ファースーツ修理クリニック"
+    },
+    "rooms": {
+      "mainHall": "メインホール",
+      "hallB": "ホール B",
+      "ballroom": "ボールルーム",
+      "panel1": "パネル室 1",
+      "panel2": "パネル室 2",
+      "panel3": "パネル室 3"
+    },
+    "sheet": {
+      "when": "7月4日（土）10:00〜11:00 · メインホール",
+      "reminderChip": "15分前",
+      "importedChip": "取り込み済み",
+      "note": "9:40 までに中2階へ集合。ルートはフォトウォールで終了します。",
+      "actionRemove": "マイスケジュールから削除",
+      "actionChangeReminder": "出発リマインダーを変更",
+      "actionViewOnSched": "Sched で見る",
+      "close": "閉じる"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "本日のプログラム",
+    "title": "会場で使うために作りました",
+    "dayCounter": "1日目 / ∞",
+    "tags": {
+      "Core": "基本",
+      "QoL": "便利",
+      "Safety": "安全"
+    },
+    "items": [
+      {
+        "title": "どんなスケジュールも取り込める",
+        "body": ".ics ファイルを置くか、Sched のリンクを貼るだけ。あとから取り込み直しても、選んだ予定は消えません。",
+        "room": "メインホール"
+      },
+      {
+        "title": "かしこいリマインダー",
+        "body": "選んだイベントの前にだけお知らせします。それ以外は一切ありません。",
+        "room": "パネル室 2"
+      },
+      {
+        "title": "コンテンツ警告",
+        "body": "18+ や光過敏の注意を、スケジュールから自動で拾い上げます。",
+        "room": "運営"
+      },
+      {
+        "title": "オフラインで動く",
+        "body": "すべて端末の中にあります。混雑時に会場の Wi-Fi が落ちても、もう他人事です。",
+        "room": "どこでも"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws の概要",
+    "labels": [
+      "の機能がオフラインで動作",
+      "アカウント登録は不要",
+      "でスケジュールを丸ごと取り込み",
+      "コンベンションをひとつのアプリに"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "使い方",
+    "title": "3ステップ、設定なし",
+    "items": [
+      {
+        "title": "ダウンロード",
+        "body": "リリース時、iOS と Android で無料。"
+      },
+      {
+        "title": "コンベンションを選ぶ",
+        "body": "スケジュールを取り込むか、ゼロから作成。"
+      },
+      {
+        "title": "週末を組み立てる",
+        "body": "行きたいものにスターを。始まる前にお知らせします。"
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "運営デスク",
+    "title": "よくある質問",
+    "items": [
+      {
+        "q": "無料ですか？",
+        "a": "はい。スケジュール、取り込み、リマインダー、オフライン動作はすべて無料です。今後、追加機能つきの ConPaws+ を予定していますが、いまここにある機能が有料になることはありません。"
+      },
+      {
+        "q": "アカウントは必要ですか？",
+        "a": "いいえ。ConPaws はアカウントなしで完全に動作します。スケジュールは私たちのサーバーではなく、あなたの端末の中にあります。"
+      },
+      {
+        "q": "会場の Wi-Fi が落ちたら？",
+        "a": "何も起きません。ConPaws はオフライン優先です。地下のディーラーズデンで電波ゼロでも、すべての機能が動き続けます。"
+      },
+      {
+        "q": "どのコンベンションに対応していますか？",
+        "a": "`.ics` カレンダーか [Sched](https://sched.com) のページを公開しているものすべてで、ほとんどのファーリーコンベンションが該当します。それ以外は手動でスケジュールを作れます。"
+      },
+      {
+        "q": "いつリリースされますか？",
+        "a": "ベータはまずウェイトリストの方から、iOS と Android 同時に公開します。上のフォームから登録すると、招待の準備ができたときにメールが 1 通届きます。"
+      },
+      {
+        "q": "誰が作っていますか？",
+        "a": "ConPaws は [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) が作っています。廊下の列に並びながら「こんなアプリが欲しかった」と思っていたコン参加者たちです。"
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "受付の列",
+    "title": "あなたのバッジは受付でお待ちしています",
+    "body": "ウェイトリストに登録すると、ベータ公開時にメールが 1 通だけ届きます。それ以外は一切送りません。",
+    "button": "列に並ぶ →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws by",
+    "company": "MrDemonWolf, Inc.",
+    "support": "サポート",
+    "privacy": "プライバシー",
+    "terms": "利用規約"
+  },
+
+  "waitlist": {
+    "badgeOpen": "ベータのウェイトリスト受付中",
+    "badgeSoon": "ベータのウェイトリストは近日公開",
+    "title": "コンの予定を、すっきり。",
+    "titleAccent": "コンの予定",
+    "body": "コンベンションのスケジュールを取り込み、自分だけの予定を組み、リマインダーを受け取る。すべてオフラインで動きます。会場の Wi-Fi は、そうはいきませんから。",
+    "nameLabel": "お名前またはファーソナ",
+    "emailLabel": "メールアドレス",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "you@example.com",
+    "honeypotLabel": "会社名",
+    "submit": "ベータに登録する →",
+    "submitting": "登録中…",
+    "submitClosed": "受付はまもなく開始",
+    "successToast": "メールを確認して、登録を完了してください。",
+    "errorGeneric": "問題が発生しました。",
+    "errorRetry": "問題が発生しました。もう一度お試しください。",
+    "doneTitle": "登録が完了しました。",
+    "doneBody": "確認リンクをメールでお送りしました。リンクを開けば登録は確定です。次にご連絡するのは、お知らせする価値のあることができたときだけです。",
+    "closedNotice": "安全な登録とメール確認の準備を進めています。まだメールアドレスの受付は行っていません。",
+    "privacyLink": "プライバシー"
+  },
+
+  "confirmed": {
+    "title": "登録が完了しました",
+    "description": "ConPaws ベータのウェイトリストへの登録が確認されました。",
+    "cards": [
+      {
+        "title": "いまは何もする必要はありません",
+        "body": "枠は確保されています。ベータが実際に公開されるまで、こちらから連絡することはありません。"
+      },
+      {
+        "title": "メール 1 通、そして招待",
+        "body": "TestFlight と Play のテストが始まったら、リンクをお送りします。iOS と Android 同時です。"
+      },
+      {
+        "title": "いつでも解除できます",
+        "body": "私たちが送るメールにはすべて配信停止リンクがついています。1 クリック、理由も聞きません。"
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "ページが見つかりません",
+    "description": "そのページはプログラムにありません。",
+    "links": [
+      {
+        "label": "メインプログラム",
+        "hint": "ConPaws とは、そしてウェイトリスト"
+      },
+      { "label": "サポート", "hint": "本当に不具合がある場合" },
+      {
+        "label": "プライバシーポリシー",
+        "hint": "保存するもの、しないもの"
+      }
+    ]
+  }
+}

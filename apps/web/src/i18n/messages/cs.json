@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — tvůj společník na furry conech",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Naimportuj program conu, sestav si vlastní, dostávej připomínky — všechno funguje offline. iOS a Android.",
+    "descriptionShort": "Naimportuj program conu, sestav si vlastní, dostávej připomínky — všechno funguje offline.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Od 2025",
+    "languageLabel": "Jazyk"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Programy, offline především, připomínky, upozornění na obsah, iOS, Android.",
+    "items": [
+      "Programy",
+      "Offline především",
+      "Připomínky",
+      "Upozornění na obsah",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Nahlédni dovnitř",
+    "title": "Celý víkend, jedním palcem",
+    "blurb": "Ilustrace skutečných obrazovek, věrně překreslené. Program, který si sestavíš, je program, který vidíš — žádný feed, žádný algoritmus, žádné tahání pro obnovení.",
+    "frameSchedule": "Sestav si víkend",
+    "frameEvent": "Nic nezmeškej",
+    "frameOffline": "Wi-Fi nepovinná"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Cony",
+      "schedule": "Program",
+      "settings": "Nastavení"
+    },
+    "scheduleTitle": "Program",
+    "scheduleTimezoneNote": "Časy se zobrazují v místním čase každého conu.",
+    "offlineTitle": "Teď a dál",
+    "offlineTimezoneNote": "Časy v pásmu America/Chicago",
+    "daySaturdayFull": "Sobota 4. července",
+    "daySundayFull": "Neděle 5. července",
+    "daySaturday": "Sobota",
+    "nowCount": "Teď (1)",
+    "nextAt": "Dál ve 14:30 (2)",
+    "events": {
+      "fursuitParade": "Průvod fursuitů",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ noc",
+      "closingCeremonies": "Závěrečný ceremoniál",
+      "drawingForBeginners": "Kreslení pro začátečníky",
+      "writingFurryFiction": "Psaní furry prózy",
+      "fursuitRepairClinic": "Opravna fursuitů"
+    },
+    "rooms": {
+      "mainHall": "Hlavní sál",
+      "hallB": "Sál B",
+      "ballroom": "Taneční sál",
+      "panel1": "Panelová místnost 1",
+      "panel2": "Panelová místnost 2",
+      "panel3": "Panelová místnost 3"
+    },
+    "sheet": {
+      "when": "Sobota 4. července 10:00–11:00 · Hlavní sál",
+      "reminderChip": "15 min předem",
+      "importedChip": "Naimportováno",
+      "note": "Sraz na mezipatře do 9:40. Trasa končí u fotostěny.",
+      "actionRemove": "Odebrat z mého programu",
+      "actionChangeReminder": "Změnit připomínku odchodu",
+      "actionViewOnSched": "Zobrazit na Sched",
+      "close": "Zavřít"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Dnešní program",
+    "title": "Postavené na conové prostředí",
+    "dayCounter": "Den 1 z ∞",
+    "tags": {
+      "Core": "Základ",
+      "QoL": "Pohodlí",
+      "Safety": "Bezpečí"
+    },
+    "items": [
+      {
+        "title": "Naimportuj jakýkoli program",
+        "body": "Přetáhni soubor .ics nebo vlož odkaz na Sched. Naimportuj znovu později, aniž bys přišel o to, co sis vybral.",
+        "room": "Hlavní sál"
+      },
+      {
+        "title": "Chytré připomínky",
+        "body": "Šťouchnutí před body programu, které si vybereš. Nic jiného, nikdy.",
+        "room": "Panelová místnost 2"
+      },
+      {
+        "title": "Upozornění na obsah",
+        "body": "Označení 18+ a varování před světelnou citlivostí se z programu vytáhnou automaticky.",
+        "room": "Organizace"
+      },
+      {
+        "title": "Funguje offline",
+        "body": "Všechno žije v tvém telefonu. To, že conová Wi-Fi ve špičce padne, je teď problém někoho jiného.",
+        "room": "Všude"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws ve zkratce",
+    "labels": [
+      "funkcí běží offline",
+      "účtů je potřeba k používání",
+      "naimportuje celý program",
+      "conů v jedné aplikaci"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Jak to funguje",
+    "title": "Tři kroky, nulové nastavení",
+    "items": [
+      {
+        "title": "Stáhni",
+        "body": "Zdarma na iOS i Androidu při spuštění."
+      },
+      {
+        "title": "Vyber si con",
+        "body": "Naimportuj jeho program, nebo si založ vlastní od nuly."
+      },
+      {
+        "title": "Sestav si víkend",
+        "body": "Označ hvězdičkou, co chceš. Šťouchneme tě, než to začne."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Pult organizátorů",
+    "title": "Otázky a odpovědi",
+    "items": [
+      {
+        "q": "Je to zdarma?",
+        "a": "Ano. Program, importy, připomínky i offline režim jsou zdarma. Později plánujeme vylepšení ConPaws+ s extra funkcemi — nic z toho, co vidíš tady, se za něj nepřesune."
+      },
+      {
+        "q": "Potřebuju účet?",
+        "a": "Ne. ConPaws funguje úplně bez něj. Tvůj program žije v tvém telefonu, ne na našich serverech."
+      },
+      {
+        "q": "Co když conová Wi-Fi padne?",
+        "a": "Nic se nestane. ConPaws je offline především: všechno funguje dál i s nulovým signálem ve sklepním Dealers' Den."
+      },
+      {
+        "q": "S jakými cony to funguje?",
+        "a": "S každým, který zveřejňuje kalendář `.ics` nebo stránku [Sched](https://sched.com) — což pokrývá většinu furry conů. Pro ostatní si můžeš program sestavit ručně."
+      },
+      {
+        "q": "Kdy to vyjde?",
+        "a": "Beta se otevře nejdřív čekací listině, iOS a Android zároveň. Přihlas se výše a dostaneš jeden e-mail, až bude tvá pozvánka připravená."
+      },
+      {
+        "q": "Kdo to dělá?",
+        "a": "ConPaws staví [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — návštěvníci conů, kteří stavějí aplikaci, jakou si sami přáli mít ve frontě na chodbě."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Registrační fronta",
+    "title": "Tvoje jmenovka čeká na recepci",
+    "body": "Přidej se na čekací listinu a dostaneš přesně jeden e-mail, až se beta otevře — nic jiného, nikdy.",
+    "button": "Postav se do fronty →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws od",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Podpora",
+    "privacy": "Soukromí",
+    "terms": "Podmínky"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Čekací listina na betu je otevřená",
+    "badgeSoon": "Čekací listina na betu se brzy otevře",
+    "title": "Tvůj program conu, vyřešený.",
+    "titleAccent": "program conu",
+    "body": "Naimportuj program conu, sestav si vlastní, dostávej připomínky — všechno offline, protože conová Wi-Fi nikdy není.",
+    "nameLabel": "Tvé jméno nebo fursona",
+    "emailLabel": "E-mail",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "ty@priklad.cz",
+    "honeypotLabel": "Firma",
+    "submit": "Přihlásit se do bety →",
+    "submitting": "Přihlašuji…",
+    "submitClosed": "Přihlášky se brzy otevřou",
+    "successToast": "Zkontroluj e-mail a potvrď své místo.",
+    "errorGeneric": "Něco se pokazilo.",
+    "errorRetry": "Něco se pokazilo. Zkusit znovu?",
+    "doneTitle": "Jsi na listině.",
+    "doneBody": "Poslali jsme ti na e-mail potvrzovací odkaz. Klikni na něj a místo je tvoje — znovu se ozveme, až bude co otevírat.",
+    "closedNotice": "Dokončujeme bezpečnou registraci a potvrzování e-mailu. Zatím nepřijímáme adresy.",
+    "privacyLink": "Soukromí"
+  },
+
+  "confirmed": {
+    "title": "Jsi na listině",
+    "description": "Tvoje místo na čekací listině bety ConPaws je potvrzené.",
+    "cards": [
+      {
+        "title": "Teď není co dělat",
+        "body": "Tvoje místo je držené. Znovu se ozveme, až bude beta opravdu otevřená."
+      },
+      {
+        "title": "Jeden e-mail, pak pozvánka",
+        "body": "Až se spustí testování na TestFlightu a Play, dostaneš odkaz — iOS a Android zároveň."
+      },
+      {
+        "title": "Odejdi, kdykoli chceš",
+        "body": "Každý e-mail, který pošleme, obsahuje odhlašovací odkaz. Jedno kliknutí, bez otázek."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Stránka nenalezena",
+    "description": "Tahle stránka není v programu.",
+    "links": [
+      {
+        "label": "Hlavní program",
+        "hint": "Co je ConPaws a čekací listina"
+      },
+      { "label": "Podpora", "hint": "Když je opravdu něco rozbité" },
+      {
+        "label": "Zásady ochrany soukromí",
+        "hint": "Co ukládáme a co ne"
+      }
+    ]
+  }
+}

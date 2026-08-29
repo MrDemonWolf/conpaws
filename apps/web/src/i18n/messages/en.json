@@ -1,0 +1,242 @@
+{
+  "meta": {
+    "title": "ConPaws — your furry convention companion",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Import a convention schedule, build your own, get reminders — all of it working offline. iOS and Android.",
+    "descriptionShort": "Import a convention schedule, build your own, get reminders — all of it working offline.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Est. 2025",
+    "languageLabel": "Language"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Schedules, offline first, reminders, content flags, iOS, Android.",
+    "items": [
+      "Schedules",
+      "Offline first",
+      "Reminders",
+      "Content flags",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "A look inside",
+    "title": "Your whole weekend, one thumb",
+    "blurb": "Illustrations of the real screens, drawn to match. The schedule you build is the schedule you see — no feeds, no algorithm, no pull-to-refresh roulette.",
+    "frameSchedule": "Build your weekend",
+    "frameEvent": "Never miss a lineup",
+    "frameOffline": "WiFi optional"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Conventions",
+      "schedule": "Schedule",
+      "settings": "Settings"
+    },
+    "scheduleTitle": "Schedule",
+    "scheduleTimezoneNote": "Times are shown in each convention's local time.",
+    "offlineTitle": "Now and Next",
+    "offlineTimezoneNote": "Times shown in America/Chicago",
+    "daySaturdayFull": "Saturday, July 4",
+    "daySundayFull": "Sunday, July 5",
+    "daySaturday": "Saturday",
+    "nowCount": "Now (1)",
+    "nextAt": "Next at 14:30 (2)",
+    "events": {
+      "fursuitParade": "Fursuit Parade",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ Night",
+      "closingCeremonies": "Closing Ceremonies",
+      "drawingForBeginners": "Drawing for Beginners",
+      "writingFurryFiction": "Writing Furry Fiction",
+      "fursuitRepairClinic": "Fursuit Repair Clinic"
+    },
+    "rooms": {
+      "mainHall": "Main Hall",
+      "hallB": "Hall B",
+      "ballroom": "Ballroom",
+      "panel1": "Panel 1",
+      "panel2": "Panel 2",
+      "panel3": "Panel 3"
+    },
+    "sheet": {
+      "when": "Saturday, July 4 at 10:00 to 11:00 · Main Hall",
+      "reminderChip": "15 min before",
+      "importedChip": "Imported",
+      "note": "Line up on the mezzanine by 9:40. The route ends at the photo wall.",
+      "actionRemove": "Remove from My Schedule",
+      "actionChangeReminder": "Change leave reminder",
+      "actionViewOnSched": "View on Sched",
+      "close": "Close"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Today's lineup",
+    "title": "Built for the con floor",
+    "dayCounter": "Day 1 of ∞",
+    "tags": {
+      "Core": "Core",
+      "QoL": "QoL",
+      "Safety": "Safety"
+    },
+    "items": [
+      {
+        "title": "Import any schedule",
+        "body": "Drop in an .ics file or paste a Sched link. Re-import later without losing what you've picked.",
+        "room": "Main Hall"
+      },
+      {
+        "title": "Smart reminders",
+        "body": "Nudges before the events you choose. Nothing else, ever.",
+        "room": "Panel Room 2"
+      },
+      {
+        "title": "Content flags",
+        "body": "18+ and photosensitivity warnings surfaced automatically from the schedule.",
+        "room": "Ops"
+      },
+      {
+        "title": "Works offline",
+        "body": "Everything lives on your phone. Con WiFi dying at peak hours is someone else's problem now.",
+        "room": "Everywhere"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws at a glance",
+    "labels": [
+      "of features work offline",
+      "accounts needed to use it",
+      "imports a whole schedule",
+      "conventions in one app"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "How it works",
+    "title": "Three steps, zero setup",
+    "items": [
+      { "title": "Download", "body": "Free on iOS and Android at launch." },
+      {
+        "title": "Pick your convention",
+        "body": "Import its schedule, or start one from scratch."
+      },
+      {
+        "title": "Build your weekend",
+        "body": "Star what you want. Get nudged before it starts."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Con ops desk",
+    "title": "Questions, answered",
+    "items": [
+      {
+        "q": "Is it free?",
+        "a": "Yes. The schedule, imports, reminders, and offline mode are free. A ConPaws+ upgrade with extras is planned later — nothing you see here moves behind it."
+      },
+      {
+        "q": "Do I need an account?",
+        "a": "No. ConPaws works entirely without one. Your schedule lives on your phone, not on our servers."
+      },
+      {
+        "q": "What if the con WiFi dies?",
+        "a": "Nothing happens. ConPaws is offline-first: every feature keeps working with zero bars in a basement dealers' den."
+      },
+      {
+        "q": "Which conventions does it work with?",
+        "a": "Any that publish an `.ics` calendar or a [Sched](https://sched.com) page — which covers most furry cons. You can also build a schedule by hand for the ones that don't."
+      },
+      {
+        "q": "When does it launch?",
+        "a": "The beta opens to the waitlist first, iOS and Android together. Join above and you'll get one email when your invite is ready."
+      },
+      {
+        "q": "Who makes it?",
+        "a": "ConPaws is built by [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — con-goers building the app we wished we had in the hallway line."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Registration line",
+    "title": "Your badge is waiting at the front desk",
+    "body": "Join the waitlist and you'll get exactly one email when the beta opens — nothing else, ever.",
+    "button": "Get in line →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws by",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Support",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Beta waitlist open",
+    "badgeSoon": "Beta waitlist coming soon",
+    "title": "Your con schedule, sorted.",
+    "titleAccent": "schedule",
+    "body": "Import a convention schedule, build your own, get reminders — all of it working offline, because con WiFi never does.",
+    "nameLabel": "Your name or fursona",
+    "emailLabel": "Email",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "you@example.com",
+    "honeypotLabel": "Company",
+    "submit": "Register for the beta →",
+    "submitting": "Registering…",
+    "submitClosed": "Registration opening soon",
+    "successToast": "Check your inbox to confirm your spot.",
+    "errorGeneric": "Something went wrong.",
+    "errorRetry": "Something went wrong. Try again?",
+    "doneTitle": "You're on the list.",
+    "doneBody": "We sent a confirmation link to your inbox. Click it and your spot is locked in — we won't email you again until there's something worth opening.",
+    "closedNotice": "We're finishing secure signup and email confirmation. No addresses are being accepted yet.",
+    "privacyLink": "Privacy"
+  },
+
+  "confirmed": {
+    "title": "You're on the list",
+    "description": "Your ConPaws beta waitlist spot is confirmed.",
+    "cards": [
+      {
+        "title": "Nothing to do now",
+        "body": "Your spot is held. We won't email you again until the beta is actually open."
+      },
+      {
+        "title": "One email, then an invite",
+        "body": "When TestFlight and Play testing go live, you get the link — iOS and Android together."
+      },
+      {
+        "title": "Leave whenever",
+        "body": "Every email we send carries an unsubscribe link. One click, no questions."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Page not found",
+    "description": "That page isn't on the program.",
+    "links": [
+      {
+        "label": "The main program",
+        "hint": "What ConPaws is, and the waitlist"
+      },
+      { "label": "Support", "hint": "If something is actually broken" },
+      {
+        "label": "Privacy Policy",
+        "hint": "What we store, and what we don't"
+      }
+    ]
+  }
+}

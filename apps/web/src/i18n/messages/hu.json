@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — a furry convent társad",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Importáld egy convent programját, állítsd össze a sajátodat, kapj emlékeztetőket — mindez offline is működik. iOS és Android.",
+    "descriptionShort": "Importáld egy convent programját, állítsd össze a sajátodat, kapj emlékeztetőket — mindez offline is működik.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "2025 óta",
+    "languageLabel": "Nyelv"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Programok, offline elsőként, emlékeztetők, tartalmi figyelmeztetések, iOS, Android.",
+    "items": [
+      "Programok",
+      "Offline elsőként",
+      "Emlékeztetők",
+      "Tartalmi jelzések",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Egy pillantás belülre",
+    "title": "A teljes hétvégéd, egy hüvelykujjal",
+    "blurb": "A valódi képernyők hű illusztrációi. Amit összeállítasz, azt látod — nincs hírfolyam, nincs algoritmus, nincs húzd-a-frissítéshez.",
+    "frameSchedule": "Állítsd össze a hétvégéd",
+    "frameEvent": "Ne maradj le semmiről",
+    "frameOffline": "A Wi-Fi opcionális"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Conventek",
+      "schedule": "Program",
+      "settings": "Beállítások"
+    },
+    "scheduleTitle": "Program",
+    "scheduleTimezoneNote": "Az időpontok az egyes conventek helyi ideje szerint jelennek meg.",
+    "offlineTitle": "Most és utána",
+    "offlineTimezoneNote": "Időpontok America/Chicago szerint",
+    "daySaturdayFull": "Szombat, július 4.",
+    "daySundayFull": "Vasárnap, július 5.",
+    "daySaturday": "Szombat",
+    "nowCount": "Most (1)",
+    "nextAt": "Utána 14:30-kor (2)",
+    "events": {
+      "fursuitParade": "Fursuit-felvonulás",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ-est",
+      "closingCeremonies": "Záróceremónia",
+      "drawingForBeginners": "Rajzolás kezdőknek",
+      "writingFurryFiction": "Furry-próza írása",
+      "fursuitRepairClinic": "Fursuit-javító műhely"
+    },
+    "rooms": {
+      "mainHall": "Nagyterem",
+      "hallB": "B terem",
+      "ballroom": "Bálterem",
+      "panel1": "Panelterem 1",
+      "panel2": "Panelterem 2",
+      "panel3": "Panelterem 3"
+    },
+    "sheet": {
+      "when": "Szombat, július 4., 10:00–11:00 · Nagyterem",
+      "reminderChip": "15 perccel előtte",
+      "importedChip": "Importálva",
+      "note": "Gyülekező a félemeleten 9:40-ig. Az útvonal a fotófalnál ér véget.",
+      "actionRemove": "Eltávolítás a programomból",
+      "actionChangeReminder": "Indulási emlékeztető módosítása",
+      "actionViewOnSched": "Megtekintés a Scheden",
+      "close": "Bezárás"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "A mai program",
+    "title": "A convent terepére készült",
+    "dayCounter": "1. nap / ∞",
+    "tags": {
+      "Core": "Alap",
+      "QoL": "Kényelem",
+      "Safety": "Biztonság"
+    },
+    "items": [
+      {
+        "title": "Importálj bármilyen programot",
+        "body": "Dobj be egy .ics fájlt, vagy illessz be egy Sched-linket. Később újraimportálhatod anélkül, hogy elveszne, amit kiválasztottál.",
+        "room": "Nagyterem"
+      },
+      {
+        "title": "Okos emlékeztetők",
+        "body": "Egy bökés az általad választott programpontok előtt. Semmi más, soha.",
+        "room": "Panelterem 2"
+      },
+      {
+        "title": "Tartalmi jelzések",
+        "body": "A 18+ és a fényérzékenységi figyelmeztetések automatikusan kiemelődnek a programból.",
+        "room": "Szervezők"
+      },
+      {
+        "title": "Offline is működik",
+        "body": "Minden a telefonodon él. Hogy a convent Wi-Fije csúcsidőben összeomlik, mostantól valaki más gondja.",
+        "room": "Mindenhol"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws röviden",
+    "labels": [
+      "a funkcióknak offline is működik",
+      "fiók kell a használatához",
+      "importál egy teljes programot",
+      "convent egyetlen alkalmazásban"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Így működik",
+    "title": "Három lépés, nulla beállítás",
+    "items": [
+      {
+        "title": "Töltsd le",
+        "body": "Induláskor ingyenes iOS-en és Androidon."
+      },
+      {
+        "title": "Válaszd ki a conventet",
+        "body": "Importáld a programját, vagy kezdj egyet a nulláról."
+      },
+      {
+        "title": "Állítsd össze a hétvégéd",
+        "body": "Csillagozd meg, amit szeretnél. Szólunk, mielőtt elkezdődik."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Szervezői pult",
+    "title": "Kérdések, megválaszolva",
+    "items": [
+      {
+        "q": "Ingyenes?",
+        "a": "Igen. A program, az importálás, az emlékeztetők és az offline mód ingyenes. Később tervezünk egy ConPaws+ csomagot extrákkal — semmi, amit itt látsz, nem kerül mögé."
+      },
+      {
+        "q": "Kell hozzá fiók?",
+        "a": "Nem. A ConPaws teljesen fiók nélkül működik. A programod a telefonodon él, nem a szervereinken."
+      },
+      {
+        "q": "Mi van, ha elszáll a convent Wi-Fije?",
+        "a": "Semmi. A ConPaws offline elsőként működik: minden funkció megy tovább nulla térerővel is a pinceszinti Dealers' Denben."
+      },
+      {
+        "q": "Mely conventekkel működik?",
+        "a": "Mindegyikkel, amelyik közzétesz `.ics` naptárat vagy [Sched](https://sched.com) oldalt — ez a furry conventek nagy részét lefedi. A többihez kézzel is összeállíthatod a programot."
+      },
+      {
+        "q": "Mikor jelenik meg?",
+        "a": "A béta először a várólistának nyílik meg, iOS-en és Androidon egyszerre. Iratkozz fel fent, és kapsz egy e-mailt, amint a meghívód elkészül."
+      },
+      {
+        "q": "Ki készíti?",
+        "a": "A ConPawsot a [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) építi — conventjárók, akik azt az appot építik, amit maguk szerettek volna a folyosói sorban."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Regisztrációs sor",
+    "title": "A kitűződ a recepción vár",
+    "body": "Iratkozz fel a várólistára, és pontosan egy e-mailt kapsz, amikor a béta megnyílik — semmi mást, soha.",
+    "button": "Állj be a sorba →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws —",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Támogatás",
+    "privacy": "Adatvédelem",
+    "terms": "Feltételek"
+  },
+
+  "waitlist": {
+    "badgeOpen": "A béta várólistája nyitva",
+    "badgeSoon": "A béta várólistája hamarosan",
+    "title": "A convent programod, rendben.",
+    "titleAccent": "convent programod",
+    "body": "Importáld egy convent programját, állítsd össze a sajátodat, kapj emlékeztetőket — mindezt offline, mert a convent wifije sosem az.",
+    "nameLabel": "A neved vagy a fursonád",
+    "emailLabel": "E-mail",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "te@pelda.hu",
+    "honeypotLabel": "Cég",
+    "submit": "Jelentkezem a bétára →",
+    "submitting": "Regisztrálás…",
+    "submitClosed": "A jelentkezés hamarosan nyílik",
+    "successToast": "Nézd meg a postaládád a helyed megerősítéséhez.",
+    "errorGeneric": "Valami hiba történt.",
+    "errorRetry": "Valami hiba történt. Újrapróbálod?",
+    "doneTitle": "Rajta vagy a listán.",
+    "doneBody": "Küldtünk egy megerősítő linket a postaládádba. Kattints rá, és a helyed biztos — addig nem írunk újra, amíg nincs valami, amit érdemes megnyitni.",
+    "closedNotice": "Éppen befejezzük a biztonságos regisztrációt és az e-mail-megerősítést. Egyelőre nem fogadunk címeket.",
+    "privacyLink": "Adatvédelem"
+  },
+
+  "confirmed": {
+    "title": "Rajta vagy a listán",
+    "description": "A ConPaws béta várólistán a helyed megerősítve.",
+    "cards": [
+      {
+        "title": "Most nincs teendőd",
+        "body": "A helyed foglalt. Addig nem írunk újra, amíg a béta ténylegesen meg nem nyílik."
+      },
+      {
+        "title": "Egy e-mail, aztán egy meghívó",
+        "body": "Amikor a TestFlight és a Play tesztelés elindul, megkapod a linket — iOS és Android egyszerre."
+      },
+      {
+        "title": "Bármikor kiléphetsz",
+        "body": "Minden e-mailünkben van leiratkozó link. Egy kattintás, kérdés nélkül."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Az oldal nem található",
+    "description": "Ez az oldal nincs a programban.",
+    "links": [
+      {
+        "label": "A fő program",
+        "hint": "Mi az a ConPaws, és a várólista"
+      },
+      { "label": "Támogatás", "hint": "Ha tényleg elromlott valami" },
+      {
+        "label": "Adatvédelmi tájékoztató",
+        "hint": "Mit tárolunk, és mit nem"
+      }
+    ]
+  }
+}

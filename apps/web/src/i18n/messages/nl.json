@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — je metgezel voor furry-conventions",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Importeer het programma van een convention, stel je eigen samen, krijg herinneringen — allemaal offline. iOS en Android.",
+    "descriptionShort": "Importeer het programma van een convention, stel je eigen samen, krijg herinneringen — allemaal offline.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Sinds 2025",
+    "languageLabel": "Taal"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Programma's, offline eerst, herinneringen, inhoudswaarschuwingen, iOS, Android.",
+    "items": [
+      "Programma's",
+      "Offline eerst",
+      "Herinneringen",
+      "Inhoudswaarschuwingen",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Een kijkje binnen",
+    "title": "Je hele weekend, met één duim",
+    "blurb": "Getrouwe illustraties van de echte schermen. Het programma dat je samenstelt is het programma dat je ziet — geen feed, geen algoritme, geen trek-om-te-verversen.",
+    "frameSchedule": "Stel je weekend samen",
+    "frameEvent": "Mis nooit iets",
+    "frameOffline": "Wifi optioneel"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Conventions",
+      "schedule": "Programma",
+      "settings": "Instellingen"
+    },
+    "scheduleTitle": "Programma",
+    "scheduleTimezoneNote": "Tijden worden getoond in de lokale tijd van elke convention.",
+    "offlineTitle": "Nu en straks",
+    "offlineTimezoneNote": "Tijden in America/Chicago",
+    "daySaturdayFull": "Zaterdag 4 juli",
+    "daySundayFull": "Zondag 5 juli",
+    "daySaturday": "Zaterdag",
+    "nowCount": "Nu (1)",
+    "nextAt": "Straks om 14:30 (2)",
+    "events": {
+      "fursuitParade": "Fursuitparade",
+      "dealersDen": "Dealers' Den",
+      "djNight": "DJ-avond",
+      "closingCeremonies": "Slotceremonie",
+      "drawingForBeginners": "Tekenen voor beginners",
+      "writingFurryFiction": "Furryfictie schrijven",
+      "fursuitRepairClinic": "Fursuit-reparatiewerkplaats"
+    },
+    "rooms": {
+      "mainHall": "Grote zaal",
+      "hallB": "Zaal B",
+      "ballroom": "Balzaal",
+      "panel1": "Panelzaal 1",
+      "panel2": "Panelzaal 2",
+      "panel3": "Panelzaal 3"
+    },
+    "sheet": {
+      "when": "Zaterdag 4 juli van 10:00 tot 11:00 · Grote zaal",
+      "reminderChip": "15 min van tevoren",
+      "importedChip": "Geïmporteerd",
+      "note": "Verzamelen op de mezzanine vóór 9:40. De route eindigt bij de fotowand.",
+      "actionRemove": "Verwijderen uit mijn programma",
+      "actionChangeReminder": "Vertrekherinnering wijzigen",
+      "actionViewOnSched": "Bekijken op Sched",
+      "close": "Sluiten"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Programma van vandaag",
+    "title": "Gemaakt voor de convention zelf",
+    "dayCounter": "Dag 1 van ∞",
+    "tags": {
+      "Core": "Basis",
+      "QoL": "Gemak",
+      "Safety": "Veiligheid"
+    },
+    "items": [
+      {
+        "title": "Importeer elk programma",
+        "body": "Sleep een .ics-bestand erin of plak een Sched-link. Later opnieuw importeren zonder te verliezen wat je hebt gekozen.",
+        "room": "Grote zaal"
+      },
+      {
+        "title": "Slimme herinneringen",
+        "body": "Een seintje vóór de programmaonderdelen die jij kiest. Verder niets, nooit.",
+        "room": "Panelzaal 2"
+      },
+      {
+        "title": "Inhoudswaarschuwingen",
+        "body": "18+- en fotosensitiviteitswaarschuwingen worden automatisch uit het programma gehaald.",
+        "room": "Organisatie"
+      },
+      {
+        "title": "Werkt offline",
+        "body": "Alles staat op je telefoon. Dat de wifi op de con het begeeft op het drukste moment is nu iemand anders zijn probleem.",
+        "room": "Overal"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws in het kort",
+    "labels": [
+      "van de functies werkt offline",
+      "accounts nodig om het te gebruiken",
+      "importeert een heel programma",
+      "conventions in één app"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Hoe het werkt",
+    "title": "Drie stappen, nul instellingen",
+    "items": [
+      {
+        "title": "Downloaden",
+        "body": "Gratis op iOS en Android bij de lancering."
+      },
+      {
+        "title": "Kies je convention",
+        "body": "Importeer het programma, of begin er zelf een."
+      },
+      {
+        "title": "Stel je weekend samen",
+        "body": "Geef een ster aan wat je wilt. Wij tikken je op tijd op de schouder."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Balie van de organisatie",
+    "title": "Vragen, beantwoord",
+    "items": [
+      {
+        "q": "Is het gratis?",
+        "a": "Ja. Het programma, imports, herinneringen en offline-modus zijn gratis. Later komt er een ConPaws+-upgrade met extra's — niets van wat je hier ziet verdwijnt daarachter."
+      },
+      {
+        "q": "Heb ik een account nodig?",
+        "a": "Nee. ConPaws werkt volledig zonder. Je programma staat op je telefoon, niet op onze servers."
+      },
+      {
+        "q": "En als de wifi op de con uitvalt?",
+        "a": "Er gebeurt niets. ConPaws is offline-first: alles blijft werken met nul streepjes in een Dealers' Den in de kelder."
+      },
+      {
+        "q": "Met welke conventions werkt het?",
+        "a": "Met elke die een `.ics`-agenda of een [Sched](https://sched.com)-pagina publiceert — dat is het merendeel van de furry-conventions. Voor de rest kun je zelf een programma samenstellen."
+      },
+      {
+        "q": "Wanneer komt het uit?",
+        "a": "De bèta opent eerst voor de wachtlijst, iOS en Android tegelijk. Schrijf je hierboven in en je krijgt één mail zodra je uitnodiging klaarstaat."
+      },
+      {
+        "q": "Wie maakt het?",
+        "a": "ConPaws wordt gemaakt door [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — convention-gangers die de app bouwen die ze zelf hadden willen hebben in de rij op de gang."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Registratierij",
+    "title": "Je badge ligt klaar bij de balie",
+    "body": "Zet je op de wachtlijst en je krijgt precies één mail wanneer de bèta opengaat — verder niets, nooit.",
+    "button": "Sluit aan in de rij →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws door",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Support",
+    "privacy": "Privacy",
+    "terms": "Voorwaarden"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Bèta-wachtlijst open",
+    "badgeSoon": "Bèta-wachtlijst binnenkort",
+    "title": "Je conprogramma, geregeld.",
+    "titleAccent": "conprogramma",
+    "body": "Importeer het programma van een convention, stel je eigen samen, krijg herinneringen — allemaal offline, want de wifi op de con is dat nooit.",
+    "nameLabel": "Je naam of fursona",
+    "emailLabel": "E-mail",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "jij@voorbeeld.nl",
+    "honeypotLabel": "Bedrijf",
+    "submit": "Aanmelden voor de bèta →",
+    "submitting": "Aanmelden…",
+    "submitClosed": "Aanmelding opent binnenkort",
+    "successToast": "Check je inbox om je plek te bevestigen.",
+    "errorGeneric": "Er ging iets mis.",
+    "errorRetry": "Er ging iets mis. Opnieuw proberen?",
+    "doneTitle": "Je staat op de lijst.",
+    "doneBody": "We hebben een bevestigingslink naar je inbox gestuurd. Klik erop en je plek staat vast — we mailen je pas weer als er iets is dat het openen waard is.",
+    "closedNotice": "We leggen de laatste hand aan veilig aanmelden en e-mailbevestiging. Er worden nog geen adressen aangenomen.",
+    "privacyLink": "Privacy"
+  },
+
+  "confirmed": {
+    "title": "Je staat op de lijst",
+    "description": "Je plek op de wachtlijst voor de ConPaws-bèta is bevestigd.",
+    "cards": [
+      {
+        "title": "Nu hoef je niets te doen",
+        "body": "Je plek staat vast. We mailen je pas weer wanneer de bèta echt open is."
+      },
+      {
+        "title": "Eén mail, dan een uitnodiging",
+        "body": "Zodra TestFlight en Play-testing live gaan, krijg je de link — iOS en Android tegelijk."
+      },
+      {
+        "title": "Stop wanneer je wilt",
+        "body": "Elke mail die we sturen heeft een afmeldlink. Eén klik, geen vragen."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Pagina niet gevonden",
+    "description": "Die pagina staat niet op het programma.",
+    "links": [
+      {
+        "label": "Het hoofdprogramma",
+        "hint": "Wat ConPaws is, en de wachtlijst"
+      },
+      { "label": "Support", "hint": "Als er echt iets stuk is" },
+      {
+        "label": "Privacybeleid",
+        "hint": "Wat we bewaren, en wat niet"
+      }
+    ]
+  }
+}

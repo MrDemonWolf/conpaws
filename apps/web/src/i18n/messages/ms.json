@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — teman konvensyen furry anda",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Import jadual konvensyen, bina jadual anda sendiri, dapatkan peringatan — semuanya berfungsi di luar talian. iOS dan Android.",
+    "descriptionShort": "Import jadual konvensyen, bina jadual anda sendiri, dapatkan peringatan — semuanya berfungsi di luar talian.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Sejak 2025",
+    "languageLabel": "Bahasa"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Jadual, luar talian dahulu, peringatan, amaran kandungan, iOS, Android.",
+    "items": [
+      "Jadual",
+      "Luar talian dahulu",
+      "Peringatan",
+      "Amaran kandungan",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Lihat di dalam",
+    "title": "Seluruh hujung minggu anda, satu ibu jari",
+    "blurb": "Ilustrasi skrin sebenar, dilukis supaya sepadan. Jadual yang anda bina ialah jadual yang anda lihat — tiada suapan, tiada algoritma, tiada tarik-untuk-muat-semula.",
+    "frameSchedule": "Bina hujung minggu anda",
+    "frameEvent": "Jangan terlepas apa-apa",
+    "frameOffline": "WiFi pilihan sahaja"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Konvensyen",
+      "schedule": "Jadual",
+      "settings": "Tetapan"
+    },
+    "scheduleTitle": "Jadual",
+    "scheduleTimezoneNote": "Waktu dipaparkan mengikut waktu tempatan setiap konvensyen.",
+    "offlineTitle": "Sekarang dan seterusnya",
+    "offlineTimezoneNote": "Waktu dalam America/Chicago",
+    "daySaturdayFull": "Sabtu, 4 Julai",
+    "daySundayFull": "Ahad, 5 Julai",
+    "daySaturday": "Sabtu",
+    "nowCount": "Sekarang (1)",
+    "nextAt": "Seterusnya pada 14:30 (2)",
+    "events": {
+      "fursuitParade": "Perarakan Fursuit",
+      "dealersDen": "Dealers' Den",
+      "djNight": "Malam DJ",
+      "closingCeremonies": "Majlis Penutup",
+      "drawingForBeginners": "Melukis untuk Pemula",
+      "writingFurryFiction": "Menulis Fiksyen Furry",
+      "fursuitRepairClinic": "Klinik Baiki Fursuit"
+    },
+    "rooms": {
+      "mainHall": "Dewan Utama",
+      "hallB": "Dewan B",
+      "ballroom": "Dewan Tari",
+      "panel1": "Bilik Panel 1",
+      "panel2": "Bilik Panel 2",
+      "panel3": "Bilik Panel 3"
+    },
+    "sheet": {
+      "when": "Sabtu, 4 Julai, 10:00 hingga 11:00 · Dewan Utama",
+      "reminderChip": "15 minit sebelum",
+      "importedChip": "Diimport",
+      "note": "Berkumpul di mezanin sebelum 9:40. Laluan berakhir di dinding foto.",
+      "actionRemove": "Buang daripada jadual saya",
+      "actionChangeReminder": "Tukar peringatan bertolak",
+      "actionViewOnSched": "Lihat di Sched",
+      "close": "Tutup"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Barisan hari ini",
+    "title": "Dibina untuk lantai konvensyen",
+    "dayCounter": "Hari 1 daripada ∞",
+    "tags": {
+      "Core": "Teras",
+      "QoL": "Keselesaan",
+      "Safety": "Keselamatan"
+    },
+    "items": [
+      {
+        "title": "Import mana-mana jadual",
+        "body": "Lepaskan fail .ics atau tampal pautan Sched. Import semula kemudian tanpa kehilangan apa yang anda pilih.",
+        "room": "Dewan Utama"
+      },
+      {
+        "title": "Peringatan bijak",
+        "body": "Satu kolek sebelum acara yang anda pilih. Tiada yang lain, selamanya.",
+        "room": "Bilik Panel 2"
+      },
+      {
+        "title": "Amaran kandungan",
+        "body": "Amaran 18+ dan kepekaan cahaya dikesan automatik daripada jadual.",
+        "room": "Urusetia"
+      },
+      {
+        "title": "Berfungsi di luar talian",
+        "body": "Semuanya ada dalam telefon anda. WiFi konvensyen mati pada waktu puncak kini masalah orang lain.",
+        "room": "Di mana-mana"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws sekilas pandang",
+    "labels": [
+      "ciri berfungsi di luar talian",
+      "akaun diperlukan untuk menggunakannya",
+      "mengimport satu jadual penuh",
+      "konvensyen dalam satu apl"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Cara ia berfungsi",
+    "title": "Tiga langkah, sifar persediaan",
+    "items": [
+      {
+        "title": "Muat turun",
+        "body": "Percuma di iOS dan Android ketika pelancaran."
+      },
+      {
+        "title": "Pilih konvensyen anda",
+        "body": "Import jadualnya, atau mulakan satu dari kosong."
+      },
+      {
+        "title": "Bina hujung minggu anda",
+        "body": "Tandakan bintang pada apa yang anda mahu. Kami ingatkan sebelum ia bermula."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Kaunter urusetia",
+    "title": "Soalan, dijawab",
+    "items": [
+      {
+        "q": "Adakah ia percuma?",
+        "a": "Ya. Jadual, import, peringatan dan mod luar talian semuanya percuma. Naik taraf ConPaws+ dengan ciri tambahan dirancang kemudian — tiada apa yang anda lihat di sini akan berpindah ke belakangnya."
+      },
+      {
+        "q": "Perlukah saya akaun?",
+        "a": "Tidak. ConPaws berfungsi sepenuhnya tanpa akaun. Jadual anda tinggal dalam telefon anda, bukan pada pelayan kami."
+      },
+      {
+        "q": "Bagaimana jika WiFi konvensyen mati?",
+        "a": "Tiada apa-apa berlaku. ConPaws mengutamakan luar talian: setiap ciri terus berfungsi tanpa satu bar pun di Dealers' Den bawah tanah."
+      },
+      {
+        "q": "Konvensyen mana yang disokong?",
+        "a": "Mana-mana yang menerbitkan kalendar `.ics` atau halaman [Sched](https://sched.com) — meliputi kebanyakan konvensyen furry. Anda juga boleh bina jadual secara manual untuk yang lain."
+      },
+      {
+        "q": "Bila ia dilancarkan?",
+        "a": "Beta dibuka kepada senarai menunggu dahulu, iOS dan Android serentak. Daftar di atas dan anda akan terima satu e-mel apabila jemputan anda sedia."
+      },
+      {
+        "q": "Siapa yang membinanya?",
+        "a": "ConPaws dibina oleh [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — penggiat konvensyen yang membina apl yang mereka sendiri idamkan semasa beratur di koridor."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "Barisan pendaftaran",
+    "title": "Tag nama anda menunggu di kaunter",
+    "body": "Sertai senarai menunggu dan anda akan terima tepat satu e-mel apabila beta dibuka — tiada yang lain, selamanya.",
+    "button": "Masuk barisan →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws oleh",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Sokongan",
+    "privacy": "Privasi",
+    "terms": "Terma"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Senarai menunggu beta dibuka",
+    "badgeSoon": "Senarai menunggu beta tidak lama lagi",
+    "title": "Jadual konvensyen anda, tersusun.",
+    "titleAccent": "Jadual konvensyen",
+    "body": "Import jadual konvensyen, bina jadual anda sendiri, dapatkan peringatan — semuanya di luar talian, kerana WiFi konvensyen tidak pernah boleh diharap.",
+    "nameLabel": "Nama atau fursona anda",
+    "emailLabel": "E-mel",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "anda@contoh.com",
+    "honeypotLabel": "Syarikat",
+    "submit": "Daftar untuk beta →",
+    "submitting": "Mendaftar…",
+    "submitClosed": "Pendaftaran dibuka tidak lama lagi",
+    "successToast": "Semak peti masuk anda untuk mengesahkan tempat anda.",
+    "errorGeneric": "Ada sesuatu yang tidak kena.",
+    "errorRetry": "Ada sesuatu yang tidak kena. Cuba lagi?",
+    "doneTitle": "Anda dalam senarai.",
+    "doneBody": "Kami telah hantar pautan pengesahan ke peti masuk anda. Klik pautan itu dan tempat anda terjamin — kami tidak akan e-mel lagi sehingga ada sesuatu yang berbaloi dibuka.",
+    "closedNotice": "Kami sedang menyiapkan pendaftaran selamat dan pengesahan e-mel. Belum ada alamat yang diterima buat masa ini.",
+    "privacyLink": "Privasi"
+  },
+
+  "confirmed": {
+    "title": "Anda dalam senarai",
+    "description": "Tempat anda dalam senarai menunggu beta ConPaws telah disahkan.",
+    "cards": [
+      {
+        "title": "Tiada apa perlu dibuat sekarang",
+        "body": "Tempat anda dikekalkan. Kami tidak akan e-mel lagi sehingga beta benar-benar dibuka."
+      },
+      {
+        "title": "Satu e-mel, kemudian jemputan",
+        "body": "Apabila ujian TestFlight dan Play bermula, anda dapat pautannya — iOS dan Android serentak."
+      },
+      {
+        "title": "Keluar bila-bila masa",
+        "body": "Setiap e-mel yang kami hantar ada pautan berhenti langgan. Satu klik, tiada soalan."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Halaman tidak dijumpai",
+    "description": "Halaman itu tiada dalam atur cara.",
+    "links": [
+      {
+        "label": "Atur cara utama",
+        "hint": "Apa itu ConPaws, dan senarai menunggu"
+      },
+      { "label": "Sokongan", "hint": "Jika sesuatu benar-benar rosak" },
+      {
+        "label": "Dasar Privasi",
+        "hint": "Apa yang kami simpan, dan apa yang tidak"
+      }
+    ]
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "title": "ConPaws — 你的兽展随身助手",
+    "titleTemplate": "%s · ConPaws",
+    "description": "导入展会日程、安排自己的行程、获取提醒 —— 全部离线可用。支持 iOS 和 Android。",
+    "descriptionShort": "导入展会日程、安排自己的行程、获取提醒 —— 全部离线可用。",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Est. 2025",
+    "languageLabel": "语言"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "日程、离线优先、提醒、内容提示、iOS、Android。",
+    "items": ["日程", "离线优先", "提醒", "内容提示", "iOS", "Android"]
+  },
+
+  "inside": {
+    "eyebrow": "先睹为快",
+    "title": "整个周末，一根拇指搞定",
+    "blurb": "按真实界面绘制的示意图。你安排的日程就是你看到的日程 —— 没有信息流，没有算法，也不用下拉刷新。",
+    "frameSchedule": "安排你的周末",
+    "frameEvent": "不错过任何一场",
+    "frameOffline": "Wi-Fi 可有可无"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "展会",
+      "schedule": "日程",
+      "settings": "设置"
+    },
+    "scheduleTitle": "日程",
+    "scheduleTimezoneNote": "时间按各展会所在地的当地时间显示。",
+    "offlineTitle": "当前与接下来",
+    "offlineTimezoneNote": "时间以 America/Chicago 显示",
+    "daySaturdayFull": "7月4日 星期六",
+    "daySundayFull": "7月5日 星期日",
+    "daySaturday": "星期六",
+    "nowCount": "当前（1）",
+    "nextAt": "14:30 接下来（2）",
+    "events": {
+      "fursuitParade": "兽装巡游",
+      "dealersDen": "商贩区",
+      "djNight": "DJ 之夜",
+      "closingCeremonies": "闭幕式",
+      "drawingForBeginners": "绘画入门",
+      "writingFurryFiction": "兽人小说写作",
+      "fursuitRepairClinic": "兽装维修工坊"
+    },
+    "rooms": {
+      "mainHall": "主会场",
+      "hallB": "B 厅",
+      "ballroom": "宴会厅",
+      "panel1": "分享室 1",
+      "panel2": "分享室 2",
+      "panel3": "分享室 3"
+    },
+    "sheet": {
+      "when": "7月4日 星期六 10:00 至 11:00 · 主会场",
+      "reminderChip": "提前 15 分钟",
+      "importedChip": "已导入",
+      "note": "9:40 前在夹层集合。路线在照片墙结束。",
+      "actionRemove": "从我的日程中移除",
+      "actionChangeReminder": "修改出发提醒",
+      "actionViewOnSched": "在 Sched 中查看",
+      "close": "关闭"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "今日节目",
+    "title": "为展会现场而生",
+    "dayCounter": "第 1 天 / ∞",
+    "tags": {
+      "Core": "核心",
+      "QoL": "体验",
+      "Safety": "安全"
+    },
+    "items": [
+      {
+        "title": "导入任意日程",
+        "body": "拖入 .ics 文件，或粘贴一个 Sched 链接。之后重新导入，也不会丢掉你已经选好的场次。",
+        "room": "主会场"
+      },
+      {
+        "title": "智能提醒",
+        "body": "只在你选中的活动开始前提醒你。除此之外，什么都不发。",
+        "room": "分享室 2"
+      },
+      {
+        "title": "内容提示",
+        "body": "18+ 与光敏警告会从日程中自动识别并标出。",
+        "room": "运营"
+      },
+      {
+        "title": "离线可用",
+        "body": "一切都存在你的手机里。高峰时段展会 Wi-Fi 崩了，从此不再是你的问题。",
+        "room": "任何地方"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws 一览",
+    "labels": [
+      "的功能可离线使用",
+      "个账号即可使用",
+      "即可导入整份日程",
+      "个展会汇于一个应用"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "如何使用",
+    "title": "三步搞定，无需设置",
+    "items": [
+      { "title": "下载", "body": "上线时 iOS 与 Android 均免费。" },
+      {
+        "title": "选择展会",
+        "body": "导入它的日程，或者从零开始建一份。"
+      },
+      {
+        "title": "安排你的周末",
+        "body": "给想去的活动加星。开始前我们会提醒你。"
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "运营台",
+    "title": "常见问题",
+    "items": [
+      {
+        "q": "免费吗？",
+        "a": "免费。日程、导入、提醒和离线模式都免费。之后计划推出带附加功能的 ConPaws+，但你现在看到的功能不会被放到付费墙后面。"
+      },
+      {
+        "q": "需要注册账号吗？",
+        "a": "不需要。ConPaws 完全不需要账号即可使用。你的日程存在手机里，不在我们的服务器上。"
+      },
+      {
+        "q": "如果展会 Wi-Fi 断了怎么办？",
+        "a": "什么都不会发生。ConPaws 采用离线优先设计：即使在地下商贩区一格信号都没有，所有功能照常运行。"
+      },
+      {
+        "q": "支持哪些展会？",
+        "a": "任何发布 `.ics` 日历或 [Sched](https://sched.com) 页面的展会都支持 —— 这覆盖了大多数兽展。其余的，你也可以手动建立日程。"
+      },
+      {
+        "q": "什么时候上线？",
+        "a": "测试版会先向等候名单开放，iOS 与 Android 同时上线。在上方登记，邀请准备好时你会收到一封邮件。"
+      },
+      {
+        "q": "谁在开发？",
+        "a": "ConPaws 由 [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) 开发 —— 一群在排队时想着「要是有这样一个应用就好了」的展会常客。"
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "登记队伍",
+    "title": "你的胸牌已经在前台等你了",
+    "body": "加入等候名单，测试版开放时你只会收到一封邮件 —— 除此之外，永远不会有别的。",
+    "button": "去排队 →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws by",
+    "company": "MrDemonWolf, Inc.",
+    "support": "支持",
+    "privacy": "隐私",
+    "terms": "条款"
+  },
+
+  "waitlist": {
+    "badgeOpen": "测试版等候名单开放中",
+    "badgeSoon": "测试版等候名单即将开放",
+    "title": "你的展会日程，安排妥当。",
+    "titleAccent": "展会日程",
+    "body": "导入展会日程、安排自己的行程、获取提醒 —— 全部离线可用，毕竟展会的 Wi-Fi 从来靠不住。",
+    "nameLabel": "你的名字或兽设名",
+    "emailLabel": "邮箱",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "you@example.com",
+    "honeypotLabel": "公司",
+    "submit": "登记测试版 →",
+    "submitting": "登记中…",
+    "submitClosed": "登记即将开放",
+    "successToast": "请查收邮件以确认你的名额。",
+    "errorGeneric": "出了点问题。",
+    "errorRetry": "出了点问题。要再试一次吗？",
+    "doneTitle": "你已在名单中。",
+    "doneBody": "我们已经把确认链接发到你的邮箱。点开它，名额就锁定了 —— 在有值得一看的消息之前，我们不会再发邮件给你。",
+    "closedNotice": "我们正在完善安全注册和邮件确认功能。目前还不接受邮箱登记。",
+    "privacyLink": "隐私"
+  },
+
+  "confirmed": {
+    "title": "你已在名单中",
+    "description": "你的 ConPaws 测试版等候名额已确认。",
+    "cards": [
+      {
+        "title": "现在无需做任何事",
+        "body": "名额已为你保留。在测试版真正开放前，我们不会再发邮件给你。"
+      },
+      {
+        "title": "一封邮件，然后是邀请",
+        "body": "当 TestFlight 与 Play 测试上线时，你会收到链接 —— iOS 与 Android 同时。"
+      },
+      {
+        "title": "随时退出",
+        "body": "我们发出的每封邮件都带有退订链接。一次点击，不问缘由。"
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "页面未找到",
+    "description": "这个页面不在节目单上。",
+    "links": [
+      { "label": "主节目单", "hint": "ConPaws 是什么，以及等候名单" },
+      { "label": "支持", "hint": "如果真的有东西坏了" },
+      { "label": "隐私政策", "hint": "我们存什么，不存什么" }
+    ]
+  }
+}

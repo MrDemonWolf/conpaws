@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "title": "ConPaws — votre compagnon de convention furry",
+    "titleTemplate": "%s · ConPaws",
+    "description": "Importez le programme d'une convention, composez le vôtre, recevez des rappels — le tout hors ligne. iOS et Android.",
+    "descriptionShort": "Importez le programme d'une convention, composez le vôtre, recevez des rappels — le tout hors ligne.",
+    "ogImageAlt": "ConPaws"
+  },
+
+  "nav": {
+    "established": "Depuis 2025",
+    "languageLabel": "Langue"
+  },
+
+  "ticker": {
+    "screenReaderSummary": "Programmes, hors ligne d'abord, rappels, avertissements de contenu, iOS, Android.",
+    "items": [
+      "Programmes",
+      "Hors ligne d'abord",
+      "Rappels",
+      "Avertissements",
+      "iOS",
+      "Android"
+    ]
+  },
+
+  "inside": {
+    "eyebrow": "Un aperçu",
+    "title": "Tout votre week-end, d'un seul pouce",
+    "blurb": "Des illustrations fidèles des vrais écrans. Le programme que vous composez est celui que vous voyez — pas de fil d'actualité, pas d'algorithme, pas de tirer-pour-rafraîchir.",
+    "frameSchedule": "Composez votre week-end",
+    "frameEvent": "Ne manquez jamais un rendez-vous",
+    "frameOffline": "Wi-Fi facultatif"
+  },
+
+  "mock": {
+    "tabs": {
+      "conventions": "Conventions",
+      "schedule": "Programme",
+      "settings": "Réglages"
+    },
+    "scheduleTitle": "Programme",
+    "scheduleTimezoneNote": "Les heures sont affichées dans l'heure locale de chaque convention.",
+    "offlineTitle": "En cours et à venir",
+    "offlineTimezoneNote": "Heures affichées en America/Chicago",
+    "daySaturdayFull": "Samedi 4 juillet",
+    "daySundayFull": "Dimanche 5 juillet",
+    "daySaturday": "Samedi",
+    "nowCount": "En cours (1)",
+    "nextAt": "À venir à 14:30 (2)",
+    "events": {
+      "fursuitParade": "Parade de fursuits",
+      "dealersDen": "Dealers' Den",
+      "djNight": "Soirée DJ",
+      "closingCeremonies": "Cérémonie de clôture",
+      "drawingForBeginners": "Dessin pour débutants",
+      "writingFurryFiction": "Écrire de la fiction furry",
+      "fursuitRepairClinic": "Atelier réparation de fursuits"
+    },
+    "rooms": {
+      "mainHall": "Grande salle",
+      "hallB": "Salle B",
+      "ballroom": "Salle de bal",
+      "panel1": "Salle de panel 1",
+      "panel2": "Salle de panel 2",
+      "panel3": "Salle de panel 3"
+    },
+    "sheet": {
+      "when": "Samedi 4 juillet de 10:00 à 11:00 · Grande salle",
+      "reminderChip": "15 min avant",
+      "importedChip": "Importé",
+      "note": "Rassemblement à la mezzanine avant 9:40. Le parcours se termine au mur photo.",
+      "actionRemove": "Retirer de mon programme",
+      "actionChangeReminder": "Modifier le rappel de départ",
+      "actionViewOnSched": "Voir sur Sched",
+      "close": "Fermer"
+    }
+  },
+
+  "lineup": {
+    "eyebrow": "Au programme aujourd'hui",
+    "title": "Conçu pour le terrain",
+    "dayCounter": "Jour 1 sur ∞",
+    "tags": {
+      "Core": "Essentiel",
+      "QoL": "Confort",
+      "Safety": "Sécurité"
+    },
+    "items": [
+      {
+        "title": "Importez n'importe quel programme",
+        "body": "Déposez un fichier .ics ou collez un lien Sched. Réimportez plus tard sans perdre vos choix.",
+        "room": "Grande salle"
+      },
+      {
+        "title": "Rappels intelligents",
+        "body": "Un rappel avant les événements que vous choisissez. Rien d'autre, jamais.",
+        "room": "Salle de panel 2"
+      },
+      {
+        "title": "Avertissements de contenu",
+        "body": "Les mentions 18+ et photosensibilité sont remontées automatiquement depuis le programme.",
+        "room": "Régie"
+      },
+      {
+        "title": "Fonctionne hors ligne",
+        "body": "Tout vit sur votre téléphone. Le Wi-Fi de la convention qui lâche aux heures de pointe, ce n'est plus votre problème.",
+        "room": "Partout"
+      }
+    ]
+  },
+
+  "stats": {
+    "screenReaderHeading": "ConPaws en un coup d'œil",
+    "labels": [
+      "des fonctions marchent hors ligne",
+      "compte nécessaire pour l'utiliser",
+      "importe un programme entier",
+      "conventions dans une seule app"
+    ]
+  },
+
+  "steps": {
+    "eyebrow": "Comment ça marche",
+    "title": "Trois étapes, zéro configuration",
+    "items": [
+      {
+        "title": "Téléchargez",
+        "body": "Gratuit sur iOS et Android au lancement."
+      },
+      {
+        "title": "Choisissez votre convention",
+        "body": "Importez son programme, ou partez de zéro."
+      },
+      {
+        "title": "Composez votre week-end",
+        "body": "Marquez ce qui vous plaît. Recevez un rappel avant que ça commence."
+      }
+    ]
+  },
+
+  "faq": {
+    "eyebrow": "Bureau de l'orga",
+    "title": "Vos questions, nos réponses",
+    "items": [
+      {
+        "q": "Est-ce gratuit ?",
+        "a": "Oui. Le programme, les imports, les rappels et le mode hors ligne sont gratuits. Une offre ConPaws+ avec des extras est prévue plus tard — rien de ce que vous voyez ici ne passera derrière."
+      },
+      {
+        "q": "Ai-je besoin d'un compte ?",
+        "a": "Non. ConPaws fonctionne entièrement sans. Votre programme vit sur votre téléphone, pas sur nos serveurs."
+      },
+      {
+        "q": "Et si le Wi-Fi de la convention lâche ?",
+        "a": "Rien du tout. ConPaws fonctionne hors ligne d'abord : tout continue de marcher sans une seule barre au fond d'un Dealers' Den en sous-sol."
+      },
+      {
+        "q": "Avec quelles conventions ça marche ?",
+        "a": "Toutes celles qui publient un calendrier `.ics` ou une page [Sched](https://sched.com) — ce qui couvre la plupart des conventions furry. Vous pouvez aussi composer un programme à la main pour les autres."
+      },
+      {
+        "q": "Quand est-ce que ça sort ?",
+        "a": "La bêta ouvre d'abord à la liste d'attente, iOS et Android ensemble. Inscrivez-vous ci-dessus et vous recevrez un e-mail dès que votre invitation est prête."
+      },
+      {
+        "q": "Qui est derrière ?",
+        "a": "ConPaws est développé par [MrDemonWolf, Inc.](https://www.mrdemonwolf.com) — des habitués des conventions qui construisent l'app qu'ils auraient voulue dans la file d'attente."
+      }
+    ]
+  },
+
+  "cta": {
+    "eyebrow": "File d'inscription",
+    "title": "Votre badge vous attend à l'accueil",
+    "body": "Inscrivez-vous à la liste d'attente et vous recevrez exactement un e-mail à l'ouverture de la bêta — rien d'autre, jamais.",
+    "button": "Prendre la file →"
+  },
+
+  "footer": {
+    "copyright": "© {year} ConPaws par",
+    "company": "MrDemonWolf, Inc.",
+    "support": "Assistance",
+    "privacy": "Confidentialité",
+    "terms": "Conditions"
+  },
+
+  "waitlist": {
+    "badgeOpen": "Liste d'attente bêta ouverte",
+    "badgeSoon": "Liste d'attente bêta bientôt",
+    "title": "Votre planning de con, réglé.",
+    "titleAccent": "planning de con",
+    "body": "Importez le programme d'une convention, composez le vôtre, recevez des rappels — le tout hors ligne, parce que le Wi-Fi des conventions ne l'est jamais.",
+    "nameLabel": "Votre nom ou fursona",
+    "emailLabel": "E-mail",
+    "namePlaceholder": "Luna Starfall",
+    "emailPlaceholder": "vous@exemple.fr",
+    "honeypotLabel": "Société",
+    "submit": "S'inscrire à la bêta →",
+    "submitting": "Inscription…",
+    "submitClosed": "Inscriptions bientôt ouvertes",
+    "successToast": "Consultez votre boîte mail pour confirmer votre place.",
+    "errorGeneric": "Une erreur s'est produite.",
+    "errorRetry": "Une erreur s'est produite. Réessayer ?",
+    "doneTitle": "Vous êtes sur la liste.",
+    "doneBody": "Nous avons envoyé un lien de confirmation dans votre boîte mail. Cliquez dessus et votre place est réservée — nous ne vous réécrirons pas avant qu'il y ait quelque chose à ouvrir.",
+    "closedNotice": "Nous finalisons l'inscription sécurisée et la confirmation par e-mail. Aucune adresse n'est acceptée pour le moment.",
+    "privacyLink": "Confidentialité"
+  },
+
+  "confirmed": {
+    "title": "Vous êtes sur la liste",
+    "description": "Votre place sur la liste d'attente de la bêta ConPaws est confirmée.",
+    "cards": [
+      {
+        "title": "Rien à faire pour l'instant",
+        "body": "Votre place est réservée. Nous ne vous écrirons pas avant l'ouverture réelle de la bêta."
+      },
+      {
+        "title": "Un e-mail, puis une invitation",
+        "body": "Quand TestFlight et les tests Play démarreront, vous recevrez le lien — iOS et Android ensemble."
+      },
+      {
+        "title": "Partez quand vous voulez",
+        "body": "Chaque e-mail contient un lien de désinscription. Un clic, sans question."
+      }
+    ]
+  },
+
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "Cette page n'est pas au programme.",
+    "links": [
+      {
+        "label": "Le programme principal",
+        "hint": "Ce qu'est ConPaws, et la liste d'attente"
+      },
+      { "label": "Assistance", "hint": "Si quelque chose est vraiment cassé" },
+      {
+        "label": "Politique de confidentialité",
+        "hint": "Ce que nous stockons, et ce que nous ne stockons pas"
+      }
+    ]
+  }
+}
