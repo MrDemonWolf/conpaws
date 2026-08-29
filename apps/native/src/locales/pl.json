@@ -152,7 +152,26 @@
     "endBeforeStart": "Data zakończenia nie może być wcześniejsza niż początkowa.",
     "longSpan": "To konwent trwający {{count}} dni. Sprawdź daty.",
     "updateError": "Nie udało się zapisać zmian.",
-    "nameCounter": "{{count}} z {{max}}"
+    "nameCounter": "{{count}} z {{max}}",
+    "feedStatus": {
+      "cancelled": "Odwołane",
+      "removed": "Poza harmonogramem"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "sprawdzono {{time}}",
+      "movedOne": "Zapisany panel został przeniesiony",
+      "movedMany": "Przeniesiono zapisane panele: {{count}}",
+      "goneOne": "Zapisany panel wypadł z harmonogramu",
+      "goneMany": "Z harmonogramu wypadły zapisane panele: {{count}}",
+      "body": "Oznaczone poniżej, z nową godziną i salą.",
+      "alsoMovedOne": "Jeszcze jeden został przeniesiony. Oba są oznaczone poniżej.",
+      "alsoMovedMany": "Przeniesiono jeszcze {{count}}. Wszystkie są oznaczone poniżej.",
+      "dismiss": "Zamknij to powiadomienie",
+      "checkNow": "Sprawdź zmiany",
+      "checking": "Sprawdzanie…",
+      "checkFailedTitle": "Nie udało się sprawdzić harmonogramu",
+      "checkFailedMessage": "Link do harmonogramu konwentu nie odpowiedział. Twój plan pozostaje bez zmian."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Język",
       "haptics": "Wibracje dotykowe",
       "hapticsError": "Nie udało się zapisać ustawienia wibracji",
-      "notifications": "Powiadomienia"
+      "notifications": "Powiadomienia",
+      "scheduleAutoCheck": "Sprawdzaj zmiany w harmonogramie"
     },
     "data": {
       "title": "Dane",

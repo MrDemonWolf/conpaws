@@ -152,7 +152,26 @@
     "endBeforeStart": "Slutdatoen kan ikke ligge før startdatoen.",
     "longSpan": "Det er et konvent på {{count}} dage. Tjek datoerne en ekstra gang.",
     "updateError": "Dine ændringer kunne ikke gemmes.",
-    "nameCounter": "{{count}} af {{max}}"
+    "nameCounter": "{{count}} af {{max}}",
+    "feedStatus": {
+      "cancelled": "Aflyst",
+      "removed": "Ikke længere på programmet"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "tjekket {{time}}",
+      "movedOne": "Et gemt panel er flyttet",
+      "movedMany": "{{count}} gemte paneler er flyttet",
+      "goneOne": "Et gemt panel er ikke længere på programmet",
+      "goneMany": "{{count}} gemte paneler er ikke længere på programmet",
+      "body": "Markeret nedenfor med nyt tidspunkt og lokale.",
+      "alsoMovedOne": "Ét mere er flyttet. Begge er markeret nedenfor.",
+      "alsoMovedMany": "{{count}} flere er flyttet. Alle er markeret nedenfor.",
+      "dismiss": "Luk denne besked",
+      "checkNow": "Søg efter ændringer",
+      "checking": "Tjekker…",
+      "checkFailedTitle": "Kunne ikke tjekke programmet",
+      "checkFailedMessage": "Stævnets programlink svarede ikke. Dit program er uændret."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Sprog",
       "haptics": "Haptisk feedback",
       "hapticsError": "Din indstilling for haptik kunne ikke gemmes",
-      "notifications": "Notifikationer"
+      "notifications": "Notifikationer",
+      "scheduleAutoCheck": "Tjek for programændringer"
     },
     "data": {
       "title": "Data",

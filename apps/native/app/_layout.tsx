@@ -65,6 +65,7 @@ import {
 import { resolveQuickActionRoute } from "@/lib/quick-action-routes";
 import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
+import { getScheduleAutoCheck } from "@/lib/schedule-refresh-storage";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -155,6 +156,10 @@ async function runLaunchBootstrap(): Promise<boolean> {
 
   // Primes the cache the reminder picker reads synchronously.
   await getDefaultReminderMinutes().catch(() => null);
+  // Same reason: the Settings switch and the schedule check both read this
+  // synchronously, and a switch that flips a frame after it renders reads as
+  // the app changing the setting by itself.
+  await getScheduleAutoCheck().catch(() => true);
 
   try {
     await initI18n();

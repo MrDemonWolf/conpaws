@@ -110,6 +110,7 @@ const ScheduleRow = memo(function ScheduleRow({
       // be pure noise.
       showScheduleIndicator={false}
       contentWarning={entry.event.contentWarning}
+      feedStatus={entry.event.feedStatus}
       overlapPosition={overlapPosition}
       overlapGroupSize={overlapGroupSize}
       overlapCount={overlapCount}
@@ -196,15 +197,28 @@ export default function ScheduleScreen() {
     [entries],
   );
 
-  // Which events actually share a timeframe, per day — drives the grouped
-  // tint, accent edge, and header on each row.
-  const overlapsByDay = useMemo(
-    () =>
-      new Map<string, OverlapInfo[]>(
-        days.map((day) => [day.key, overlapInfo(day.data)]),
-      ),
-    [days],
-  );
+  /**
+   * Which events actually share a timeframe — drives the grouped tint, accent
+   * edge, and header on each row.
+   *
+   * Computed over the events still running, and keyed by id rather than by
+   * position, because a panel the feed dropped is not a clash. Telling someone
+   * they have two things at three when one of them was cancelled sends them to
+   * resolve a conflict that does not exist. Rows left out of the map render
+   * plain, which is the right answer for a marked event.
+   */
+  const overlapsByEventId = useMemo(() => {
+    const byId = new Map<string, OverlapInfo>();
+    for (const day of days) {
+      const live = day.data.filter((entry) => entry.event.feedStatus === null);
+      const info = overlapInfo(live);
+      live.forEach((entry, index) => {
+        const entryInfo = info[index];
+        if (entryInfo) byId.set(entry.event.id, entryInfo);
+      });
+    }
+    return byId;
+  }, [days]);
 
   const renderSectionHeader = useCallback(
     ({ section }: { section: { key: string } }) => (
@@ -214,26 +228,18 @@ export default function ScheduleScreen() {
   );
 
   const renderItem = useCallback(
-    ({
-      item,
-      index,
-      section,
-    }: {
-      item: ScheduleEntry;
-      index: number;
-      section: { key: string };
-    }) => (
+    ({ item }: { item: ScheduleEntry }) => (
       <ScheduleRow
         entry={item}
         conventionName={showConventionName ? item.conventionName : undefined}
         locale={locale}
         hour12={hour12}
-        overlapPosition={overlapsByDay.get(section.key)?.[index]?.position}
-        overlapGroupSize={overlapsByDay.get(section.key)?.[index]?.clusterSize}
-        overlapCount={overlapsByDay.get(section.key)?.[index]?.overlapCount}
+        overlapPosition={overlapsByEventId.get(item.event.id)?.position}
+        overlapGroupSize={overlapsByEventId.get(item.event.id)?.clusterSize}
+        overlapCount={overlapsByEventId.get(item.event.id)?.overlapCount}
       />
     ),
-    [hour12, locale, showConventionName, overlapsByDay],
+    [hour12, locale, showConventionName, overlapsByEventId],
   );
 
   if (isLoading) {

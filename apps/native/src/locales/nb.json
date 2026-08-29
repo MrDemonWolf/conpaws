@@ -152,7 +152,26 @@
     "endBeforeStart": "Sluttdatoen kan ikke være før startdatoen.",
     "longSpan": "Det er et konvent på {{count}} dager. Dobbeltsjekk datoene.",
     "updateError": "Kunne ikke lagre endringene dine.",
-    "nameCounter": "{{count}} av {{max}}"
+    "nameCounter": "{{count}} av {{max}}",
+    "feedStatus": {
+      "cancelled": "Avlyst",
+      "removed": "Ute av programmet"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "sjekket {{time}}",
+      "movedOne": "Et lagret panel er flyttet",
+      "movedMany": "{{count}} lagrede paneler er flyttet",
+      "goneOne": "Et lagret panel er ute av programmet",
+      "goneMany": "{{count}} lagrede paneler er ute av programmet",
+      "body": "Merket nedenfor, med ny tid og nytt rom.",
+      "alsoMovedOne": "Én til er flyttet. Begge er merket nedenfor.",
+      "alsoMovedMany": "{{count}} til er flyttet. Alle er merket nedenfor.",
+      "dismiss": "Lukk denne meldingen",
+      "checkNow": "Se etter endringer",
+      "checking": "Sjekker…",
+      "checkFailedTitle": "Kunne ikke sjekke programmet",
+      "checkFailedMessage": "Programlenken til stevnet svarte ikke. Programmet ditt er uendret."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Språk",
       "haptics": "Haptisk tilbakemelding",
       "hapticsError": "Kunne ikke lagre haptikkinnstillingen din",
-      "notifications": "Varslinger"
+      "notifications": "Varslinger",
+      "scheduleAutoCheck": "Se etter programendringer"
     },
     "data": {
       "title": "Data",

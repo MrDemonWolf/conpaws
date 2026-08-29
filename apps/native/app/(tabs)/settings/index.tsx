@@ -45,6 +45,10 @@ import {
   setDefaultReminderMinutes,
 } from "@/lib/reminder-default-storage";
 import { resetScheduleHint } from "@/lib/schedule-hint-storage";
+import {
+  getCachedScheduleAutoCheck,
+  setScheduleAutoCheck as persistScheduleAutoCheck,
+} from "@/lib/schedule-refresh-storage";
 import { themeTokens } from "@/lib/theme-tokens";
 import { useExportData } from "@/services/data-export";
 import { type ImportOutcome, useImportData } from "@/services/data-import";
@@ -95,6 +99,16 @@ export default function SettingsScreen() {
   );
 
   const [haptics, setHaptics] = useState(getHapticsEnabled);
+  // Seeded from the cache the launch bootstrap primed, so the switch is right
+  // on the first frame rather than flipping under the reader.
+  const [scheduleAutoCheck, setScheduleAutoCheck] = useState(
+    getCachedScheduleAutoCheck,
+  );
+
+  function handleScheduleAutoCheckChange(next: boolean) {
+    setScheduleAutoCheck(next);
+    void persistScheduleAutoCheck(next);
+  }
 
   function handleHapticsChange(next: boolean) {
     // Optimistic so the switch tracks the finger; reverted if the write fails.
@@ -204,6 +218,12 @@ export default function SettingsScreen() {
             label={t("settings.app.haptics")}
             value={haptics}
             onValueChange={handleHapticsChange}
+          />
+          <NativeSwitch
+            testID="schedule-auto-check-switch"
+            label={t("settings.app.scheduleAutoCheck")}
+            value={scheduleAutoCheck}
+            onValueChange={handleScheduleAutoCheckChange}
           />
         </FieldGroup.Section>
 

@@ -152,7 +152,26 @@
     "endBeforeStart": "A data de término não pode ser anterior à de início.",
     "longSpan": "É uma convenção de {{count}} dias. Confira as datas.",
     "updateError": "Não foi possível salvar as alterações.",
-    "nameCounter": "{{count}} de {{max}}"
+    "nameCounter": "{{count}} de {{max}}",
+    "feedStatus": {
+      "cancelled": "Cancelado",
+      "removed": "Fora da programação"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "verificado {{time}}",
+      "movedOne": "Um painel salvo mudou",
+      "movedMany": "{{count}} painéis salvos mudaram",
+      "goneOne": "Um painel salvo saiu da programação",
+      "goneMany": "{{count}} painéis salvos saíram da programação",
+      "body": "Marcados abaixo, com o novo horário e sala.",
+      "alsoMovedOne": "Mais um mudou. Os dois estão marcados abaixo.",
+      "alsoMovedMany": "Mais {{count}} mudaram. Todos estão marcados abaixo.",
+      "dismiss": "Dispensar este aviso",
+      "checkNow": "Procurar alterações",
+      "checking": "Verificando…",
+      "checkFailedTitle": "Não foi possível verificar a programação",
+      "checkFailedMessage": "O link da programação do evento não respondeu. Sua agenda continua igual."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Idioma",
       "haptics": "Resposta tátil",
       "hapticsError": "Não foi possível salvar sua configuração tátil",
-      "notifications": "Notificações"
+      "notifications": "Notificações",
+      "scheduleAutoCheck": "Procurar mudanças na programação"
     },
     "data": {
       "title": "Dados",

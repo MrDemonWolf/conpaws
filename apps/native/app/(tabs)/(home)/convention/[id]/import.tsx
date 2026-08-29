@@ -50,6 +50,7 @@ import {
   NetworkError,
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
+import { setScheduleAllCategories } from "@/lib/schedule-refresh-storage";
 import { scheduleNameFromUrl } from "@/lib/schedule-url";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { hapticSuccess } from "@/services/haptics";
@@ -544,6 +545,16 @@ export default function ImportScreen() {
     }
 
     const { createdConventionId, conventionDetailsUpdated, result } = outcome;
+
+    // Records whether this import took the whole feed, which is what decides
+    // whether the convention may later be re-checked unattended. The category
+    // checkboxes are screen state and vanish with this screen, so without this
+    // flag a background refresh would quietly reinstate what the user removed.
+    void setScheduleAllCategories(
+      createdConventionId ?? id ?? "",
+      preview.selectedCategories.size === preview.categories.length,
+    );
+
     // The preview is spent: leaving it set makes the unsaved-changes guard
     // treat the Done button as an attempt to abandon work.
     setPreview(null);

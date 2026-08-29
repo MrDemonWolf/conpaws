@@ -152,7 +152,26 @@
     "endBeforeStart": "Päättymispäivä ei voi olla ennen alkamispäivää.",
     "longSpan": "Tämä coni kestäisi {{count}} päivää. Tarkista päivämäärät.",
     "updateError": "Muutoksia ei voitu tallentaa.",
-    "nameCounter": "{{count}}/{{max}}"
+    "nameCounter": "{{count}}/{{max}}",
+    "feedStatus": {
+      "cancelled": "Peruttu",
+      "removed": "Poissa ohjelmasta"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "tarkistettu {{time}}",
+      "movedOne": "Tallennettu paneeli siirtyi",
+      "movedMany": "{{count}} tallennettua paneelia siirtyi",
+      "goneOne": "Tallennettu paneeli on poissa ohjelmasta",
+      "goneMany": "{{count}} tallennettua paneelia on poissa ohjelmasta",
+      "body": "Merkitty alle, uusi aika ja sali mukana.",
+      "alsoMovedOne": "Yksi lisää siirtyi. Molemmat on merkitty alle.",
+      "alsoMovedMany": "{{count}} muuta siirtyi. Kaikki on merkitty alle.",
+      "dismiss": "Sulje tämä ilmoitus",
+      "checkNow": "Tarkista muutokset",
+      "checking": "Tarkistetaan…",
+      "checkFailedTitle": "Ohjelmaa ei voitu tarkistaa",
+      "checkFailedMessage": "Tapahtuman ohjelmalinkki ei vastannut. Aikataulusi on ennallaan."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Kieli",
       "haptics": "Haptinen palaute",
       "hapticsError": "Haptiikka-asetusta ei voitu tallentaa",
-      "notifications": "Ilmoitukset"
+      "notifications": "Ilmoitukset",
+      "scheduleAutoCheck": "Tarkista ohjelman muutokset"
     },
     "data": {
       "title": "Tiedot",

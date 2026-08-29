@@ -1,6 +1,7 @@
 import AddIcon from "@expo/material-symbols/add.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
+import RefreshIcon from "@expo/material-symbols/refresh.xml";
 import UploadIcon from "@expo/material-symbols/upload.xml";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
@@ -29,6 +30,7 @@ import {
   ManualEventModal,
 } from "@/components/convention-detail/ManualEventModal";
 import { ScheduleHintCard } from "@/components/convention-detail/ScheduleHintCard";
+import { ScheduleUpdateBanner } from "@/components/convention-detail/ScheduleUpdateBanner";
 import { SwipeableEventRow } from "@/components/convention-detail/SwipeableEventRow";
 import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -39,6 +41,7 @@ import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useScheduleRefresh } from "@/hooks/useScheduleRefresh";
 import {
   conventionDayKey,
   isValidTimeZone,
@@ -213,6 +216,8 @@ export default function ConventionDetailScreen() {
   });
   const events = previewState === "empty" ? [] : storedEvents;
 
+  const scheduleRefresh = useScheduleRefresh(convention);
+
   // No onPermissionDenied flip needed: useNotificationPermission re-reads on
   // focus and foreground, and the sheet route owns the deny alert.
   const { toggleScheduleMutation } = useEventScheduleMutations({
@@ -262,9 +267,20 @@ export default function ConventionDetailScreen() {
   );
 
   const scheduledEvents = events.filter((event) => event.isInSchedule);
+  /**
+   * Saved events the feed still publishes.
+   *
+   * A marked event stays in the list — that is the whole point of marking it
+   * rather than deleting it — but it is not a plan any more. It cannot clash
+   * with anything, and it can never be what the user does next, so it is kept
+   * out of both of those answers.
+   */
+  const liveScheduledEvents = scheduledEvents.filter(
+    (event) => event.feedStatus === null,
+  );
   // One computation per render, not per row.
   const showProvenance = useMemo(() => shouldShowProvenance(events), [events]);
-  const conflictingEventIds = overlappingEventIds(scheduledEvents);
+  const conflictingEventIds = overlappingEventIds(liveScheduledEvents);
 
   const storedTimeZone = convention?.timeZone;
   const conventionTimeZone = isValidTimeZone(storedTimeZone)
@@ -302,7 +318,10 @@ export default function ConventionDetailScreen() {
     conventionTimeZone,
     locale,
   );
-  const nowAndNext = getNowAndNextEvents(filteredEvents, new Date(now));
+  const nowAndNext = getNowAndNextEvents(
+    filteredEvents.filter((event) => event.feedStatus === null),
+    new Date(now),
+  );
   const currentConventionDay = conventionDayKey(new Date(), conventionTimeZone);
   const manualEventDefaultDate =
     currentConventionDay >= (convention?.startDate ?? "") &&
@@ -501,7 +520,23 @@ export default function ConventionDetailScreen() {
     <View className="pb-1">
       <Text variant="caption" className="px-4 pt-1 pb-2 text-muted-foreground">
         {t("convention.timesShownIn", { timeZone: conventionTimeZone })}
+        {scheduleRefresh.checkedAt !== null
+          ? ` · ${t("convention.scheduleUpdate.checkedAt", {
+              time: formatEventTime(
+                new Date(scheduleRefresh.checkedAt).toISOString(),
+                conventionTimeZone,
+                locale,
+                hour12,
+              ),
+            })}`
+          : ""}
       </Text>
+      {scheduleRefresh.summary !== null ? (
+        <ScheduleUpdateBanner
+          summary={scheduleRefresh.summary}
+          onDismiss={scheduleRefresh.dismiss}
+        />
+      ) : null}
       {showScheduleHint ? (
         <ScheduleHintCard
           onDismiss={() => {
@@ -582,6 +617,22 @@ export default function ConventionDetailScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
+            {convention?.icalUrl ? (
+              <Stack.Toolbar.MenuAction
+                icon={
+                  process.env.EXPO_OS === "ios"
+                    ? "arrow.clockwise"
+                    : RefreshIcon
+                }
+                onPress={scheduleRefresh.checkNow}
+              >
+                {t(
+                  scheduleRefresh.checking
+                    ? "convention.scheduleUpdate.checking"
+                    : "convention.scheduleUpdate.checkNow",
+                )}
+              </Stack.Toolbar.MenuAction>
+            ) : null}
           </Stack.Toolbar.Menu>
         ) : null}
         {events.length > 0 ? (
@@ -745,7 +796,14 @@ export default function ConventionDetailScreen() {
                 : SCHEDULE_EMPTY_CONTENT_STYLE
               : SCHEDULE_LIST_CONTENT_STYLE
           }
-          ListHeaderComponent={dayGroups.length > 0 ? scheduleNotices : null}
+          // The notices also carry the "your schedule changed" banner, and a
+          // convention whose feed just emptied has no day groups at all —
+          // exactly the moment the user most needs telling.
+          ListHeaderComponent={
+            dayGroups.length > 0 || scheduleRefresh.summary !== null
+              ? scheduleNotices
+              : null
+          }
           renderSectionHeader={renderSectionHeader}
           renderItem={renderItem}
           ListEmptyComponent={

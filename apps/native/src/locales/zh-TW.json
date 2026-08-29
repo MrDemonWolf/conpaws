@@ -152,7 +152,26 @@
     "endBeforeStart": "結束日期不能早於開始日期。",
     "longSpan": "這是一場為期 {{count}} 天的展會。請再確認日期。",
     "updateError": "無法儲存你的變更。",
-    "nameCounter": "{{count}}/{{max}}"
+    "nameCounter": "{{count}}/{{max}}",
+    "feedStatus": {
+      "cancelled": "已取消",
+      "removed": "已不在行程中"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "{{time}} 已檢查",
+      "movedOne": "一個已儲存的談話有變動",
+      "movedMany": "{{count}} 個已儲存的談話有變動",
+      "goneOne": "一個已儲存的談話已不在行程中",
+      "goneMany": "{{count}} 個已儲存的談話已不在行程中",
+      "body": "下方已標註，含新的時間與場地。",
+      "alsoMovedOne": "還有一個有變動。兩個都已在下方標註。",
+      "alsoMovedMany": "另有 {{count}} 個有變動。全部已在下方標註。",
+      "dismiss": "關閉此提示",
+      "checkNow": "檢查變更",
+      "checking": "檢查中…",
+      "checkFailedTitle": "無法檢查行程",
+      "checkFailedMessage": "展會的行程連結沒有回應。你的行程保持不變。"
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "語言",
       "haptics": "觸覺回饋",
       "hapticsError": "無法儲存你的觸覺回饋設定",
-      "notifications": "通知"
+      "notifications": "通知",
+      "scheduleAutoCheck": "檢查行程變更"
     },
     "data": {
       "title": "資料",

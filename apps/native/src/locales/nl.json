@@ -152,7 +152,26 @@
     "endBeforeStart": "De einddatum kan niet voor de startdatum liggen.",
     "longSpan": "Dat is een conventie van {{count}} dagen. Controleer de data.",
     "updateError": "Wijzigingen konden niet worden opgeslagen.",
-    "nameCounter": "{{count}} van {{max}}"
+    "nameCounter": "{{count}} van {{max}}",
+    "feedStatus": {
+      "cancelled": "Geannuleerd",
+      "removed": "Niet meer op het programma"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "gecontroleerd {{time}}",
+      "movedOne": "Een opgeslagen panel is verplaatst",
+      "movedMany": "{{count}} opgeslagen panels zijn verplaatst",
+      "goneOne": "Een opgeslagen panel staat niet meer op het programma",
+      "goneMany": "{{count}} opgeslagen panels staan niet meer op het programma",
+      "body": "Hieronder gemarkeerd, met de nieuwe tijd en zaal.",
+      "alsoMovedOne": "Nog één is verplaatst. Beide staan hieronder gemarkeerd.",
+      "alsoMovedMany": "Nog {{count}} zijn verplaatst. Alle staan hieronder gemarkeerd.",
+      "dismiss": "Deze melding sluiten",
+      "checkNow": "Op wijzigingen controleren",
+      "checking": "Bezig met controleren…",
+      "checkFailedTitle": "Programma kon niet worden gecontroleerd",
+      "checkFailedMessage": "De programmalink van de conventie gaf geen antwoord. Je programma is ongewijzigd."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Taal",
       "haptics": "Haptische feedback",
       "hapticsError": "Je haptische instelling kon niet worden opgeslagen",
-      "notifications": "Meldingen"
+      "notifications": "Meldingen",
+      "scheduleAutoCheck": "Op programmawijzigingen controleren"
     },
     "data": {
       "title": "Gegevens",

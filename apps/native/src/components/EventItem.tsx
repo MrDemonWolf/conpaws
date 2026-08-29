@@ -38,6 +38,13 @@ interface EventItemProps {
    */
   provenanceLabel?: string;
   hasConflict?: boolean;
+  /**
+   * Set when the feed this event came from stopped publishing it. The row
+   * stays on the schedule, dimmed and badged, because a saved panel that
+   * simply vanishes turns "wasn't there something at three?" into a question
+   * the app refuses to answer.
+   */
+  feedStatus?: "cancelled" | "removed" | null;
   contentWarning?: boolean;
   /**
    * Overlap grouping from `overlapInfo` (src/lib/day-band.ts). Rows in a
@@ -75,6 +82,7 @@ export function EventItem({
   reminderLabel,
   provenanceLabel,
   hasConflict = false,
+  feedStatus = null,
   contentWarning = false,
   overlapPosition,
   overlapGroupSize,
@@ -90,10 +98,21 @@ export function EventItem({
   const isDark = useColorScheme() === "dark";
   const ageBadge = ageRating ? AGE_BADGES[ageRating] : undefined;
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
+  const feedStatusLabel = feedStatus
+    ? t(
+        feedStatus === "cancelled"
+          ? "convention.feedStatus.cancelled"
+          : "convention.feedStatus.removed",
+      )
+    : null;
   const meta = [contextLabel, category, room].filter(Boolean).join(" · ");
   const summary = description?.trim() ? description.trim() : null;
 
   const accessibilityDetails = [
+    // First, so VoiceOver says the panel is off before reading its time and
+    // room. Hearing "Room A, three o'clock" and only then "cancelled" wastes
+    // the listener's attention on a plan that no longer exists.
+    feedStatusLabel,
     title,
     contextLabel,
     endTime
@@ -177,7 +196,16 @@ export function EventItem({
 
       <View className="flex-1 gap-1.5">
         <View className="flex-row items-start justify-between gap-2">
-          <Text variant="label" className="flex-1 font-semibold">
+          <Text
+            variant="label"
+            className={cn(
+              "flex-1 font-semibold",
+              // Dimmed, never struck through. A line through the title is
+              // decoration VoiceOver cannot see, and it punishes low-vision
+              // readers; the badge below carries the meaning instead.
+              feedStatus !== null && "text-muted-foreground",
+            )}
+          >
             {title}
           </Text>
           <View
@@ -240,6 +268,17 @@ export function EventItem({
           >
             {summary}
           </Text>
+        ) : null}
+
+        {feedStatusLabel !== null ? (
+          <View
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            className="flex-row"
+          >
+            <Badge variant="ended" emphasis="strong" label={feedStatusLabel} />
+          </View>
         ) : null}
 
         {reminderLabel !== undefined || provenanceLabel !== undefined ? (

@@ -152,7 +152,26 @@
     "endBeforeStart": "終了日を開始日より前にすることはできません。",
     "longSpan": "{{count}}日間のコンベンションになっています。日付をご確認ください。",
     "updateError": "変更を保存できませんでした。",
-    "nameCounter": "{{count}} / {{max}}"
+    "nameCounter": "{{count}} / {{max}}",
+    "feedStatus": {
+      "cancelled": "中止",
+      "removed": "スケジュール外"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "{{time}} に確認",
+      "movedOne": "保存したパネルが変更されました",
+      "movedMany": "保存したパネル {{count}} 件が変更されました",
+      "goneOne": "保存したパネルがスケジュールから外れました",
+      "goneMany": "保存したパネル {{count}} 件がスケジュールから外れました",
+      "body": "下の一覧に、新しい時間と部屋で印を付けています。",
+      "alsoMovedOne": "もう 1 件も変更されました。どちらも下に印があります。",
+      "alsoMovedMany": "さらに {{count}} 件変更されました。すべて下に印があります。",
+      "dismiss": "このお知らせを閉じる",
+      "checkNow": "変更を確認",
+      "checking": "確認中…",
+      "checkFailedTitle": "スケジュールを確認できませんでした",
+      "checkFailedMessage": "コンベンションのスケジュールリンクから応答がありません。あなたの予定はそのままです。"
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "言語",
       "haptics": "触覚フィードバック",
       "hapticsError": "触覚フィードバックの設定を保存できませんでした",
-      "notifications": "通知"
+      "notifications": "通知",
+      "scheduleAutoCheck": "スケジュールの変更を確認"
     },
     "data": {
       "title": "データ",
