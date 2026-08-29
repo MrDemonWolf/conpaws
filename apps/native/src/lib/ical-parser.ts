@@ -6,6 +6,8 @@ import {
   isRestrictedRating,
   strictestRating,
 } from "./event-categories";
+import { detectFeedSource, type FeedSource } from "./feed-source";
+import { unfold } from "./ical-text";
 
 export interface ParsedEvent {
   title: string;
@@ -44,6 +46,8 @@ export interface CategoryMeta {
 }
 
 export interface ParseResult {
+  /** Which export produced this calendar. Metadata only — nothing branches on it. */
+  source: FeedSource;
   timezone: string | null;
   requiresTimeZone: boolean;
   events: ParsedEvent[];
@@ -102,7 +106,7 @@ function hashString(str: string): number {
  * Assigns each category a colour, distinct within one convention.
  *
  * Hashing the name alone keeps a category's colour stable across re-imports,
- * which is worth having, but it collides: the real IndyFurCon feed puts SOCIAL
+ * which is worth having, but it collides: the real convention feed puts SOCIAL
  * and MUSIC & DANCE on the same swatch, so two of its nine chips cannot be told
  * apart. Starting from the hash and probing forward to the next free slot keeps
  * the stability and removes the collision, up to the palette size. Past that
@@ -127,11 +131,6 @@ function assignCategoryColors(names: string[]): Map<string, string> {
   }
 
   return assigned;
-}
-
-/** Unfold RFC 5545 line continuations (CRLF/LF followed by space/tab) */
-function unfold(raw: string): string {
-  return raw.replace(/\r?\n[ \t]/g, "");
 }
 
 /** Unescape iCal text: \n → newline, \, → comma, \; → semicolon, \\ → backslash */
@@ -208,15 +207,63 @@ function parseDateTime(value: string, timeZone: string | null): Date | null {
   return null;
 }
 
-/** Split "Room Name, Venue Name" → { location: "Venue Name", room: "Room Name" }
- * Split on LAST comma so "Panel Room A, Convention Center" → room="Panel Room A", location="Convention Center"
+/**
+ * Split a feed's LOCATION into a venue and a room.
+ *
+ * Two separators, because the two export shapes we see use different ones:
+ *
+ * - A comma means "room, venue" — split on the LAST one, so
+ *   "Panel Room A, Convention Center" → room="Panel Room A",
+ *   location="Convention Center".
+ * - No comma, but a SPACED en/em dash, means "area – room" — split on the
+ *   FIRST one, so "Secondary Events – Regency Ballroom E-F" →
+ *   location="Secondary Events", room="Regency Ballroom E-F". Feeds shaped
+ *   this way name no venue at all; the area is the most venue-like thing
+ *   present.
+ *
+ * The spacing requirement is what keeps hyphenated room ranges intact:
+ * "Fortune Square A-D" and "Regency Ballroom E-F" have no spaces around their
+ * dashes and are left alone.
+ *
+ * ponytail: separator heuristic, not a spec. A room whose own name contains a
+ * spaced dash will split wrong. Move to a per-feed rule only if a real
+ * calendar needs it.
  */
+const SPACED_DASH = /\s[\u2013\u2014]\s/;
+
 function splitLocation(raw: string): { location: string; room: string | null } {
   const lastComma = raw.lastIndexOf(",");
-  if (lastComma === -1) return { location: raw.trim(), room: null };
-  const room = raw.slice(0, lastComma).trim();
-  const location = raw.slice(lastComma + 1).trim();
-  return { location, room };
+  if (lastComma !== -1) {
+    const room = raw.slice(0, lastComma).trim();
+    const location = raw.slice(lastComma + 1).trim();
+    return { location, room };
+  }
+
+  const dash = raw.match(SPACED_DASH);
+  if (dash?.index !== undefined) {
+    const location = raw.slice(0, dash.index).trim();
+    const room = raw.slice(dash.index + dash[0].length).trim();
+    if (location && room) return { location, room };
+  }
+
+  return { location: raw.trim(), room: null };
+}
+
+/**
+ * Drop a description's trailing copy of its own URL.
+ *
+ * Some exports append the event's permalink to the end of every description,
+ * which we already keep in `sourceUrl`. Left in, it renders as a bare link at
+ * the bottom of every detail view and widget snapshot.
+ *
+ * ponytail: exact match only. A shortened, redirected, or tracking-decorated
+ * variant of the same link stays in the text — stripping on a fuzzy match
+ * would eventually eat a link the organiser meant to include.
+ */
+function stripTrailingSourceUrl(text: string, url: string | null): string {
+  const trimmedUrl = url?.trim();
+  if (!trimmedUrl || !text.endsWith(trimmedUrl)) return text;
+  return text.slice(0, text.length - trimmedUrl.length).trimEnd();
 }
 
 function detectContentWarning(text: string): boolean {
@@ -260,6 +307,7 @@ function extractParameter(line: string, name: string): string | null {
 export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   if (!raw || raw.trim().length === 0) {
     return {
+      source: "generic",
       timezone: null,
       requiresTimeZone: false,
       events: [],
@@ -441,7 +489,10 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
 
     const rawDesc = props.DESCRIPTION ?? null;
     const description = rawDesc
-      ? decodeHtmlEntities(unescapeText(rawDesc)).trim() || null
+      ? stripTrailingSourceUrl(
+          decodeHtmlEntities(unescapeText(rawDesc)).trim(),
+          props.URL ?? null,
+        ) || null
       : null;
 
     const startTimeZone = timeZones.DTSTART ?? timezone;
@@ -529,6 +580,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   );
 
   return {
+    source: detectFeedSource(raw),
     timezone,
     requiresTimeZone: timezone === null && hasActiveEventBlock,
     cancelledEvents: Array.from(cancelledEvents.values()),

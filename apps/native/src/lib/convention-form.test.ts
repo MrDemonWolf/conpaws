@@ -8,7 +8,7 @@ import {
 } from "./convention-form";
 
 const VALID = {
-  name: "IndyFurCon 2026",
+  name: "Example Con 2026",
   startDate: "2026-09-03",
   endDate: "2026-09-06",
   timeZone: "America/Indiana/Indianapolis",
@@ -23,7 +23,9 @@ describe("normalizeConventionName", () => {
   });
 
   it("leaves an already-clean name alone", () => {
-    expect(normalizeConventionName("IndyFurCon 2026")).toBe("IndyFurCon 2026");
+    expect(normalizeConventionName("Example Con 2026")).toBe(
+      "Example Con 2026",
+    );
   });
 });
 
@@ -44,7 +46,7 @@ describe("validateConventionForm", () => {
     const result = validateConventionForm(VALID);
     expect(result.valid).toBe(true);
     expect(result.errors).toEqual({});
-    expect(result.cleaned.name).toBe("IndyFurCon 2026");
+    expect(result.cleaned.name).toBe("Example Con 2026");
   });
 
   it("rejects an empty or whitespace-only name", () => {
@@ -143,7 +145,7 @@ describe("validateConventionForm", () => {
 describe("isConventionUnchanged", () => {
   it("ignores whitespace-only edits to the name", () => {
     expect(
-      isConventionUnchanged({ ...VALID, name: "  IndyFurCon   2026 " }, VALID),
+      isConventionUnchanged({ ...VALID, name: "  Example Con   2026 " }, VALID),
     ).toBe(true);
   });
 

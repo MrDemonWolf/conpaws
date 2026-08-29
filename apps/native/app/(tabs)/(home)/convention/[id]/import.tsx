@@ -28,6 +28,7 @@ import { useImportSchedule } from "@/hooks/useImportSchedule";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { isValidTimeZone } from "@/lib/convention-time";
+import type { FeedSource } from "@/lib/feed-source";
 import {
   type CategoryMeta,
   type ParsedEvent,
@@ -66,6 +67,8 @@ interface ErrorState {
 interface PreviewState {
   name: string;
   icsContent: string;
+  /** Which export this calendar came from. Shown so a wrong guess is visible. */
+  source: FeedSource;
   events: ParsedEvent[];
   categories: CategoryMeta[];
   cancelledSourceUids: string[];
@@ -265,6 +268,7 @@ export default function ImportScreen() {
     setPreview({
       name,
       icsContent,
+      source: result.source,
       events: result.events,
       categories: result.categories,
       cancelledSourceUids: result.cancelledSourceUids,
@@ -798,12 +802,16 @@ export default function ImportScreen() {
             <>
               <FieldGroup.Section title={t("import.preview")}>
                 <ListItem
-                  supportingText={t(
+                  supportingText={`${t(
                     preview.events.length === 1
                       ? "import.eventFound"
                       : "import.eventsFound",
                     { count: preview.events.length },
-                  )}
+                  )} · ${t(
+                    preview.source === "sched"
+                      ? "import.feedSource.sched"
+                      : "import.feedSource.generic",
+                  )}`}
                 >
                   {preview.name}
                 </ListItem>

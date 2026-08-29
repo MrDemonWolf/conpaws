@@ -1,0 +1,239 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-CALNAME:schedsmallcon
+X-WR-CALDESC:Event Calendar
+METHOD:PUBLISH
+CALSCALE:GREGORIAN
+PRODID:-//Sched.com Sched Small Con//EN
+X-WR-TIMEZONE:UTC
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T220000Z
+DTEND:20250817T210000Z
+SUMMARY:Open Tabletop Library
+DESCRIPTION:Featuring the Copper Coin lending library
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Tabletop Gaming - Cedar Ballrooms 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:c83127984455fab868db8203234971e9
+URL:http://schedsmallcon.sched.com/event/c83127984455fab868db8203234971e9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T230000Z
+DTEND:20250815T000000Z
+SUMMARY:Opening Ceremonies
+DESCRIPTION:You arrive at the city of Harborfall. &nbsp\;You have left the trappings of your old life behind in order to start a quest... AN ADVENTURE. This... this is where it begins. &nbsp\;Come join the local Wardens who keep the land to guide you through the next few days. Prepare your spell slots\, grab your rations\, and be ready for things to get.... dicey.
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Secondary Events - Cedar Ballrooms 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:84f880539400c2bae31963c9f98f897e
+URL:http://schedsmallcon.sched.com/event/84f880539400c2bae31963c9f98f897e
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250814T230000Z
+DTEND:20250815T020000Z
+SUMMARY:Beginner RPG Session
+DESCRIPTION:Generate characters and learn how to play our house tabletop system! Choose from dozens of species and careers to create a character and interact with others in an intriguing post-medieval world! Materials provided.
+CATEGORIES:GAMING
+LOCATION:Tabletop Gaming - Cedar Ballrooms 2&3\, Riverside Grand Hotel
+SEQUENCE:0
+UID:de47e30fcc664b9348e5fb9c1b1f3202
+URL:http://schedsmallcon.sched.com/event/de47e30fcc664b9348e5fb9c1b1f3202
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T000000Z
+DTEND:20250815T010000Z
+SUMMARY:Make-Your-Own Paper Dice
+DESCRIPTION:Have you ever longed to have the coolest dice at the table? &nbsp\;Modular folding: just a little patience\, a little construction and you can build those D4\, D6\, D8s and bigger! &nbsp\;You'll learn to make one unit\, repeat over and over again\, and we'll show you how to build it into a dice to take home. &nbsp\;Basic folding skills suggested.&nbsp\;
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:0c5f953a5b028fcdb712d133d3bbed69
+URL:http://schedsmallcon.sched.com/event/0c5f953a5b028fcdb712d133d3bbed69
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T000000Z
+DTEND:20250815T010000Z
+SUMMARY:Mental & Emotional Health Support
+DESCRIPTION:An open forum support panel for all\, focusing on neurodivergence and mental health. You can ask your questions openly (or anonymously via an online form)\, learn from other life experiences\, or get insight to help navigate life.
+CATEGORIES:SOCIAL
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b89dca9055d92458a320ef2718239641
+URL:http://schedsmallcon.sched.com/event/b89dca9055d92458a320ef2718239641
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T160000Z
+SUMMARY:Meet The DJs
+DESCRIPTION:Join us at "Meet the DJs" and connect with the people behind the dance floor magic! Chat\, chill\, ask questions\, it's up to you!
+CATEGORIES:MUSIC & DANCE
+LOCATION:Tertiary Events - Juniper Boardroom\, Riverside Grand Hotel
+SEQUENCE:0
+UID:db26473dd39cbbf5912aea7757808176
+URL:http://schedsmallcon.sched.com/event/db26473dd39cbbf5912aea7757808176
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T180000Z
+DTEND:20250815T190000Z
+SUMMARY:Marigold In Concert
+DESCRIPTION:Come join Marigold for an hour of music and entertainment.
+CATEGORIES:PERFORMANCE
+LOCATION:Main Events - Laurel Hall\, Riverside Grand Hotel
+SEQUENCE:0
+UID:8331372bc5e017f9b69b3c177d46078b
+URL:http://schedsmallcon.sched.com/event/8331372bc5e017f9b69b3c177d46078b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T163000Z
+DTEND:20250815T173000Z
+SUMMARY:So This Is Your First Con?
+DESCRIPTION:Is this your first convention? Well this is the panel for you! Want to know what it will be like? Come chat with us about conventions & what to expect!
+CATEGORIES:SOCIAL
+LOCATION:Main Events - Laurel Hall\, Riverside Grand Hotel
+SEQUENCE:0
+UID:7787cc9a50aa2117b7f7996d51cfb04f
+URL:http://schedsmallcon.sched.com/event/7787cc9a50aa2117b7f7996d51cfb04f
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T013000Z
+DTEND:20250815T023000Z
+SUMMARY:Bonefolk Meet & Greet
+DESCRIPTION:Welcome to the graveyard! This meet and greet is for everyone in the fandom\, or those of you who are interested in joining! We will take a group photo\, chat\, and have a little raffle to give away some prizes!
+CATEGORIES:MEET & GREET
+LOCATION:Birch Room 4\, Riverside Grand Hotel
+SEQUENCE:0
+UID:03837284bf1b5cfab815de31393f7f1d
+URL:http://schedsmallcon.sched.com/event/03837284bf1b5cfab815de31393f7f1d
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T140000Z
+DTEND:20250815T150000Z
+SUMMARY:Costuming 202
+DESCRIPTION:Now that you've learned the basics\, it's time to develop a unique character to match! Join Rowan and silent performer Wren in a demonstration of the creative process. Physicality\, creative choices\, improv\, and other topics will be discussed with Q&A to follow.
+CATEGORIES:FURSUITING
+LOCATION:Tertiary Events - Juniper Boardroom\, Riverside Grand Hotel
+SEQUENCE:0
+UID:d04d37867f39702fd66e9769ef2cfef9
+URL:http://schedsmallcon.sched.com/event/d04d37867f39702fd66e9769ef2cfef9
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T150000Z
+DTEND:20250815T163000Z
+SUMMARY:Animal Work Stories
+DESCRIPTION:Many people think working with animals is just playing with dogs and cats all day. Come listen to our panelists talk about the good\, the bad and the ugly of working with the creatures we share the planet with.
+CATEGORIES:PRESENTATION
+LOCATION:Secondary Events - Cedar Ballrooms 4&5\, Riverside Grand Hotel
+SEQUENCE:0
+UID:73d9bafe213c88f820a0c26593fae599
+URL:http://schedsmallcon.sched.com/event/73d9bafe213c88f820a0c26593fae599
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250815T020000Z
+DTEND:20250815T060000Z
+SUMMARY:Thursday Night Dance
+DESCRIPTION:Lineup\n10pm - DJ Driftwood\n11pm - DJ Kite\n12am - Nightsilver\n1am - Amber Rae\n\nWarning: This event uses intense strobe effects and bright flashing lights in a dim environment with fog effects\, and may be unsafe for those with epilepsy and light sensitivity.
+CATEGORIES:MUSIC & DANCE
+LOCATION:Main Events - Laurel Hall\, Riverside Grand Hotel
+SEQUENCE:0
+UID:4a14ddc709a4c55dca16cce094c42906
+URL:http://schedsmallcon.sched.com/event/4a14ddc709a4c55dca16cce094c42906
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T010000Z
+DTEND:20250816T020000Z
+SUMMARY:Life After Transition
+DESCRIPTION:This presentation and open discussion of transgender life after surgery is fantastic! Panelists share experiences and milestones to help educate and support the community. They're here to share & will answer questions.
+CATEGORIES:PRESENTATION
+LOCATION:Tertiary Events - Juniper Boardroom\, Riverside Grand Hotel
+SEQUENCE:0
+UID:4aa5ab29628dbdffd9e214922ca4c712
+URL:http://schedsmallcon.sched.com/event/4aa5ab29628dbdffd9e214922ca4c712
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T023000Z
+DTEND:20250816T033000Z
+SUMMARY:Costume Care 101: How Is It Done?
+DESCRIPTION:Ever been curious how the heck this is done? Join Ash for a Q&A as we discuss everything from zippers to heat and hydration.
+CATEGORIES:PRESENTATION
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:b6fcfcf56598bb5458acedde978d125b
+URL:http://schedsmallcon.sched.com/event/b6fcfcf56598bb5458acedde978d125b
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T030000Z
+DTEND:20250816T060000Z
+SUMMARY:Party Games After Dark
+DESCRIPTION:It's party games after dark! &nbsp\;We pull away the filters and get ready for unadulterated adult games. &nbsp\;Make sure to bring your phone and your ID.
+CATEGORIES:GAMING
+LOCATION:Tertiary Events - Juniper Boardroom\, Riverside Grand Hotel
+SEQUENCE:0
+UID:72408bbb4c0adb1b36f485f2b7fdb21c
+URL:http://schedsmallcon.sched.com/event/72408bbb4c0adb1b36f485f2b7fdb21c
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250817T220000Z
+DTEND:20250817T233000Z
+SUMMARY:Closing Ceremonies
+DESCRIPTION:
+CATEGORIES:CONVENTION SERVICES
+LOCATION:Main Events - Laurel Hall\, Riverside Grand Hotel
+SEQUENCE:0
+UID:75456011f1b383bd1a0c3586d9f19c91
+URL:http://schedsmallcon.sched.com/event/75456011f1b383bd1a0c3586d9f19c91
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T180000Z
+SUMMARY:Sketchbook Swap
+DESCRIPTION:Bring a sketchbook and trade a page with someone new.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+SEQUENCE:0
+UID:1f0b2c6d4e8a49b7a1c3d5e7f9a0b1c2
+URL:http://schedsmallcon.sched.com/event/1f0b2c6d4e8a49b7a1c3d5e7f9a0b1c2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T170000Z
+DTEND:20250816T180000Z
+SUMMARY:Sketchbook Swap
+DESCRIPTION:Bring a sketchbook and trade a page with someone new.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 2\, Riverside Grand Hotel
+STATUS:CANCELLED
+SEQUENCE:0
+UID:1f0b2c6d4e8a49b7a1c3d5e7f9a0b1c2
+URL:http://schedsmallcon.sched.com/event/1f0b2c6d4e8a49b7a1c3d5e7f9a0b1c2
+END:VEVENT
+BEGIN:VEVENT
+DTSTAMP:20250824T032125Z
+DTSTART:20250816T190000Z
+DTEND:20250816T200000Z
+SUMMARY:Puppet Building Workshop
+DESCRIPTION:This session has been cancelled.
+CATEGORIES:ARTS & CRAFTS
+LOCATION:Birch Room 4\, Riverside Grand Hotel
+STATUS:CANCELLED
+SEQUENCE:0
+UID:9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a
+URL:http://schedsmallcon.sched.com/event/9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a
+END:VEVENT
+END:VCALENDAR

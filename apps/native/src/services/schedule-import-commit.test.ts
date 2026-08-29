@@ -227,7 +227,7 @@ describe("commitScheduleImport", () => {
   it("creates the convention first when the import is starting one", async () => {
     const deps = commitDeps();
     const draft = {
-      name: "IndyFurCon",
+      name: "Example Con",
       startDate: "2026-08-21",
       endDate: "2026-08-23",
       timeZone: "America/Indiana/Indianapolis",

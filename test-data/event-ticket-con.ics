@@ -1,0 +1,3140 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ConPaws//Event Ticket Con 2026//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Event Ticket Con 2026
+X-WR-TIMEZONE:America/Indiana/Indianapolis
+BEGIN:VEVENT
+UID:evt2026-5000@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260903T230000Z
+DTEND:20260904T000000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Around the con
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e\, Seating is limited so arriving a few minutes early helps\, Expect a re
+ laxed hour with plenty of room for questions\, Materials are shared so ple
+ ase be patient with the good scissors\, The first half is guided and the s
+ econd half is open practice…\n\nhttps://eventticketcon.example.org/panel
+ /pattern-drafting-for-beginners-0/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -0/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5007@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260903T230000Z
+DTEND:20260904T060000Z
+SUMMARY:Saltbox Social
+LOCATION:Secondary Events – Studio Three
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Br
+ ing a project you are already working on if you would rather\, We keep the
+  music low so conversation stays easy\, Photos are fine but please ask the
+  people in them first\, Leftover materials go back in the bin at the end.\
+ n\nhttps://eventticketcon.example.org/panel/saltbox-social-1/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/saltbox-social-1/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5014@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260903T230000Z
+DTEND:20260904T000000Z
+SUMMARY:Trail Mapping Panel
+LOCATION:Tabletop – Concept A
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers 
+ will be circulating if you get stuck partway through. We will finish with 
+ a short show and tell for anyone who wants one.\n\nhttps://eventticketcon.
+ example.org/panel/trail-mapping-panel-2/
+CATEGORIES:Meet & Greet\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-panel-2/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5021@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260903T230000Z
+DTEND:20260904T020000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Video Gaming – Summit Room
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce. Seating is limited so arriving a few minutes early helps. Expect a rel
+ axed hour with plenty of room for questions. Materials are shared so pleas
+ e be patient with the good scissors. The first half is guided and the seco
+ nd half is open practice.\n\nhttps://eventticketcon.example.org/panel/patt
+ ern-drafting-for-beginners-3/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -3/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5028@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260903T230000Z
+DTEND:20260904T020000Z
+SUMMARY:Glasshouse Sketch Swap
+LOCATION:Dealers Hall – Studio Two
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end. Bring a notebook and something
+  to write with. Everything you need is provided at the table. Newcomers ar
+ e welcome and no experience is assumed.\n\nhttps://eventticketcon.example.
+ org/panel/glasshouse-sketch-swap-4/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/glasshouse-sketch-swap-4/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5035@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260903T230000Z
+DTEND:20260904T050000Z
+SUMMARY:Trail Mapping Playtest
+LOCATION:Artist Alley – Theory B
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break\, Bring a project you are already working
+  on if you would rather.\n\nhttps://eventticketcon.example.org/panel/trail
+ -mapping-playtest-5/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-playtest-5/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5042@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T000000Z
+DTEND:20260904T010000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Photobooth – Directors Row 2
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one\, Water and a snack are a good idea for a 
+ session this length\, This runs long so plan your schedule around it.\n\nh
+ ttps://eventticketcon.example.org/panel/pattern-drafting-for-beginners-6/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -6/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5049@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T000000Z
+DTEND:20260904T010000Z
+SUMMARY:Northwind Demo Hour
+LOCATION:Quiet Room – Studio One
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed.\n\nhttps://eventticketcon.example.org/p
+ anel/northwind-demo-hour-7/
+CATEGORIES:Performance\,Age 13
+URL:https://eventticketcon.example.org/panel/northwind-demo-hour-7/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5056@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T003000Z
+DTEND:20260904T013000Z
+SUMMARY:Trail Mapping Open Studio
+LOCATION:Charity Desk – Theory A
+DESCRIPTION:Bring a project you are already working on if you would rather.
+  We keep the music low so conversation stays easy. Photos are fine but ple
+ ase ask the people in them first. Leftover materials go back in the bin at
+  the end. Bring a notebook and something to write with.\n\nhttps://eventti
+ cketcon.example.org/panel/trail-mapping-open-studio-8/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-open-studio-8/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5063@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T003000Z
+DTEND:20260904T013000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Concept A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ . We will finish with a short show and tell for anyone who wants one. Wate
+ r and a snack are a good idea for a session this length. This runs long so
+  plan your schedule around it. A quieter corner is set aside for anyone wh
+ o needs a break. Bring a project you are already working on if you would r
+ ather.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-be
+ ginners-9/
+CATEGORIES:Charity - Example Foundation\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -9/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5070@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T003000Z
+DTEND:20260904T033000Z
+SUMMARY:Meadow Clinic
+LOCATION:Workshops – Harbor Ballroom G
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors.\n\nhttps://eventticketcon.ex
+ ample.org/panel/meadow-clinic-10/
+CATEGORIES:Costuming\,Age 17
+URL:https://eventticketcon.example.org/panel/meadow-clinic-10/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5077@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T013000Z
+DTEND:20260904T023000Z
+SUMMARY:Trail Mapping Roundtable
+LOCATION:Main Events – Studio Five
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a note
+ book and something to write with\, Everything you need is provided at the 
+ table\, Newcomers are welcome and no experience is assumed\, We start with
+  a short demonstration and then work at our own pace\, Seating is limited 
+ so arriving a few minutes early helps\, Expect a relaxed hour with plenty 
+ of room for questions.\n\nhttps://eventticketcon.example.org/panel/trail-m
+ apping-roundtable-11/
+CATEGORIES:Music and Dance\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-roundtable-11/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5084@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T020000Z
+DTEND:20260904T040000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Secondary Events – Vision
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather.\n\nhttps://eventticketcon.example.org
+ /panel/pattern-drafting-for-beginners-12/
+CATEGORIES:Social\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -12/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5091@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T020000Z
+DTEND:20260904T030000Z
+SUMMARY:Cardboard Roundtable
+LOCATION:Tabletop – Harbor Ballroom E-F
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can\, Volunteers will be c
+ irculating if you get stuck partway through.\n\nhttps://eventticketcon.exa
+ mple.org/panel/cardboard-roundtable-13/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/cardboard-roundtable-13/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5098@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T020000Z
+DTEND:20260904T050000Z
+SUMMARY:Trail Mapping Walkthrough
+LOCATION:Video Gaming – Studio Four
+DESCRIPTION:Newcomers are welcome and no experience is assumed. We start wi
+ th a short demonstration and then work at our own pace. Seating is limited
+  so arriving a few minutes early helps.\n\nhttps://eventticketcon.example.
+ org/panel/trail-mapping-walkthrough-14/
+CATEGORIES:Entertainment\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-walkthrough-14/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5105@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T020000Z
+DTEND:20260904T060000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Dealers Hall – Concept B
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with\, Ever
+ ything you need is provided at the table.\n\nhttps://eventticketcon.exampl
+ e.org/panel/pattern-drafting-for-beginners-15/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -15/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5112@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T030000Z
+DTEND:20260904T040000Z
+SUMMARY:Ember Screening
+LOCATION:Artist Alley – Harbor Ballroom A-D
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one. Water and a snack are a good idea for a session this length. This run
+ s long so plan your schedule around it. A quieter corner is set aside for 
+ anyone who needs a break.\n\nhttps://eventticketcon.example.org/panel/embe
+ r-screening-16/
+CATEGORIES:Presentation\,Age 17
+URL:https://eventticketcon.example.org/panel/ember-screening-16/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5119@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T130000Z
+DTEND:20260904T133000Z
+SUMMARY:Trail Mapping Story Circle
+LOCATION:Photobooth – Studio Three
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Mater
+ ials are shared so please be patient with the good scissors\, The first ha
+ lf is guided and the second half is open practice.\n\nhttps://eventticketc
+ on.example.org/panel/trail-mapping-story-circle-17/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-story-circle-17/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5126@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T130000Z
+DTEND:20260904T140000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Studio Five
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e\, Seating is limited so arriving a few minutes early helps.\n\nhttps://e
+ ventticketcon.example.org/panel/pattern-drafting-for-beginners-18/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -18/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5133@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T130000Z
+DTEND:20260904T140000Z
+SUMMARY:Foxglove Critique
+LOCATION:Charity Desk – Summit Room
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bri
+ ng a project you are already working on if you would rather.\n\nhttps://ev
+ entticketcon.example.org/panel/foxglove-critique-19/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-critique-19/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5140@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T130000Z
+DTEND:20260905T060000Z
+SUMMARY:Trail Mapping Showcase
+LOCATION:Registration – Studio Two
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length.\n\nhttps://eventticketcon.example.or
+ g/panel/trail-mapping-showcase-20/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-showcase-20/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5147@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T133000Z
+DTEND:20260904T143000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Workshops – Theory B
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice.\n\nhttps://eventticketcon.example.org/panel/
+ pattern-drafting-for-beginners-21/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -21/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5154@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T133000Z
+DTEND:20260904T143000Z
+SUMMARY:Beacon Lab
+LOCATION:Main Events – Directors Row 2
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end. Bring a notebook and something
+  to write with…\n\nhttps://eventticketcon.example.org/panel/beacon-lab-2
+ 2/
+CATEGORIES:Charity - Example Foundation\,Age 13
+URL:https://eventticketcon.example.org/panel/beacon-lab-22/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5161@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T133000Z
+DTEND:20260904T143000Z
+SUMMARY:Trail Mapping Critique
+LOCATION:Secondary Events – Studio One
+DESCRIPTION:Water and a snack are a good idea for a session this length. Th
+ is runs long so plan your schedule around it. A quieter corner is set asid
+ e for anyone who needs a break. Bring a project you are already working on
+  if you would rather. We keep the music low so conversation stays easy. Ph
+ otos are fine but please ask the people in them first.\n\nhttps://eventtic
+ ketcon.example.org/panel/trail-mapping-critique-23/
+CATEGORIES:Costuming\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-critique-23/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5168@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T140000Z
+DTEND:20260904T150000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Tabletop – Theory A
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one.\n\nhttps://eventticketcon.example.org/pan
+ el/pattern-drafting-for-beginners-24/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -24/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5175@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T140000Z
+DTEND:20260904T160000Z
+SUMMARY:Saltbox Reading
+LOCATION:Video Gaming – Directors Row 1
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are we
+ lcome and no experience is assumed\, We start with a short demonstration a
+ nd then work at our own pace\, Seating is limited so arriving a few minute
+ s early helps\, Expect a relaxed hour with plenty of room for questions\, 
+ Materials are shared so please be patient with the good scissors.\n\nhttps
+ ://eventticketcon.example.org/panel/saltbox-reading-25/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/saltbox-reading-25/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5182@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T140000Z
+DTEND:20260904T150000Z
+SUMMARY:Trail Mapping Sketch Swap
+LOCATION:Dealers Hall – Harbor Ballroom G
+DESCRIPTION:Bring a project you are already working on if you would rather.
+  We keep the music low so conversation stays easy. Photos are fine but ple
+ ase ask the people in them first. Leftover materials go back in the bin at
+  the end.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-sketch
+ -swap-26/
+CATEGORIES:Arts and Crafts\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-sketch-swap-26/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5189@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T140000Z
+DTEND:20260904T200000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Summit Room
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length\, This runs long
+  so plan your schedule around it\, A quieter corner is set aside for anyon
+ e who needs a break\, Bring a project you are already working on if you wo
+ uld rather\, We keep the music low so conversation stays easy.\n\nhttps://
+ eventticketcon.example.org/panel/pattern-drafting-for-beginners-27/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -27/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5196@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T140000Z
+DTEND:20260905T050000Z
+SUMMARY:Glasshouse Open Studio
+LOCATION:Photobooth – Vision
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice.\n\nhttps://eventticketcon.example.org/
+ panel/glasshouse-open-studio-28/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/glasshouse-open-studio-28/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5203@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T140000Z
+DTEND:20260905T000000Z
+SUMMARY:Trail Mapping Meetup
+LOCATION:Quiet Room – Harbor Ballroom E-F
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a note
+ book and something to write with\, Everything you need is provided at the 
+ table\, Newcomers are welcome and no experience is assumed\, We start with
+  a short demonstration and then work at our own pace.\n\nhttps://eventtick
+ etcon.example.org/panel/trail-mapping-meetup-29/
+CATEGORIES:Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-meetup-29/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5210@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T143000Z
+DTEND:20260904T153000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Charity Desk – Studio Four
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first\, L
+ eftover materials go back in the bin at the end\, Bring a notebook and som
+ ething to write with\, Everything you need is provided at the table…\n\n
+ https://eventticketcon.example.org/panel/pattern-drafting-for-beginners-30
+ /
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -30/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5217@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T143000Z
+DTEND:20260904T153000Z
+SUMMARY:Northwind Jam Session
+LOCATION:Registration – Concept B
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can\, Volunteers will be c
+ irculating if you get stuck partway through\, We will finish with a short 
+ show and tell for anyone who wants one\, Water and a snack are a good idea
+  for a session this length\, This runs long so plan your schedule around i
+ t.\n\nhttps://eventticketcon.example.org/panel/northwind-jam-session-31/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-jam-session-31/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5224@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T150000Z
+DTEND:20260905T020000Z
+SUMMARY:Trail Mapping Sing-Along
+LOCATION:Workshops – Harbor Ballroom A-D
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions.\n\nhttps://eventticketcon.example.org/panel/trai
+ l-mapping-sing-along-32/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-sing-along-32/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5231@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T150000Z
+DTEND:20260904T163000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Main Events – Studio Three
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fi
+ ne but please ask the people in them first. Leftover materials go back in 
+ the bin at the end. Bring a notebook and something to write with.\n\nhttps
+ ://eventticketcon.example.org/panel/pattern-drafting-for-beginners-33/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -33/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5238@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T150000Z
+DTEND:20260904T153000Z
+SUMMARY:Meadow Showcase
+LOCATION:Secondary Events – Concept A
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one. Water and a snack are a good idea for a session this length. This run
+ s long so plan your schedule around it.\n\nhttps://eventticketcon.example.
+ org/panel/meadow-showcase-34/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/meadow-showcase-34/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5245@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T150000Z
+DTEND:20260904T160000Z
+SUMMARY:Trail Mapping Reading
+LOCATION:Tabletop – Summit Room
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Mater
+ ials are shared so please be patient with the good scissors\, The first ha
+ lf is guided and the second half is open practice\, Come for the whole ses
+ sion or drop in when you can\, Volunteers will be circulating if you get s
+ tuck partway through\, We will finish with a short show and tell for anyon
+ e who wants one.\n\nhttps://eventticketcon.example.org/panel/trail-mapping
+ -reading-35/
+CATEGORIES:Charity - Example Foundation\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-reading-35/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5252@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T153000Z
+DTEND:20260904T163000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Around the con
+DESCRIPTION:Bring a notebook and something to write with. Everything you ne
+ ed is provided at the table.\n\nhttps://eventticketcon.example.org/panel/p
+ attern-drafting-for-beginners-36/
+CATEGORIES:Costuming\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -36/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5259@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T160000Z
+DTEND:20260904T220000Z
+SUMMARY:Cardboard Workshop
+LOCATION:Dealers Hall – Theory B
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bri
+ ng a project you are already working on if you would rather. We keep the m
+ usic low so conversation stays easy. Photos are fine but please ask the pe
+ ople in them first. Leftover materials go back in the bin at the end. Brin
+ g a notebook and something to write with. Everything you need is provided 
+ at the table. Newcomers are welcome and no experience is assumed…\n\nhtt
+ ps://eventticketcon.example.org/panel/cardboard-workshop-37/
+CATEGORIES:Music and Dance\,Age 18
+URL:https://eventticketcon.example.org/panel/cardboard-workshop-37/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5266@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T160000Z
+DTEND:20260904T173000Z
+SUMMARY:Trail Mapping Clinic
+LOCATION:Artist Alley – Directors Row 2
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers 
+ will be circulating if you get stuck partway through. We will finish with 
+ a short show and tell for anyone who wants one.\n\nhttps://eventticketcon.
+ example.org/panel/trail-mapping-clinic-38/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-clinic-38/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5273@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T160000Z
+DTEND:20260904T170000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Photobooth – Studio One
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps.\n\nhttps://
+ eventticketcon.example.org/panel/pattern-drafting-for-beginners-39/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -39/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5280@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T160000Z
+DTEND:20260904T180000Z
+SUMMARY:Ember Sing-Along
+LOCATION:Quiet Room – Theory A
+DESCRIPTION:Photos are fine but please ask the people in them first\, Lefto
+ ver materials go back in the bin at the end\, Bring a notebook and somethi
+ ng to write with\, Everything you need is provided at the table\, Newcomer
+ s are welcome and no experience is assumed\, We start with a short demonst
+ ration and then work at our own pace\, Seating is limited so arriving a fe
+ w minutes early helps.\n\nhttps://eventticketcon.example.org/panel/ember-s
+ ing-along-40/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/ember-sing-along-40/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5287@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T160000Z
+DTEND:20260904T190000Z
+SUMMARY:Trail Mapping Tournament
+LOCATION:Charity Desk – Directors Row 1
+DESCRIPTION:Water and a snack are a good idea for a session this length.\n\
+ nhttps://eventticketcon.example.org/panel/trail-mapping-tournament-41/
+CATEGORIES:Meet & Greet\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-tournament-41/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5294@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T163000Z
+DTEND:20260904T173000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Registration – Harbor Ballroom G
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one\, Water and a snack are a good idea for a 
+ session this length.\n\nhttps://eventticketcon.example.org/panel/pattern-d
+ rafting-for-beginners-42/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -42/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5301@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T170000Z
+DTEND:20260904T180000Z
+SUMMARY:Foxglove Playtest
+LOCATION:Workshops – Studio Five
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed. We start with a short demonstration and
+  then work at our own pace. Seating is limited so arriving a few minutes e
+ arly helps.\n\nhttps://eventticketcon.example.org/panel/foxglove-playtest-
+ 43/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-playtest-43/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5308@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T170000Z
+DTEND:20260904T200000Z
+SUMMARY:Trail Mapping Practice
+LOCATION:Main Events – Vision
+DESCRIPTION:Bring a project you are already working on if you would rather.
+  We keep the music low so conversation stays easy. Photos are fine but ple
+ ase ask the people in them first. Leftover materials go back in the bin at
+  the end. Bring a notebook and something to write with.\n\nhttps://eventti
+ cketcon.example.org/panel/trail-mapping-practice-44/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-practice-44/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5315@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T170000Z
+DTEND:20260904T180000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Concept A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length\, This runs long
+  so plan your schedule around it\, A quieter corner is set aside for anyon
+ e who needs a break\, Bring a project you are already working on if you wo
+ uld rather\, We keep the music low so conversation stays easy.\n\nhttps://
+ eventticketcon.example.org/panel/pattern-drafting-for-beginners-45/
+CATEGORIES:Gaming\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -45/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5322@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T173000Z
+DTEND:20260904T183000Z
+SUMMARY:Beacon Practice
+LOCATION:Tabletop – Studio Four
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice\, Come for the whole session or drop in
+  when you can.\n\nhttps://eventticketcon.example.org/panel/beacon-practice
+ -46/
+CATEGORIES:Performance\,Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/beacon-practice-46/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5329@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T173000Z
+DTEND:20260904T183000Z
+SUMMARY:Trail Mapping Jam Session
+LOCATION:Video Gaming – Concept B
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with. Everything you need is provided at the ta
+ ble. Newcomers are welcome and no experience is assumed. We start with a s
+ hort demonstration and then work at our own pace. Seating is limited so ar
+ riving a few minutes early helps. Expect a relaxed hour with plenty of roo
+ m for questions.\n\nhttps://eventticketcon.example.org/panel/trail-mapping
+ -jam-session-47/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-jam-session-47/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5336@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T180000Z
+DTEND:20260904T190000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Dealers Hall – Harbor Ballroom A-D
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first.\n\
+ nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginners-4
+ 8/
+CATEGORIES:Charity - Example Foundation\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -48/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5343@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T180000Z
+DTEND:20260904T193000Z
+SUMMARY:Saltbox Story Circle
+LOCATION:Artist Alley – Studio Three
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can\, Volunteers will be c
+ irculating if you get stuck partway through\, We will finish with a short 
+ show and tell for anyone who wants one\, Water and a snack are a good idea
+  for a session this length\, This runs long so plan your schedule around i
+ t\, A quieter corner is set aside for anyone who needs a break…\n\nhttps
+ ://eventticketcon.example.org/panel/saltbox-story-circle-49/
+CATEGORIES:Costuming\,Age 17
+URL:https://eventticketcon.example.org/panel/saltbox-story-circle-49/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5350@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T183000Z
+DTEND:20260904T200000Z
+SUMMARY:Trail Mapping Screening
+LOCATION:Photobooth – Concept A
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors.\n\nhttps://eventticketcon.example.org/panel/trail-mappi
+ ng-screening-50/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-screening-50/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5357@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T183000Z
+DTEND:20260904T193000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Quiet Room – Summit Room
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with\, Ever
+ ything you need is provided at the table\, Newcomers are welcome and no ex
+ perience is assumed.\n\nhttps://eventticketcon.example.org/panel/pattern-d
+ rafting-for-beginners-51/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -51/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5364@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T190000Z
+DTEND:20260904T203000Z
+SUMMARY:Glasshouse Q&A
+LOCATION:Charity Desk – Studio Two
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one.\n\nhttps://eventticketcon.example.org/panel/glasshouse-qanda-52/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/glasshouse-qanda-52/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5371@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T190000Z
+DTEND:20260904T200000Z
+SUMMARY:Trail Mapping Social
+LOCATION:Registration – Theory B
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Mater
+ ials are shared so please be patient with the good scissors\, The first ha
+ lf is guided and the second half is open practice\, Come for the whole ses
+ sion or drop in when you can\, Volunteers will be circulating if you get s
+ tuck partway through\, We will finish with a short show and tell for anyon
+ e who wants one\, Water and a snack are a good idea for a session this len
+ gth.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-social-53/
+CATEGORIES:Entertainment\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-social-53/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5378@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T193000Z
+DTEND:20260904T203000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Studio Five
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginn
+ ers-54/
+CATEGORIES:Meet & Greet\,Age 17
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -54/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5385@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T200000Z
+DTEND:20260904T210000Z
+SUMMARY:Northwind Meetup
+LOCATION:Main Events – Studio One
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bri
+ ng a project you are already working on if you would rather. We keep the m
+ usic low so conversation stays easy. Photos are fine but please ask the pe
+ ople in them first. Leftover materials go back in the bin at the end.\n\nh
+ ttps://eventticketcon.example.org/panel/northwind-meetup-55/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-meetup-55/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5392@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T200000Z
+DTEND:20260904T220000Z
+SUMMARY:Trail Mapping Q&A
+LOCATION:Secondary Events – Theory A
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it\, A quieter corner is set aside for anyone who needs a break.\
+ n\nhttps://eventticketcon.example.org/panel/trail-mapping-qanda-56/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-qanda-56/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5399@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T203000Z
+DTEND:20260904T213000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Tabletop – Directors Row 1
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice.\n\nhttps://eventticketcon.example.org/panel/
+ pattern-drafting-for-beginners-57/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -57/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5406@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T203000Z
+DTEND:20260904T223000Z
+SUMMARY:Meadow Panel
+LOCATION:Video Gaming – Harbor Ballroom G
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end.\n\nhttps://eventticketcon.exam
+ ple.org/panel/meadow-panel-58/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/meadow-panel-58/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5413@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T203000Z
+DTEND:20260904T213000Z
+SUMMARY:Trail Mapping Workshop
+LOCATION:Dealers Hall – Studio Five
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break\, Bring a project you are already working
+  on if you would rather\, We keep the music low so conversation stays easy
+ \, Photos are fine but please ask the people in them first\, Leftover mate
+ rials go back in the bin at the end.\n\nhttps://eventticketcon.example.org
+ /panel/trail-mapping-workshop-59/
+CATEGORIES:Performance\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-workshop-59/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5420@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T203000Z
+DTEND:20260904T213000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Artist Alley – Vision
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one\, Water and a snack are a good idea for a 
+ session this length.\n\nhttps://eventticketcon.example.org/panel/pattern-d
+ rafting-for-beginners-60/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -60/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5427@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T203000Z
+DTEND:20260904T220000Z
+SUMMARY:Cardboard Tournament
+LOCATION:Photobooth – Harbor Ballroom E-F
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed.\n\nhttps://eventticketcon.example.org/p
+ anel/cardboard-tournament-61/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/cardboard-tournament-61/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5434@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T210000Z
+DTEND:20260904T220000Z
+SUMMARY:Trail Mapping Lab
+LOCATION:Quiet Room – Studio Four
+DESCRIPTION:Bring a project you are already working on if you would rather.
+ \n\nhttps://eventticketcon.example.org/panel/trail-mapping-lab-62/
+CATEGORIES:Costuming\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-lab-62/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5441@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T210000Z
+DTEND:20260905T000000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Summit Room
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ . We will finish with a short show and tell for anyone who wants one. Wate
+ r and a snack are a good idea for a session this length. This runs long so
+  plan your schedule around it. A quieter corner is set aside for anyone wh
+ o needs a break.\n\nhttps://eventticketcon.example.org/panel/pattern-draft
+ ing-for-beginners-63/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -63/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5448@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T213000Z
+DTEND:20260904T230000Z
+SUMMARY:Ember Walkthrough
+LOCATION:Registration – Harbor Ballroom A-D
+DESCRIPTION:Seating is limited so arriving a few minutes early helps. Expec
+ t a relaxed hour with plenty of room for questions. Materials are shared s
+ o please be patient with the good scissors. The first half is guided and t
+ he second half is open practice. Come for the whole session or drop in whe
+ n you can. Volunteers will be circulating if you get stuck partway through
+ .\n\nhttps://eventticketcon.example.org/panel/ember-walkthrough-64/
+CATEGORIES:Age 13
+URL:https://eventticketcon.example.org/panel/ember-walkthrough-64/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5455@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T220000Z
+DTEND:20260904T230000Z
+SUMMARY:Trail Mapping Demo Hour
+LOCATION:Workshops – Studio Three
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with. Everything you need is provided at the ta
+ ble. Newcomers are welcome and no experience is assumed. We start with a s
+ hort demonstration and then work at our own pace.\n\nhttps://eventticketco
+ n.example.org/panel/trail-mapping-demo-hour-65/
+CATEGORIES:Arts and Crafts\,Age 17
+URL:https://eventticketcon.example.org/panel/trail-mapping-demo-hour-65/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5462@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T220000Z
+DTEND:20260904T230000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Main Events – Concept A
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first\, L
+ eftover materials go back in the bin at the end.\n\nhttps://eventticketcon
+ .example.org/panel/pattern-drafting-for-beginners-66/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -66/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5469@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T220000Z
+DTEND:20260904T233000Z
+SUMMARY:Foxglove Social
+LOCATION:Secondary Events – Summit Room
+DESCRIPTION:The first half is guided and the second half is open practice.\
+ n\nhttps://eventticketcon.example.org/panel/foxglove-social-67/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-social-67/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5476@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T223000Z
+DTEND:20260904T233000Z
+SUMMARY:Trail Mapping Panel
+LOCATION:Tabletop – Studio Two
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-panel-6
+ 8/
+CATEGORIES:Presentation\,Age 17
+URL:https://eventticketcon.example.org/panel/trail-mapping-panel-68/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5483@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T223000Z
+DTEND:20260904T233000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Video Gaming – Theory B
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fi
+ ne but please ask the people in them first. Leftover materials go back in 
+ the bin at the end. Bring a notebook and something to write with. Everythi
+ ng you need is provided at the table.\n\nhttps://eventticketcon.example.or
+ g/panel/pattern-drafting-for-beginners-69/
+CATEGORIES:Workshops\,Costuming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -69/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5490@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T230000Z
+DTEND:20260905T010000Z
+SUMMARY:Beacon Sketch Swap
+LOCATION:Dealers Hall – Directors Row 2
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one\, Water and a snack are a good idea for a session this length\, This r
+ uns long so plan your schedule around it\, A quieter corner is set aside f
+ or anyone who needs a break\, Bring a project you are already working on i
+ f you would rather\, We keep the music low so conversation stays easy\, Ph
+ otos are fine but please ask the people in them first…\n\nhttps://eventt
+ icketcon.example.org/panel/beacon-sketch-swap-70/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/beacon-sketch-swap-70/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5497@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T230000Z
+DTEND:20260905T000000Z
+SUMMARY:Trail Mapping Playtest
+LOCATION:Artist Alley – Studio One
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions. Materi
+ als are shared so please be patient with the good scissors. The first half
+  is guided and the second half is open practice.\n\nhttps://eventticketcon
+ .example.org/panel/trail-mapping-playtest-71/
+CATEGORIES:Gaming\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-playtest-71/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5504@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T230000Z
+DTEND:20260905T020000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Around the con
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e\, Seating is limited so arriving a few minutes early helps.\n\nhttps://e
+ ventticketcon.example.org/panel/pattern-drafting-for-beginners-72/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -72/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5511@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T233000Z
+DTEND:20260905T010000Z
+SUMMARY:Saltbox Demo Hour
+LOCATION:Quiet Room – Directors Row 1
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Br
+ ing a project you are already working on if you would rather\, We keep the
+  music low so conversation stays easy\, Photos are fine but please ask the
+  people in them first.\n\nhttps://eventticketcon.example.org/panel/saltbox
+ -demo-hour-73/
+CATEGORIES:Writing\,Age 13
+URL:https://eventticketcon.example.org/panel/saltbox-demo-hour-73/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5518@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260904T233000Z
+DTEND:20260905T003000Z
+SUMMARY:Trail Mapping Open Studio
+LOCATION:Charity Desk – Harbor Ballroom G
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it\, A quieter corner is set aside for anyone who needs a break\,
+  Bring a project you are already working on if you would rather…\n\nhttp
+ s://eventticketcon.example.org/panel/trail-mapping-open-studio-74/
+CATEGORIES:Charity - Example Foundation\,Age 17
+URL:https://eventticketcon.example.org/panel/trail-mapping-open-studio-74/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5525@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T000000Z
+DTEND:20260905T010000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Registration – Studio Five
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice\, Come for the whole session or drop in when 
+ you can.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-
+ beginners-75/
+CATEGORIES:Costuming\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -75/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5532@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T003000Z
+DTEND:20260905T010000Z
+SUMMARY:Glasshouse Clinic
+LOCATION:Workshops – Vision
+DESCRIPTION:Photos are fine but please ask the people in them first\, Lefto
+ ver materials go back in the bin at the end\, Bring a notebook and somethi
+ ng to write with\, Everything you need is provided at the table.\n\nhttps:
+ //eventticketcon.example.org/panel/glasshouse-clinic-76/
+CATEGORIES:Music and Dance\,Age 13
+URL:https://eventticketcon.example.org/panel/glasshouse-clinic-76/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5539@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T003000Z
+DTEND:20260905T023000Z
+SUMMARY:Trail Mapping Roundtable
+LOCATION:Main Events – Harbor Ballroom E-F
+DESCRIPTION:Water and a snack are a good idea for a session this length. Th
+ is runs long so plan your schedule around it. A quieter corner is set asid
+ e for anyone who needs a break. Bring a project you are already working on
+  if you would rather. We keep the music low so conversation stays easy. Ph
+ otos are fine but please ask the people in them first. Leftover materials 
+ go back in the bin at the end.\n\nhttps://eventticketcon.example.org/panel
+ /trail-mapping-roundtable-77/
+CATEGORIES:Social\,Age 17
+URL:https://eventticketcon.example.org/panel/trail-mapping-roundtable-77/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5546@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T010000Z
+DTEND:20260905T023000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Secondary Events – Studio Four
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can.\n\nhttps://eventticketcon.ex
+ ample.org/panel/pattern-drafting-for-beginners-78/
+CATEGORIES:Arts and Crafts\,Age 18
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -78/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5553@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T013000Z
+DTEND:20260905T023000Z
+SUMMARY:Northwind Roundtable
+LOCATION:Tabletop – Concept B
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed. We start with a short demonstration and
+  then work at our own pace. Seating is limited so arriving a few minutes e
+ arly helps.\n\nhttps://eventticketcon.example.org/panel/northwind-roundtab
+ le-79/
+CATEGORIES:Entertainment\,Age 18
+URL:https://eventticketcon.example.org/panel/northwind-roundtable-79/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5560@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T013000Z
+DTEND:20260905T023000Z
+SUMMARY:Trail Mapping Walkthrough
+LOCATION:Video Gaming – Harbor Ballroom A-D
+DESCRIPTION:Bring a project you are already working on if you would rather\
+ , We keep the music low so conversation stays easy\, Photos are fine but p
+ lease ask the people in them first\, Leftover materials go back in the bin
+  at the end.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-wal
+ kthrough-80/
+CATEGORIES:Meet & Greet\,Age 18
+URL:https://eventticketcon.example.org/panel/trail-mapping-walkthrough-80/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5567@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T013000Z
+DTEND:20260905T023000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Concept A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ . We will finish with a short show and tell for anyone who wants one. Wate
+ r and a snack are a good idea for a session this length. This runs long so
+  plan your schedule around it. A quieter corner is set aside for anyone wh
+ o needs a break. Bring a project you are already working on if you would r
+ ather.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-be
+ ginners-81/
+CATEGORIES:Presentation\,Age 17
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -81/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5574@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T020000Z
+DTEND:20260905T030000Z
+SUMMARY:Meadow Screening
+LOCATION:Artist Alley – Concept A
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice\, Come for the whole session or drop in
+  when you can\, Volunteers will be circulating if you get stuck partway th
+ rough.\n\nhttps://eventticketcon.example.org/panel/meadow-screening-82/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/meadow-screening-82/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5581@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T020000Z
+DTEND:20260905T050000Z
+SUMMARY:Trail Mapping Story Circle
+LOCATION:Photobooth – Summit Room
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with. Everything you need is provided at the ta
+ ble. Newcomers are welcome and no experience is assumed.\n\nhttps://eventt
+ icketcon.example.org/panel/trail-mapping-story-circle-83/
+CATEGORIES:Convention Services\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-story-circle-83/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5588@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T030000Z
+DTEND:20260905T060000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Quiet Room – Studio Two
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting
+ -for-beginners-84/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -84/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5595@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T030000Z
+DTEND:20260905T043000Z
+SUMMARY:Cardboard Critique
+LOCATION:Charity Desk – Theory B
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can\, Volunteers will be c
+ irculating if you get stuck partway through\, We will finish with a short 
+ show and tell for anyone who wants one\, Water and a snack are a good idea
+  for a session this length\, This runs long so plan your schedule around i
+ t.\n\nhttps://eventticketcon.example.org/panel/cardboard-critique-85/
+CATEGORIES:Performance\,Age 18
+URL:https://eventticketcon.example.org/panel/cardboard-critique-85/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5602@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T030000Z
+DTEND:20260905T060000Z
+SUMMARY:Trail Mapping Showcase
+LOCATION:Registration – Directors Row 2
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-showcas
+ e-86/
+CATEGORIES:Writing\,Age 18
+URL:https://eventticketcon.example.org/panel/trail-mapping-showcase-86/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5609@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T030000Z
+DTEND:20260905T060000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Workshops – Studio One
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fi
+ ne but please ask the people in them first. Leftover materials go back in 
+ the bin at the end. Bring a notebook and something to write with. Everythi
+ ng you need is provided at the table. Newcomers are welcome and no experie
+ nce is assumed. We start with a short demonstration and then work at our o
+ wn pace.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-
+ beginners-87/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -87/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5616@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T030000Z
+DTEND:20260905T043000Z
+SUMMARY:Ember Lab
+LOCATION:Main Events – Theory A
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one\, Water and a snack are a good idea for a session this length\, This r
+ uns long so plan your schedule around it\, A quieter corner is set aside f
+ or anyone who needs a break\, Bring a project you are already working on i
+ f you would rather\, We keep the music low so conversation stays easy.\n\n
+ https://eventticketcon.example.org/panel/ember-lab-88/
+CATEGORIES:Costuming\,Age 18
+URL:https://eventticketcon.example.org/panel/ember-lab-88/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5623@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T033000Z
+DTEND:20260905T053000Z
+SUMMARY:Trail Mapping Critique
+LOCATION:Secondary Events – Directors Row 1
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions. Materi
+ als are shared so please be patient with the good scissors. The first half
+  is guided and the second half is open practice. Come for the whole sessio
+ n or drop in when you can. Volunteers will be circulating if you get stuck
+  partway through.\n\nhttps://eventticketcon.example.org/panel/trail-mappin
+ g-critique-89/
+CATEGORIES:Music and Dance\,Age 18
+URL:https://eventticketcon.example.org/panel/trail-mapping-critique-89/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5630@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T050000Z
+DTEND:20260905T060000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Studio Five
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-
+ beginners-90/
+CATEGORIES:Social\,Age 18
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -90/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5637@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T130000Z
+DTEND:20260905T150000Z
+SUMMARY:Foxglove Reading
+LOCATION:Video Gaming – Studio Five
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break.\n\n
+ https://eventticketcon.example.org/panel/foxglove-reading-91/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-reading-91/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5644@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T130000Z
+DTEND:20260905T133000Z
+SUMMARY:Trail Mapping Sketch Swap
+LOCATION:Dealers Hall – Vision
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it\, A quieter corner is set aside for anyone who needs a break\,
+  Bring a project you are already working on if you would rather…\n\nhttp
+ s://eventticketcon.example.org/panel/trail-mapping-sketch-swap-92/
+CATEGORIES:Entertainment\,Performance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-sketch-swap-92/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5651@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T130000Z
+DTEND:20260905T140000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Artist Alley – Harbor Ballroom E-F
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce. Seating is limited so arriving a few minutes early helps. Expect a rel
+ axed hour with plenty of room for questions. Materials are shared so pleas
+ e be patient with the good scissors.\n\nhttps://eventticketcon.example.org
+ /panel/pattern-drafting-for-beginners-93/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -93/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5658@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T130000Z
+DTEND:20260905T140000Z
+SUMMARY:Beacon Open Studio
+LOCATION:Photobooth – Studio Four
+DESCRIPTION:Photos are fine but please ask the people in them first\, Lefto
+ ver materials go back in the bin at the end\, Bring a notebook and somethi
+ ng to write with\, Everything you need is provided at the table\, Newcomer
+ s are welcome and no experience is assumed\, We start with a short demonst
+ ration and then work at our own pace.\n\nhttps://eventticketcon.example.or
+ g/panel/beacon-open-studio-94/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/beacon-open-studio-94/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5665@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T130000Z
+DTEND:20260906T060000Z
+SUMMARY:Trail Mapping Meetup
+LOCATION:Quiet Room – Concept B
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break\, Bring a project you are already working
+  on if you would rather.\n\nhttps://eventticketcon.example.org/panel/trail
+ -mapping-meetup-95/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-meetup-95/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5672@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T130000Z
+DTEND:20260905T140000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Charity Desk – Harbor Ballroom A-D
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one.\n\nhttps://eventticketcon.example.org/pan
+ el/pattern-drafting-for-beginners-96/
+CATEGORIES:Convention Services\,Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -96/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5679@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T133000Z
+DTEND:20260905T153000Z
+SUMMARY:Saltbox Jam Session
+LOCATION:Registration – Studio Three
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are we
+ lcome and no experience is assumed\, We start with a short demonstration a
+ nd then work at our own pace\, Seating is limited so arriving a few minute
+ s early helps\, Expect a relaxed hour with plenty of room for questions.\n
+ \nhttps://eventticketcon.example.org/panel/saltbox-jam-session-97/
+CATEGORIES:Gaming\,Age 17
+URL:https://eventticketcon.example.org/panel/saltbox-jam-session-97/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5686@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260906T020000Z
+SUMMARY:Trail Mapping Sing-Along
+LOCATION:Workshops – Concept A
+DESCRIPTION:Bring a project you are already working on if you would rather\
+ , We keep the music low so conversation stays easy\, Photos are fine but p
+ lease ask the people in them first\, Leftover materials go back in the bin
+  at the end.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-sin
+ g-along-98/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-sing-along-98/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5693@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260905T150000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Summit Room
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length.\n\nhttps://even
+ tticketcon.example.org/panel/pattern-drafting-for-beginners-99/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -99/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5700@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260905T150000Z
+SUMMARY:Glasshouse Showcase
+LOCATION:Secondary Events – Studio Two
+DESCRIPTION:Seating is limited so arriving a few minutes early helps. Expec
+ t a relaxed hour with plenty of room for questions. Materials are shared s
+ o please be patient with the good scissors.\n\nhttps://eventticketcon.exam
+ ple.org/panel/glasshouse-showcase-100/
+CATEGORIES:Charity - Example Foundation\,Age 13
+URL:https://eventticketcon.example.org/panel/glasshouse-showcase-100/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5707@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260905T170000Z
+SUMMARY:Trail Mapping Reading
+LOCATION:Tabletop – Theory B
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a note
+ book and something to write with\, Everything you need is provided at the 
+ table\, Newcomers are welcome and no experience is assumed.\n\nhttps://eve
+ ntticketcon.example.org/panel/trail-mapping-reading-101/
+CATEGORIES:Costuming\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-reading-101/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5714@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260905T200000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Video Gaming – Directors Row 2
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first\, L
+ eftover materials go back in the bin at the end\, Bring a notebook and som
+ ething to write with.\n\nhttps://eventticketcon.example.org/panel/pattern-
+ drafting-for-beginners-102/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -102/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5721@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260905T160000Z
+SUMMARY:Northwind Workshop
+LOCATION:Dealers Hall – Studio One
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can\, Volunteers will be c
+ irculating if you get stuck partway through\, We will finish with a short 
+ show and tell for anyone who wants one.\n\nhttps://eventticketcon.example.
+ org/panel/northwind-workshop-103/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-workshop-103/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5728@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260906T050000Z
+SUMMARY:Trail Mapping Clinic
+LOCATION:Artist Alley – Theory A
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions.\n\nhttps://eventticketcon.example.org/panel/trai
+ l-mapping-clinic-104/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-clinic-104/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5735@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T140000Z
+DTEND:20260906T000000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Photobooth – Directors Row 1
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with.\n\nht
+ tps://eventticketcon.example.org/panel/pattern-drafting-for-beginners-105/
+CATEGORIES:Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -105/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5742@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T143000Z
+DTEND:20260905T153000Z
+SUMMARY:Meadow Sing-Along
+LOCATION:Quiet Room – Harbor Ballroom G
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one. Water and a snack are a good idea for a session this length.\n\nhttps
+ ://eventticketcon.example.org/panel/meadow-sing-along-106/
+CATEGORIES:Meet & Greet\,Age 13
+URL:https://eventticketcon.example.org/panel/meadow-sing-along-106/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5749@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T143000Z
+DTEND:20260905T153000Z
+SUMMARY:Trail Mapping Tournament
+LOCATION:Charity Desk – Studio Five
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Mater
+ ials are shared so please be patient with the good scissors\, The first ha
+ lf is guided and the second half is open practice\, Come for the whole ses
+ sion or drop in when you can\, Volunteers will be circulating if you get s
+ tuck partway through.\n\nhttps://eventticketcon.example.org/panel/trail-ma
+ pping-tournament-107/
+CATEGORIES:Presentation\,Age 17
+URL:https://eventticketcon.example.org/panel/trail-mapping-tournament-107/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5756@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T153000Z
+DTEND:20260905T170000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Around the con
+DESCRIPTION:Bring a notebook and something to write with. Everything you ne
+ ed is provided at the table. Newcomers are welcome and no experience is as
+ sumed.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-be
+ ginners-108/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -108/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5763@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T160000Z
+DTEND:20260905T220000Z
+SUMMARY:Cardboard Playtest
+LOCATION:Workshops – Harbor Ballroom E-F
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bri
+ ng a project you are already working on if you would rather. We keep the m
+ usic low so conversation stays easy. Photos are fine but please ask the pe
+ ople in them first. Leftover materials go back in the bin at the end. Brin
+ g a notebook and something to write with. Everything you need is provided 
+ at the table. Newcomers are welcome and no experience is assumed…\n\nhtt
+ ps://eventticketcon.example.org/panel/cardboard-playtest-109/
+CATEGORIES:Convention Services\,Age 18
+URL:https://eventticketcon.example.org/panel/cardboard-playtest-109/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5770@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T160000Z
+DTEND:20260905T190000Z
+SUMMARY:Trail Mapping Practice
+LOCATION:Main Events – Studio Four
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers 
+ will be circulating if you get stuck partway through. We will finish with 
+ a short show and tell for anyone who wants one.\n\nhttps://eventticketcon.
+ example.org/panel/trail-mapping-practice-110/
+CATEGORIES:Gaming\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-practice-110/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5777@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T160000Z
+DTEND:20260905T180000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Secondary Events – Concept B
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice\, Come for the whole session or drop in when 
+ you can.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-
+ beginners-111/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -111/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5784@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T170000Z
+DTEND:20260905T173000Z
+SUMMARY:Ember Practice
+LOCATION:Tabletop – Harbor Ballroom A-D
+DESCRIPTION:Photos are fine but please ask the people in them first\, Lefto
+ ver materials go back in the bin at the end\, Bring a notebook and somethi
+ ng to write with\, Everything you need is provided at the table\, Newcomer
+ s are welcome and no experience is assumed.\n\nhttps://eventticketcon.exam
+ ple.org/panel/ember-practice-112/
+CATEGORIES:Writing\,Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/ember-practice-112/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5791@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T170000Z
+DTEND:20260905T183000Z
+SUMMARY:Trail Mapping Jam Session
+LOCATION:Video Gaming – Studio Three
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break.\n\nhttps://eventticketcon.example.org/pa
+ nel/trail-mapping-jam-session-113/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-jam-session-113/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5798@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T170000Z
+DTEND:20260905T183000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Dealers Hall – Concept A
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one.\n\nhttps://eventticketcon.example.org/pan
+ el/pattern-drafting-for-beginners-114/
+CATEGORIES:Costuming\,Age 17
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -114/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5805@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T173000Z
+DTEND:20260905T183000Z
+SUMMARY:Foxglove Story Circle
+LOCATION:Artist Alley – Summit Room
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are we
+ lcome and no experience is assumed\, We start with a short demonstration a
+ nd then work at our own pace\, Seating is limited so arriving a few minute
+ s early helps.\n\nhttps://eventticketcon.example.org/panel/foxglove-story-
+ circle-115/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-story-circle-115/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5812@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T173000Z
+DTEND:20260905T190000Z
+SUMMARY:Trail Mapping Screening
+LOCATION:Photobooth – Studio Two
+DESCRIPTION:Bring a project you are already working on if you would rather.
+ \n\nhttps://eventticketcon.example.org/panel/trail-mapping-screening-116/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-screening-116/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5819@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T180000Z
+DTEND:20260905T190000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Concept A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length\, This runs long
+  so plan your schedule around it\, A quieter corner is set aside for anyon
+ e who needs a break.\n\nhttps://eventticketcon.example.org/panel/pattern-d
+ rafting-for-beginners-117/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -117/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5826@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T180000Z
+DTEND:20260905T210000Z
+SUMMARY:Beacon Q&A
+LOCATION:Charity Desk – Directors Row 2
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice.\n\nhttps://eventticketcon.example.org/
+ panel/beacon-qanda-118/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/beacon-qanda-118/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5833@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T183000Z
+DTEND:20260905T193000Z
+SUMMARY:Trail Mapping Social
+LOCATION:Registration – Studio One
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a note
+ book and something to write with\, Everything you need is provided at the 
+ table\, Newcomers are welcome and no experience is assumed\, We start with
+  a short demonstration and then work at our own pace.\n\nhttps://eventtick
+ etcon.example.org/panel/trail-mapping-social-119/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-social-119/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5840@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T183000Z
+DTEND:20260905T193000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Workshops – Theory A
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first\, L
+ eftover materials go back in the bin at the end.\n\nhttps://eventticketcon
+ .example.org/panel/pattern-drafting-for-beginners-120/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -120/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5847@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T190000Z
+DTEND:20260905T203000Z
+SUMMARY:Saltbox Meetup
+LOCATION:Main Events – Directors Row 1
+DESCRIPTION:The first half is guided and the second half is open practice. 
+ Come for the whole session or drop in when you can. Volunteers will be cir
+ culating if you get stuck partway through. We will finish with a short sho
+ w and tell for anyone who wants one. Water and a snack are a good idea for
+  a session this length. This runs long so plan your schedule around it. A 
+ quieter corner is set aside for anyone who needs a break.\n\nhttps://event
+ ticketcon.example.org/panel/saltbox-meetup-121/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/saltbox-meetup-121/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5854@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T190000Z
+DTEND:20260905T203000Z
+SUMMARY:Trail Mapping Q&A
+LOCATION:Secondary Events – Harbor Ballroom G
+DESCRIPTION:Newcomers are welcome and no experience is assumed. We start wi
+ th a short demonstration and then work at our own pace.\n\nhttps://eventti
+ cketcon.example.org/panel/trail-mapping-qanda-122/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-qanda-122/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5861@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T190000Z
+DTEND:20260905T210000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Tabletop – Studio Five
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fi
+ ne but please ask the people in them first. Leftover materials go back in 
+ the bin at the end. Bring a notebook and something to write with. Everythi
+ ng you need is provided at the table.\n\nhttps://eventticketcon.example.or
+ g/panel/pattern-drafting-for-beginners-123/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -123/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5868@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T190000Z
+DTEND:20260905T200000Z
+SUMMARY:Glasshouse Panel
+LOCATION:Video Gaming – Vision
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one\, Water and a snack are a good idea for a session this length\, This r
+ uns long so plan your schedule around it\, A quieter corner is set aside f
+ or anyone who needs a break.\n\nhttps://eventticketcon.example.org/panel/g
+ lasshouse-panel-124/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/glasshouse-panel-124/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5875@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T193000Z
+DTEND:20260905T203000Z
+SUMMARY:Trail Mapping Workshop
+LOCATION:Dealers Hall – Harbor Ballroom E-F
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions. Materi
+ als are shared so please be patient with the good scissors. The first half
+  is guided and the second half is open practice.\n\nhttps://eventticketcon
+ .example.org/panel/trail-mapping-workshop-125/
+CATEGORIES:Writing\,Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-workshop-125/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5882@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T200000Z
+DTEND:20260905T210000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Studio Five
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e\, Seating is limited so arriving a few minutes early helps\, Expect a re
+ laxed hour with plenty of room for questions\, Materials are shared so ple
+ ase be patient with the good scissors.\n\nhttps://eventticketcon.example.o
+ rg/panel/pattern-drafting-for-beginners-126/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -126/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5889@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T200000Z
+DTEND:20260905T220000Z
+SUMMARY:Northwind Tournament
+LOCATION:Photobooth – Concept B
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Br
+ ing a project you are already working on if you would rather\, We keep the
+  music low so conversation stays easy\, Photos are fine but please ask the
+  people in them first\, Leftover materials go back in the bin at the end\,
+  Bring a notebook and something to write with\, Everything you need is pro
+ vided at the table.\n\nhttps://eventticketcon.example.org/panel/northwind-
+ tournament-127/
+CATEGORIES:Costuming\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-tournament-127/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5896@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T200000Z
+DTEND:20260905T230000Z
+SUMMARY:Trail Mapping Lab
+LOCATION:Quiet Room – Harbor Ballroom A-D
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it\, A quieter corner is set aside for anyone who needs a break.\
+ n\nhttps://eventticketcon.example.org/panel/trail-mapping-lab-128/
+CATEGORIES:Music and Dance\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-lab-128/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5903@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T203000Z
+DTEND:20260905T213000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Charity Desk – Studio Three
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice\, Come for the whole session or drop in when 
+ you can\, Volunteers will be circulating if you get stuck partway through.
+ \n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginner
+ s-129/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -129/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5910@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T203000Z
+DTEND:20260905T220000Z
+SUMMARY:Meadow Walkthrough
+LOCATION:Registration – Concept A
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end.\n\nhttps://eventticketcon.exam
+ ple.org/panel/meadow-walkthrough-130/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/meadow-walkthrough-130/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5917@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T210000Z
+DTEND:20260905T220000Z
+SUMMARY:Trail Mapping Demo Hour
+LOCATION:Workshops – Summit Room
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break\, Bring a project you are already working
+  on if you would rather.\n\nhttps://eventticketcon.example.org/panel/trail
+ -mapping-demo-hour-131/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-demo-hour-131/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5924@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T210000Z
+DTEND:20260905T220000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Main Events – Studio Two
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s. The first half is guided and the second half is open practice. Come for
+  the whole session or drop in when you can. Volunteers will be circulating
+  if you get stuck partway through. We will finish with a short show and te
+ ll for anyone who wants one.\n\nhttps://eventticketcon.example.org/panel/p
+ attern-drafting-for-beginners-132/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -132/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5931@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T210000Z
+DTEND:20260906T000000Z
+SUMMARY:Cardboard Social
+LOCATION:Secondary Events – Theory B
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed. We start with a short demonstration and
+  then work at our own pace. Seating is limited so arriving a few minutes e
+ arly helps. Expect a relaxed hour with plenty of room for questions. Mater
+ ials are shared so please be patient with the good scissors.\n\nhttps://ev
+ entticketcon.example.org/panel/cardboard-social-133/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/cardboard-social-133/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5938@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T213000Z
+DTEND:20260905T230000Z
+SUMMARY:Trail Mapping Panel
+LOCATION:Tabletop – Directors Row 2
+DESCRIPTION:Bring a project you are already working on if you would rather\
+ , We keep the music low so conversation stays easy\, Photos are fine but p
+ lease ask the people in them first\, Leftover materials go back in the bin
+  at the end.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-pan
+ el-134/
+CATEGORIES:Workshops\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-panel-134/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5945@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T220000Z
+DTEND:20260905T223000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Summit Room
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ .\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginne
+ rs-135/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -135/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5952@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T220000Z
+DTEND:20260905T230000Z
+SUMMARY:Ember Sketch Swap
+LOCATION:Dealers Hall – Theory A
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice\, Come for the whole session or drop in
+  when you can\, Volunteers will be circulating if you get stuck partway th
+ rough.\n\nhttps://eventticketcon.example.org/panel/ember-sketch-swap-136/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/ember-sketch-swap-136/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5959@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T220000Z
+DTEND:20260905T233000Z
+SUMMARY:Trail Mapping Playtest
+LOCATION:Artist Alley – Directors Row 1
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with.\n\nhttps://eventticketcon.example.org/pan
+ el/trail-mapping-playtest-137/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-playtest-137/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5966@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T223000Z
+DTEND:20260906T000000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Photobooth – Harbor Ballroom G
+DESCRIPTION:This runs long so plan your schedule around it. A quieter corne
+ r is set aside for anyone who needs a break. Bring a project you are alrea
+ dy working on if you would rather. We keep the music low so conversation s
+ tays easy.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-fo
+ r-beginners-138/
+CATEGORIES:Writing\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -138/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5973@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T223000Z
+DTEND:20260905T233000Z
+SUMMARY:Foxglove Demo Hour
+LOCATION:Quiet Room – Studio Five
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can.\n\nhttps://eventticke
+ tcon.example.org/panel/foxglove-demo-hour-139/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-demo-hour-139/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5980@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T230000Z
+DTEND:20260906T003000Z
+SUMMARY:Trail Mapping Open Studio
+LOCATION:Charity Desk – Vision
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-open-st
+ udio-140/
+CATEGORIES:Costuming\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-open-studio-140/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5987@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T230000Z
+DTEND:20260906T010000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Registration – Harbor Ballroom E-F
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with\, Ever
+ ything you need is provided at the table\, Newcomers are welcome and no ex
+ perience is assumed\, We start with a short demonstration and then work at
+  our own pace\, Seating is limited so arriving a few minutes early helps
+ …\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-begin
+ ners-141/
+CATEGORIES:Music and Dance\,Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -141/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-5994@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T230000Z
+DTEND:20260906T000000Z
+SUMMARY:Beacon Clinic
+LOCATION:Workshops – Studio Four
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one. Water and a snack are a good idea for a session this length. This run
+ s long so plan your schedule around it. A quieter corner is set aside for 
+ anyone who needs a break.\n\nhttps://eventticketcon.example.org/panel/beac
+ on-clinic-142/
+CATEGORIES:Social\,Age 13
+URL:https://eventticketcon.example.org/panel/beacon-clinic-142/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6001@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T233000Z
+DTEND:20260906T003000Z
+SUMMARY:Trail Mapping Roundtable
+LOCATION:Main Events – Concept B
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Mater
+ ials are shared so please be patient with the good scissors\, The first ha
+ lf is guided and the second half is open practice.\n\nhttps://eventticketc
+ on.example.org/panel/trail-mapping-roundtable-143/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-roundtable-143/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6008@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260905T233000Z
+DTEND:20260906T010000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Around the con
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-
+ beginners-144/
+CATEGORIES:Entertainment\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -144/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6015@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T000000Z
+DTEND:20260906T030000Z
+SUMMARY:Saltbox Roundtable
+LOCATION:Tabletop – Studio Three
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Br
+ ing a project you are already working on if you would rather\, We keep the
+  music low so conversation stays easy\, Photos are fine but please ask the
+  people in them first\, Leftover materials go back in the bin at the end\,
+  Bring a notebook and something to write with…\n\nhttps://eventticketcon
+ .example.org/panel/saltbox-roundtable-145/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/saltbox-roundtable-145/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6022@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T003000Z
+DTEND:20260906T020000Z
+SUMMARY:Trail Mapping Walkthrough
+LOCATION:Video Gaming – Concept A
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-wal
+ kthrough-146/
+CATEGORIES:Presentation\,Age 18
+URL:https://eventticketcon.example.org/panel/trail-mapping-walkthrough-146/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6029@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T010000Z
+DTEND:20260906T023000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Dealers Hall – Summit Room
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps.\n\nhttps://
+ eventticketcon.example.org/panel/pattern-drafting-for-beginners-147/
+CATEGORIES:Workshops\,Age 18
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -147/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6036@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T010000Z
+DTEND:20260906T023000Z
+SUMMARY:Glasshouse Screening
+LOCATION:Artist Alley – Studio Two
+DESCRIPTION:Photos are fine but please ask the people in them first\, Lefto
+ ver materials go back in the bin at the end\, Bring a notebook and somethi
+ ng to write with\, Everything you need is provided at the table\, Newcomer
+ s are welcome and no experience is assumed\, We start with a short demonst
+ ration and then work at our own pace.\n\nhttps://eventticketcon.example.or
+ g/panel/glasshouse-screening-148/
+CATEGORIES:Convention Services\,Age 17
+URL:https://eventticketcon.example.org/panel/glasshouse-screening-148/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6043@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T013000Z
+DTEND:20260906T033000Z
+SUMMARY:Trail Mapping Story Circle
+LOCATION:Photobooth – Theory B
+DESCRIPTION:Water and a snack are a good idea for a session this length. Th
+ is runs long so plan your schedule around it.\n\nhttps://eventticketcon.ex
+ ample.org/panel/trail-mapping-story-circle-149/
+CATEGORIES:Gaming\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-story-circle-149
+ /
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6050@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T020000Z
+DTEND:20260906T033000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Quiet Room – Directors Row 2
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s. The first half is guided and the second half is open practice. Come for
+  the whole session or drop in when you can.\n\nhttps://eventticketcon.exam
+ ple.org/panel/pattern-drafting-for-beginners-150/
+CATEGORIES:Performance\,Age 18
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -150/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6057@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T020000Z
+DTEND:20260906T060000Z
+SUMMARY:Northwind Critique
+LOCATION:Charity Desk – Studio One
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are we
+ lcome and no experience is assumed\, We start with a short demonstration a
+ nd then work at our own pace\, Seating is limited so arriving a few minute
+ s early helps\, Expect a relaxed hour with plenty of room for questions.\n
+ \nhttps://eventticketcon.example.org/panel/northwind-critique-151/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-critique-151/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6064@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T020000Z
+DTEND:20260906T050000Z
+SUMMARY:Trail Mapping Showcase
+LOCATION:Registration – Theory A
+DESCRIPTION:Bring a project you are already working on if you would rather.
+  We keep the music low so conversation stays easy. Photos are fine but ple
+ ase ask the people in them first.\n\nhttps://eventticketcon.example.org/pa
+ nel/trail-mapping-showcase-152/
+CATEGORIES:Charity - Example Foundation\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-showcase-152/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6071@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T023000Z
+DTEND:20260906T033000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Concept A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length\, This runs long
+  so plan your schedule around it.\n\nhttps://eventticketcon.example.org/pa
+ nel/pattern-drafting-for-beginners-153/
+CATEGORIES:Costuming\,Presentation\,Age 18
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -153/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6078@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T030000Z
+DTEND:20260906T040000Z
+SUMMARY:Meadow Lab
+LOCATION:Main Events – Harbor Ballroom G
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice.\n\nhttps://eventticketcon.example.org/
+ panel/meadow-lab-154/
+CATEGORIES:Music and Dance\,Workshops\,Age 18
+URL:https://eventticketcon.example.org/panel/meadow-lab-154/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6085@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T040000Z
+DTEND:20260906T053000Z
+SUMMARY:Trail Mapping Critique
+LOCATION:Secondary Events – Studio Five
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a note
+ book and something to write with\, Everything you need is provided at the 
+ table\, Newcomers are welcome and no experience is assumed\, We start with
+  a short demonstration and then work at our own pace.\n\nhttps://eventtick
+ etcon.example.org/panel/trail-mapping-critique-155/
+CATEGORIES:Social\,Age 18
+URL:https://eventticketcon.example.org/panel/trail-mapping-critique-155/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6092@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T040000Z
+DTEND:20260906T053000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Tabletop – Vision
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first\, L
+ eftover materials go back in the bin at the end\, Bring a notebook and som
+ ething to write with\, Everything you need is provided at the table…\n\n
+ https://eventticketcon.example.org/panel/pattern-drafting-for-beginners-15
+ 6/
+CATEGORIES:Arts and Crafts\,Age 18
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -156/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6099@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T040000Z
+DTEND:20260906T060000Z
+SUMMARY:Cardboard Reading
+LOCATION:Video Gaming – Harbor Ballroom E-F
+DESCRIPTION:The first half is guided and the second half is open practice. 
+ Come for the whole session or drop in when you can. Volunteers will be cir
+ culating if you get stuck partway through.\n\nhttps://eventticketcon.examp
+ le.org/panel/cardboard-reading-157/
+CATEGORIES:Entertainment\,Age 18
+URL:https://eventticketcon.example.org/panel/cardboard-reading-157/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6106@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T120000Z
+DTEND:20260906T180000Z
+SUMMARY:Trail Mapping Sketch Swap
+LOCATION:Dealers Hall – Studio Four
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice\, Come for the whole session or drop in when you can.\n\nhttps://e
+ ventticketcon.example.org/panel/trail-mapping-sketch-swap-158/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-sketch-swap-158/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6113@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T130000Z
+DTEND:20260906T150000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Artist Alley – Concept B
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with\, Ever
+ ything you need is provided at the table\, Newcomers are welcome and no ex
+ perience is assumed\, We start with a short demonstration and then work at
+  our own pace.\n\nhttps://eventticketcon.example.org/panel/pattern-draftin
+ g-for-beginners-159/
+CATEGORIES:Presentation\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -159/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6120@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T130000Z
+DTEND:20260906T233000Z
+SUMMARY:Ember Open Studio
+LOCATION:Photobooth – Harbor Ballroom A-D
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one\, Water and a snack are a good idea for a session this length\, This r
+ uns long so plan your schedule around it\, A quieter corner is set aside f
+ or anyone who needs a break.\n\nhttps://eventticketcon.example.org/panel/e
+ mber-open-studio-160/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/ember-open-studio-160/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6127@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T130000Z
+DTEND:20260906T143000Z
+SUMMARY:Trail Mapping Meetup
+LOCATION:Quiet Room – Studio Three
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions. Materi
+ als are shared so please be patient with the good scissors. The first half
+  is guided and the second half is open practice. Come for the whole sessio
+ n or drop in when you can.\n\nhttps://eventticketcon.example.org/panel/tra
+ il-mapping-meetup-161/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-meetup-161/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6134@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T130000Z
+DTEND:20260906T140000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Studio Five
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e\, Seating is limited so arriving a few minutes early helps.\n\nhttps://e
+ ventticketcon.example.org/panel/pattern-drafting-for-beginners-162/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -162/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6141@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T133000Z
+DTEND:20260906T143000Z
+SUMMARY:Foxglove Jam Session
+LOCATION:Registration – Summit Room
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bri
+ ng a project you are already working on if you would rather. We keep the m
+ usic low so conversation stays easy. Photos are fine but please ask the pe
+ ople in them first.\n\nhttps://eventticketcon.example.org/panel/foxglove-j
+ am-session-163/
+CATEGORIES:Performance\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-jam-session-163/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6148@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T140000Z
+DTEND:20260906T170000Z
+SUMMARY:Trail Mapping Sing-Along
+LOCATION:Workshops – Studio Two
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length.\n\nhttps://eventticketcon.example.or
+ g/panel/trail-mapping-sing-along-164/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-sing-along-164/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6155@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T140000Z
+DTEND:20260906T150000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Main Events – Theory B
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions.\n\nhttps://eventticketcon.e
+ xample.org/panel/pattern-drafting-for-beginners-165/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -165/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6162@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T140000Z
+DTEND:20260906T170000Z
+SUMMARY:Beacon Showcase
+LOCATION:Secondary Events – Directors Row 2
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end. Bring a notebook and something
+  to write with. Everything you need is provided at the table.\n\nhttps://e
+ ventticketcon.example.org/panel/beacon-showcase-166/
+CATEGORIES:Costuming\,Age 13
+URL:https://eventticketcon.example.org/panel/beacon-showcase-166/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6169@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T140000Z
+DTEND:20260906T170000Z
+SUMMARY:Trail Mapping Reading
+LOCATION:Tabletop – Studio One
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break\, Bring a project you are already working
+  on if you would rather\, We keep the music low so conversation stays easy
+ .\n\nhttps://eventticketcon.example.org/panel/trail-mapping-reading-167/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-reading-167/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6176@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T140000Z
+DTEND:20260906T210000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Video Gaming – Theory A
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through.\n\nhttps://eventticketcon.example.or
+ g/panel/pattern-drafting-for-beginners-168/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -168/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6183@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T140000Z
+DTEND:20260906T180000Z
+SUMMARY:Saltbox Workshop
+LOCATION:Dealers Hall – Directors Row 1
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are we
+ lcome and no experience is assumed\, We start with a short demonstration a
+ nd then work at our own pace\, Seating is limited so arriving a few minute
+ s early helps.\n\nhttps://eventticketcon.example.org/panel/saltbox-worksho
+ p-169/
+CATEGORIES:Age all
+URL:https://eventticketcon.example.org/panel/saltbox-workshop-169/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6190@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T143000Z
+DTEND:20260906T153000Z
+SUMMARY:Trail Mapping Clinic
+LOCATION:Artist Alley – Harbor Ballroom G
+DESCRIPTION:Bring a project you are already working on if you would rather.
+  We keep the music low so conversation stays easy. Photos are fine but ple
+ ase ask the people in them first. Leftover materials go back in the bin at
+  the end. Bring a notebook and something to write with. Everything you nee
+ d is provided at the table.\n\nhttps://eventticketcon.example.org/panel/tr
+ ail-mapping-clinic-170/
+CATEGORIES:Entertainment\,Performance\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-clinic-170/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6197@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T143000Z
+DTEND:20260906T153000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Summit Room
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ .\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginne
+ rs-171/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -171/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6204@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T150000Z
+DTEND:20260906T160000Z
+SUMMARY:Glasshouse Sing-Along
+LOCATION:Quiet Room – Vision
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice\, Come for the whole session or drop in
+  when you can.\n\nhttps://eventticketcon.example.org/panel/glasshouse-sing
+ -along-172/
+CATEGORIES:Presentation\,Age all
+URL:https://eventticketcon.example.org/panel/glasshouse-sing-along-172/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6211@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T150000Z
+DTEND:20260906T170000Z
+SUMMARY:Trail Mapping Tournament
+LOCATION:Charity Desk – Harbor Ballroom E-F
+DESCRIPTION:Leftover materials go back in the bin at the end\, Bring a note
+ book and something to write with\, Everything you need is provided at the 
+ table\, Newcomers are welcome and no experience is assumed\, We start with
+  a short demonstration and then work at our own pace\, Seating is limited 
+ so arriving a few minutes early helps\, Expect a relaxed hour with plenty 
+ of room for questions\, Materials are shared so please be patient with the
+  good scissors…\n\nhttps://eventticketcon.example.org/panel/trail-mappin
+ g-tournament-173/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-tournament-173/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6218@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T150000Z
+DTEND:20260906T160000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Registration – Studio Four
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first.\n\
+ nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginners-1
+ 74/
+CATEGORIES:Convention Services\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -174/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6225@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T150000Z
+DTEND:20260906T163000Z
+SUMMARY:Northwind Playtest
+LOCATION:Workshops – Concept B
+DESCRIPTION:The first half is guided and the second half is open practice.\
+ n\nhttps://eventticketcon.example.org/panel/northwind-playtest-175/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-playtest-175/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6232@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T153000Z
+DTEND:20260906T163000Z
+SUMMARY:Trail Mapping Practice
+LOCATION:Main Events – Harbor Ballroom A-D
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-practic
+ e-176/
+CATEGORIES:Performance\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-practice-176/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6239@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T160000Z
+DTEND:20260906T170000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Secondary Events – Studio Three
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with\, Ever
+ ything you need is provided at the table\, Newcomers are welcome and no ex
+ perience is assumed\, We start with a short demonstration and then work at
+  our own pace.\n\nhttps://eventticketcon.example.org/panel/pattern-draftin
+ g-for-beginners-177/
+CATEGORIES:Writing\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -177/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6246@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T160000Z
+DTEND:20260906T220000Z
+SUMMARY:Meadow Practice
+LOCATION:Tabletop – Concept A
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one. Water and a snack are a good idea for a session this length. This run
+ s long so plan your schedule around it. A quieter corner is set aside for 
+ anyone who needs a break. Bring a project you are already working on if yo
+ u would rather. We keep the music low so conversation stays easy. Photos a
+ re fine but please ask the people in them first…\n\nhttps://eventticketc
+ on.example.org/panel/meadow-practice-178/
+CATEGORIES:Charity - Example Foundation\,Age 18
+URL:https://eventticketcon.example.org/panel/meadow-practice-178/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6253@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T160000Z
+DTEND:20260906T170000Z
+SUMMARY:Trail Mapping Jam Session
+LOCATION:Video Gaming – Summit Room
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions. Materi
+ als are shared so please be patient with the good scissors.\n\nhttps://eve
+ ntticketcon.example.org/panel/trail-mapping-jam-session-179/
+CATEGORIES:Costuming\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-jam-session-179/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6260@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T163000Z
+DTEND:20260906T173000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Around the con
+DESCRIPTION:Bring a notebook and something to write with. Everything you ne
+ ed is provided at the table. Newcomers are welcome and no experience is as
+ sumed. We start with a short demonstration and then work at our own pace.\
+ n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -180/
+CATEGORIES:Music and Dance\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -180/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6267@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T163000Z
+DTEND:20260906T173000Z
+SUMMARY:Cardboard Story Circle
+LOCATION:Artist Alley – Theory B
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break.\n\n
+ https://eventticketcon.example.org/panel/cardboard-story-circle-181/
+CATEGORIES:Social\,Age all
+URL:https://eventticketcon.example.org/panel/cardboard-story-circle-181/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6274@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T170000Z
+DTEND:20260906T180000Z
+SUMMARY:Trail Mapping Screening
+LOCATION:Photobooth – Directors Row 2
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it\, A quieter corner is set aside for anyone who needs a break.\
+ n\nhttps://eventticketcon.example.org/panel/trail-mapping-screening-182/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-screening-182/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6281@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T173000Z
+DTEND:20260906T183000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Quiet Room – Studio One
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice\, Come for the whole session or drop in when 
+ you can…\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-fo
+ r-beginners-183/
+CATEGORIES:Entertainment\,Age 13
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -183/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6288@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T173000Z
+DTEND:20260906T183000Z
+SUMMARY:Ember Q&A
+LOCATION:Charity Desk – Theory A
+DESCRIPTION:Photos are fine but please ask the people in them first\, Lefto
+ ver materials go back in the bin at the end\, Bring a notebook and somethi
+ ng to write with\, Everything you need is provided at the table.\n\nhttps:
+ //eventticketcon.example.org/panel/ember-qanda-184/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/ember-qanda-184/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6295@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T180000Z
+DTEND:20260906T190000Z
+SUMMARY:Trail Mapping Social
+LOCATION:Registration – Directors Row 1
+DESCRIPTION:Water and a snack are a good idea for a session this length\, T
+ his runs long so plan your schedule around it\, A quieter corner is set as
+ ide for anyone who needs a break\, Bring a project you are already working
+  on if you would rather.\n\nhttps://eventticketcon.example.org/panel/trail
+ -mapping-social-185/
+CATEGORIES:Presentation\,Age 17
+URL:https://eventticketcon.example.org/panel/trail-mapping-social-185/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6302@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T180000Z
+DTEND:20260906T190000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Workshops – Harbor Ballroom G
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one.\n\nhttps://eventticketcon.example.org/pan
+ el/pattern-drafting-for-beginners-186/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -186/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6309@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T180000Z
+DTEND:20260906T220000Z
+SUMMARY:Foxglove Meetup
+LOCATION:Main Events – Studio Five
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed. We start with a short demonstration and
+  then work at our own pace. Seating is limited so arriving a few minutes e
+ arly helps. Expect a relaxed hour with plenty of room for questions. Mater
+ ials are shared so please be patient with the good scissors.\n\nhttps://ev
+ entticketcon.example.org/panel/foxglove-meetup-187/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/foxglove-meetup-187/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6316@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T180000Z
+DTEND:20260906T210000Z
+SUMMARY:Trail Mapping Q&A
+LOCATION:Secondary Events – Vision
+DESCRIPTION:Bring a project you are already working on if you would rather\
+ , We keep the music low so conversation stays easy\, Photos are fine but p
+ lease ask the people in them first\, Leftover materials go back in the bin
+  at the end\, Bring a notebook and something to write with\, Everything yo
+ u need is provided at the table\, Newcomers are welcome and no experience 
+ is assumed\, We start with a short demonstration and then work at our own 
+ pace.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-qanda-188/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-qanda-188/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6323@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T183000Z
+DTEND:20260906T203000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Concept A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length.\n\nhttps://even
+ tticketcon.example.org/panel/pattern-drafting-for-beginners-189/
+CATEGORIES:Performance\,Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -189/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6330@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T183000Z
+DTEND:20260906T200000Z
+SUMMARY:Beacon Panel
+LOCATION:Video Gaming – Studio Four
+DESCRIPTION:Seating is limited so arriving a few minutes early helps. Expec
+ t a relaxed hour with plenty of room for questions.\n\nhttps://eventticket
+ con.example.org/panel/beacon-panel-190/
+CATEGORIES:Writing\,Age all
+URL:https://eventticketcon.example.org/panel/beacon-panel-190/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6337@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T190000Z
+DTEND:20260906T200000Z
+SUMMARY:Trail Mapping Workshop
+LOCATION:Dealers Hall – Concept B
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with. Everything you need is provided at the ta
+ ble.\n\nhttps://eventticketcon.example.org/panel/trail-mapping-workshop-19
+ 1/
+CATEGORIES:Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-workshop-191/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6344@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T190000Z
+DTEND:20260906T203000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Artist Alley – Harbor Ballroom A-D
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy\, Photos are fine but please ask the people in them first.\n\
+ nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginners-1
+ 92/
+CATEGORIES:Costuming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -192/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6351@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T193000Z
+DTEND:20260906T203000Z
+SUMMARY:Saltbox Tournament
+LOCATION:Photobooth – Studio Three
+DESCRIPTION:The first half is guided and the second half is open practice\,
+  Come for the whole session or drop in when you can\, Volunteers will be c
+ irculating if you get stuck partway through\, We will finish with a short 
+ show and tell for anyone who wants one.\n\nhttps://eventticketcon.example.
+ org/panel/saltbox-tournament-193/
+CATEGORIES:Music and Dance\,Age 13
+URL:https://eventticketcon.example.org/panel/saltbox-tournament-193/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6358@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T193000Z
+DTEND:20260906T203000Z
+SUMMARY:Trail Mapping Lab
+LOCATION:Quiet Room – Concept A
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice\, Come for the whole session or drop in when you can.\n\nhttps://e
+ ventticketcon.example.org/panel/trail-mapping-lab-194/
+CATEGORIES:Social\,Age 13
+URL:https://eventticketcon.example.org/panel/trail-mapping-lab-194/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6365@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T200000Z
+DTEND:20260906T213000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Charity Desk – Summit Room
+DESCRIPTION:We keep the music low so conversation stays easy. Photos are fi
+ ne but please ask the people in them first.\n\nhttps://eventticketcon.exam
+ ple.org/panel/pattern-drafting-for-beginners-195/
+CATEGORIES:Arts and Crafts\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -195/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6372@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T200000Z
+DTEND:20260906T210000Z
+SUMMARY:Glasshouse Walkthrough
+LOCATION:Registration – Studio Two
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one. Water and a snack are a good idea for a session this length. This run
+ s long so plan your schedule around it.\n\nhttps://eventticketcon.example.
+ org/panel/glasshouse-walkthrough-196/
+CATEGORIES:Entertainment\,Age 13
+URL:https://eventticketcon.example.org/panel/glasshouse-walkthrough-196/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6379@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T203000Z
+DTEND:20260906T220000Z
+SUMMARY:Trail Mapping Demo Hour
+LOCATION:Workshops – Theory B
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions\, Mater
+ ials are shared so please be patient with the good scissors\, The first ha
+ lf is guided and the second half is open practice\, Come for the whole ses
+ sion or drop in when you can.\n\nhttps://eventticketcon.example.org/panel/
+ trail-mapping-demo-hour-197/
+CATEGORIES:Meet & Greet\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-demo-hour-197/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6386@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T210000Z
+DTEND:20260906T220000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Studio Five
+DESCRIPTION:Bring a notebook and something to write with\, Everything you n
+ eed is provided at the table\, Newcomers are welcome and no experience is 
+ assumed\, We start with a short demonstration and then work at our own pac
+ e.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-beginn
+ ers-198/
+CATEGORIES:Presentation\,Charity - Example Foundation\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -198/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6393@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T210000Z
+DTEND:20260906T220000Z
+SUMMARY:Northwind Social
+LOCATION:Secondary Events – Studio One
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Br
+ ing a project you are already working on if you would rather.\n\nhttps://e
+ ventticketcon.example.org/panel/northwind-social-199/
+CATEGORIES:Workshops\,Age all
+URL:https://eventticketcon.example.org/panel/northwind-social-199/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6400@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T210000Z
+DTEND:20260906T220000Z
+SUMMARY:Trail Mapping Panel
+LOCATION:Tabletop – Theory A
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers 
+ will be circulating if you get stuck partway through.\n\nhttps://eventtick
+ etcon.example.org/panel/trail-mapping-panel-200/
+CATEGORIES:Convention Services\,Age all
+URL:https://eventticketcon.example.org/panel/trail-mapping-panel-200/
+END:VEVENT
+BEGIN:VEVENT
+UID:evt2026-6407@eventticketcon.example.org
+DTSTAMP:20260817T000000Z
+DTSTART:20260906T220000Z
+DTEND:20260906T233000Z
+SUMMARY:Pattern Drafting for Beginners
+LOCATION:Video Gaming – Directors Row 1
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce.\n\nhttps://eventticketcon.example.org/panel/pattern-drafting-for-begin
+ ners-201/
+CATEGORIES:Gaming\,Age all
+URL:https://eventticketcon.example.org/panel/pattern-drafting-for-beginners
+ -201/
+END:VEVENT
+END:VCALENDAR

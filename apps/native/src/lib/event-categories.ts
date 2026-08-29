@@ -1,6 +1,6 @@
 /**
  * Convention feeds put audience ratings and topic tags in the same ICS
- * `CATEGORIES` property. IndyFurCon's calendar, for example, emits
+ * `CATEGORIES` property. one convention's calendar, for example, emits
  * `CATEGORIES:13+ Teen,Gaming` — one audience tag and one topic, unordered.
  *
  * Splitting them matters for display (the rating is a warning, the topic is a
@@ -49,6 +49,19 @@ function ratingFromAgeNumber(age: number): AgeRating | null {
 export function ageRatingFromCategory(category: string): AgeRating | null {
   const value = category.trim().toLowerCase();
   if (!value) return null;
+
+  // Some exports label the audience as a bare "Age <n>" or "Age all" tag,
+  // with no plus sign and no keyword the checks below would catch. Anchored so
+  // a topic that merely starts with the word ("Age of Sail") stays a topic.
+  const ageTagMatch = value.match(/^age\s+(all|\d{1,2})$/);
+  if (ageTagMatch) {
+    const tag = ageTagMatch[1];
+    if (tag === "all") return "all-ages";
+    const age = Number(tag);
+    if (Number.isFinite(age) && age > 0 && age <= 21) {
+      return ratingFromAgeNumber(age);
+    }
+  }
 
   const ageMatch = value.match(/\b(\d{1,2})\s*\+/);
   if (ageMatch) {

@@ -228,6 +228,10 @@
     "preview": "Előnézet",
     "eventFound": "{{count}} aktív esemény található",
     "eventsFound": "{{count}} aktív esemény található",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} lemondás lesz egyeztetve",
     "cancellations": "{{count}} lemondás lesz egyeztetve",
     "emptyUpdateTitle": "Nincsenek aktív események",

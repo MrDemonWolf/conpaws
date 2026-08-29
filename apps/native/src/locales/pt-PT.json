@@ -228,6 +228,10 @@
     "preview": "Pré-visualização",
     "eventFound": "{{count}} evento ativo encontrado",
     "eventsFound": "{{count}} eventos ativos encontrados",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} cancelamento será reconciliado",
     "cancellations": "{{count}} cancelamentos serão reconciliados",
     "emptyUpdateTitle": "Nenhum evento ativo",

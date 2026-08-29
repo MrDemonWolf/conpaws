@@ -228,6 +228,10 @@
     "preview": "Vorschau",
     "eventFound": "{{count}} aktives Event gefunden",
     "eventsFound": "{{count}} aktive Events gefunden",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} Absage wird abgeglichen",
     "cancellations": "{{count}} Absagen werden abgeglichen",
     "emptyUpdateTitle": "Keine aktiven Events",

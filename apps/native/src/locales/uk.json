@@ -228,6 +228,10 @@
     "preview": "Попередній перегляд",
     "eventFound": "Знайдено активних подій: {{count}}",
     "eventsFound": "Знайдено активних подій: {{count}}",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "Буде узгоджено скасувань: {{count}}",
     "cancellations": "Буде узгоджено скасувань: {{count}}",
     "emptyUpdateTitle": "Немає активних подій",

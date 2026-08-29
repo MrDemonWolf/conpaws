@@ -26,7 +26,7 @@ function deferred<T>() {
 }
 
 const draft: ConventionDraft = {
-  name: "IndyFurCon",
+  name: "Example Con",
   startDate: "2026-08-21",
   endDate: "2026-08-23",
   timeZone: "America/Indiana/Indianapolis",
@@ -142,7 +142,7 @@ describe("commitNewConvention", () => {
 });
 
 describe("commitConventionUpdate", () => {
-  const patch = { name: "IndyFurCon 2026" };
+  const patch = { name: "Example Con 2026" };
 
   it("publishes the snapshot after the row is rewritten", async () => {
     const deps = updateDeps();

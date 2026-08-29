@@ -228,6 +228,10 @@
     "preview": "Pratonton",
     "eventFound": "{{count}} acara aktif ditemui",
     "eventsFound": "{{count}} acara aktif ditemui",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} pembatalan akan diselaraskan",
     "cancellations": "{{count}} pembatalan akan diselaraskan",
     "emptyUpdateTitle": "Tiada Acara Aktif",

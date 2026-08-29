@@ -228,6 +228,10 @@
     "preview": "Esikatselu",
     "eventFound": "Löytyi {{count}} aktiivinen tapahtuma",
     "eventsFound": "Löytyi {{count}} aktiivista tapahtumaa",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} peruutus täsmäytetään",
     "cancellations": "{{count}} peruutusta täsmäytetään",
     "emptyUpdateTitle": "Ei aktiivisia tapahtumia",

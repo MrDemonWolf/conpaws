@@ -1,0 +1,529 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Tribe Events Con 2026 - ECPv6.17.3.1//NONSGML v1.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Tribe Events Con 2026
+X-ORIGINAL-URL:https://tribeeventscon.example.org
+X-WR-CALDESC:Events for Tribe Events Con 2026
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-Robots-Tag:noindex
+X-PUBLISHED-TTL:PT1H
+BEGIN:VTIMEZONE
+TZID:America/Indiana/Indianapolis
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:20250309T070000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:20251102T060000
+END:STANDARD
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:20260308T070000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:20261101T060000
+END:STANDARD
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:20270314T070000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:20271107T060000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T170000
+DTEND;TZID=America/Indiana/Indianapolis:20260906T180000
+DTSTAMP:20260816T222028Z
+CREATED:20260816T221457Z
+LAST-MODIFIED:20260816T222028Z
+UID:8154-1788454800-1788717600@tribeeventscon.example.org
+SUMMARY:Zine Making Meetup
+DESCRIPTION:
+URL:https://tribeeventscon.example.org/panel/zine-making-meetup-0/
+LOCATION:Around the con
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T200000
+DTSTAMP:20260812T204451Z
+CREATED:20260812T204451Z
+LAST-MODIFIED:20260812T204451Z
+UID:6569-1788462000-1788465600@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break. Bri
+ ng a project you are already working on if you would rather. We keep the m
+ usic low so conversation stays easy. Photos are fine but please ask the pe
+ ople in them first.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-1/
+LOCATION:Secondary Events – Studio Three
+CATEGORIES:13+ Teen,Gaming
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T200000
+DTSTAMP:20260812T204452Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260812T204452Z
+UID:5990-1788462000-1788465600@tribeeventscon.example.org
+SUMMARY:Cardboard Jam Session
+DESCRIPTION:Come for the whole session or drop in when you can\, Volunteers
+  will be circulating if you get stuck partway through\, We will finish wit
+ h a short show and tell for anyone who wants one\, Water and a snack are a
+  good idea for a session this length\, This runs long so plan your schedul
+ e around it\, A quieter corner is set aside for anyone who needs a break\,
+  Bring a project you are already working on if you would rather\, We keep 
+ the music low so conversation stays easy\, Photos are fine but please ask 
+ the people in them first\, Leftover materials go back in the bin at the en
+ d\, Bring a notebook and something to write with\, Everything you need is 
+ provided at the table\, Newcomers are welcome and no experience is assumed
+ \, We start with a short demonstration and then work at our own pace\, Sea
+ ting is limited so arriving a few minutes early helps.
+URL:https://tribeeventscon.example.org/panel/cardboard-jam-session-2/
+LOCATION:Tabletop – Concept A
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T220000
+DTSTAMP:20260812T204453Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260812T204453Z
+UID:6587-1788462000-1788472800@tribeeventscon.example.org
+SUMMARY:Zine Making Sing-Along
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce. Seating is limited so arriving a few minutes early helps. Expect a rel
+ axed hour with plenty of room for questions. Materials are shared so pleas
+ e be patient with the good scissors. The first half is guided and the seco
+ nd half is open practice.
+URL:https://tribeeventscon.example.org/panel/zine-making-sing-along-3/
+LOCATION:Video Gaming – Summit Room
+CATEGORIES:Gaming,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T220000
+DTSTAMP:20260812T204453Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260812T204453Z
+UID:6551-1788462000-1788472800@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end. Bring a notebook and something
+  to write with. Everything you need is provided at the table. Newcomers ar
+ e welcome and no experience is assumed.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-4/
+LOCATION:Dealers Hall – Studio Two
+CATEGORIES:Gaming,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T220000
+DTSTAMP:20260816T215104Z
+CREATED:20260816T215104Z
+LAST-MODIFIED:20260816T215104Z
+UID:8121-1788462000-1788472800@tribeeventscon.example.org
+SUMMARY:Ember Showcase
+DESCRIPTION:Water and a snack are a good idea for a session this length. Th
+ is runs long so plan your schedule around it. A quieter corner is set asid
+ e for anyone who needs a break.
+URL:https://tribeeventscon.example.org/panel/ember-showcase-5/
+LOCATION:Artist Alley – Theory B
+CATEGORIES:13+ Teen,Gaming
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T000000
+DTSTAMP:20260816T215213Z
+CREATED:20260812T204451Z
+LAST-MODIFIED:20260816T215213Z
+UID:6541-1788462000-1788480000@tribeeventscon.example.org
+SUMMARY:Zine Making Reading
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can\, Volunteers will be circulat
+ ing if you get stuck partway through\, We will finish with a short show an
+ d tell for anyone who wants one.
+URL:https://tribeeventscon.example.org/panel/zine-making-reading-6/
+LOCATION:Photobooth – Directors Row 2
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T190000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T010000
+DTSTAMP:20260820T194120Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260820T194120Z
+UID:6606-1788462000-1788483600@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:Everything you need is provided at the table\, Newcomers are we
+ lcome and no experience is assumed\, We start with a short demonstration a
+ nd then work at our own pace\, Seating is limited so arriving a few minute
+ s early helps\, Expect a relaxed hour with plenty of room for questions.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-7/
+LOCATION:Summit Room
+CATEGORIES:Gaming,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T200000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T210000
+DTSTAMP:20260816T235403Z
+CREATED:20260812T204451Z
+LAST-MODIFIED:20260816T235403Z
+UID:6536-1788465600-1788469200@tribeeventscon.example.org
+SUMMARY:Foxglove Workshop
+DESCRIPTION:Bring a project you are already working on if you would rather\
+ , We keep the music low so conversation stays easy\, Photos are fine but p
+ lease ask the people in them first.
+URL:https://tribeeventscon.example.org/panel/foxglove-workshop-8/
+LOCATION:Charity Desk – Theory A
+CATEGORIES:Arts and Crafts,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T200000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T210000
+DTSTAMP:20260812T204452Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260812T204452Z
+UID:6065-1788465600-1788469200@tribeeventscon.example.org
+SUMMARY:Zine Making Clinic
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ . We will finish with a short show and tell for anyone who wants one.
+URL:https://tribeeventscon.example.org/panel/zine-making-clinic-9/
+LOCATION:Registration – Directors Row 1
+CATEGORIES:13+ Teen,Performance
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T200000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T210000
+DTSTAMP:20260812T204453Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260812T204453Z
+UID:6496-1788465600-1788469200@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice\, Come for the whole session or drop in
+  when you can\, Volunteers will be circulating if you get stuck partway th
+ rough\, We will finish with a short show and tell for anyone who wants one
+ .
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-10/
+LOCATION:Workshops – Harbor Ballroom G
+CATEGORIES:General (All Ages),Presentation
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T203000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T213000
+DTSTAMP:20260812T204453Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260812T204453Z
+UID:6493-1788467400-1788471000@tribeeventscon.example.org
+SUMMARY:Beacon Sing-Along
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with. Everything you need is provided at the ta
+ ble. Newcomers are welcome and no experience is assumed. We start with a s
+ hort demonstration and then work at our own pace. Seating is limited so ar
+ riving a few minutes early helps. Expect a relaxed hour with plenty of roo
+ m for questions.
+URL:https://tribeeventscon.example.org/panel/beacon-sing-along-11/
+LOCATION:Main Events – Studio Five
+CATEGORIES:13+ Teen,Presentation
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T203000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T233000
+DTSTAMP:20260818T020801Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260818T020801Z
+UID:6059-1788467400-1788478200@tribeeventscon.example.org
+SUMMARY:Zine Making Tournament
+DESCRIPTION:This runs long so plan your schedule around it\, A quieter corn
+ er is set aside for anyone who needs a break\, Bring a project you are alr
+ eady working on if you would rather\, We keep the music low so conversatio
+ n stays easy.
+URL:https://tribeeventscon.example.org/panel/zine-making-tournament-12/
+LOCATION:Secondary Events – Vision
+CATEGORIES:Entertainment,Mature 17+
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T210000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T000000
+DTSTAMP:20260816T220719Z
+CREATED:20260816T220719Z
+LAST-MODIFIED:20260816T220719Z
+UID:8133-1788469200-1788480000@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:The first half is guided and the second half is open practice.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-13/
+LOCATION:Tabletop – Harbor Ballroom E-F
+CATEGORIES:Convention Services
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T210000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T000000
+DTSTAMP:20260819T193509Z
+CREATED:20260819T193400Z
+LAST-MODIFIED:20260819T193509Z
+UID:8261-1788469200-1788480000@tribeeventscon.example.org
+SUMMARY:Saltbox Playtest
+DESCRIPTION:Newcomers are welcome and no experience is assumed\, We start w
+ ith a short demonstration and then work at our own pace\, Seating is limit
+ ed so arriving a few minutes early helps\, Expect a relaxed hour with plen
+ ty of room for questions\, Materials are shared so please be patient with 
+ the good scissors\, The first half is guided and the second half is open p
+ ractice.
+URL:https://tribeeventscon.example.org/panel/saltbox-playtest-14/
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T213000
+DTEND;TZID=America/Indiana/Indianapolis:20260903T223000
+DTSTAMP:20260816T203222Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260816T203222Z
+UID:6462-1788471000-1788474600@tribeeventscon.example.org
+SUMMARY:Zine Making Practice
+DESCRIPTION:We keep the music low so conversation stays easy\, Photos are f
+ ine but please ask the people in them first\, Leftover materials go back i
+ n the bin at the end\, Bring a notebook and something to write with\, Ever
+ ything you need is provided at the table\, Newcomers are welcome and no ex
+ perience is assumed\, We start with a short demonstration and then work at
+  our own pace.
+URL:https://tribeeventscon.example.org/panel/zine-making-practice-15/
+LOCATION:Dealers Hall – Concept B
+CATEGORIES:13+ Teen,Presentation
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T220000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T000000
+DTSTAMP:20260812T204453Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260812T204453Z
+UID:6538-1788472800-1788480000@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:We will finish with a short show and tell for anyone who wants 
+ one\, Water and a snack are a good idea for a session this length.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-16/
+LOCATION:Artist Alley – Harbor Ballroom A-D
+CATEGORIES:13+ Teen,Gaming
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T220000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T000000
+DTSTAMP:20260816T213706Z
+CREATED:20260816T213706Z
+LAST-MODIFIED:20260816T213706Z
+UID:8115-1788472800-1788480000@tribeeventscon.example.org
+SUMMARY:Glasshouse Practice
+DESCRIPTION:Expect a relaxed hour with plenty of room for questions. Materi
+ als are shared so please be patient with the good scissors. The first half
+  is guided and the second half is open practice.
+URL:https://tribeeventscon.example.org/panel/glasshouse-practice-17/
+LOCATION:Photobooth – Studio Three
+CATEGORIES:13+ Teen,Gaming
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T220000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T010000
+DTSTAMP:20260812T204451Z
+CREATED:20260812T204451Z
+LAST-MODIFIED:20260812T204451Z
+UID:6554-1788472800-1788483600@tribeeventscon.example.org
+SUMMARY:Zine Making Jam Session
+DESCRIPTION:Bring a notebook and something to write with. Everything you ne
+ ed is provided at the table. Newcomers are welcome and no experience is as
+ sumed. We start with a short demonstration and then work at our own pace.
+URL:https://tribeeventscon.example.org/panel/zine-making-jam-session-18/
+LOCATION:Quiet Room – Concept A
+CATEGORIES:13+ Teen,Gaming
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T220000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T020000
+DTSTAMP:20260812T204452Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260812T204452Z
+UID:7358-1788472800-1788487200@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:A quieter corner is set aside for anyone who needs a break\, Br
+ ing a project you are already working on if you would rather\, We keep the
+  music low so conversation stays easy\, Photos are fine but please ask the
+  people in them first\, Leftover materials go back in the bin at the end.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-19/
+LOCATION:Charity Desk – Summit Room
+CATEGORIES:General (All Ages),Music and Dance
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260903T230000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T000000
+DTSTAMP:20260812T204453Z
+CREATED:20260812T204453Z
+LAST-MODIFIED:20260812T204453Z
+UID:6533-1788476400-1788480000@tribeeventscon.example.org
+SUMMARY:Northwind Story Circle
+DESCRIPTION:Come for the whole session or drop in when you can. Volunteers 
+ will be circulating if you get stuck partway through. We will finish with 
+ a short show and tell for anyone who wants one. Water and a snack are a go
+ od idea for a session this length.
+URL:https://tribeeventscon.example.org/panel/northwind-story-circle-20/
+LOCATION:Registration – Studio Two
+CATEGORIES:Mature 17+,Presentation
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T100000
+DTSTAMP:20260812T204452Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260812T204452Z
+UID:6635-1788512400-1788516000@tribeeventscon.example.org
+SUMMARY:Zine Making Screening
+DESCRIPTION:We start with a short demonstration and then work at our own pa
+ ce\, Seating is limited so arriving a few minutes early helps\, Expect a r
+ elaxed hour with plenty of room for questions\, Materials are shared so pl
+ ease be patient with the good scissors\, The first half is guided and the 
+ second half is open practice.
+URL:https://tribeeventscon.example.org/panel/zine-making-screening-21/
+LOCATION:Concept A
+CATEGORIES:General (All Ages),Meet & Greet
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T100000
+DTSTAMP:20260812T204452Z
+CREATED:20260812T204452Z
+LAST-MODIFIED:20260812T204452Z
+UID:6637-1788512400-1788516000@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:Photos are fine but please ask the people in them first. Leftov
+ er materials go back in the bin at the end.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-22/
+LOCATION:Main Events – Directors Row 2
+CATEGORIES:General (All Ages),Meet & Greet
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T200000
+DTSTAMP:20260816T220834Z
+CREATED:20260816T220834Z
+LAST-MODIFIED:20260816T220834Z
+UID:8140-1788512400-1788552000@tribeeventscon.example.org
+SUMMARY:Meadow Q&A
+DESCRIPTION:Water and a snack are a good idea for a session this length.
+URL:https://tribeeventscon.example.org/panel/meadow-qanda-23/
+LOCATION:Secondary Events – Studio One
+CATEGORIES:Convention Services
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T200000
+DTSTAMP:20260816T222350Z
+CREATED:20260816T222350Z
+LAST-MODIFIED:20260816T222350Z
+UID:8153-1788512400-1788552000@tribeeventscon.example.org
+SUMMARY:Zine Making Social
+DESCRIPTION:Materials are shared so please be patient with the good scissor
+ s\, The first half is guided and the second half is open practice\, Come f
+ or the whole session or drop in when you can.
+URL:https://tribeeventscon.example.org/panel/zine-making-social-24/
+CATEGORIES:Convention Services
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T200000
+DTSTAMP:20260819T160035Z
+CREATED:20260819T160035Z
+LAST-MODIFIED:20260819T160035Z
+UID:8254-1788512400-1788552000@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:Everything you need is provided at the table. Newcomers are wel
+ come and no experience is assumed.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-25/
+LOCATION:Video Gaming – Directors Row 1
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T220000
+DTSTAMP:20260819T152423Z
+CREATED:20260819T152423Z
+LAST-MODIFIED:20260819T152423Z
+UID:8237-1788512400-1788559200@tribeeventscon.example.org
+SUMMARY:Cardboard Meetup
+DESCRIPTION:Bring a project you are already working on if you would rather\
+ , We keep the music low so conversation stays easy\, Photos are fine but p
+ lease ask the people in them first\, Leftover materials go back in the bin
+  at the end.
+URL:https://tribeeventscon.example.org/panel/cardboard-meetup-26/
+LOCATION:Dealers Hall – Harbor Ballroom G
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T220000
+DTSTAMP:20260819T193436Z
+CREATED:20260819T193436Z
+LAST-MODIFIED:20260819T193436Z
+UID:8263-1788512400-1788559200@tribeeventscon.example.org
+SUMMARY:Zine Making Q&A
+DESCRIPTION:Volunteers will be circulating if you get stuck partway through
+ \, We will finish with a short show and tell for anyone who wants one\, Wa
+ ter and a snack are a good idea for a session this length\, This runs long
+  so plan your schedule around it\, A quieter corner is set aside for anyon
+ e who needs a break\, Bring a project you are already working on if you wo
+ uld rather.
+URL:https://tribeeventscon.example.org/panel/zine-making-qanda-27/
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T090000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T230000
+DTSTAMP:20260816T215241Z
+CREATED:20260812T204451Z
+LAST-MODIFIED:20260816T215241Z
+UID:6599-1788512400-1788562800@tribeeventscon.example.org
+SUMMARY:Choreography for Beginners
+DESCRIPTION:Seating is limited so arriving a few minutes early helps\, Expe
+ ct a relaxed hour with plenty of room for questions\, Materials are shared
+  so please be patient with the good scissors\, The first half is guided an
+ d the second half is open practice\, Come for the whole session or drop in
+  when you can.
+URL:https://tribeeventscon.example.org/panel/choreography-for-beginners-28/
+LOCATION:Around the con
+CATEGORIES:Convention Services,General (All Ages)
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Indiana/Indianapolis:20260904T093000
+DTEND;TZID=America/Indiana/Indianapolis:20260904T103000
+DTSTAMP:20260812T204451Z
+CREATED:20260812T204451Z
+LAST-MODIFIED:20260812T204451Z
+UID:6642-1788514200-1788517800@tribeeventscon.example.org
+SUMMARY:Ember Panel
+DESCRIPTION:Leftover materials go back in the bin at the end. Bring a noteb
+ ook and something to write with. Everything you need is provided at the ta
+ ble. Newcomers are welcome and no experience is assumed. We start with a s
+ hort demonstration and then work at our own pace. Seating is limited so ar
+ riving a few minutes early helps.
+URL:https://tribeeventscon.example.org/panel/ember-panel-29/
+LOCATION:Quiet Room – Harbor Ballroom E-F
+CATEGORIES:General (All Ages),Presentation
+END:VEVENT
+END:VCALENDAR

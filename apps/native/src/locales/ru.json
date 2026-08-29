@@ -228,6 +228,10 @@
     "preview": "Предпросмотр",
     "eventFound": "Найдено активных событий: {{count}}",
     "eventsFound": "Найдено активных событий: {{count}}",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "Будет учтено отмен: {{count}}",
     "cancellations": "Будет учтено отмен: {{count}}",
     "emptyUpdateTitle": "Нет активных событий",

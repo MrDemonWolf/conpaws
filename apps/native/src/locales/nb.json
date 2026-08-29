@@ -228,6 +228,10 @@
     "preview": "Forhåndsvisning",
     "eventFound": "{{count}} aktiv hendelse funnet",
     "eventsFound": "{{count}} aktive hendelser funnet",
+    "feedSource": {
+      "sched": "Sched feed",
+      "generic": "Calendar feed"
+    },
     "cancellation": "{{count}} avlysning vil bli avstemt",
     "cancellations": "{{count}} avlysninger vil bli avstemt",
     "emptyUpdateTitle": "Ingen aktive hendelser",
