@@ -7,8 +7,10 @@ vi.mock("@/db/repositories/conventions", () => ({ getAll: vi.fn() }));
 vi.mock("@/db/repositories/events", () => ({ getByConventionId: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({
   default: {
-    t: (_key: string, values: { start: string; end: string }) =>
-      `${values.start} – ${values.end}`,
+    t: (key: string, values: { start?: string; end?: string; lng?: string }) =>
+      key.startsWith("convention.ageRatings.")
+        ? `pill:${key.split(".").pop()}:${values.lng}`
+        : `${values.start} – ${values.end}`,
   },
 }));
 
@@ -72,6 +74,7 @@ describe("buildWidgetSnapshot", () => {
       123,
     );
 
+    expect(snapshot.schemaVersion).toBe(2);
     expect(snapshot.generatedAtMs).toBe(123);
     expect(snapshot.conventions[0]?.startAtMs).toBe(
       Date.parse("2026-09-03T00:00:00-05:00"),
@@ -79,6 +82,45 @@ describe("buildWidgetSnapshot", () => {
     expect(snapshot.conventions[0]?.events.map(({ id }) => id)).toEqual([
       "first",
       "later",
+    ]);
+  });
+
+  it("localizes restrictive age ratings into pill labels and drops the rest", () => {
+    const snapshot = buildWidgetSnapshot(
+      [convention],
+      new Map([
+        [
+          convention.id,
+          [
+            {
+              ...event("teen", "2026-09-03T15:00:00-05:00", true),
+              ageRating: "teen" as const,
+            },
+            {
+              ...event("adult", "2026-09-03T16:00:00-05:00", true),
+              ageRating: "adult" as const,
+            },
+            {
+              ...event("all", "2026-09-03T17:00:00-05:00", true),
+              ageRating: "all-ages" as const,
+            },
+            event("unrated", "2026-09-03T18:00:00-05:00", true),
+          ],
+        ],
+      ]),
+      "de",
+    );
+
+    expect(
+      snapshot.conventions[0]?.events.map(({ id, ageRating }) => [
+        id,
+        ageRating,
+      ]),
+    ).toEqual([
+      ["teen", "pill:teen:de"],
+      ["adult", "pill:adult:de"],
+      ["all", null],
+      ["unrated", null],
     ]);
   });
 

@@ -40,8 +40,14 @@ struct ConPawsConventionQuery: EntityQuery {
     entities(includePast: false)
   }
 
+  /// Nil on purpose: a fresh widget follows the schedule automatically —
+  /// active convention first, else the nearest upcoming, the same rule the
+  /// watch applies. Returning a concrete entity here would silently pin every
+  /// new widget to whatever was nearest on the day it was added. The pin is
+  /// the opt-in, made in Edit Widget; a pinned convention that later
+  /// disappears falls back to automatic in the provider.
   func defaultResult() async -> ConPawsConventionEntity? {
-    entities(includePast: false).first
+    nil
   }
 
   private func entities(includePast: Bool) -> [ConPawsConventionEntity] {

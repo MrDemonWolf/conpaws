@@ -203,6 +203,23 @@ struct ConPawsStrings: Sendable {
   let leaveReminderFormat: String
   let savedSchedule: String
   let savedScheduleA11y: String
+
+  // MARK: Widget redesign (2026-08)
+
+  /// Whole minutes, as the leave countdown renders them: "18 min".
+  let compactMinutesFormat: String
+  /// Follows "Now · " on the running event's chip, as in "Now · ends 1:00 AM".
+  let endsFormat: String
+  /// The large widget's overflow footer, as in "+3 more today".
+  let moreTodayFormat: String
+  /// The pre-con footer, wrapping an already-pluralized "%@ events".
+  let starredFormat: String
+  let allDoneTitle: String
+  /// "First event tomorrow: %1$@, %2$@." — title, then clock time.
+  let firstTomorrowFormat: String
+  /// The empty state's call to action when a convention exists but nothing
+  /// is starred.
+  let starHint: String
 }
 
 // MARK: - Substitution
@@ -270,6 +287,14 @@ extension ConPawsStrings {
   /// A countdown placed inside a sentence, cased so it still reads as one.
   func midSentenceCountdown(_ label: String) -> String {
     lowercasesInlineCountdown ? label.lowercased() : label
+  }
+
+  func compactMinutes(_ value: Int) -> String { text(compactMinutesFormat, String(value)) }
+  func moreToday(_ value: Int) -> String { text(moreTodayFormat, String(value)) }
+  func starred(_ count: Int) -> String { text(starredFormat, events(count)) }
+  func ends(_ time: String) -> String { text(endsFormat, time) }
+  func firstTomorrow(_ title: String, _ time: String) -> String {
+    text(firstTomorrowFormat, title, time)
   }
 }
 
@@ -348,7 +373,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min before",
     leaveReminderFormat: "Leave reminder %@",
     savedSchedule: "Saved schedule",
-    savedScheduleA11y: "Showing the latest schedule saved from your iPhone"
+    savedScheduleA11y: "Showing the latest schedule saved from your iPhone",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "ends %@",
+    moreTodayFormat: "+%@ more today",
+    starredFormat: "%@ starred",
+    allDoneTitle: "All done for today",
+    firstTomorrowFormat: "First event tomorrow: %1$@, %2$@.",
+    starHint: "Star events in ConPaws to see them here."
   )
 
   private static let de = ConPawsStrings(
@@ -414,7 +446,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ Min. vorher",
     leaveReminderFormat: "Erinnerung: %@",
     savedSchedule: "Gespeicherter Zeitplan",
-    savedScheduleA11y: "Zeigt den zuletzt von deinem iPhone gespeicherten Zeitplan"
+    savedScheduleA11y: "Zeigt den zuletzt von deinem iPhone gespeicherten Zeitplan",
+    compactMinutesFormat: "%@ Min.",
+    endsFormat: "bis %@",
+    moreTodayFormat: "+%@ weitere heute",
+    starredFormat: "%@ vorgemerkt",
+    allDoneTitle: "Für heute alles geschafft",
+    firstTomorrowFormat: "Erstes Event morgen: %1$@, %2$@.",
+    starHint: "Markiere Events in ConPaws, um sie hier zu sehen."
   )
 
   private static let es = ConPawsStrings(
@@ -476,7 +515,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min antes",
     leaveReminderFormat: "Recordatorio de salida %@",
     savedSchedule: "Horario guardado",
-    savedScheduleA11y: "Mostrando el último horario guardado desde tu iPhone"
+    savedScheduleA11y: "Mostrando el último horario guardado desde tu iPhone",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "hasta %@",
+    moreTodayFormat: "+%@ más hoy",
+    starredFormat: "%@ guardados",
+    allDoneTitle: "Todo listo por hoy",
+    firstTomorrowFormat: "Primer evento mañana: %1$@, %2$@.",
+    starHint: "Marca eventos en ConPaws para verlos aquí."
   )
 
   private static let fr = ConPawsStrings(
@@ -538,7 +584,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min avant",
     leaveReminderFormat: "Rappel de départ %@",
     savedSchedule: "Programme enregistré",
-    savedScheduleA11y: "Affiche le dernier programme enregistré depuis votre iPhone"
+    savedScheduleA11y: "Affiche le dernier programme enregistré depuis votre iPhone",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "jusqu’à %@",
+    moreTodayFormat: "+%@ autres aujourd’hui",
+    starredFormat: "%@ enregistrés",
+    allDoneTitle: "Terminé pour aujourd’hui",
+    firstTomorrowFormat: "Premier événement demain : %1$@, %2$@.",
+    starHint: "Suivez des événements dans ConPaws pour les voir ici."
   )
 
   private static let nl = ConPawsStrings(
@@ -600,7 +653,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min van tevoren",
     leaveReminderFormat: "Vertrekherinnering %@",
     savedSchedule: "Opgeslagen rooster",
-    savedScheduleA11y: "Toont het laatste rooster dat vanaf je iPhone is opgeslagen"
+    savedScheduleA11y: "Toont het laatste rooster dat vanaf je iPhone is opgeslagen",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "tot %@",
+    moreTodayFormat: "+%@ meer vandaag",
+    starredFormat: "%@ opgeslagen",
+    allDoneTitle: "Klaar voor vandaag",
+    firstTomorrowFormat: "Eerste evenement morgen: %1$@, %2$@.",
+    starHint: "Markeer evenementen in ConPaws om ze hier te zien."
   )
 
   private static let pl = ConPawsStrings(
@@ -672,7 +732,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min wcześniej",
     leaveReminderFormat: "Przypomnienie o wyjściu %@",
     savedSchedule: "Zapisany harmonogram",
-    savedScheduleA11y: "Pokazuje ostatni harmonogram zapisany z iPhone’a"
+    savedScheduleA11y: "Pokazuje ostatni harmonogram zapisany z iPhone’a",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "do %@",
+    moreTodayFormat: "+%@ więcej dzisiaj",
+    starredFormat: "Zapisane: %@",
+    allDoneTitle: "Na dzisiaj to wszystko",
+    firstTomorrowFormat: "Pierwsze wydarzenie jutro: %1$@, %2$@.",
+    starHint: "Oznacz wydarzenia w ConPaws, aby zobaczyć je tutaj."
   )
 
   private static let ptBR = ConPawsStrings(
@@ -734,7 +801,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min antes",
     leaveReminderFormat: "Lembrete de saída %@",
     savedSchedule: "Programação salva",
-    savedScheduleA11y: "Mostrando a última programação salva do seu iPhone"
+    savedScheduleA11y: "Mostrando a última programação salva do seu iPhone",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "até %@",
+    moreTodayFormat: "+%@ mais hoje",
+    starredFormat: "%@ salvos",
+    allDoneTitle: "Tudo pronto por hoje",
+    firstTomorrowFormat: "Primeiro evento amanhã: %1$@, %2$@.",
+    starHint: "Marque eventos no ConPaws para vê-los aqui."
   )
 
   private static let sv = ConPawsStrings(
@@ -796,7 +870,14 @@ extension ConPawsStrings {
     minutesBeforeFormat: "%@ min innan",
     leaveReminderFormat: "Påminnelse om att gå %@",
     savedSchedule: "Sparat schema",
-    savedScheduleA11y: "Visar det senaste schemat som sparats från din iPhone"
+    savedScheduleA11y: "Visar det senaste schemat som sparats från din iPhone",
+    compactMinutesFormat: "%@ min",
+    endsFormat: "till %@",
+    moreTodayFormat: "+%@ till i dag",
+    starredFormat: "%@ sparade",
+    allDoneTitle: "Klart för i dag",
+    firstTomorrowFormat: "Första evenemanget i morgon: %1$@, %2$@.",
+    starHint: "Stjärnmärk evenemang i ConPaws för att se dem här."
   )
 
 }

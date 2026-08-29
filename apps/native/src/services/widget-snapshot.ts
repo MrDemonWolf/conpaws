@@ -13,6 +13,14 @@ export interface WidgetEventSnapshot {
   location: string | null;
   room: string | null;
   reminderMinutes: number | null;
+  /**
+   * Localized age-pill label ("13+ Teen"), pre-rendered here for the same
+   * reason `dateRangeLabel` is: the widget renders the app's language, not the
+   * device's, and the translations live on this side of the bridge. Null means
+   * all-ages or unrated — the widget draws no pill. Added in schema v2; the
+   * Swift side decodes it as optional so v1 payloads still parse.
+   */
+  ageRating: string | null;
 }
 
 export interface WidgetConventionSnapshot {
@@ -26,7 +34,7 @@ export interface WidgetConventionSnapshot {
 }
 
 export interface WidgetSnapshot {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAtMs: number;
   localeIdentifier: string;
   conventions: WidgetConventionSnapshot[];
@@ -57,7 +65,25 @@ function calendarParts(value: string): {
     : null;
 }
 
-function eventSnapshot(event: ConventionEvent): WidgetEventSnapshot | null {
+/**
+ * The pill label for a rating that restricts who may attend. "all-ages" and
+ * null both mean no pill — matching `AGE_BADGES` in EventItem, which only
+ * badges the restrictive tiers.
+ */
+function agePillLabel(
+  ageRating: ConventionEvent["ageRating"],
+  localeIdentifier: string,
+): string | null {
+  if (!ageRating || ageRating === "all-ages") return null;
+  return i18n.t(`convention.ageRatings.${ageRating}`, {
+    lng: localeIdentifier,
+  });
+}
+
+function eventSnapshot(
+  event: ConventionEvent,
+  localeIdentifier: string,
+): WidgetEventSnapshot | null {
   if (!event.isInSchedule) return null;
   const startAtMs = Date.parse(event.startTime);
   if (!Number.isFinite(startAtMs)) return null;
@@ -70,6 +96,7 @@ function eventSnapshot(event: ConventionEvent): WidgetEventSnapshot | null {
     location: event.location,
     room: event.room,
     reminderMinutes: event.reminderMinutes,
+    ageRating: agePillLabel(event.ageRating, localeIdentifier),
   };
 }
 
@@ -110,7 +137,7 @@ export function buildWidgetSnapshot(
       fromConventionTime(end, timeZoneIdentifier),
     );
     const events = (eventsByConvention.get(convention.id) ?? [])
-      .map(eventSnapshot)
+      .map((event) => eventSnapshot(event, localeIdentifier))
       .filter((event): event is WidgetEventSnapshot => event !== null)
       .sort(
         (a, b) => a.startAtMs - b.startAtMs || a.title.localeCompare(b.title),
@@ -134,7 +161,7 @@ export function buildWidgetSnapshot(
   });
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAtMs,
     localeIdentifier,
     conventions: snapshots.sort(

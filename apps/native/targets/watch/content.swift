@@ -689,7 +689,8 @@ func runWatchScheduleSelfCheck() {
     endAtMs: now.addingTimeInterval(600).timeIntervalSince1970 * 1_000,
     location: nil,
     room: nil,
-    reminderMinutes: nil
+    reminderMinutes: nil,
+    ageRating: nil
   )
   let next = ConPawsEventSnapshot(
     id: "next",
@@ -698,7 +699,8 @@ func runWatchScheduleSelfCheck() {
     endAtMs: nil,
     location: nil,
     room: nil,
-    reminderMinutes: 30
+    reminderMinutes: 30,
+    ageRating: nil
   )
   let convention = ConPawsConventionSnapshot(
     id: "con",
