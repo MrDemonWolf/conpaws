@@ -3,6 +3,7 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { EventItem } from "@/components/EventItem";
 import type { ConventionEvent } from "@/db/schema";
+import type { ClusterPosition } from "@/lib/day-band";
 import { getEventIndicators } from "@/lib/event-indicators";
 import { formatEventTime } from "@/lib/event-time-format";
 import { hapticLongPress, hapticTap } from "@/services/haptics";
@@ -33,6 +34,10 @@ interface ConventionEventRowProps {
   hour12?: boolean;
   showProvenance: boolean;
   hasConflict: boolean;
+  /** Overlap grouping from `overlapInfo`, forwarded to the row chrome. */
+  overlapPosition?: ClusterPosition;
+  overlapGroupSize?: number;
+  overlapCount?: number;
   onSelect: (event: ConventionEvent) => void;
   /** Day-band background from the section renderer. */
   className?: string;
@@ -52,6 +57,9 @@ export const ConventionEventRow = memo(function ConventionEventRow({
   hour12,
   showProvenance,
   hasConflict,
+  overlapPosition,
+  overlapGroupSize,
+  overlapCount,
   onSelect,
   className,
 }: ConventionEventRowProps) {
@@ -73,6 +81,9 @@ export const ConventionEventRow = memo(function ConventionEventRow({
       reminderLabel={reminderLabel}
       provenanceLabel={showProvenance ? provenanceLabel : undefined}
       hasConflict={hasConflict}
+      overlapPosition={overlapPosition}
+      overlapGroupSize={overlapGroupSize}
+      overlapCount={overlapCount}
       contentWarning={event.contentWarning}
       onPress={() => {
         hapticTap();

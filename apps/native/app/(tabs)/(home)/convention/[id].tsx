@@ -44,7 +44,7 @@ import {
   isValidTimeZone,
   overlappingEventIds,
 } from "@/lib/convention-time";
-import { timeSlotBandClass, timeSlotBands } from "@/lib/day-band";
+import { type OverlapInfo, overlapInfoAmong } from "@/lib/day-band";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
 import { deviceHour12 } from "@/lib/device-clock";
 import { shouldShowProvenance } from "@/lib/event-indicators";
@@ -77,8 +77,8 @@ import { hapticSuccess } from "@/services/haptics";
 interface DayGroup {
   key: string;
   label: string;
-  /** Per-row band index: rows sharing a start time share a band. */
-  slotBands: number[];
+  /** Per-row overlap grouping: which events actually share a timeframe. */
+  overlaps: OverlapInfo[];
   data: ConventionEvent[];
 }
 
@@ -107,7 +107,7 @@ function groupEventsByDay(
       groups.push({
         key,
         label: formatEventDayLabel(event.startTime, timeZone, locale),
-        slotBands: [],
+        overlaps: [],
         data: [event],
       });
     }
@@ -115,7 +115,12 @@ function groupEventsByDay(
 
   groups.sort((a, b) => a.key.localeCompare(b.key));
   for (const group of groups) {
-    group.slotBands = timeSlotBands(group.data);
+    // Group only saved panels — grouping everything tints an entire con day
+    // into one block (see overlapInfoAmong).
+    group.overlaps = overlapInfoAmong(
+      group.data,
+      (event) => event.isInSchedule,
+    );
   }
   return groups;
 }
@@ -364,13 +369,12 @@ export default function ConventionDetailScreen() {
         hour12={hour12}
         showProvenance={showProvenance}
         hasConflict={conflictingEventIds.has(item.id)}
+        overlapPosition={section.overlaps[index]?.position}
+        overlapGroupSize={section.overlaps[index]?.clusterSize}
+        overlapCount={section.overlaps[index]?.overlapCount}
         onSelect={openEventActions}
         onToggleSchedule={toggleSchedule}
-        className={
-          item.id === highlightedEventId
-            ? "bg-info"
-            : timeSlotBandClass(section.slotBands[index] ?? 0)
-        }
+        className={item.id === highlightedEventId ? "bg-info" : undefined}
       />
     ),
     [

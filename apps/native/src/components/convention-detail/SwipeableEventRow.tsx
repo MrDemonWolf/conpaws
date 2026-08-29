@@ -7,6 +7,7 @@ import ReanimatedSwipeable, {
 import { ConventionEventRow } from "@/components/convention-detail/ConventionEventRow";
 import { Text } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
+import type { ClusterPosition } from "@/lib/day-band";
 import { eventSwipeSides } from "@/lib/event-swipe";
 
 interface SwipeableEventRowProps {
@@ -16,6 +17,10 @@ interface SwipeableEventRowProps {
   hour12?: boolean;
   showProvenance: boolean;
   hasConflict: boolean;
+  /** Overlap grouping from `overlapInfo`, forwarded to the row chrome. */
+  overlapPosition?: ClusterPosition;
+  overlapGroupSize?: number;
+  overlapCount?: number;
   onSelect: (event: ConventionEvent) => void;
   onToggleSchedule: (event: ConventionEvent) => void;
   /** Day-band background, forwarded to the row. */

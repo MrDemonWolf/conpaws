@@ -1,7 +1,8 @@
-import { AlertTriangle, Star } from "lucide-react-native";
+import { AlertTriangle, Clock, Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, useColorScheme, View } from "react-native";
 import { Badge, type BadgeVariant, Text } from "@/components/ui";
+import type { ClusterPosition } from "@/lib/day-band";
 import type { AgeRating } from "@/lib/event-categories";
 import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,17 @@ interface EventItemProps {
   hasConflict?: boolean;
   contentWarning?: boolean;
   /**
+   * Overlap grouping from `overlapInfo` (src/lib/day-band.ts). Rows in a
+   * cluster draw their own share of the group chrome — tint, accent edge,
+   * and the header on the "first" row — because a SectionList cannot wrap
+   * several virtualized rows in one card. "solo"/undefined renders plain.
+   */
+  overlapPosition?: ClusterPosition;
+  /** Cluster size, shown in the first row's "N events at the same time" header. */
+  overlapGroupSize?: number;
+  /** Exact number of other events sharing this timeframe, for screen readers. */
+  overlapCount?: number;
+  /**
    * The Schedule tab sets this false: every row there is starred by
    * definition, so a star on each would mean nothing.
    */
@@ -64,6 +76,9 @@ export function EventItem({
   provenanceLabel,
   hasConflict = false,
   contentWarning = false,
+  overlapPosition,
+  overlapGroupSize,
+  overlapCount = 0,
   showScheduleIndicator = true,
   onPress,
   onLongPress,
@@ -95,13 +110,30 @@ export function EventItem({
     reminderLabel ? `${t("convention.reminderSet")}: ${reminderLabel}` : null,
     provenanceLabel,
     hasConflict ? t("convention.overlapLabel") : null,
+    overlapCount > 0
+      ? t(
+          overlapCount === 1
+            ? "convention.runsAlongsideOne"
+            : "convention.runsAlongsideMany",
+          { count: overlapCount },
+        )
+      : null,
     contentWarning ? t("convention.contentWarning") : null,
     summary,
   ]
     .filter(Boolean)
     .join(", ");
 
-  return (
+  const inCluster = overlapPosition !== undefined && overlapPosition !== "solo";
+  // The accent edge is a style, not a class: NativeWind 5 preview has no
+  // directional border-colour utility, and `border-l-primary` resolved to an
+  // undefined style object ("Cannot convert undefined value to object").
+  const clusterEdge = {
+    borderLeftWidth: 3,
+    borderLeftColor: themeTokens[isDark ? "dark" : "light"].primary,
+  } as const;
+
+  const row = (
     <Pressable
       testID={testID}
       onPress={interactive ? onPress : undefined}
@@ -113,10 +145,14 @@ export function EventItem({
         interactive ? t("convention.eventActionsHint") : undefined
       }
       accessibilityState={{ selected: isInSchedule }}
+      style={inCluster ? clusterEdge : undefined}
       className={cn(
         // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
         // the old py-2 broke.
         "min-h-14 flex-row gap-3 border-b border-border px-4 py-3 active:opacity-70",
+        // Overlap-group chrome: shared tint + accent edge mark every row of
+        // the cluster; the edge, not colour alone, carries the grouping.
+        inCluster && "bg-card",
         className,
       )}
     >
@@ -229,5 +265,32 @@ export function EventItem({
         ) : null}
       </View>
     </Pressable>
+  );
+
+  if (overlapPosition !== "first") return row;
+
+  return (
+    <View>
+      {/* Sighted-only group header; VoiceOver hears the per-row "runs at the
+          same time as N other events" sentence instead. */}
+      <View
+        accessible={false}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={clusterEdge}
+        className="flex-row items-center gap-1.5 bg-card px-4 pt-2.5 pb-1"
+      >
+        <Clock
+          size={13}
+          color={themeTokens[isDark ? "dark" : "light"].primary}
+        />
+        <Text variant="caption" className="font-semibold text-primary">
+          {t("convention.sameTimeGroup", {
+            count: overlapGroupSize ?? overlapCount + 1,
+          })}
+        </Text>
+      </View>
+      {row}
+    </View>
   );
 }
