@@ -87,6 +87,7 @@ export const ConventionEventRow = memo(function ConventionEventRow({
       reminderLabel={reminderLabel}
       provenanceLabel={showProvenance ? provenanceLabel : undefined}
       hasConflict={hasConflict}
+      feedStatus={event.feedStatus}
       overlapPosition={overlapPosition}
       overlapGroupSize={overlapGroupSize}
       overlapCount={overlapCount}

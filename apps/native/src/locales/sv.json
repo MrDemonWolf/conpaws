@@ -152,7 +152,26 @@
     "endBeforeStart": "Slutdatumet kan inte vara före startdatumet.",
     "longSpan": "Det är ett {{count}} dagar långt konvent. Kontrollera datumen.",
     "updateError": "Det gick inte att spara ändringarna.",
-    "nameCounter": "{{count}} av {{max}}"
+    "nameCounter": "{{count}} av {{max}}",
+    "feedStatus": {
+      "cancelled": "Inställt",
+      "removed": "Borta ur programmet"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "kontrollerat {{time}}",
+      "movedOne": "En sparad panel har flyttats",
+      "movedMany": "{{count}} sparade paneler har flyttats",
+      "goneOne": "En sparad panel är borta ur programmet",
+      "goneMany": "{{count}} sparade paneler är borta ur programmet",
+      "body": "Markerade nedan, med ny tid och sal.",
+      "alsoMovedOne": "En till har flyttats. Båda är markerade nedan.",
+      "alsoMovedMany": "{{count}} till har flyttats. Alla är markerade nedan.",
+      "dismiss": "Stäng det här meddelandet",
+      "checkNow": "Sök efter ändringar",
+      "checking": "Kontrollerar…",
+      "checkFailedTitle": "Kunde inte kontrollera programmet",
+      "checkFailedMessage": "Konventets programlänk svarade inte. Ditt schema är oförändrat."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Språk",
       "haptics": "Haptisk återkoppling",
       "hapticsError": "Din haptikinställning kunde inte sparas",
-      "notifications": "Aviseringar"
+      "notifications": "Aviseringar",
+      "scheduleAutoCheck": "Sök efter programändringar"
     },
     "data": {
       "title": "Data",

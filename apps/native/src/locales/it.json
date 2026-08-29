@@ -152,7 +152,26 @@
     "endBeforeStart": "La data di fine non può precedere quella di inizio.",
     "longSpan": "È una convention di {{count}} giorni. Ricontrolla le date.",
     "updateError": "Non è stato possibile salvare le modifiche.",
-    "nameCounter": "{{count}} di {{max}}"
+    "nameCounter": "{{count}} di {{max}}",
+    "feedStatus": {
+      "cancelled": "Annullato",
+      "removed": "Fuori dal programma"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "controllato {{time}}",
+      "movedOne": "Un panel salvato è cambiato",
+      "movedMany": "{{count}} panel salvati sono cambiati",
+      "goneOne": "Un panel salvato non è più in programma",
+      "goneMany": "{{count}} panel salvati non sono più in programma",
+      "body": "Segnalati sotto, con orario e sala aggiornati.",
+      "alsoMovedOne": "Ne è cambiato un altro. Entrambi sono segnalati sotto.",
+      "alsoMovedMany": "Ne sono cambiati altri {{count}}. Tutti segnalati sotto.",
+      "dismiss": "Chiudi questo avviso",
+      "checkNow": "Cerca modifiche",
+      "checking": "Controllo…",
+      "checkFailedTitle": "Impossibile controllare il programma",
+      "checkFailedMessage": "Il link al programma della convention non ha risposto. Il tuo programma è invariato."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Lingua",
       "haptics": "Feedback aptico",
       "hapticsError": "Non è stato possibile salvare l'impostazione del feedback aptico",
-      "notifications": "Notifiche"
+      "notifications": "Notifiche",
+      "scheduleAutoCheck": "Cerca modifiche al programma"
     },
     "data": {
       "title": "Dati",

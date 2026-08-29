@@ -152,7 +152,26 @@
     "endBeforeStart": "La date de fin ne peut pas précéder la date de début.",
     "longSpan": "Convention de {{count}} jours. Vérifiez les dates.",
     "updateError": "Impossible d'enregistrer les modifications.",
-    "nameCounter": "{{count}} sur {{max}}"
+    "nameCounter": "{{count}} sur {{max}}",
+    "feedStatus": {
+      "cancelled": "Annulé",
+      "removed": "Retiré du programme"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "vérifié à {{time}}",
+      "movedOne": "Un panel enregistré a changé",
+      "movedMany": "{{count}} panels enregistrés ont changé",
+      "goneOne": "Un panel enregistré a été retiré du programme",
+      "goneMany": "{{count}} panels enregistrés ont été retirés du programme",
+      "body": "Signalés ci-dessous, avec la nouvelle heure et la nouvelle salle.",
+      "alsoMovedOne": "Un autre a changé. Les deux sont signalés ci-dessous.",
+      "alsoMovedMany": "{{count}} autres ont changé. Tous sont signalés ci-dessous.",
+      "dismiss": "Fermer cet avis",
+      "checkNow": "Rechercher des changements",
+      "checking": "Vérification…",
+      "checkFailedTitle": "Impossible de vérifier le programme",
+      "checkFailedMessage": "Le lien du programme de la convention n'a pas répondu. Votre planning est inchangé."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Langue",
       "haptics": "Retour haptique",
       "hapticsError": "Impossible d'enregistrer votre réglage haptique",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "scheduleAutoCheck": "Rechercher les changements de programme"
     },
     "data": {
       "title": "Données",

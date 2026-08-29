@@ -152,7 +152,26 @@
     "endBeforeStart": "A befejezés dátuma nem lehet korábbi a kezdésnél.",
     "longSpan": "Ez egy {{count}} napos con lenne. Ellenőrizd a dátumokat.",
     "updateError": "A módosításokat nem sikerült menteni.",
-    "nameCounter": "{{count}} / {{max}}"
+    "nameCounter": "{{count}} / {{max}}",
+    "feedStatus": {
+      "cancelled": "Törölve",
+      "removed": "Lekerült a programról"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "ellenőrizve {{time}}",
+      "movedOne": "Egy mentett panel áthelyeződött",
+      "movedMany": "{{count}} mentett panel áthelyeződött",
+      "goneOne": "Egy mentett panel lekerült a programról",
+      "goneMany": "{{count}} mentett panel lekerült a programról",
+      "body": "Lent megjelölve, az új időponttal és teremmel.",
+      "alsoMovedOne": "Még egy áthelyeződött. Mindkettő meg van jelölve lent.",
+      "alsoMovedMany": "Még {{count}} áthelyeződött. Mind meg van jelölve lent.",
+      "dismiss": "Értesítés bezárása",
+      "checkNow": "Változások keresése",
+      "checking": "Ellenőrzés…",
+      "checkFailedTitle": "Nem sikerült ellenőrizni a programot",
+      "checkFailedMessage": "A rendezvény programlinkje nem válaszolt. A programod változatlan."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Nyelv",
       "haptics": "Haptikus visszajelzés",
       "hapticsError": "A haptikus beállítást nem sikerült menteni",
-      "notifications": "Értesítések"
+      "notifications": "Értesítések",
+      "scheduleAutoCheck": "Programváltozások keresése"
     },
     "data": {
       "title": "Adatok",

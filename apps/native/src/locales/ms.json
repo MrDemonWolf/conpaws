@@ -152,7 +152,26 @@
     "endBeforeStart": "Tarikh tamat tidak boleh lebih awal daripada tarikh mula.",
     "longSpan": "Itu konvensyen selama {{count}} hari. Semak semula tarikhnya.",
     "updateError": "Perubahan anda tidak dapat disimpan.",
-    "nameCounter": "{{count}} daripada {{max}}"
+    "nameCounter": "{{count}} daripada {{max}}",
+    "feedStatus": {
+      "cancelled": "Dibatalkan",
+      "removed": "Tiada dalam jadual"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "disemak {{time}}",
+      "movedOne": "Satu panel tersimpan telah berubah",
+      "movedMany": "{{count}} panel tersimpan telah berubah",
+      "goneOne": "Satu panel tersimpan tiada lagi dalam jadual",
+      "goneMany": "{{count}} panel tersimpan tiada lagi dalam jadual",
+      "body": "Ditanda di bawah, dengan masa dan bilik baharu.",
+      "alsoMovedOne": "Satu lagi berubah. Kedua-duanya ditanda di bawah.",
+      "alsoMovedMany": "{{count}} lagi berubah. Semuanya ditanda di bawah.",
+      "dismiss": "Tutup notis ini",
+      "checkNow": "Semak perubahan",
+      "checking": "Menyemak…",
+      "checkFailedTitle": "Jadual tidak dapat disemak",
+      "checkFailedMessage": "Pautan jadual konvensyen tidak menjawab. Jadual anda tidak berubah."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Bahasa",
       "haptics": "Maklum Balas Haptik",
       "hapticsError": "Tetapan haptik anda tidak dapat disimpan",
-      "notifications": "Pemberitahuan"
+      "notifications": "Pemberitahuan",
+      "scheduleAutoCheck": "Semak perubahan jadual"
     },
     "data": {
       "title": "Data",

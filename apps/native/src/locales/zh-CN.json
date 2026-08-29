@@ -152,7 +152,26 @@
     "endBeforeStart": "结束日期不能早于开始日期。",
     "longSpan": "这是一个为期 {{count}} 天的展会。请再核对一下日期。",
     "updateError": "无法保存你的更改。",
-    "nameCounter": "{{count}}/{{max}}"
+    "nameCounter": "{{count}}/{{max}}",
+    "feedStatus": {
+      "cancelled": "已取消",
+      "removed": "已不在日程中"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "{{time}} 已检查",
+      "movedOne": "一个已保存的论坛有变动",
+      "movedMany": "{{count}} 个已保存的论坛有变动",
+      "goneOne": "一个已保存的论坛已不在日程中",
+      "goneMany": "{{count}} 个已保存的论坛已不在日程中",
+      "body": "下方已标注，包含新的时间和房间。",
+      "alsoMovedOne": "还有一个有变动。两个都已在下方标注。",
+      "alsoMovedMany": "另有 {{count}} 个有变动。全部已在下方标注。",
+      "dismiss": "关闭此提示",
+      "checkNow": "检查变更",
+      "checking": "检查中…",
+      "checkFailedTitle": "无法检查日程",
+      "checkFailedMessage": "展会的日程链接没有响应。你的日程保持不变。"
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "语言",
       "haptics": "触感反馈",
       "hapticsError": "无法保存你的触感反馈设置",
-      "notifications": "通知"
+      "notifications": "通知",
+      "scheduleAutoCheck": "检查日程变更"
     },
     "data": {
       "title": "数据",

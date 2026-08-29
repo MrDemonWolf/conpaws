@@ -152,7 +152,26 @@
     "endBeforeStart": "A data de fim não pode ser anterior à de início.",
     "longSpan": "É uma convenção de {{count}} dias. Confirme as datas.",
     "updateError": "Não foi possível guardar as alterações.",
-    "nameCounter": "{{count}} de {{max}}"
+    "nameCounter": "{{count}} de {{max}}",
+    "feedStatus": {
+      "cancelled": "Cancelado",
+      "removed": "Fora do programa"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "verificado {{time}}",
+      "movedOne": "Um painel guardado mudou",
+      "movedMany": "{{count}} painéis guardados mudaram",
+      "goneOne": "Um painel guardado saiu do programa",
+      "goneMany": "{{count}} painéis guardados saíram do programa",
+      "body": "Assinalados abaixo, com a nova hora e sala.",
+      "alsoMovedOne": "Mais um mudou. Ambos estão assinalados abaixo.",
+      "alsoMovedMany": "Mais {{count}} mudaram. Todos estão assinalados abaixo.",
+      "dismiss": "Dispensar este aviso",
+      "checkNow": "Procurar alterações",
+      "checking": "A verificar…",
+      "checkFailedTitle": "Não foi possível verificar o programa",
+      "checkFailedMessage": "O link do programa da convenção não respondeu. O teu programa mantém-se igual."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Idioma",
       "haptics": "Resposta háptica",
       "hapticsError": "Não foi possível guardar a sua definição de resposta háptica",
-      "notifications": "Notificações"
+      "notifications": "Notificações",
+      "scheduleAutoCheck": "Procurar alterações ao programa"
     },
     "data": {
       "title": "Dados",

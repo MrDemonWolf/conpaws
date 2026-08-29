@@ -152,7 +152,26 @@
     "endBeforeStart": "Datum konce nemůže být dřív než datum začátku.",
     "longSpan": "To je con na {{count}} dní. Zkontrolujte data ještě jednou.",
     "updateError": "Změny se nepodařilo uložit.",
-    "nameCounter": "{{count}} z {{max}}"
+    "nameCounter": "{{count}} z {{max}}",
+    "feedStatus": {
+      "cancelled": "Zrušeno",
+      "removed": "Mimo program"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "zkontrolováno {{time}}",
+      "movedOne": "Uložený panel se přesunul",
+      "movedMany": "Přesunuly se uložené panely: {{count}}",
+      "goneOne": "Uložený panel je mimo program",
+      "goneMany": "Mimo program jsou uložené panely: {{count}}",
+      "body": "Označeno níže, s novým časem a místností.",
+      "alsoMovedOne": "Ještě jeden se přesunul. Oba jsou označeny níže.",
+      "alsoMovedMany": "Přesunulo se jich ještě {{count}}. Všechny jsou označeny níže.",
+      "dismiss": "Zavřít toto oznámení",
+      "checkNow": "Zkontrolovat změny",
+      "checking": "Kontroluji…",
+      "checkFailedTitle": "Program se nepodařilo zkontrolovat",
+      "checkFailedMessage": "Odkaz na program konventu neodpověděl. Tvůj program zůstává beze změny."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Jazyk",
       "haptics": "Haptická odezva",
       "hapticsError": "Nastavení haptiky se nepodařilo uložit",
-      "notifications": "Oznámení"
+      "notifications": "Oznámení",
+      "scheduleAutoCheck": "Kontrolovat změny programu"
     },
     "data": {
       "title": "Data",

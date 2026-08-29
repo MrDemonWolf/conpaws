@@ -152,7 +152,26 @@
     "endBeforeStart": "The end date can't be before the start date.",
     "longSpan": "That's a {{count}}-day convention. Double-check the dates.",
     "updateError": "Couldn't save your changes.",
-    "nameCounter": "{{count}} of {{max}}"
+    "nameCounter": "{{count}} of {{max}}",
+    "feedStatus": {
+      "cancelled": "Cancelled",
+      "removed": "Off the schedule"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "checked {{time}}",
+      "movedOne": "A saved panel moved",
+      "movedMany": "{{count}} saved panels moved",
+      "goneOne": "A saved panel is off the schedule",
+      "goneMany": "{{count}} saved panels are off the schedule",
+      "body": "Marked below, with the new time and room.",
+      "alsoMovedOne": "One more moved. Both are marked below.",
+      "alsoMovedMany": "{{count}} more moved. All are marked below.",
+      "dismiss": "Dismiss this notice",
+      "checkNow": "Check for Changes",
+      "checking": "Checking…",
+      "checkFailedTitle": "Could Not Check the Schedule",
+      "checkFailedMessage": "The convention's schedule link did not answer. Your schedule is unchanged."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Language",
       "haptics": "Haptic Feedback",
       "hapticsError": "Could not save your haptics setting",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "scheduleAutoCheck": "Check for schedule updates"
     },
     "data": {
       "title": "Data",

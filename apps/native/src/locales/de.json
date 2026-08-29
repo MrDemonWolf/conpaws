@@ -152,7 +152,26 @@
     "endBeforeStart": "Das Enddatum darf nicht vor dem Startdatum liegen.",
     "longSpan": "Das ist eine {{count}}-tägige Convention. Prüfe die Daten.",
     "updateError": "Änderungen konnten nicht gespeichert werden.",
-    "nameCounter": "{{count}} von {{max}}"
+    "nameCounter": "{{count}} von {{max}}",
+    "feedStatus": {
+      "cancelled": "Abgesagt",
+      "removed": "Nicht mehr im Programm"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "geprüft {{time}}",
+      "movedOne": "Ein gemerktes Panel wurde verlegt",
+      "movedMany": "{{count}} gemerkte Panels wurden verlegt",
+      "goneOne": "Ein gemerktes Panel ist nicht mehr im Programm",
+      "goneMany": "{{count}} gemerkte Panels sind nicht mehr im Programm",
+      "body": "Unten markiert, mit neuer Zeit und neuem Raum.",
+      "alsoMovedOne": "Eines wurde ebenfalls verlegt. Beide sind unten markiert.",
+      "alsoMovedMany": "{{count}} weitere wurden verlegt. Alle sind unten markiert.",
+      "dismiss": "Diesen Hinweis schließen",
+      "checkNow": "Nach Änderungen suchen",
+      "checking": "Wird geprüft…",
+      "checkFailedTitle": "Programm konnte nicht geprüft werden",
+      "checkFailedMessage": "Der Programm-Link der Convention hat nicht geantwortet. Dein Zeitplan ist unverändert."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "Sprache",
       "haptics": "Haptisches Feedback",
       "hapticsError": "Haptik-Einstellung konnte nicht gespeichert werden",
-      "notifications": "Benachrichtigungen"
+      "notifications": "Benachrichtigungen",
+      "scheduleAutoCheck": "Nach Programmänderungen suchen"
     },
     "data": {
       "title": "Daten",

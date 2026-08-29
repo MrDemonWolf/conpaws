@@ -152,7 +152,26 @@
     "endBeforeStart": "종료일은 시작일보다 빠를 수 없어요.",
     "longSpan": "{{count}}일짜리 컨벤션이에요. 날짜를 다시 확인해 주세요.",
     "updateError": "변경 사항을 저장하지 못했어요.",
-    "nameCounter": "{{count}}/{{max}}"
+    "nameCounter": "{{count}}/{{max}}",
+    "feedStatus": {
+      "cancelled": "취소됨",
+      "removed": "일정에서 제외됨"
+    },
+    "scheduleUpdate": {
+      "checkedAt": "{{time}}에 확인함",
+      "movedOne": "저장한 패널이 변경됨",
+      "movedMany": "저장한 패널 {{count}}개가 변경됨",
+      "goneOne": "저장한 패널이 일정에서 빠졌습니다",
+      "goneMany": "저장한 패널 {{count}}개가 일정에서 빠졌습니다",
+      "body": "아래에 새 시간과 장소와 함께 표시되어 있습니다.",
+      "alsoMovedOne": "하나 더 변경되었습니다. 둘 다 아래에 표시되어 있습니다.",
+      "alsoMovedMany": "{{count}}개가 더 변경되었습니다. 모두 아래에 표시되어 있습니다.",
+      "dismiss": "이 알림 닫기",
+      "checkNow": "변경 확인",
+      "checking": "확인 중…",
+      "checkFailedTitle": "일정을 확인할 수 없음",
+      "checkFailedMessage": "컨벤션 일정 링크가 응답하지 않았습니다. 내 일정은 그대로입니다."
+    }
   },
   "errors": {
     "database": {
@@ -446,7 +465,8 @@
       "language": "언어",
       "haptics": "햅틱 피드백",
       "hapticsError": "햅틱 설정을 저장하지 못했어요",
-      "notifications": "알림"
+      "notifications": "알림",
+      "scheduleAutoCheck": "일정 변경 확인"
     },
     "data": {
       "title": "데이터",
