@@ -165,11 +165,17 @@ export function ConventionList<T extends { id: string }>({
           </SwipeActions.Actions>
         ) : null}
         <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
-          {/* biome-ignore lint/a11y/useValidAriaRole: Expo UI maps this prop to SwiftUI ButtonRole. */}
           <Button
             label={deleteLabel}
             systemImage="trash"
-            role="destructive"
+            // Deliberately not `role="destructive"`. SwiftUI treats a
+            // destructive swipe action as already committed and animates the
+            // row out of the List the moment it is tapped -- before our
+            // confirmation Alert resolves. Cancelling then left the row
+            // missing (and the list blank rather than showing the empty
+            // state) until the screen remounted, even though nothing was
+            // deleted. The red tint keeps the affordance without that.
+            modifiers={[foregroundStyle("#FF3B30")]}
             onPress={() => onDelete(item)}
           />
         </SwipeActions.Actions>
