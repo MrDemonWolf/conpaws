@@ -4,7 +4,10 @@ import { Pressable, View } from "react-native";
 import { getEventIndicatorLabels } from "@/components/convention-detail/ConventionEventRow";
 import { Badge, Text } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
-import { formatEventTime, scheduleFormatter } from "@/lib/event-time-format";
+import {
+  formatEventEndDateTime,
+  scheduleFormatter,
+} from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import { getCachedDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 
@@ -75,7 +78,13 @@ export function EventSheetContent({
         )}
         {event.endTime
           ? ` ${t("convention.timeRangeTo", {
-              time: formatEventTime(event.endTime, timeZone, locale, hour12),
+              time: formatEventEndDateTime(
+                event.startTime,
+                event.endTime,
+                timeZone,
+                locale,
+                hour12,
+              ),
             })}`
           : ""}
         {room ? ` · ${room}` : ""}

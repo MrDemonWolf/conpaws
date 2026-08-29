@@ -23,7 +23,11 @@ import {
   overlapInfo,
 } from "@/lib/day-band";
 import { deviceHour12 } from "@/lib/device-clock";
-import { formatDayKeyLabel, formatEventTime } from "@/lib/event-time-format";
+import {
+  formatDayKeyLabel,
+  formatEventEndTime,
+  formatEventTime,
+} from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
   groupPersonalScheduleByDay,
@@ -90,7 +94,13 @@ const ScheduleRow = memo(function ScheduleRow({
         locale,
         hour12,
       )}
-      endTime={formatEventTime(entry.endTime, entry.timeZone, locale, hour12)}
+      endTime={formatEventEndTime(
+        entry.startTime,
+        entry.endTime,
+        entry.timeZone,
+        locale,
+        hour12,
+      )}
       room={entry.event.room ?? entry.event.location ?? undefined}
       category={entry.event.category ?? undefined}
       contextLabel={conventionName}
