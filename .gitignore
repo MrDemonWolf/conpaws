@@ -31,11 +31,6 @@ apps/native/google-service-account*.json
 # Tool-owned worktrees are not source or EAS build input
 .claude/worktrees/
 
-# Shared on purpose. A repo .gitignore outranks the global excludes file, so
-# this negation is what brings the file back — a plain `git add -f` would
-# leave it ignored and hide every later edit.
-!.claude/settings.local.json
-
 # Metro
 .metro-health-check*
 
