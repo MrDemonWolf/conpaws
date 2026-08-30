@@ -32,6 +32,12 @@ export function buildContentSecurityPolicy(
     "img-src 'self' data: blob:",
     "font-src 'self'",
     "connect-src 'self'",
+    // The offline service worker. `worker-src` falls back to `child-src` and
+    // then to `default-src`, so 'self' would already be allowed — it is spelt
+    // out because relying on a two-step fallback for a directive this
+    // consequential is the kind of thing that breaks quietly when an unrelated
+    // directive is added later.
+    "worker-src 'self'",
     `frame-src ${TURNSTILE}`,
     "object-src 'none'",
     "base-uri 'self'",
