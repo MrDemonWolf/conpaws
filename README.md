@@ -34,10 +34,11 @@ Never miss a panel again.
   schedule sharing, badges, and pride flag name effects (planned).
 - **Cloud Sync** - Polling-based sync against a Cloudflare Workers API
   with D1 storage — no accounts required for core features (planned).
-- **Website and Waitlist** - The marketing site and waitlist are prepared
-  for Cloudflare Workers. Production routes are intentionally disabled and
-  the public signup form is closed; the website has not launched yet.
-- **Dark Mode** - Automatic light/dark theme support across the app.
+- **Website and Waitlist** - The marketing site is live on Cloudflare
+  Workers and the public signup form is open, backed by Turnstile, D1, and a
+  listmonk double opt-in.
+- **Dark Mode** - Automatic light/dark theme support in the app. The website
+  is deliberately dark-only (`forcedTheme` in `apps/web`).
 
 ## Getting Started
 

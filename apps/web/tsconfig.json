@@ -1,19 +1,11 @@
 {
+  "extends": "@conpaws/config/tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "baseUrl": ".",
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
+    "types": ["node"],
     "jsx": "react-jsx",
+    "allowJs": true,
+    "noEmit": true,
     "incremental": true,
     "plugins": [
       {
