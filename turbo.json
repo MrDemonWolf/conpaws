@@ -5,7 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", ".open-next/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
@@ -49,6 +49,11 @@
     },
     "type-check": {
       "dependsOn": ["^check-types"]
+    },
+    "build:cloudflare": {
+      "dependsOn": ["build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".open-next/**"]
     }
   }
 }

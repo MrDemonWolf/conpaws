@@ -62,12 +62,3 @@ export const LOCALE_CODES: readonly Locale[] = LOCALES.map((l) => l.code);
 export function isLocale(value: string): value is Locale {
   return (LOCALE_CODES as readonly string[]).includes(value);
 }
-
-/**
- * The `hreflang` value for a locale. Identical to the code today, but kept as
- * a function because `x-default` handling and any future region aliases
- * belong in one place rather than inline in the metadata builder.
- */
-export function hreflangFor(locale: Locale): string {
-  return locale;
-}

@@ -26,7 +26,6 @@
     "start:prod": "turbo -F @conpaws/native start:prod",
     "android": "turbo -F @conpaws/native android",
     "ios": "turbo -F @conpaws/native ios",
-    "web": "turbo -F @conpaws/native web",
     "prebuild": "turbo -F @conpaws/native prebuild",
     "prebuild:clean": "turbo -F @conpaws/native prebuild:clean",
     "ship:prep": "bun run --filter @conpaws/native ship:prep",
@@ -36,19 +35,15 @@
     "destroy": "bun run --filter @conpaws/infra destroy",
     "infra:dev": "bun run --filter @conpaws/infra dev",
     "db:generate": "bun run --filter web db:generate",
-    "db:migrate:local": "bun run --filter web db:migrate:local"
-  },
-  "dependencies": {
-    "@conpaws/env": "workspace:*",
-    "dotenv": "^17.2.2",
-    "zod": "^4.1.13"
+    "db:migrate:local": "bun run --filter web db:migrate:local",
+    "native:web": "turbo -F @conpaws/native web"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.11",
     "@conpaws/config": "workspace:*",
     "expo-doctor": "1.20.2",
     "turbo": "^2.10.12",
-    "typescript": "^5"
+    "typescript": "~6.0.3"
   },
   "trustedDependencies": [
     "@sentry/cli",

@@ -20,21 +20,10 @@
  * fails `tsc` rather than rendering blank. A CMS that catches your mistakes
  * before deploy is worth more than one that renders markdown.
  *
- * The FAQ is the one genuine candidate for MDX — answers are prose and will
- * grow links and emphasis. See `faq.mdx` in this directory.
+ * The FAQ answers are prose and were briefly an MDX file; that turned out to
+ * buy nothing over the catalogs, which already carry inline links, so the copy
+ * lives in `i18n/messages` with the rest of the translated strings.
  */
-
-/**
- * Heading for the FAQ section. Lives here, not as an `export const` in
- * faq.mdx, because it is a record like everything else in this file — and
- * because `@types/mdx` declares `*.mdx` with a default export only, so named
- * MDX exports need an ambient redeclaration that fights the shipped types for
- * no real gain.
- */
-export const FAQ_HEADING = {
-  eyebrow: "Con ops desk",
-  title: "Questions, answered",
-} as const;
 
 /** Feature rows, presented as a convention programme. Times are decorative. */
 export interface LineupItem {
@@ -114,20 +103,4 @@ export const STATS: readonly Stat[] = [
   { value: "0", label: "accounts needed to use it" },
   { value: "1 link", label: "imports a whole schedule" },
   { value: "∞", label: "conventions in one app" },
-] as const;
-
-/**
- * Marquee words.
- *
- * "Open source" was removed deliberately — keep this list to things the app
- * does, not to how it is built. The screen-reader sentence in the Ticker
- * component reads this array, so adding an item here also updates that.
- */
-export const TICKER_ITEMS: readonly string[] = [
-  "Schedules",
-  "Offline first",
-  "Reminders",
-  "Content flags",
-  "iOS",
-  "Android",
 ] as const;

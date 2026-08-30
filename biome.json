@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.8/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.11/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -52,17 +52,5 @@
         "organizeImports": "on"
       }
     }
-  },
-  "overrides": [
-    {
-      "includes": ["packages/ui/src/components/**"],
-      "linter": {
-        "rules": {
-          "a11y": {
-            "noLabelWithoutControl": "off"
-          }
-        }
-      }
-    }
-  ]
+  }
 }
