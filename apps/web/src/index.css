@@ -2,8 +2,8 @@
 
 /* ---------------------------------------------------------------------------
  * ConPaws pre-release page
- * Typography: Bricolage Grotesque (display/body) · Caveat (badge handwriting)
- * · IBM Plex Mono (technical labels, times, badge numbers)
+ * Typography: Montserrat (headings, badge) · Roboto (body) · Roboto Mono
+ * (technical labels, times, badge numbers)
  * ------------------------------------------------------------------------- */
 
 /* The closing CTA anchors back to the hero form. Instant jumps are fine for
@@ -20,10 +20,31 @@
   outline-offset: 2px;
 }
 
+/* Headings take the display face here rather than at ~40 call sites, so a
+   future face swap stays one line and no heading can be left on the body font
+   by omission. Montserrat is wide and geometric: at heading sizes it needs
+   negative tracking to stop looking like a logo lockup, applied here for the
+   same reason.
+
+   `@apply`, not `font-family: var(--font-display)`. The token is declared in
+   `@theme inline` below, and `inline` means exactly that Tailwind resolves it
+   into the generated utilities instead of emitting it as a `:root` custom
+   property — so the raw `var()` reads as empty, the declaration is invalid at
+   computed-value time, and every heading quietly inherits the body font
+   instead. Nothing errors; the page just looks wrong. */
+h1,
+h2,
+h3 {
+  @apply font-display;
+  letter-spacing: -0.02em;
+}
+
 @theme inline {
-  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
-  --font-tech: var(--font-plex), ui-monospace, "SF Mono", monospace;
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-montserrat), var(--font-roboto), ui-sans-serif, system-ui,
+    sans-serif;
+  --font-tech: var(--font-roboto-mono), ui-monospace, "SF Mono", monospace;
 
   --animate-rise: rise 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) both;
   --animate-sway: sway 6.5s ease-in-out infinite;

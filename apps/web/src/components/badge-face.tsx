@@ -47,11 +47,11 @@ export function BadgeFace({
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             <CompassPaw className="h-6 w-6 text-primary" />
-            <span className="font-bold text-[15px] tracking-tight">
+            <span className="font-display font-bold text-[15px] tracking-tight">
               ConPaws
             </span>
           </span>
-          <span className="rounded-[6px] border border-primary/40 bg-primary/10 px-2 py-0.5 font-tech text-[9px] text-primary uppercase tracking-[0.22em]">
+          <span className="rounded-[6px] border border-primary/40 bg-primary/10 px-2 py-0.5 font-tech font-medium text-[9.5px] text-primary uppercase tracking-[0.14em]">
             Beta
           </span>
         </div>
@@ -68,12 +68,19 @@ export function BadgeFace({
 
         {/* name zone */}
         <div className="mt-5 min-h-[92px]">
-          <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.3em]">
+          <p className="font-tech font-medium text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
             Attendee · Fursona
           </p>
+          {/* Printed, not handwritten. This was Caveat at 42px, which is what
+              a real badge's write-in line looks like and also what an unfamiliar
+              name is hardest to read in — and the whole point of the field is
+              that you recognise your own name in it. The dashed rule below
+              still carries the write-on-a-badge idea. `break-words` because the
+              name is free text from the form and Montserrat is far wider than
+              Caveat was, so it runs out of card sooner. */}
           <p
-            className={`mt-1 border-border border-b-2 border-dashed pb-2 font-hand text-[42px] leading-[1.1] ${
-              filled ? "text-sky-300" : "text-muted-foreground/40"
+            className={`mt-1 break-words border-border border-b-2 border-dashed pb-2 font-display font-semibold text-[30px] leading-[1.15] tracking-[-0.01em] ${
+              filled ? "text-sky-300" : "text-muted-foreground/50"
             }`}
           >
             {filled ? name : "your name here"}
@@ -82,10 +89,10 @@ export function BadgeFace({
 
         {/* role band */}
         <div className="mt-4 flex items-center justify-between rounded-[8px] bg-primary px-3.5 py-2">
-          <span className="font-bold text-[12px] text-primary-foreground uppercase tracking-[0.18em]">
+          <span className="font-display font-bold text-[12px] text-primary-foreground uppercase tracking-[0.12em]">
             Beta Tester
           </span>
-          <span className="font-tech text-[9px] text-primary-foreground/80 uppercase tracking-[0.14em]">
+          <span className="font-tech font-medium text-[9.5px] text-primary-foreground/90 uppercase tracking-[0.1em]">
             Founding Pack
           </span>
         </div>
@@ -116,13 +123,13 @@ export function BadgeFace({
             )}
           </svg>
           <div className="text-right">
-            <p className="font-tech text-[22px] text-primary leading-none tracking-[0.08em] tabular-nums">
+            <p className="font-tech font-semibold text-[23px] text-primary leading-none tracking-[0.04em] tabular-nums">
               № {badgeNumber}
             </p>
-            <p className="mt-1.5 font-tech text-[8.5px] text-muted-foreground uppercase tracking-[0.24em]">
+            <p className="mt-1.5 font-tech font-medium text-[10px] text-muted-foreground uppercase tracking-[0.12em]">
               iOS · Android · Est. 2025
             </p>
-            <p className="mt-0.5 font-tech text-[8.5px] text-muted-foreground/70 uppercase tracking-[0.24em]">
+            <p className="mt-0.5 font-tech font-medium text-[10px] text-muted-foreground/85 uppercase tracking-[0.12em]">
               Navigate · Connect · Enjoy
             </p>
           </div>

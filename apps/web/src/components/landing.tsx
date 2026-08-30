@@ -27,7 +27,13 @@ import type { Locale } from "@/i18n/config";
 function Ticker({ messages }: { messages: Messages }) {
   const row = messages.ticker.items.map((item) => (
     <span key={item} className="flex items-center gap-6 pr-6">
-      <span className="font-bold text-[15px] text-transparent uppercase tracking-[0.2em] [-webkit-text-stroke:1px_rgb(148_163_184/0.75)]">
+      {/* Filled, not outlined. These were transparent with a 1px stroke, which
+          is a fine effect on the 170px footer wordmark and unreadable at 15px:
+          a hairline outline leaves the letterform mostly background, so the
+          eye gets no shape to lock onto and the whole strip reads as texture.
+          The other two outlined elements on this page are 38px and 170px and
+          keep the effect. */}
+      <span className="font-display font-semibold text-[15px] text-slate-300 uppercase tracking-[0.14em]">
         {item}
       </span>
       <CompassPaw className="h-3.5 w-3.5 shrink-0 text-primary/50" />

@@ -13,6 +13,13 @@
       ],
       "cwd": "apps/web",
       "port": 8787
+    },
+    {
+      "name": "web-prod",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "start", "--", "--port", "3100"],
+      "cwd": "apps/web",
+      "port": 3100
     }
   ]
 }
