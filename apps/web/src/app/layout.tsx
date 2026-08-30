@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Caveat, IBM_Plex_Mono } from "next/font/google";
 
 import "../index.css";
 import Providers from "@/components/providers";
+import { ServiceWorker } from "@/components/service-worker";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -64,6 +65,7 @@ export default function RootLayout({
         className={`${bricolage.variable} ${caveat.variable} ${plexMono.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
+        <ServiceWorker />
       </body>
     </html>
   );

@@ -37,6 +37,16 @@ describe("buildContentSecurityPolicy", () => {
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
   });
+
+  // Without this the offline worker fails to register and the site silently
+  // loses offline reading — no error anyone would notice, because the page
+  // still works perfectly for whoever is online enough to be looking at it.
+  it("allows the offline service worker, from this origin only", () => {
+    const csp = buildContentSecurityPolicy("production");
+
+    expect(csp).toContain("worker-src 'self'");
+    expect(csp).not.toContain("worker-src *");
+  });
 });
 
 describe("securityHeaders", () => {
