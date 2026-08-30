@@ -1,3 +1,5 @@
+import { LEGAL_LAST_UPDATED } from "@/lib/constants";
+
 export const metadata = {
   title: "Privacy Policy",
   description: "How ConPaws handles app, website, and diagnostic data.",
@@ -5,11 +7,11 @@ export const metadata = {
 
 # Privacy Policy
 
-**Last updated:** August 25, 2026
+**Last updated:** {LEGAL_LAST_UPDATED}
 
 ## The Short Version
 
-ConPaws is built with privacy at its core. The current pre-release website does not accept signup submissions. If you use the app without an account, your schedules, choices, and settings stay on your device and are not sent to us. If you choose to import from a Sched link, your device contacts Sched to download that public calendar. A production build may send crash and diagnostic reports to Sentry when crash reporting is configured; the app disables Sentry's default collection of personally identifiable information. Account and ConPaws+ features are planned; if you choose them once they are available, we will collect only what's needed to provide them. We don't run ads, sell your data, or use behavioral analytics.
+ConPaws is built with privacy at its core. The website's waitlist is open: if you join it, we keep your email address, and what you were shown when you agreed, so we can email you about the launch. If you use the app without an account, your schedules, choices, and settings stay on your device and are not sent to us. If you choose to import from a Sched link, your device contacts Sched to download that public calendar. A production build may send crash and diagnostic reports to Sentry when crash reporting is configured; the app disables Sentry's default collection of personally identifiable information. Account and ConPaws+ features are planned; if you choose them once they are available, we will collect only what's needed to provide them. We don't run ads, sell your data, or use behavioral analytics.
 
 ---
 
@@ -23,7 +25,7 @@ This Privacy Policy explains how we collect, use, and protect your information w
 
 ### Pre-Release Waitlist (conpaws.com)
 
-The app isn't out yet, and beta registration is not open. The current website does not accept or store signup submissions. When registration opens, we plan to record:
+The app isn't out yet, but the waitlist is open. When you submit the signup form we record:
 
 - **Email address** — so we can email you
 - **Name** — optional; only if you fill it in
@@ -32,9 +34,15 @@ The app isn't out yet, and beta registration is not open. The current website do
 - **Date and time of signup**
 - **The exact consent wording shown when you submit the form**
 
-When registration opens, this information will be stored in Cloudflare D1 (a database hosted in the US) and synced to an email service provider, which will send the double-opt-in confirmation email and launch updates. That provider is not yet chosen, and we will name it in this policy before the form accepts a single address. We will not enable registration until storage, confirmation, unsubscribe, and deletion paths are working.
+This information is stored in Cloudflare D1, a database hosted in the United States. That record is the authoritative one — it is what we can produce as evidence of your consent, which is why it keeps the exact wording you were shown rather than a yes/no flag.
 
-Once registration opens, you can leave the list through any email's unsubscribe link or by emailing [legal@conpaws.com](mailto:legal@conpaws.com) to request deletion.
+Your email address and name are also sent to our mailing system, which is [listmonk](https://listmonk.app/), self-hosted on our own server rather than run by a third-party marketing company. It sends the confirmation email and, later, launch updates. Delivery of those emails is handled by Amazon Simple Email Service (Amazon Web Services, US region), which processes your address in order to hand the message to your mail provider.
+
+The list is double opt-in: nothing is sent to you beyond the confirmation email until you click the link in it. If you never confirm, your address stays unconfirmed and receives no further mail.
+
+Before you submit the form we also run [Cloudflare Turnstile](https://www.cloudflare.com/application-services/products/turnstile/), a bot check that replaces a CAPTCHA. Cloudflare processes the challenge under its own privacy policy; it does not track you across sites.
+
+You can leave the list at any time through the unsubscribe link in any email we send, or by emailing [legal@conpaws.com](mailto:legal@conpaws.com) to request deletion. Deletion removes both the mailing-system entry and the D1 record.
 
 ### Beta Testing (TestFlight and Google Play testing)
 
@@ -86,7 +94,7 @@ Once ConPaws+ is available, subscriber data is planned to include:
 We use data only for these purposes:
 
 - **Crash diagnostics:** When enabled in a production build, identify and fix crashes and performance problems
-- **Waitlist:** Once registration opens, send the confirmation email and let you know when ConPaws launches
+- **Waitlist:** Send the confirmation email, let you know when ConPaws launches, and keep evidence of what you agreed to
 - **Account features:** Display your profile to other users
 - **ConPaws+ features:** Sync your convention data to the cloud, share your schedule publicly
 - **Subscription management:** Verify your ConPaws+ subscription status
@@ -100,37 +108,40 @@ We do **not** use your data for:
 
 ## 4. Third-Party Services
 
-Cloudflare Workers currently hosts this website. Sched is contacted only when you choose its link-import option. When configured in a production build, Sentry processes crash and diagnostic reports on our behalf. The remaining integrations are planned for features that are not live yet.
+Cloudflare hosts this website, stores waitlist records, and runs the bot check on the signup form. Amazon SES delivers the waitlist emails. Sched is contacted only when you choose its link-import option. When configured in a production build, Sentry processes crash and diagnostic reports on our behalf. The remaining integrations are planned for features that are not live yet.
 
 | Service | Purpose | Their Privacy Policy |
 |---------|---------|---------------------|
-| Cloudflare Workers | Current website hosting | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Cloudflare Workers | Website hosting | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Cloudflare D1 | Waitlist storage (US-hosted database) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Cloudflare Turnstile | Bot check on the signup form | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Amazon SES | Delivers waitlist confirmation and launch emails | [aws.amazon.com/privacy](https://aws.amazon.com/privacy/) |
 | Sched | Optional public-calendar download you request | [sched.com/privacy](https://sched.com/privacy/) |
 | Sentry | Production crash and diagnostic processing, only when configured | [sentry.io/privacy](https://sentry.io/privacy/) |
 | Apple Sign-In | Planned authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
 | Google Sign-In | Planned authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
 | RevenueCat | Planned subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
 | Cloudflare R2 | Planned avatar file storage | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
-| Cloudflare D1 | Planned waitlist and account storage (US-hosted database) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
-| Email service provider | Planned waitlist confirmation emails and launch updates | Named here before registration opens |
 
-**Note:** Cloudflare does not currently receive waitlist or account records because those features are closed.
+**Note:** Our mailing system (listmonk) is not in this table because it is not a third party — we host and operate it ourselves. Amazon SES appears because it is the outside service that actually delivers the mail.
 
 ## 5. Data Sharing
 
-We do **not** currently collect or share waitlist signup data. Current processing is limited to:
+Current processing is limited to:
 
 - **Cloudflare Workers:** Hosts this website.
+- **Cloudflare D1:** Stores your waitlist record, including the consent evidence described in section 2.
+- **Cloudflare Turnstile:** Checks that the signup form was submitted by a person.
+- **Amazon SES:** Receives your email address in order to deliver the confirmation email and launch updates. It does not receive your consent record, IP address, or campaign tags.
 - **Sched:** Downloads a public calendar only when you request a link import.
 - **Sentry:** When crash reporting is configured in a production build, processes crash and diagnostic reports on our behalf. The app disables Sentry's default collection of personally identifiable information.
 - **Law enforcement:** If required by law (court order, subpoena)
 
-If the planned account, waitlist, and ConPaws+ features launch, processing would also include:
+If the planned account and ConPaws+ features launch, processing would also include:
 
 - **Apple/Google:** Authentication (OAuth sign-in) and subscription billing
 - **RevenueCat:** Subscription management (receives your anonymous user ID and subscription status only)
-- **Our email service provider:** Waitlist confirmation emails and updates (would receive your email and name only)
-- **Cloudflare D1/R2:** Account and waitlist records, plus avatar file storage
+- **Cloudflare D1/R2:** Account records and avatar file storage
 
 We do **not** sell, rent, or trade your personal information. Ever.
 
@@ -139,20 +150,20 @@ We do **not** sell, rent, or trade your personal information. Ever.
 | Scenario | What Happens |
 |----------|-------------|
 | **Free (no account)** | Your schedules, reminders, and settings stay on your device. When crash reporting is configured, diagnostics are kept only as long as needed to identify and prevent app problems, subject to the Sentry project's configured retention. |
-| **Waitlist signup (once open)** | Kept until launch or until you unsubscribe — whichever comes first. |
+| **Waitlist signup** | Kept until launch or until you unsubscribe — whichever comes first. Unconfirmed signups are kept as evidence of the request until you ask us to delete them. |
 | **Account exists** | Profile data kept until you delete your account. |
 | **ConPaws+ cancelled** | Cloud data retained for 30 days, then permanently deleted. Local data stays on your device. |
 | **Account deleted** | All cloud data (profile, conventions, events, avatar) permanently deleted immediately. |
 
 ## 7. Your Rights
 
-If we begin holding your data, you have the right to:
+Over any data we hold about you — today, that means a waitlist record if you have one — you have the right to:
 
 - **Access** your data — Request a copy of the information we hold about you
 - **Correct** your data — Ask us to correct inaccurate information
 - **Delete** your data — Ask us to delete it; self-service account deletion is planned
 - **Export** your data — Download your cloud data once account sync is available
-- **Withdraw consent** — Sign out or delete your account at any time; once the waitlist opens, use any email's unsubscribe link or email us
+- **Withdraw consent** — Use the unsubscribe link in any email we send, or email us; for future accounts, sign out or delete the account at any time
 
 These rights apply to all users, regardless of location. We comply with:
 
@@ -166,7 +177,8 @@ These rights apply to all users, regardless of location. We comply with:
 - The planned Worker API will verify ownership before every D1 query; D1 does not provide Row Level Security
 - Authentication will be handled by OAuth providers (Apple and Google)
 - Avatar storage will use signed URLs with limited validity
-- Cloudflare currently hosts the website and will host the planned D1 databases and R2 storage
+- Cloudflare hosts the website and the D1 database holding waitlist records, and will host the planned R2 storage
+- Waitlist records are reachable only through our Worker; the database is not exposed to the public internet
 
 ## 9. Children's Privacy
 
