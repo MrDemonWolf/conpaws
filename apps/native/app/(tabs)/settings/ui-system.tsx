@@ -22,10 +22,17 @@ import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
 import {
+  Badge,
+  type BadgeVariant,
+  Banner,
+  Button,
+  Card,
   ConventionListSkeleton,
   EmptyState,
   Input,
+  Row as ListRow,
   ScheduleSkeleton,
+  Text,
 } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
@@ -47,8 +54,31 @@ const SKELETON_ICON = Icon.select({
   ios: "rectangle.on.rectangle",
   android: FormsIcon,
 });
+const BANNER_ICON = Icon.select({
+  ios: "exclamationmark.bubble",
+  android: FormsIcon,
+});
 
-type SheetPreview = "empty" | "fields" | "form" | "skeleton" | null;
+const BADGE_VARIANTS: BadgeVariant[] = [
+  "upcoming",
+  "active",
+  "ended",
+  "info",
+  "neutral",
+  "age-teen",
+  "age-mature",
+  "age-adult",
+];
+
+type SheetPreview =
+  | "banners"
+  | "buttons"
+  | "empty"
+  | "fields"
+  | "form"
+  | "skeleton"
+  | "surfaces"
+  | null;
 
 function NavigationIndicator() {
   return <Icon name={CHEVRON_ICON} size={15} />;
@@ -152,6 +182,30 @@ export default function UiSystemScreen() {
           >
             Loading skeletons
           </ListItem>
+          <ListItem
+            leading={<Icon name={BANNER_ICON} size={22} />}
+            supportingText="Both tones, with and without title, action, dismiss"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("banners")}
+          >
+            Banners
+          </ListItem>
+          <ListItem
+            leading={<Icon name={FORM_ICON} size={22} />}
+            supportingText="Every variant and size, including disabled and loading"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("buttons")}
+          >
+            Buttons and badges
+          </ListItem>
+          <ListItem
+            leading={<Icon name={SKELETON_ICON} size={22} />}
+            supportingText="The shared card surface and tappable list row"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("surfaces")}
+          >
+            Cards and rows
+          </ListItem>
         </FieldGroup.Section>
 
         <FieldGroup.Section title="Accessibility type">
@@ -226,6 +280,111 @@ export default function UiSystemScreen() {
                 </View>
                 <View className="h-[280px]">
                   <ScheduleSkeleton sections={1} rowsPerSection={2} />
+                </View>
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "banners" ? (
+            <RNHostView matchContents>
+              <View
+                className="gap-2 bg-background py-4"
+                style={{ width: sheetContentWidth }}
+              >
+                <Banner
+                  title="A saved panel moved"
+                  body="Marked below, with the new time and room."
+                  dismissLabel="Dismiss"
+                  onDismiss={() => undefined}
+                />
+                <Banner
+                  title="Reminders are paused"
+                  body="Notifications are off for ConPaws."
+                  actionLabel="Open Settings"
+                  onAction={() => undefined}
+                />
+                <Banner
+                  tone="info"
+                  body="Tap an event to add it to My Schedule."
+                  dismissLabel="Dismiss"
+                  onDismiss={() => undefined}
+                />
+                <Banner body="Body only, no title, no controls." />
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "buttons" ? (
+            <RNHostView matchContents>
+              <View
+                className="gap-3 bg-background p-4"
+                style={{ width: sheetContentWidth }}
+              >
+                {(
+                  [
+                    "default",
+                    "secondary",
+                    "outline",
+                    "ghost",
+                    "destructive",
+                  ] as const
+                ).map((variant) => (
+                  <Button
+                    key={variant}
+                    variant={variant}
+                    onPress={() => undefined}
+                  >
+                    {variant}
+                  </Button>
+                ))}
+                <Button size="sm" onPress={() => undefined}>
+                  Small
+                </Button>
+                <Button size="lg" onPress={() => undefined}>
+                  Large
+                </Button>
+                <Button disabled onPress={() => undefined}>
+                  Disabled
+                </Button>
+                <Button loading onPress={() => undefined}>
+                  Loading
+                </Button>
+                <View className="flex-row flex-wrap gap-2 pt-2">
+                  {BADGE_VARIANTS.map((variant) => (
+                    <Badge key={variant} variant={variant} label={variant} />
+                  ))}
+                  <Badge variant="age-adult" emphasis="strong" label="strong" />
+                </View>
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "surfaces" ? (
+            <RNHostView matchContents>
+              <View
+                className="gap-3 bg-background p-4"
+                style={{ width: sheetContentWidth }}
+              >
+                <Card className="gap-1">
+                  <Text variant="h3">Card</Text>
+                  <Text variant="caption">
+                    The bordered surface used for grouped content.
+                  </Text>
+                </Card>
+                <ListRow
+                  className="rounded-xl border border-border bg-card px-4"
+                  onPress={() => undefined}
+                  trailing={<Text className="text-primary">↗</Text>}
+                >
+                  <Text variant="body" className="font-semibold">
+                    Standalone row
+                  </Text>
+                </ListRow>
+                <View>
+                  <ListRow
+                    className="border-border border-b px-1"
+                    onPress={() => undefined}
+                    trailing={<Text variant="caption">Trailing</Text>}
+                  >
+                    <Text variant="body">Grouped row</Text>
+                  </ListRow>
+                  <ListRow className="px-1" onPress={() => undefined}>
+                    <Text variant="body">Grouped row, last</Text>
+                  </ListRow>
                 </View>
               </View>
             </RNHostView>

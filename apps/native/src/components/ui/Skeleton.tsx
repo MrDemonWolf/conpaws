@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { View, type ViewProps } from "react-native";
+import { useWindowDimensions, View, type ViewProps } from "react-native";
 import Animated, {
   cancelAnimation,
   Easing,
@@ -119,6 +119,23 @@ export function SkeletonScreen({
 }
 
 /**
+ * How many placeholder rows it takes to reach the bottom of the screen.
+ *
+ * The counts here used to be fixed -- two sections of three rows, four
+ * convention cards -- which filled less than half of a modern phone and left a
+ * blank slab underneath. That reads as "the content loaded and there was
+ * hardly any", the opposite of what a skeleton is for: it has to look like the
+ * screen that is coming, and the screen that is coming is full.
+ *
+ * Deliberately rounds up. Overshooting clips harmlessly against the flex-1
+ * container; undershooting is the bug being fixed.
+ */
+function useFillCount(rowHeight: number, reserved = 0): number {
+  const { height } = useWindowDimensions();
+  return Math.max(3, Math.ceil((height - reserved) / rowHeight));
+}
+
+/**
  * Stable keys for placeholder rows. These lists never reorder -- they exist for
  * exactly as long as a load takes -- so the keys only have to be unique.
  */
@@ -127,16 +144,20 @@ function placeholderKeys(prefix: string, count: number): string[] {
 }
 
 /** Mirrors `ConventionCard`: title line, then a date line with a status chip. */
-export function ConventionListSkeleton({ rows = 4 }: { rows?: number }) {
+export function ConventionListSkeleton({ rows }: { rows?: number } = {}) {
+  // min-h-16 plus the row's own padding.
+  const filled = useFillCount(64);
+  const count = rows ?? filled;
+
   return (
     <SkeletonScreen>
       <View className="px-4">
-        {placeholderKeys("convention", rows).map((key, index) => (
+        {placeholderKeys("convention", count).map((key, index) => (
           <View
             key={key}
             className={cn(
               "min-h-16 flex-row items-center gap-3 px-1 py-3",
-              index < rows - 1 && "border-b border-border",
+              index < count - 1 && "border-b border-border",
             )}
           >
             <View className="flex-1 gap-2">
@@ -160,11 +181,16 @@ export function ConventionListSkeleton({ rows = 4 }: { rows?: number }) {
  */
 export function ScheduleSkeleton({
   sections = 2,
-  rowsPerSection = 3,
+  rowsPerSection,
 }: {
   sections?: number;
   rowsPerSection?: number;
-}) {
+} = {}) {
+  // A day header is ~40pt and an event row ~60pt; the rows have to cover
+  // whatever the headers do not.
+  const filled = useFillCount(60 * sections, 40 * sections);
+  const rows = rowsPerSection ?? filled;
+
   return (
     <SkeletonScreen>
       {placeholderKeys("schedule-section", sections).map((sectionKey) => (
@@ -172,23 +198,21 @@ export function ScheduleSkeleton({
           <View className="px-4 pt-4 pb-2">
             <Skeleton className="h-4 w-32" />
           </View>
-          {placeholderKeys(`${sectionKey}-row`, rowsPerSection).map(
-            (rowKey) => (
-              <View
-                key={rowKey}
-                className="min-h-14 flex-row gap-3 border-b border-border px-4 py-3"
-              >
-                <View className="w-20 shrink-0 gap-1.5">
-                  <Skeleton className="h-4 w-14" />
-                  <Skeleton className="h-3 w-12" />
-                </View>
-                <View className="flex-1 gap-2">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                </View>
+          {placeholderKeys(`${sectionKey}-row`, rows).map((rowKey) => (
+            <View
+              key={rowKey}
+              className="min-h-14 flex-row gap-3 border-b border-border px-4 py-3"
+            >
+              <View className="w-20 shrink-0 gap-1.5">
+                <Skeleton className="h-4 w-14" />
+                <Skeleton className="h-3 w-12" />
               </View>
-            ),
-          )}
+              <View className="flex-1 gap-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </View>
+            </View>
+          ))}
         </View>
       ))}
     </SkeletonScreen>

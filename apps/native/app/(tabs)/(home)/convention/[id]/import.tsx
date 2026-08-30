@@ -11,6 +11,7 @@ import {
 } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { getCalendars } from "expo-localization";
@@ -28,6 +29,7 @@ import { useImportSchedule } from "@/hooks/useImportSchedule";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { isValidTimeZone } from "@/lib/convention-time";
+import { developerToolsEnabled } from "@/lib/developer-tools";
 import type { FeedSource } from "@/lib/feed-source";
 import {
   type CategoryMeta,
@@ -66,6 +68,19 @@ type Tab = "file" | "url";
 interface ErrorState {
   type: "file-type" | "network" | "no-events" | "parse" | "timezone";
   message: string;
+  /**
+   * The underlying failure, untranslated, shown only where developer tools are
+   * already enabled.
+   *
+   * `message` is deliberately vague -- "Check your connection and try again"
+   * is the right thing to tell someone whose train went into a tunnel. But it
+   * is the same sentence for a DNS failure, an ATS rejection and a 30s
+   * timeout, and ConPaws fetches arbitrary third-party hosts under
+   * `NSAllowsArbitraryLoads: false`. A server whose certificate chain is
+   * incomplete loads fine in a Mac browser and fails only here, and without
+   * the real message there is nothing to go on.
+   */
+  detail?: string;
 }
 
 interface PreviewState {
@@ -117,6 +132,10 @@ export default function ImportScreen() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
+  const showDeveloperTools = developerToolsEnabled(
+    __DEV__,
+    Constants.expoConfig?.extra?.appVariant,
+  );
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [pendingCalendar, setPendingCalendar] =
     useState<PendingCalendar | null>(null);
@@ -365,21 +384,25 @@ export default function ImportScreen() {
         setError({
           type: "network",
           message: t("import.errors.network"),
+          detail: err.message,
         });
       } else if (err instanceof InvalidResponseError) {
         setError({
           type: "no-events",
           message: t("import.errors.invalidResponse"),
+          detail: err.message,
         });
       } else if (err instanceof ScheduleTooLargeError) {
         setError({
           type: "file-type",
           message: t("import.errors.tooLarge"),
+          detail: err.message,
         });
       } else {
         setError({
           type: "parse",
           message: t("import.errors.generic"),
+          detail: err instanceof Error ? err.message : String(err),
         });
       }
     } finally {
@@ -683,7 +706,10 @@ export default function ImportScreen() {
         <Stack.Toolbar placement="left">
           <Stack.Toolbar.Button
             onPress={handleCancel}
-            disabled={controlsDisabled}
+            // Only the database write is uninterruptible. A URL fetch can run
+            // for the full 30s timeout, and disabling Cancel through it left
+            // the one wait long enough to need an escape without one.
+            disabled={importMutation.isPending}
           >
             {t("common.cancel")}
           </Stack.Toolbar.Button>
@@ -692,9 +718,10 @@ export default function ImportScreen() {
         <FormModalHeader
           title={t("import.title")}
           cancelLabel={t("common.cancel")}
-          // FormModalHeader has no disabled state for Cancel, so the press is
-          // dropped instead. See the handoff note in the audit report.
-          onCancel={controlsDisabled ? () => undefined : handleCancel}
+          // FormModalHeader has no disabled state for Cancel, so the press
+          // is dropped instead. Dropped only during the write — a fetch stays
+          // cancellable, see the toolbar note above.
+          onCancel={importMutation.isPending ? () => undefined : handleCancel}
         />
       )}
 
@@ -749,6 +776,24 @@ export default function ImportScreen() {
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>
 
+          {/* Directly under the two things that start a load, not below the
+              help section where it used to sit — on a phone with the keyboard
+              up that put the only sign of progress off-screen, so tapping
+              "Fetch schedule" looked like it had done nothing. HIG: put the
+              feedback where the action happened. */}
+          {loading ? (
+            <FieldGroup.Section>
+              {/* Untinted UIActivityIndicatorView — system gray, matching the
+                  "checking…" rows in iOS Settings. */}
+              <ListItem
+                supportingText={t("import.loadingDescription")}
+                trailing={<ActivityIndicator size="small" />}
+              >
+                {t("import.loading")}
+              </ListItem>
+            </FieldGroup.Section>
+          ) : null}
+
           {/* The single biggest first-run stall was this screen assuming the
               user already knows what Sched or an .ics file is. */}
           <FieldGroup.Section>
@@ -769,19 +814,6 @@ export default function ImportScreen() {
             </Collapsible>
           </FieldGroup.Section>
 
-          {loading ? (
-            <FieldGroup.Section>
-              {/* Untinted UIActivityIndicatorView — system gray, matching the
-                  "checking…" rows in iOS Settings. */}
-              <ListItem
-                supportingText={t("import.loadingDescription")}
-                trailing={<ActivityIndicator size="small" />}
-              >
-                {t("import.loading")}
-              </ListItem>
-            </FieldGroup.Section>
-          ) : null}
-
           {error && !loading ? (
             <FieldGroup.Section title={t("import.needsAttention")}>
               <ListItem supportingText={error.message}>
@@ -789,6 +821,13 @@ export default function ImportScreen() {
                   ? t("import.timeZone.requiredTitle")
                   : t("import.couldNotLoad")}
               </ListItem>
+              {/* Untranslated on purpose: this is the failure verbatim, and a
+                  translated stack trace helps nobody. Owner builds only. */}
+              {showDeveloperTools && error.detail ? (
+                <ListItem supportingText={error.detail}>
+                  Developer detail
+                </ListItem>
+              ) : null}
               {error.type === "timezone" ? (
                 <>
                   {timeZoneFields}
