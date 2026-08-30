@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Home",
-    "profile": "Profile",
     "settings": "Settings",
-    "back": "Back",
     "add": "Add",
     "remove": "Remove",
     "save": "Save",
@@ -16,10 +13,6 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Retry",
-    "close": "Close",
-    "next": "Next",
-    "skip": "Skip",
-    "getStarted": "Get Started",
     "learnMore": "Learn More",
     "version": "Version {{version}}",
     "advanced": "Advanced",
@@ -36,7 +29,6 @@
     "detail": "Convention Details",
     "loadingTitle": "Loading convention",
     "loadErrorSubtitle": "The convention or its events could not be loaded.",
-    "events": "Events",
     "searchEvents": "Search events",
     "filterEvents": "Filter events",
     "scheduleActions": "Schedule actions",
@@ -70,12 +62,10 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "timeZone": "Time Zone",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Search Time Zones",
     "timeZoneSearchPlaceholder": "City or region",
     "timeZoneNoResults": "No time zones match “{{query}}”.",
     "timeZoneAdvancedHelp": "ConPaws defaults to this device's time zone. Change it only if the convention runs somewhere else.",
-    "timeZoneHelp": "Use the convention's local time zone, such as America/Chicago.",
     "name": "Convention Name",
     "namePlaceholder": "e.g. ConPaws Preview Con",
     "nameRequired": "Enter a convention name.",
@@ -111,7 +101,6 @@
       "imported": "Imported",
       "added": "Added"
     },
-    "ageRestricted": "Age restricted",
     "contentWarning": "Content warning",
     "eventActionsHint": "Opens event details, schedule, and reminder actions.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Event title",
       "titleAccessibility": "Event title, required",
       "dateLabel": "Date *",
-      "dateAccessibility": "Event date, required, YYYY-MM-DD",
       "startLabel": "Start *",
-      "startAccessibility": "Start time, required, 24-hour HH:mm",
       "endLabel": "End",
       "endAccessibility": "End time, optional, 24-hour HH:mm",
       "roomLabel": "Room",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} saved and added to My Schedule.",
       "errors": {
         "title": "Title is required.",
-        "date": "Date must use YYYY-MM-DD and be a real calendar date.",
-        "startTime": "Start time must use 24-hour HH:mm, such as 09:30.",
-        "endTime": "End time must use 24-hour HH:mm, such as 10:30.",
         "startTimeZone": "That start time does not exist in the convention time zone.",
         "endTimeZone": "That end time does not exist in the convention time zone.",
         "order": "End time must be later than start time on the same date.",
@@ -149,7 +133,6 @@
       "adult": "18+ Adult"
     },
     "nameTooLong": "Keep the name to {{max}} characters or fewer.",
-    "endBeforeStart": "The end date can't be before the start date.",
     "longSpan": "That's a {{count}}-day convention. Double-check the dates.",
     "updateError": "Couldn't save your changes.",
     "nameCounter": "{{count}} of {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Conventions could not be loaded.",
     "dateRange": "{{start}} to {{end}}",
-    "upcoming": "Upcoming",
     "active": "Active",
     "past": "Past",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Import Schedule",
     "source": "Source",
-    "sourceLabel": "Import from",
     "url": "Schedule Link",
     "file": "Calendar File",
     "urlPlaceholder": "Sched, .ics, or webcal link",
@@ -263,16 +244,12 @@
     "importing": "Importing...",
     "applying": "Applying...",
     "applyUpdate": "Apply Schedule Update",
-    "success": "Import complete",
-    "error": "Import failed",
     "timeZone": {
       "sectionTitle": "Time Zone",
       "label": "Convention time zone",
-      "placeholder": "America/Chicago",
       "help": "Use the convention's location, not your phone's current location.",
       "requiredTitle": "Time Zone Required",
       "requiredMessage": "Choose the convention's time zone before importing — pick the city the convention is in.",
-      "choose": "Choose a time zone",
       "use": "Use Time Zone"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Your convention data stays on this device."
       },
       "plus": {
-        "eyebrow": "Coming soon",
-        "title": "ConPaws+",
-        "description": "We plan to add optional premium cloud backup, sync, and social features. ConPaws works offline now and does not need an account."
+        "title": "Free and offline",
+        "description": "Everything here works with no account and no network. Optional cloud features may come later."
       },
       "next": "Continue"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "No account required. Your data stays local."
     }
   },
-  "profile": {
-    "title": "Profile",
-    "signIn": "Sign In",
-    "notSignedIn": "Not signed in",
-    "notSignedInSubtitle": "Sign in to sync your schedule and connect with friends.",
-    "comingSoon": "Profile features coming soon",
-    "signInWithApple": "Sign in with Apple",
-    "signInWithGoogle": "Sign in with Google"
-  },
   "reminders": {
-    "title": "Reminders",
-    "add": "Add Reminder",
     "minutesBefore": "{{minutes}} min before",
     "atTime": "At event time",
     "none": "No leave reminder",
@@ -455,11 +420,6 @@
       "description": "Choose how ConPaws looks on this device.",
       "changeError": "ConPaws could not change the appearance. Try again."
     },
-    "account": {
-      "title": "Account",
-      "signIn": "Sign In",
-      "signOut": "Sign Out"
-    },
     "app": {
       "title": "App",
       "theme": "Theme",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws could not export your data. Try again.",
       "importData": "Import Data",
       "importDescription": "Restore conventions and schedules from a backup.",
-      "importing": "Opening backup",
-      "resetOnboarding": "Reset Onboarding"
+      "importing": "Opening backup"
     },
     "dataImport": {
       "confirmTitle": "Restore backup?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Legal",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "about": "About ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "About",
-      "contact": "hello@conpaws.com",
       "tagline": "Your convention schedule, ready offline.",
       "resources": "Resources",
       "website": "Website",
       "builtWith": "Built with",
       "licenseDescription": "{{count}} packages and tools",
       "support": "Support",
+      "helpCenter": "Help Center",
       "email": "Email",
       "discordDescription": "Join the community",
       "copyright": "ConPaws by MrDemonWolf, Inc."

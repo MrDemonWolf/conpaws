@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Hem",
-    "profile": "Profil",
     "settings": "Inställningar",
-    "back": "Tillbaka",
     "add": "Lägg till",
     "remove": "Ta bort",
     "save": "Spara",
@@ -16,10 +13,6 @@
     "loading": "Laddar...",
     "error": "Något gick fel",
     "retry": "Försök igen",
-    "close": "Stäng",
-    "next": "Nästa",
-    "skip": "Hoppa över",
-    "getStarted": "Kom igång",
     "learnMore": "Läs mer",
     "version": "Version {{version}}",
     "advanced": "Avancerat",
@@ -36,7 +29,6 @@
     "detail": "Konventdetaljer",
     "loadingTitle": "Läser in konvent",
     "loadErrorSubtitle": "Det gick inte att läsa in konventet eller dess evenemang.",
-    "events": "Evenemang",
     "searchEvents": "Sök bland evenemang",
     "filterEvents": "Filtrera evenemang",
     "scheduleActions": "Schemaåtgärder",
@@ -70,12 +62,10 @@
     "startDate": "Startdatum",
     "endDate": "Slutdatum",
     "timeZone": "Tidszon",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Sök tidszoner",
     "timeZoneSearchPlaceholder": "Stad eller region",
     "timeZoneNoResults": "Inga tidszoner matchar ”{{query}}”.",
     "timeZoneAdvancedHelp": "ConPaws använder som standard den här enhetens tidszon. Ändra den bara om konventet hålls någon annanstans.",
-    "timeZoneHelp": "Använd konventets lokala tidszon, till exempel America/Chicago.",
     "name": "Konventnamn",
     "namePlaceholder": "t.ex. ConPaws Preview Con",
     "nameRequired": "Ange ett namn på konventet.",
@@ -111,7 +101,6 @@
       "imported": "Importerat",
       "added": "Tillagt"
     },
-    "ageRestricted": "Åldersbegränsat",
     "contentWarning": "Innehållsvarning",
     "eventActionsHint": "Öppnar evenemangsdetaljer, schema- och påminnelseåtgärder.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Evenemangets titel",
       "titleAccessibility": "Evenemangets titel, obligatorisk",
       "dateLabel": "Datum *",
-      "dateAccessibility": "Evenemangsdatum, obligatoriskt, ÅÅÅÅ-MM-DD",
       "startLabel": "Start *",
-      "startAccessibility": "Starttid, obligatorisk, 24-timmarsformat HH:mm",
       "endLabel": "Slut",
       "endAccessibility": "Sluttid, valfri, 24-timmarsformat HH:mm",
       "roomLabel": "Rum",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} har sparats och lagts till i Mitt schema.",
       "errors": {
         "title": "En titel krävs.",
-        "date": "Datumet måste använda ÅÅÅÅ-MM-DD och vara ett verkligt kalenderdatum.",
-        "startTime": "Starttiden måste använda 24-timmarsformat HH:mm, till exempel 09:30.",
-        "endTime": "Sluttiden måste använda 24-timmarsformat HH:mm, till exempel 10:30.",
         "startTimeZone": "Den starttiden finns inte i konventets tidszon.",
         "endTimeZone": "Den sluttiden finns inte i konventets tidszon.",
         "order": "Sluttiden måste vara senare än starttiden på samma datum.",
@@ -149,7 +133,6 @@
       "adult": "18+ Vuxen"
     },
     "nameTooLong": "Namnet får vara högst {{max}} tecken.",
-    "endBeforeStart": "Slutdatumet kan inte vara före startdatumet.",
     "longSpan": "Det är ett {{count}} dagar långt konvent. Kontrollera datumen.",
     "updateError": "Det gick inte att spara ändringarna.",
     "nameCounter": "{{count}} av {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Det gick inte att läsa in konvent.",
     "dateRange": "{{start}} till {{end}}",
-    "upcoming": "Kommande",
     "active": "Aktiva",
     "past": "Avslutade",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Importera Schema",
     "source": "Källa",
-    "sourceLabel": "Importera från",
     "url": "Schemalänk",
     "file": "Kalenderfil",
     "urlPlaceholder": "Sched-, .ics- eller webcal-länk",
@@ -263,16 +244,12 @@
     "importing": "Importerar...",
     "applying": "Tillämpar...",
     "applyUpdate": "Tillämpa schemauppdatering",
-    "success": "Import klar",
-    "error": "Importen misslyckades",
     "timeZone": {
       "sectionTitle": "Tidszon",
       "label": "Konventets tidszon",
-      "placeholder": "America/Chicago",
       "help": "Använd konventets plats, inte telefonens aktuella plats.",
       "requiredTitle": "Tidszon krävs",
       "requiredMessage": "Välj konventets tidszon innan du importerar – välj staden där det hålls.",
-      "choose": "Välj en tidszon",
       "use": "Använd tidszon"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Dina konventsdata stannar på den här enheten."
       },
       "plus": {
-        "eyebrow": "Kommer snart",
-        "title": "ConPaws+",
-        "description": "Valfri premiumbackup i molnet, synkronisering och sociala funktioner planeras. ConPaws fungerar offline redan idag. Inget konto krävs."
+        "title": "Gratis och offline",
+        "description": "Allt här fungerar utan konto och utan nätverk. Valfria molnfunktioner kan komma senare."
       },
       "next": "Fortsätt"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Inget konto krävs. Dina data lagras lokalt."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Logga In",
-    "notSignedIn": "Inte inloggad",
-    "notSignedInSubtitle": "Logga in för att synkronisera ditt schema och ansluta med vänner.",
-    "comingSoon": "Profilfunktioner kommer snart",
-    "signInWithApple": "Logga in med Apple",
-    "signInWithGoogle": "Logga in med Google"
-  },
   "reminders": {
-    "title": "Påminnelser",
-    "add": "Lägg till Påminnelse",
     "minutesBefore": "{{minutes}} min innan",
     "atTime": "Vid evenemangstid",
     "none": "Ingen avgångspåminnelse",
@@ -455,11 +420,6 @@
       "description": "Välj hur ConPaws ska se ut på den här enheten.",
       "changeError": "ConPaws kunde inte ändra utseendet. Försök igen."
     },
-    "account": {
-      "title": "Konto",
-      "signIn": "Logga In",
-      "signOut": "Logga Ut"
-    },
     "app": {
       "title": "App",
       "theme": "Tema",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws kunde inte exportera dina data. Försök igen.",
       "importData": "Importera Data",
       "importDescription": "Återställ konvent och scheman från en säkerhetskopia.",
-      "importing": "Öppnar säkerhetskopia",
-      "resetOnboarding": "Återställ Introduktion"
+      "importing": "Öppnar säkerhetskopia"
     },
     "dataImport": {
       "confirmTitle": "Återställa säkerhetskopian?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Juridiskt",
       "privacyPolicy": "Integritetspolicy",
       "termsOfService": "Användarvillkor",
       "about": "Om ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Om",
-      "contact": "hello@conpaws.com",
       "tagline": "Ditt konventsschema, tillgängligt offline.",
       "resources": "Resurser",
       "website": "Webbplats",
       "builtWith": "Byggd med",
       "licenseDescription": "{{count}} paket och verktyg",
       "support": "Support",
+      "helpCenter": "Hjälpcenter",
       "email": "E-post",
       "discordDescription": "Gå med i communityn",
       "copyright": "ConPaws by MrDemonWolf, Inc."

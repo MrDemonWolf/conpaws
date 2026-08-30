@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Kezdőlap",
-    "profile": "Profil",
     "settings": "Beállítások",
-    "back": "Vissza",
     "add": "Hozzáadás",
     "remove": "Eltávolítás",
     "save": "Mentés",
@@ -16,10 +13,6 @@
     "loading": "Betöltés...",
     "error": "Hiba történt",
     "retry": "Újra",
-    "close": "Bezárás",
-    "next": "Tovább",
-    "skip": "Kihagyás",
-    "getStarted": "Kezdés",
     "learnMore": "Tudj meg többet",
     "version": "Verzió: {{version}}",
     "advanced": "Speciális",
@@ -36,7 +29,6 @@
     "detail": "A con adatai",
     "loadingTitle": "Con betöltése",
     "loadErrorSubtitle": "A cont vagy az eseményeit nem sikerült betölteni.",
-    "events": "Események",
     "searchEvents": "Események keresése",
     "filterEvents": "Események szűrése",
     "scheduleActions": "Programműveletek",
@@ -70,12 +62,10 @@
     "startDate": "Kezdés dátuma",
     "endDate": "Befejezés dátuma",
     "timeZone": "Időzóna",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Időzónák keresése",
     "timeZoneSearchPlaceholder": "Város vagy régió",
     "timeZoneNoResults": "Egy időzóna sem felel meg ennek: „{{query}}”.",
     "timeZoneAdvancedHelp": "A ConPaws alapból ennek az eszköznek az időzónáját használja. Csak akkor módosítsd, ha a con máshol zajlik.",
-    "timeZoneHelp": "A con helyi időzónáját használd, például America/Chicago.",
     "name": "A con neve",
     "namePlaceholder": "pl. ConPaws Preview Con",
     "nameRequired": "Adj nevet a connak.",
@@ -111,7 +101,6 @@
       "imported": "Importált",
       "added": "Hozzáadott"
     },
-    "ageRestricted": "Korhatáros",
     "contentWarning": "Tartalmi figyelmeztetés",
     "eventActionsHint": "Megnyitja az esemény adatait, programját és emlékeztető-műveleteit.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Az esemény címe",
       "titleAccessibility": "Az esemény címe, kötelező",
       "dateLabel": "Dátum *",
-      "dateAccessibility": "Az esemény dátuma, kötelező, ÉÉÉÉ-HH-NN",
       "startLabel": "Kezdés *",
-      "startAccessibility": "Kezdési idő, kötelező, 24 órás ÓÓ:pp",
       "endLabel": "Befejezés",
       "endAccessibility": "Befejezési idő, nem kötelező, 24 órás ÓÓ:pp",
       "roomLabel": "Terem",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} elmentve és hozzáadva a Saját programhoz.",
       "errors": {
         "title": "A cím megadása kötelező.",
-        "date": "A dátum formátuma ÉÉÉÉ-HH-NN legyen, és létező naptári napra essen.",
-        "startTime": "A kezdési idő 24 órás ÓÓ:pp formátumú legyen, például 09:30.",
-        "endTime": "A befejezési idő 24 órás ÓÓ:pp formátumú legyen, például 10:30.",
         "startTimeZone": "Ez a kezdési idő nem létezik a con időzónájában.",
         "endTimeZone": "Ez a befejezési idő nem létezik a con időzónájában.",
         "order": "A befejezési időnek ugyanazon a napon későbbre kell esnie, mint a kezdésnek.",
@@ -149,7 +133,6 @@
       "adult": "18+"
     },
     "nameTooLong": "A név legfeljebb {{max}} karakter lehet.",
-    "endBeforeStart": "A befejezés dátuma nem lehet korábbi a kezdésnél.",
     "longSpan": "Ez egy {{count}} napos con lenne. Ellenőrizd a dátumokat.",
     "updateError": "A módosításokat nem sikerült menteni.",
     "nameCounter": "{{count}} / {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "A conokat nem sikerült betölteni.",
     "dateRange": "{{start}} – {{end}}",
-    "upcoming": "Közelgő",
     "active": "Zajlik",
     "past": "Korábbi",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Program importálása",
     "source": "Forrás",
-    "sourceLabel": "Importálás innen",
     "url": "Programlink",
     "file": "Naptárfájl",
     "urlPlaceholder": "Sched-, .ics- vagy webcal-link",
@@ -263,16 +244,12 @@
     "importing": "Importálás...",
     "applying": "Alkalmazás...",
     "applyUpdate": "Programfrissítés alkalmazása",
-    "success": "Az importálás kész",
-    "error": "Az importálás nem sikerült",
     "timeZone": {
       "sectionTitle": "Időzóna",
       "label": "A con időzónája",
-      "placeholder": "America/Chicago",
       "help": "A con helyszínét használd, ne a telefon aktuális helyét.",
       "requiredTitle": "Időzóna szükséges",
       "requiredMessage": "Importálás előtt válaszd ki a con időzónáját — azt a várost, ahol a con zajlik.",
-      "choose": "Válassz időzónát",
       "use": "Időzóna használata"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "A conod adatai ezen az eszközön maradnak."
       },
       "plus": {
-        "eyebrow": "Hamarosan",
-        "title": "ConPaws+",
-        "description": "Választható prémium funkciókat tervezünk: felhőmentés, szinkronizálás és közösségi funkciók. A ConPaws már most offline működik, és nem kell hozzá fiók."
+        "title": "Ingyenes és offline",
+        "description": "Itt minden működik fiók és hálózat nélkül. Az opcionális felhőfunkciók később érkezhetnek."
       },
       "next": "Tovább"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Nem kell fiók. Az adataid helyben maradnak."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Bejelentkezés",
-    "notSignedIn": "Nem vagy bejelentkezve",
-    "notSignedInSubtitle": "Jelentkezz be a programod szinkronizálásához és a barátaiddal való kapcsolódáshoz.",
-    "comingSoon": "A profilfunkciók hamarosan érkeznek",
-    "signInWithApple": "Bejelentkezés Apple-lel",
-    "signInWithGoogle": "Bejelentkezés Google-lel"
-  },
   "reminders": {
-    "title": "Emlékeztetők",
-    "add": "Emlékeztető hozzáadása",
     "minutesBefore": "{{minutes}} perccel előtte",
     "atTime": "Az esemény kezdetekor",
     "none": "Nincs indulási emlékeztető",
@@ -455,11 +420,6 @@
       "description": "Válaszd ki, hogyan nézzen ki a ConPaws ezen az eszközön.",
       "changeError": "A ConPaws nem tudta átállítani a megjelenést. Próbáld újra."
     },
-    "account": {
-      "title": "Fiók",
-      "signIn": "Bejelentkezés",
-      "signOut": "Kijelentkezés"
-    },
     "app": {
       "title": "Alkalmazás",
       "theme": "Téma",
@@ -477,8 +437,7 @@
       "exportError": "A ConPaws nem tudta exportálni az adataidat. Próbáld újra.",
       "importData": "Adatok importálása",
       "importDescription": "Állítsd vissza a conokat és programokat egy mentésből.",
-      "importing": "Mentés megnyitása",
-      "resetOnboarding": "Bevezető visszaállítása"
+      "importing": "Mentés megnyitása"
     },
     "dataImport": {
       "confirmTitle": "Visszaállítod a mentést?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Jogi tudnivalók",
       "privacyPolicy": "Adatvédelmi irányelvek",
       "termsOfService": "Felhasználási feltételek",
       "about": "A ConPaws névjegye",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Névjegy",
-      "contact": "hello@conpaws.com",
       "tagline": "A conod programja, offline is kéznél.",
       "resources": "Források",
       "website": "Weboldal",
       "builtWith": "Ezekkel készült",
       "licenseDescription": "{{count}} csomag és eszköz",
       "support": "Támogatás",
+      "helpCenter": "Súgóközpont",
       "email": "E-mail",
       "discordDescription": "Csatlakozz a közösséghez",
       "copyright": "ConPaws by MrDemonWolf, Inc."

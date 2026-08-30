@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "首页",
-    "profile": "个人资料",
     "settings": "设置",
-    "back": "返回",
     "add": "添加",
     "remove": "移除",
     "save": "保存",
@@ -16,10 +13,6 @@
     "loading": "加载中...",
     "error": "出了点问题",
     "retry": "重试",
-    "close": "关闭",
-    "next": "下一步",
-    "skip": "跳过",
-    "getStarted": "开始使用",
     "learnMore": "了解更多",
     "version": "版本 {{version}}",
     "advanced": "高级",
@@ -36,7 +29,6 @@
     "detail": "展会详情",
     "loadingTitle": "正在加载展会",
     "loadErrorSubtitle": "无法加载该展会或它的活动。",
-    "events": "活动",
     "searchEvents": "搜索活动",
     "filterEvents": "筛选活动",
     "scheduleActions": "日程操作",
@@ -70,12 +62,10 @@
     "startDate": "开始日期",
     "endDate": "结束日期",
     "timeZone": "时区",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "搜索时区",
     "timeZoneSearchPlaceholder": "城市或地区",
     "timeZoneNoResults": "没有与“{{query}}”匹配的时区。",
     "timeZoneAdvancedHelp": "ConPaws 默认使用此设备的时区。只有当展会在其他地方举办时才需要更改。",
-    "timeZoneHelp": "使用展会当地的时区，例如 America/Chicago。",
     "name": "展会名称",
     "namePlaceholder": "例如 ConPaws Preview Con",
     "nameRequired": "请输入展会名称。",
@@ -111,7 +101,6 @@
       "imported": "导入",
       "added": "手动添加"
     },
-    "ageRestricted": "有年龄限制",
     "contentWarning": "内容预警",
     "eventActionsHint": "打开活动详情、日程和提醒操作。",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "活动标题",
       "titleAccessibility": "活动标题，必填",
       "dateLabel": "日期 *",
-      "dateAccessibility": "活动日期，必填，YYYY-MM-DD",
       "startLabel": "开始 *",
-      "startAccessibility": "开始时间，必填，24 小时制 HH:mm",
       "endLabel": "结束",
       "endAccessibility": "结束时间，可选，24 小时制 HH:mm",
       "roomLabel": "房间",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "已保存{{event}}并添加到我的日程。",
       "errors": {
         "title": "标题为必填项。",
-        "date": "日期必须使用 YYYY-MM-DD 格式，并且是真实存在的日期。",
-        "startTime": "开始时间必须使用 24 小时制 HH:mm，例如 09:30。",
-        "endTime": "结束时间必须使用 24 小时制 HH:mm，例如 10:30。",
         "startTimeZone": "该开始时间在展会时区中不存在。",
         "endTimeZone": "该结束时间在展会时区中不存在。",
         "order": "结束时间必须晚于同一天的开始时间。",
@@ -149,7 +133,6 @@
       "adult": "18+ 成人"
     },
     "nameTooLong": "名称请不要超过 {{max}} 个字符。",
-    "endBeforeStart": "结束日期不能早于开始日期。",
     "longSpan": "这是一个为期 {{count}} 天的展会。请再核对一下日期。",
     "updateError": "无法保存你的更改。",
     "nameCounter": "{{count}}/{{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "无法加载展会。",
     "dateRange": "{{start}} 至 {{end}}",
-    "upcoming": "即将开始",
     "active": "进行中",
     "past": "已结束",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "导入日程",
     "source": "来源",
-    "sourceLabel": "导入自",
     "url": "日程链接",
     "file": "日历文件",
     "urlPlaceholder": "Sched、.ics 或 webcal 链接",
@@ -263,16 +244,12 @@
     "importing": "导入中...",
     "applying": "应用中...",
     "applyUpdate": "应用日程更新",
-    "success": "导入完成",
-    "error": "导入失败",
     "timeZone": {
       "sectionTitle": "时区",
       "label": "展会时区",
-      "placeholder": "America/Chicago",
       "help": "使用展会举办地，而不是手机当前所在的位置。",
       "requiredTitle": "需要设置时区",
       "requiredMessage": "导入前请先选择展会的时区——选择展会举办的城市即可。",
-      "choose": "选择时区",
       "use": "使用此时区"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "你的展会数据只保存在此设备上。"
       },
       "plus": {
-        "eyebrow": "即将推出",
-        "title": "ConPaws+",
-        "description": "我们计划推出可选的高级功能：云端备份、同步和社交功能。ConPaws 现在就能离线使用，无需账号。"
+        "title": "免费且可离线使用",
+        "description": "这里的一切都不需要账号、不需要网络即可使用。可选的云端功能可能会在日后推出。"
       },
       "next": "继续"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "无需账号。你的数据保存在本地。"
     }
   },
-  "profile": {
-    "title": "个人资料",
-    "signIn": "登录",
-    "notSignedIn": "未登录",
-    "notSignedInSubtitle": "登录后可以同步日程，并与朋友互动。",
-    "comingSoon": "个人资料功能即将推出",
-    "signInWithApple": "通过 Apple 登录",
-    "signInWithGoogle": "通过 Google 登录"
-  },
   "reminders": {
-    "title": "提醒",
-    "add": "添加提醒",
     "minutesBefore": "提前 {{minutes}} 分钟",
     "atTime": "活动开始时",
     "none": "无出发提醒",
@@ -455,11 +420,6 @@
       "description": "选择 ConPaws 在此设备上的外观。",
       "changeError": "ConPaws 无法更改外观。请重试。"
     },
-    "account": {
-      "title": "账号",
-      "signIn": "登录",
-      "signOut": "退出登录"
-    },
     "app": {
       "title": "应用",
       "theme": "主题",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws 无法导出你的数据。请重试。",
       "importData": "导入数据",
       "importDescription": "从备份恢复展会和日程。",
-      "importing": "正在打开备份",
-      "resetOnboarding": "重置新手引导"
+      "importing": "正在打开备份"
     },
     "dataImport": {
       "confirmTitle": "要恢复备份吗？",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "法律信息",
       "privacyPolicy": "隐私政策",
       "termsOfService": "服务条款",
       "about": "关于 ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "关于",
-      "contact": "hello@conpaws.com",
       "tagline": "你的展会日程，离线也能用。",
       "resources": "资源",
       "website": "网站",
       "builtWith": "技术栈",
       "licenseDescription": "{{count}} 个软件包和工具",
       "support": "支持",
+      "helpCenter": "帮助中心",
       "email": "邮箱",
       "discordDescription": "加入社区",
       "copyright": "ConPaws by MrDemonWolf, Inc."

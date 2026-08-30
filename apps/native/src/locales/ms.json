@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Utama",
-    "profile": "Profil",
     "settings": "Tetapan",
-    "back": "Kembali",
     "add": "Tambah",
     "remove": "Alih keluar",
     "save": "Simpan",
@@ -16,10 +13,6 @@
     "loading": "Memuatkan...",
     "error": "Ada masalah berlaku",
     "retry": "Cuba lagi",
-    "close": "Tutup",
-    "next": "Seterusnya",
-    "skip": "Langkau",
-    "getStarted": "Mula",
     "learnMore": "Ketahui lebih lanjut",
     "version": "Versi {{version}}",
     "advanced": "Lanjutan",
@@ -36,7 +29,6 @@
     "detail": "Butiran Konvensyen",
     "loadingTitle": "Memuatkan konvensyen",
     "loadErrorSubtitle": "Konvensyen atau acaranya tidak dapat dimuatkan.",
-    "events": "Acara",
     "searchEvents": "Cari acara",
     "filterEvents": "Tapis acara",
     "scheduleActions": "Tindakan jadual",
@@ -70,12 +62,10 @@
     "startDate": "Tarikh Mula",
     "endDate": "Tarikh Tamat",
     "timeZone": "Zon waktu",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Cari zon waktu",
     "timeZoneSearchPlaceholder": "Bandar atau wilayah",
     "timeZoneNoResults": "Tiada zon waktu yang sepadan dengan \"{{query}}\".",
     "timeZoneAdvancedHelp": "ConPaws menggunakan zon waktu peranti ini. Tukar hanya jika konvensyen berlangsung di tempat lain.",
-    "timeZoneHelp": "Gunakan zon waktu tempatan konvensyen, contohnya America/Chicago.",
     "name": "Nama Konvensyen",
     "namePlaceholder": "cth. ConPaws Preview Con",
     "nameRequired": "Masukkan nama konvensyen.",
@@ -111,7 +101,6 @@
       "imported": "Diimport",
       "added": "Ditambah"
     },
-    "ageRestricted": "Had umur",
     "contentWarning": "Amaran kandungan",
     "eventActionsHint": "Membuka butiran acara, jadual dan tindakan peringatan.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Tajuk acara",
       "titleAccessibility": "Tajuk acara, wajib",
       "dateLabel": "Tarikh *",
-      "dateAccessibility": "Tarikh acara, wajib, YYYY-MM-DD",
       "startLabel": "Mula *",
-      "startAccessibility": "Waktu mula, wajib, format 24 jam HH:mm",
       "endLabel": "Tamat",
       "endAccessibility": "Waktu tamat, pilihan, format 24 jam HH:mm",
       "roomLabel": "Bilik",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} disimpan dan ditambahkan ke Jadual Saya.",
       "errors": {
         "title": "Tajuk diperlukan.",
-        "date": "Tarikh mesti menggunakan YYYY-MM-DD dan merupakan tarikh sebenar.",
-        "startTime": "Waktu mula mesti menggunakan HH:mm format 24 jam, contohnya 09:30.",
-        "endTime": "Waktu tamat mesti menggunakan HH:mm format 24 jam, contohnya 10:30.",
         "startTimeZone": "Waktu mula itu tidak wujud dalam zon waktu konvensyen.",
         "endTimeZone": "Waktu tamat itu tidak wujud dalam zon waktu konvensyen.",
         "order": "Waktu tamat mesti lebih lewat daripada waktu mula pada tarikh yang sama.",
@@ -149,7 +133,6 @@
       "adult": "18+ Dewasa"
     },
     "nameTooLong": "Pastikan nama tidak melebihi {{max}} aksara.",
-    "endBeforeStart": "Tarikh tamat tidak boleh lebih awal daripada tarikh mula.",
     "longSpan": "Itu konvensyen selama {{count}} hari. Semak semula tarikhnya.",
     "updateError": "Perubahan anda tidak dapat disimpan.",
     "nameCounter": "{{count}} daripada {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Konvensyen tidak dapat dimuatkan.",
     "dateRange": "{{start}} hingga {{end}}",
-    "upcoming": "Akan datang",
     "active": "Sedang berlangsung",
     "past": "Lepas",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Import Jadual",
     "source": "Sumber",
-    "sourceLabel": "Import dari",
     "url": "Pautan Jadual",
     "file": "Fail Kalendar",
     "urlPlaceholder": "Pautan Sched, .ics atau webcal",
@@ -263,16 +244,12 @@
     "importing": "Mengimport...",
     "applying": "Menggunakan...",
     "applyUpdate": "Gunakan Kemas Kini Jadual",
-    "success": "Import selesai",
-    "error": "Import gagal",
     "timeZone": {
       "sectionTitle": "Zon Waktu",
       "label": "Zon waktu konvensyen",
-      "placeholder": "America/Chicago",
       "help": "Gunakan lokasi konvensyen, bukan lokasi semasa telefon anda.",
       "requiredTitle": "Zon Waktu Diperlukan",
       "requiredMessage": "Pilih zon waktu konvensyen sebelum mengimport — pilih bandar tempat konvensyen berlangsung.",
-      "choose": "Pilih zon waktu",
       "use": "Gunakan Zon Waktu"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Data konvensyen anda kekal pada peranti ini."
       },
       "plus": {
-        "eyebrow": "Akan datang",
-        "title": "ConPaws+",
-        "description": "Kami merancang untuk menambah sandaran awan, penyegerakan dan ciri sosial premium pilihan. ConPaws sudah berfungsi secara luar talian dan tidak memerlukan akaun."
+        "title": "Percuma dan luar talian",
+        "description": "Semua di sini berfungsi tanpa akaun dan tanpa rangkaian. Ciri awan pilihan mungkin menyusul kemudian."
       },
       "next": "Teruskan"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Tiada akaun diperlukan. Data anda kekal setempat."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Log Masuk",
-    "notSignedIn": "Belum log masuk",
-    "notSignedInSubtitle": "Log masuk untuk menyegerakkan jadual anda dan berhubung dengan rakan.",
-    "comingSoon": "Ciri profil akan datang",
-    "signInWithApple": "Log masuk dengan Apple",
-    "signInWithGoogle": "Log masuk dengan Google"
-  },
   "reminders": {
-    "title": "Peringatan",
-    "add": "Tambah Peringatan",
     "minutesBefore": "{{minutes}} minit sebelum",
     "atTime": "Pada waktu acara",
     "none": "Tiada peringatan bertolak",
@@ -455,11 +420,6 @@
       "description": "Pilih rupa ConPaws pada peranti ini.",
       "changeError": "ConPaws tidak dapat menukar rupa. Cuba lagi."
     },
-    "account": {
-      "title": "Akaun",
-      "signIn": "Log Masuk",
-      "signOut": "Log Keluar"
-    },
     "app": {
       "title": "Aplikasi",
       "theme": "Tema",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws tidak dapat mengeksport data anda. Cuba lagi.",
       "importData": "Import Data",
       "importDescription": "Pulihkan konvensyen dan jadual daripada sandaran.",
-      "importing": "Membuka sandaran",
-      "resetOnboarding": "Set Semula Pengenalan"
+      "importing": "Membuka sandaran"
     },
     "dataImport": {
       "confirmTitle": "Pulihkan sandaran?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Perundangan",
       "privacyPolicy": "Dasar Privasi",
       "termsOfService": "Syarat Perkhidmatan",
       "about": "Perihal ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Perihal",
-      "contact": "hello@conpaws.com",
       "tagline": "Jadual konvensyen anda, sedia secara luar talian.",
       "resources": "Sumber",
       "website": "Laman web",
       "builtWith": "Dibina dengan",
       "licenseDescription": "{{count}} pakej dan alat",
       "support": "Sokongan",
+      "helpCenter": "Pusat Bantuan",
       "email": "E-mel",
       "discordDescription": "Sertai komuniti",
       "copyright": "ConPaws by MrDemonWolf, Inc."

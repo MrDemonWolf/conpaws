@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Home",
-    "profile": "Profiel",
     "settings": "Instellingen",
-    "back": "Terug",
     "add": "Toevoegen",
     "remove": "Verwijderen",
     "save": "Opslaan",
@@ -16,10 +13,6 @@
     "loading": "Laden...",
     "error": "Er ging iets mis",
     "retry": "Opnieuw proberen",
-    "close": "Sluiten",
-    "next": "Volgende",
-    "skip": "Overslaan",
-    "getStarted": "Aan de slag",
     "learnMore": "Meer informatie",
     "version": "Versie {{version}}",
     "advanced": "Geavanceerd",
@@ -36,7 +29,6 @@
     "detail": "Conventiedetails",
     "loadingTitle": "Conventie laden",
     "loadErrorSubtitle": "De conventie of de evenementen konden niet worden geladen.",
-    "events": "Evenementen",
     "searchEvents": "Evenementen zoeken",
     "filterEvents": "Evenementen filteren",
     "scheduleActions": "Programma-acties",
@@ -70,12 +62,10 @@
     "startDate": "Begindatum",
     "endDate": "Einddatum",
     "timeZone": "Tijdzone",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Tijdzones zoeken",
     "timeZoneSearchPlaceholder": "Stad of regio",
     "timeZoneNoResults": "Geen tijdzones komen overeen met ‘{{query}}’.",
     "timeZoneAdvancedHelp": "ConPaws gebruikt standaard de tijdzone van dit apparaat. Wijzig dit alleen als de conventie ergens anders is.",
-    "timeZoneHelp": "Gebruik de lokale tijdzone van de conventie, zoals America/Chicago.",
     "name": "Conventienaam",
     "namePlaceholder": "bijv. ConPaws Preview Con",
     "nameRequired": "Voer een naam voor de conventie in.",
@@ -111,7 +101,6 @@
       "imported": "Geïmporteerd",
       "added": "Toegevoegd"
     },
-    "ageRestricted": "Leeftijdsbeperking",
     "contentWarning": "Inhoudswaarschuwing",
     "eventActionsHint": "Opent evenementdetails, programma- en herinneringsacties.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Evenementtitel",
       "titleAccessibility": "Evenementtitel, verplicht",
       "dateLabel": "Datum *",
-      "dateAccessibility": "Evenementdatum, verplicht, JJJJ-MM-DD",
       "startLabel": "Start *",
-      "startAccessibility": "Starttijd, verplicht, 24-uursnotatie HH:mm",
       "endLabel": "Einde",
       "endAccessibility": "Eindtijd, optioneel, 24-uursnotatie HH:mm",
       "roomLabel": "Zaal",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} is opgeslagen en toegevoegd aan Mijn programma.",
       "errors": {
         "title": "Een titel is verplicht.",
-        "date": "De datum moet JJJJ-MM-DD gebruiken en een echte kalenderdatum zijn.",
-        "startTime": "De starttijd moet 24-uursnotatie HH:mm gebruiken, zoals 09:30.",
-        "endTime": "De eindtijd moet 24-uursnotatie HH:mm gebruiken, zoals 10:30.",
         "startTimeZone": "Die starttijd bestaat niet in de tijdzone van de conventie.",
         "endTimeZone": "Die eindtijd bestaat niet in de tijdzone van de conventie.",
         "order": "De eindtijd moet op dezelfde datum na de starttijd vallen.",
@@ -149,7 +133,6 @@
       "adult": "18+ Volwassen"
     },
     "nameTooLong": "Houd de naam op {{max}} tekens of minder.",
-    "endBeforeStart": "De einddatum kan niet voor de startdatum liggen.",
     "longSpan": "Dat is een conventie van {{count}} dagen. Controleer de data.",
     "updateError": "Wijzigingen konden niet worden opgeslagen.",
     "nameCounter": "{{count}} van {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Conventies konden niet worden geladen.",
     "dateRange": "{{start}} tot {{end}}",
-    "upcoming": "Aankomend",
     "active": "Actief",
     "past": "Verleden",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Rooster importeren",
     "source": "Bron",
-    "sourceLabel": "Importeren uit",
     "url": "Programmalink",
     "file": "Agenda-bestand",
     "urlPlaceholder": "Sched-, .ics- of webcal-link",
@@ -263,16 +244,12 @@
     "importing": "Importeren...",
     "applying": "Toepassen...",
     "applyUpdate": "Roosterupdate toepassen",
-    "success": "Import voltooid",
-    "error": "Import mislukt",
     "timeZone": {
       "sectionTitle": "Tijdzone",
       "label": "Tijdzone van de conventie",
-      "placeholder": "America/Chicago",
       "help": "Gebruik de locatie van de conventie, niet de huidige locatie van je telefoon.",
       "requiredTitle": "Tijdzone vereist",
       "requiredMessage": "Kies de tijdzone van de conventie vóór het importeren – kies de stad waar die plaatsvindt.",
-      "choose": "Kies een tijdzone",
       "use": "Tijdzone gebruiken"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Je conventiegegevens blijven op dit apparaat."
       },
       "plus": {
-        "eyebrow": "Binnenkort",
-        "title": "ConPaws+",
-        "description": "Optionele premiumfuncties voor cloudback-ups, synchronisatie en sociale functies staan op de planning. ConPaws werkt nu al offline, zonder account."
+        "title": "Gratis en offline",
+        "description": "Alles hier werkt zonder account en zonder netwerk. Optionele cloudfuncties komen misschien later."
       },
       "next": "Doorgaan"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Geen account nodig. Je gegevens blijven lokaal."
     }
   },
-  "profile": {
-    "title": "Profiel",
-    "signIn": "Inloggen",
-    "notSignedIn": "Niet ingelogd",
-    "notSignedInSubtitle": "Log in om je rooster te synchroniseren en vrienden te verbinden.",
-    "comingSoon": "Profielfuncties komen binnenkort",
-    "signInWithApple": "Inloggen met Apple",
-    "signInWithGoogle": "Inloggen met Google"
-  },
   "reminders": {
-    "title": "Herinneringen",
-    "add": "Herinnering toevoegen",
     "minutesBefore": "{{minutes}} min van tevoren",
     "atTime": "Op het tijdstip van het evenement",
     "none": "Geen vertrekherinnering",
@@ -455,11 +420,6 @@
       "description": "Kies hoe ConPaws eruitziet op dit apparaat.",
       "changeError": "ConPaws kon de weergave niet wijzigen. Probeer het opnieuw."
     },
-    "account": {
-      "title": "Account",
-      "signIn": "Inloggen",
-      "signOut": "Uitloggen"
-    },
     "app": {
       "title": "App",
       "theme": "Thema",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws kon je gegevens niet exporteren. Probeer het opnieuw.",
       "importData": "Gegevens importeren",
       "importDescription": "Herstel conventies en programma's vanuit een back-up.",
-      "importing": "Back-up openen",
-      "resetOnboarding": "Onboarding resetten"
+      "importing": "Back-up openen"
     },
     "dataImport": {
       "confirmTitle": "Back-up herstellen?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Juridisch",
       "privacyPolicy": "Privacybeleid",
       "termsOfService": "Servicevoorwaarden",
       "about": "Over ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Over",
-      "contact": "hello@conpaws.com",
       "tagline": "Je conventieprogramma, ook offline beschikbaar.",
       "resources": "Bronnen",
       "website": "Website",
       "builtWith": "Gebouwd met",
       "licenseDescription": "{{count}} pakketten en tools",
       "support": "Ondersteuning",
+      "helpCenter": "Helpcentrum",
       "email": "E-mail",
       "discordDescription": "Word lid van de community",
       "copyright": "ConPaws by MrDemonWolf, Inc."
