@@ -87,6 +87,16 @@ describe("inferTimeZoneFromLocation", () => {
       inferTimeZoneFromLocation("Pittsburgh", geocode, lookup),
     ).resolves.toBe(null);
   });
+
+  it("gives up on a geocoder that never answers", async () => {
+    // The save button is disabled behind this call, so a hung lookup used to
+    // freeze the form with a spinner and no way out.
+    const geocode = vi.fn(() => new Promise<never>(() => {}));
+
+    await expect(
+      inferTimeZoneFromLocation("Pittsburgh", geocode, lookup, 5),
+    ).resolves.toBe(null);
+  });
 });
 
 describe("normalizeLocationName", () => {

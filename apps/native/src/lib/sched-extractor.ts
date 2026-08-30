@@ -22,6 +22,20 @@ export class InvalidResponseError extends Error {
 }
 
 /**
+ * The reader gave up, so there is nothing to tell them.
+ *
+ * Separate from `NetworkError` because a cancellation is not a failure: it
+ * must not raise an alert, must not be reported, and must not be shown as
+ * "the schedule could not be reached".
+ */
+export class ScheduleFetchCancelledError extends Error {
+  constructor() {
+    super("Schedule fetch cancelled");
+    this.name = "ScheduleFetchCancelledError";
+  }
+}
+
+/**
  * Largest schedule this will pull down.
  *
  * A whole convention's ICS is a few hundred KB; the largest real feed in
@@ -57,12 +71,30 @@ export interface FetchedSchedule {
  * Fetches a schedule from a Sched address, a direct .ics link, or a webcal
  * link. Resolution is delegated to `resolveScheduleUrl`, which also rejects
  * schemes that must never be fetched.
+ *
+ * `signal` lets the caller give up before the 30s timeout does. Without it the
+ * import screen's Cancel only navigated away: the generation counter there
+ * discards the *result*, which never stopped the *work*, so a request kept
+ * running on a phone the reader had already moved on from -- and so did a
+ * background re-check after its screen blurred.
  */
-export async function fetchScheduleIcs(url: string): Promise<FetchedSchedule> {
+export async function fetchScheduleIcs(
+  url: string,
+  options?: { signal?: AbortSignal },
+): Promise<FetchedSchedule> {
   const resolved = resolveScheduleUrl(url);
+
+  // Already given up before we started: touch the network at all and this
+  // becomes a request nobody will ever read the answer to.
+  if (options?.signal?.aborted) throw new ScheduleFetchCancelledError();
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30_000);
+
+  // A caller that gives up mid-flight aborts through the same controller as
+  // the timeout, so the two cannot race to own the abort.
+  const abortFromCaller = () => controller.abort();
+  options?.signal?.addEventListener("abort", abortFromCaller);
 
   try {
     const response = await fetch(resolved.fetchUrl, {
@@ -111,15 +143,20 @@ export async function fetchScheduleIcs(url: string): Promise<FetchedSchedule> {
       err instanceof InvalidScheduleUrlError ||
       err instanceof InvalidResponseError ||
       err instanceof ScheduleTooLargeError ||
+      err instanceof ScheduleFetchCancelledError ||
       err instanceof NetworkError
     ) {
       throw err;
     }
     if ((err as Error).name === "AbortError") {
+      // Distinguishing the two matters: one is the network being slow, the
+      // other is the reader having pressed Cancel, which needs no message.
+      if (options?.signal?.aborted) throw new ScheduleFetchCancelledError();
       throw new NetworkError("Request timed out after 30 seconds");
     }
     throw new NetworkError(`Network request failed: ${(err as Error).message}`);
   } finally {
     clearTimeout(timeout);
+    options?.signal?.removeEventListener("abort", abortFromCaller);
   }
 }

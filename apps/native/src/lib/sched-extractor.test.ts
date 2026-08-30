@@ -5,6 +5,7 @@ import {
   InvalidScheduleUrlError,
   MAX_ICS_BYTES,
   NetworkError,
+  ScheduleFetchCancelledError,
   ScheduleTooLargeError,
 } from "./sched-extractor";
 
@@ -111,5 +112,58 @@ describe("fetchScheduleIcs", () => {
     await expect(
       fetchScheduleIcs("https://example.com/all.ics"),
     ).rejects.toBeInstanceOf(NetworkError);
+  });
+
+  it("calls a timeout a timeout, not a cancellation", async () => {
+    // No caller signal, so the only thing that can have aborted is the 30s
+    // timer -- and the reader is owed the difference.
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockRejectedValue(
+          Object.assign(new Error("Aborted"), { name: "AbortError" }),
+        ),
+    );
+
+    await expect(
+      fetchScheduleIcs("https://example.com/all.ics"),
+    ).rejects.toBeInstanceOf(NetworkError);
+  });
+
+  it("aborts the request when the caller gives up", async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn(
+      (_url: string, init?: { signal?: AbortSignal }) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(Object.assign(new Error("Aborted"), { name: "AbortError" }));
+          });
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const pending = fetchScheduleIcs("https://example.com/all.ics", {
+      signal: controller.signal,
+    });
+    controller.abort();
+
+    // A cancellation is its own type: the import screen shows nothing for it,
+    // where a NetworkError would raise "couldn't reach the schedule".
+    await expect(pending).rejects.toBeInstanceOf(ScheduleFetchCancelledError);
+    // The whole point -- the request was stopped, not merely ignored.
+    expect(fetchMock.mock.calls[0]?.[1]?.signal?.aborted).toBe(true);
+  });
+
+  it("does not start a request the caller has already abandoned", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      fetchScheduleIcs("https://example.com/all.ics", {
+        signal: AbortSignal.abort(),
+      }),
+    ).rejects.toBeInstanceOf(ScheduleFetchCancelledError);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

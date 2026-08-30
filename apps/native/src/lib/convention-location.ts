@@ -54,20 +54,48 @@ export function timeZoneFromCoordinates(
   return isValidTimeZone(candidate) ? candidate : null;
 }
 
-/** Geocodes a typed place, then finishes the coordinate-to-zone step offline. */
+/**
+ * How long a geocode may hold up a save.
+ *
+ * `Location.geocodeAsync` reaches Apple's or Google's service and has no
+ * timeout of its own. The save button is already disabled behind it because it
+ * "can take seconds", so a service that hangs left the form frozen with a
+ * spinner, no cancel and no error. Ten seconds is well past a healthy lookup
+ * and far short of a wait anyone would sit through.
+ */
+export const GEOCODE_TIMEOUT_MS = 10_000;
+
+/**
+ * Geocodes a typed place, then finishes the coordinate-to-zone step offline.
+ *
+ * Giving up returns null, which is the same answer as a place the geocoder
+ * does not know -- and the callers already handle that by asking whether to
+ * use the device's zone instead. So a slow network costs the reader one extra
+ * question, never a stuck screen.
+ */
 export async function inferTimeZoneFromLocation(
   location: string,
   geocode: LocationGeocoder,
   lookup: CoordinateTimeZoneLookup,
+  timeoutMs: number = GEOCODE_TIMEOUT_MS,
 ): Promise<string | null> {
   const normalized = normalizeLocationName(location);
   if (!normalized) return null;
 
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const [coordinates] = await geocode(normalized);
-    return timeZoneFromCoordinates(coordinates, lookup);
+    const coordinates = await Promise.race([
+      geocode(normalized),
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), timeoutMs);
+      }),
+    ]);
+    if (coordinates === null) return null;
+    return timeZoneFromCoordinates(coordinates[0], lookup);
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

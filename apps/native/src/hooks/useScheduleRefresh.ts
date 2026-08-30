@@ -49,6 +49,9 @@ export function useScheduleRefresh(
   const [failed, setFailed] = useState(false);
   const running = useRef(false);
   const mounted = useRef(true);
+  // Aborted when the screen blurs, so a check nobody is watching stops at the
+  // network rather than running on to the 30s timeout.
+  const inFlight = useRef<AbortController | null>(null);
 
   const run = useCallback(
     async (force: boolean) => {
@@ -60,6 +63,9 @@ export function useScheduleRefresh(
         setChecking(true);
         setFailed(false);
       }
+
+      const controller = new AbortController();
+      inFlight.current = controller;
 
       // `running` is cleared in the `finally`, never on the happy path alone.
       // `refreshConventionSchedule` catches its own failures, but the reads it
@@ -82,7 +88,7 @@ export function useScheduleRefresh(
                 }),
               ]),
           },
-          { force },
+          { force, signal: controller.signal },
         );
 
         if (!mounted.current) return;
@@ -129,6 +135,7 @@ export function useScheduleRefresh(
           );
         }
       } finally {
+        if (inFlight.current === controller) inFlight.current = null;
         running.current = false;
       }
     },
@@ -144,6 +151,7 @@ export function useScheduleRefresh(
       });
       return () => {
         mounted.current = false;
+        inFlight.current?.abort();
         subscription.remove();
       };
     }, [run]),
