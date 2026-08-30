@@ -28,7 +28,16 @@ export default {
       return;
     }
 
-    const result = await reconcile(createDb(env.DB), config);
+    let result: Awaited<ReturnType<typeof reconcile>>;
+    try {
+      result = await reconcile(createDb(env.DB), config);
+    } catch (error) {
+      // Without this the whole run vanishes: a rejected scheduled handler logs
+      // no line of its own, so a D1 outage on the initial select would look
+      // exactly like a quiet, healthy pass.
+      console.error("waitlist reconciler: pass failed", error);
+      throw error;
+    }
 
     // A non-zero failure count is the signal that signups are being lost. It is
     // logged at error level so Workers observability surfaces it rather than

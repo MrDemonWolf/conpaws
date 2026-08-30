@@ -47,10 +47,23 @@ const Body = z.object({
 /** Humans take longer than this to read two fields and type an email. */
 const MIN_ELAPSED_MS = 2000;
 
+/**
+ * Fail-closed 503 for a misconfigured or unreachable backend.
+ *
+ * The wording matters. This used to say "Beta registration is not open yet"
+ * with `Retry-After: 86400`, which was true while the form was shut but became
+ * a lie the moment signups opened: a D1 or listmonk outage would tell the
+ * visitor the beta had not started and to come back tomorrow. The form being
+ * deliberately closed is a separate state, and the client already renders it
+ * without posting at all.
+ */
 function unavailable() {
   return Response.json(
-    { error: "Beta registration is not open yet. Please check back soon." },
-    { status: 503, headers: { "Retry-After": "86400" } },
+    {
+      error:
+        "Signups are temporarily unavailable. Please try again in a few minutes.",
+    },
+    { status: 503, headers: { "Retry-After": "300" } },
   );
 }
 

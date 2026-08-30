@@ -39,7 +39,7 @@ export const PUBLIC_ROUTES: readonly PublicRoute[] = [
     path: "/",
     title: "ConPaws",
     summary:
-      "What ConPaws is, who it is for, and the beta waitlist. The waitlist is currently closed.",
+      "What ConPaws is, who it is for, and the beta waitlist, which is open for signups.",
     changeFrequency: "weekly",
     priority: 1,
   },

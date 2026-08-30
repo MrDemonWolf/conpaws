@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Db } from "../db";
 import {
+  isTransientFailure,
   MAX_SYNC_ATTEMPTS,
   RECONCILE_BATCH_SIZE,
   RESEND_COOLDOWN_MS,
@@ -160,10 +161,78 @@ describe("syncRow", () => {
 
     expect(updates[0]).toMatchObject({ syncError: "429: nope" });
     // The row keeps synced_at NULL, which is what makes the reconciler find it
-    // again on the next fire. The attempt counter belongs to claimRow, so
-    // syncRow must not touch it.
+    // again on the next fire. A 4xx is about the address, so it is allowed to
+    // spend the attempt claimRow took.
     expect(updates[0]).not.toHaveProperty("syncedAt");
     expect(updates[0]).not.toHaveProperty("syncAttempts");
+  });
+
+  it("refunds the attempt when listmonk is unreachable", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("boom"));
+    const { db, updates } = fakeDb();
+
+    await expect(
+      syncRow(db, CONFIG, {
+        id: "a",
+        email: "person@example.com",
+        name: "",
+        syncAttempts: 3,
+      }),
+    ).resolves.toBe(false);
+
+    // Without the refund, five hourly passes during one outage would push every
+    // pending row past MAX_SYNC_ATTEMPTS and drop it from the reconciler's
+    // selection for good -- silently, because an unselected row is never
+    // counted as failed.
+    expect(updates[0]).toMatchObject({ syncAttempts: 2 });
+  });
+
+  it("refunds the attempt when listmonk answers 5xx", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("down", { status: 503 }),
+    );
+    const { db, updates } = fakeDb();
+
+    await expect(
+      syncRow(db, CONFIG, {
+        id: "a",
+        email: "person@example.com",
+        name: "",
+        syncAttempts: 1,
+      }),
+    ).resolves.toBe(false);
+
+    expect(updates[0]).toMatchObject({
+      syncAttempts: 0,
+      syncError: "503: down",
+    });
+  });
+
+  it("never refunds below zero", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("boom"));
+    const { db, updates } = fakeDb();
+
+    await syncRow(db, CONFIG, {
+      id: "a",
+      email: "person@example.com",
+      name: "",
+      syncAttempts: 0,
+    });
+
+    expect(updates[0]).toMatchObject({ syncAttempts: 0 });
+  });
+});
+
+describe("isTransientFailure", () => {
+  it("treats a thrown fetch and 5xx as transient", () => {
+    expect(isTransientFailure(0)).toBe(true);
+    expect(isTransientFailure(500)).toBe(true);
+    expect(isTransientFailure(503)).toBe(true);
+  });
+
+  it("treats address-level rejections as permanent", () => {
+    expect(isTransientFailure(400)).toBe(false);
+    expect(isTransientFailure(429)).toBe(false);
   });
 });
 
