@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Caveat, IBM_Plex_Mono } from "next/font/google";
+import { Montserrat, Roboto, Roboto_Mono } from "next/font/google";
 
 import "../index.css";
 import Providers from "@/components/providers";
@@ -8,21 +8,35 @@ import { getMessages } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { SITE_URL } from "@/lib/site";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  subsets: ["latin"],
+// Subsets are wider than `latin` because the site ships in 23 locales.
+// `latin-ext` carries Polish, Czech and Hungarian; `cyrillic` carries Russian
+// and Ukrainian. Each subset is emitted as its own @font-face with its own
+// unicode-range, so an English reader still downloads only the latin file —
+// listing them costs nothing until someone needs the glyphs. Japanese, Chinese
+// and Korean are not in these families at all and fall back to the system
+// font, which is the right outcome: a CJK webfont is megabytes.
+//
+// Montserrat sets headings and the badge; Roboto sets body text; Roboto Mono
+// sets the technical micro-labels, times and badge numbers. All three are
+// variable fonts, so no `weight` array — one file per subset covers the whole
+// range and `font-bold` is a real weight rather than a synthesised one.
+//
+// The subset list is repeated three times rather than hoisted to a constant:
+// next/font parses these calls at build time and rejects anything that is not
+// a literal ("Font loader values must be explicitly written literals").
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  weight: ["600", "700"],
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
 // Root-layout defaults. Per-locale pages override title and description with
@@ -73,7 +87,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${bricolage.variable} ${caveat.variable} ${plexMono.variable} font-sans antialiased`}
+        className={`${montserrat.variable} ${roboto.variable} ${robotoMono.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
         <ServiceWorker />
