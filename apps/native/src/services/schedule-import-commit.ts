@@ -4,6 +4,7 @@ import {
   conventionDayKey,
   conventionStatusForDay,
 } from "@/lib/convention-time";
+import { reportError } from "@/lib/error-reporting";
 import type { ParsedEvent } from "@/lib/ical-parser";
 import type {
   ConventionDraft,
@@ -167,7 +168,8 @@ export async function commitScheduleImport(
     if (!createdConventionId) {
       try {
         await deps.updateConvention(conventionId, input.patch);
-      } catch {
+      } catch (error) {
+        reportError(error, { scope: "schedule-import-commit.update-details" });
         conventionDetailsUpdated = false;
       }
       if (conventionDetailsUpdated) {
@@ -179,12 +181,17 @@ export async function commitScheduleImport(
     deps.haptic();
 
     return { ok: true, result, createdConventionId, conventionDetailsUpdated };
-  } catch {
+  } catch (error) {
+    reportError(error, { scope: "schedule-import-commit.import" });
     if (createdConventionId && shouldRollbackCreatedConvention) {
       try {
         await deps.removeConvention(createdConventionId);
-      } catch {
-        // The original import failure is still the useful thing to report.
+      } catch (rollbackError) {
+        // The original import failure is the useful one and is already
+        // reported above; this says the half-made convention is still there.
+        reportError(rollbackError, {
+          scope: "schedule-import-commit.rollback",
+        });
       }
     }
     return { ok: false, reason: "import-failed" };

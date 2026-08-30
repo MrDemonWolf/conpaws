@@ -12,6 +12,7 @@
     "done": "Gotowe",
     "loading": "Ładowanie...",
     "error": "Coś poszło nie tak",
+    "openLinkError": "Nie udało się otworzyć tego linku",
     "retry": "Spróbuj ponownie",
     "learnMore": "Dowiedz się więcej",
     "version": "Wersja {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Wibracje dotykowe",
       "hapticsError": "Nie udało się zapisać ustawienia wibracji",
       "notifications": "Powiadomienia",
-      "scheduleAutoCheck": "Sprawdzaj zmiany w harmonogramie"
+      "scheduleAutoCheck": "Sprawdzaj zmiany w harmonogramie",
+      "scheduleAutoCheckError": "Nie udało się zapisać ustawienia aktualizacji programu"
     },
     "data": {
       "title": "Dane",

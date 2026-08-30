@@ -12,6 +12,7 @@
     "done": "Kész",
     "loading": "Betöltés...",
     "error": "Hiba történt",
+    "openLinkError": "Nem sikerült megnyitni a hivatkozást",
     "retry": "Újra",
     "learnMore": "Tudj meg többet",
     "version": "Verzió: {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptikus visszajelzés",
       "hapticsError": "A haptikus beállítást nem sikerült menteni",
       "notifications": "Értesítések",
-      "scheduleAutoCheck": "Programváltozások keresése"
+      "scheduleAutoCheck": "Programváltozások keresése",
+      "scheduleAutoCheckError": "Nem sikerült menteni a programfrissítési beállítást"
     },
     "data": {
       "title": "Adatok",

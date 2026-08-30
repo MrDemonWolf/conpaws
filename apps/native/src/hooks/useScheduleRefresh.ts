@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AppState } from "react-native";
 import type { Convention } from "@/db/schema";
+import { reportError } from "@/lib/error-reporting";
 import {
   hasSavedChanges,
   type ScheduleChangeSummary,
@@ -60,53 +61,75 @@ export function useScheduleRefresh(
         setFailed(false);
       }
 
-      const result = await refreshConventionSchedule(
-        convention,
-        {
-          refreshCaches: (conventionId) =>
-            Promise.allSettled([
-              queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-              queryClient.invalidateQueries({
-                queryKey: ["convention", conventionId],
-              }),
-              queryClient.invalidateQueries({
-                queryKey: ["events", conventionId],
-              }),
-            ]),
-        },
-        { force },
-      );
-
-      running.current = false;
-      if (!mounted.current) return;
-      setChecking(false);
-
-      if (result.status === "applied") {
-        setCheckedAt(result.checkedAt);
-        // Only saved events are worth a notice. A feed that shuffled forty
-        // panels the user never starred produces no UI at all.
-        setSummary(hasSavedChanges(result.summary) ? result.summary : null);
-        return;
-      }
-      if (result.status === "unchanged") {
-        setCheckedAt(result.checkedAt);
-        setSummary(null);
-        // A press deserves an answer. The timestamp in the caption moving is
-        // that answer, so this only confirms it landed — an alert saying
-        // "nothing happened" is the interruption this whole design avoids.
-        if (force) hapticSuccess();
-        return;
-      }
-      // `untrusted` and `skipped` leave the screen exactly as it was, always.
-      // A failure is admitted only when the user pressed for the check: an
-      // unbidden "couldn't reach the schedule" on convention wifi reads as an
-      // accusation, and there is nothing the reader can do about it anyway.
-      if (result.status === "failed" && force) {
-        setFailed(true);
-        Alert.alert(
-          t("convention.scheduleUpdate.checkFailedTitle"),
-          t("convention.scheduleUpdate.checkFailedMessage"),
+      // `running` is cleared in the `finally`, never on the happy path alone.
+      // `refreshConventionSchedule` catches its own failures, but the reads it
+      // does before that -- the checked-at stamp, the saved categories -- sit
+      // outside it. A throw there used to leave this guard stuck true, which
+      // silently dropped every later check, automatic and pressed alike, until
+      // the app was relaunched, with nothing shown and nothing reported.
+      try {
+        const result = await refreshConventionSchedule(
+          convention,
+          {
+            refreshCaches: (conventionId) =>
+              Promise.allSettled([
+                queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+                queryClient.invalidateQueries({
+                  queryKey: ["convention", conventionId],
+                }),
+                queryClient.invalidateQueries({
+                  queryKey: ["events", conventionId],
+                }),
+              ]),
+          },
+          { force },
         );
+
+        if (!mounted.current) return;
+        setChecking(false);
+
+        if (result.status === "applied") {
+          setCheckedAt(result.checkedAt);
+          // Only saved events are worth a notice. A feed that shuffled forty
+          // panels the user never starred produces no UI at all.
+          setSummary(hasSavedChanges(result.summary) ? result.summary : null);
+          return;
+        }
+        if (result.status === "unchanged") {
+          setCheckedAt(result.checkedAt);
+          setSummary(null);
+          // A press deserves an answer. The timestamp in the caption moving is
+          // that answer, so this only confirms it landed — an alert saying
+          // "nothing happened" is the interruption this whole design avoids.
+          if (force) hapticSuccess();
+          return;
+        }
+        // `untrusted` and `skipped` leave the screen exactly as it was, always.
+        // A failure is admitted only when the user pressed for the check: an
+        // unbidden "couldn't reach the schedule" on convention wifi reads as an
+        // accusation, and there is nothing the reader can do about it anyway.
+        if (result.status === "failed" && force) {
+          setFailed(true);
+          Alert.alert(
+            t("convention.scheduleUpdate.checkFailedTitle"),
+            t("convention.scheduleUpdate.checkFailedMessage"),
+          );
+        }
+      } catch (error) {
+        reportError(error, { scope: "schedule-refresh.run" });
+        if (!mounted.current) return;
+        setChecking(false);
+        // Same restraint as a `failed` result: only a check the user asked for
+        // gets to interrupt them about it.
+        if (force) {
+          setFailed(true);
+          Alert.alert(
+            t("convention.scheduleUpdate.checkFailedTitle"),
+            t("convention.scheduleUpdate.checkFailedMessage"),
+          );
+        }
+      } finally {
+        running.current = false;
       }
     },
     [convention, queryClient, t],

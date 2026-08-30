@@ -12,6 +12,7 @@
     "done": "Fine",
     "loading": "Caricamento...",
     "error": "Qualcosa è andato storto",
+    "openLinkError": "Impossibile aprire il link",
     "retry": "Riprova",
     "learnMore": "Scopri di più",
     "version": "Versione {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Feedback aptico",
       "hapticsError": "Non è stato possibile salvare l'impostazione del feedback aptico",
       "notifications": "Notifiche",
-      "scheduleAutoCheck": "Cerca modifiche al programma"
+      "scheduleAutoCheck": "Cerca modifiche al programma",
+      "scheduleAutoCheckError": "Impossibile salvare l'impostazione di aggiornamento del programma"
     },
     "data": {
       "title": "Dati",

@@ -12,6 +12,7 @@
     "done": "完成",
     "loading": "載入中...",
     "error": "發生了一些問題",
+    "openLinkError": "無法開啟該連結",
     "retry": "重試",
     "learnMore": "瞭解更多",
     "version": "版本 {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "觸覺回饋",
       "hapticsError": "無法儲存你的觸覺回饋設定",
       "notifications": "通知",
-      "scheduleAutoCheck": "檢查行程變更"
+      "scheduleAutoCheck": "檢查行程變更",
+      "scheduleAutoCheckError": "無法儲存議程更新設定"
     },
     "data": {
       "title": "資料",

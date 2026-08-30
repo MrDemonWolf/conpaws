@@ -12,6 +12,7 @@
     "done": "Concluído",
     "loading": "Carregando...",
     "error": "Algo deu errado",
+    "openLinkError": "Não foi possível abrir esse link",
     "retry": "Tentar novamente",
     "learnMore": "Saiba mais",
     "version": "Versão {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Resposta tátil",
       "hapticsError": "Não foi possível salvar sua configuração tátil",
       "notifications": "Notificações",
-      "scheduleAutoCheck": "Procurar mudanças na programação"
+      "scheduleAutoCheck": "Procurar mudanças na programação",
+      "scheduleAutoCheckError": "Não foi possível salvar sua configuração de atualização da programação"
     },
     "data": {
       "title": "Dados",

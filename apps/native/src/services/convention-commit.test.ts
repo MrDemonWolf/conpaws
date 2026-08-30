@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
+
 import type { Convention } from "@/db/schema";
 import {
   type ConventionDraft,

@@ -12,6 +12,7 @@
     "done": "Terminé",
     "loading": "Chargement...",
     "error": "Une erreur s'est produite",
+    "openLinkError": "Impossible d'ouvrir ce lien",
     "retry": "Réessayer",
     "learnMore": "En savoir plus",
     "version": "Version {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Retour haptique",
       "hapticsError": "Impossible d'enregistrer votre réglage haptique",
       "notifications": "Notifications",
-      "scheduleAutoCheck": "Rechercher les changements de programme"
+      "scheduleAutoCheck": "Rechercher les changements de programme",
+      "scheduleAutoCheckError": "Impossible d'enregistrer votre réglage de mise à jour du programme"
     },
     "data": {
       "title": "Données",

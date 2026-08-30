@@ -39,12 +39,26 @@ export function getCachedScheduleAutoCheck(): boolean {
   return cachedAutoCheck ?? true;
 }
 
+/**
+ * Rejects when the write fails, unlike the reads above.
+ *
+ * This is the one value here the user set deliberately. Swallowing the failure
+ * flipped the switch, updated the cache, and lost the choice on next launch
+ * with nothing said -- so the caller gets the rejection and the cache is put
+ * back, leaving memory and disk agreeing either way.
+ */
 export async function setScheduleAutoCheck(enabled: boolean): Promise<void> {
+  const previous = cachedAutoCheck;
   cachedAutoCheck = enabled;
-  await AsyncStorage.setItem(
-    SCHEDULE_AUTO_CHECK_STORAGE_KEY,
-    String(enabled),
-  ).catch(() => undefined);
+  try {
+    await AsyncStorage.setItem(
+      SCHEDULE_AUTO_CHECK_STORAGE_KEY,
+      String(enabled),
+    );
+  } catch (error) {
+    cachedAutoCheck = previous;
+    throw error;
+  }
 }
 
 function checkedAtKey(conventionId: string): string {

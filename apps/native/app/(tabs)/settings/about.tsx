@@ -17,14 +17,14 @@ import {
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
-import { Image, Linking, useWindowDimensions, View } from "react-native";
+import { Image, useWindowDimensions, View } from "react-native";
 
 import { Text } from "@/components/ui";
 import licenses from "@/generated/open-source-licenses.json";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
+import { openExternal } from "@/lib/open-external";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
 const CHEVRON_ICON = Icon.select({
@@ -57,6 +57,17 @@ function NavigationIndicator() {
 
 export default function AboutScreen() {
   const { t } = useTranslation();
+
+  // One place that catches the two rejections these links actually produce: a
+  // second tap while a browser is already up, and a `mailto:` on a device with
+  // no mail account. Both used to be unhandled and silent.
+  function openLink(url: string) {
+    void openExternal(url, {
+      errorTitle: t("common.error"),
+      errorMessage: t("common.openLinkError"),
+    });
+  }
+
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
@@ -123,9 +134,7 @@ export default function AboutScreen() {
             leading={<NativeIcon name={HELP_ICON} />}
             supportingText="conpaws.com/support"
             trailing={<ExternalIndicator />}
-            onPress={() =>
-              WebBrowser.openBrowserAsync("https://conpaws.com/support")
-            }
+            onPress={() => openLink("https://conpaws.com/support")}
           >
             {t("settings.about.helpCenter")}
           </ListItem>
@@ -133,7 +142,7 @@ export default function AboutScreen() {
             leading={<NativeIcon name={EMAIL_ICON} />}
             supportingText="legal@conpaws.com"
             trailing={<ExternalIndicator />}
-            onPress={() => Linking.openURL("mailto:legal@conpaws.com")}
+            onPress={() => openLink("mailto:legal@conpaws.com")}
           >
             {t("settings.about.email")}
           </ListItem>
@@ -141,9 +150,7 @@ export default function AboutScreen() {
             leading={<NativeIcon name={COMMUNITY_ICON} />}
             supportingText={t("settings.about.discordDescription")}
             trailing={<ExternalIndicator />}
-            onPress={() =>
-              WebBrowser.openBrowserAsync("https://discord.gg/conpaws")
-            }
+            onPress={() => openLink("https://discord.gg/conpaws")}
           >
             Discord
           </ListItem>
@@ -154,7 +161,7 @@ export default function AboutScreen() {
             leading={<NativeIcon name={WEBSITE_ICON} />}
             supportingText="conpaws.com"
             trailing={<ExternalIndicator />}
-            onPress={() => WebBrowser.openBrowserAsync("https://conpaws.com")}
+            onPress={() => openLink("https://conpaws.com")}
           >
             {t("settings.about.website")}
           </ListItem>

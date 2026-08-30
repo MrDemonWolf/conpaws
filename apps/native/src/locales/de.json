@@ -12,6 +12,7 @@
     "done": "Fertig",
     "loading": "Laden...",
     "error": "Etwas ist schiefgelaufen",
+    "openLinkError": "Dieser Link konnte nicht geöffnet werden",
     "retry": "Erneut versuchen",
     "learnMore": "Mehr erfahren",
     "version": "Version {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptisches Feedback",
       "hapticsError": "Haptik-Einstellung konnte nicht gespeichert werden",
       "notifications": "Benachrichtigungen",
-      "scheduleAutoCheck": "Nach Programmänderungen suchen"
+      "scheduleAutoCheck": "Nach Programmänderungen suchen",
+      "scheduleAutoCheckError": "Einstellung für Programmaktualisierungen konnte nicht gespeichert werden"
     },
     "data": {
       "title": "Daten",

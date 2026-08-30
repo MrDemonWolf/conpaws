@@ -12,6 +12,7 @@
     "done": "Concluído",
     "loading": "A carregar...",
     "error": "Algo correu mal",
+    "openLinkError": "Não foi possível abrir essa ligação",
     "retry": "Tentar novamente",
     "learnMore": "Saber mais",
     "version": "Versão {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Resposta háptica",
       "hapticsError": "Não foi possível guardar a sua definição de resposta háptica",
       "notifications": "Notificações",
-      "scheduleAutoCheck": "Procurar alterações ao programa"
+      "scheduleAutoCheck": "Procurar alterações ao programa",
+      "scheduleAutoCheckError": "Não foi possível guardar a sua definição de atualização do programa"
     },
     "data": {
       "title": "Dados",
