@@ -1,0 +1,5 @@
+[mcp_servers.kommit]
+url = "https://getkommit.ai/api/mcp?project=a15b4d75-fde2-4997-8dd8-dce3e4baeff6"
+
+[mcp_servers.xprem-docs]
+url = "https://mercure-technologies.gitbook.io/xprem/~gitbook/mcp"
