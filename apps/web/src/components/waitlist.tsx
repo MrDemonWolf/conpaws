@@ -37,6 +37,15 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
 
   const turnstileSiteKey = env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  // NEXT_PUBLIC_TURNSTILE_SITE_KEY is optional in the schema and baked at build
+  // time, so a preview or self-host build can ship without it. When it is
+  // missing the widget never renders, the form posts an empty token, and the
+  // route answers 400 "we couldn't verify that you're human" -- an error no
+  // visitor can do anything about, on every attempt. Treat it as the form being
+  // shut, which is what it actually is.
+  const acceptingSignups =
+    WAITLIST_ACCEPTING_SIGNUPS && Boolean(turnstileSiteKey);
+
   const [name, setName] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
@@ -47,7 +56,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!WAITLIST_ACCEPTING_SIGNUPS || status === "submitting") return;
+    if (!acceptingSignups || status === "submitting") return;
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
@@ -111,7 +120,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
           </span>
-          {WAITLIST_ACCEPTING_SIGNUPS ? messages.badgeOpen : messages.badgeSoon}
+          {acceptingSignups ? messages.badgeOpen : messages.badgeSoon}
         </span>
 
         {/*
@@ -199,7 +208,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                   name="email"
                   type="email"
                   required
-                  disabled={!WAITLIST_ACCEPTING_SIGNUPS}
+                  disabled={!acceptingSignups}
                   autoComplete="email"
                   placeholder={messages.emailPlaceholder}
                   className={INPUT_CLASS}
@@ -224,7 +233,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
               />
             </div>
 
-            {WAITLIST_ACCEPTING_SIGNUPS && turnstileSiteKey ? (
+            {acceptingSignups ? (
               <>
                 <Script
                   src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -240,10 +249,10 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
 
             <button
               type="submit"
-              disabled={!WAITLIST_ACCEPTING_SIGNUPS || status === "submitting"}
+              disabled={!acceptingSignups || status === "submitting"}
               className="mt-5 w-full rounded-xl bg-primary px-5 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             >
-              {!WAITLIST_ACCEPTING_SIGNUPS
+              {!acceptingSignups
                 ? messages.submitClosed
                 : status === "submitting"
                   ? messages.submitting
@@ -266,7 +275,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
               text shown and the text stored are the same.
             */}
             <p className="mt-3.5 text-[13px] text-muted-foreground leading-relaxed">
-              {WAITLIST_ACCEPTING_SIGNUPS ? (
+              {acceptingSignups ? (
                 <span lang="en">{CONSENT_COPY}</span>
               ) : (
                 messages.closedNotice

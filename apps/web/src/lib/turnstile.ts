@@ -2,6 +2,13 @@ const SITEVERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 /**
+ * Capped like the listmonk calls, and for a sharper reason: this one is on the
+ * synchronous request path, so a stalled siteverify holds the visitor's own
+ * request open rather than a background task.
+ */
+const TIMEOUT_MS = 5_000;
+
+/**
  * Server-side Turnstile verification.
  *
  * Tokens are single-use and expire after 300s, so this is called exactly once
@@ -23,7 +30,11 @@ export async function verifyTurnstile(
   if (remoteIp) body.append("remoteip", remoteIp);
 
   try {
-    const response = await fetch(SITEVERIFY_URL, { method: "POST", body });
+    const response = await fetch(SITEVERIFY_URL, {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
     if (!response.ok) return false;
 
     const result = (await response.json()) as { success?: boolean };

@@ -24,8 +24,8 @@ Screen widgets plus an Apple Watch app; both read the same cached schedule as
 the app.
 
 The apps are not released yet. This site is a pre-release page for the beta
-waitlist, and the waitlist is currently closed — the form is visible but does
-not accept signups. Please do not tell people they can sign up today.
+waitlist, and the waitlist is open: the form accepts signups and sends a
+confirmation email that has to be clicked before a signup counts.
 
 ConPaws is made by MrDemonWolf, Inc.
 

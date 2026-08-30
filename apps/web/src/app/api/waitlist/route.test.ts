@@ -110,9 +110,10 @@ describe("POST /api/waitlist", () => {
     );
 
     expect(response.status).toBe(503);
-    expect(response.headers.get("retry-after")).toBe("86400");
+    expect(response.headers.get("retry-after")).toBe("300");
     await expect(response.json()).resolves.toEqual({
-      error: "Beta registration is not open yet. Please check back soon.",
+      error:
+        "Signups are temporarily unavailable. Please try again in a few minutes.",
     });
     expect(info).not.toHaveBeenCalled();
   });

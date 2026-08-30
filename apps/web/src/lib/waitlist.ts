@@ -23,6 +23,26 @@ export const RECONCILE_BATCH_SIZE = 50;
  */
 export const RESEND_COOLDOWN_MS = 10 * 60 * 1000;
 
+/**
+ * Whether a failed send says "listmonk was unreachable" rather than "this
+ * address is no good".
+ *
+ * The distinction decides whether the attempt counts against MAX_SYNC_ATTEMPTS.
+ * It has to, because the counter is also the claim token and so is spent before
+ * the send is attempted: without this, five consecutive hourly passes during a
+ * single five-hour listmonk outage would exhaust every pending row's budget and
+ * drop all of them out of `reconcile`'s selection permanently. The log would go
+ * quiet at the same moment, because a row that is no longer selected is never
+ * reported as failed.
+ *
+ * status 0 is this module's own "fetch threw" (network error or the timeout);
+ * 5xx is listmonk up but broken. A 4xx is about the address and is allowed to
+ * burn its attempts.
+ */
+export function isTransientFailure(status: number): boolean {
+  return status === 0 || status >= 500;
+}
+
 /** Whether enough time has passed to send this address another confirmation. */
 export function resendAllowed(
   syncAttemptedAt: Date | null,
@@ -68,10 +88,19 @@ export async function syncRow(
     );
   }
 
+  // Refund the claim's attempt when the failure was not this address's fault,
+  // so an outage cannot quietly retire the backlog. Safe to do after the send
+  // has resolved: no other caller can be mid-send on this row, because the
+  // claim they would need is the counter being restored here.
   await settle(
     db
       .update(waitlist)
-      .set({ syncError: `${result.status}: ${result.detail}` })
+      .set({
+        syncError: `${result.status}: ${result.detail}`,
+        ...(isTransientFailure(result.status)
+          ? { syncAttempts: Math.max(0, row.syncAttempts - 1) }
+          : {}),
+      })
       .where(eq(waitlist.id, row.id)),
   );
   return false;

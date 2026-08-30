@@ -75,10 +75,6 @@ export function translatedLocales(): Locale[] {
   return Object.keys(CATALOGS) as Locale[];
 }
 
-export function hasCatalog(locale: Locale): boolean {
-  return locale in CATALOGS;
-}
-
 /**
  * Deep-merges a locale's catalog over English.
  *
@@ -146,10 +142,15 @@ export function parseInline(input: string): InlinePart[] {
     if (at > last) {
       parts.push({ kind: "text", value: input.slice(last, at) });
     }
-    if (match[3] !== undefined) {
-      parts.push({ kind: "code", value: match[3] });
+    const [, linkText, href, code] = match;
+    if (code !== undefined) {
+      parts.push({ kind: "code", value: code });
+    } else if (linkText !== undefined && href !== undefined) {
+      parts.push({ kind: "link", value: linkText, href });
     } else {
-      parts.push({ kind: "link", value: match[1], href: match[2] });
+      // Unreachable given INLINE_RE, but the alternative to narrowing is
+      // asserting non-null on a value derived from translator input.
+      parts.push({ kind: "text", value: match[0] });
     }
     last = at + match[0].length;
   }
