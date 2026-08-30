@@ -6,12 +6,11 @@
     "descriptionShort": "Importera ett konvents program, bygg ditt eget, få påminnelser — allt fungerar offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Sedan 2025",
-    "languageLabel": "Språk"
+    "languageLabel": "Språk",
+    "back": "Tillbaka"
   },
-
   "ticker": {
     "screenReaderSummary": "Program, offline först, påminnelser, innehållsvarningar, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "En titt inuti",
     "title": "Hela helgen, med en tumme",
@@ -32,7 +30,6 @@
     "frameEvent": "Missa aldrig något",
     "frameOffline": "Wi-Fi valfritt"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Konvent",
@@ -76,7 +73,6 @@
       "close": "Stäng"
     }
   },
-
   "lineup": {
     "eyebrow": "Dagens program",
     "title": "Byggt för konventsgolvet",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws i korthet",
     "labels": [
@@ -119,7 +114,6 @@
       "konvent i en enda app"
     ]
   },
-
   "steps": {
     "eyebrow": "Så funkar det",
     "title": "Tre steg, noll konfiguration",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Funktionärsdisken",
     "title": "Frågor, besvarade",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Registreringskön",
     "title": "Din badge väntar i receptionen",
     "body": "Gå med på väntelistan så får du exakt ett mejl när betan öppnar — inget annat, någonsin.",
     "button": "Ställ dig i kön →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws av",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Integritet",
     "terms": "Villkor"
   },
-
   "waitlist": {
     "badgeOpen": "Väntelistan för betan är öppen",
     "badgeSoon": "Väntelistan för betan öppnar snart",
@@ -207,7 +197,6 @@
     "closedNotice": "Vi håller på att färdigställa säker anmälan och e-postbekräftelse. Inga adresser tas emot ännu.",
     "privacyLink": "Integritet"
   },
-
   "confirmed": {
     "title": "Du är med på listan",
     "description": "Din plats på väntelistan för ConPaws-betan är bekräftad.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Sidan hittades inte",
     "description": "Den sidan står inte på programmet.",
+    "eyebrow": "Fel sal",
+    "heading": "Den sidan står inte på programmet",
+    "body": "Länken kan vara gammal, eller så har adressen ett stavfel. Inget är trasigt hos dig.",
+    "cta": "Tillbaka till programmet",
+    "tryThese": "Prova någon av dessa",
     "links": [
       {
         "label": "Huvudprogrammet",
         "hint": "Vad ConPaws är, och väntelistan"
       },
-      { "label": "Support", "hint": "Om något faktiskt är trasigt" },
+      {
+        "label": "Support",
+        "hint": "Om något faktiskt är trasigt"
+      },
       {
         "label": "Integritetspolicy",
         "hint": "Vad vi sparar, och vad vi inte sparar"

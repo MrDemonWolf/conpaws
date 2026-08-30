@@ -6,12 +6,11 @@
     "descriptionShort": "Naimportuj program conu, sestav si vlastní, dostávej připomínky — všechno funguje offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Od 2025",
-    "languageLabel": "Jazyk"
+    "languageLabel": "Jazyk",
+    "back": "Zpět"
   },
-
   "ticker": {
     "screenReaderSummary": "Programy, offline především, připomínky, upozornění na obsah, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Nahlédni dovnitř",
     "title": "Celý víkend, jedním palcem",
@@ -32,7 +30,6 @@
     "frameEvent": "Nic nezmeškej",
     "frameOffline": "Wi-Fi nepovinná"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Cony",
@@ -76,7 +73,6 @@
       "close": "Zavřít"
     }
   },
-
   "lineup": {
     "eyebrow": "Dnešní program",
     "title": "Postavené na conové prostředí",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws ve zkratce",
     "labels": [
@@ -119,7 +114,6 @@
       "conů v jedné aplikaci"
     ]
   },
-
   "steps": {
     "eyebrow": "Jak to funguje",
     "title": "Tři kroky, nulové nastavení",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Pult organizátorů",
     "title": "Otázky a odpovědi",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Registrační fronta",
     "title": "Tvoje jmenovka čeká na recepci",
     "body": "Přidej se na čekací listinu a dostaneš přesně jeden e-mail, až se beta otevře — nic jiného, nikdy.",
     "button": "Postav se do fronty →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws od",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Soukromí",
     "terms": "Podmínky"
   },
-
   "waitlist": {
     "badgeOpen": "Čekací listina na betu je otevřená",
     "badgeSoon": "Čekací listina na betu se brzy otevře",
@@ -207,7 +197,6 @@
     "closedNotice": "Dokončujeme bezpečnou registraci a potvrzování e-mailu. Zatím nepřijímáme adresy.",
     "privacyLink": "Soukromí"
   },
-
   "confirmed": {
     "title": "Jsi na listině",
     "description": "Tvoje místo na čekací listině bety ConPaws je potvrzené.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Stránka nenalezena",
     "description": "Tahle stránka není v programu.",
+    "eyebrow": "Špatný sál",
+    "heading": "Tahle stránka v programu není",
+    "body": "Odkaz může být zastaralý nebo je v adrese překlep. Na tvojí straně se nic nerozbilo.",
+    "cta": "Zpět na program",
+    "tryThese": "Zkus některou z těchto",
     "links": [
       {
         "label": "Hlavní program",
         "hint": "Co je ConPaws a čekací listina"
       },
-      { "label": "Podpora", "hint": "Když je opravdu něco rozbité" },
+      {
+        "label": "Podpora",
+        "hint": "Když je opravdu něco rozbité"
+      },
       {
         "label": "Zásady ochrany soukromí",
         "hint": "Co ukládáme a co ne"

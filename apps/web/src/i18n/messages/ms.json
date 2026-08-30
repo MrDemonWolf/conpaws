@@ -6,12 +6,11 @@
     "descriptionShort": "Import jadual konvensyen, bina jadual anda sendiri, dapatkan peringatan — semuanya berfungsi di luar talian.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Sejak 2025",
-    "languageLabel": "Bahasa"
+    "languageLabel": "Bahasa",
+    "back": "Kembali"
   },
-
   "ticker": {
     "screenReaderSummary": "Jadual, luar talian dahulu, peringatan, amaran kandungan, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Lihat di dalam",
     "title": "Seluruh hujung minggu anda, satu ibu jari",
@@ -32,7 +30,6 @@
     "frameEvent": "Jangan terlepas apa-apa",
     "frameOffline": "WiFi pilihan sahaja"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Konvensyen",
@@ -76,7 +73,6 @@
       "close": "Tutup"
     }
   },
-
   "lineup": {
     "eyebrow": "Barisan hari ini",
     "title": "Dibina untuk lantai konvensyen",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws sekilas pandang",
     "labels": [
@@ -119,7 +114,6 @@
       "konvensyen dalam satu apl"
     ]
   },
-
   "steps": {
     "eyebrow": "Cara ia berfungsi",
     "title": "Tiga langkah, sifar persediaan",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Kaunter urusetia",
     "title": "Soalan, dijawab",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Barisan pendaftaran",
     "title": "Tag nama anda menunggu di kaunter",
     "body": "Sertai senarai menunggu dan anda akan terima tepat satu e-mel apabila beta dibuka — tiada yang lain, selamanya.",
     "button": "Masuk barisan →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws oleh",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Privasi",
     "terms": "Terma"
   },
-
   "waitlist": {
     "badgeOpen": "Senarai menunggu beta dibuka",
     "badgeSoon": "Senarai menunggu beta tidak lama lagi",
@@ -207,7 +197,6 @@
     "closedNotice": "Kami sedang menyiapkan pendaftaran selamat dan pengesahan e-mel. Belum ada alamat yang diterima buat masa ini.",
     "privacyLink": "Privasi"
   },
-
   "confirmed": {
     "title": "Anda dalam senarai",
     "description": "Tempat anda dalam senarai menunggu beta ConPaws telah disahkan.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Halaman tidak dijumpai",
     "description": "Halaman itu tiada dalam atur cara.",
+    "eyebrow": "Salah bilik",
+    "heading": "Halaman itu tiada dalam program",
+    "body": "Pautan mungkin sudah lapuk, atau alamatnya tersalah taip. Tiada apa-apa yang rosak di pihak anda.",
+    "cta": "Kembali ke program",
+    "tryThese": "Cuba salah satu ini",
     "links": [
       {
         "label": "Atur cara utama",
         "hint": "Apa itu ConPaws, dan senarai menunggu"
       },
-      { "label": "Sokongan", "hint": "Jika sesuatu benar-benar rosak" },
+      {
+        "label": "Sokongan",
+        "hint": "Jika sesuatu benar-benar rosak"
+      },
       {
         "label": "Dasar Privasi",
         "hint": "Apa yang kami simpan, dan apa yang tidak"

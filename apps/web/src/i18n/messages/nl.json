@@ -6,12 +6,11 @@
     "descriptionShort": "Importeer het programma van een convention, stel je eigen samen, krijg herinneringen — allemaal offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Sinds 2025",
-    "languageLabel": "Taal"
+    "languageLabel": "Taal",
+    "back": "Terug"
   },
-
   "ticker": {
     "screenReaderSummary": "Programma's, offline eerst, herinneringen, inhoudswaarschuwingen, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Een kijkje binnen",
     "title": "Je hele weekend, met één duim",
@@ -32,7 +30,6 @@
     "frameEvent": "Mis nooit iets",
     "frameOffline": "Wifi optioneel"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Conventions",
@@ -76,7 +73,6 @@
       "close": "Sluiten"
     }
   },
-
   "lineup": {
     "eyebrow": "Programma van vandaag",
     "title": "Gemaakt voor de convention zelf",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws in het kort",
     "labels": [
@@ -119,7 +114,6 @@
       "conventions in één app"
     ]
   },
-
   "steps": {
     "eyebrow": "Hoe het werkt",
     "title": "Drie stappen, nul instellingen",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Balie van de organisatie",
     "title": "Vragen, beantwoord",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Registratierij",
     "title": "Je badge ligt klaar bij de balie",
     "body": "Zet je op de wachtlijst en je krijgt precies één mail wanneer de bèta opengaat — verder niets, nooit.",
     "button": "Sluit aan in de rij →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws door",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Privacy",
     "terms": "Voorwaarden"
   },
-
   "waitlist": {
     "badgeOpen": "Bèta-wachtlijst open",
     "badgeSoon": "Bèta-wachtlijst binnenkort",
@@ -207,7 +197,6 @@
     "closedNotice": "We leggen de laatste hand aan veilig aanmelden en e-mailbevestiging. Er worden nog geen adressen aangenomen.",
     "privacyLink": "Privacy"
   },
-
   "confirmed": {
     "title": "Je staat op de lijst",
     "description": "Je plek op de wachtlijst voor de ConPaws-bèta is bevestigd.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Pagina niet gevonden",
     "description": "Die pagina staat niet op het programma.",
+    "eyebrow": "Verkeerde zaal",
+    "heading": "Die pagina staat niet op het programma",
+    "body": "De link is misschien verouderd, of er staat een typfout in het adres. Aan jouw kant is niets stuk.",
+    "cta": "Terug naar het programma",
+    "tryThese": "Probeer een van deze",
     "links": [
       {
         "label": "Het hoofdprogramma",
         "hint": "Wat ConPaws is, en de wachtlijst"
       },
-      { "label": "Support", "hint": "Als er echt iets stuk is" },
+      {
+        "label": "Support",
+        "hint": "Als er echt iets stuk is"
+      },
       {
         "label": "Privacybeleid",
         "hint": "Wat we bewaren, en wat niet"

@@ -10,8 +10,8 @@
  * for the same CSS that may have just failed would risk an unstyled white
  * page, which is the exact outcome this file exists to prevent.
  *
- * The landing page mounts a WASM physics badge, so a client-side crash here is
- * realistic rather than theoretical.
+ * The landing page mounts an animated badge and a client-side count fetch, so
+ * a crash here is realistic rather than theoretical.
  */
 
 export default function GlobalError({

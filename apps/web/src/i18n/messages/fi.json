@@ -6,12 +6,11 @@
     "descriptionShort": "Tuo tapahtuman ohjelma, kokoa omasi, saa muistutukset — kaikki toimii offline-tilassa.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Vuodesta 2025",
-    "languageLabel": "Kieli"
+    "languageLabel": "Kieli",
+    "back": "Takaisin"
   },
-
   "ticker": {
     "screenReaderSummary": "Ohjelmat, offline ensin, muistutukset, sisältövaroitukset, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Kurkistus sisään",
     "title": "Koko viikonloppu, yhdellä peukalolla",
@@ -32,7 +30,6 @@
     "frameEvent": "Älä missaa mitään",
     "frameOffline": "Wi-Fi valinnainen"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Tapahtumat",
@@ -76,7 +73,6 @@
       "close": "Sulje"
     }
   },
-
   "lineup": {
     "eyebrow": "Tämän päivän ohjelma",
     "title": "Tehty tapahtumakäyttöön",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws lyhyesti",
     "labels": [
@@ -119,7 +114,6 @@
       "tapahtumaa yhdessä sovelluksessa"
     ]
   },
-
   "steps": {
     "eyebrow": "Näin se toimii",
     "title": "Kolme askelta, ei asetuksia",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Järjestäjien tiski",
     "title": "Kysymyksiä ja vastauksia",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Ilmoittautumisjono",
     "title": "Badgesi odottaa vastaanotossa",
     "body": "Liity jonotuslistalle, niin saat tasan yhden sähköpostin kun beta avautuu — ei mitään muuta, koskaan.",
     "button": "Mene jonoon →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws –",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Tietosuoja",
     "terms": "Ehdot"
   },
-
   "waitlist": {
     "badgeOpen": "Betan jonotuslista auki",
     "badgeSoon": "Betan jonotuslista aukeaa pian",
@@ -207,7 +197,6 @@
     "closedNotice": "Viimeistelemme turvallista ilmoittautumista ja sähköpostivahvistusta. Osoitteita ei vielä oteta vastaan.",
     "privacyLink": "Tietosuoja"
   },
-
   "confirmed": {
     "title": "Olet listalla",
     "description": "Paikkasi ConPaws-betan jonotuslistalla on vahvistettu.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Sivua ei löytynyt",
     "description": "Tuo sivu ei ole ohjelmassa.",
+    "eyebrow": "Väärä sali",
+    "heading": "Tuota sivua ei ole ohjelmassa",
+    "body": "Linkki voi olla vanhentunut tai osoitteessa on kirjoitusvirhe. Sinun päässäsi ei ole mitään vikaa.",
+    "cta": "Takaisin ohjelmaan",
+    "tryThese": "Kokeile jotain näistä",
     "links": [
       {
         "label": "Pääohjelma",
         "hint": "Mikä ConPaws on, ja jonotuslista"
       },
-      { "label": "Tuki", "hint": "Jos jokin on oikeasti rikki" },
+      {
+        "label": "Tuki",
+        "hint": "Jos jokin on oikeasti rikki"
+      },
       {
         "label": "Tietosuojaseloste",
         "hint": "Mitä tallennamme, ja mitä emme"

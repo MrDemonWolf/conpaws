@@ -6,12 +6,11 @@
     "descriptionShort": "Importa el horario de una convención, monta el tuyo, recibe recordatorios — todo funciona sin conexión.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Desde 2025",
-    "languageLabel": "Idioma"
+    "languageLabel": "Idioma",
+    "back": "Volver"
   },
-
   "ticker": {
     "screenReaderSummary": "Horarios, sin conexión primero, recordatorios, avisos de contenido, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Un vistazo por dentro",
     "title": "Todo tu fin de semana, con un pulgar",
@@ -32,7 +30,6 @@
     "frameEvent": "No te pierdas nada",
     "frameOffline": "WiFi opcional"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Convenciones",
@@ -76,7 +73,6 @@
       "close": "Cerrar"
     }
   },
-
   "lineup": {
     "eyebrow": "Programa de hoy",
     "title": "Hecho para el día a día de la con",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws de un vistazo",
     "labels": [
@@ -119,7 +114,6 @@
       "convenciones en una sola app"
     ]
   },
-
   "steps": {
     "eyebrow": "Cómo funciona",
     "title": "Tres pasos, cero configuración",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Mesa de organización",
     "title": "Preguntas, respondidas",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Cola de registro",
     "title": "Tu acreditación te espera en recepción",
     "body": "Únete a la lista de espera y recibirás exactamente un correo cuando abra la beta — nada más, nunca.",
     "button": "Ponte a la cola →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws por",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Privacidad",
     "terms": "Términos"
   },
-
   "waitlist": {
     "badgeOpen": "Lista de espera de la beta abierta",
     "badgeSoon": "Lista de espera de la beta muy pronto",
@@ -207,7 +197,6 @@
     "closedNotice": "Estamos terminando el registro seguro y la confirmación por correo. Todavía no aceptamos direcciones.",
     "privacyLink": "Privacidad"
   },
-
   "confirmed": {
     "title": "Estás en la lista",
     "description": "Tu plaza en la lista de espera de la beta de ConPaws está confirmada.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Página no encontrada",
     "description": "Esa página no está en el programa.",
+    "eyebrow": "Sala equivocada",
+    "heading": "Esa página no está en el programa",
+    "body": "Puede que el enlace esté desactualizado o que la dirección tenga una errata. No es culpa tuya.",
+    "cta": "Volver al programa",
+    "tryThese": "Prueba con una de estas",
     "links": [
       {
         "label": "El programa principal",
         "hint": "Qué es ConPaws, y la lista de espera"
       },
-      { "label": "Soporte", "hint": "Si de verdad algo está roto" },
+      {
+        "label": "Soporte",
+        "hint": "Si de verdad algo está roto"
+      },
       {
         "label": "Política de privacidad",
         "hint": "Qué guardamos, y qué no"

@@ -6,12 +6,11 @@
     "descriptionShort": "Importér et konvents program, byg dit eget, få påmindelser — det hele virker offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Siden 2025",
-    "languageLabel": "Sprog"
+    "languageLabel": "Sprog",
+    "back": "Tilbage"
   },
-
   "ticker": {
     "screenReaderSummary": "Programmer, offline først, påmindelser, indholdsadvarsler, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Et kig indenfor",
     "title": "Hele din weekend, med én tommelfinger",
@@ -32,7 +30,6 @@
     "frameEvent": "Gå aldrig glip af noget",
     "frameOffline": "Wi-Fi valgfrit"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Konventer",
@@ -76,7 +73,6 @@
       "close": "Luk"
     }
   },
-
   "lineup": {
     "eyebrow": "Dagens program",
     "title": "Bygget til konventgulvet",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws kort fortalt",
     "labels": [
@@ -119,7 +114,6 @@
       "konventer i én app"
     ]
   },
-
   "steps": {
     "eyebrow": "Sådan virker det",
     "title": "Tre trin, nul opsætning",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Crew-skranken",
     "title": "Spørgsmål, besvaret",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Registreringskøen",
     "title": "Dit badge venter i receptionen",
     "body": "Skriv dig på ventelisten, så får du præcis én mail, når betaen åbner — intet andet, nogensinde.",
     "button": "Stil dig i kø →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws af",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Privatliv",
     "terms": "Vilkår"
   },
-
   "waitlist": {
     "badgeOpen": "Venteliste til beta er åben",
     "badgeSoon": "Venteliste til beta åbner snart",
@@ -207,7 +197,6 @@
     "closedNotice": "Vi er ved at færdiggøre sikker tilmelding og e-mailbekræftelse. Der modtages ingen adresser endnu.",
     "privacyLink": "Privatliv"
   },
-
   "confirmed": {
     "title": "Du er på listen",
     "description": "Din plads på ventelisten til ConPaws-betaen er bekræftet.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Siden blev ikke fundet",
     "description": "Den side står ikke på programmet.",
+    "eyebrow": "Forkert lokale",
+    "heading": "Den side står ikke på programmet",
+    "body": "Linket er måske forældet, eller adressen har en tastefejl. Der er ikke noget galt hos dig.",
+    "cta": "Tilbage til programmet",
+    "tryThese": "Prøv en af disse",
     "links": [
       {
         "label": "Hovedprogrammet",
         "hint": "Hvad ConPaws er, og ventelisten"
       },
-      { "label": "Support", "hint": "Hvis noget faktisk er i stykker" },
+      {
+        "label": "Support",
+        "hint": "Hvis noget faktisk er i stykker"
+      },
       {
         "label": "Privatlivspolitik",
         "hint": "Hvad vi gemmer, og hvad vi ikke gemmer"

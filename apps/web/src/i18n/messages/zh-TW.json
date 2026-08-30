@@ -6,17 +6,15 @@
     "descriptionShort": "匯入展會議程、安排自己的行程、取得提醒 —— 全部離線可用。",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Est. 2025",
-    "languageLabel": "語言"
+    "languageLabel": "語言",
+    "back": "返回"
   },
-
   "ticker": {
     "screenReaderSummary": "議程、離線優先、提醒、內容提示、iOS、Android。",
     "items": ["議程", "離線優先", "提醒", "內容提示", "iOS", "Android"]
   },
-
   "inside": {
     "eyebrow": "搶先看",
     "title": "整個週末，一根拇指搞定",
@@ -25,7 +23,6 @@
     "frameEvent": "不錯過任何一場",
     "frameOffline": "Wi-Fi 可有可無"
   },
-
   "mock": {
     "tabs": {
       "conventions": "展會",
@@ -69,7 +66,6 @@
       "close": "關閉"
     }
   },
-
   "lineup": {
     "eyebrow": "今日節目",
     "title": "為展場現場而生",
@@ -102,7 +98,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws 一覽",
     "labels": [
@@ -112,12 +107,14 @@
       "個展會匯於一個應用程式"
     ]
   },
-
   "steps": {
     "eyebrow": "如何使用",
     "title": "三個步驟，免設定",
     "items": [
-      { "title": "下載", "body": "上線時 iOS 與 Android 皆免費。" },
+      {
+        "title": "下載",
+        "body": "上線時 iOS 與 Android 皆免費。"
+      },
       {
         "title": "選擇展會",
         "body": "匯入它的議程，或從零開始建一份。"
@@ -128,7 +125,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "營運櫃台",
     "title": "常見問題",
@@ -159,14 +155,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "報到隊伍",
     "title": "你的名牌已經在櫃台等你了",
     "body": "加入候補名單，測試版開放時你只會收到一封信 —— 除此之外，永遠不會有別的。",
     "button": "去排隊 →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws by",
     "company": "MrDemonWolf, Inc.",
@@ -174,7 +168,6 @@
     "privacy": "隱私",
     "terms": "條款"
   },
-
   "waitlist": {
     "badgeOpen": "測試版候補名單開放中",
     "badgeSoon": "測試版候補名單即將開放",
@@ -197,7 +190,6 @@
     "closedNotice": "我們正在完成安全註冊與信件確認功能。目前尚未開放登記電子郵件。",
     "privacyLink": "隱私"
   },
-
   "confirmed": {
     "title": "你已在名單中",
     "description": "你的 ConPaws 測試版候補名額已確認。",
@@ -216,14 +208,27 @@
       }
     ]
   },
-
   "notFound": {
     "title": "找不到頁面",
     "description": "這個頁面不在節目表上。",
+    "eyebrow": "走錯房間了",
+    "heading": "這個頁面不在議程上",
+    "body": "連結可能已經過期，或是網址有拼字錯誤。你這邊沒有任何問題。",
+    "cta": "回到議程",
+    "tryThese": "試試這幾個",
     "links": [
-      { "label": "主節目表", "hint": "ConPaws 是什麼，以及候補名單" },
-      { "label": "支援", "hint": "如果真的有東西壞了" },
-      { "label": "隱私權政策", "hint": "我們儲存什麼，不儲存什麼" }
+      {
+        "label": "主節目表",
+        "hint": "ConPaws 是什麼，以及候補名單"
+      },
+      {
+        "label": "支援",
+        "hint": "如果真的有東西壞了"
+      },
+      {
+        "label": "隱私權政策",
+        "hint": "我們儲存什麼，不儲存什麼"
+      }
     ]
   }
 }

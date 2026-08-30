@@ -6,12 +6,11 @@
     "descriptionShort": "Importa o programa de uma convenção, monta o teu, recebe lembretes — tudo a funcionar offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Desde 2025",
-    "languageLabel": "Idioma"
+    "languageLabel": "Idioma",
+    "back": "Voltar"
   },
-
   "ticker": {
     "screenReaderSummary": "Programas, offline primeiro, lembretes, avisos de conteúdo, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Uma espreitadela",
     "title": "O teu fim de semana inteiro, num polegar",
@@ -32,7 +30,6 @@
     "frameEvent": "Nunca percas nada",
     "frameOffline": "Wi-Fi opcional"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Convenções",
@@ -76,7 +73,6 @@
       "close": "Fechar"
     }
   },
-
   "lineup": {
     "eyebrow": "Programa de hoje",
     "title": "Feito para o chão da convenção",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws num relance",
     "labels": [
@@ -119,7 +114,6 @@
       "convenções numa só app"
     ]
   },
-
   "steps": {
     "eyebrow": "Como funciona",
     "title": "Três passos, zero configuração",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Balcão da organização",
     "title": "Perguntas, respondidas",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Fila de inscrição",
     "title": "O teu crachá está à espera na receção",
     "body": "Entra na lista de espera e recebes exatamente um e-mail quando a beta abrir — mais nada, nunca.",
     "button": "Entrar na fila →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws por",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Privacidade",
     "terms": "Termos"
   },
-
   "waitlist": {
     "badgeOpen": "Lista de espera da beta aberta",
     "badgeSoon": "Lista de espera da beta em breve",
@@ -207,7 +197,6 @@
     "closedNotice": "Estamos a terminar o registo seguro e a confirmação por e-mail. Ainda não estamos a aceitar endereços.",
     "privacyLink": "Privacidade"
   },
-
   "confirmed": {
     "title": "Estás na lista",
     "description": "O teu lugar na lista de espera da beta do ConPaws está confirmado.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Página não encontrada",
     "description": "Essa página não está no programa.",
+    "eyebrow": "Sala errada",
+    "heading": "Essa página não está no programa",
+    "body": "O link pode estar desatualizado ou o endereço pode ter uma gralha. Não partiu nada do seu lado.",
+    "cta": "Voltar ao programa",
+    "tryThese": "Experimente uma destas",
     "links": [
       {
         "label": "O programa principal",
         "hint": "O que é o ConPaws, e a lista de espera"
       },
-      { "label": "Apoio", "hint": "Se algo estiver mesmo avariado" },
+      {
+        "label": "Apoio",
+        "hint": "Se algo estiver mesmo avariado"
+      },
       {
         "label": "Política de Privacidade",
         "hint": "O que guardamos, e o que não guardamos"
