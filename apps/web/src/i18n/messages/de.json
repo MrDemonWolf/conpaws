@@ -6,12 +6,11 @@
     "descriptionShort": "Importiere einen Convention-Zeitplan, stelle deinen eigenen zusammen, erhalte Erinnerungen — alles auch offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Seit 2025",
-    "languageLabel": "Sprache"
+    "languageLabel": "Sprache",
+    "back": "Zurück"
   },
-
   "ticker": {
     "screenReaderSummary": "Zeitpläne, Offline zuerst, Erinnerungen, Inhaltshinweise, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Ein Blick hinein",
     "title": "Dein ganzes Wochenende, ein Daumen",
@@ -32,7 +30,6 @@
     "frameEvent": "Verpasse nie ein Programm",
     "frameOffline": "WLAN optional"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Conventions",
@@ -76,7 +73,6 @@
       "close": "Schließen"
     }
   },
-
   "lineup": {
     "eyebrow": "Programm für heute",
     "title": "Gemacht für den Con-Alltag",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws auf einen Blick",
     "labels": [
@@ -119,7 +114,6 @@
       "Conventions in einer App"
     ]
   },
-
   "steps": {
     "eyebrow": "So funktioniert's",
     "title": "Drei Schritte, keine Einrichtung",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Con-Orga-Schalter",
     "title": "Fragen, beantwortet",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Anmeldeschlange",
     "title": "Dein Badge liegt am Empfang bereit",
     "body": "Trag dich in die Warteliste ein und du bekommst genau eine E-Mail, wenn die Beta öffnet — sonst nichts, niemals.",
     "button": "Anstellen →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws von",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Datenschutz",
     "terms": "AGB"
   },
-
   "waitlist": {
     "badgeOpen": "Beta-Warteliste offen",
     "badgeSoon": "Beta-Warteliste bald verfügbar",
@@ -207,7 +197,6 @@
     "closedNotice": "Wir stellen gerade die sichere Anmeldung und die E-Mail-Bestätigung fertig. Es werden noch keine Adressen angenommen.",
     "privacyLink": "Datenschutz"
   },
-
   "confirmed": {
     "title": "Du stehst auf der Liste",
     "description": "Dein Platz auf der ConPaws-Beta-Warteliste ist bestätigt.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Seite nicht gefunden",
     "description": "Diese Seite steht nicht im Programm.",
+    "eyebrow": "Falscher Raum",
+    "heading": "Diese Seite steht nicht im Programm",
+    "body": "Der Link ist womöglich veraltet oder in der Adresse steckt ein Tippfehler. Bei dir ist nichts kaputt.",
+    "cta": "Zurück zum Programm",
+    "tryThese": "Probier eins davon",
     "links": [
       {
         "label": "Das Hauptprogramm",
         "hint": "Was ConPaws ist, und die Warteliste"
       },
-      { "label": "Support", "hint": "Wenn wirklich etwas kaputt ist" },
+      {
+        "label": "Support",
+        "hint": "Wenn wirklich etwas kaputt ist"
+      },
       {
         "label": "Datenschutzerklärung",
         "hint": "Was wir speichern und was nicht"

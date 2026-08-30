@@ -6,12 +6,11 @@
     "descriptionShort": "Import a convention schedule, build your own, get reminders — all of it working offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Est. 2025",
-    "languageLabel": "Language"
+    "languageLabel": "Language",
+    "back": "Back"
   },
-
   "ticker": {
     "screenReaderSummary": "Schedules, offline first, reminders, content flags, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "A look inside",
     "title": "Your whole weekend, one thumb",
@@ -32,7 +30,6 @@
     "frameEvent": "Never miss a lineup",
     "frameOffline": "WiFi optional"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Conventions",
@@ -76,7 +73,6 @@
       "close": "Close"
     }
   },
-
   "lineup": {
     "eyebrow": "Today's lineup",
     "title": "Built for the con floor",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws at a glance",
     "labels": [
@@ -119,12 +114,14 @@
       "conventions in one app"
     ]
   },
-
   "steps": {
     "eyebrow": "How it works",
     "title": "Three steps, zero setup",
     "items": [
-      { "title": "Download", "body": "Free on iOS and Android at launch." },
+      {
+        "title": "Download",
+        "body": "Free on iOS and Android at launch."
+      },
       {
         "title": "Pick your convention",
         "body": "Import its schedule, or start one from scratch."
@@ -135,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Con ops desk",
     "title": "Questions, answered",
@@ -166,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Registration line",
     "title": "Your badge is waiting at the front desk",
     "body": "Join the waitlist and you'll get exactly one email when the beta opens — nothing else, ever.",
     "button": "Get in line →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws by",
     "company": "MrDemonWolf, Inc.",
@@ -181,7 +175,6 @@
     "privacy": "Privacy",
     "terms": "Terms"
   },
-
   "waitlist": {
     "badgeOpen": "Beta waitlist open",
     "badgeSoon": "Beta waitlist coming soon",
@@ -204,7 +197,6 @@
     "closedNotice": "We're finishing secure signup and email confirmation. No addresses are being accepted yet.",
     "privacyLink": "Privacy"
   },
-
   "confirmed": {
     "title": "You're on the list",
     "description": "Your ConPaws beta waitlist spot is confirmed.",
@@ -223,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Page not found",
     "description": "That page isn't on the program.",
+    "eyebrow": "Wrong room",
+    "heading": "That page isn’t on the program",
+    "body": "The link may be out of date, or the address may have a typo in it. Nothing is broken on your end.",
+    "cta": "Back to the program",
+    "tryThese": "Try one of these",
     "links": [
       {
         "label": "The main program",
         "hint": "What ConPaws is, and the waitlist"
       },
-      { "label": "Support", "hint": "If something is actually broken" },
+      {
+        "label": "Support",
+        "hint": "If something is actually broken"
+      },
       {
         "label": "Privacy Policy",
         "hint": "What we store, and what we don't"

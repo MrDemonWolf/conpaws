@@ -6,17 +6,15 @@
     "descriptionShort": "컨벤션 일정을 가져오고, 나만의 일정을 만들고, 알림을 받으세요. 모두 오프라인에서 작동합니다.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Est. 2025",
-    "languageLabel": "언어"
+    "languageLabel": "언어",
+    "back": "뒤로"
   },
-
   "ticker": {
     "screenReaderSummary": "일정, 오프라인 우선, 알림, 콘텐츠 경고, iOS, Android.",
     "items": ["일정", "오프라인 우선", "알림", "콘텐츠 경고", "iOS", "Android"]
   },
-
   "inside": {
     "eyebrow": "미리 보기",
     "title": "주말 전체를, 엄지손가락 하나로",
@@ -25,7 +23,6 @@
     "frameEvent": "하나도 놓치지 않기",
     "frameOffline": "Wi-Fi는 선택"
   },
-
   "mock": {
     "tabs": {
       "conventions": "컨벤션",
@@ -69,7 +66,6 @@
       "close": "닫기"
     }
   },
-
   "lineup": {
     "eyebrow": "오늘의 프로그램",
     "title": "컨벤션 현장을 위해 만들었습니다",
@@ -102,7 +98,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws 한눈에 보기",
     "labels": [
@@ -112,12 +107,14 @@
       "개의 컨벤션을 앱 하나에"
     ]
   },
-
   "steps": {
     "eyebrow": "사용 방법",
     "title": "세 단계, 설정 없음",
     "items": [
-      { "title": "다운로드", "body": "출시 시 iOS와 Android 모두 무료." },
+      {
+        "title": "다운로드",
+        "body": "출시 시 iOS와 Android 모두 무료."
+      },
       {
         "title": "컨벤션 선택",
         "body": "일정을 가져오거나, 처음부터 직접 만드세요."
@@ -128,7 +125,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "운영 데스크",
     "title": "자주 묻는 질문",
@@ -159,14 +155,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "등록 줄",
     "title": "배지가 프런트에서 기다리고 있습니다",
     "body": "대기자 명단에 등록하면 베타가 열릴 때 메일 딱 한 통을 받습니다. 그 외에는 아무것도 보내지 않습니다.",
     "button": "줄 서기 →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws by",
     "company": "MrDemonWolf, Inc.",
@@ -174,7 +168,6 @@
     "privacy": "개인정보",
     "terms": "약관"
   },
-
   "waitlist": {
     "badgeOpen": "베타 대기자 명단 오픈",
     "badgeSoon": "베타 대기자 명단 곧 오픈",
@@ -197,7 +190,6 @@
     "closedNotice": "안전한 가입과 이메일 확인을 마무리하고 있습니다. 아직 주소를 받지 않습니다.",
     "privacyLink": "개인정보"
   },
-
   "confirmed": {
     "title": "명단에 등록되었습니다",
     "description": "ConPaws 베타 대기자 명단 등록이 확인되었습니다.",
@@ -216,16 +208,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "페이지를 찾을 수 없습니다",
     "description": "그 페이지는 프로그램에 없습니다.",
+    "eyebrow": "다른 방입니다",
+    "heading": "그 페이지는 프로그램에 없습니다",
+    "body": "링크가 오래되었거나 주소에 오타가 있을 수 있습니다. 문제가 생긴 것은 아닙니다.",
+    "cta": "프로그램으로 돌아가기",
+    "tryThese": "이런 건 어떠세요",
     "links": [
       {
         "label": "메인 프로그램",
         "hint": "ConPaws가 무엇인지, 그리고 대기자 명단"
       },
-      { "label": "지원", "hint": "정말로 무언가 고장났다면" },
+      {
+        "label": "지원",
+        "hint": "정말로 무언가 고장났다면"
+      },
       {
         "label": "개인정보 처리방침",
         "hint": "무엇을 저장하고, 무엇을 저장하지 않는지"

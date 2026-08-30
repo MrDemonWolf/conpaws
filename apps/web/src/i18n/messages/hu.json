@@ -6,12 +6,11 @@
     "descriptionShort": "Importáld egy convent programját, állítsd össze a sajátodat, kapj emlékeztetőket — mindez offline is működik.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "2025 óta",
-    "languageLabel": "Nyelv"
+    "languageLabel": "Nyelv",
+    "back": "Vissza"
   },
-
   "ticker": {
     "screenReaderSummary": "Programok, offline elsőként, emlékeztetők, tartalmi figyelmeztetések, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Egy pillantás belülre",
     "title": "A teljes hétvégéd, egy hüvelykujjal",
@@ -32,7 +30,6 @@
     "frameEvent": "Ne maradj le semmiről",
     "frameOffline": "A Wi-Fi opcionális"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Conventek",
@@ -76,7 +73,6 @@
       "close": "Bezárás"
     }
   },
-
   "lineup": {
     "eyebrow": "A mai program",
     "title": "A convent terepére készült",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws röviden",
     "labels": [
@@ -119,7 +114,6 @@
       "convent egyetlen alkalmazásban"
     ]
   },
-
   "steps": {
     "eyebrow": "Így működik",
     "title": "Három lépés, nulla beállítás",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Szervezői pult",
     "title": "Kérdések, megválaszolva",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Regisztrációs sor",
     "title": "A kitűződ a recepción vár",
     "body": "Iratkozz fel a várólistára, és pontosan egy e-mailt kapsz, amikor a béta megnyílik — semmi mást, soha.",
     "button": "Állj be a sorba →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws —",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Adatvédelem",
     "terms": "Feltételek"
   },
-
   "waitlist": {
     "badgeOpen": "A béta várólistája nyitva",
     "badgeSoon": "A béta várólistája hamarosan",
@@ -207,7 +197,6 @@
     "closedNotice": "Éppen befejezzük a biztonságos regisztrációt és az e-mail-megerősítést. Egyelőre nem fogadunk címeket.",
     "privacyLink": "Adatvédelem"
   },
-
   "confirmed": {
     "title": "Rajta vagy a listán",
     "description": "A ConPaws béta várólistán a helyed megerősítve.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Az oldal nem található",
     "description": "Ez az oldal nincs a programban.",
+    "eyebrow": "Rossz terem",
+    "heading": "Ez az oldal nincs a programban",
+    "body": "A hivatkozás elavult lehet, vagy elgépelés van a címben. Nálad nem romlott el semmi.",
+    "cta": "Vissza a programhoz",
+    "tryThese": "Próbáld ki ezek egyikét",
     "links": [
       {
         "label": "A fő program",
         "hint": "Mi az a ConPaws, és a várólista"
       },
-      { "label": "Támogatás", "hint": "Ha tényleg elromlott valami" },
+      {
+        "label": "Támogatás",
+        "hint": "Ha tényleg elromlott valami"
+      },
       {
         "label": "Adatvédelmi tájékoztató",
         "hint": "Mit tárolunk, és mit nem"

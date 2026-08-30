@@ -6,12 +6,11 @@
     "descriptionShort": "Zaimportuj plan konwentu, ułóż własny, odbieraj przypomnienia — wszystko działa offline.",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Od 2025",
-    "languageLabel": "Język"
+    "languageLabel": "Język",
+    "back": "Wstecz"
   },
-
   "ticker": {
     "screenReaderSummary": "Plany, offline przede wszystkim, przypomnienia, ostrzeżenia o treści, iOS, Android.",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "Zajrzyj do środka",
     "title": "Cały weekend, jednym kciukiem",
@@ -32,7 +30,6 @@
     "frameEvent": "Nie przegap niczego",
     "frameOffline": "Wi-Fi opcjonalne"
   },
-
   "mock": {
     "tabs": {
       "conventions": "Konwenty",
@@ -76,7 +73,6 @@
       "close": "Zamknij"
     }
   },
-
   "lineup": {
     "eyebrow": "Dzisiejszy program",
     "title": "Zrobione na warunki konwentowe",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws w skrócie",
     "labels": [
@@ -119,7 +114,6 @@
       "konwentów w jednej aplikacji"
     ]
   },
-
   "steps": {
     "eyebrow": "Jak to działa",
     "title": "Trzy kroki, zero konfiguracji",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "Punkt organizacyjny",
     "title": "Pytania i odpowiedzi",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "Kolejka do rejestracji",
     "title": "Twój identyfikator czeka w recepcji",
     "body": "Dołącz do listy oczekujących, a dostaniesz dokładnie jednego maila, gdy otworzy się beta — nic poza tym, nigdy.",
     "button": "Ustaw się w kolejce →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws od",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "Prywatność",
     "terms": "Regulamin"
   },
-
   "waitlist": {
     "badgeOpen": "Lista oczekujących na betę otwarta",
     "badgeSoon": "Lista oczekujących na betę wkrótce",
@@ -207,7 +197,6 @@
     "closedNotice": "Kończymy bezpieczne zapisy i potwierdzanie adresu e-mail. Na razie nie przyjmujemy adresów.",
     "privacyLink": "Prywatność"
   },
-
   "confirmed": {
     "title": "Jesteś na liście",
     "description": "Twoje miejsce na liście oczekujących na betę ConPaws jest potwierdzone.",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "Nie znaleziono strony",
     "description": "Tej strony nie ma w programie.",
+    "eyebrow": "Zła sala",
+    "heading": "Tej strony nie ma w programie",
+    "body": "Link może być nieaktualny albo w adresie jest literówka. Po twojej stronie nic się nie zepsuło.",
+    "cta": "Wróć do programu",
+    "tryThese": "Spróbuj jednej z tych",
     "links": [
       {
         "label": "Program główny",
         "hint": "Czym jest ConPaws i lista oczekujących"
       },
-      { "label": "Pomoc", "hint": "Jeśli naprawdę coś jest zepsute" },
+      {
+        "label": "Pomoc",
+        "hint": "Jeśli naprawdę coś jest zepsute"
+      },
       {
         "label": "Polityka prywatności",
         "hint": "Co przechowujemy, a czego nie"

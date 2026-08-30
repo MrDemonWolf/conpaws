@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CompassPaw } from "@/components/compass-paw";
+import { PageShell } from "@/components/page-shell";
+import { getMessages } from "@/i18n";
+import { DEFAULT_LOCALE } from "@/i18n/config";
 
 /**
  * Double opt-in landing page. Currently unreachable: listmonk shows its own
@@ -19,50 +22,26 @@ import { CompassPaw } from "@/components/compass-paw";
  * anything.
  */
 
+const messages = getMessages(DEFAULT_LOCALE);
+
 export const metadata: Metadata = {
-  title: "You're on the list",
-  description: "Your ConPaws beta waitlist spot is confirmed.",
+  title: messages.confirmed.title,
+  description: messages.confirmed.description,
   // A confirmation endpoint has no search value and shouldn't collect
   // impressions against the landing page it duplicates copy from.
   robots: { index: false, follow: false },
 };
 
-const NEXT = [
-  {
-    n: "01",
-    title: "Nothing to do now",
-    body: "Your spot is held. We won't email you again until the beta is actually open.",
-  },
-  {
-    n: "02",
-    title: "One email, then an invite",
-    body: "When TestFlight and Play testing go live, you get the link — iOS and Android together.",
-  },
-  {
-    n: "03",
-    title: "Leave whenever",
-    body: "Every email we send carries an unsubscribe link. One click, no questions.",
-  },
-] as const;
+// Numbering is structure and stays in code; the words come from the catalog,
+// where they were already translated into all 23 languages and read by nothing.
+const NEXT = messages.confirmed.cards.map((card, i) => ({
+  n: String(i + 1).padStart(2, "0"),
+  ...card,
+}));
 
 export default function Confirmed() {
   return (
-    <main className="relative mx-auto max-w-[1120px] px-6 pb-28">
-      <nav className="relative z-20 flex items-center justify-between py-7">
-        <Link href="/" className="flex items-baseline gap-2.5">
-          <span className="flex items-center gap-2.5">
-            <CompassPaw className="h-7 w-7 text-primary" />
-            <b className="font-bold text-[18px] tracking-tight">ConPaws</b>
-          </span>
-          <span className="hidden font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em] sm:inline">
-            by MrDemonWolf,&nbsp;Inc.
-          </span>
-        </Link>
-        <span className="rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-          Coming soon
-        </span>
-      </nav>
-
+    <PageShell messages={messages}>
       <section className="relative mt-10 overflow-hidden rounded-3xl border border-primary/40 bg-primary/10 px-6 py-14 text-center sm:px-12">
         <CompassPaw
           aria-hidden="true"
@@ -137,39 +116,6 @@ export default function Confirmed() {
         </a>{" "}
         for what we store.
       </p>
-
-      <footer className="mt-20 border-border border-t pt-6">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <span className="flex items-center gap-2">
-              <CompassPaw className="h-5 w-5 text-primary" />
-              <b className="text-[15px] tracking-tight">ConPaws</b>
-              <span className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.16em]">
-                by{" "}
-                <a
-                  href="https://www.mrdemonwolf.com"
-                  rel="noopener"
-                  className="text-primary transition hover:underline"
-                >
-                  MrDemonWolf,&nbsp;Inc.
-                </a>
-              </span>
-            </span>
-            <p className="mt-2 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-              © {new Date().getFullYear()} MrDemonWolf, Inc. All rights
-              reserved.
-            </p>
-          </div>
-          <nav className="flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
-            <a href="/privacy" className="transition hover:text-primary">
-              Privacy
-            </a>
-            <a href="/terms" className="transition hover:text-primary">
-              Terms
-            </a>
-          </nav>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }

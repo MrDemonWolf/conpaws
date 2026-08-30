@@ -6,12 +6,11 @@
     "descriptionShort": "コンベンションのスケジュールを取り込み、自分だけの予定を組み、リマインダーを受け取る。すべてオフラインで動作。",
     "ogImageAlt": "ConPaws"
   },
-
   "nav": {
     "established": "Est. 2025",
-    "languageLabel": "言語"
+    "languageLabel": "言語",
+    "back": "戻る"
   },
-
   "ticker": {
     "screenReaderSummary": "スケジュール、オフライン優先、リマインダー、コンテンツ警告、iOS、Android。",
     "items": [
@@ -23,7 +22,6 @@
       "Android"
     ]
   },
-
   "inside": {
     "eyebrow": "中身を見る",
     "title": "週末まるごと、親指ひとつで",
@@ -32,7 +30,6 @@
     "frameEvent": "見逃さない",
     "frameOffline": "Wi-Fi は任意"
   },
-
   "mock": {
     "tabs": {
       "conventions": "コンベンション",
@@ -76,7 +73,6 @@
       "close": "閉じる"
     }
   },
-
   "lineup": {
     "eyebrow": "本日のプログラム",
     "title": "会場で使うために作りました",
@@ -109,7 +105,6 @@
       }
     ]
   },
-
   "stats": {
     "screenReaderHeading": "ConPaws の概要",
     "labels": [
@@ -119,7 +114,6 @@
       "コンベンションをひとつのアプリに"
     ]
   },
-
   "steps": {
     "eyebrow": "使い方",
     "title": "3ステップ、設定なし",
@@ -138,7 +132,6 @@
       }
     ]
   },
-
   "faq": {
     "eyebrow": "運営デスク",
     "title": "よくある質問",
@@ -169,14 +162,12 @@
       }
     ]
   },
-
   "cta": {
     "eyebrow": "受付の列",
     "title": "あなたのバッジは受付でお待ちしています",
     "body": "ウェイトリストに登録すると、ベータ公開時にメールが 1 通だけ届きます。それ以外は一切送りません。",
     "button": "列に並ぶ →"
   },
-
   "footer": {
     "copyright": "© {year} ConPaws by",
     "company": "MrDemonWolf, Inc.",
@@ -184,7 +175,6 @@
     "privacy": "プライバシー",
     "terms": "利用規約"
   },
-
   "waitlist": {
     "badgeOpen": "ベータのウェイトリスト受付中",
     "badgeSoon": "ベータのウェイトリストは近日公開",
@@ -207,7 +197,6 @@
     "closedNotice": "安全な登録とメール確認の準備を進めています。まだメールアドレスの受付は行っていません。",
     "privacyLink": "プライバシー"
   },
-
   "confirmed": {
     "title": "登録が完了しました",
     "description": "ConPaws ベータのウェイトリストへの登録が確認されました。",
@@ -226,16 +215,23 @@
       }
     ]
   },
-
   "notFound": {
     "title": "ページが見つかりません",
     "description": "そのページはプログラムにありません。",
+    "eyebrow": "部屋を間違えています",
+    "heading": "そのページはプログラムにありません",
+    "body": "リンクが古いか、アドレスに入力ミスがあるようです。あなたの側で何かが壊れたわけではありません。",
+    "cta": "プログラムに戻る",
+    "tryThese": "こちらはいかがですか",
     "links": [
       {
         "label": "メインプログラム",
         "hint": "ConPaws とは、そしてウェイトリスト"
       },
-      { "label": "サポート", "hint": "本当に不具合がある場合" },
+      {
+        "label": "サポート",
+        "hint": "本当に不具合がある場合"
+      },
       {
         "label": "プライバシーポリシー",
         "hint": "保存するもの、しないもの"
