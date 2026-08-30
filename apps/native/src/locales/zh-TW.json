@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "首頁",
-    "profile": "個人檔案",
     "settings": "設定",
-    "back": "返回",
     "add": "加入",
     "remove": "移除",
     "save": "儲存",
@@ -16,10 +13,6 @@
     "loading": "載入中...",
     "error": "發生了一些問題",
     "retry": "重試",
-    "close": "關閉",
-    "next": "下一步",
-    "skip": "略過",
-    "getStarted": "開始使用",
     "learnMore": "瞭解更多",
     "version": "版本 {{version}}",
     "advanced": "進階",
@@ -36,7 +29,6 @@
     "detail": "展會詳細資訊",
     "loadingTitle": "正在載入展會",
     "loadErrorSubtitle": "無法載入這個展會或它的活動。",
-    "events": "活動",
     "searchEvents": "搜尋活動",
     "filterEvents": "篩選活動",
     "scheduleActions": "行程表操作",
@@ -70,12 +62,10 @@
     "startDate": "開始日期",
     "endDate": "結束日期",
     "timeZone": "時區",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "搜尋時區",
     "timeZoneSearchPlaceholder": "城市或地區",
     "timeZoneNoResults": "沒有與「{{query}}」相符的時區。",
     "timeZoneAdvancedHelp": "ConPaws 預設使用這部裝置的時區。只有當展會在其他地方舉辦時才需要更改。",
-    "timeZoneHelp": "請使用展會當地的時區，例如 America/Chicago。",
     "name": "展會名稱",
     "namePlaceholder": "例如 ConPaws Preview Con",
     "nameRequired": "請輸入展會名稱。",
@@ -111,7 +101,6 @@
       "imported": "匯入",
       "added": "手動加入"
     },
-    "ageRestricted": "有年齡限制",
     "contentWarning": "內容警告",
     "eventActionsHint": "開啟活動詳細資訊、行程與提醒操作。",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "活動標題",
       "titleAccessibility": "活動標題，必填",
       "dateLabel": "日期 *",
-      "dateAccessibility": "活動日期，必填，YYYY-MM-DD",
       "startLabel": "開始 *",
-      "startAccessibility": "開始時間，必填，24 小時制 HH:mm",
       "endLabel": "結束",
       "endAccessibility": "結束時間，選填，24 小時制 HH:mm",
       "roomLabel": "場地",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "已儲存{{event}}並加入我的行程。",
       "errors": {
         "title": "標題為必填。",
-        "date": "日期必須使用 YYYY-MM-DD 格式，且為真實存在的日期。",
-        "startTime": "開始時間必須使用 24 小時制 HH:mm，例如 09:30。",
-        "endTime": "結束時間必須使用 24 小時制 HH:mm，例如 10:30。",
         "startTimeZone": "這個開始時間在展會時區中不存在。",
         "endTimeZone": "這個結束時間在展會時區中不存在。",
         "order": "結束時間必須晚於同一天的開始時間。",
@@ -149,7 +133,6 @@
       "adult": "18+ 成人"
     },
     "nameTooLong": "名稱請勿超過 {{max}} 個字元。",
-    "endBeforeStart": "結束日期不能早於開始日期。",
     "longSpan": "這是一場為期 {{count}} 天的展會。請再確認日期。",
     "updateError": "無法儲存你的變更。",
     "nameCounter": "{{count}}/{{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "無法載入展會。",
     "dateRange": "{{start}} 至 {{end}}",
-    "upcoming": "即將舉行",
     "active": "進行中",
     "past": "已結束",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "匯入行程表",
     "source": "來源",
-    "sourceLabel": "匯入來源",
     "url": "行程表連結",
     "file": "行事曆檔案",
     "urlPlaceholder": "Sched、.ics 或 webcal 連結",
@@ -263,16 +244,12 @@
     "importing": "匯入中...",
     "applying": "套用中...",
     "applyUpdate": "套用行程表更新",
-    "success": "匯入完成",
-    "error": "匯入失敗",
     "timeZone": {
       "sectionTitle": "時區",
       "label": "展會時區",
-      "placeholder": "America/Chicago",
       "help": "請使用展會的舉辦地點，而不是手機目前的位置。",
       "requiredTitle": "需要設定時區",
       "requiredMessage": "匯入前請先選擇展會的時區——選擇展會舉辦的城市即可。",
-      "choose": "選擇時區",
       "use": "使用這個時區"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "你的展會資料只保存在這部裝置上。"
       },
       "plus": {
-        "eyebrow": "即將推出",
-        "title": "ConPaws+",
-        "description": "我們計劃推出可選購的進階功能：雲端備份、同步與社交功能。ConPaws 現在就能離線使用，不需要帳號。"
+        "title": "免費且可離線使用",
+        "description": "這裡的一切都不需要帳號、不需要網路即可運作。選用的雲端功能可能會在日後推出。"
       },
       "next": "繼續"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "不需要帳號。你的資料保存在本機。"
     }
   },
-  "profile": {
-    "title": "個人檔案",
-    "signIn": "登入",
-    "notSignedIn": "尚未登入",
-    "notSignedInSubtitle": "登入後即可同步行程並與朋友互動。",
-    "comingSoon": "個人檔案功能即將推出",
-    "signInWithApple": "使用 Apple 登入",
-    "signInWithGoogle": "使用 Google 登入"
-  },
   "reminders": {
-    "title": "提醒",
-    "add": "加入提醒",
     "minutesBefore": "提前 {{minutes}} 分鐘",
     "atTime": "活動開始時",
     "none": "沒有出發提醒",
@@ -455,11 +420,6 @@
       "description": "選擇 ConPaws 在這部裝置上的外觀。",
       "changeError": "ConPaws 無法變更外觀。請再試一次。"
     },
-    "account": {
-      "title": "帳號",
-      "signIn": "登入",
-      "signOut": "登出"
-    },
     "app": {
       "title": "App",
       "theme": "主題",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws 無法匯出你的資料。請再試一次。",
       "importData": "匯入資料",
       "importDescription": "從備份還原展會與行程。",
-      "importing": "正在開啟備份",
-      "resetOnboarding": "重設新手導覽"
+      "importing": "正在開啟備份"
     },
     "dataImport": {
       "confirmTitle": "要還原備份嗎？",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "法律資訊",
       "privacyPolicy": "隱私權政策",
       "termsOfService": "服務條款",
       "about": "關於 ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "關於",
-      "contact": "hello@conpaws.com",
       "tagline": "你的展會行程，離線也能用。",
       "resources": "資源",
       "website": "網站",
       "builtWith": "開發技術",
       "licenseDescription": "{{count}} 個套件與工具",
       "support": "支援",
+      "helpCenter": "說明中心",
       "email": "電子郵件",
       "discordDescription": "加入社群",
       "copyright": "ConPaws by MrDemonWolf, Inc."

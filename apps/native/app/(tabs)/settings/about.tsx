@@ -2,6 +2,7 @@ import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
 import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import DescriptionIcon from "@expo/material-symbols/description.xml";
 import ForumIcon from "@expo/material-symbols/forum.xml";
+import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
 import {
@@ -18,7 +19,9 @@ import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
-import { Image, Linking, Text, useWindowDimensions, View } from "react-native";
+import { Image, Linking, useWindowDimensions, View } from "react-native";
+
+import { Text } from "@/components/ui";
 import licenses from "@/generated/open-source-licenses.json";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
@@ -31,6 +34,10 @@ const CHEVRON_ICON = Icon.select({
 const WEBSITE_ICON = Icon.select({ ios: "globe", android: PublicIcon });
 const EMAIL_ICON = Icon.select({ ios: "envelope", android: MailIcon });
 const COMMUNITY_ICON = Icon.select({ ios: "person.3", android: ForumIcon });
+const HELP_ICON = Icon.select({
+  ios: "questionmark.circle",
+  android: HelpIcon,
+});
 const EXTERNAL_ICON = Icon.select({
   ios: "arrow.up.right",
   android: ArrowOutwardIcon,
@@ -91,38 +98,19 @@ export default function AboutScreen() {
                   accessible={false}
                   accessibilityIgnoresInvertColors
                 />
-                <Text
-                  style={{
-                    color: colors.text,
-                    fontSize: 28,
-                    fontWeight: "700",
-                    lineHeight: 34,
-                    textAlign: "center",
-                  }}
-                >
+                {/* Design-system variants, not inline fontSize: these three
+                    lines were the only text in the app that opted out of the
+                    Dynamic Type ramp `ui/Text` applies. */}
+                <Text variant="h1" className="text-center">
                   ConPaws
                 </Text>
                 <Text
-                  style={{
-                    color: colors.text,
-                    fontSize: 16,
-                    lineHeight: 22,
-                    opacity: 0.72,
-                    textAlign: "center",
-                  }}
+                  variant="body"
+                  className="text-center text-muted-foreground"
                 >
                   {t("settings.about.tagline")}
                 </Text>
-                <Text
-                  selectable
-                  style={{
-                    color: colors.text,
-                    fontSize: 13,
-                    fontVariant: ["tabular-nums"],
-                    lineHeight: 18,
-                    opacity: 0.56,
-                  }}
-                >
+                <Text selectable variant="caption" className="tabular-nums">
                   {versionLabel}
                 </Text>
               </View>
@@ -131,6 +119,16 @@ export default function AboutScreen() {
         </FieldGroup.Section>
 
         <FieldGroup.Section title={t("settings.about.support")}>
+          <ListItem
+            leading={<NativeIcon name={HELP_ICON} />}
+            supportingText="conpaws.com/support"
+            trailing={<ExternalIndicator />}
+            onPress={() =>
+              WebBrowser.openBrowserAsync("https://conpaws.com/support")
+            }
+          >
+            {t("settings.about.helpCenter")}
+          </ListItem>
           <ListItem
             leading={<NativeIcon name={EMAIL_ICON} />}
             supportingText="legal@conpaws.com"

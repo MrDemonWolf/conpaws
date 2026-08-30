@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Accueil",
-    "profile": "Profil",
     "settings": "Paramètres",
-    "back": "Retour",
     "add": "Ajouter",
     "remove": "Retirer",
     "save": "Enregistrer",
@@ -16,10 +13,6 @@
     "loading": "Chargement...",
     "error": "Une erreur s'est produite",
     "retry": "Réessayer",
-    "close": "Fermer",
-    "next": "Suivant",
-    "skip": "Passer",
-    "getStarted": "Commencer",
     "learnMore": "En savoir plus",
     "version": "Version {{version}}",
     "advanced": "Avancé",
@@ -36,7 +29,6 @@
     "detail": "Détails de la Convention",
     "loadingTitle": "Chargement de la convention",
     "loadErrorSubtitle": "Impossible de charger la convention ou ses événements.",
-    "events": "Événements",
     "searchEvents": "Rechercher des événements",
     "filterEvents": "Filtrer les événements",
     "scheduleActions": "Actions du programme",
@@ -70,12 +62,10 @@
     "startDate": "Date de Début",
     "endDate": "Date de Fin",
     "timeZone": "Fuseau horaire",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Rechercher des fuseaux horaires",
     "timeZoneSearchPlaceholder": "Ville ou région",
     "timeZoneNoResults": "Aucun fuseau horaire ne correspond à « {{query}} ».",
     "timeZoneAdvancedHelp": "ConPaws utilise le fuseau horaire de cet appareil. Ne le changez que si la convention a lieu ailleurs.",
-    "timeZoneHelp": "Utilisez le fuseau horaire local de la convention, comme America/Chicago.",
     "name": "Nom de la Convention",
     "namePlaceholder": "ex. ConPaws Preview Con",
     "nameRequired": "Saisissez un nom pour la convention.",
@@ -111,7 +101,6 @@
       "imported": "Importé",
       "added": "Ajouté"
     },
-    "ageRestricted": "Réservé à un certain âge",
     "contentWarning": "Avertissement de contenu",
     "eventActionsHint": "Ouvre les détails, le programme et les actions de rappel de l'événement.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Titre de l'événement",
       "titleAccessibility": "Titre de l'événement, obligatoire",
       "dateLabel": "Date *",
-      "dateAccessibility": "Date de l'événement, obligatoire, AAAA-MM-JJ",
       "startLabel": "Début *",
-      "startAccessibility": "Heure de début, obligatoire, format 24 heures HH:mm",
       "endLabel": "Fin",
       "endAccessibility": "Heure de fin, facultative, format 24 heures HH:mm",
       "roomLabel": "Salle",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} a été enregistré et ajouté à Mon programme.",
       "errors": {
         "title": "Le titre est obligatoire.",
-        "date": "La date doit utiliser AAAA-MM-JJ et correspondre à une date réelle.",
-        "startTime": "L'heure de début doit utiliser le format 24 heures HH:mm, par exemple 09:30.",
-        "endTime": "L'heure de fin doit utiliser le format 24 heures HH:mm, par exemple 10:30.",
         "startTimeZone": "Cette heure de début n'existe pas dans le fuseau horaire de la convention.",
         "endTimeZone": "Cette heure de fin n'existe pas dans le fuseau horaire de la convention.",
         "order": "L'heure de fin doit être postérieure à l'heure de début à la même date.",
@@ -149,7 +133,6 @@
       "adult": "18+ Adultes"
     },
     "nameTooLong": "Le nom doit faire {{max}} caractères ou moins.",
-    "endBeforeStart": "La date de fin ne peut pas précéder la date de début.",
     "longSpan": "Convention de {{count}} jours. Vérifiez les dates.",
     "updateError": "Impossible d'enregistrer les modifications.",
     "nameCounter": "{{count}} sur {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Impossible de charger les conventions.",
     "dateRange": "Du {{start}} au {{end}}",
-    "upcoming": "À venir",
     "active": "Active",
     "past": "Passée",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Importer le Programme",
     "source": "Source",
-    "sourceLabel": "Importer depuis",
     "url": "Lien du programme",
     "file": "Fichier calendrier",
     "urlPlaceholder": "Lien Sched, .ics ou webcal",
@@ -263,16 +244,12 @@
     "importing": "Importation...",
     "applying": "Application...",
     "applyUpdate": "Appliquer la mise à jour du programme",
-    "success": "Importation terminée",
-    "error": "Échec de l'importation",
     "timeZone": {
       "sectionTitle": "Fuseau horaire",
       "label": "Fuseau horaire de la convention",
-      "placeholder": "America/Chicago",
       "help": "Utilisez le lieu de la convention, pas la position actuelle de votre téléphone.",
       "requiredTitle": "Fuseau horaire requis",
       "requiredMessage": "Choisissez le fuseau horaire de la convention avant d'importer — prenez la ville où elle a lieu.",
-      "choose": "Choisir un fuseau horaire",
       "use": "Utiliser ce fuseau horaire"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Vos données de convention restent sur cet appareil."
       },
       "plus": {
-        "eyebrow": "Bientôt",
-        "title": "ConPaws+",
-        "description": "Des fonctions premium facultatives de sauvegarde dans le cloud, de synchronisation et de partage social sont prévues. ConPaws fonctionne déjà hors ligne, sans compte."
+        "title": "Gratuit et hors ligne",
+        "description": "Tout fonctionne ici sans compte et sans réseau. Des fonctions cloud facultatives arriveront peut-être plus tard."
       },
       "next": "Continuer"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Aucun compte requis. Vos données restent en local."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Se Connecter",
-    "notSignedIn": "Non connecté",
-    "notSignedInSubtitle": "Connectez-vous pour synchroniser votre programme et vous connecter avec des amis.",
-    "comingSoon": "Fonctionnalités de profil bientôt disponibles",
-    "signInWithApple": "Se connecter avec Apple",
-    "signInWithGoogle": "Se connecter avec Google"
-  },
   "reminders": {
-    "title": "Rappels",
-    "add": "Ajouter un Rappel",
     "minutesBefore": "{{minutes}} min avant",
     "atTime": "À l'heure de l'événement",
     "none": "Aucun rappel de départ",
@@ -455,11 +420,6 @@
       "description": "Choisissez l'apparence de ConPaws sur cet appareil.",
       "changeError": "ConPaws n'a pas pu modifier l'apparence. Réessayez."
     },
-    "account": {
-      "title": "Compte",
-      "signIn": "Se Connecter",
-      "signOut": "Se Déconnecter"
-    },
     "app": {
       "title": "Application",
       "theme": "Thème",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws n'a pas pu exporter vos données. Réessayez.",
       "importData": "Importer les Données",
       "importDescription": "Restaurez vos conventions et programmes depuis une sauvegarde.",
-      "importing": "Ouverture de la sauvegarde",
-      "resetOnboarding": "Réinitialiser l'Intégration"
+      "importing": "Ouverture de la sauvegarde"
     },
     "dataImport": {
       "confirmTitle": "Restaurer la sauvegarde ?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Légal",
       "privacyPolicy": "Politique de Confidentialité",
       "termsOfService": "Conditions d'Utilisation",
       "about": "À propos de ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "À propos",
-      "contact": "hello@conpaws.com",
       "tagline": "Votre programme de convention, disponible hors ligne.",
       "resources": "Ressources",
       "website": "Site web",
       "builtWith": "Conçu avec",
       "licenseDescription": "{{count}} paquets et outils",
       "support": "Assistance",
+      "helpCenter": "Centre d'aide",
       "email": "E-mail",
       "discordDescription": "Rejoindre la communauté",
       "copyright": "ConPaws by MrDemonWolf, Inc."

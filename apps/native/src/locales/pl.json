@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Strona główna",
-    "profile": "Profil",
     "settings": "Ustawienia",
-    "back": "Wstecz",
     "add": "Dodaj",
     "remove": "Usuń",
     "save": "Zapisz",
@@ -16,10 +13,6 @@
     "loading": "Ładowanie...",
     "error": "Coś poszło nie tak",
     "retry": "Spróbuj ponownie",
-    "close": "Zamknij",
-    "next": "Dalej",
-    "skip": "Pomiń",
-    "getStarted": "Zacznij",
     "learnMore": "Dowiedz się więcej",
     "version": "Wersja {{version}}",
     "advanced": "Zaawansowane",
@@ -36,7 +29,6 @@
     "detail": "Szczegóły Konwentu",
     "loadingTitle": "Ładowanie konwentu",
     "loadErrorSubtitle": "Nie udało się wczytać konwentu lub jego wydarzeń.",
-    "events": "Wydarzenia",
     "searchEvents": "Szukaj wydarzeń",
     "filterEvents": "Filtruj wydarzenia",
     "scheduleActions": "Akcje harmonogramu",
@@ -70,12 +62,10 @@
     "startDate": "Data Rozpoczęcia",
     "endDate": "Data Zakończenia",
     "timeZone": "Strefa czasowa",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Wyszukaj strefy czasowe",
     "timeZoneSearchPlaceholder": "Miasto lub region",
     "timeZoneNoResults": "Żadna strefa czasowa nie pasuje do „{{query}}”.",
     "timeZoneAdvancedHelp": "ConPaws domyślnie używa strefy czasowej tego urządzenia. Zmień ją tylko, jeśli konwent odbywa się gdzie indziej.",
-    "timeZoneHelp": "Użyj lokalnej strefy czasowej konwentu, na przykład America/Chicago.",
     "name": "Nazwa Konwentu",
     "namePlaceholder": "np. ConPaws Preview Con",
     "nameRequired": "Wpisz nazwę konwentu.",
@@ -111,7 +101,6 @@
       "imported": "Zaimportowane",
       "added": "Dodane"
     },
-    "ageRestricted": "Ograniczenie wiekowe",
     "contentWarning": "Ostrzeżenie o treści",
     "eventActionsHint": "Otwiera szczegóły wydarzenia oraz akcje harmonogramu i przypomnień.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Tytuł wydarzenia",
       "titleAccessibility": "Tytuł wydarzenia, wymagany",
       "dateLabel": "Data *",
-      "dateAccessibility": "Data wydarzenia, wymagana, RRRR-MM-DD",
       "startLabel": "Początek *",
-      "startAccessibility": "Czas rozpoczęcia, wymagany, format 24-godzinny HH:mm",
       "endLabel": "Koniec",
       "endAccessibility": "Czas zakończenia, opcjonalny, format 24-godzinny HH:mm",
       "roomLabel": "Sala",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "Zapisano {{event}} i dodano do Mojego harmonogramu.",
       "errors": {
         "title": "Tytuł jest wymagany.",
-        "date": "Data musi mieć format RRRR-MM-DD i być prawidłową datą kalendarzową.",
-        "startTime": "Czas rozpoczęcia musi mieć 24-godzinny format HH:mm, na przykład 09:30.",
-        "endTime": "Czas zakończenia musi mieć 24-godzinny format HH:mm, na przykład 10:30.",
         "startTimeZone": "Ten czas rozpoczęcia nie istnieje w strefie czasowej konwentu.",
         "endTimeZone": "Ten czas zakończenia nie istnieje w strefie czasowej konwentu.",
         "order": "Czas zakończenia musi być późniejszy niż rozpoczęcia tego samego dnia.",
@@ -149,7 +133,6 @@
       "adult": "18+ Dorośli"
     },
     "nameTooLong": "Nazwa może mieć maksymalnie {{max}} znaków.",
-    "endBeforeStart": "Data zakończenia nie może być wcześniejsza niż początkowa.",
     "longSpan": "To konwent trwający {{count}} dni. Sprawdź daty.",
     "updateError": "Nie udało się zapisać zmian.",
     "nameCounter": "{{count}} z {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Nie udało się wczytać konwentów.",
     "dateRange": "{{start}} do {{end}}",
-    "upcoming": "Nadchodzące",
     "active": "Aktywne",
     "past": "Minione",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Importuj Harmonogram",
     "source": "Źródło",
-    "sourceLabel": "Importuj z",
     "url": "Link do harmonogramu",
     "file": "Plik kalendarza",
     "urlPlaceholder": "Link Sched, .ics lub webcal",
@@ -263,16 +244,12 @@
     "importing": "Importowanie...",
     "applying": "Stosowanie...",
     "applyUpdate": "Zastosuj aktualizację harmonogramu",
-    "success": "Import zakończony",
-    "error": "Import nie powiódł się",
     "timeZone": {
       "sectionTitle": "Strefa czasowa",
       "label": "Strefa czasowa konwentu",
-      "placeholder": "America/Chicago",
       "help": "Użyj lokalizacji konwentu, a nie bieżącej lokalizacji telefonu.",
       "requiredTitle": "Wymagana strefa czasowa",
       "requiredMessage": "Przed importem wybierz strefę czasową konwentu — wybierz miasto, w którym się odbywa.",
-      "choose": "Wybierz strefę czasową",
       "use": "Użyj strefy czasowej"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Dane konwentu zostają na tym urządzeniu."
       },
       "plus": {
-        "eyebrow": "Wkrótce",
-        "title": "ConPaws+",
-        "description": "Planowane są opcjonalne funkcje premium: kopie zapasowe w chmurze, synchronizacja i funkcje społecznościowe. ConPaws już teraz działa offline bez konta."
+        "title": "Za darmo i offline",
+        "description": "Wszystko tutaj działa bez konta i bez sieci. Opcjonalne funkcje w chmurze mogą pojawić się później."
       },
       "next": "Dalej"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Zaloguj się",
-    "notSignedIn": "Niezalogowany",
-    "notSignedInSubtitle": "Zaloguj się, aby synchronizować harmonogram i łączyć się z przyjaciółmi.",
-    "comingSoon": "Funkcje profilu wkrótce",
-    "signInWithApple": "Zaloguj się przez Apple",
-    "signInWithGoogle": "Zaloguj się przez Google"
-  },
   "reminders": {
-    "title": "Przypomnienia",
-    "add": "Dodaj Przypomnienie",
     "minutesBefore": "{{minutes}} min wcześniej",
     "atTime": "O czasie wydarzenia",
     "none": "Brak przypomnienia o wyjściu",
@@ -455,11 +420,6 @@
       "description": "Wybierz wygląd ConPaws na tym urządzeniu.",
       "changeError": "Nie udało się zmienić wyglądu ConPaws. Spróbuj ponownie."
     },
-    "account": {
-      "title": "Konto",
-      "signIn": "Zaloguj się",
-      "signOut": "Wyloguj się"
-    },
     "app": {
       "title": "Aplikacja",
       "theme": "Motyw",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws nie mógł wyeksportować danych. Spróbuj ponownie.",
       "importData": "Importuj Dane",
       "importDescription": "Przywróć konwenty i harmonogramy z kopii zapasowej.",
-      "importing": "Otwieranie kopii",
-      "resetOnboarding": "Zresetuj Wdrożenie"
+      "importing": "Otwieranie kopii"
     },
     "dataImport": {
       "confirmTitle": "Przywrócić kopię zapasową?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Prawne",
       "privacyPolicy": "Polityka Prywatności",
       "termsOfService": "Warunki Korzystania",
       "about": "O ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "O aplikacji",
-      "contact": "hello@conpaws.com",
       "tagline": "Twój plan konwentu, dostępny offline.",
       "resources": "Zasoby",
       "website": "Witryna",
       "builtWith": "Stworzono z użyciem",
       "licenseDescription": "{{count}} pakietów i narzędzi",
       "support": "Pomoc",
+      "helpCenter": "Centrum pomocy",
       "email": "E-mail",
       "discordDescription": "Dołącz do społeczności",
       "copyright": "ConPaws by MrDemonWolf, Inc."

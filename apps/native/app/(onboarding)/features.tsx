@@ -9,8 +9,10 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { SafeView, Text } from "@/components/ui";
 import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import { markOnboardingComplete } from "@/lib/onboarding-storage";
+import { themeTokens } from "@/lib/theme-tokens";
 
 const previewFixture = buildConPawsPreviewFixture();
 const previewEvents = previewFixture.events.slice(0, 2);
@@ -18,11 +20,11 @@ const previewEvents = previewFixture.events.slice(0, 2);
 function formatTime(value: string | null | undefined, locale: string): string {
   if (!value) return "";
 
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: previewFixture.convention.timeZone ?? "UTC",
-  }).format(new Date(value));
+  return formatEventTime(
+    value,
+    previewFixture.convention.timeZone ?? "UTC",
+    locale,
+  );
 }
 
 export default function FeaturesScreen() {
@@ -33,7 +35,7 @@ export default function FeaturesScreen() {
     router.replace("/(tabs)/(home)");
   }
 
-  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#005575";
+  const iconColor = themeTokens[useResolvedColorScheme()].primary;
   const locale = currentLocale();
 
   return (
@@ -125,7 +127,6 @@ export default function FeaturesScreen() {
               <View className="flex-row items-center justify-center gap-2">
                 <Cloud size={16} color={iconColor} />
                 <Text variant="caption" className="font-semibold text-primary">
-                  {t("onboarding.features.plus.eyebrow")}:{" "}
                   {t("onboarding.features.plus.title")}
                 </Text>
               </View>

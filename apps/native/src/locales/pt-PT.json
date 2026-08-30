@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Início",
-    "profile": "Perfil",
     "settings": "Definições",
-    "back": "Voltar",
     "add": "Adicionar",
     "remove": "Remover",
     "save": "Guardar",
@@ -16,10 +13,6 @@
     "loading": "A carregar...",
     "error": "Algo correu mal",
     "retry": "Tentar novamente",
-    "close": "Fechar",
-    "next": "Seguinte",
-    "skip": "Ignorar",
-    "getStarted": "Começar",
     "learnMore": "Saber mais",
     "version": "Versão {{version}}",
     "advanced": "Avançado",
@@ -36,7 +29,6 @@
     "detail": "Detalhes da Convenção",
     "loadingTitle": "A carregar a convenção",
     "loadErrorSubtitle": "Não foi possível carregar a convenção ou os seus eventos.",
-    "events": "Eventos",
     "searchEvents": "Pesquisar eventos",
     "filterEvents": "Filtrar eventos",
     "scheduleActions": "Ações do programa",
@@ -70,12 +62,10 @@
     "startDate": "Data de Início",
     "endDate": "Data de Fim",
     "timeZone": "Fuso horário",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Pesquisar fusos horários",
     "timeZoneSearchPlaceholder": "Cidade ou região",
     "timeZoneNoResults": "Nenhum fuso horário corresponde a “{{query}}”.",
     "timeZoneAdvancedHelp": "O ConPaws usa o fuso horário deste dispositivo. Altere apenas se a convenção decorrer noutro lugar.",
-    "timeZoneHelp": "Use o fuso horário local da convenção, como America/Chicago.",
     "name": "Nome da Convenção",
     "namePlaceholder": "ex. ConPaws Preview Con",
     "nameRequired": "Indique um nome para a convenção.",
@@ -111,7 +101,6 @@
       "imported": "Importado",
       "added": "Adicionado"
     },
-    "ageRestricted": "Restrição de idade",
     "contentWarning": "Aviso de conteúdo",
     "eventActionsHint": "Abre os detalhes, a agenda e as ações de lembrete do evento.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Título do evento",
       "titleAccessibility": "Título do evento, obrigatório",
       "dateLabel": "Data *",
-      "dateAccessibility": "Data do evento, obrigatória, AAAA-MM-DD",
       "startLabel": "Início *",
-      "startAccessibility": "Hora de início, obrigatória, formato de 24 horas HH:mm",
       "endLabel": "Fim",
       "endAccessibility": "Hora de fim, opcional, formato de 24 horas HH:mm",
       "roomLabel": "Sala",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} foi guardado e adicionado à Minha Agenda.",
       "errors": {
         "title": "O título é obrigatório.",
-        "date": "A data deve usar AAAA-MM-DD e ser uma data real.",
-        "startTime": "A hora de início deve usar HH:mm no formato de 24 horas, como 09:30.",
-        "endTime": "A hora de fim deve usar HH:mm no formato de 24 horas, como 10:30.",
         "startTimeZone": "Essa hora de início não existe no fuso horário da convenção.",
         "endTimeZone": "Essa hora de fim não existe no fuso horário da convenção.",
         "order": "A hora de fim deve ser posterior à hora de início na mesma data.",
@@ -149,7 +133,6 @@
       "adult": "18+ Adulto"
     },
     "nameTooLong": "O nome deve ter {{max}} caracteres ou menos.",
-    "endBeforeStart": "A data de fim não pode ser anterior à de início.",
     "longSpan": "É uma convenção de {{count}} dias. Confirme as datas.",
     "updateError": "Não foi possível guardar as alterações.",
     "nameCounter": "{{count}} de {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Não foi possível carregar as convenções.",
     "dateRange": "{{start}} a {{end}}",
-    "upcoming": "Próximas",
     "active": "Ativas",
     "past": "Passadas",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Importar Programa",
     "source": "Origem",
-    "sourceLabel": "Importar de",
     "url": "Ligação do programa",
     "file": "Ficheiro de calendário",
     "urlPlaceholder": "Ligação Sched, .ics ou webcal",
@@ -263,16 +244,12 @@
     "importing": "A importar...",
     "applying": "A aplicar...",
     "applyUpdate": "Aplicar atualização do programa",
-    "success": "Importação concluída",
-    "error": "Falha na importação",
     "timeZone": {
       "sectionTitle": "Fuso horário",
       "label": "Fuso horário da convenção",
-      "placeholder": "America/Chicago",
       "help": "Use o local da convenção, não a localização atual do telemóvel.",
       "requiredTitle": "Fuso horário necessário",
       "requiredMessage": "Escolha o fuso horário da convenção antes de importar — escolha a cidade onde ela decorre.",
-      "choose": "Escolha um fuso horário",
       "use": "Usar fuso horário"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Os dados da convenção ficam neste dispositivo."
       },
       "plus": {
-        "eyebrow": "Em breve",
-        "title": "ConPaws+",
-        "description": "Planeamos adicionar cópias de segurança na nuvem, sincronização e funcionalidades sociais premium opcionais. O ConPaws já funciona offline e não precisa de conta."
+        "title": "Grátis e offline",
+        "description": "Tudo aqui funciona sem conta e sem Internet. Funcionalidades opcionais na nuvem poderão chegar mais tarde."
       },
       "next": "Continuar"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Não é preciso ter conta. Os seus dados ficam guardados localmente."
     }
   },
-  "profile": {
-    "title": "Perfil",
-    "signIn": "Iniciar sessão",
-    "notSignedIn": "Sessão não iniciada",
-    "notSignedInSubtitle": "Inicie sessão para sincronizar a sua agenda e ligar-se aos amigos.",
-    "comingSoon": "Funcionalidades de perfil em breve",
-    "signInWithApple": "Iniciar sessão com a Apple",
-    "signInWithGoogle": "Iniciar sessão com o Google"
-  },
   "reminders": {
-    "title": "Lembretes",
-    "add": "Adicionar Lembrete",
     "minutesBefore": "{{minutes}} min antes",
     "atTime": "À hora do evento",
     "none": "Sem lembrete de saída",
@@ -455,11 +420,6 @@
       "description": "Escolha o aspeto do ConPaws neste dispositivo.",
       "changeError": "O ConPaws não conseguiu alterar o aspeto. Tente novamente."
     },
-    "account": {
-      "title": "Conta",
-      "signIn": "Iniciar sessão",
-      "signOut": "Terminar sessão"
-    },
     "app": {
       "title": "Aplicação",
       "theme": "Tema",
@@ -477,8 +437,7 @@
       "exportError": "O ConPaws não conseguiu exportar os seus dados. Tente novamente.",
       "importData": "Importar Dados",
       "importDescription": "Restaure convenções e agendas a partir de uma cópia de segurança.",
-      "importing": "A abrir a cópia de segurança",
-      "resetOnboarding": "Repor a introdução"
+      "importing": "A abrir a cópia de segurança"
     },
     "dataImport": {
       "confirmTitle": "Restaurar a cópia de segurança?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Legal",
       "privacyPolicy": "Política de Privacidade",
       "termsOfService": "Termos de Serviço",
       "about": "Acerca do ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Acerca de",
-      "contact": "hello@conpaws.com",
       "tagline": "O programa da sua convenção, pronto offline.",
       "resources": "Recursos",
       "website": "Site",
       "builtWith": "Desenvolvido com",
       "licenseDescription": "{{count}} pacotes e ferramentas",
       "support": "Suporte",
+      "helpCenter": "Centro de ajuda",
       "email": "E-mail",
       "discordDescription": "Junte-se à comunidade",
       "copyright": "ConPaws by MrDemonWolf, Inc."

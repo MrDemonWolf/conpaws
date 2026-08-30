@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Domů",
-    "profile": "Profil",
     "settings": "Nastavení",
-    "back": "Zpět",
     "add": "Přidat",
     "remove": "Odebrat",
     "save": "Uložit",
@@ -16,10 +13,6 @@
     "loading": "Načítání...",
     "error": "Něco se pokazilo",
     "retry": "Zkusit znovu",
-    "close": "Zavřít",
-    "next": "Další",
-    "skip": "Přeskočit",
-    "getStarted": "Začít",
     "learnMore": "Zjistit více",
     "version": "Verze {{version}}",
     "advanced": "Pokročilé",
@@ -36,7 +29,6 @@
     "detail": "Podrobnosti o conu",
     "loadingTitle": "Načítání conu",
     "loadErrorSubtitle": "Con nebo jeho události se nepodařilo načíst.",
-    "events": "Události",
     "searchEvents": "Hledat události",
     "filterEvents": "Filtrovat události",
     "scheduleActions": "Akce programu",
@@ -70,12 +62,10 @@
     "startDate": "Datum začátku",
     "endDate": "Datum konce",
     "timeZone": "Časové pásmo",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Hledat časová pásma",
     "timeZoneSearchPlaceholder": "Město nebo oblast",
     "timeZoneNoResults": "Dotazu „{{query}}“ neodpovídá žádné časové pásmo.",
     "timeZoneAdvancedHelp": "ConPaws výchozím nastavením používá časové pásmo tohoto zařízení. Změňte je jen tehdy, když se con koná jinde.",
-    "timeZoneHelp": "Použijte místní časové pásmo conu, například America/Chicago.",
     "name": "Název conu",
     "namePlaceholder": "např. ConPaws Preview Con",
     "nameRequired": "Zadejte název conu.",
@@ -111,7 +101,6 @@
       "imported": "Importováno",
       "added": "Přidáno"
     },
-    "ageRestricted": "Věkové omezení",
     "contentWarning": "Upozornění na obsah",
     "eventActionsHint": "Otevře podrobnosti události, program a akce připomenutí.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Název události",
       "titleAccessibility": "Název události, povinné",
       "dateLabel": "Datum *",
-      "dateAccessibility": "Datum události, povinné, RRRR-MM-DD",
       "startLabel": "Začátek *",
-      "startAccessibility": "Čas začátku, povinný, 24hodinový formát HH:mm",
       "endLabel": "Konec",
       "endAccessibility": "Čas konce, volitelný, 24hodinový formát HH:mm",
       "roomLabel": "Místnost",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} byla uložena a přidána do Mého programu.",
       "errors": {
         "title": "Název je povinný.",
-        "date": "Datum musí mít formát RRRR-MM-DD a být skutečným kalendářním datem.",
-        "startTime": "Čas začátku musí mít 24hodinový formát HH:mm, například 09:30.",
-        "endTime": "Čas konce musí mít 24hodinový formát HH:mm, například 10:30.",
         "startTimeZone": "Takový čas začátku v časovém pásmu conu neexistuje.",
         "endTimeZone": "Takový čas konce v časovém pásmu conu neexistuje.",
         "order": "Čas konce musí být ve stejný den později než čas začátku.",
@@ -149,7 +133,6 @@
       "adult": "18+"
     },
     "nameTooLong": "Název může mít nejvýše {{max}} znaků.",
-    "endBeforeStart": "Datum konce nemůže být dřív než datum začátku.",
     "longSpan": "To je con na {{count}} dní. Zkontrolujte data ještě jednou.",
     "updateError": "Změny se nepodařilo uložit.",
     "nameCounter": "{{count}} z {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Cony se nepodařilo načíst.",
     "dateRange": "{{start}} až {{end}}",
-    "upcoming": "Nadcházející",
     "active": "Probíhající",
     "past": "Proběhlé",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Importovat program",
     "source": "Zdroj",
-    "sourceLabel": "Importovat z",
     "url": "Odkaz na program",
     "file": "Soubor kalendáře",
     "urlPlaceholder": "Odkaz Sched, .ics nebo webcal",
@@ -263,16 +244,12 @@
     "importing": "Importování...",
     "applying": "Aplikování...",
     "applyUpdate": "Použít aktualizaci programu",
-    "success": "Import dokončen",
-    "error": "Import se nezdařil",
     "timeZone": {
       "sectionTitle": "Časové pásmo",
       "label": "Časové pásmo conu",
-      "placeholder": "America/Chicago",
       "help": "Použijte místo konání conu, ne aktuální polohu telefonu.",
       "requiredTitle": "Je potřeba časové pásmo",
       "requiredMessage": "Před importem vyberte časové pásmo conu — zvolte město, kde se con koná.",
-      "choose": "Vyberte časové pásmo",
       "use": "Použít časové pásmo"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Data vašeho conu zůstávají v tomto zařízení."
       },
       "plus": {
-        "eyebrow": "Již brzy",
-        "title": "ConPaws+",
-        "description": "Plánujeme volitelné prémiové funkce: cloudovou zálohu, synchronizaci a sociální funkce. ConPaws už teď funguje offline a nepotřebuje účet."
+        "title": "Zdarma a offline",
+        "description": "Všechno tady funguje bez účtu a bez sítě. Volitelné cloudové funkce mohou přijít později."
       },
       "next": "Pokračovat"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Účet není potřeba. Vaše data zůstávají v zařízení."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Přihlásit se",
-    "notSignedIn": "Nejste přihlášeni",
-    "notSignedInSubtitle": "Přihlaste se, ať můžete synchronizovat program a spojit se s přáteli.",
-    "comingSoon": "Funkce profilu již brzy",
-    "signInWithApple": "Přihlásit se přes Apple",
-    "signInWithGoogle": "Přihlásit se přes Google"
-  },
   "reminders": {
-    "title": "Připomenutí",
-    "add": "Přidat připomenutí",
     "minutesBefore": "{{minutes}} min předem",
     "atTime": "V čase události",
     "none": "Bez připomenutí odchodu",
@@ -455,11 +420,6 @@
       "description": "Vyberte, jak má ConPaws na tomto zařízení vypadat.",
       "changeError": "ConPaws nedokázal změnit vzhled. Zkuste to znovu."
     },
-    "account": {
-      "title": "Účet",
-      "signIn": "Přihlásit se",
-      "signOut": "Odhlásit se"
-    },
     "app": {
       "title": "Aplikace",
       "theme": "Motiv",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws nedokázal exportovat vaše data. Zkuste to znovu.",
       "importData": "Importovat data",
       "importDescription": "Obnovte cony a programy ze zálohy.",
-      "importing": "Otevírání zálohy",
-      "resetOnboarding": "Resetovat úvodní průvodce"
+      "importing": "Otevírání zálohy"
     },
     "dataImport": {
       "confirmTitle": "Obnovit zálohu?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Právní informace",
       "privacyPolicy": "Zásady ochrany osobních údajů",
       "termsOfService": "Podmínky služby",
       "about": "O aplikaci ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "O aplikaci",
-      "contact": "hello@conpaws.com",
       "tagline": "Program vašeho conu, připravený offline.",
       "resources": "Odkazy",
       "website": "Web",
       "builtWith": "Postaveno na",
       "licenseDescription": "Balíčky a nástroje: {{count}}",
       "support": "Podpora",
+      "helpCenter": "Centrum nápovědy",
       "email": "E-mail",
       "discordDescription": "Přidejte se ke komunitě",
       "copyright": "ConPaws by MrDemonWolf, Inc."

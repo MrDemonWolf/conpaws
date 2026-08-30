@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Hjem",
-    "profile": "Profil",
     "settings": "Indstillinger",
-    "back": "Tilbage",
     "add": "Tilføj",
     "remove": "Fjern",
     "save": "Gem",
@@ -16,10 +13,6 @@
     "loading": "Indlæser...",
     "error": "Noget gik galt",
     "retry": "Prøv igen",
-    "close": "Luk",
-    "next": "Næste",
-    "skip": "Spring over",
-    "getStarted": "Kom i gang",
     "learnMore": "Læs mere",
     "version": "Version {{version}}",
     "advanced": "Avanceret",
@@ -36,7 +29,6 @@
     "detail": "Konventdetaljer",
     "loadingTitle": "Indlæser konvent",
     "loadErrorSubtitle": "Konventet eller dets begivenheder kunne ikke indlæses.",
-    "events": "Begivenheder",
     "searchEvents": "Søg efter begivenheder",
     "filterEvents": "Filtrér begivenheder",
     "scheduleActions": "Programhandlinger",
@@ -70,12 +62,10 @@
     "startDate": "Startdato",
     "endDate": "Slutdato",
     "timeZone": "Tidszone",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Søg efter tidszoner",
     "timeZoneSearchPlaceholder": "By eller region",
     "timeZoneNoResults": "Ingen tidszoner matcher “{{query}}”.",
     "timeZoneAdvancedHelp": "ConPaws bruger som standard denne enheds tidszone. Skift den kun, hvis konventet afholdes et andet sted.",
-    "timeZoneHelp": "Brug konventets lokale tidszone, f.eks. America/Chicago.",
     "name": "Konventets navn",
     "namePlaceholder": "f.eks. ConPaws Preview Con",
     "nameRequired": "Angiv et navn til konventet.",
@@ -111,7 +101,6 @@
       "imported": "Importeret",
       "added": "Tilføjet"
     },
-    "ageRestricted": "Aldersbegrænset",
     "contentWarning": "Indholdsadvarsel",
     "eventActionsHint": "Åbner begivenhedens detaljer, program og påmindelseshandlinger.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Begivenhedens titel",
       "titleAccessibility": "Begivenhedens titel, påkrævet",
       "dateLabel": "Dato *",
-      "dateAccessibility": "Begivenhedens dato, påkrævet, ÅÅÅÅ-MM-DD",
       "startLabel": "Start *",
-      "startAccessibility": "Starttidspunkt, påkrævet, 24-timers HH:mm",
       "endLabel": "Slut",
       "endAccessibility": "Sluttidspunkt, valgfrit, 24-timers HH:mm",
       "roomLabel": "Lokale",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} er gemt og føjet til Mit program.",
       "errors": {
         "title": "Titel er påkrævet.",
-        "date": "Datoen skal bruge ÅÅÅÅ-MM-DD og være en rigtig kalenderdato.",
-        "startTime": "Starttidspunktet skal bruge 24-timers HH:mm, f.eks. 09:30.",
-        "endTime": "Sluttidspunktet skal bruge 24-timers HH:mm, f.eks. 10:30.",
         "startTimeZone": "Det starttidspunkt findes ikke i konventets tidszone.",
         "endTimeZone": "Det sluttidspunkt findes ikke i konventets tidszone.",
         "order": "Sluttidspunktet skal være senere end starttidspunktet på samme dato.",
@@ -149,7 +133,6 @@
       "adult": "18+ Voksen"
     },
     "nameTooLong": "Hold navnet på højst {{max}} tegn.",
-    "endBeforeStart": "Slutdatoen kan ikke ligge før startdatoen.",
     "longSpan": "Det er et konvent på {{count}} dage. Tjek datoerne en ekstra gang.",
     "updateError": "Dine ændringer kunne ikke gemmes.",
     "nameCounter": "{{count}} af {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Konventerne kunne ikke indlæses.",
     "dateRange": "{{start}} til {{end}}",
-    "upcoming": "Kommende",
     "active": "I gang",
     "past": "Afsluttede",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Importér program",
     "source": "Kilde",
-    "sourceLabel": "Importér fra",
     "url": "Programlink",
     "file": "Kalenderfil",
     "urlPlaceholder": "Sched-, .ics- eller webcal-link",
@@ -263,16 +244,12 @@
     "importing": "Importerer...",
     "applying": "Anvender...",
     "applyUpdate": "Anvend programopdatering",
-    "success": "Import fuldført",
-    "error": "Import mislykkedes",
     "timeZone": {
       "sectionTitle": "Tidszone",
       "label": "Konventets tidszone",
-      "placeholder": "America/Chicago",
       "help": "Brug konventets sted, ikke telefonens aktuelle placering.",
       "requiredTitle": "Tidszone påkrævet",
       "requiredMessage": "Vælg konventets tidszone, før du importerer — vælg den by, konventet afholdes i.",
-      "choose": "Vælg en tidszone",
       "use": "Brug tidszone"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Dine konventdata bliver på denne enhed."
       },
       "plus": {
-        "eyebrow": "Kommer snart",
-        "title": "ConPaws+",
-        "description": "Vi planlægger at tilføje valgfri premium-funktioner: sikkerhedskopi i skyen, synkronisering og sociale funktioner. ConPaws virker offline nu og kræver ingen konto."
+        "title": "Gratis og offline",
+        "description": "Alt her virker uden konto og uden netværk. Valgfrie skyfunktioner kommer måske senere."
       },
       "next": "Fortsæt"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Ingen konto påkrævet. Dine data bliver lokale."
     }
   },
-  "profile": {
-    "title": "Profil",
-    "signIn": "Log ind",
-    "notSignedIn": "Ikke logget ind",
-    "notSignedInSubtitle": "Log ind for at synkronisere dit program og få kontakt med venner.",
-    "comingSoon": "Profilfunktioner kommer snart",
-    "signInWithApple": "Log ind med Apple",
-    "signInWithGoogle": "Log ind med Google"
-  },
   "reminders": {
-    "title": "Påmindelser",
-    "add": "Tilføj påmindelse",
     "minutesBefore": "{{minutes}} min. før",
     "atTime": "Ved begivenhedens start",
     "none": "Ingen afgangspåmindelse",
@@ -455,11 +420,6 @@
       "description": "Vælg, hvordan ConPaws ser ud på denne enhed.",
       "changeError": "ConPaws kunne ikke ændre udseendet. Prøv igen."
     },
-    "account": {
-      "title": "Konto",
-      "signIn": "Log ind",
-      "signOut": "Log ud"
-    },
     "app": {
       "title": "App",
       "theme": "Tema",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws kunne ikke eksportere dine data. Prøv igen.",
       "importData": "Importér data",
       "importDescription": "Gendan konventer og programmer fra en sikkerhedskopi.",
-      "importing": "Åbner sikkerhedskopi",
-      "resetOnboarding": "Nulstil introduktion"
+      "importing": "Åbner sikkerhedskopi"
     },
     "dataImport": {
       "confirmTitle": "Vil du gendanne sikkerhedskopien?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Juridisk",
       "privacyPolicy": "Privatlivspolitik",
       "termsOfService": "Servicevilkår",
       "about": "Om ConPaws",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Om",
-      "contact": "hello@conpaws.com",
       "tagline": "Dit konventprogram, klar offline.",
       "resources": "Ressourcer",
       "website": "Hjemmeside",
       "builtWith": "Bygget med",
       "licenseDescription": "{{count}} pakker og værktøjer",
       "support": "Support",
+      "helpCenter": "Hjælpecenter",
       "email": "E-mail",
       "discordDescription": "Bliv en del af fællesskabet",
       "copyright": "ConPaws by MrDemonWolf, Inc."

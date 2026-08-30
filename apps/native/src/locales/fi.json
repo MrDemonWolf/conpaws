@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "Koti",
-    "profile": "Profiili",
     "settings": "Asetukset",
-    "back": "Takaisin",
     "add": "Lisää",
     "remove": "Poista",
     "save": "Tallenna",
@@ -16,10 +13,6 @@
     "loading": "Ladataan...",
     "error": "Jokin meni pieleen",
     "retry": "Yritä uudelleen",
-    "close": "Sulje",
-    "next": "Seuraava",
-    "skip": "Ohita",
-    "getStarted": "Aloita",
     "learnMore": "Lue lisää",
     "version": "Versio {{version}}",
     "advanced": "Lisäasetukset",
@@ -36,7 +29,6 @@
     "detail": "Conin tiedot",
     "loadingTitle": "Ladataan conia",
     "loadErrorSubtitle": "Conia tai sen tapahtumia ei voitu ladata.",
-    "events": "Tapahtumat",
     "searchEvents": "Hae tapahtumia",
     "filterEvents": "Suodata tapahtumia",
     "scheduleActions": "Ohjelman toiminnot",
@@ -70,12 +62,10 @@
     "startDate": "Alkamispäivä",
     "endDate": "Päättymispäivä",
     "timeZone": "Aikavyöhyke",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "Hae aikavyöhykkeitä",
     "timeZoneSearchPlaceholder": "Kaupunki tai alue",
     "timeZoneNoResults": "Mikään aikavyöhyke ei vastaa hakua ”{{query}}”.",
     "timeZoneAdvancedHelp": "ConPaws käyttää oletuksena tämän laitteen aikavyöhykettä. Vaihda se vain, jos coni järjestetään muualla.",
-    "timeZoneHelp": "Käytä conin paikallista aikavyöhykettä, esimerkiksi America/Chicago.",
     "name": "Conin nimi",
     "namePlaceholder": "esim. ConPaws Preview Con",
     "nameRequired": "Anna conille nimi.",
@@ -111,7 +101,6 @@
       "imported": "Tuotu",
       "added": "Lisätty"
     },
-    "ageRestricted": "Ikäraja",
     "contentWarning": "Sisältövaroitus",
     "eventActionsHint": "Avaa tapahtuman tiedot, ohjelman ja muistutustoiminnot.",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "Tapahtuman otsikko",
       "titleAccessibility": "Tapahtuman otsikko, pakollinen",
       "dateLabel": "Päivämäärä *",
-      "dateAccessibility": "Tapahtuman päivämäärä, pakollinen, VVVV-KK-PP",
       "startLabel": "Alkaa *",
-      "startAccessibility": "Alkamisaika, pakollinen, 24 tunnin muoto HH:mm",
       "endLabel": "Päättyy",
       "endAccessibility": "Päättymisaika, valinnainen, 24 tunnin muoto HH:mm",
       "roomLabel": "Sali",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}} tallennettiin ja lisättiin omaan ohjelmaan.",
       "errors": {
         "title": "Otsikko on pakollinen.",
-        "date": "Päivämäärän on oltava muodossa VVVV-KK-PP ja oikea kalenteripäivä.",
-        "startTime": "Alkamisajan on oltava 24 tunnin muodossa HH:mm, esimerkiksi 09:30.",
-        "endTime": "Päättymisajan on oltava 24 tunnin muodossa HH:mm, esimerkiksi 10:30.",
         "startTimeZone": "Tuota alkamisaikaa ei ole conin aikavyöhykkeellä.",
         "endTimeZone": "Tuota päättymisaikaa ei ole conin aikavyöhykkeellä.",
         "order": "Päättymisajan on oltava alkamisaikaa myöhemmin samana päivänä.",
@@ -149,7 +133,6 @@
       "adult": "18+"
     },
     "nameTooLong": "Pidä nimi enintään {{max}} merkin pituisena.",
-    "endBeforeStart": "Päättymispäivä ei voi olla ennen alkamispäivää.",
     "longSpan": "Tämä coni kestäisi {{count}} päivää. Tarkista päivämäärät.",
     "updateError": "Muutoksia ei voitu tallentaa.",
     "nameCounter": "{{count}}/{{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "Coneja ei voitu ladata.",
     "dateRange": "{{start}} – {{end}}",
-    "upcoming": "Tulossa",
     "active": "Käynnissä",
     "past": "Menneet",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "Tuo ohjelma",
     "source": "Lähde",
-    "sourceLabel": "Tuo kohteesta",
     "url": "Ohjelman linkki",
     "file": "Kalenteritiedosto",
     "urlPlaceholder": "Sched-, .ics- tai webcal-linkki",
@@ -263,16 +244,12 @@
     "importing": "Tuodaan...",
     "applying": "Otetaan käyttöön...",
     "applyUpdate": "Ota ohjelmapäivitys käyttöön",
-    "success": "Tuonti valmis",
-    "error": "Tuonti epäonnistui",
     "timeZone": {
       "sectionTitle": "Aikavyöhyke",
       "label": "Conin aikavyöhyke",
-      "placeholder": "America/Chicago",
       "help": "Käytä conin sijaintia, älä puhelimen nykyistä sijaintia.",
       "requiredTitle": "Aikavyöhyke vaaditaan",
       "requiredMessage": "Valitse conin aikavyöhyke ennen tuontia — valitse kaupunki, jossa coni järjestetään.",
-      "choose": "Valitse aikavyöhyke",
       "use": "Käytä aikavyöhykettä"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "Conisi tiedot pysyvät tällä laitteella."
       },
       "plus": {
-        "eyebrow": "Tulossa pian",
-        "title": "ConPaws+",
-        "description": "Suunnitteilla on valinnaisia premium-ominaisuuksia: pilvivarmuuskopiot, synkronointi ja sosiaaliset toiminnot. ConPaws toimii offline-tilassa jo nyt eikä vaadi tiliä."
+        "title": "Ilmainen ja offline",
+        "description": "Kaikki täällä toimii ilman tiliä ja ilman verkkoa. Valinnaisia pilvitoimintoja voi tulla myöhemmin."
       },
       "next": "Jatka"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "Tiliä ei tarvita. Tietosi pysyvät paikallisina."
     }
   },
-  "profile": {
-    "title": "Profiili",
-    "signIn": "Kirjaudu sisään",
-    "notSignedIn": "Et ole kirjautunut",
-    "notSignedInSubtitle": "Kirjaudu sisään synkronoidaksesi ohjelmasi ja pitääksesi yhteyttä ystäviin.",
-    "comingSoon": "Profiiliominaisuudet tulossa pian",
-    "signInWithApple": "Kirjaudu Applella",
-    "signInWithGoogle": "Kirjaudu Googlella"
-  },
   "reminders": {
-    "title": "Muistutukset",
-    "add": "Lisää muistutus",
     "minutesBefore": "{{minutes}} min ennen",
     "atTime": "Tapahtuman alkaessa",
     "none": "Ei lähtömuistutusta",
@@ -455,11 +420,6 @@
       "description": "Valitse, miltä ConPaws näyttää tällä laitteella.",
       "changeError": "ConPaws ei voinut vaihtaa ulkoasua. Yritä uudelleen."
     },
-    "account": {
-      "title": "Tili",
-      "signIn": "Kirjaudu sisään",
-      "signOut": "Kirjaudu ulos"
-    },
     "app": {
       "title": "Sovellus",
       "theme": "Teema",
@@ -477,8 +437,7 @@
       "exportError": "ConPaws ei voinut viedä tietojasi. Yritä uudelleen.",
       "importData": "Tuo tiedot",
       "importDescription": "Palauta conit ja ohjelmat varmuuskopiosta.",
-      "importing": "Avataan varmuuskopiota",
-      "resetOnboarding": "Nollaa esittely"
+      "importing": "Avataan varmuuskopiota"
     },
     "dataImport": {
       "confirmTitle": "Palautetaanko varmuuskopio?",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "Oikeudelliset tiedot",
       "privacyPolicy": "Tietosuojakäytäntö",
       "termsOfService": "Käyttöehdot",
       "about": "Tietoa ConPawsista",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "Tietoa",
-      "contact": "hello@conpaws.com",
       "tagline": "Conisi ohjelma, valmiina myös offline-tilassa.",
       "resources": "Resurssit",
       "website": "Verkkosivusto",
       "builtWith": "Rakennettu näillä",
       "licenseDescription": "{{count}} pakettia ja työkalua",
       "support": "Tuki",
+      "helpCenter": "Ohjekeskus",
       "email": "Sähköposti",
       "discordDescription": "Liity yhteisöön",
       "copyright": "ConPaws by MrDemonWolf, Inc."

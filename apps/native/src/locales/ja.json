@@ -1,9 +1,6 @@
 {
   "common": {
-    "home": "ホーム",
-    "profile": "プロフィール",
     "settings": "設定",
-    "back": "戻る",
     "add": "追加",
     "remove": "削除",
     "save": "保存",
@@ -16,10 +13,6 @@
     "loading": "読み込み中...",
     "error": "問題が発生しました",
     "retry": "再試行",
-    "close": "閉じる",
-    "next": "次へ",
-    "skip": "スキップ",
-    "getStarted": "はじめる",
     "learnMore": "詳しく見る",
     "version": "バージョン{{version}}",
     "advanced": "詳細設定",
@@ -36,7 +29,6 @@
     "detail": "コンベンションの詳細",
     "loadingTitle": "コンベンションを読み込み中",
     "loadErrorSubtitle": "コンベンションまたはそのイベントを読み込めませんでした。",
-    "events": "イベント",
     "searchEvents": "イベントを検索",
     "filterEvents": "イベントを絞り込む",
     "scheduleActions": "スケジュールの操作",
@@ -70,12 +62,10 @@
     "startDate": "開始日",
     "endDate": "終了日",
     "timeZone": "タイムゾーン",
-    "timeZonePlaceholder": "America/Chicago",
     "timeZoneSearch": "タイムゾーンを検索",
     "timeZoneSearchPlaceholder": "都市または地域",
     "timeZoneNoResults": "「{{query}}」に一致するタイムゾーンはありません。",
     "timeZoneAdvancedHelp": "ConPawsはこのデバイスのタイムゾーンを使用します。コンベンションが別の場所で開催される場合のみ変更してください。",
-    "timeZoneHelp": "コンベンション現地のタイムゾーンを使用してください（例：America/Chicago）。",
     "name": "コンベンション名",
     "namePlaceholder": "例：ConPaws Preview Con",
     "nameRequired": "コンベンション名を入力してください。",
@@ -111,7 +101,6 @@
       "imported": "読み込み",
       "added": "手動追加"
     },
-    "ageRestricted": "年齢制限あり",
     "contentWarning": "コンテンツ注意",
     "eventActionsHint": "イベントの詳細、スケジュール、リマインダーの操作を開きます。",
     "manualEvent": {
@@ -122,9 +111,7 @@
       "titlePlaceholder": "イベントのタイトル",
       "titleAccessibility": "イベントのタイトル、必須",
       "dateLabel": "日付 *",
-      "dateAccessibility": "イベントの日付、必須、YYYY-MM-DD",
       "startLabel": "開始 *",
-      "startAccessibility": "開始時刻、必須、24時間表記HH:mm",
       "endLabel": "終了",
       "endAccessibility": "終了時刻、任意、24時間表記HH:mm",
       "roomLabel": "部屋",
@@ -134,9 +121,6 @@
       "savedAnnouncement": "{{event}}を保存し、マイスケジュールに追加しました。",
       "errors": {
         "title": "タイトルは必須です。",
-        "date": "日付はYYYY-MM-DD形式の実在する日付にしてください。",
-        "startTime": "開始時刻は24時間表記のHH:mm（例：09:30）にしてください。",
-        "endTime": "終了時刻は24時間表記のHH:mm（例：10:30）にしてください。",
         "startTimeZone": "その開始時刻はコンベンションのタイムゾーンには存在しません。",
         "endTimeZone": "その終了時刻はコンベンションのタイムゾーンには存在しません。",
         "order": "終了時刻は同じ日付内で開始時刻より後にしてください。",
@@ -149,7 +133,6 @@
       "adult": "18歳以上"
     },
     "nameTooLong": "名前は{{max}}文字以内にしてください。",
-    "endBeforeStart": "終了日を開始日より前にすることはできません。",
     "longSpan": "{{count}}日間のコンベンションになっています。日付をご確認ください。",
     "updateError": "変更を保存できませんでした。",
     "nameCounter": "{{count}} / {{max}}",
@@ -192,7 +175,6 @@
     },
     "loadError": "コンベンションを読み込めませんでした。",
     "dateRange": "{{start}}〜{{end}}",
-    "upcoming": "開催予定",
     "active": "開催中",
     "past": "終了",
     "countdown": {
@@ -231,7 +213,6 @@
   "import": {
     "title": "スケジュールを読み込む",
     "source": "読み込み元",
-    "sourceLabel": "読み込み元",
     "url": "スケジュールのリンク",
     "file": "カレンダーファイル",
     "urlPlaceholder": "Sched、.ics、webcalのリンク",
@@ -263,16 +244,12 @@
     "importing": "読み込み中...",
     "applying": "適用中...",
     "applyUpdate": "スケジュールの更新を適用",
-    "success": "読み込みが完了しました",
-    "error": "読み込みに失敗しました",
     "timeZone": {
       "sectionTitle": "タイムゾーン",
       "label": "コンベンションのタイムゾーン",
-      "placeholder": "America/Chicago",
       "help": "スマートフォンの現在地ではなく、コンベンションの開催地を使用してください。",
       "requiredTitle": "タイムゾーンが必要です",
       "requiredMessage": "読み込む前にコンベンションのタイムゾーンを選択してください。開催都市を選びます。",
-      "choose": "タイムゾーンを選択",
       "use": "このタイムゾーンを使用"
     },
     "errors": {
@@ -343,9 +320,8 @@
         "description": "コンベンションのデータはこのデバイスから出ません。"
       },
       "plus": {
-        "eyebrow": "近日公開",
-        "title": "ConPaws+",
-        "description": "オプションのプレミアム機能として、クラウドバックアップ、同期、ソーシャル機能を追加する予定です。ConPawsは現在もオフラインで動作し、アカウントは不要です。"
+        "title": "無料でオフライン",
+        "description": "ここにあるすべての機能が、アカウントもネットワークもなしで動作します。オプションのクラウド機能は後日追加される可能性があります。"
       },
       "next": "続ける"
     },
@@ -357,18 +333,7 @@
       "localPrivacy": "アカウント不要。データはローカルに保存されます。"
     }
   },
-  "profile": {
-    "title": "プロフィール",
-    "signIn": "サインイン",
-    "notSignedIn": "サインインしていません",
-    "notSignedInSubtitle": "サインインすると、スケジュールを同期して友達とつながれます。",
-    "comingSoon": "プロフィール機能は近日公開",
-    "signInWithApple": "Appleでサインイン",
-    "signInWithGoogle": "Googleでサインイン"
-  },
   "reminders": {
-    "title": "リマインダー",
-    "add": "リマインダーを追加",
     "minutesBefore": "{{minutes}}分前",
     "atTime": "イベントの開始時刻",
     "none": "出発リマインダーなし",
@@ -455,11 +420,6 @@
       "description": "このデバイスでのConPawsの外観を選択します。",
       "changeError": "ConPawsは外観を変更できませんでした。もう一度お試しください。"
     },
-    "account": {
-      "title": "アカウント",
-      "signIn": "サインイン",
-      "signOut": "サインアウト"
-    },
     "app": {
       "title": "アプリ",
       "theme": "テーマ",
@@ -477,8 +437,7 @@
       "exportError": "ConPawsはデータを書き出せませんでした。もう一度お試しください。",
       "importData": "データを読み込む",
       "importDescription": "バックアップからコンベンションとスケジュールを復元します。",
-      "importing": "バックアップを開いています",
-      "resetOnboarding": "オンボーディングをリセット"
+      "importing": "バックアップを開いています"
     },
     "dataImport": {
       "confirmTitle": "バックアップを復元しますか？",
@@ -502,7 +461,6 @@
       }
     },
     "legal": {
-      "title": "法的情報",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfService": "利用規約",
       "about": "ConPawsについて",
@@ -510,13 +468,13 @@
     },
     "about": {
       "title": "このアプリについて",
-      "contact": "hello@conpaws.com",
       "tagline": "コンベンションのスケジュールを、オフラインでも。",
       "resources": "リソース",
       "website": "ウェブサイト",
       "builtWith": "使用技術",
       "licenseDescription": "{{count}}個のパッケージとツール",
       "support": "サポート",
+      "helpCenter": "ヘルプセンター",
       "email": "メール",
       "discordDescription": "コミュニティに参加",
       "copyright": "ConPaws by MrDemonWolf, Inc."
