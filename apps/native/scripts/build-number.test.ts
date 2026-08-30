@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   bumpBuildNumber,
   describeDrift,
+  describeVariantRisk,
   parseBuildNumber,
   parseGradleVersionCode,
   parseInfoPlistBuildNumber,
+  parseInfoPlistVariant,
 } from "./build-number.mjs";
 
 describe("parseBuildNumber", () => {
@@ -84,5 +86,45 @@ describe("describeDrift", () => {
         { label: "android", value: null },
       ]),
     ).toEqual([]);
+  });
+});
+
+describe("parseInfoPlistVariant", () => {
+  it("reads the variant marker", () => {
+    expect(
+      parseInfoPlistVariant(
+        "<key>ConPawsBuildVariant</key>\n\t<string>preview</string>",
+      ),
+    ).toBe("preview");
+  });
+
+  it("returns null for prebuild output that predates the key", () => {
+    expect(parseInfoPlistVariant("<key>CFBundleVersion</key>")).toBeNull();
+  });
+});
+
+describe("describeVariantRisk", () => {
+  it("passes a production build", () => {
+    expect(describeVariantRisk("production", "production", false)).toEqual([]);
+  });
+
+  it("passes prebuild output that predates the marker", () => {
+    expect(describeVariantRisk(null, undefined, false)).toEqual([]);
+  });
+
+  it("catches APP_VARIANT=preview before prebuild has run", () => {
+    expect(describeVariantRisk(null, "preview", false)).toHaveLength(1);
+  });
+
+  it("catches native output already prebuilt as preview", () => {
+    expect(describeVariantRisk("preview", undefined, false)).toHaveLength(1);
+  });
+
+  it("reports both signals separately", () => {
+    expect(describeVariantRisk("preview", "preview", false)).toHaveLength(2);
+  });
+
+  it("honours the owner-QA escape hatch", () => {
+    expect(describeVariantRisk("preview", "preview", true)).toEqual([]);
   });
 });

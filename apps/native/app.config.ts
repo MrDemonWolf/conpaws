@@ -1,5 +1,41 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
+/**
+ * Mirror of `src/lib/supported-locales.ts`, which is the source of truth.
+ *
+ * It cannot be imported: Expo transpiles this file by itself and resolves no
+ * relative TypeScript imports from it ("Cannot find module's./src/lib/...").
+ * `src/lib/supported-locales.test.ts` fails when the two lists diverge, which
+ * is the part that actually matters -- this was hardcoded to 8 entries while
+ * the app shipped 23, so the App Store listing under-reported its own
+ * language support.
+ */
+const SUPPORTED_LOCALES = [
+  "en",
+  "es-419",
+  "es-ES",
+  "pt-BR",
+  "pt-PT",
+  "ja",
+  "zh-TW",
+  "zh-CN",
+  "ko",
+  "de",
+  "fr",
+  "pl",
+  "it",
+  "nl",
+  "ms",
+  "sv",
+  "da",
+  "nb",
+  "fi",
+  "cs",
+  "hu",
+  "uk",
+  "ru",
+];
+
 const APP_VARIANT = process.env.APP_VARIANT ?? "production";
 const EAS_PROJECT_ID = "0ad7171c-1b3e-48b2-a806-554aeea30048";
 
@@ -25,8 +61,9 @@ const getScheme = (): string => {
  * produces a build. A number that looks authoritative and is wrong is worse than
  * one that has to be typed.
  *
- * EAS builds ignore this entirely -- eas.json sets `appVersionSource: "remote"`,
- * so the remote counter wins there. It matters for the local Xcode Organizer
+ * EAS builds read this too -- eas.json sets `appVersionSource: "local"` with no
+ * `autoIncrement`, so there is no remote counter to disagree with it. It matters
+ * most for the local Xcode Organizer
  * archive and local Gradle bundle, which is how ConPaws has actually shipped so
  * far (203 and 204) even though RELEASING.md prescribes EAS; see its "Known
  * drift" section. Prebuild writes this into CFBundleVersion and versionCode, and
@@ -104,6 +141,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: getBundleId(),
     entitlements: {
       "com.apple.security.application-groups": [`group.${getBundleId()}`],
+    },
+    infoPlist: {
+      // Which variant produced this binary, readable from the built artifact.
+      //
+      // preview and production share a bundle identifier and an icon
+      // (RELEASING.md:57-59), so nothing on the Home Screen tells them apart --
+      // but preview turns on the debug menu, fixture data and the UI gallery
+      // via developerToolsEnabled(). Shipping one to a *public* TestFlight
+      // would hand those to the public. Nothing else survives prebuild to
+      // distinguish them, so the variant is written here and
+      // `scripts/build-number.mjs --check` refuses a preview archive.
+      ConPawsBuildVariant: APP_VARIANT,
     },
     privacyManifests: {
       NSPrivacyAccessedAPITypes: [
@@ -217,9 +266,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-localization",
       {
+        // These become CFBundleLocalizations, which is what the App Store
+        // listing advertises. See the SUPPORTED_LOCALES note at the top.
         supportedLocales: {
-          ios: ["en", "de", "es", "fr", "nl", "pl", "pt-BR", "sv"],
-          android: ["en", "de", "es", "fr", "nl", "pl", "pt-BR", "sv"],
+          ios: SUPPORTED_LOCALES,
+          android: SUPPORTED_LOCALES,
         },
       },
     ],

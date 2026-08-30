@@ -68,6 +68,52 @@ export function parseInfoPlistBuildNumber(xml) {
   return match ? Number(match[1]) : null;
 }
 
+/**
+ * Which variant produced the generated iOS project.
+ *
+ * `app.config.ts` writes `ConPawsBuildVariant` into Info.plist precisely so
+ * this is answerable from the artifact. Older prebuild output predates the key
+ * and returns null, which is not a failure -- see `describeVariantRisk`.
+ */
+export function parseInfoPlistVariant(xml) {
+  const match = xml.match(
+    /<key>ConPawsBuildVariant<\/key>\s*<string>([a-z]+)<\/string>/,
+  );
+  return match ? match[1] : null;
+}
+
+/**
+ * Refuses a release archive built from the `preview` variant.
+ *
+ * preview and production share a bundle identifier and an icon, so the two
+ * artifacts are indistinguishable on the Home Screen (RELEASING.md). But
+ * `developerToolsEnabled()` turns the debug menu, fixture data and the UI
+ * gallery on for preview, and ConPaws ships to a *public* TestFlight -- where
+ * that reaches everyone with the link, not just the owner.
+ *
+ * Both signals are checked because they catch different mistakes: the env var
+ * catches `APP_VARIANT=preview bun run ship:prep` before prebuild even runs,
+ * the plist catches an archive of native output prebuilt as preview earlier.
+ * `CONPAWS_ALLOW_PREVIEW=1` is the deliberate escape hatch for owner QA builds.
+ */
+export function describeVariantRisk(plistVariant, envVariant, allowPreview) {
+  if (allowPreview) return [];
+  const problems = [];
+  if (envVariant === "preview") {
+    problems.push(
+      "APP_VARIANT=preview is set: this build would carry the debug menu, " +
+        "fixture data and the UI gallery.",
+    );
+  }
+  if (plistVariant === "preview") {
+    problems.push(
+      "ios/ConPaws/Info.plist ConPawsBuildVariant is `preview`: the generated " +
+        "native project was prebuilt from the preview variant.",
+    );
+  }
+  return problems;
+}
+
 export function parseGradleVersionCode(text) {
   const match = text.match(/^\s*versionCode\s+(\d+)\s*$/m);
   return match ? Number(match[1]) : null;
@@ -112,6 +158,23 @@ async function check() {
     readIfPresent(infoPlistPath),
     readIfPresent(gradlePath),
   ]);
+  const variantProblems = describeVariantRisk(
+    plist === null ? null : parseInfoPlistVariant(plist),
+    process.env.APP_VARIANT,
+    process.env.CONPAWS_ALLOW_PREVIEW === "1",
+  );
+
+  if (variantProblems.length > 0) {
+    console.error("Refusing a preview build on the release path.\n");
+    for (const line of variantProblems) console.error(`  ${line}`);
+    console.error(
+      "\n  Rebuild with APP_VARIANT unset (production is the default), or set\n" +
+        "  CONPAWS_ALLOW_PREVIEW=1 if this really is an owner-only QA build.",
+    );
+    process.exitCode = 1;
+    return;
+  }
+
   const drift = describeDrift(expected, [
     {
       label: "ios/ConPaws/Info.plist CFBundleVersion",

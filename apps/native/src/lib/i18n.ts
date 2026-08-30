@@ -25,33 +25,15 @@ import sv from "../locales/sv.json";
 import uk from "../locales/uk.json";
 import zhCN from "../locales/zh-CN.json";
 import zhTW from "../locales/zh-TW.json";
+import {
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguage,
+} from "./supported-locales";
 
-export const SUPPORTED_LANGUAGES = [
-  "en",
-  "es-419",
-  "es-ES",
-  "pt-BR",
-  "pt-PT",
-  "ja",
-  "zh-TW",
-  "zh-CN",
-  "ko",
-  "de",
-  "fr",
-  "pl",
-  "it",
-  "nl",
-  "ms",
-  "sv",
-  "da",
-  "nb",
-  "fi",
-  "cs",
-  "hu",
-  "uk",
-  "ru",
-] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+export {
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguage,
+} from "./supported-locales";
 
 export const LANGUAGE_META: Record<SupportedLanguage, { nativeName: string }> =
   {
