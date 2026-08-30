@@ -154,6 +154,25 @@ Do not recycle `207`. Keep the public version at `1.0.0` through all of these ca
 A store rejects a reused or lower number, and the rejection arrives after the
 build and the upload, not before.
 
+### Where the last builds went
+
+`BUILD_NUMBER` says what was last **built**. It cannot say whether that number
+was ever **uploaded**, and only an uploaded number is actually spent. This table
+is that missing half — check it before a release to see what a store already
+holds.
+
+Keep the **last two rows only**. Every earlier row is still in this file's git
+history, so trimming loses nothing and stops the table growing into noise.
+
+| Build | Version | iOS | Android | Date |
+| --- | --- | --- | --- | --- |
+| 205 | `1.0.0` | TestFlight | Play internal testing | 2026-08-29 |
+
+Add a row when a build reaches a store, not when it is built — a candidate that
+never leaves the machine has spent nothing and belongs nowhere near this table.
+Promoting an existing build to production changes no number: the store releases
+the binary it already has, so update that row's status rather than adding one.
+
 ### Bumping it: `bun run ship:prep`
 
 The constant has to move before every candidate that reaches TestFlight, Play,
@@ -192,6 +211,35 @@ bun run build-number:check
 
 An EAS build, if one is ever run, reads the same constant — `eas.json` sets
 `appVersionSource: "local"` for exactly that reason.
+
+### The preview guard
+
+`build-number:check` also refuses a build that came from `APP_VARIANT=preview`.
+It reads two signals: the environment variable, which catches a preview
+`ship:prep` before prebuild has even run, and `ConPawsBuildVariant` in the
+generated `ios/ConPaws/Info.plist`, which catches an archive of native output
+that was prebuilt as preview earlier. `app.config.ts` writes that key for no
+other reason.
+
+This exists because preview and production share a bundle identifier and an
+icon, so nothing on the Home Screen tells them apart, while `preview` turns on
+the debug menu, the fixture data and the UI gallery. ConPaws ships to a
+**public** TestFlight, where the wrong artifact reaches everyone with the link.
+
+For a deliberate owner QA build, set the escape hatch:
+
+```bash
+APP_VARIANT=preview CONPAWS_ALLOW_PREVIEW=1 bun run ship:prep
+```
+
+Verify an archive after the fact with:
+
+```bash
+plutil -extract ConPawsBuildVariant raw -o - ios/ConPaws/Info.plist
+```
+
+Note the `-o -`. Without it `plutil -extract` overwrites the file with the
+extracted value instead of printing it.
 
 ## Every release candidate
 
@@ -444,7 +492,8 @@ group only, or the AAB to the internal Play track.
 
 A preview build still consumes a build number, because the stores do not care
 why the artifact exists. Never submit one for public review or promote it to
-production.
+production — `CONPAWS_ALLOW_PREVIEW=1` is required to build one at all, which is
+the point: it cannot happen by forgetting to unset a variable.
 
 ## The EAS profiles, and when they would cost money
 
