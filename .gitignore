@@ -31,10 +31,6 @@ apps/native/google-service-account*.json
 # Tool-owned worktrees are not source or EAS build input
 .claude/worktrees/
 
-# Per-machine agent config: which MCP servers a given checkout talks to is a
-# local choice, not a property of the project.
-.codex/
-
 # Metro
 .metro-health-check*
 
