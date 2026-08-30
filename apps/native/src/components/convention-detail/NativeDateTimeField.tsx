@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Pressable, useWindowDimensions, View } from "react-native";
 import { Text } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { formatMediumDate, formatShortTime } from "@/lib/event-time-format";
 import { cn } from "@/lib/utils";
 
 interface NativeDateTimeFieldProps {
@@ -31,10 +32,12 @@ export function NativeDateTimeField({
   const colorScheme = useResolvedColorScheme();
   const { fontScale } = useWindowDimensions();
   const [dialogVisible, setDialogVisible] = useState(false);
+  // Through event-time-format's cache: toLocale*String builds a fresh
+  // formatter on every render, which the formatjs polyfill makes expensive.
   const formattedValue =
     mode === "date"
-      ? value.toLocaleDateString(locale, { dateStyle: "medium" })
-      : value.toLocaleTimeString(locale, { timeStyle: "short" });
+      ? formatMediumDate(value, locale)
+      : formatShortTime(value, locale);
   const fieldClassName = cn(
     "min-h-14 flex-row items-center justify-between gap-4 px-4 py-2",
     showDivider && "border-b border-border",

@@ -1,5 +1,5 @@
-import { FlatList, Pressable, View } from "react-native";
-import { Text } from "@/components/ui";
+import { FlatList, View } from "react-native";
+import { Row, Text } from "@/components/ui";
 import { ConventionCard } from "./ConventionCard";
 import type { ConventionListProps } from "./ConventionList.types";
 
@@ -44,16 +44,16 @@ export function ConventionList<T extends { id: string }>({
       ListFooterComponent={
         archivedData.length > 0 ? (
           <View className="mt-2 border-t border-border">
-            <Pressable
+            <Row
               accessibilityRole="button"
               accessibilityLabel={`${archiveLabel}, ${archiveActionLabel}`}
               accessibilityState={{ expanded: archiveExpanded }}
               onPress={onToggleArchive}
-              className="min-h-12 flex-row items-center justify-between px-1 py-3 active:opacity-60"
+              className="px-1 py-3"
+              trailing={<Text variant="caption">{archiveActionLabel}</Text>}
             >
               <Text variant="label">{archiveLabel}</Text>
-              <Text variant="caption">{archiveActionLabel}</Text>
-            </Pressable>
+            </Row>
             {archiveExpanded ? (
               <View className="border-t border-border">
                 {/* ponytail: convention archives stay small; virtualize if imports become unbounded. */}

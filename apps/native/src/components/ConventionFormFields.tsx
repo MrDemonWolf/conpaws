@@ -4,15 +4,18 @@ import { DatePicker as SwiftDatePicker } from "@expo/ui/swift-ui";
 import { datePickerStyle } from "@expo/ui/swift-ui/modifiers";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FlatList, Modal, Pressable, View } from "react-native";
 import {
-  FlatList,
-  Modal,
-  Pressable,
-  TextInput as RNTextInput,
-  View,
-} from "react-native";
-import { SafeView, Text, usePlaceholderTextColor } from "@/components/ui";
+  Input,
+  PRESS_DIM,
+  Row,
+  SafeView,
+  TAP_TARGET,
+  Text,
+} from "@/components/ui";
+import { formatMediumDate } from "@/lib/event-time-format";
 import { searchTimeZones, type TimeZoneOption } from "@/lib/time-zone-search";
+import { cn } from "@/lib/utils";
 
 /**
  * Field components shared by the create and edit convention forms. They live
@@ -58,9 +61,7 @@ export function ConventionDateField({
     <>
       <ListItem
         onPress={() => setDialogVisible(true)}
-        supportingText={new Intl.DateTimeFormat(locale, {
-          dateStyle: "medium",
-        }).format(value)}
+        supportingText={formatMediumDate(value, locale)}
       >
         {title}
       </ListItem>
@@ -100,7 +101,6 @@ export function TimeZonePickerModal({
   onClose,
 }: TimeZonePickerModalProps) {
   const { t } = useTranslation();
-  const placeholderColor = usePlaceholderTextColor();
   const [query, setQuery] = useState("");
   const results = useMemo(
     () => searchTimeZones(options, query),
@@ -132,7 +132,11 @@ export function TimeZonePickerModal({
           <Pressable
             accessibilityRole="button"
             onPress={handleClose}
-            className="min-h-12 min-w-12 items-end justify-center active:opacity-70"
+            className={cn(
+              TAP_TARGET,
+              "min-w-12 items-end justify-center",
+              PRESS_DIM,
+            )}
           >
             <Text variant="body" className="text-primary">
               {t("common.done")}
@@ -141,17 +145,15 @@ export function TimeZonePickerModal({
         </View>
 
         <View className="px-4 pb-3">
-          <RNTextInput
+          <Input
             value={query}
             onChangeText={setQuery}
             placeholder={t("convention.timeZoneSearchPlaceholder")}
-            placeholderTextColor={placeholderColor}
             autoCapitalize="none"
             autoCorrect={false}
             clearButtonMode="while-editing"
             accessibilityLabel={t("convention.timeZoneSearch")}
             testID="time-zone-search-input"
-            className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
           />
         </View>
 
@@ -175,27 +177,27 @@ export function TimeZonePickerModal({
           renderItem={({ item }) => {
             const isSelected = item.id === selected;
             return (
-              <Pressable
+              <Row
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
                 onPress={() => {
                   onSelect(item.id);
                   handleClose();
                 }}
-                className="min-h-14 flex-row items-center justify-between gap-4 border-b border-border px-4 py-3 active:opacity-70"
+                className="min-h-14 border-b border-border px-4 py-3"
+                trailing={
+                  isSelected ? (
+                    <Text variant="body" className="text-primary">
+                      ✓
+                    </Text>
+                  ) : null
+                }
               >
-                <View className="flex-1">
-                  <Text variant="body">{item.city}</Text>
-                  <Text variant="caption" className="text-muted-foreground">
-                    {item.region || item.id}
-                  </Text>
-                </View>
-                {isSelected ? (
-                  <Text variant="body" className="text-primary">
-                    ✓
-                  </Text>
-                ) : null}
-              </Pressable>
+                <Text variant="body">{item.city}</Text>
+                <Text variant="caption" className="text-muted-foreground">
+                  {item.region || item.id}
+                </Text>
+              </Row>
             );
           }}
         />

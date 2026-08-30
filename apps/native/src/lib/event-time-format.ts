@@ -17,6 +17,7 @@ import { conventionDayKey } from "./convention-time";
 
 type FormatterKind =
   | "time"
+  | "shortTime"
   | "dayLabel"
   | "date"
   | "dateAndTime"
@@ -24,6 +25,7 @@ type FormatterKind =
 
 const FORMATTER_OPTIONS: Record<FormatterKind, Intl.DateTimeFormatOptions> = {
   time: { hour: "numeric", minute: "2-digit" },
+  shortTime: { timeStyle: "short" },
   dayLabel: { weekday: "long", month: "long", day: "numeric" },
   date: { dateStyle: "medium" },
   dateAndTime: { dateStyle: "full", timeStyle: "short" },
@@ -194,4 +196,29 @@ export function formatConventionDate(dayKey: string, locale: string): string {
   return scheduleFormatter("date", locale).format(
     new Date(`${dayKey}T12:00:00`),
   );
+}
+
+/**
+ * A `Date` as a medium date, through the shared cache.
+ *
+ * Four screens built their own `Intl.DateTimeFormat` for this instead, one of
+ * them inside render -- the per-construction cost this module's cache exists
+ * to avoid. `timeZone` defaults to the device zone, which is what a picker
+ * value and a convention start date both want.
+ */
+export function formatMediumDate(
+  value: Date,
+  locale: string,
+  timeZone?: string,
+): string {
+  return scheduleFormatter("date", locale, timeZone).format(value);
+}
+
+/** A `Date` as a short wall-clock time, through the shared cache. */
+export function formatShortTime(
+  value: Date,
+  locale: string,
+  timeZone?: string,
+): string {
+  return scheduleFormatter("shortTime", locale, timeZone).format(value);
 }

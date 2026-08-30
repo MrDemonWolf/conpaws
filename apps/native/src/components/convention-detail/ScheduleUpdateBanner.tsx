@@ -1,9 +1,7 @@
-import { X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Pressable, useColorScheme, View } from "react-native";
-import { Text } from "@/components/ui";
+
+import { Banner } from "@/components/ui";
 import type { ScheduleChangeSummary } from "@/lib/schedule-changes";
-import { themeTokens } from "@/lib/theme-tokens";
 
 /**
  * Says what moved, once, and gets out of the way.
@@ -27,7 +25,6 @@ export function ScheduleUpdateBanner({
   onDismiss,
 }: ScheduleUpdateBannerProps) {
   const { t } = useTranslation();
-  const isDark = useColorScheme() === "dark";
   const { savedMoved, savedGone } = summary;
   if (savedMoved === 0 && savedGone === 0) return null;
 
@@ -49,40 +46,26 @@ export function ScheduleUpdateBanner({
           { count: savedMoved },
         );
 
+  // One/Many rather than an i18next plural, matching movedOne/goneOne above.
+  // This read `alsoMoved`, which is not a key in any catalog -- so whenever a
+  // refresh both moved and dropped saved panels, the banner body rendered the
+  // literal string "convention.scheduleUpdate.alsoMoved".
   const body =
     savedGone > 0 && savedMoved > 0
-      ? t("convention.scheduleUpdate.alsoMoved", { count: savedMoved })
+      ? t(
+          savedMoved === 1
+            ? "convention.scheduleUpdate.alsoMovedOne"
+            : "convention.scheduleUpdate.alsoMovedMany",
+          { count: savedMoved },
+        )
       : t("convention.scheduleUpdate.body");
 
   return (
-    <View
-      className="mx-4 mb-2 flex-row items-start gap-3 rounded-xl bg-secondary px-3 py-2"
-      style={{ borderCurve: "continuous" }}
-    >
-      <View className="flex-1">
-        <Text variant="label" accessibilityRole="alert">
-          {title}
-        </Text>
-        <Text variant="caption" className="pt-0.5 text-muted-foreground">
-          {body}
-        </Text>
-      </View>
-      <Pressable
-        onPress={onDismiss}
-        accessibilityRole="button"
-        accessibilityLabel={t("convention.scheduleUpdate.dismiss")}
-        // Dismissing hides this sentence, never the marks on the rows. The
-        // record of what happened stays where the reader will look for it.
-        hitSlop={12}
-        className="active:opacity-70"
-      >
-        {/* Icon colours are props, not classes — same documented pattern as
-            ScheduleHintCard and EventItem's content-warning triangle. */}
-        <X
-          size={17}
-          color={themeTokens[isDark ? "dark" : "light"].mutedForeground}
-        />
-      </Pressable>
-    </View>
+    <Banner
+      title={title}
+      body={body}
+      dismissLabel={t("convention.scheduleUpdate.dismiss")}
+      onDismiss={onDismiss}
+    />
   );
 }

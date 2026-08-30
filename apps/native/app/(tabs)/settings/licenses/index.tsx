@@ -1,8 +1,9 @@
 import { router, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, FlatList, Pressable, View } from "react-native";
-import { Text } from "@/components/ui/Text";
+import { AccessibilityInfo, FlatList, View } from "react-native";
+
+import { EmptyState, Row, Text } from "@/components/ui";
 import licenseManifest from "@/generated/open-source-licenses.json";
 import { cn } from "@/lib/utils";
 
@@ -72,17 +73,14 @@ export default function LicensesScreen() {
           </Text>
         }
         ListEmptyComponent={
-          <View className="items-center gap-1.5 px-8 py-20">
-            <Text variant="h3" className="text-center text-lg">
-              {t("settings.licenses.noResultsTitle")}
-            </Text>
-            <Text variant="caption" className="text-center">
-              {t("settings.licenses.noResultsDescription")}
-            </Text>
-          </View>
+          <EmptyState
+            className="px-8 py-20"
+            title={t("settings.licenses.noResultsTitle")}
+            subtitle={t("settings.licenses.noResultsDescription")}
+          />
         }
         renderItem={({ item, index }) => (
-          <Pressable
+          <Row
             accessibilityLabel={`${item.name}, ${t(
               "settings.licenses.version",
               {
@@ -99,13 +97,22 @@ export default function LicensesScreen() {
               })
             }
             className={cn(
-              "min-h-14 flex-row items-center border-r border-b border-l border-border bg-card px-4 py-2.5 active:opacity-65",
+              "min-h-14 border-r border-b border-l border-border bg-card px-4 py-2.5",
               index === 0 && "rounded-t-xl border-t",
               index === filteredPackages.length - 1 && "rounded-b-xl",
             )}
-            style={{ borderCurve: "continuous" }}
+            trailing={
+              <Text
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+                variant="body"
+                className="text-2xl text-muted-foreground"
+              >
+                ›
+              </Text>
+            }
           >
-            <View className="flex-1 gap-0.5">
+            <View className="gap-0.5">
               <Text numberOfLines={1} variant="body" className="font-semibold">
                 {item.name}
               </Text>
@@ -113,15 +120,7 @@ export default function LicensesScreen() {
                 {item.version} · {item.license}
               </Text>
             </View>
-            <Text
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-              variant="body"
-              className="ml-3 text-2xl text-muted-foreground"
-            >
-              ›
-            </Text>
-          </Pressable>
+          </Row>
         )}
       />
     </>

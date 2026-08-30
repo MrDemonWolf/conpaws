@@ -30,6 +30,7 @@ import {
   partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
+import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
   resetPresentationLock,
@@ -50,25 +51,18 @@ const ERROR_ICON = Icon.select({
 
 const DEVICE_TIME_ZONE =
   Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-const localeFormatterCache = new Map<
-  string,
-  {
-    date: Intl.DateTimeFormat;
-    names: Intl.Collator;
-  }
->();
+// Dates go through event-time-format's cache; only the collator is cached
+// here, because that module formats and does not sort.
+// ponytail: supported locales are finite; keep expensive Intl objects per locale.
+const collatorCache = new Map<string, Intl.Collator>();
 
-function localeFormatters(locale: string) {
-  const cached = localeFormatterCache.get(locale);
+function localeCollator(locale: string): Intl.Collator {
+  const cached = collatorCache.get(locale);
   if (cached) return cached;
 
-  // ponytail: supported locales are finite; keep expensive Intl formatters per locale.
-  const formatters = {
-    date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
-    names: new Intl.Collator(locale, { sensitivity: "base" }),
-  };
-  localeFormatterCache.set(locale, formatters);
-  return formatters;
+  const collator = new Intl.Collator(locale, { sensitivity: "base" });
+  collatorCache.set(locale, collator);
+  return collator;
 }
 
 interface ConventionEmptyStateProps {
@@ -115,7 +109,7 @@ export default function HomeScreen() {
   const [archiveExpanded, setArchiveExpanded] = useState(false);
   const presentationLock = useRef(0);
   const locale = currentLocale();
-  const { date: dateFormatter, names: nameCollator } = localeFormatters(locale);
+  const nameCollator = localeCollator(locale);
   const deviceTimeZone = DEVICE_TIME_ZONE;
 
   // `now` is state refreshed on focus, not `new Date()` per render. The rows
@@ -288,10 +282,8 @@ export default function HomeScreen() {
   // every render and cancelled in-progress swipe actions.
   const getRowContent = useCallback(
     (item: Convention) => {
-      const start = dateFormatter.format(
-        new Date(`${item.startDate}T12:00:00`),
-      );
-      const end = dateFormatter.format(new Date(`${item.endDate}T12:00:00`));
+      const start = formatConventionDate(item.startDate, locale);
+      const end = formatConventionDate(item.endDate, locale);
       const status = conventionStatusAt(item, now, deviceTimeZone);
       const daysUntil = conventionDaysUntil(item, now, deviceTimeZone);
 
@@ -313,7 +305,7 @@ export default function HomeScreen() {
         canUnarchive: canUnarchive(item, now, deviceTimeZone),
       };
     },
-    [dateFormatter, now, t],
+    [locale, now, t],
   );
 
   const showLoading = useDelayedLoading(isLoading || (isError && isFetching));

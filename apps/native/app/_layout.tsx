@@ -66,6 +66,7 @@ import { resolveQuickActionRoute } from "@/lib/quick-action-routes";
 import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import { getScheduleAutoCheck } from "@/lib/schedule-refresh-storage";
+import { themeTokens } from "@/lib/theme-tokens";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -90,7 +91,7 @@ const lightNavigationTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#005575",
+    primary: themeTokens.light.primary,
   },
 };
 
@@ -98,7 +99,7 @@ const darkNavigationTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    primary: "#18B7F2",
+    primary: themeTokens.dark.primary,
   },
 };
 
