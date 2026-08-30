@@ -44,7 +44,16 @@ interface RowProps extends Omit<PressableProps, "children" | "className"> {
  * structured to pour through a `children` slot — but they import `PRESS_DIM`
  * and `TAP_TARGET` so the feedback still matches.
  */
-export function Row({ children, trailing, className, ...props }: RowProps) {
+export function Row({
+  children,
+  trailing,
+  className,
+  // Every caller happens to pass one today, so this defends the next one: a
+  // tappable row that announces itself as plain text is a row a screen reader
+  // never offers to activate.
+  accessibilityRole = "button",
+  ...props
+}: RowProps) {
   return (
     <Pressable
       className={cn(
@@ -54,6 +63,7 @@ export function Row({ children, trailing, className, ...props }: RowProps) {
         className,
       )}
       style={{ borderCurve: "continuous" }}
+      accessibilityRole={accessibilityRole}
       {...props}
     >
       <View className="flex-1">{children}</View>

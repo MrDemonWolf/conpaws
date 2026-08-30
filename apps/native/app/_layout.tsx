@@ -78,7 +78,9 @@ setupNotificationHandler();
 
 // Notification taps already routed this launch, keyed by request identifier.
 const handledNotificationResponses = new Set<string>();
-void SplashScreen.preventAutoHideAsync();
+// Rejects when the splash module is already gone -- a reload in dev, a
+// second call after a fast refresh. Nothing to report and nothing to do.
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 const queryClient = new QueryClient();
 
@@ -369,7 +371,7 @@ function RootLayout() {
   }, [navigable]);
 
   useEffect(() => {
-    if (ready) void SplashScreen.hideAsync();
+    if (ready) SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
 
   if (!ready) return null;

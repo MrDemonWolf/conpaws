@@ -79,7 +79,10 @@ export function NativeDateTimeField({
       <Pressable
         className={cn(fieldClassName, "active:opacity-70")}
         accessibilityRole="button"
-        accessibilityLabel={label}
+        // Composed, not just the label: an `accessibilityLabel` on a Pressable
+        // replaces its children, so `label` alone announced "Start time,
+        // button" and withheld the one thing the row exists to show.
+        accessibilityLabel={`${label}, ${formattedValue}`}
         testID={testID}
         onPress={() => setDialogVisible(true)}
       >

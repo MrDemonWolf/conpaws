@@ -6,7 +6,10 @@ import {
 } from "@/hooks/useImportSchedule";
 import { reportError } from "@/lib/error-reporting";
 import { parseIcs } from "@/lib/ical-parser";
-import { fetchScheduleIcs } from "@/lib/sched-extractor";
+import {
+  fetchScheduleIcs,
+  ScheduleFetchCancelledError,
+} from "@/lib/sched-extractor";
 import {
   type ScheduleChangeSummary,
   summarizeScheduleChanges,
@@ -66,6 +69,12 @@ export interface ScheduleRefreshOptions {
    */
   force?: boolean;
   now?: number;
+  /**
+   * Abandons the network read when the caller stops caring -- a screen that
+   * blurred, or a check superseded by a newer one. The fetch used to keep
+   * running to its 30s timeout regardless.
+   */
+  signal?: AbortSignal;
 }
 
 export async function refreshConventionSchedule(
@@ -73,7 +82,7 @@ export async function refreshConventionSchedule(
   deps: ScheduleRefreshDeps,
   options: ScheduleRefreshOptions = {},
 ): Promise<ScheduleRefreshResult> {
-  const { force = false, now = Date.now() } = options;
+  const { force = false, now = Date.now(), signal } = options;
 
   if (!convention.icalUrl) return { status: "skipped" };
   // An ended or archived convention's feed is not news, and a convention the
@@ -98,7 +107,7 @@ export async function refreshConventionSchedule(
   }
 
   try {
-    const fetched = await fetchScheduleIcs(convention.icalUrl);
+    const fetched = await fetchScheduleIcs(convention.icalUrl, { signal });
     const parsed = parseIcs(fetched.icsContent, {
       timeZone: convention.timeZone ?? undefined,
     });
@@ -170,6 +179,10 @@ export async function refreshConventionSchedule(
       },
     };
   } catch (error) {
+    // Abandoning a check because the screen went away is not a failure and is
+    // not worth reporting; `skipped` leaves the UI exactly as it was.
+    if (error instanceof ScheduleFetchCancelledError)
+      return { status: "skipped" };
     reportError(error, { scope: "schedule-refresh.check" });
     return { status: "failed" };
   }

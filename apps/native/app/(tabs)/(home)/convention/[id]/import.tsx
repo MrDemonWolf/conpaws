@@ -50,6 +50,7 @@ import {
   InvalidResponseError,
   InvalidScheduleUrlError,
   NetworkError,
+  ScheduleFetchCancelledError,
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
 import { setScheduleAllCategories } from "@/lib/schedule-refresh-storage";
@@ -114,6 +115,10 @@ export default function ImportScreen() {
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   const filePickerLock = useRef(0);
   const requestGeneration = useRef(0);
+  // The generation counter discards a superseded *result*; this stops the
+  // *work*. Cancel leaves the screen, which unmounts and aborts here, so a
+  // fetch no longer runs on to its 30s timeout behind a reader who has gone.
+  const inFlightFetch = useRef<AbortController | null>(null);
   const isMounted = useRef(true);
   const urlInput = useNativeState("");
 
@@ -152,6 +157,7 @@ export default function ImportScreen() {
   useEffect(
     () => () => {
       isMounted.current = false;
+      inFlightFetch.current?.abort();
     },
     [],
   );
@@ -187,6 +193,10 @@ export default function ImportScreen() {
 
   function beginRequest(): number {
     requestGeneration.current += 1;
+    // A new request supersedes the last one, so stop it rather than leaving it
+    // to finish into a result nobody reads.
+    inFlightFetch.current?.abort();
+    inFlightFetch.current = null;
     didPrefill.current = true;
     clearState();
     setLoading(true);
@@ -359,8 +369,13 @@ export default function ImportScreen() {
 
     setActiveTab("url");
 
+    const controller = new AbortController();
+    inFlightFetch.current = controller;
+
     try {
-      const fetched = await fetchScheduleIcs(scheduleUrl);
+      const fetched = await fetchScheduleIcs(scheduleUrl, {
+        signal: controller.signal,
+      });
       if (!isCurrentRequest(generation)) return;
       // Store the canonical form, not what was typed: a webcal link has been
       // rewritten to https and a Sched page collapsed to its site root, and
@@ -374,6 +389,9 @@ export default function ImportScreen() {
         fetched.canonicalUrl,
       );
     } catch (err) {
+      // A cancellation is not a failure: the reader already knows, because
+      // they are the one who caused it.
+      if (err instanceof ScheduleFetchCancelledError) return;
       if (!isCurrentRequest(generation)) return;
       if (err instanceof InvalidScheduleUrlError) {
         setError({
@@ -406,6 +424,7 @@ export default function ImportScreen() {
         });
       }
     } finally {
+      if (inFlightFetch.current === controller) inFlightFetch.current = null;
       if (isCurrentRequest(generation)) setLoading(false);
     }
   }

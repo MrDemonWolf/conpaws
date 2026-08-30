@@ -168,6 +168,9 @@ function ManualEventModalContent({
             disabled={saving}
             accessibilityRole="button"
             accessibilityLabel={t("convention.manualEvent.cancelLabel")}
+            // Matches Save opposite it. Without this VoiceOver offered Cancel
+            // as available all through a save that had already disabled it.
+            accessibilityState={{ disabled: saving }}
             className={cn(
               TAP_TARGET,
               "min-w-12 justify-center pr-3 disabled:opacity-50",

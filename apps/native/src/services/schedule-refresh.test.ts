@@ -23,7 +23,12 @@ const {
   },
 }));
 
-vi.mock("@/lib/sched-extractor", () => ({ fetchScheduleIcs }));
+// The real error class, not a stub: the service does an `instanceof` check to
+// tell a cancelled check apart from a failed one, and a stub would never match.
+vi.mock("@/lib/sched-extractor", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/sched-extractor")>()),
+  fetchScheduleIcs,
+}));
 vi.mock("@/lib/ical-parser", () => ({ parseIcs }));
 vi.mock("@/db/repositories/events", () => ({ getByConventionId }));
 vi.mock("@/hooks/useImportSchedule", () => ({ runScheduleImport }));
