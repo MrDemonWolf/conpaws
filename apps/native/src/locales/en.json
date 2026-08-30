@@ -12,6 +12,7 @@
     "done": "Done",
     "loading": "Loading...",
     "error": "Something went wrong",
+    "openLinkError": "Could not open that link",
     "retry": "Retry",
     "learnMore": "Learn More",
     "version": "Version {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptic Feedback",
       "hapticsError": "Could not save your haptics setting",
       "notifications": "Notifications",
-      "scheduleAutoCheck": "Check for schedule updates"
+      "scheduleAutoCheck": "Check for schedule updates",
+      "scheduleAutoCheckError": "Could not save your schedule update setting"
     },
     "data": {
       "title": "Data",

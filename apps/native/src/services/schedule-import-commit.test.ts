@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
+
 import type { SourceSnapshot } from "@/db/repositories/events";
 import type { ImportResult } from "@/hooks/useImportSchedule";
 import type { ParsedEvent } from "@/lib/ical-parser";

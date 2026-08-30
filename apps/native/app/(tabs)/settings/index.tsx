@@ -10,7 +10,6 @@ import {
 import Constants from "expo-constants";
 import { type Href, router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import * as WebBrowser from "expo-web-browser";
 import {
   Bell,
   Bug,
@@ -38,6 +37,7 @@ import { importOutcomeMessage } from "@/lib/data-import-messages";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
+import { openExternal } from "@/lib/open-external";
 import {
   getCachedDefaultReminderMinutes,
   getDefaultReminderMinutes,
@@ -83,6 +83,17 @@ function ExternalIndicator() {
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
+
+  // One place that catches the two rejections these links actually produce: a
+  // second tap while a browser is already up, and a `mailto:` on a device with
+  // no mail account. Both used to be unhandled and silent.
+  function openLink(url: string) {
+    void openExternal(url, {
+      errorTitle: t("common.error"),
+      errorMessage: t("common.openLinkError"),
+    });
+  }
+
   const { exportData, isLoading: isExporting } = useExportData();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
@@ -106,8 +117,14 @@ export default function SettingsScreen() {
   );
 
   function handleScheduleAutoCheckChange(next: boolean) {
+    // Optimistic so the switch tracks the finger; reverted if the write fails,
+    // the same way haptics below does. Without the revert the switch showed a
+    // setting that was gone by the next launch.
     setScheduleAutoCheck(next);
-    void persistScheduleAutoCheck(next);
+    void persistScheduleAutoCheck(next).catch(() => {
+      setScheduleAutoCheck(!next);
+      Alert.alert(t("common.error"), t("settings.app.scheduleAutoCheckError"));
+    });
   }
 
   function handleHapticsChange(next: boolean) {
@@ -334,18 +351,14 @@ export default function SettingsScreen() {
           <ListItem
             leading={<LeadingIcon icon={Hand} />}
             trailing={<ExternalIndicator />}
-            onPress={() =>
-              WebBrowser.openBrowserAsync("https://conpaws.com/privacy")
-            }
+            onPress={() => openLink("https://conpaws.com/privacy")}
           >
             {t("settings.legal.privacyPolicy")}
           </ListItem>
           <ListItem
             leading={<LeadingIcon icon={FileText} />}
             trailing={<ExternalIndicator />}
-            onPress={() =>
-              WebBrowser.openBrowserAsync("https://conpaws.com/terms")
-            }
+            onPress={() => openLink("https://conpaws.com/terms")}
           >
             {t("settings.legal.termsOfService")}
           </ListItem>

@@ -12,6 +12,7 @@
     "done": "완료",
     "loading": "불러오는 중...",
     "error": "문제가 발생했어요",
+    "openLinkError": "링크를 열 수 없습니다",
     "retry": "다시 시도",
     "learnMore": "더 알아보기",
     "version": "버전 {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "햅틱 피드백",
       "hapticsError": "햅틱 설정을 저장하지 못했어요",
       "notifications": "알림",
-      "scheduleAutoCheck": "일정 변경 확인"
+      "scheduleAutoCheck": "일정 변경 확인",
+      "scheduleAutoCheckError": "일정 업데이트 설정을 저장하지 못했습니다"
     },
     "data": {
       "title": "데이터",

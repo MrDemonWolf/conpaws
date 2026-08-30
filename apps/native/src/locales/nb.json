@@ -12,6 +12,7 @@
     "done": "Ferdig",
     "loading": "Laster...",
     "error": "Noe gikk galt",
+    "openLinkError": "Kunne ikke åpne lenken",
     "retry": "Prøv igjen",
     "learnMore": "Les mer",
     "version": "Versjon {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptisk tilbakemelding",
       "hapticsError": "Kunne ikke lagre haptikkinnstillingen din",
       "notifications": "Varslinger",
-      "scheduleAutoCheck": "Se etter programendringer"
+      "scheduleAutoCheck": "Se etter programendringer",
+      "scheduleAutoCheckError": "Kunne ikke lagre innstillingen for programoppdateringer"
     },
     "data": {
       "title": "Data",

@@ -12,6 +12,7 @@
     "done": "Klaar",
     "loading": "Laden...",
     "error": "Er ging iets mis",
+    "openLinkError": "Kon die link niet openen",
     "retry": "Opnieuw proberen",
     "learnMore": "Meer informatie",
     "version": "Versie {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptische feedback",
       "hapticsError": "Je haptische instelling kon niet worden opgeslagen",
       "notifications": "Meldingen",
-      "scheduleAutoCheck": "Op programmawijzigingen controleren"
+      "scheduleAutoCheck": "Op programmawijzigingen controleren",
+      "scheduleAutoCheckError": "Kon je instelling voor programma-updates niet opslaan"
     },
     "data": {
       "title": "Gegevens",

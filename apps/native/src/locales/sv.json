@@ -12,6 +12,7 @@
     "done": "Klar",
     "loading": "Laddar...",
     "error": "Något gick fel",
+    "openLinkError": "Det gick inte att öppna länken",
     "retry": "Försök igen",
     "learnMore": "Läs mer",
     "version": "Version {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptisk återkoppling",
       "hapticsError": "Din haptikinställning kunde inte sparas",
       "notifications": "Aviseringar",
-      "scheduleAutoCheck": "Sök efter programändringar"
+      "scheduleAutoCheck": "Sök efter programändringar",
+      "scheduleAutoCheckError": "Det gick inte att spara din inställning för schemauppdateringar"
     },
     "data": {
       "title": "Data",

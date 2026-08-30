@@ -12,6 +12,7 @@
     "done": "Hotovo",
     "loading": "Načítání...",
     "error": "Něco se pokazilo",
+    "openLinkError": "Tento odkaz se nepodařilo otevřít",
     "retry": "Zkusit znovu",
     "learnMore": "Zjistit více",
     "version": "Verze {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptická odezva",
       "hapticsError": "Nastavení haptiky se nepodařilo uložit",
       "notifications": "Oznámení",
-      "scheduleAutoCheck": "Kontrolovat změny programu"
+      "scheduleAutoCheck": "Kontrolovat změny programu",
+      "scheduleAutoCheckError": "Nastavení aktualizací programu se nepodařilo uložit"
     },
     "data": {
       "title": "Data",

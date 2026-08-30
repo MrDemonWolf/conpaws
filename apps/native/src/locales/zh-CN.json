@@ -12,6 +12,7 @@
     "done": "完成",
     "loading": "加载中...",
     "error": "出了点问题",
+    "openLinkError": "无法打开该链接",
     "retry": "重试",
     "learnMore": "了解更多",
     "version": "版本 {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "触感反馈",
       "hapticsError": "无法保存你的触感反馈设置",
       "notifications": "通知",
-      "scheduleAutoCheck": "检查日程变更"
+      "scheduleAutoCheck": "检查日程变更",
+      "scheduleAutoCheckError": "无法保存日程更新设置"
     },
     "data": {
       "title": "数据",

@@ -1,10 +1,10 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 
 import { Card, EmptyState, Row, Text } from "@/components/ui";
 import licenseManifest from "@/generated/open-source-licenses.json";
+import { openExternal } from "@/lib/open-external";
 
 function safeExternalUrl(value: string) {
   return /^https?:\/\//i.test(value) ? value : "";
@@ -12,6 +12,17 @@ function safeExternalUrl(value: string) {
 
 export default function LicenseDetailsScreen() {
   const { t } = useTranslation();
+
+  // One place that catches the two rejections these links actually produce: a
+  // second tap while a browser is already up, and a `mailto:` on a device with
+  // no mail account. Both used to be unhandled and silent.
+  function openLink(url: string) {
+    void openExternal(url, {
+      errorTitle: t("common.error"),
+      errorMessage: t("common.openLinkError"),
+    });
+  }
+
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const index = Number(id);
@@ -74,7 +85,7 @@ export default function LicenseDetailsScreen() {
             <Row
               accessibilityRole="link"
               key={label}
-              onPress={() => WebBrowser.openBrowserAsync(url)}
+              onPress={() => openLink(url)}
               className="rounded-xl border border-border bg-card px-4"
               trailing={
                 <Text

@@ -1,4 +1,5 @@
 import type { Convention, NewConvention } from "@/db/schema";
+import { reportError } from "@/lib/error-reporting";
 
 /**
  * The order in which a convention write is followed through, kept out of the
@@ -63,7 +64,10 @@ export async function commitNewConvention(
   let convention: Convention;
   try {
     convention = await deps.create(draft);
-  } catch {
+  } catch (error) {
+    // The caller only ever shows a generic "could not save" alert, so without
+    // this the one failure that loses a user's typing is invisible to us.
+    reportError(error, { scope: "convention-commit.create" });
     return { ok: false, reason: "write-failed" };
   }
 
@@ -88,7 +92,8 @@ export async function commitConventionUpdate(
 ): Promise<ConventionCommitOutcome> {
   try {
     await deps.update(conventionId, patch);
-  } catch {
+  } catch (error) {
+    reportError(error, { scope: "convention-commit.update" });
     return { ok: false, reason: "write-failed" };
   }
 

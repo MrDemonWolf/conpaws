@@ -12,6 +12,7 @@
     "done": "Færdig",
     "loading": "Indlæser...",
     "error": "Noget gik galt",
+    "openLinkError": "Linket kunne ikke åbnes",
     "retry": "Prøv igen",
     "learnMore": "Læs mere",
     "version": "Version {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptisk feedback",
       "hapticsError": "Din indstilling for haptik kunne ikke gemmes",
       "notifications": "Notifikationer",
-      "scheduleAutoCheck": "Tjek for programændringer"
+      "scheduleAutoCheck": "Tjek for programændringer",
+      "scheduleAutoCheckError": "Din indstilling for programopdateringer kunne ikke gemmes"
     },
     "data": {
       "title": "Data",

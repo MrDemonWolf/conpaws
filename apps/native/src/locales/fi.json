@@ -12,6 +12,7 @@
     "done": "Valmis",
     "loading": "Ladataan...",
     "error": "Jokin meni pieleen",
+    "openLinkError": "Linkkiä ei voitu avata",
     "retry": "Yritä uudelleen",
     "learnMore": "Lue lisää",
     "version": "Versio {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Haptinen palaute",
       "hapticsError": "Haptiikka-asetusta ei voitu tallentaa",
       "notifications": "Ilmoitukset",
-      "scheduleAutoCheck": "Tarkista ohjelman muutokset"
+      "scheduleAutoCheck": "Tarkista ohjelman muutokset",
+      "scheduleAutoCheckError": "Ohjelmapäivitysasetuksen tallentaminen epäonnistui"
     },
     "data": {
       "title": "Tiedot",

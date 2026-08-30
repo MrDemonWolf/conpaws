@@ -12,6 +12,7 @@
     "done": "Selesai",
     "loading": "Memuatkan...",
     "error": "Ada masalah berlaku",
+    "openLinkError": "Tidak dapat membuka pautan itu",
     "retry": "Cuba lagi",
     "learnMore": "Ketahui lebih lanjut",
     "version": "Versi {{version}}",
@@ -427,7 +428,8 @@
       "haptics": "Maklum Balas Haptik",
       "hapticsError": "Tetapan haptik anda tidak dapat disimpan",
       "notifications": "Pemberitahuan",
-      "scheduleAutoCheck": "Semak perubahan jadual"
+      "scheduleAutoCheck": "Semak perubahan jadual",
+      "scheduleAutoCheckError": "Tidak dapat menyimpan tetapan kemas kini jadual"
     },
     "data": {
       "title": "Data",
