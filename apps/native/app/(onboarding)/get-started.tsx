@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { OnboardingButton } from "@/components/OnboardingButton";
 import { OnboardingProgress } from "@/components/OnboardingProgress";
-import { SafeView, Text } from "@/components/ui";
+import { Card, SafeView, Text } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { markOnboardingComplete } from "@/lib/onboarding-storage";
+import { themeTokens } from "@/lib/theme-tokens";
 
 export default function GetStartedScreen() {
   const { t } = useTranslation();
-  const iconColor = useResolvedColorScheme() === "dark" ? "#18B7F2" : "#005575";
+  const iconColor = themeTokens[useResolvedColorScheme()].primary;
 
   async function finishOnboarding(
     destination: "/convention/new/import" | "/(tabs)/(home)",
@@ -56,10 +57,10 @@ export default function GetStartedScreen() {
                 {t("onboarding.getStarted.subtitle")}
               </Text>
             </View>
-            <View
+            <Card
               accessible
               accessibilityLabel={t("onboarding.getStarted.localPrivacy")}
-              className="w-full max-w-sm flex-row items-center gap-3 rounded-2xl bg-card p-4"
+              className="w-full max-w-sm flex-row items-center gap-3"
             >
               <View
                 accessible={false}
@@ -75,7 +76,7 @@ export default function GetStartedScreen() {
               >
                 {t("onboarding.getStarted.localPrivacy")}
               </Text>
-            </View>
+            </Card>
           </View>
         </View>
       </ScrollView>

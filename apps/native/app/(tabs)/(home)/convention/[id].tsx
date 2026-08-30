@@ -14,13 +14,7 @@ import {
 } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccessibilityInfo,
-  Pressable,
-  ScrollView,
-  SectionList,
-  View,
-} from "react-native";
+import { AccessibilityInfo, ScrollView, SectionList, View } from "react-native";
 import {
   BlankConventionState,
   EMPTY_SCHEDULE_ICON,
@@ -34,7 +28,13 @@ import { ScheduleUpdateBanner } from "@/components/convention-detail/ScheduleUpd
 import { SwipeableEventRow } from "@/components/convention-detail/SwipeableEventRow";
 import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
-import { EmptyState, SafeView, ScheduleSkeleton, Text } from "@/components/ui";
+import {
+  Banner,
+  EmptyState,
+  SafeView,
+  ScheduleSkeleton,
+  Text,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
@@ -471,18 +471,12 @@ export default function ConventionDetailScreen() {
       <>
         <Stack.Screen options={{ title: t("convention.detail") }} />
         <View className="flex-1 bg-background">
-          <View className="flex-1 items-center justify-center px-6">
-            <Text variant="body" className="text-muted-foreground text-center">
-              {t("convention.notFound")}
-            </Text>
-            <Pressable
-              onPress={() => router.back()}
-              accessibilityRole="button"
-              className="mt-4 min-h-11 justify-center active:opacity-70"
-            >
-              <Text className="text-primary">{t("convention.goBack")}</Text>
-            </Pressable>
-          </View>
+          <EmptyState
+            icon="questionmark.folder"
+            title={t("convention.notFound")}
+            ctaLabel={t("convention.goBack")}
+            onCta={() => router.back()}
+          />
         </View>
       </>
     );
@@ -550,16 +544,12 @@ export default function ConventionDetailScreen() {
         overflow={reminderOverflow}
       />
       {conflictingEventIds.size > 0 ? (
-        <View className="mx-4 mb-2 rounded-xl bg-secondary px-3 py-2">
-          <Text variant="label" accessibilityRole="alert">
-            {t("convention.overlapSummary", {
-              count: conflictingEventIds.size,
-            })}
-          </Text>
-          <Text variant="caption" className="pt-0.5 text-muted-foreground">
-            {t("convention.overlapHelp")}
-          </Text>
-        </View>
+        <Banner
+          title={t("convention.overlapSummary", {
+            count: conflictingEventIds.size,
+          })}
+          body={t("convention.overlapHelp")}
+        />
       ) : null}
     </View>
   );

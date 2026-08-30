@@ -12,6 +12,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { View } from "react-native";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { themeTokens } from "@/lib/theme-tokens";
 import type { OnboardingButtonProps } from "./OnboardingButton.types";
 
 const buttonComponents = {
@@ -42,10 +43,8 @@ export function OnboardingButton({
         colorScheme={resolvedColorScheme}
         seedColor={
           variant === "primary"
-            ? "#005575"
-            : resolvedColorScheme === "dark"
-              ? "#18B7F2"
-              : "#005575"
+            ? themeTokens.light.primary
+            : themeTokens[resolvedColorScheme].primary
         }
         matchContents={{ vertical: true }}
         style={{ alignSelf: "stretch" }}

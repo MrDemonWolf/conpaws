@@ -21,7 +21,9 @@ export function OnboardingButton({
       size="md"
       disabled={disabled}
       testID={testID}
-      className="min-h-11 w-full"
+      // No min-h override: Button already sets the 48dp floor that both
+      // platform minimums need, and min-h-11 (44px) undercut it on Android.
+      className="w-full"
     >
       {label}
     </Button>

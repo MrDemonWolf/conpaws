@@ -39,6 +39,7 @@ const cssNames = {
   foreground: "foreground",
   destructiveForeground: "destructive-foreground",
   infoForeground: "info-foreground",
+  ageMatureForeground: "age-mature-foreground",
   successForeground: "success-foreground",
   mutedForeground: "muted-foreground",
 } as const;

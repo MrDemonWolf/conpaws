@@ -14,6 +14,46 @@ const TRANSLATIONS_UNAVAILABLE_MESSAGE =
   "Its text couldn't be loaded on this device. Nothing you saved is affected.";
 const TRANSLATIONS_UNAVAILABLE_RETRY = "Try Again";
 
+/**
+ * The shared scaffold behind all three fallbacks below.
+ *
+ * Deliberately not `EmptyState`, which is otherwise the right component for
+ * this shape: it renders through `@expo/ui`'s `Host` and `useTheme`, and every
+ * screen here exists precisely because part of the app failed to start. A
+ * fallback that can fail the same way as the thing it is covering is not a
+ * fallback. This uses nothing but `View`, `Text` and `Button`.
+ */
+function FallbackScreen({
+  title,
+  message,
+  actionLabel,
+  onAction,
+  testID,
+}: {
+  title: string;
+  message: string;
+  actionLabel: string;
+  onAction: () => void;
+  testID: string;
+}) {
+  return (
+    <View
+      className="flex-1 items-center justify-center gap-4 bg-background px-6"
+      testID={testID}
+    >
+      <Text variant="h3" className="text-center">
+        {title}
+      </Text>
+      <Text variant="body" className="text-center text-muted-foreground">
+        {message}
+      </Text>
+      <Button className="min-h-12 px-6" onPress={onAction}>
+        {actionLabel}
+      </Button>
+    </View>
+  );
+}
+
 /** Reports once per distinct error, not once per render of the fallback. */
 function useReportedOnce(error: Error, scope: string): void {
   const reportedRef = useRef<Error | null>(null);
@@ -37,20 +77,13 @@ export function ScreenErrorFallback({ error, retry }: ErrorBoundaryProps) {
   useReportedOnce(error, "render.screen");
 
   return (
-    <View
-      className="flex-1 items-center justify-center gap-4 bg-background px-6"
+    <FallbackScreen
       testID="screen-error-fallback"
-    >
-      <Text variant="h3" className="text-center">
-        {t("common.error")}
-      </Text>
-      <Text variant="body" className="text-center text-muted-foreground">
-        {t("errors.screen.message")}
-      </Text>
-      <Button className="min-h-12 px-6" onPress={() => void retry()}>
-        {t("common.retry")}
-      </Button>
-    </View>
+      title={t("common.error")}
+      message={t("errors.screen.message")}
+      actionLabel={t("common.retry")}
+      onAction={() => void retry()}
+    />
   );
 }
 
@@ -65,20 +98,13 @@ export function DatabaseUnavailableScreen({ error }: { error: Error }) {
   useReportedOnce(error, "db.unavailableScreen");
 
   return (
-    <View
-      className="flex-1 items-center justify-center gap-4 bg-background px-6"
+    <FallbackScreen
       testID="database-unavailable-screen"
-    >
-      <Text variant="h3" className="text-center">
-        {t("errors.database.title")}
-      </Text>
-      <Text variant="body" className="text-center text-muted-foreground">
-        {t("errors.database.message")}
-      </Text>
-      <Button className="min-h-12 px-6" onPress={() => void reloadAppAsync()}>
-        {t("common.retry")}
-      </Button>
-    </View>
+      title={t("errors.database.title")}
+      message={t("errors.database.message")}
+      actionLabel={t("common.retry")}
+      onAction={() => void reloadAppAsync()}
+    />
   );
 }
 
@@ -101,19 +127,12 @@ export function TranslationsUnavailableScreen({
   }, []);
 
   return (
-    <View
-      className="flex-1 items-center justify-center gap-4 bg-background px-6"
+    <FallbackScreen
       testID="translations-unavailable-screen"
-    >
-      <Text variant="h3" className="text-center">
-        {TRANSLATIONS_UNAVAILABLE_TITLE}
-      </Text>
-      <Text variant="body" className="text-center text-muted-foreground">
-        {TRANSLATIONS_UNAVAILABLE_MESSAGE}
-      </Text>
-      <Button className="min-h-12 px-6" onPress={onRetry}>
-        {TRANSLATIONS_UNAVAILABLE_RETRY}
-      </Button>
-    </View>
+      title={TRANSLATIONS_UNAVAILABLE_TITLE}
+      message={TRANSLATIONS_UNAVAILABLE_MESSAGE}
+      actionLabel={TRANSLATIONS_UNAVAILABLE_RETRY}
+      onAction={onRetry}
+    />
   );
 }

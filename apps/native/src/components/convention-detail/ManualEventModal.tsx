@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  Switch,
-  TextInput,
-  View,
-} from "react-native";
+import { Modal, Pressable, ScrollView, Switch, View } from "react-native";
 import { NativeDateTimeField } from "@/components/convention-detail/NativeDateTimeField";
-import { SafeView, Text, usePlaceholderTextColor } from "@/components/ui";
+import {
+  Card,
+  Input,
+  PRESS_DIM,
+  SafeView,
+  TAP_TARGET,
+  Text,
+} from "@/components/ui";
 import { confirmDiscardChanges } from "@/hooks/useUnsavedChangesGuard";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -66,7 +66,6 @@ function ManualEventModalContent({
 }: ManualEventModalProps) {
   const { t } = useTranslation();
   const locale = currentLocale();
-  const placeholderColor = usePlaceholderTextColor();
   const [values, setValues] = useState<ManualEventTextValues>(
     EMPTY_MANUAL_EVENT_TEXT,
   );
@@ -169,7 +168,11 @@ function ManualEventModalContent({
             disabled={saving}
             accessibilityRole="button"
             accessibilityLabel={t("convention.manualEvent.cancelLabel")}
-            className="min-h-11 min-w-11 justify-center pr-3 active:opacity-70 disabled:opacity-50"
+            className={cn(
+              TAP_TARGET,
+              "min-w-12 justify-center pr-3 disabled:opacity-50",
+              PRESS_DIM,
+            )}
           >
             <Text className="text-primary">{t("common.cancel")}</Text>
           </Pressable>
@@ -182,7 +185,11 @@ function ManualEventModalContent({
             accessibilityRole="button"
             accessibilityLabel={t("convention.manualEvent.saveLabel")}
             accessibilityState={{ disabled: saving, busy: saving }}
-            className="min-h-11 min-w-11 justify-center pl-3 active:opacity-70 disabled:opacity-50"
+            className={cn(
+              TAP_TARGET,
+              "min-w-12 justify-center pl-3 disabled:opacity-50",
+              PRESS_DIM,
+            )}
           >
             <Text className="text-primary font-semibold">
               {saving ? t("convention.manualEvent.saving") : t("common.save")}
@@ -196,24 +203,16 @@ function ManualEventModalContent({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: 16, gap: 16 }}
         >
-          <View className="gap-2">
-            <Text variant="label">
-              {t("convention.manualEvent.titleLabel")}
-            </Text>
-            <TextInput
-              value={values.title}
-              onChangeText={(value) => updateValue("title", value)}
-              placeholder={t("convention.manualEvent.titlePlaceholder")}
-              placeholderTextColor={placeholderColor}
-              autoFocus
-              accessibilityLabel={t(
-                "convention.manualEvent.titleAccessibility",
-              )}
-              className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-            />
-          </View>
+          <Input
+            label={t("convention.manualEvent.titleLabel")}
+            value={values.title}
+            onChangeText={(value) => updateValue("title", value)}
+            placeholder={t("convention.manualEvent.titlePlaceholder")}
+            autoFocus
+            accessibilityLabel={t("convention.manualEvent.titleAccessibility")}
+          />
 
-          <View className="overflow-hidden rounded-xl border border-border bg-card">
+          <Card className="overflow-hidden rounded-xl p-0">
             <NativeDateTimeField
               label={t("convention.manualEvent.dateLabel")}
               value={times.date}
@@ -286,19 +285,15 @@ function ManualEventModalContent({
                 }}
               />
             ) : null}
-          </View>
+          </Card>
 
-          <View className="gap-2">
-            <Text variant="label">{t("convention.manualEvent.roomLabel")}</Text>
-            <TextInput
-              value={values.room}
-              onChangeText={(value) => updateValue("room", value)}
-              placeholder={t("convention.manualEvent.roomPlaceholder")}
-              placeholderTextColor={placeholderColor}
-              accessibilityLabel={t("convention.manualEvent.roomAccessibility")}
-              className="bg-card text-foreground px-4 py-3 rounded-xl text-base border border-border"
-            />
-          </View>
+          <Input
+            label={t("convention.manualEvent.roomLabel")}
+            value={values.room}
+            onChangeText={(value) => updateValue("room", value)}
+            placeholder={t("convention.manualEvent.roomPlaceholder")}
+            accessibilityLabel={t("convention.manualEvent.roomAccessibility")}
+          />
 
           <Text variant="caption" selectable>
             {t("convention.manualEvent.timeZoneHelp", { timeZone })}

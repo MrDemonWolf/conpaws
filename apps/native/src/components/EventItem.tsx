@@ -1,7 +1,7 @@
 import { AlertTriangle, Clock, Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, useColorScheme, View } from "react-native";
-import { Badge, type BadgeVariant, Text } from "@/components/ui";
+import { Badge, type BadgeVariant, PRESS_DIM, Text } from "@/components/ui";
 import type { ClusterPosition } from "@/lib/day-band";
 import type { AgeRating } from "@/lib/event-categories";
 import { themeTokens } from "@/lib/theme-tokens";
@@ -168,7 +168,8 @@ export function EventItem({
       className={cn(
         // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
         // the old py-2 broke.
-        "min-h-14 flex-row gap-3 border-b border-border px-4 py-3 active:opacity-70",
+        "min-h-14 flex-row gap-3 border-b border-border px-4 py-3",
+        PRESS_DIM,
         // Overlap-group chrome: shared tint + accent edge mark every row of
         // the cluster; the edge, not colour alone, carries the grouping.
         inCluster && "bg-card",
@@ -217,9 +218,12 @@ export function EventItem({
             {contentWarning ? (
               <AlertTriangle
                 size={15}
-                // Matches --color-age-mature-foreground in global.css, which
-                // theme-contrast.test.ts holds at AAA against the card.
-                color={isDark ? "#fed7aa" : "#7c2d12"}
+                // --color-age-mature-foreground, held at AAA against the card
+                // by theme-contrast.test.ts. Read from themeTokens rather than
+                // retyped, so theme-tokens.test.ts covers it too.
+                color={
+                  themeTokens[isDark ? "dark" : "light"].ageMatureForeground
+                }
               />
             ) : null}
             {isInSchedule && showScheduleIndicator ? (

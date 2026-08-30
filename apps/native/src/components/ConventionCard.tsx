@@ -3,7 +3,7 @@ import MoreVertIcon from "@expo/material-symbols/more_vert.xml";
 import { Host, Icon } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
 import { Pressable, View } from "react-native";
-import { Text } from "@/components/ui";
+import { PRESS_DIM, Text } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { cn } from "@/lib/utils";
 
@@ -59,7 +59,10 @@ export function ConventionCard({
         accessibilityRole="button"
         accessibilityLabel={`${name}, ${dateRange}, ${statusLabel}`}
         onPress={onPress}
-        className="flex-1 flex-row items-center gap-3 px-1 py-3 active:opacity-60"
+        className={cn(
+          "flex-1 flex-row items-center gap-3 px-1 py-3",
+          PRESS_DIM,
+        )}
       >
         <View className="flex-1 gap-1">
           <Text variant="body" className="font-semibold">
@@ -92,7 +95,7 @@ export function ConventionCard({
           accessibilityLabel={moreAccessibilityLabel}
           hitSlop={4}
           onPress={onMorePress}
-          className="w-11 items-center justify-center active:opacity-60"
+          className={cn("w-11 items-center justify-center", PRESS_DIM)}
         >
           <Host colorScheme={colorScheme} matchContents pointerEvents="none">
             <Icon name={MORE_ICON} size={22} color={colors.text} />
