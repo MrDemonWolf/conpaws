@@ -69,7 +69,14 @@ export default function AppearanceScreen() {
 
             return (
               <ListItem
-                key={preference}
+                // Selected state is in the key because @expo/ui's Android
+                // ListItem mounts its `trailing` slot once and then leaves it
+                // alone: it unmounts a slot that becomes `undefined` but never
+                // mounts a new one, so the checkmark vanished off the old row
+                // and never appeared on the new one. Remounting the two rows
+                // that flipped is what makes the tick move. Verified on the
+                // reminder-default screen, which had the identical bug.
+                key={`${preference}-${isSelected}`}
                 testID={`appearance-${preference}`}
                 leading={<Icon name={APPEARANCE_ICONS[preference]} size={22} />}
                 supportingText={
