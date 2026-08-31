@@ -1,3 +1,4 @@
+import { readDeployEnv } from "@conpaws/env/deploy";
 import alchemy from "alchemy";
 import { D1Database, Nextjs, Worker } from "alchemy/cloudflare";
 import { CloudflareStateStore } from "alchemy/state";
@@ -5,6 +6,28 @@ import { config } from "dotenv";
 
 config({ path: "./.env" });
 config({ path: "../../apps/web/.env" });
+
+/**
+ * Everything this program reads from the environment, validated once, before
+ * any resource is created.
+ *
+ * It used to read `process.env` inline with `?? ""` fallbacks, which meant an
+ * unset or mistyped variable was indistinguishable from a deliberate empty
+ * one. LISTMONK_LIST_ID was the sharp edge: nothing checked it was a positive
+ * integer, so a typo bound a value `readListmonkConfig` rejects at the edge —
+ * the signup route 503s, the reconciler no-ops, and the deploy reports
+ * success. A live waitlist stops taking signups with nothing to see.
+ *
+ * TURNSTILE_SECRET_KEY had no fallback while the four listmonk values did,
+ * which was never a decision. It is settled the strict way: all of them are
+ * required, and a deploy that could not serve the waitlist fails here rather
+ * than on Cloudflare.
+ *
+ * `--destroy` runs the same program and therefore needs the same variables
+ * present. That is a real cost, and the right side to err on: the alternative
+ * is a validation hole that a normal deploy could fall through.
+ */
+const env = readDeployEnv(process.env);
 
 /**
  * Production infrastructure for ConPaws.
@@ -26,7 +49,7 @@ const app = await alchemy("conpaws", {
   // it, serializing a secret fails outright — and the alternative, binding
   // credentials as plain strings, would put TURNSTILE_SECRET_KEY in the
   // Cloudflare dashboard as readable plaintext and in state unencrypted.
-  password: process.env.ALCHEMY_PASSWORD,
+  password: env.ALCHEMY_PASSWORD,
   // Shared account-wide state store: one Durable-Object-backed worker named
   // `alchemy-state`, shared by every MrDemonWolf Alchemy app. Alchemy
   // namespaces state by app, so this app lives under the "conpaws" scope.
@@ -34,7 +57,7 @@ const app = await alchemy("conpaws", {
   stateStore: (scope) =>
     new CloudflareStateStore(scope, {
       scriptName: "alchemy-state",
-      stateToken: alchemy.secret(process.env.ALCHEMY_STATE_TOKEN),
+      stateToken: alchemy.secret(env.ALCHEMY_STATE_TOKEN),
     }),
 });
 
@@ -134,24 +157,28 @@ const RECONCILER_LIMITS = { cpu_ms: 5_000 } as const;
  * The ESP is self-hosted listmonk at lists.mrdemonwolf.com, sending via SES.
  *
  * These read from the deploy environment (packages/infra/.env locally, repo
- * secrets in CI). Any missing value makes `readListmonkConfig` return null,
- * which is the signal the signup route and the reconciler fail closed on: 503
- * and a no-op respectively. That is the intended state while the public form is
- * still closed (WAITLIST_ACCEPTING_SIGNUPS in
- * apps/web/src/components/waitlist.tsx), so an unset token degrades safely
- * rather than half-opening the waitlist.
+ * secrets and variables in CI) and are validated at the top of this file.
+ *
+ * `readListmonkConfig` still fails closed at the edge on anything missing —
+ * 503 from the signup route, a no-op from the reconciler — and that runtime
+ * guard stays, because a binding can be removed in the dashboard without
+ * touching this file. It is no longer the first line of defence: the form is
+ * open and taking real signups, so a deploy missing any of these is a mistake
+ * to stop on the deploying machine, not a state to degrade into quietly.
  *
  * LISTMONK_LIST_ID is 3, the private double opt-in "ConPaws Waitlist" list.
  * listmonk's /api is deliberately outside Cloudflare Access, so the API token
  * is the only credential needed — no Access service token.
  */
 const waitlistSecrets = {
-  LISTMONK_BASE_URL: process.env.LISTMONK_BASE_URL ?? "",
-  LISTMONK_API_USER: process.env.LISTMONK_API_USER ?? "",
+  LISTMONK_BASE_URL: env.LISTMONK_BASE_URL,
+  LISTMONK_API_USER: env.LISTMONK_API_USER,
   // The only real credential of the four, so it gets the same encrypted-at-rest
   // treatment as TURNSTILE_SECRET_KEY. The other three are configuration.
-  LISTMONK_API_TOKEN: alchemy.secret(process.env.LISTMONK_API_TOKEN ?? ""),
-  LISTMONK_LIST_ID: process.env.LISTMONK_LIST_ID ?? "",
+  LISTMONK_API_TOKEN: alchemy.secret(env.LISTMONK_API_TOKEN),
+  // Bindings are strings; the number was parsed only so a non-number fails the
+  // deploy instead of reaching `readListmonkConfig` at the edge.
+  LISTMONK_LIST_ID: String(env.LISTMONK_LIST_ID),
 };
 
 /**
@@ -181,19 +208,16 @@ export const web = await Nextjs("web", {
   limits: WEB_LIMITS,
   // conpaws.com is attached only once the routes switch is on, so the first
   // deploy of any change lands on a Worker nothing points at yet.
-  domains:
-    process.env.ROUTES_ENABLED === "true"
-      ? ["conpaws.com", "www.conpaws.com"]
-      : undefined,
+  domains: env.ROUTES_ENABLED ? ["conpaws.com", "www.conpaws.com"] : undefined,
   // Both public workers.dev surfaces default OFF. A stable workers.dev URL is a
   // second, indexable copy of the site; version previews are useful but should
   // be a deliberate choice. Toggle per environment with repo variables rather
   // than by editing code or clicking in the dashboard.
-  url: process.env.WORKERS_DEV_ENABLED === "true",
-  previewSubdomains: process.env.PREVIEW_URLS_ENABLED === "true",
+  url: env.WORKERS_DEV_ENABLED,
+  previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     DB: db,
-    TURNSTILE_SECRET_KEY: alchemy.secret(process.env.TURNSTILE_SECRET_KEY),
+    TURNSTILE_SECRET_KEY: alchemy.secret(env.TURNSTILE_SECRET_KEY),
     ...waitlistSecrets,
   },
   dev: {
