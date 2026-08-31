@@ -46,7 +46,7 @@ export function PageShell({
         narrow ? "max-w-[760px]" : "max-w-[1120px]",
       )}
     >
-      <nav className="relative z-20 flex items-center justify-between py-7">
+      <nav className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu">
         <Link href="/" className="flex items-center gap-3">
           <CompassPaw className="h-10 w-10 text-primary" />
           <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
@@ -76,7 +76,7 @@ function PageFooter({ messages }: { messages: Messages }) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative z-10 mt-24 border-border border-t pt-8">
+    <footer className="relative z-content mt-24 border-border border-t pt-8">
       <div className="flex flex-wrap items-center justify-between gap-6">
         <p className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
           {messages.footer.copyright.replace("{year}", String(year))}{" "}

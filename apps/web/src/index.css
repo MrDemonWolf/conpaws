@@ -39,6 +39,39 @@ h3 {
   letter-spacing: -0.02em;
 }
 
+/* The page's stacking order, named once so nothing has to guess.
+ *
+ * These five are the only cross-component layers; anything else is local to
+ * one component's own stacking context and stays a bare `z-10` there, where
+ * it competes with its siblings and nothing else.
+ *
+ * The order is load-bearing, not decorative:
+ *
+ *   content < nav   — sections must not paint over the nav.
+ *   nav     < badge — the hero badge hangs on a lanyard that runs off the top
+ *                     of the hero and past the nav. Below the nav it reads as
+ *                     clipped rather than hung.
+ *   badge   < menu  — but the language menu lives inside the nav, so the nav's
+ *                     own z-index traps it under the badge, and the badge then
+ *                     covers most of the list and swallows its clicks. `nav`
+ *                     rises to this layer only while the menu is open, which
+ *                     is the one moment the badge must lose.
+ *   menu    < grain — the film-grain overlay is a fixed, pointer-events-none
+ *                     film over the finished page, so it sits on top of all
+ *                     of it by design.
+ *
+ * Plain `@theme`, not `@theme inline`: `inline` resolves tokens into the
+ * generated utilities and emits no `:root` custom property, and the grain
+ * overlay below reads `var(--z-index-grain)` directly.
+ */
+@theme {
+  --z-index-content: 10;
+  --z-index-nav: 20;
+  --z-index-badge: 30;
+  --z-index-menu: 40;
+  --z-index-grain: 50;
+}
+
 @theme inline {
   --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   --font-display:
@@ -79,7 +112,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--z-index-grain);
   pointer-events: none;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");

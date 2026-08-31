@@ -114,7 +114,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
     // badge spans both in column 2, so it still sits beside the name field
     // that drives it. Row gap replaces the `mt-8` the form used to carry.
     <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-x-16">
-      <div className="relative z-10 pt-6 md:col-start-1 md:row-start-1 md:pt-14">
+      <div className="relative z-content pt-6 md:col-start-1 md:row-start-1 md:pt-14">
         <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[11px] text-primary uppercase tracking-[0.24em]">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
@@ -151,16 +151,18 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
         </p>
       </div>
 
-      {/* The badge hangs in front of everything: above the nav (z-20) and
-          above every section below (z-10). Its lanyard runs off the top of
-          the hero, so anything lower makes it look clipped rather than hung.
-          This only works while the hero section stays free of a z-index --
-          see the note in (marketing)/page.tsx. */}
-      <div className="relative z-40 md:col-start-2 md:row-span-2 md:row-start-1 md:pt-2">
+      {/* The badge hangs in front of the nav and every section below it. Its
+          lanyard runs off the top of the hero, so anything lower makes it look
+          clipped rather than hung. This only works while the hero section
+          stays free of a z-index -- see the note in landing.tsx.
+
+          The one thing that must beat it is the language menu, which lives
+          inside the nav: see the `z-menu` note in index.css. */}
+      <div className="relative z-badge md:col-start-2 md:row-span-2 md:row-start-1 md:pt-2">
         <Badge name={name} />
       </div>
 
-      <div className="relative z-10 md:col-start-1 md:row-start-2">
+      <div className="relative z-content md:col-start-1 md:row-start-2">
         {status === "done" ? (
           <div className="max-w-[440px] rounded-2xl border border-primary/40 bg-primary/10 p-6">
             <p className="font-bold text-[17px]">{messages.doneTitle}</p>
