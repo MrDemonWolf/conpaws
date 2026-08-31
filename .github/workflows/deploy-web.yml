@@ -90,6 +90,10 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          # Build-time and client-side. Without it the env schema falls back to
+          # localhost, which makes robots.txt ask crawlers to stay away -- the
+          # preview behaviour, served from production.
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
           LISTMONK_BASE_URL: ${{ vars.LISTMONK_BASE_URL }}
           LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
           LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
@@ -117,9 +121,16 @@ jobs:
           # inlines into the bundle, not a Worker binding. Without it the widget
           # never renders, the client posts an empty token, and every real signup
           # gets a 400. Hence a variable, not a secret.
+          #
+          # NEXT_PUBLIC_SITE_URL is required for the same shape of reason. The
+          # env schema defaults it to localhost so that an unset value is
+          # treated as "not the canonical host", which is what robots.ts wants
+          # everywhere except production. On production that default is exactly
+          # wrong: it would serve `disallow: /` and ask Google to forget the
+          # site. Better to refuse the deploy.
           missing=()
           for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN ALCHEMY_PASSWORD \
-            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY; do
+            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY NEXT_PUBLIC_SITE_URL; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
             fi
@@ -153,6 +164,10 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          # Build-time and client-side. Without it the env schema falls back to
+          # localhost, which makes robots.txt ask crawlers to stay away -- the
+          # preview behaviour, served from production.
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
           LISTMONK_BASE_URL: ${{ vars.LISTMONK_BASE_URL }}
           LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
           LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
