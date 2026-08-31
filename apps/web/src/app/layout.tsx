@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Montserrat, Roboto, Roboto_Mono } from "next/font/google";
 
 import "../index.css";
+import { LocaleDetect } from "@/components/locale-detect";
 import Providers from "@/components/providers";
 import { ServiceWorker } from "@/components/service-worker";
 import { getMessages } from "@/i18n";
@@ -89,6 +90,9 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${roboto.variable} ${robotoMono.variable} font-sans antialiased`}
       >
+        {/* First thing in the body so the language redirect is decided before
+            anything paints. Everything below it is content. */}
+        <LocaleDetect />
         <Providers>{children}</Providers>
         <ServiceWorker />
       </body>
