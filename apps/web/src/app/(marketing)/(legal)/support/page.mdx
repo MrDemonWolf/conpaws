@@ -1,4 +1,8 @@
 export const metadata = {
+  // In PUBLIC_ROUTES and the sitemap, so it needs to say which URL is the
+  // real one -- otherwise a preview host or a query string is free to become
+  // a competing copy of the same page.
+  alternates: { canonical: "/support" },
   title: "Support",
   description: "Get help with ConPaws and report beta issues.",
 };

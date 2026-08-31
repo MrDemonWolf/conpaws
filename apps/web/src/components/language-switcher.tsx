@@ -1,5 +1,5 @@
 import { LOCALES, type Locale } from "@/i18n/config";
-import { localeHref } from "@/i18n/routing";
+import { localeHref, publishedLocales } from "@/i18n/routing";
 
 /**
  * Language picker.
@@ -33,6 +33,8 @@ export function LanguageSwitcher({
   label: string;
 }) {
   const active = LOCALES.find((l) => l.code === current) ?? LOCALES[0];
+  const published = new Set(publishedLocales());
+  const menuLocales = LOCALES.filter((l) => published.has(l.code));
 
   return (
     <details className="group relative" data-lang-menu>
@@ -70,7 +72,12 @@ export function LanguageSwitcher({
         aria-label={label}
         className="absolute right-0 z-10 mt-2 max-h-[60vh] w-[220px] overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.8)]"
       >
-        {LOCALES.map((locale) => (
+        {/* `publishedLocales()`, not LOCALES: `[locale]/page.tsx` sets
+            `dynamicParams = false`, so a locale listed in config without a
+            catalog is a hard 404 -- reached from the site's own menu, by
+            exactly the visitor who cannot read the page they land on. This
+            works today only because all 23 catalogs happen to exist. */}
+        {menuLocales.map((locale) => (
           <a
             key={locale.code}
             href={localeHref(locale.code)}
