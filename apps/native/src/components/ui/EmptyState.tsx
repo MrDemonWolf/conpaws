@@ -78,7 +78,17 @@ export function EmptyState({
             style={{ width: compact ? 28 : 52, height: compact ? 28 : 52 }}
           >
             <Icon
-              color={compact ? colors.primary : undefined}
+              // An untinted Compose Icon paints black, so the large empty-state
+              // icon was invisible on Android in dark mode -- the "No
+              // conventions yet" screen simply had no icon. SwiftUI resolves
+              // the unset case against the appearance, so iOS keeps it.
+              color={
+                compact
+                  ? colors.primary
+                  : Platform.OS === "android"
+                    ? colors.text
+                    : undefined
+              }
               name={icon}
               size={compact ? 28 : 52}
             />

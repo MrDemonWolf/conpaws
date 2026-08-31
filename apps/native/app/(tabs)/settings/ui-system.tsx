@@ -9,7 +9,6 @@ import {
   ListItem,
   Button as NativeButton,
   Switch as NativeSwitch,
-  Text as NativeText,
   TextInput as NativeTextInput,
   RNHostView,
   Row,
@@ -34,6 +33,7 @@ import {
   ScheduleSkeleton,
   Text,
 } from "@/components/ui";
+import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   getAppearancePreference,
@@ -211,6 +211,7 @@ export default function UiSystemScreen() {
         <FieldGroup.Section title="Accessibility type">
           <ListItem supportingText="Large title · accessibility scalable">
             <NativeText
+              tone="foreground"
               textStyle={{ fontSize: 34, fontWeight: "700" }}
               modifiers={[font({ textStyle: "largeTitle", weight: "bold" })]}
             >
@@ -219,6 +220,7 @@ export default function UiSystemScreen() {
           </ListItem>
           <ListItem supportingText="Body · accessibility scalable">
             <NativeText
+              tone="foreground"
               textStyle={{ fontSize: 17 }}
               modifiers={[font({ textStyle: "body" })]}
             >
@@ -227,6 +229,7 @@ export default function UiSystemScreen() {
           </ListItem>
           <ListItem supportingText="Caption · accessibility scalable">
             <NativeText
+              tone="foreground"
               textStyle={{ fontSize: 12 }}
               modifiers={[font({ textStyle: "caption" })]}
             >

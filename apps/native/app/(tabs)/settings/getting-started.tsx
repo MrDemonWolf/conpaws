@@ -1,7 +1,8 @@
-import { FieldGroup, Host, ListItem, Text as NativeText } from "@expo/ui";
+import { FieldGroup, Host, ListItem } from "@expo/ui";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
+import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 
 /**

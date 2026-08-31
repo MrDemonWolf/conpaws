@@ -5,7 +5,6 @@ import {
   Host,
   ListItem,
   Button as NativeButton,
-  Text as NativeText,
   TextInput as NativeTextInput,
   useNativeState,
 } from "@expo/ui";
@@ -23,6 +22,7 @@ import { AccessibilityInfo, ActivityIndicator, Alert } from "react-native";
 import { TimeZonePickerModal } from "@/components/ConventionFormFields";
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
+import { NativeText } from "@/components/ui/NativeText";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
