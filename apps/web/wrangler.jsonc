@@ -17,7 +17,19 @@
   "main": ".open-next/worker.js",
   "workers_dev": false,
   "preview_urls": false,
-  "compatibility_date": "2026-08-20",
+  // MUST equal COMPATIBILITY_DATE in packages/infra/alchemy.run.ts, which is
+  // what production actually applies. This file said 2026-08-20 while
+  // production ran 2026-03-10, so local preview and CI's smoke test exercised
+  // five months of different runtime semantics from the deployed Worker --
+  // which is how a runtime-dependent bug passes CI and only appears in
+  // production. Bumping the runtime is a deliberate act: change both, together,
+  // and redeploy.
+  //
+  // The compatibility FLAGS below are not duplicated in the Alchemy program on
+  // purpose: its `Nextjs` resource injects nodejs_compat and
+  // global_fetch_strictly_public itself, so production already has exactly
+  // these two.
+  "compatibility_date": "2026-03-10",
 
   // nodejs_compat is required by OpenNext. global_fetch_strictly_public makes
   // the Worker's own fetch() behave like a public request rather than looping

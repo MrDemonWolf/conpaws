@@ -43,6 +43,16 @@ const app = await alchemy("conpaws", {
  * installed miniflare reports as its supported date, so leaving it unset means
  * a routine dependency update can silently change production runtime
  * semantics. Bump it on purpose, not by accident.
+ *
+ * `apps/web/wrangler.jsonc` MUST carry the same date. It drifted to
+ * 2026-08-20 while production stayed here, so local preview and CI's Worker
+ * smoke test ran five months of different runtime semantics from the
+ * deployed Worker -- exactly the gap a runtime-dependent bug slips through.
+ * Bumping is deliberate: change both files together and redeploy.
+ *
+ * Compatibility flags need no entry here. Alchemy's `Nextjs` resource injects
+ * `nodejs_compat` and `global_fetch_strictly_public`, which is the same pair
+ * wrangler.jsonc declares.
  */
 const COMPATIBILITY_DATE = "2026-03-10";
 
