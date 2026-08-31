@@ -6,7 +6,7 @@ import { getCalendars } from "expo-localization";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SectionList, View } from "react-native";
+import { SectionList, useWindowDimensions, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
 import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -127,6 +127,12 @@ export default function ScheduleScreen() {
   const { conventionId } = useLocalSearchParams<{ conventionId?: string }>();
   const { t } = useTranslation();
   const locale = currentLocale();
+  // iOS applies a Dynamic Type change to a running app, but a VirtualizedList
+  // keeps the heights it measured for cells it has already built. Rows then
+  // draw larger text inside an unchanged box and the glyphs are sliced through
+  // the middle. Cold starts are fine, which is why this survived: the damage
+  // only shows when the setting is changed while the app is open.
+  const { fontScale } = useWindowDimensions();
   const hour12 = deviceHour12();
   const queryClient = useQueryClient();
 
@@ -274,6 +280,14 @@ export default function ScheduleScreen() {
         alwaysBounceVertical={shouldBounceSchedule(days)}
         sections={days}
         keyExtractor={(entry) => entry.id}
+        // Day headers and row times are formatted at render from values that
+        // are not part of `days`, and VirtualizedList reuses cached cells
+        // whenever the data identity is unchanged. Without this, changing the
+        // language left every already-rendered header and time in the previous
+        // language -- English chrome above Russian day headers -- until a cold
+        // start. A joined string rather than an object so the identity only
+        // changes when one of these actually does.
+        extraData={`${locale}|${hour12}|${showConventionName}|${fontScale}`}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={
           days.length === 0
