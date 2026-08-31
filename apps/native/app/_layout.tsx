@@ -1,23 +1,60 @@
+// Locale data for the Intl polyfills, one file per language.
+//
+// These lists MUST cover SUPPORTED_LANGUAGES. They did not: the app grew
+// from 8 languages to 23 and these stayed at the original 8, so thirteen
+// languages fell back to English date formatting -- a Russian UI rendered
+// "Sep 3, 2026", visibly wrong and reported by nobody, because a date that
+// formats in the wrong language still formats. `locales-intl-data.test.ts`
+// now fails if the two lists drift apart again.
+//
+// Regional variants fold onto a base file (es-419 and es-ES both read es);
+// Chinese needs the script-tagged data rather than zh-CN/zh-TW.
 import "@formatjs/intl-getcanonicallocales/polyfill.js";
 import "@formatjs/intl-locale/polyfill.js";
 import "@formatjs/intl-pluralrules/polyfill.js";
-import "@formatjs/intl-pluralrules/locale-data/de.js";
 import "@formatjs/intl-pluralrules/locale-data/en.js";
 import "@formatjs/intl-pluralrules/locale-data/es.js";
-import "@formatjs/intl-pluralrules/locale-data/fr.js";
-import "@formatjs/intl-pluralrules/locale-data/nl.js";
-import "@formatjs/intl-pluralrules/locale-data/pl.js";
 import "@formatjs/intl-pluralrules/locale-data/pt.js";
+import "@formatjs/intl-pluralrules/locale-data/ja.js";
+import "@formatjs/intl-pluralrules/locale-data/zh.js";
+import "@formatjs/intl-pluralrules/locale-data/ko.js";
+import "@formatjs/intl-pluralrules/locale-data/de.js";
+import "@formatjs/intl-pluralrules/locale-data/fr.js";
+import "@formatjs/intl-pluralrules/locale-data/pl.js";
+import "@formatjs/intl-pluralrules/locale-data/it.js";
+import "@formatjs/intl-pluralrules/locale-data/nl.js";
+import "@formatjs/intl-pluralrules/locale-data/ms.js";
 import "@formatjs/intl-pluralrules/locale-data/sv.js";
+import "@formatjs/intl-pluralrules/locale-data/da.js";
+import "@formatjs/intl-pluralrules/locale-data/nb.js";
+import "@formatjs/intl-pluralrules/locale-data/fi.js";
+import "@formatjs/intl-pluralrules/locale-data/cs.js";
+import "@formatjs/intl-pluralrules/locale-data/hu.js";
+import "@formatjs/intl-pluralrules/locale-data/uk.js";
+import "@formatjs/intl-pluralrules/locale-data/ru.js";
 import "@formatjs/intl-datetimeformat/polyfill.js";
-import "@formatjs/intl-datetimeformat/locale-data/de.js";
 import "@formatjs/intl-datetimeformat/locale-data/en.js";
 import "@formatjs/intl-datetimeformat/locale-data/es.js";
-import "@formatjs/intl-datetimeformat/locale-data/fr.js";
-import "@formatjs/intl-datetimeformat/locale-data/nl.js";
-import "@formatjs/intl-datetimeformat/locale-data/pl.js";
 import "@formatjs/intl-datetimeformat/locale-data/pt.js";
+import "@formatjs/intl-datetimeformat/locale-data/ja.js";
+import "@formatjs/intl-datetimeformat/locale-data/zh.js";
+import "@formatjs/intl-datetimeformat/locale-data/zh-Hans.js";
+import "@formatjs/intl-datetimeformat/locale-data/zh-Hant.js";
+import "@formatjs/intl-datetimeformat/locale-data/ko.js";
+import "@formatjs/intl-datetimeformat/locale-data/de.js";
+import "@formatjs/intl-datetimeformat/locale-data/fr.js";
+import "@formatjs/intl-datetimeformat/locale-data/pl.js";
+import "@formatjs/intl-datetimeformat/locale-data/it.js";
+import "@formatjs/intl-datetimeformat/locale-data/nl.js";
+import "@formatjs/intl-datetimeformat/locale-data/ms.js";
 import "@formatjs/intl-datetimeformat/locale-data/sv.js";
+import "@formatjs/intl-datetimeformat/locale-data/da.js";
+import "@formatjs/intl-datetimeformat/locale-data/nb.js";
+import "@formatjs/intl-datetimeformat/locale-data/fi.js";
+import "@formatjs/intl-datetimeformat/locale-data/cs.js";
+import "@formatjs/intl-datetimeformat/locale-data/hu.js";
+import "@formatjs/intl-datetimeformat/locale-data/uk.js";
+import "@formatjs/intl-datetimeformat/locale-data/ru.js";
 import "@formatjs/intl-datetimeformat/add-all-tz.js";
 import "../src/global.css";
 // Starts Sentry from a bare import so it is running before the imports below
