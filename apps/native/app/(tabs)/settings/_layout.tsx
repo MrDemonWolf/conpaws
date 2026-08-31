@@ -66,6 +66,13 @@ export default function SettingsLayout() {
         options={{ title: t("settings.app.theme"), ...hostedScreenOptions }}
       />
       <Stack.Screen
+        name="reminder-default"
+        options={{
+          title: t("settings.notifications.defaultLead"),
+          ...hostedScreenOptions,
+        }}
+      />
+      <Stack.Screen
         name="getting-started"
         options={{
           title: t("settings.help.gettingStarted"),

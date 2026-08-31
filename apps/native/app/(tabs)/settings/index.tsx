@@ -8,9 +8,9 @@ import {
   Picker,
 } from "@expo/ui";
 import Constants from "expo-constants";
-import { type Href, router } from "expo-router";
+import { type Href, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, Linking } from "react-native";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
@@ -26,6 +26,7 @@ import { developerToolsEnabled } from "@/lib/developer-tools";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
 import { openExternal } from "@/lib/open-external";
+import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getCachedDefaultReminderMinutes,
   getDefaultReminderMinutes,
@@ -175,9 +176,14 @@ export default function SettingsScreen() {
   const [defaultLead, setDefaultLead] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
-  useEffect(() => {
-    void getDefaultReminderMinutes().then(setDefaultLead);
-  }, []);
+  // On focus, not just on mount: Android sets this on a pushed screen, so the
+  // row would otherwise keep showing the value from before the trip and only
+  // catch up on relaunch. iOS changes it in place and re-reads harmlessly.
+  useFocusEffect(
+    useCallback(() => {
+      void getDefaultReminderMinutes().then(setDefaultLead);
+    }, []),
+  );
 
   const defaultLeadPicker = (
     <Picker
@@ -265,24 +271,36 @@ export default function SettingsScreen() {
           >
             {t("settings.notifications.permission")}
           </ListItem>
-          {/* The same picker, placed differently per platform. On iOS it is a
-              compact SwiftUI menu and belongs in the trailing slot. On Android
-              @expo/ui renders a Material 3 ExposedDropdownMenuBox, whose anchor
-              is a full-width TextField -- in a trailing slot it took the whole
-              row and squeezed the label and its description down to about one
-              character per line. Material puts a dropdown under its label
-              anyway, so Android gets its own full-width row. */}
-          {/* Two siblings, never a fragment: FieldGroup.Section walks its own
-              children and throws on a wrapper. */}
+          {/* The same choice, offered differently per platform. On iOS the
+              SwiftUI menu is compact and belongs in the trailing slot. On
+              Android @expo/ui renders a Material 3 ExposedDropdownMenuBox whose
+              anchor is a bare TextField: unlabelled, sized to its own content
+              rather than the row, and trailing an underline past its own edge.
+              The universal Picker takes no `style` and no `label`, so Android
+              pushes a list of rows instead -- the same shape as Theme and
+              Language directly above, and how Material selects from a list
+              anyway. */}
           <ListItem
-            supportingText={t("settings.notifications.defaultLeadDescription")}
+            supportingText={
+              process.env.EXPO_OS === "ios"
+                ? t("settings.notifications.defaultLeadDescription")
+                : reminderDefaultLabel(defaultLead, t)
+            }
             trailing={
-              process.env.EXPO_OS === "ios" ? defaultLeadPicker : undefined
+              process.env.EXPO_OS === "ios" ? (
+                defaultLeadPicker
+              ) : (
+                <NavigationIndicator />
+              )
+            }
+            onPress={
+              process.env.EXPO_OS === "ios"
+                ? undefined
+                : () => router.push("/settings/reminder-default" as Href)
             }
           >
             {t("settings.notifications.defaultLead")}
           </ListItem>
-          {process.env.EXPO_OS === "ios" ? null : defaultLeadPicker}
         </FieldGroup.Section>
 
         <FieldGroup.Section
