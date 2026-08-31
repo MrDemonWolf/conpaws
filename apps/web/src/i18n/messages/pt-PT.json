@@ -9,7 +9,10 @@
   "nav": {
     "established": "Desde 2025",
     "languageLabel": "Idioma",
-    "back": "Voltar"
+    "back": "Voltar",
+    "skipToContent": "Saltar para o conteúdo",
+    "primaryLabel": "Cabeçalho do site",
+    "footerLabel": "Jurídico e apoio"
   },
   "ticker": {
     "screenReaderSummary": "Programas, offline primeiro, lembretes, avisos de conteúdo, iOS, Android.",

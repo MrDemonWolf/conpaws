@@ -407,186 +407,203 @@ export function Landing({
     // copy it would serve. A subtree `lang` is valid HTML and is what screen
     // readers switch voice on; the canonical language signal for crawlers is
     // the hreflang set in metadata, which is complete.
-    <main lang={locale} className="relative mx-auto max-w-[1120px] px-6 pb-28">
-      <nav className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu">
-        <span className="flex items-center gap-3">
-          <CompassPaw className="h-10 w-10 text-primary" />
-          <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
-        </span>
-        <span className="flex items-center gap-3">
-          <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline">
-            {messages.nav.established}
+    // A wrapper, not <main>: <main> used to contain the header nav and the
+    // footer, which makes the footer not a contentinfo landmark and leaves the
+    // page with no banner landmark at all -- so landmark navigation offered
+    // exactly one destination, "main", on every page.
+    <div lang={locale} className="relative mx-auto max-w-[1120px] px-6 pb-28">
+      <a
+        href="#main"
+        className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-menu"
+      >
+        {messages.nav.skipToContent}
+      </a>
+      <header>
+        <nav
+          aria-label={messages.nav.primaryLabel}
+          className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu"
+        >
+          <span className="flex items-center gap-3">
+            <CompassPaw className="h-10 w-10 text-primary" />
+            <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
           </span>
-          <LanguageSwitcher
-            current={locale}
-            label={messages.nav.languageLabel}
-          />
-        </span>
-      </nav>
+          <span className="flex items-center gap-3">
+            <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline">
+              {messages.nav.established}
+            </span>
+            <LanguageSwitcher
+              current={locale}
+              label={messages.nav.languageLabel}
+            />
+          </span>
+        </nav>
+      </header>
 
-      {/* No z-index here on purpose. `relative` alone does not open a stacking
+      <main id="main">
+        {/* No z-index here on purpose. `relative` alone does not open a stacking
           context, so the badge inside can raise itself above the nav and every
           section below — it hangs on a lanyard that runs off the top, and it
           should read as hanging in front of the page, not trapped behind it.
           Adding a z-index back to this section would box the badge in. */}
-      <section id="waitlist" className="relative pt-6">
-        <Waitlist messages={messages.waitlist} />
-      </section>
+        <section id="waitlist" className="relative pt-6">
+          <Waitlist messages={messages.waitlist} />
+        </section>
 
-      <Ticker messages={messages} />
+        <Ticker messages={messages} />
 
-      {/* ---- a look inside ---- */}
-      <section className="relative z-content mt-28">
-        <SectionHeading
-          eyebrow={messages.inside.eyebrow}
-          title={messages.inside.title}
-          blurb={messages.inside.blurb}
-        />
-        <div className="mt-12 flex flex-wrap items-start justify-center gap-8 md:gap-6">
-          <PhoneFrame
-            label={messages.inside.frameSchedule}
-            className="md:translate-y-8 md:rotate-[-4deg]"
-          >
-            <ScheduleScreen messages={messages} />
-          </PhoneFrame>
-          <PhoneFrame label={messages.inside.frameEvent} className="z-10">
-            <EventSheetScreen messages={messages} />
-          </PhoneFrame>
-          <PhoneFrame
-            label={messages.inside.frameOffline}
-            className="md:translate-y-8 md:rotate-[4deg]"
-          >
-            <OfflineScreen messages={messages} />
-          </PhoneFrame>
-        </div>
-      </section>
-
-      {/* ---- feature lineup ---- */}
-      <section className="relative z-content mt-28">
-        <div className="flex items-end justify-between gap-6">
+        {/* ---- a look inside ---- */}
+        <section className="relative z-content mt-28">
           <SectionHeading
-            eyebrow={messages.lineup.eyebrow}
-            title={messages.lineup.title}
+            eyebrow={messages.inside.eyebrow}
+            title={messages.inside.title}
+            blurb={messages.inside.blurb}
           />
-          <span className="mb-1 hidden font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:block">
-            {messages.lineup.dayCounter}
-          </span>
-        </div>
+          <div className="mt-12 flex flex-wrap items-start justify-center gap-8 md:gap-6">
+            <PhoneFrame
+              label={messages.inside.frameSchedule}
+              className="md:translate-y-8 md:rotate-[-4deg]"
+            >
+              <ScheduleScreen messages={messages} />
+            </PhoneFrame>
+            <PhoneFrame label={messages.inside.frameEvent} className="z-10">
+              <EventSheetScreen messages={messages} />
+            </PhoneFrame>
+            <PhoneFrame
+              label={messages.inside.frameOffline}
+              className="md:translate-y-8 md:rotate-[4deg]"
+            >
+              <OfflineScreen messages={messages} />
+            </PhoneFrame>
+          </div>
+        </section>
 
-        <div className="mt-8 overflow-hidden rounded-2xl border border-border">
-          {LINEUP.map((item, i) => {
-            const copy = messages.lineup.items[i];
-            if (!copy) return null;
-            return (
-              <div
-                key={item.time}
-                className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 bg-card/40 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
-                  i > 0 ? "border-border border-t" : ""
-                }`}
-              >
-                <span className="pt-0.5 font-tech text-[15px] text-primary tracking-[0.06em]">
-                  {item.time}
-                </span>
-                <div>
-                  <h3 className="font-bold text-[17px] tracking-tight transition group-hover:text-primary">
+        {/* ---- feature lineup ---- */}
+        <section className="relative z-content mt-28">
+          <div className="flex items-end justify-between gap-6">
+            <SectionHeading
+              eyebrow={messages.lineup.eyebrow}
+              title={messages.lineup.title}
+            />
+            <span className="mb-1 hidden font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:block">
+              {messages.lineup.dayCounter}
+            </span>
+          </div>
+
+          <div className="mt-8 overflow-hidden rounded-2xl border border-border">
+            {LINEUP.map((item, i) => {
+              const copy = messages.lineup.items[i];
+              if (!copy) return null;
+              return (
+                <div
+                  key={item.time}
+                  className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 bg-card/40 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
+                    i > 0 ? "border-border border-t" : ""
+                  }`}
+                >
+                  <span className="pt-0.5 font-tech text-[15px] text-primary tracking-[0.06em]">
+                    {item.time}
+                  </span>
+                  <div>
+                    <h3 className="font-bold text-[17px] tracking-tight transition group-hover:text-primary">
+                      {copy.title}
+                    </h3>
+                    <p className="mt-1 max-w-[52ch] text-[14.5px] text-muted-foreground leading-relaxed">
+                      {copy.body}
+                    </p>
+                  </div>
+                  <div className="col-start-2 mt-2 flex gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
+                    <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[10px] text-primary uppercase tracking-[0.18em]">
+                      {messages.lineup.tags[item.tag]}
+                    </span>
+                    <span className="pt-0.5 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
+                      {copy.room}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ---- stats strip ---- */}
+        <section className="relative z-content mt-28">
+          <h2 className="sr-only">{messages.stats.screenReaderHeading}</h2>
+          <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {STATS.map((stat, i) => (
+              <div key={stat.value} className="bg-card/60 px-7 py-8">
+                <p className="font-bold text-[clamp(34px,4vw,44px)] text-primary leading-none tracking-[-0.02em]">
+                  {stat.value}
+                </p>
+                <p className="mt-2.5 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
+                  {messages.stats.labels[i] ?? stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ---- how it works ---- */}
+        <section className="relative z-content mt-28">
+          <SectionHeading
+            eyebrow={messages.steps.eyebrow}
+            title={messages.steps.title}
+          />
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {STEPS.map((step, i) => {
+              const copy = messages.steps.items[i];
+              if (!copy) return null;
+              return (
+                <div
+                  key={step.n}
+                  className="group hover:-translate-y-1 rounded-2xl border border-border bg-card/40 p-6 transition hover:border-primary/60 hover:bg-card"
+                >
+                  <span className="font-bold text-[38px] text-transparent leading-none [-webkit-text-stroke:1.5px_rgb(15_172_237/0.55)] transition group-hover:text-primary group-hover:[-webkit-text-stroke:0px]">
+                    {step.n}
+                  </span>
+                  <h3 className="mt-4 font-bold text-[16px] tracking-tight">
                     {copy.title}
                   </h3>
-                  <p className="mt-1 max-w-[52ch] text-[14.5px] text-muted-foreground leading-relaxed">
+                  <p className="mt-1.5 text-[14px] text-muted-foreground leading-relaxed">
                     {copy.body}
                   </p>
                 </div>
-                <div className="col-start-2 mt-2 flex gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
-                  <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[10px] text-primary uppercase tracking-[0.18em]">
-                    {messages.lineup.tags[item.tag]}
-                  </span>
-                  <span className="pt-0.5 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
-                    {copy.room}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
+          </div>
+        </section>
 
-      {/* ---- stats strip ---- */}
-      <section className="relative z-content mt-28">
-        <h2 className="sr-only">{messages.stats.screenReaderHeading}</h2>
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {STATS.map((stat, i) => (
-            <div key={stat.value} className="bg-card/60 px-7 py-8">
-              <p className="font-bold text-[clamp(34px,4vw,44px)] text-primary leading-none tracking-[-0.02em]">
-                {stat.value}
-              </p>
-              <p className="mt-2.5 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-                {messages.stats.labels[i] ?? stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+        {/* ---- FAQ ---- */}
+        <section className="relative z-content mt-28">
+          <SectionHeading
+            eyebrow={messages.faq.eyebrow}
+            title={messages.faq.title}
+          />
+          <FaqSection items={messages.faq.items} />
+        </section>
 
-      {/* ---- how it works ---- */}
-      <section className="relative z-content mt-28">
-        <SectionHeading
-          eyebrow={messages.steps.eyebrow}
-          title={messages.steps.title}
-        />
-        <div className="mt-8 grid gap-3 sm:grid-cols-3">
-          {STEPS.map((step, i) => {
-            const copy = messages.steps.items[i];
-            if (!copy) return null;
-            return (
-              <div
-                key={step.n}
-                className="group hover:-translate-y-1 rounded-2xl border border-border bg-card/40 p-6 transition hover:border-primary/60 hover:bg-card"
-              >
-                <span className="font-bold text-[38px] text-transparent leading-none [-webkit-text-stroke:1.5px_rgb(15_172_237/0.55)] transition group-hover:text-primary group-hover:[-webkit-text-stroke:0px]">
-                  {step.n}
-                </span>
-                <h3 className="mt-4 font-bold text-[16px] tracking-tight">
-                  {copy.title}
-                </h3>
-                <p className="mt-1.5 text-[14px] text-muted-foreground leading-relaxed">
-                  {copy.body}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ---- FAQ ---- */}
-      <section className="relative z-content mt-28">
-        <SectionHeading
-          eyebrow={messages.faq.eyebrow}
-          title={messages.faq.title}
-        />
-        <FaqSection items={messages.faq.items} />
-      </section>
-
-      {/* ---- closing CTA ---- */}
-      <section className="relative z-content mt-28">
-        <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-8 py-14 text-center sm:py-16">
-          <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
-          <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
-          <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
-            {messages.cta.eyebrow}
-          </p>
-          <h2 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(28px,4.5vw,44px)] leading-[1.05] tracking-[-0.02em]">
-            {messages.cta.title}
-          </h2>
-          <p className="mx-auto mt-4 max-w-[46ch] text-[15px] text-muted-foreground leading-relaxed">
-            {messages.cta.body}
-          </p>
-          <a
-            href="#waitlist"
-            className="mt-8 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:brightness-110 hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] active:scale-[0.99]"
-          >
-            {messages.cta.button}
-          </a>
-        </div>
-      </section>
+        {/* ---- closing CTA ---- */}
+        <section className="relative z-content mt-28">
+          <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-8 py-14 text-center sm:py-16">
+            <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
+            <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
+            <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
+              {messages.cta.eyebrow}
+            </p>
+            <h2 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(28px,4.5vw,44px)] leading-[1.05] tracking-[-0.02em]">
+              {messages.cta.title}
+            </h2>
+            <p className="mx-auto mt-4 max-w-[46ch] text-[15px] text-muted-foreground leading-relaxed">
+              {messages.cta.body}
+            </p>
+            <a
+              href="#waitlist"
+              className="mt-8 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:brightness-110 hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] active:scale-[0.99]"
+            >
+              {messages.cta.button}
+            </a>
+          </div>
+        </section>
+      </main>
 
       {/* ---- footer ---- */}
       <footer className="relative z-content mt-28 overflow-hidden border-border border-t pt-10">
@@ -617,7 +634,10 @@ export function Landing({
               margin cancels the height it adds so the footer keeps its
               spacing. The MrDemonWolf link above is left alone on purpose --
               a link inside a sentence is exempt from the target-size rule. */}
-          <nav className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
+          <nav
+            aria-label={messages.nav.footerLabel}
+            className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
+          >
             <a
               href="/support"
               className="inline-flex min-h-11 items-center transition hover:text-primary"
@@ -639,6 +659,6 @@ export function Landing({
           </nav>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

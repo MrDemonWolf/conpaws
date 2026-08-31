@@ -9,7 +9,10 @@
   "nav": {
     "established": "Est. 2025",
     "languageLabel": "Language",
-    "back": "Back"
+    "back": "Back",
+    "skipToContent": "Skip to content",
+    "primaryLabel": "Site header",
+    "footerLabel": "Legal and support"
   },
   "ticker": {
     "screenReaderSummary": "Schedules, offline first, reminders, content flags, iOS, Android.",

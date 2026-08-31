@@ -9,7 +9,10 @@
   "nav": {
     "established": "Est. 2025",
     "languageLabel": "言語",
-    "back": "戻る"
+    "back": "戻る",
+    "skipToContent": "本文へスキップ",
+    "primaryLabel": "サイトヘッダー",
+    "footerLabel": "法的情報とサポート"
   },
   "ticker": {
     "screenReaderSummary": "スケジュール、オフライン優先、リマインダー、コンテンツ警告、iOS、Android。",

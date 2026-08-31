@@ -9,7 +9,10 @@
   "nav": {
     "established": "2025 óta",
     "languageLabel": "Nyelv",
-    "back": "Vissza"
+    "back": "Vissza",
+    "skipToContent": "Ugrás a tartalomhoz",
+    "primaryLabel": "Webhely fejléce",
+    "footerLabel": "Jogi tudnivalók és támogatás"
   },
   "ticker": {
     "screenReaderSummary": "Programok, offline elsőként, emlékeztetők, tartalmi figyelmeztetések, iOS, Android.",

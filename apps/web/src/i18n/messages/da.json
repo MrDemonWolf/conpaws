@@ -9,7 +9,10 @@
   "nav": {
     "established": "Siden 2025",
     "languageLabel": "Sprog",
-    "back": "Tilbage"
+    "back": "Tilbage",
+    "skipToContent": "Gå til indhold",
+    "primaryLabel": "Sidehoved",
+    "footerLabel": "Juridisk og support"
   },
   "ticker": {
     "screenReaderSummary": "Programmer, offline først, påmindelser, indholdsadvarsler, iOS, Android.",

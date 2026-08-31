@@ -9,7 +9,10 @@
   "nav": {
     "established": "Sinds 2025",
     "languageLabel": "Taal",
-    "back": "Terug"
+    "back": "Terug",
+    "skipToContent": "Naar inhoud springen",
+    "primaryLabel": "Sitekop",
+    "footerLabel": "Juridisch en ondersteuning"
   },
   "ticker": {
     "screenReaderSummary": "Programma's, offline eerst, herinneringen, inhoudswaarschuwingen, iOS, Android.",

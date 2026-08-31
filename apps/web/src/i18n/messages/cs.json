@@ -9,7 +9,10 @@
   "nav": {
     "established": "Od 2025",
     "languageLabel": "Jazyk",
-    "back": "Zpět"
+    "back": "Zpět",
+    "skipToContent": "Přejít na obsah",
+    "primaryLabel": "Záhlaví webu",
+    "footerLabel": "Právní informace a podpora"
   },
   "ticker": {
     "screenReaderSummary": "Programy, offline především, připomínky, upozornění na obsah, iOS, Android.",

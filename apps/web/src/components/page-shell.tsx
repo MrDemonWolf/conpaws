@@ -39,35 +39,49 @@ export function PageShell({
   children: ReactNode;
 }) {
   return (
-    <main
+    // See landing.tsx: <main> wrapping the header and footer left the page with
+    // no banner landmark and no contentinfo, so landmark navigation offered
+    // only "main" -- on the legal pages and the 404 as well.
+    <div
       lang={locale}
       className={cn(
         "relative mx-auto px-6 pb-24",
         narrow ? "max-w-[760px]" : "max-w-[1120px]",
       )}
     >
-      <nav className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu">
-        <Link href="/" className="flex items-center gap-3">
-          <CompassPaw className="h-10 w-10 text-primary" />
-          <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
-        </Link>
-        <span className="flex items-center gap-3">
-          {navAside ?? (
-            <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline">
-              {messages.nav.established}
-            </span>
-          )}
-          <LanguageSwitcher
-            current={locale}
-            label={messages.nav.languageLabel}
-          />
-        </span>
-      </nav>
+      <a
+        href="#main"
+        className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-menu"
+      >
+        {messages.nav.skipToContent}
+      </a>
+      <header>
+        <nav
+          aria-label={messages.nav.primaryLabel}
+          className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu"
+        >
+          <Link href="/" className="flex items-center gap-3">
+            <CompassPaw className="h-10 w-10 text-primary" />
+            <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
+          </Link>
+          <span className="flex items-center gap-3">
+            {navAside ?? (
+              <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline">
+                {messages.nav.established}
+              </span>
+            )}
+            <LanguageSwitcher
+              current={locale}
+              label={messages.nav.languageLabel}
+            />
+          </span>
+        </nav>
+      </header>
 
-      {children}
+      <main id="main">{children}</main>
 
       <PageFooter messages={messages} />
-    </main>
+    </div>
   );
 }
 
@@ -91,7 +105,10 @@ function PageFooter({ messages }: { messages: Messages }) {
         {/* `min-h-11` is the 44px WCAG 2.5.8 target; at 12px these are ~18px
             tall without it. `-my-3` cancels the height so spacing is unchanged.
             The MrDemonWolf link above is exempt — it sits inside a sentence. */}
-        <nav className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]">
+        <nav
+          aria-label={messages.nav.footerLabel}
+          className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
+        >
           <a
             href="/support"
             className="inline-flex min-h-11 items-center transition hover:text-primary"

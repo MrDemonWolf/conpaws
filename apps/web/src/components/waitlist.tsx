@@ -2,7 +2,7 @@
 
 import { env } from "@conpaws/env/web";
 import Script from "next/script";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import type { Messages } from "@/i18n";
@@ -47,7 +47,14 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
     WAITLIST_ACCEPTING_SIGNUPS && Boolean(turnstileSiteKey);
 
   const [name, setName] = useState("");
+  const doneRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("idle");
+
+  // Moves focus onto the confirmation once it replaces the form. Only on the
+  // transition, so a re-render for any other reason does not yank focus back.
+  useEffect(() => {
+    if (status === "done") doneRef.current?.focus();
+  }, [status]);
 
   // Honeypot + time-to-submit: a free first gate that costs no latency and
   // catches naive bots before Turnstile is ever consulted.
@@ -164,7 +171,17 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
 
       <div className="relative z-content md:col-start-1 md:row-start-2">
         {status === "done" ? (
-          <div className="max-w-[440px] rounded-2xl border border-primary/40 bg-primary/10 p-6">
+          // The form this replaces is where focus was, so without somewhere to
+          // send it focus falls to <body> and a keyboard or screen-reader user
+          // is dropped at the top of the document with no idea the submission
+          // worked. `role="status"` announces it; `tabIndex={-1}` plus the
+          // focus effect puts the caret on the answer.
+          <div
+            ref={doneRef}
+            role="status"
+            tabIndex={-1}
+            className="max-w-[440px] rounded-2xl border border-primary/40 bg-primary/10 p-6 outline-none"
+          >
             <p className="font-bold text-[17px]">{messages.doneTitle}</p>
             <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed">
               {messages.doneBody}

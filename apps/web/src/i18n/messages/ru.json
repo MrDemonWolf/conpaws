@@ -9,7 +9,10 @@
   "nav": {
     "established": "С 2025",
     "languageLabel": "Язык",
-    "back": "Назад"
+    "back": "Назад",
+    "skipToContent": "Перейти к содержимому",
+    "primaryLabel": "Шапка сайта",
+    "footerLabel": "Правовая информация и поддержка"
   },
   "ticker": {
     "screenReaderSummary": "Программы, офлайн прежде всего, напоминания, предупреждения о содержании, iOS, Android.",

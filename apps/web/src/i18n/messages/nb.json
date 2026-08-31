@@ -9,7 +9,10 @@
   "nav": {
     "established": "Siden 2025",
     "languageLabel": "Språk",
-    "back": "Tilbake"
+    "back": "Tilbake",
+    "skipToContent": "Gå til innhold",
+    "primaryLabel": "Nettstedets topptekst",
+    "footerLabel": "Juridisk og støtte"
   },
   "ticker": {
     "screenReaderSummary": "Programmer, offline først, påminnelser, innholdsvarsler, iOS, Android.",
