@@ -52,6 +52,13 @@
   // is what production actually gets. Keep the two in step: this file has no
   // authority over the deployed Worker, and quietly disagreeing with
   // alchemy.run.ts is how an afternoon disappears.
+  // Mirrors packages/infra/alchemy.run.ts, which is what production actually
+  // applies. Inert here: limits are enforced only on Cloudflare's network,
+  // never in local dev. Kept in step so this file does not describe a Worker
+  // that differs from the deployed one.
+  "limits": {
+    "cpu_ms": 500
+  },
   "observability": {
     "enabled": true,
     "logs": {
