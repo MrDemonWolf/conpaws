@@ -20,7 +20,21 @@ import {
  * Cached at the edge for five minutes. The badge is decorative, a stale count
  * costs nothing, and without this every page view would hit listmonk.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  // The edge cache keys on the full URL, and this handler ignores the request
+  // entirely, so `?1`, `?2`, `?3` all missed and each issued a fresh
+  // authenticated request to our own listmonk. A public URL that turns one
+  // request into one upstream request is an amplifier, and the five-minute
+  // cache above only ever protected well-behaved callers. Nothing legitimate
+  // sends a query string here -- `badge-card.tsx` fetches the bare path -- so
+  // refusing one costs nothing and collapses the whole class.
+  if (new URL(request.url).search !== "") {
+    return Response.json(
+      { count: null },
+      { status: 400, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
   let env: CloudflareEnv;
   try {
     env = getCloudflareContext().env;

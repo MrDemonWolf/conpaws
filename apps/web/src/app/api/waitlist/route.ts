@@ -112,6 +112,17 @@ export async function POST(request: Request) {
   const listmonk = readListmonkConfig(env);
   const turnstileSecret = env.TURNSTILE_SECRET_KEY;
   if (!env.DB || !listmonk || !turnstileSecret) {
+    // Named, because failing closed is silent by design and therefore
+    // indistinguishable from working. If a variable is dropped from repo
+    // settings after the deploy-time group check has passed, every visitor
+    // gets "temporarily unavailable" and Workers observability shows nothing
+    // at all. The reconciler on this same config already logs; this is the
+    // matching line for the request path. No values, only which are missing.
+    console.error("waitlist: signups unavailable, configuration incomplete", {
+      db: Boolean(env.DB),
+      listmonk: Boolean(listmonk),
+      turnstile: Boolean(turnstileSecret),
+    });
     return unavailable();
   }
 

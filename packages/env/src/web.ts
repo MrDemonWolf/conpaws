@@ -11,7 +11,20 @@ import { z } from "zod";
  */
 export const env = createEnv({
   client: {
-    NEXT_PUBLIC_SITE_URL: z.url().default("https://conpaws.com"),
+    /**
+     * Where this deploy actually lives.
+     *
+     * The default is deliberately NOT the production domain. `robots.ts` asks
+     * to be left alone on anything that is not conpaws.com, and it describes
+     * that as failing closed -- but a default of `https://conpaws.com` made an
+     * unset variable read as canonical, so the branch could never run and a
+     * `*.workers.dev` preview served an allow-all robots.txt plus a sitemap of
+     * conpaws.com URLs. localhost makes absence mean "not the real site",
+     * which is what the rest of the file already assumes.
+     *
+     * Production must therefore set this explicitly; the deploy workflow does.
+     */
+    NEXT_PUBLIC_SITE_URL: z.url().default("http://localhost:3001"),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   },
   experimental__runtimeEnv: {
