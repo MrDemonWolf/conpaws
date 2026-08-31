@@ -1,3 +1,4 @@
+import { fetchEcpFullSchedule, isEventsCalendarFeed } from "./ecp-feed";
 import {
   InvalidScheduleUrlError,
   looksLikeCalendar,
@@ -137,7 +138,11 @@ export async function fetchScheduleIcs(
     }
 
     return {
-      icsContent: body,
+      icsContent: await expandTruncatedFeed(
+        body,
+        resolved.fetchUrl,
+        controller,
+      ),
       canonicalUrl: resolved.canonicalUrl,
       kind: resolved.kind,
     };
@@ -161,5 +166,46 @@ export async function fetchScheduleIcs(
   } finally {
     clearTimeout(timeout);
     options?.signal?.removeEventListener("abort", abortFromCaller);
+  }
+}
+
+/** VEVENT blocks in a raw body, used only to compare two versions of one feed. */
+function countEvents(ics: string): number {
+  return (ics.match(/^BEGIN:VEVENT/gim) ?? []).length;
+}
+
+/**
+ * Replaces a truncated Events Calendar export with the full schedule.
+ *
+ * The Events Calendar serves its `?ical=1` export from the list view, so the
+ * body is capped at the view's page size -- one real convention publishes 246
+ * panels and the feed returns 30. Its REST API is not capped, so when the body
+ * is recognisably ECP we read that instead and re-render it as ICS.
+ *
+ * The result is used ONLY when it carries more events than the feed did. That
+ * guard is what makes this safe to run on every ECP import: a site with the
+ * REST route disabled, one that answers with fewer events for a reason we did
+ * not anticipate, or any failure at all leaves the original body untouched.
+ * The worst case is the truncated import that would have happened anyway.
+ */
+async function expandTruncatedFeed(
+  body: string,
+  fetchUrl: string,
+  controller: AbortController,
+): Promise<string> {
+  if (!isEventsCalendarFeed(body)) return body;
+
+  try {
+    const expanded = await fetchEcpFullSchedule(fetchUrl, {
+      signal: controller.signal,
+    });
+    if (!expanded) return body;
+    if (expanded.length > MAX_ICS_BYTES) return body;
+    return countEvents(expanded) > countEvents(body) ? expanded : body;
+  } catch (error) {
+    // A cancelled import must stay cancelled; the outer handler turns this
+    // into ScheduleFetchCancelledError rather than a network complaint.
+    if ((error as Error)?.name === "AbortError") throw error;
+    return body;
   }
 }
