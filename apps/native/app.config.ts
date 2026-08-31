@@ -306,6 +306,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // They used to sit in ~/.gradle/gradle.properties, where they signed every
     // Android project on the machine. No-ops when that file is absent.
     "./plugins/withUploadSigning.js",
+    // Turns off Android per-component view recycling, which is what puts us in
+    // range of react-native-screens#3249: a system dark-mode change during a
+    // screen transition can kill the app with "The specified child already has
+    // a parent". Upstream's fix (PR #3250) is unmerged and in no release.
+    // Applied to every variant -- the crash does not care which one. The file
+    // header carries the evidence, and the fact that the mitigation itself is
+    // unverified because the crash is rare and load-dependent.
+    "./plugins/withoutViewRecycling.js",
     "expo-document-picker",
     "expo-sharing",
     "expo-web-browser",
