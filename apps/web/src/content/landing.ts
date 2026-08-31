@@ -10,7 +10,7 @@
  * MDX earns its place where the content IS prose — `/privacy` is a document,
  * and authoring it as markdown is plainly better than as JSX. None of the
  * content below is a document. It is records with fields: a lineup row has a
- * time, a tag and a room; a stat has a value and a label. Expressing those in
+ * time and a tag; a stat has a value and a label. Expressing those in
  * MDX means either frontmatter arrays, which is YAML wearing a costume and
  * loses type-checking, or JSX inside MDX, which is the component you were
  * trying to get away from with extra steps.
@@ -25,67 +25,38 @@
  * lives in `i18n/messages` with the rest of the translated strings.
  */
 
-/** Feature rows, presented as a convention programme. Times are decorative. */
+/**
+ * Feature rows, presented as a convention programme. Times are decorative.
+ *
+ * Titles, bodies and rooms are NOT here: `landing.tsx` zips these entries with
+ * `messages.lineup.items[i]` and takes all three from the catalog, because
+ * they are copy and copy is translated. They used to be duplicated here too,
+ * unread, which is a second source of truth that only ever drifts — the
+ * English catalog is the one that renders.
+ */
 export interface LineupItem {
   /** Programme-guide time. Sorts the visual rhythm, not real scheduling. */
   time: string;
-  title: string;
-  body: string;
   tag: "Core" | "QoL" | "Safety";
-  /** Fictional room, part of the programme-guide conceit. */
-  room: string;
 }
 
 export const LINEUP: readonly LineupItem[] = [
-  {
-    time: "10:00",
-    title: "Import any schedule",
-    body: "Drop in an .ics file or paste a Sched link. Re-import later without losing what you've picked.",
-    tag: "Core",
-    room: "Main Hall",
-  },
-  {
-    time: "13:30",
-    title: "Smart reminders",
-    body: "Nudges before the events you choose. Nothing else, ever.",
-    tag: "QoL",
-    room: "Panel Room 2",
-  },
-  {
-    time: "16:00",
-    title: "Content flags",
-    body: "18+ and photosensitivity warnings surfaced automatically from the schedule.",
-    tag: "Safety",
-    room: "Ops",
-  },
-  {
-    time: "23:59",
-    title: "Works offline",
-    body: "Everything lives on your phone. Con WiFi dying at peak hours is someone else's problem now.",
-    tag: "Core",
-    room: "Everywhere",
-  },
+  { time: "10:00", tag: "Core" },
+  { time: "13:30", tag: "QoL" },
+  { time: "16:00", tag: "Safety" },
+  { time: "23:59", tag: "Core" },
 ] as const;
 
+/** Step numbers. Titles and bodies come from `messages.steps.items[i]`. */
 export interface Step {
   /** Zero-padded, and rendered as-is — it is a label, not a computed index. */
   n: string;
-  title: string;
-  body: string;
 }
 
 export const STEPS: readonly Step[] = [
-  { n: "01", title: "Download", body: "Free on iOS and Android at launch." },
-  {
-    n: "02",
-    title: "Pick your convention",
-    body: "Import its schedule, or start one from scratch.",
-  },
-  {
-    n: "03",
-    title: "Build your weekend",
-    body: "Star what you want. Get nudged before it starts.",
-  },
+  { n: "01" },
+  { n: "02" },
+  { n: "03" },
 ] as const;
 
 export interface Stat {

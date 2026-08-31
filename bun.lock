@@ -132,6 +132,9 @@
     "packages/infra": {
       "name": "@conpaws/infra",
       "version": "0.0.0",
+      "dependencies": {
+        "@conpaws/env": "workspace:*",
+      },
       "devDependencies": {
         "@conpaws/config": "workspace:*",
         "alchemy": "0.91.2",
