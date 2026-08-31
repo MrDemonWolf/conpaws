@@ -10,22 +10,10 @@ import {
 import Constants from "expo-constants";
 import { type Href, router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import {
-  Bell,
-  Bug,
-  CircleHelp,
-  Download,
-  FileText,
-  Globe,
-  Hand,
-  Info,
-  type LucideIcon,
-  Palette,
-  Share,
-} from "lucide-react-native";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, Linking } from "react-native";
+import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
@@ -49,7 +37,6 @@ import {
   getCachedScheduleAutoCheck,
   setScheduleAutoCheck as persistScheduleAutoCheck,
 } from "@/lib/schedule-refresh-storage";
-import { themeTokens } from "@/lib/theme-tokens";
 import { useExportData } from "@/services/data-export";
 import { type ImportOutcome, useImportData } from "@/services/data-import";
 import { getHapticsEnabled } from "@/services/haptics";
@@ -62,16 +49,6 @@ const EXTERNAL_LINK = Icon.select({
   ios: "arrow.up.right",
   android: ArrowOutwardIcon,
 });
-
-/**
- * Plain leading glyph (lucide, JS-rendered): @expo/ui's native Icon collapses
- * inside RN wrapper views, and colored icon tiles were tried and rejected —
- * bare monochrome glyphs match the rest of the app's chrome.
- */
-function LeadingIcon({ icon: IconComponent }: { icon: LucideIcon }) {
-  const scheme = useResolvedColorScheme();
-  return <IconComponent size={21} color={themeTokens[scheme].foreground} />;
-}
 
 function NavigationIndicator() {
   return <Icon name={CHEVRON} size={16} />;
@@ -239,7 +216,7 @@ export default function SettingsScreen() {
       <FieldGroup>
         <FieldGroup.Section title={t("settings.app.title")}>
           <ListItem
-            leading={<LeadingIcon icon={Palette} />}
+            leading={<SettingsLeadingIcon name="theme" />}
             supportingText={t(`settings.appearance.${appearance}`)}
             trailing={<NavigationIndicator />}
             onPress={() => router.push("/settings/appearance")}
@@ -247,7 +224,7 @@ export default function SettingsScreen() {
             {t("settings.app.theme")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon icon={Globe} />}
+            leading={<SettingsLeadingIcon name="language" />}
             supportingText={t(
               `settings.languages.${i18n.language as SupportedLanguage}`,
               { defaultValue: "English" },
@@ -273,7 +250,7 @@ export default function SettingsScreen() {
 
         <FieldGroup.Section title={t("settings.notifications.title")}>
           <ListItem
-            leading={<LeadingIcon icon={Bell} />}
+            leading={<SettingsLeadingIcon name="notifications" />}
             supportingText={
               notificationPermission === "granted"
                 ? t("settings.notifications.enabled")
@@ -313,7 +290,7 @@ export default function SettingsScreen() {
           disabled={isExporting || isImporting}
         >
           <ListItem
-            leading={<LeadingIcon icon={Share} />}
+            leading={<SettingsLeadingIcon name="export" />}
             supportingText={
               isExporting
                 ? t("settings.data.exporting")
@@ -327,7 +304,7 @@ export default function SettingsScreen() {
             {t("settings.data.exportData")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon icon={Download} />}
+            leading={<SettingsLeadingIcon name="import" />}
             supportingText={
               isImporting
                 ? t("settings.data.importing")
@@ -344,7 +321,7 @@ export default function SettingsScreen() {
 
         <FieldGroup.Section title={t("settings.about.title")}>
           <ListItem
-            leading={<LeadingIcon icon={Info} />}
+            leading={<SettingsLeadingIcon name="about" />}
             supportingText={versionLabel}
             trailing={<NavigationIndicator />}
             onPress={() => router.push("/settings/about")}
@@ -352,7 +329,7 @@ export default function SettingsScreen() {
             {t("settings.legal.about")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon icon={CircleHelp} />}
+            leading={<SettingsLeadingIcon name="help" />}
             supportingText={t("settings.help.gettingStartedDescription")}
             trailing={<NavigationIndicator />}
             onPress={() => router.push("/settings/getting-started" as Href)}
@@ -360,14 +337,14 @@ export default function SettingsScreen() {
             {t("settings.help.gettingStarted")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon icon={Hand} />}
+            leading={<SettingsLeadingIcon name="privacy" />}
             trailing={<ExternalIndicator />}
             onPress={() => openLink("https://conpaws.com/privacy")}
           >
             {t("settings.legal.privacyPolicy")}
           </ListItem>
           <ListItem
-            leading={<LeadingIcon icon={FileText} />}
+            leading={<SettingsLeadingIcon name="terms" />}
             trailing={<ExternalIndicator />}
             onPress={() => openLink("https://conpaws.com/terms")}
           >
@@ -378,7 +355,7 @@ export default function SettingsScreen() {
         {showDeveloperTools ? (
           <FieldGroup.Section title="Developer">
             <ListItem
-              leading={<LeadingIcon icon={Bug} />}
+              leading={<SettingsLeadingIcon name="debug" />}
               supportingText="Replay onboarding safely"
               trailing={<NavigationIndicator />}
               onPress={() => router.push("/settings/debug")}
@@ -386,7 +363,7 @@ export default function SettingsScreen() {
               Debug Tools
             </ListItem>
             <ListItem
-              leading={<LeadingIcon icon={Bug} />}
+              leading={<SettingsLeadingIcon name="debug" />}
               supportingText="Show the schedule hint card again"
               onPress={() => {
                 void resetScheduleHint().then(() =>
@@ -397,7 +374,7 @@ export default function SettingsScreen() {
               Reset Hints
             </ListItem>
             <ListItem
-              leading={<LeadingIcon icon={Palette} />}
+              leading={<SettingsLeadingIcon name="theme" />}
               supportingText="Preview app controls and states"
               trailing={<NavigationIndicator />}
               onPress={() => router.push("/settings/ui-system")}
