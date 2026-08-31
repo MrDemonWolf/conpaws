@@ -202,6 +202,33 @@ export default function SettingsScreen() {
     void getDefaultReminderMinutes().then(setDefaultLead);
   }, []);
 
+  const defaultLeadPicker = (
+    <Picker
+      selectedValue={String(defaultLead ?? "")}
+      onValueChange={(value) => {
+        const parsed = value === "" ? null : Number(value);
+        setDefaultLead(parsed);
+        void setDefaultReminderMinutes(parsed);
+      }}
+      appearance="menu"
+    >
+      <Picker.Item label={t("settings.notifications.noDefault")} value="" />
+      {REMINDER_DEFAULT_OPTIONS.map((minutes) => (
+        <Picker.Item
+          key={String(minutes)}
+          label={
+            minutes === 0
+              ? t("reminders.atTime")
+              : minutes === 60
+                ? t("reminders.hourBefore")
+                : t("reminders.minutesBefore", { minutes })
+          }
+          value={String(minutes)}
+        />
+      ))}
+    </Picker>
+  );
+
   return (
     <Host
       colorScheme={resolvedColorScheme}
@@ -261,40 +288,24 @@ export default function SettingsScreen() {
           >
             {t("settings.notifications.permission")}
           </ListItem>
+          {/* The same picker, placed differently per platform. On iOS it is a
+              compact SwiftUI menu and belongs in the trailing slot. On Android
+              @expo/ui renders a Material 3 ExposedDropdownMenuBox, whose anchor
+              is a full-width TextField -- in a trailing slot it took the whole
+              row and squeezed the label and its description down to about one
+              character per line. Material puts a dropdown under its label
+              anyway, so Android gets its own full-width row. */}
+          {/* Two siblings, never a fragment: FieldGroup.Section walks its own
+              children and throws on a wrapper. */}
           <ListItem
             supportingText={t("settings.notifications.defaultLeadDescription")}
             trailing={
-              <Picker
-                selectedValue={String(defaultLead ?? "")}
-                onValueChange={(value) => {
-                  const parsed = value === "" ? null : Number(value);
-                  setDefaultLead(parsed);
-                  void setDefaultReminderMinutes(parsed);
-                }}
-                appearance="menu"
-              >
-                <Picker.Item
-                  label={t("settings.notifications.noDefault")}
-                  value=""
-                />
-                {REMINDER_DEFAULT_OPTIONS.map((minutes) => (
-                  <Picker.Item
-                    key={String(minutes)}
-                    label={
-                      minutes === 0
-                        ? t("reminders.atTime")
-                        : minutes === 60
-                          ? t("reminders.hourBefore")
-                          : t("reminders.minutesBefore", { minutes })
-                    }
-                    value={String(minutes)}
-                  />
-                ))}
-              </Picker>
+              process.env.EXPO_OS === "ios" ? defaultLeadPicker : undefined
             }
           >
             {t("settings.notifications.defaultLead")}
           </ListItem>
+          {process.env.EXPO_OS === "ios" ? null : defaultLeadPicker}
         </FieldGroup.Section>
 
         <FieldGroup.Section
