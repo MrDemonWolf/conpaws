@@ -41,7 +41,7 @@ function Ticker({ messages }: { messages: Messages }) {
   ));
 
   return (
-    <div className="relative z-10 mt-28 overflow-hidden border-border border-y bg-background/80 py-5">
+    <div className="relative z-content mt-28 overflow-hidden border-border border-y bg-background/80 py-5">
       <p className="sr-only">{messages.ticker.screenReaderSummary}</p>
       <div
         aria-hidden="true"
@@ -408,7 +408,7 @@ export function Landing({
     // readers switch voice on; the canonical language signal for crawlers is
     // the hreflang set in metadata, which is complete.
     <main lang={locale} className="relative mx-auto max-w-[1120px] px-6 pb-28">
-      <nav className="relative z-20 flex items-center justify-between py-7">
+      <nav className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu">
         <span className="flex items-center gap-3">
           <CompassPaw className="h-10 w-10 text-primary" />
           <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
@@ -436,7 +436,7 @@ export function Landing({
       <Ticker messages={messages} />
 
       {/* ---- a look inside ---- */}
-      <section className="relative z-10 mt-28">
+      <section className="relative z-content mt-28">
         <SectionHeading
           eyebrow={messages.inside.eyebrow}
           title={messages.inside.title}
@@ -462,7 +462,7 @@ export function Landing({
       </section>
 
       {/* ---- feature lineup ---- */}
-      <section className="relative z-10 mt-28">
+      <section className="relative z-content mt-28">
         <div className="flex items-end justify-between gap-6">
           <SectionHeading
             eyebrow={messages.lineup.eyebrow}
@@ -510,7 +510,7 @@ export function Landing({
       </section>
 
       {/* ---- stats strip ---- */}
-      <section className="relative z-10 mt-28">
+      <section className="relative z-content mt-28">
         <h2 className="sr-only">{messages.stats.screenReaderHeading}</h2>
         <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
           {STATS.map((stat, i) => (
@@ -527,7 +527,7 @@ export function Landing({
       </section>
 
       {/* ---- how it works ---- */}
-      <section className="relative z-10 mt-28">
+      <section className="relative z-content mt-28">
         <SectionHeading
           eyebrow={messages.steps.eyebrow}
           title={messages.steps.title}
@@ -557,7 +557,7 @@ export function Landing({
       </section>
 
       {/* ---- FAQ ---- */}
-      <section className="relative z-10 mt-28">
+      <section className="relative z-content mt-28">
         <SectionHeading
           eyebrow={messages.faq.eyebrow}
           title={messages.faq.title}
@@ -566,7 +566,7 @@ export function Landing({
       </section>
 
       {/* ---- closing CTA ---- */}
-      <section className="relative z-10 mt-28">
+      <section className="relative z-content mt-28">
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-8 py-14 text-center sm:py-16">
           <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
           <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
@@ -589,7 +589,7 @@ export function Landing({
       </section>
 
       {/* ---- footer ---- */}
-      <footer className="relative z-10 mt-28 overflow-hidden border-border border-t pt-10">
+      <footer className="relative z-content mt-28 overflow-hidden border-border border-t pt-10">
         {/* Decorative wordmark. Hidden below `sm` on purpose: at 375px the
             120px type is wider than the viewport, so it clipped to a
             meaningless "nPaws" AND sat directly behind the footer links --
