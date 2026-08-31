@@ -17,8 +17,7 @@ import { parseInline } from "@/i18n";
  *
  * The cost is that answers are now plain strings with a two-feature inline
  * syntax (`[label](url)` and `` `code` ``) instead of full markdown. That is
- * all the answers ever used. `content/faq.mdx` is now unreferenced and should
- * be deleted once this has been reviewed.
+ * all the answers ever used.
  */
 
 function Answer({ text }: { text: string }) {

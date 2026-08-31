@@ -1,6 +1,10 @@
 import { LEGAL_LAST_UPDATED } from "@/lib/constants";
 
 export const metadata = {
+  // In PUBLIC_ROUTES and the sitemap, so it needs to say which URL is the
+  // real one -- otherwise a preview host or a query string is free to become
+  // a competing copy of the same page.
+  alternates: { canonical: "/terms" },
   title: "Terms of Service",
   description: "Terms for using the ConPaws app and website.",
 };
