@@ -48,9 +48,9 @@ are fine as written.
 
 ## Architecture
 
-- **Native app:** Expo SDK **57.0.15** (React Native 0.86.2, React 19.2.3). Keep Expo at `>=57.0.9`; earlier SDK 57 patches contain the Hermes/Reanimated/Worklets memory regression.
-- **Routing:** Expo Router `~57.0.15` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
-  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~57.0.15` major is correct — do not "fix" it to a single-digit major.
+- **Native app:** Expo SDK **57.0.18** (React Native 0.86.3, React 19.2.3). Keep Expo at `>=57.0.9`; earlier SDK 57 patches contain the Hermes/Reanimated/Worklets memory regression. These numbers drift every time the SDK is bumped — `apps/native/package.json` is the truth, and this line has been wrong before.
+- **Routing:** Expo Router `~57.0.17` — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
+  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~57` major is correct — do not "fix" it to a single-digit major.
 - **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`)
 - **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
 - **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
