@@ -2,12 +2,13 @@ import CheckIcon from "@expo/material-symbols/check.xml";
 import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
-import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
+import { FieldGroup, Host, Icon, ListItem } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   APPEARANCE_PREFERENCES,

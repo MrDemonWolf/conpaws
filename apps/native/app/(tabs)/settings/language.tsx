@@ -1,11 +1,12 @@
 import CheckIcon from "@expo/material-symbols/check.xml";
-import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
+import { FieldGroup, Host, Icon, ListItem } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import i18n, {
   changeLanguage,

@@ -1,11 +1,4 @@
-import {
-  Collapsible,
-  FieldGroup,
-  Host,
-  ListItem,
-  Text as NativeText,
-  TextInput,
-} from "@expo/ui";
+import { Collapsible, FieldGroup, Host, ListItem, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
@@ -23,6 +16,7 @@ import {
 } from "@/components/ConventionFormFields";
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { FormSkeleton, SafeView } from "@/components/ui";
+import { NativeText } from "@/components/ui/NativeText";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
