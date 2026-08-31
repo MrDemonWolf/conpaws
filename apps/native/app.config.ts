@@ -74,7 +74,7 @@ const getScheme = (): string => {
  * projects, and checks that they picked the new number up; see the "Local
  * builds" section of RELEASING.md. Commit it with the release.
  */
-const BUILD_NUMBER = 206;
+const BUILD_NUMBER = 207;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
