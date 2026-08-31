@@ -1,10 +1,16 @@
 import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
+import { JsonLd } from "@/components/json-ld";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Waitlist } from "@/components/waitlist";
 import { LINEUP, STATS, STEPS } from "@/content/landing";
 import type { Messages } from "@/i18n";
 import type { Locale } from "@/i18n/config";
+import {
+  faqPageNode,
+  graph,
+  softwareApplicationNode,
+} from "@/lib/structured-data";
 
 /**
  * The pre-release landing page, styled as a convention program guide — the
@@ -578,6 +584,15 @@ export function Landing({
             title={messages.faq.title}
           />
           <FaqSection items={messages.faq.items} />
+          {/* Derived from the same `messages.faq.items` the accordion just
+              rendered, per locale. Structured data has to match the visible
+              answers, and a second hardcoded copy is how it stops matching. */}
+          <JsonLd
+            data={graph(
+              softwareApplicationNode(locale, messages),
+              faqPageNode(messages),
+            )}
+          />
         </section>
 
         {/* ---- closing CTA ---- */}
