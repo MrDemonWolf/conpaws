@@ -5,15 +5,7 @@ import ForumIcon from "@expo/material-symbols/forum.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
-import {
-  Column,
-  FieldGroup,
-  Host,
-  Icon,
-  ListItem,
-  Text as NativeText,
-  RNHostView,
-} from "@expo/ui";
+import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
@@ -75,119 +67,120 @@ export default function AboutScreen() {
   const heroWidth = Math.min(520, Math.max(260, width - 64));
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup>
-        <FieldGroup.Section>
-          <Column alignment="center" style={{ paddingVertical: 24 }}>
-            <RNHostView matchContents>
-              <View
-                accessible
-                accessibilityLabel={`ConPaws. ${t("settings.about.tagline")} ${versionLabel}.`}
-                accessibilityRole="summary"
-                style={{
-                  width: heroWidth,
-                  alignItems: "center",
-                  gap: 8,
-                  paddingHorizontal: 16,
-                }}
-              >
-                <Image
-                  source={require("../../../assets/images/icon.png")}
-                  style={{
-                    width: 88,
-                    height: 88,
-                    borderRadius: 20,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                  }}
-                  resizeMode="contain"
-                  accessible={false}
-                  accessibilityIgnoresInvertColors
-                />
-                {/* Design-system variants, not inline fontSize: these three
-                    lines were the only text in the app that opted out of the
-                    Dynamic Type ramp `ui/Text` applies. */}
-                <Text variant="h1" className="text-center">
-                  ConPaws
-                </Text>
-                <Text
-                  variant="body"
-                  className="text-center text-muted-foreground"
-                >
-                  {t("settings.about.tagline")}
-                </Text>
-                <Text selectable variant="caption" className="tabular-nums">
-                  {versionLabel}
-                </Text>
-              </View>
-            </RNHostView>
-          </Column>
-        </FieldGroup.Section>
+    <View className="flex-1 bg-background">
+      {/* The hero sits OUTSIDE the native list, not in a Section.
+          `RNHostView` does not render React Native children inside @expo/ui's
+          list on Android: with `matchContents` the wrapper measured to nothing
+          and the whole block -- logo, wordmark, tagline, version -- silently
+          vanished, and pinning an explicit height only reserved an empty grey
+          box. Plain RN content belongs in plain RN, above the list. */}
+      <View className="items-center px-4 py-6">
+        <View
+          accessible
+          accessibilityLabel={`ConPaws. ${t("settings.about.tagline")} ${versionLabel}.`}
+          accessibilityRole="summary"
+          style={{
+            width: heroWidth,
+            alignItems: "center",
+            gap: 8,
+            paddingHorizontal: 16,
+          }}
+        >
+          <Image
+            source={require("../../../assets/images/icon.png")}
+            style={{
+              width: 88,
+              height: 88,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+            resizeMode="contain"
+            accessible={false}
+            accessibilityIgnoresInvertColors
+          />
+          {/* Design-system variants, not inline fontSize: these three lines
+              were the only text in the app that opted out of the Dynamic Type
+              ramp `ui/Text` applies. */}
+          <Text variant="h1" className="text-center">
+            ConPaws
+          </Text>
+          <Text variant="body" className="text-center text-muted-foreground">
+            {t("settings.about.tagline")}
+          </Text>
+          <Text selectable variant="caption" className="tabular-nums">
+            {versionLabel}
+          </Text>
+        </View>
+      </View>
 
-        <FieldGroup.Section title={t("settings.about.support")}>
-          <ListItem
-            leading={<NativeIcon name={HELP_ICON} />}
-            supportingText="conpaws.com/support"
-            trailing={<ExternalIndicator />}
-            onPress={() => openLink("https://conpaws.com/support")}
-          >
-            {t("settings.about.helpCenter")}
-          </ListItem>
-          <ListItem
-            leading={<NativeIcon name={EMAIL_ICON} />}
-            supportingText="legal@conpaws.com"
-            trailing={<ExternalIndicator />}
-            onPress={() => openLink("mailto:legal@conpaws.com")}
-          >
-            {t("settings.about.email")}
-          </ListItem>
-          <ListItem
-            leading={<NativeIcon name={COMMUNITY_ICON} />}
-            supportingText={t("settings.about.discordDescription")}
-            trailing={<ExternalIndicator />}
-            onPress={() => openLink("https://discord.gg/conpaws")}
-          >
-            Discord
-          </ListItem>
-        </FieldGroup.Section>
-
-        <FieldGroup.Section title={t("settings.about.resources")}>
-          <ListItem
-            leading={<NativeIcon name={WEBSITE_ICON} />}
-            supportingText="conpaws.com"
-            trailing={<ExternalIndicator />}
-            onPress={() => openLink("https://conpaws.com")}
-          >
-            {t("settings.about.website")}
-          </ListItem>
-        </FieldGroup.Section>
-
-        <FieldGroup.Section title={t("settings.about.builtWith")}>
-          <ListItem
-            leading={<NativeIcon name={LICENSE_ICON} />}
-            supportingText={t("settings.about.licenseDescription", {
-              count: licenses.packages.length,
-            })}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/licenses")}
-          >
-            {t("settings.legal.openSourceLicenses")}
-          </ListItem>
-          <FieldGroup.SectionFooter>
-            <NativeText
-              textStyle={{ fontSize: 13 }}
-              modifiers={[font({ textStyle: "footnote" })]}
+      <Host
+        colorScheme={resolvedColorScheme}
+        seedColor={colors.primary}
+        style={{ flex: 1 }}
+        useViewportSizeMeasurement
+      >
+        <FieldGroup>
+          <FieldGroup.Section title={t("settings.about.support")}>
+            <ListItem
+              leading={<NativeIcon name={HELP_ICON} />}
+              supportingText="conpaws.com/support"
+              trailing={<ExternalIndicator />}
+              onPress={() => openLink("https://conpaws.com/support")}
             >
-              {t("settings.about.copyright")}
-            </NativeText>
-          </FieldGroup.SectionFooter>
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+              {t("settings.about.helpCenter")}
+            </ListItem>
+            <ListItem
+              leading={<NativeIcon name={EMAIL_ICON} />}
+              supportingText="legal@conpaws.com"
+              trailing={<ExternalIndicator />}
+              onPress={() => openLink("mailto:legal@conpaws.com")}
+            >
+              {t("settings.about.email")}
+            </ListItem>
+            <ListItem
+              leading={<NativeIcon name={COMMUNITY_ICON} />}
+              supportingText={t("settings.about.discordDescription")}
+              trailing={<ExternalIndicator />}
+              onPress={() => openLink("https://discord.gg/conpaws")}
+            >
+              Discord
+            </ListItem>
+          </FieldGroup.Section>
+
+          <FieldGroup.Section title={t("settings.about.resources")}>
+            <ListItem
+              leading={<NativeIcon name={WEBSITE_ICON} />}
+              supportingText="conpaws.com"
+              trailing={<ExternalIndicator />}
+              onPress={() => openLink("https://conpaws.com")}
+            >
+              {t("settings.about.website")}
+            </ListItem>
+          </FieldGroup.Section>
+
+          <FieldGroup.Section title={t("settings.about.builtWith")}>
+            <ListItem
+              leading={<NativeIcon name={LICENSE_ICON} />}
+              supportingText={t("settings.about.licenseDescription", {
+                count: licenses.packages.length,
+              })}
+              trailing={<NavigationIndicator />}
+              onPress={() => router.push("/settings/licenses")}
+            >
+              {t("settings.legal.openSourceLicenses")}
+            </ListItem>
+            <FieldGroup.SectionFooter>
+              <NativeText
+                textStyle={{ fontSize: 13 }}
+                modifiers={[font({ textStyle: "footnote" })]}
+              >
+                {t("settings.about.copyright")}
+              </NativeText>
+            </FieldGroup.SectionFooter>
+          </FieldGroup.Section>
+        </FieldGroup>
+      </Host>
+    </View>
   );
 }
