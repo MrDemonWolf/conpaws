@@ -9,7 +9,10 @@
   "nav": {
     "established": "Depuis 2025",
     "languageLabel": "Langue",
-    "back": "Retour"
+    "back": "Retour",
+    "skipToContent": "Aller au contenu",
+    "primaryLabel": "En-tête du site",
+    "footerLabel": "Mentions légales et assistance"
   },
   "ticker": {
     "screenReaderSummary": "Programmes, hors ligne d'abord, rappels, avertissements de contenu, iOS, Android.",

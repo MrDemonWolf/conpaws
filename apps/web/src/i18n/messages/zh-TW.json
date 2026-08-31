@@ -9,7 +9,10 @@
   "nav": {
     "established": "Est. 2025",
     "languageLabel": "語言",
-    "back": "返回"
+    "back": "返回",
+    "skipToContent": "跳至主要內容",
+    "primaryLabel": "網站頁首",
+    "footerLabel": "法律與支援"
   },
   "ticker": {
     "screenReaderSummary": "議程、離線優先、提醒、內容提示、iOS、Android。",

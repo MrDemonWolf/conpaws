@@ -9,7 +9,10 @@
   "nav": {
     "established": "Sejak 2025",
     "languageLabel": "Bahasa",
-    "back": "Kembali"
+    "back": "Kembali",
+    "skipToContent": "Langkau ke kandungan",
+    "primaryLabel": "Pengepala tapak",
+    "footerLabel": "Undang-undang dan sokongan"
   },
   "ticker": {
     "screenReaderSummary": "Jadual, luar talian dahulu, peringatan, amaran kandungan, iOS, Android.",

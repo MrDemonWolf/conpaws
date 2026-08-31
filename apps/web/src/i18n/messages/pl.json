@@ -9,7 +9,10 @@
   "nav": {
     "established": "Od 2025",
     "languageLabel": "Język",
-    "back": "Wstecz"
+    "back": "Wstecz",
+    "skipToContent": "Przejdź do treści",
+    "primaryLabel": "Nagłówek witryny",
+    "footerLabel": "Informacje prawne i pomoc"
   },
   "ticker": {
     "screenReaderSummary": "Plany, offline przede wszystkim, przypomnienia, ostrzeżenia o treści, iOS, Android.",

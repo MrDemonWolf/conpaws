@@ -9,7 +9,10 @@
   "nav": {
     "established": "Dal 2025",
     "languageLabel": "Lingua",
-    "back": "Indietro"
+    "back": "Indietro",
+    "skipToContent": "Vai al contenuto",
+    "primaryLabel": "Intestazione del sito",
+    "footerLabel": "Note legali e assistenza"
   },
   "ticker": {
     "screenReaderSummary": "Programmi, offline prima di tutto, promemoria, avvisi sui contenuti, iOS, Android.",

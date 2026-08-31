@@ -9,7 +9,10 @@
   "nav": {
     "established": "Seit 2025",
     "languageLabel": "Sprache",
-    "back": "Zurück"
+    "back": "Zurück",
+    "skipToContent": "Zum Inhalt springen",
+    "primaryLabel": "Kopfbereich",
+    "footerLabel": "Rechtliches und Support"
   },
   "ticker": {
     "screenReaderSummary": "Zeitpläne, Offline zuerst, Erinnerungen, Inhaltshinweise, iOS, Android.",

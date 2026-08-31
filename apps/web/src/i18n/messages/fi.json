@@ -9,7 +9,10 @@
   "nav": {
     "established": "Vuodesta 2025",
     "languageLabel": "Kieli",
-    "back": "Takaisin"
+    "back": "Takaisin",
+    "skipToContent": "Siirry sisältöön",
+    "primaryLabel": "Sivuston ylätunniste",
+    "footerLabel": "Oikeudelliset tiedot ja tuki"
   },
   "ticker": {
     "screenReaderSummary": "Ohjelmat, offline ensin, muistutukset, sisältövaroitukset, iOS, Android.",

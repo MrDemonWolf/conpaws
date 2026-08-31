@@ -9,7 +9,10 @@
   "nav": {
     "established": "Est. 2025",
     "languageLabel": "语言",
-    "back": "返回"
+    "back": "返回",
+    "skipToContent": "跳到主要内容",
+    "primaryLabel": "网站页眉",
+    "footerLabel": "法律与支持"
   },
   "ticker": {
     "screenReaderSummary": "日程、离线优先、提醒、内容提示、iOS、Android。",

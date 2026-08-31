@@ -9,7 +9,10 @@
   "nav": {
     "established": "Est. 2025",
     "languageLabel": "언어",
-    "back": "뒤로"
+    "back": "뒤로",
+    "skipToContent": "본문으로 건너뛰기",
+    "primaryLabel": "사이트 헤더",
+    "footerLabel": "법적 고지 및 지원"
   },
   "ticker": {
     "screenReaderSummary": "일정, 오프라인 우선, 알림, 콘텐츠 경고, iOS, Android.",

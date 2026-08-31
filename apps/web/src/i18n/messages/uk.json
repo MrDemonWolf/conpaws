@@ -9,7 +9,10 @@
   "nav": {
     "established": "З 2025",
     "languageLabel": "Мова",
-    "back": "Назад"
+    "back": "Назад",
+    "skipToContent": "Перейти до вмісту",
+    "primaryLabel": "Заголовок сайту",
+    "footerLabel": "Правова інформація та підтримка"
   },
   "ticker": {
     "screenReaderSummary": "Програми, офлайн передусім, нагадування, попередження про вміст, iOS, Android.",
