@@ -12,32 +12,6 @@ export class InvalidScheduleUrlError extends Error {
   }
 }
 
-/**
- * A Sched address written inside out: `sched.<con>.com` rather than
- * `<con>.sched.com`.
- *
- * Worth its own error because the generic one sends the reader to check a
- * connection that is fine. The host does not resolve, so the fetch fails with
- * a DNS error that surfaces as "Couldn't Load Schedule -- check your
- * connection and try again", and the person retries on wifi, then cellular,
- * then decides the app is broken. A real report reached a handoff document
- * that way: sched.furality.com, NXDOMAIN, diagnosed as a TLS problem for days.
- *
- * Detected from the pasted text rather than from a failure message, so it
- * costs no network call and does not depend on how a platform words its DNS
- * errors.
- */
-export class ReversedSchedUrlError extends Error {
-  /** The address the user probably meant, e.g. `furality.sched.com`. */
-  readonly suggestion: string;
-
-  constructor(url: string, suggestion: string) {
-    super(`"${url}" looks like a Sched address reversed. Try ${suggestion}.`);
-    this.name = "ReversedSchedUrlError";
-    this.suggestion = suggestion;
-  }
-}
-
 export type ScheduleUrlKind = "sched" | "ics";
 
 export interface ResolvedScheduleUrl {
@@ -62,6 +36,34 @@ const SCHED_PATTERN = /^https:\/\/([a-zA-Z0-9-]+)\.sched\.com(\/.*)?$/;
  * silent rewrite of what they typed.
  */
 const REVERSED_SCHED_PATTERN = /^sched\.([a-zA-Z0-9-]+)\.[a-zA-Z]{2,}$/;
+
+/**
+ * The address someone probably meant when they wrote `sched.<con>.<tld>`.
+ *
+ * Sched publishes at `<con>.sched.com`, so the inside-out form is a common
+ * slip -- a real report reached a handoff document as `sched.furality.com`,
+ * which does not resolve. The fetch then dies on DNS and the app says "check
+ * your connection", advice that is wrong and sent someone chasing wifi.
+ *
+ * This only ever SUGGESTS. It deliberately does not reject the URL, because
+ * `sched.example.org` is an ordinary subdomain any convention might use for a
+ * schedule it hosts itself, with nothing to do with Sched the company --
+ * refusing to fetch it would turn a working import into a hard failure. So the
+ * import is attempted first, and this is consulted only once it has actually
+ * failed, to explain a failure rather than to prevent an attempt.
+ *
+ * Returns null when the host is not that shape.
+ */
+export function reversedSchedSuggestion(input: string): string | null {
+  const normalized = normalizeScheme(input);
+  if (!normalized) return null;
+  try {
+    const match = new URL(normalized).hostname.match(REVERSED_SCHED_PATTERN);
+    return match ? `${match[1].toLowerCase()}.sched.com` : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * `webcal:` is not a real transport — it is `https:` with a scheme that asks
@@ -101,14 +103,6 @@ export function resolveScheduleUrl(input: string): ResolvedScheduleUrl {
 
   if (parsed.protocol !== "https:") {
     throw new InvalidScheduleUrlError(input.trim());
-  }
-
-  const reversed = parsed.hostname.match(REVERSED_SCHED_PATTERN);
-  if (reversed) {
-    throw new ReversedSchedUrlError(
-      input.trim(),
-      `${reversed[1].toLowerCase()}.sched.com`,
-    );
   }
 
   const canonicalUrl = parsed.toString();

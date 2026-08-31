@@ -50,7 +50,7 @@ import {
   InvalidResponseError,
   InvalidScheduleUrlError,
   NetworkError,
-  ReversedSchedUrlError,
+  reversedSchedSuggestion,
   ScheduleFetchCancelledError,
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
@@ -394,25 +394,23 @@ export default function ImportScreen() {
       // they are the one who caused it.
       if (err instanceof ScheduleFetchCancelledError) return;
       if (!isCurrentRequest(generation)) return;
-      if (err instanceof ReversedSchedUrlError) {
-        // Named separately from the generic invalid-URL case because it can
-        // say what to type instead, which is the whole reason it exists.
-        setError({
-          type: "file-type",
-          message: t("import.errors.reversedSchedUrl", {
-            suggestion: err.suggestion,
-          }),
-          detail: err.message,
-        });
-      } else if (err instanceof InvalidScheduleUrlError) {
+      if (err instanceof InvalidScheduleUrlError) {
         setError({
           type: "file-type",
           message: t("import.errors.invalidUrl"),
         });
       } else if (err instanceof NetworkError) {
+        // A reversed Sched address fails here, as DNS, and the generic
+        // "check your connection" is wrong for it -- the connection is fine
+        // and retrying never helps. Checked only after a real failure, so a
+        // convention genuinely serving a schedule from its own sched.* host
+        // is never blocked from importing.
+        const suggestion = reversedSchedSuggestion(scheduleUrl);
         setError({
           type: "network",
-          message: t("import.errors.network"),
+          message: suggestion
+            ? t("import.errors.reversedSchedUrl", { suggestion })
+            : t("import.errors.network"),
           detail: err.message,
         });
       } else if (err instanceof InvalidResponseError) {
