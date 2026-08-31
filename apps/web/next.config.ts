@@ -9,6 +9,19 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   reactCompiler: true,
   pageExtensions: ["ts", "tsx", "mdx"],
+
+  // Enables `app/global-not-found.tsx`, which is the only way this site can
+  // serve a styled 404. It has two root layouts (one per language tree, so
+  // <html lang> can be right) and therefore no app/layout.tsx -- and with no
+  // root layout, Next renders a plain not-found.tsx inside its own bare error
+  // shell: no stylesheet, no fonts, no lang. `global-not-found.tsx` renders
+  // its own <html> instead, the way global-error.tsx already does.
+  //
+  // Experimental in 16.2.12, and load-bearing: removing this flag does not
+  // fail the build, it silently reverts the 404 to unstyled markup.
+  experimental: {
+    globalNotFound: true,
+  },
   env: {
     CONPAWS_RELEASE_SHA: process.env.GITHUB_SHA ?? "local",
   },

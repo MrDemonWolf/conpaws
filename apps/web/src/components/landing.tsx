@@ -401,17 +401,16 @@ export function Landing({
   const year = new Date().getFullYear();
 
   return (
-    // `lang` is set here rather than on <html>. The root layout cannot see the
-    // locale without moving every route under `[locale]`, including the
-    // English-only legal MDX, and that restructure is a bigger change than the
-    // copy it would serve. A subtree `lang` is valid HTML and is what screen
-    // readers switch voice on; the canonical language signal for crawlers is
-    // the hreflang set in metadata, which is complete.
+    // No `lang` here any more. It used to be set on this <div> because the
+    // single root layout could not see the locale, which left <html lang="en">
+    // on all 23 languages -- and that is the attribute browsers use to offer a
+    // translation and Google reads as a language signal. `app/[locale]/layout.tsx`
+    // is a second root layout and sets it properly; see components/document.tsx.
     // A wrapper, not <main>: <main> used to contain the header nav and the
     // footer, which makes the footer not a contentinfo landmark and leaves the
     // page with no banner landmark at all -- so landmark navigation offered
     // exactly one destination, "main", on every page.
-    <div lang={locale} className="relative mx-auto max-w-[1120px] px-6 pb-28">
+    <div className="relative mx-auto max-w-[1120px] px-6 pb-28">
       <a
         href="#main"
         className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-menu"
