@@ -8,6 +8,13 @@
       "when": 1787142880602,
       "tag": "0000_waitlist",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788136885499,
+      "tag": "0001_waitlist_ip_recent_idx",
+      "breakpoints": true
     }
   ]
 }
