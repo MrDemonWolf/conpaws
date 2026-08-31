@@ -62,3 +62,16 @@ export const LOCALE_CODES: readonly Locale[] = LOCALES.map((l) => l.code);
 export function isLocale(value: string): value is Locale {
   return (LOCALE_CODES as readonly string[]).includes(value);
 }
+
+/**
+ * Writing direction for `<html dir>`.
+ *
+ * Every locale in the table is `ltr` today, so this returns the same answer
+ * every time. It exists so that adding an RTL language is a row in `LOCALES`
+ * and nothing else — the alternative is `dir="ltr"` written literally in the
+ * document shell, which is the kind of correct-until-it-isn't that nobody
+ * thinks to grep for.
+ */
+export function localeDir(locale: Locale): "ltr" | "rtl" {
+  return LOCALES.find((entry) => entry.code === locale)?.dir ?? "ltr";
+}

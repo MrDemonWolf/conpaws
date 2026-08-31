@@ -169,6 +169,44 @@ favicon, Play Store icon, and production icon unbadged.
 Preview and production are two builds of the same store app and cannot be
 installed side by side. Never promote a preview build publicly.
 
+### Web routing: two root layouts, and the traps in it
+
+**There is no `apps/web/src/app/layout.tsx`, deliberately.** The site has
+**two root layouts** — `app/(marketing)/layout.tsx` for the English routes and
+`app/[locale]/layout.tsx` for the 22 translated ones — because only a root
+layout renders `<html>` and only a layout at or below `[locale]` can see the
+locale. A single root layout can only hardcode `lang`, and it did: every
+language shipped `<html lang="en">`. Both delegate to `Document` in
+`src/components/document.tsx`, which owns the fonts, the shared metadata, the
+global stylesheet and `<html lang dir>`. Add anything document-level there, not
+to one layout.
+
+URLs did not move. `(marketing)` is a route group and contributes no path
+segment, so `/` is still English and `/ja` is still `/ja`. Putting every route
+under `[locale]` — the other reading of "restructure" — would drag `/privacy`
+to `/en/privacy` and is the thing not to do.
+
+Three consequences that fail silently:
+
+- **The 404 is `app/global-not-found.tsx`, not `not-found.tsx`.** With no root
+  layout there is nothing for a `not-found.tsx` to be wrapped in, and Next
+  serves it inside its own bare error shell: no stylesheet, no fonts, no
+  `lang`. `global-not-found.tsx` renders its own `<html>` (via `Document`) the
+  way `global-error.tsx` does. It needs **`experimental.globalNotFound: true`**
+  in `next.config.ts` — removing that flag does not fail the build, it reverts
+  the 404 to unstyled markup. The page body lives in
+  `src/components/not-found-page.tsx` and applies the `%s · ConPaws` title
+  template itself, because it inherits no layout metadata.
+- **Do not add a `[...catchAll]` page to funnel misses.** It was tried; it
+  works, but `global-not-found.tsx` covers the same ground without a route.
+- **`/ja` and the other locale pages 404 in the local OpenNext preview.** This
+  is **pre-existing and not a regression** — verified against an unmodified
+  build of `main`. The preview does not populate the incremental cache, so
+  prerendered `[locale]` routes miss and, with `dynamicParams = false`, 404.
+  Verify locale rendering with `bunx next start` (or the prerendered HTML in
+  `.next/server/app/<locale>.html`), and use the Worker preview for everything
+  else.
+
 ### Native MVP Screens
 
 The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).

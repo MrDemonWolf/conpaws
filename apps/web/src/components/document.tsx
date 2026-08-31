@@ -1,13 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Roboto, Roboto_Mono } from "next/font/google";
 
-import "../index.css";
 import { LocaleDetect } from "@/components/locale-detect";
 import Providers from "@/components/providers";
 import { ServiceWorker } from "@/components/service-worker";
 import { getMessages } from "@/i18n";
-import { DEFAULT_LOCALE } from "@/i18n/config";
+import { DEFAULT_LOCALE, type Locale, localeDir } from "@/i18n/config";
 import { SITE_URL } from "@/lib/site";
+
+// The global stylesheet lives with the <html> element it styles, not in each
+// root layout. There is more than one root layout and the 404 renders with no
+// root layout at all; importing it here is what makes "renders inside
+// <Document>" and "is styled" the same statement.
+import "../index.css";
 
 // Subsets are wider than `latin` because the site ships in 23 locales.
 // `latin-ext` carries Polish, Czech and Hungarian; `cyrillic` carries Russian
@@ -45,7 +50,16 @@ const robotoMono = Roboto_Mono({
 // which is why they read the default catalog rather than being retyped.
 const messages = getMessages(DEFAULT_LOCALE);
 
-export const metadata: Metadata = {
+/**
+ * Metadata every root layout shares.
+ *
+ * There is more than one root layout now (see `Document`), and these values —
+ * `metadataBase`, the title template, the OG and Twitter cards — are about the
+ * site rather than about a language. Duplicating them per layout is how the
+ * `/ja` OG card would eventually end up pointing at a different image from the
+ * `/` one for no reason anybody remembers.
+ */
+export const rootMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: messages.meta.title,
@@ -76,17 +90,41 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = {
+export const rootViewport: Viewport = {
   themeColor: "#091533",
 };
 
-export default function RootLayout({
+/**
+ * The `<html>` document, shared by every root layout.
+ *
+ * `lang` is a parameter because it has to be: only the root layout renders
+ * `<html>`, and a root layout that cannot see the locale can only hardcode
+ * one. It hardcoded "en" for a long time, with the real locale set on a
+ * `<div>` deep inside the page. That is valid HTML and screen readers do
+ * honour the subtree, but the attribute browsers and crawlers read first is
+ * the root one: Chrome and Safari offer to translate a Japanese page because
+ * `<html lang>` disagrees with the text, and Google reads it as a
+ * language signal alongside hreflang.
+ *
+ * The fix is two root layouts rather than one — `(marketing)` for the
+ * English-only routes and `[locale]` for the translated landing pages — which
+ * is why this component exists. Everything that used to sit in the single root
+ * layout lives here, so the two cannot drift: one set of fonts, one set of
+ * metadata, one body.
+ *
+ * `dir` comes from the locale table rather than being assumed. Every locale
+ * shipped today is `ltr`, so this changes nothing now; it means the first RTL
+ * language is a row in `i18n/config.ts` and not a bug report.
+ */
+export function Document({
+  locale,
   children,
-}: Readonly<{
+}: {
+  locale: Locale;
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={localeDir(locale)} suppressHydrationWarning>
       <body
         className={`${montserrat.variable} ${roboto.variable} ${robotoMono.variable} font-sans antialiased`}
       >

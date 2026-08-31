@@ -11,16 +11,27 @@ import { DEFAULT_LOCALE } from "@/i18n/config";
  * followed a stale link, or found an old preview URL — with no session, no
  * query params, and no JS.
  *
- * Renders in English regardless of the URL: a root `not-found.tsx` cannot read
- * `params`, so `/ja/typo` lands here with no locale to read. Every string still
- * comes from the catalog rather than being typed inline, so the day a
- * locale-scoped 404 route exists this becomes a routing change and not a copy
- * migration. The catalogs are already translated.
+ * It is a component rather than a `not-found.tsx` because the route file that
+ * renders it is `app/global-not-found.tsx`, which supplies its own `<html>`.
+ * A plain `not-found.tsx` does not work here: with two root layouts there is
+ * no `app/layout.tsx` for one to be wrapped in, and Next serves it inside its
+ * own bare error shell — no stylesheet, no fonts, no `lang`, black text on
+ * white. Nothing warns about that; it was found by fetching `/foo/bar` and
+ * looking at the markup.
+ *
+ * Renders in English regardless of the URL. Every string still comes from the
+ * catalog rather than being typed inline, so translating it later is a change
+ * to which catalog is read and not a copy migration. The catalogs are already
+ * translated.
  */
 const messages = getMessages(DEFAULT_LOCALE);
 
-export const metadata: Metadata = {
-  title: messages.notFound.title,
+export const notFoundMetadata: Metadata = {
+  // The template is applied here rather than inherited. `global-not-found.tsx`
+  // is not nested under either root layout -- that is the whole point of it --
+  // so it never sees the layout's `%s · ConPaws` template, and the tab read
+  // "Page not found" with no idea which site it belonged to.
+  title: messages.meta.titleTemplate.replace("%s", messages.notFound.title),
   description: messages.notFound.description,
   robots: { index: false, follow: true },
 };
@@ -32,7 +43,7 @@ const ELSEWHERE = (["/", "/support", "/privacy"] as const).map((href, i) => ({
   ...messages.notFound.links[i],
 }));
 
-export default function NotFound() {
+export function NotFoundPage() {
   return (
     <PageShell messages={messages} navAside={<NavPill>404</NavPill>}>
       <section className="relative mt-10 overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
