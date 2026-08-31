@@ -55,7 +55,7 @@
     "expo-sqlite": "~57.0.2",
     "expo-system-ui": "~57.0.3",
     "expo-web-browser": "~57.0.2",
-    "i18next": "^25.8.7",
+    "i18next": "^26.4.0",
     "lucide-react-native": "^0.564.0",
     "nativewind": "5.0.0-preview.2",
     "react": "19.2.3",
