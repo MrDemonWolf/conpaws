@@ -84,7 +84,7 @@ export function FieldRow({
       modifiers={itemModifiers.length ? itemModifiers : undefined}
     >
       <ComposeListItem.HeadlineContent>
-        <>{wrapStrings(children)}</>
+        {wrapStrings(children)}
       </ComposeListItem.HeadlineContent>
       {supportingText != null ? (
         <ComposeListItem.SupportingContent>
