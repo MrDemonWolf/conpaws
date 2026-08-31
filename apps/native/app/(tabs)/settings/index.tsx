@@ -3,7 +3,6 @@ import {
   FieldGroup,
   Host,
   Icon,
-  ListItem,
   Switch as NativeSwitch,
   Picker,
 } from "@expo/ui";
@@ -14,6 +13,8 @@ import { useCallback, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, Linking } from "react-native";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
+// See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";

@@ -1,7 +1,9 @@
-import { FieldGroup, Host, ListItem } from "@expo/ui";
+import { FieldGroup, Host } from "@expo/ui";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
+// See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 

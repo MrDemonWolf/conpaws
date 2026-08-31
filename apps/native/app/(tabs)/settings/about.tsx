@@ -5,13 +5,17 @@ import ForumIcon from "@expo/material-symbols/forum.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
-import { Column, FieldGroup, Host, Icon, ListItem, RNHostView } from "@expo/ui";
+import { Column, FieldGroup, Host, Icon, RNHostView } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
 import { Image, useWindowDimensions, View } from "react-native";
 import { Text } from "@/components/ui";
+// Android draws a card inside a card when a universal ListItem sits in a
+// FieldGroup.Section; FieldRow is the same component with one surface. See
+// components/ui/FieldRow.android.tsx.
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
