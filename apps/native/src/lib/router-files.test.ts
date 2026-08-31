@@ -191,6 +191,33 @@ describe("Schedule tab", () => {
   });
 });
 
+describe("Both schedules mark clashing events", () => {
+  // The Schedule tab computed its overlap grouping and then never passed
+  // `hasConflict`, so `EventItem` fell back to its `false` default and the
+  // "Overlaps" label could not render there at all. The cluster header still
+  // did, which is why it looked like a styling quirk rather than a missing
+  // prop: the two say different things. The header says these rows share a
+  // time band; the label says this event genuinely clashes.
+  it.each([
+    ["schedule tab", scheduleScreenSource],
+    ["convention detail", conventionDetailSource],
+  ])("%s passes hasConflict to its rows", (_name, source) => {
+    expect(source).toContain("hasConflict={");
+  });
+
+  // Both screens must decide a clash the same way. `overlapInfo` gives an
+  // event with no end time a fallback duration so it can still be grouped;
+  // `overlappingEventIds` skips it. Deriving the label from the grouping count
+  // instead would make one screen claim clashes the other does not, for the
+  // same two events.
+  it.each([
+    ["schedule tab", scheduleScreenSource],
+    ["convention detail", conventionDetailSource],
+  ])("%s decides a clash with overlappingEventIds", (_name, source) => {
+    expect(source).toContain("overlappingEventIds");
+  });
+});
+
 describe("Windowed lists redraw when their formatting inputs change", () => {
   // Both schedules format their rows -- and the schedule tab its day headers --
   // from values that live outside the section data: the locale, the clock
