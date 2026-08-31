@@ -822,26 +822,11 @@ export default function ImportScreen() {
             </FieldGroup.Section>
           ) : null}
 
-          {/* The single biggest first-run stall was this screen assuming the
-              user already knows what Sched or an .ics file is. */}
-          <FieldGroup.Section>
-            <Collapsible
-              label={t("import.help.title")}
-              isOpen={helpOpen}
-              onOpenChange={setHelpOpen}
-            >
-              <ListItem supportingText={t("import.help.sched")}>
-                {t("import.help.schedTitle")}
-              </ListItem>
-              <ListItem supportingText={t("import.help.ics")}>
-                {t("import.help.icsTitle")}
-              </ListItem>
-              <ListItem supportingText={t("import.help.ask")}>
-                {t("import.help.askTitle")}
-              </ListItem>
-            </Collapsible>
-          </FieldGroup.Section>
-
+          {/* Same placement rule as the loading row above, which used to be
+              the only half of it that was honoured: this sat below the help
+              section, so a failed fetch scrolled its own explanation off the
+              screen and the button looked inert. Feedback belongs where the
+              action was. */}
           {error && !loading ? (
             <FieldGroup.Section title={t("import.needsAttention")}>
               <ListItem supportingText={error.message}>
@@ -878,6 +863,26 @@ export default function ImportScreen() {
               )}
             </FieldGroup.Section>
           ) : null}
+
+          {/* The single biggest first-run stall was this screen assuming the
+              user already knows what Sched or an .ics file is. */}
+          <FieldGroup.Section>
+            <Collapsible
+              label={t("import.help.title")}
+              isOpen={helpOpen}
+              onOpenChange={setHelpOpen}
+            >
+              <ListItem supportingText={t("import.help.sched")}>
+                {t("import.help.schedTitle")}
+              </ListItem>
+              <ListItem supportingText={t("import.help.ics")}>
+                {t("import.help.icsTitle")}
+              </ListItem>
+              <ListItem supportingText={t("import.help.ask")}>
+                {t("import.help.askTitle")}
+              </ListItem>
+            </Collapsible>
+          </FieldGroup.Section>
 
           {preview && !loading && !error ? (
             <>
