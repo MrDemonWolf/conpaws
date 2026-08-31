@@ -5,7 +5,15 @@ import ForumIcon from "@expo/material-symbols/forum.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
-import { FieldGroup, Host, Icon, ListItem, Text as NativeText } from "@expo/ui";
+import {
+  Column,
+  FieldGroup,
+  Host,
+  Icon,
+  ListItem,
+  Text as NativeText,
+  RNHostView,
+} from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
@@ -66,53 +74,61 @@ export default function AboutScreen() {
   const versionLabel = useVersionLabel();
   const heroWidth = Math.min(520, Math.max(260, width - 64));
 
+  const isIOS = process.env.EXPO_OS === "ios";
+
+  const hero = (
+    <View
+      accessible
+      accessibilityLabel={`ConPaws. ${t("settings.about.tagline")} ${versionLabel}.`}
+      accessibilityRole="summary"
+      style={{
+        width: heroWidth,
+        alignItems: "center",
+        gap: 8,
+        paddingHorizontal: 16,
+      }}
+    >
+      <Image
+        source={require("../../../assets/images/icon.png")}
+        style={{
+          width: 88,
+          height: 88,
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+        resizeMode="contain"
+        accessible={false}
+        accessibilityIgnoresInvertColors
+      />
+      {/* Design-system variants, not inline fontSize: these three lines were
+          the only text in the app that opted out of the Dynamic Type ramp
+          `ui/Text` applies. */}
+      <Text variant="h1" className="text-center">
+        ConPaws
+      </Text>
+      <Text variant="body" className="text-center text-muted-foreground">
+        {t("settings.about.tagline")}
+      </Text>
+      <Text selectable variant="caption" className="tabular-nums">
+        {versionLabel}
+      </Text>
+    </View>
+  );
+
   return (
     <View className="flex-1 bg-background">
-      {/* The hero sits OUTSIDE the native list, not in a Section.
-          `RNHostView` does not render React Native children inside @expo/ui's
-          list on Android: with `matchContents` the wrapper measured to nothing
-          and the whole block -- logo, wordmark, tagline, version -- silently
-          vanished, and pinning an explicit height only reserved an empty grey
-          box. Plain RN content belongs in plain RN, above the list. */}
-      <View className="items-center px-4 py-6">
-        <View
-          accessible
-          accessibilityLabel={`ConPaws. ${t("settings.about.tagline")} ${versionLabel}.`}
-          accessibilityRole="summary"
-          style={{
-            width: heroWidth,
-            alignItems: "center",
-            gap: 8,
-            paddingHorizontal: 16,
-          }}
-        >
-          <Image
-            source={require("../../../assets/images/icon.png")}
-            style={{
-              width: 88,
-              height: 88,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-            resizeMode="contain"
-            accessible={false}
-            accessibilityIgnoresInvertColors
-          />
-          {/* Design-system variants, not inline fontSize: these three lines
-              were the only text in the app that opted out of the Dynamic Type
-              ramp `ui/Text` applies. */}
-          <Text variant="h1" className="text-center">
-            ConPaws
-          </Text>
-          <Text variant="body" className="text-center text-muted-foreground">
-            {t("settings.about.tagline")}
-          </Text>
-          <Text selectable variant="caption" className="tabular-nums">
-            {versionLabel}
-          </Text>
-        </View>
-      </View>
+      {/* Where the hero goes is a real platform difference, not a preference.
+          On iOS it belongs in the list: `RNHostView` renders React Native
+          children there, and the list is what scrolls the hero under the large
+          navigation title. On Android `RNHostView` renders nothing inside
+          @expo/ui's list -- with `matchContents` the wrapper measured to zero
+          and the whole block silently vanished, and an explicit height only
+          reserved an empty box -- so Android puts it in plain React Native
+          above the list. Hoisting it on iOS too was tried and looked worse:
+          outside the list nothing scrolls it, so it collides with the large
+          title and clips under the status bar. */}
+      {isIOS ? null : <View className="items-center px-4 py-6">{hero}</View>}
 
       <Host
         colorScheme={resolvedColorScheme}
@@ -121,6 +137,14 @@ export default function AboutScreen() {
         useViewportSizeMeasurement
       >
         <FieldGroup>
+          {isIOS ? (
+            <FieldGroup.Section>
+              <Column alignment="center" style={{ paddingVertical: 24 }}>
+                <RNHostView matchContents>{hero}</RNHostView>
+              </Column>
+            </FieldGroup.Section>
+          ) : null}
+
           <FieldGroup.Section title={t("settings.about.support")}>
             <ListItem
               leading={<NativeIcon name={HELP_ICON} />}
