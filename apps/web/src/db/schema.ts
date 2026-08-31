@@ -83,6 +83,11 @@ export const waitlist = sqliteTable(
       table.syncAttempts,
       table.createdAt,
     ),
+    // Shaped to the per-IP signup cap in the route: filter on ip, then on a
+    // created_at window. Without it that count scans the table, and D1 bills
+    // scanned rows -- an abuse guard that gets more expensive the more it is
+    // exercised is the wrong shape.
+    index("waitlist_ip_recent_idx").on(table.ip, table.createdAt),
   ],
 );
 

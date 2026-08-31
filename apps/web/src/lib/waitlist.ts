@@ -24,6 +24,29 @@ export const RECONCILE_BATCH_SIZE = 50;
 export const RESEND_COOLDOWN_MS = 10 * 60 * 1000;
 
 /**
+ * How many addresses one IP may sign up in {@link SIGNUP_WINDOW_MS}.
+ *
+ * RESEND_COOLDOWN_MS bounds sends to *one* address; it says nothing about
+ * distinct ones. A caller with solved Turnstile tokens could therefore create
+ * unbounded D1 rows and make SES send exactly one confirmation to each of an
+ * arbitrary list of third parties -- every message individually legitimate,
+ * every one of them unrequested, and our sending reputation paying for it.
+ *
+ * Five an hour is far above a household or a convention's shared wifi
+ * retrying a form, and far below anything worth automating.
+ */
+export const MAX_SIGNUPS_PER_IP = 5;
+export const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
+
+/** Whether this IP has room for another signup right now. */
+export function signupAllowedFromIp(
+  recentCount: number,
+  limit: number = MAX_SIGNUPS_PER_IP,
+): boolean {
+  return recentCount < limit;
+}
+
+/**
  * Whether a failed send says "listmonk was unreachable" rather than "this
  * address is no good".
  *

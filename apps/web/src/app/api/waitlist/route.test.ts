@@ -16,14 +16,24 @@ const ENV = {
   LISTMONK_LIST_ID: "3",
 };
 
-/** Covers only the two query shapes the route builds. */
-function fakeDb(existing: unknown[] = [], claimSucceeds = true) {
+/** Covers only the query shapes the route builds. */
+function fakeDb(
+  existing: unknown[] = [],
+  claimSucceeds = true,
+  recentFromIp = 0,
+) {
   const inserted: unknown[] = [];
 
   const db = {
     select: () => ({
       from: () => ({
-        where: () => ({ limit: () => Promise.resolve(existing) }),
+        // Two different queries end at `where`: the address lookup calls
+        // `.limit(1)` after it, while the per-IP count awaits it directly.
+        // One thenable with a `limit` method serves both.
+        where: () =>
+          Object.assign(Promise.resolve([{ count: recentFromIp }]), {
+            limit: () => Promise.resolve(existing),
+          }),
       }),
     }),
     insert: () => ({
@@ -51,18 +61,24 @@ function fakeDb(existing: unknown[] = [], claimSucceeds = true) {
   return { db, inserted };
 }
 
-function wireWorker(existing: unknown[] = [], claimSucceeds = true) {
-  const { db, inserted } = fakeDb(existing, claimSucceeds);
+function wireWorker(
+  existing: unknown[] = [],
+  claimSucceeds = true,
+  recentFromIp = 0,
+) {
+  const { db, inserted } = fakeDb(existing, claimSucceeds, recentFromIp);
   const waitUntil = vi.fn();
   createDb.mockReturnValue(db);
   getCloudflareContext.mockReturnValue({ env: ENV, ctx: { waitUntil } });
   return { inserted, waitUntil };
 }
 
-function request(body: unknown): Request {
+function request(body: unknown, ip = "203.0.113.7"): Request {
   return new Request("https://conpaws.com/api/waitlist", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    // Cloudflare always sets cf-connecting-ip in front of the Worker, and the
+    // per-IP cap is skipped without it, so the fixture carries one.
+    headers: { "content-type": "application/json", "cf-connecting-ip": ip },
     body: JSON.stringify(body),
   });
 }
@@ -310,5 +326,48 @@ describe("POST /api/waitlist", () => {
 
     expect(response.status).toBe(200);
     expect(waitUntil).not.toHaveBeenCalled();
+  });
+
+  it("refuses a new address once one IP has had its fill for the hour", async () => {
+    // Five already, and the cap is five. The per-address cooldown cannot see
+    // this: every one of these is a DIFFERENT inbox, each getting exactly one
+    // legitimate-looking confirmation it never asked for.
+    const { inserted, waitUntil } = wireWorker([], true, 5);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ success: true }),
+    );
+
+    const response = await POST(
+      request({
+        email: "sixth@example.com",
+        elapsedMs: 3_000,
+        turnstileToken: "good-token",
+      }),
+    );
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("3600");
+    // Nothing written and nothing mailed.
+    expect(inserted).toHaveLength(0);
+    expect(waitUntil).not.toHaveBeenCalled();
+  });
+
+  it("still accepts a signup while the IP is under the cap", async () => {
+    const { inserted, waitUntil } = wireWorker([], true, 4);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ success: true }),
+    );
+
+    const response = await POST(
+      request({
+        email: "fifth@example.com",
+        elapsedMs: 3_000,
+        turnstileToken: "good-token",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(inserted).toHaveLength(1);
+    expect(waitUntil).toHaveBeenCalled();
   });
 });

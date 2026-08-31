@@ -1,0 +1,1 @@
+CREATE INDEX `waitlist_ip_recent_idx` ON `waitlist` (`ip`,`created_at`);

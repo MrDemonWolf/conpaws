@@ -1,5 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { eq } from "drizzle-orm";
+import { and, count, eq, gte } from "drizzle-orm";
 import { z } from "zod";
 
 import { createDb } from "../../../db";
@@ -12,6 +12,8 @@ import {
   claimRow,
   MAX_SYNC_ATTEMPTS,
   resendAllowed,
+  SIGNUP_WINDOW_MS,
+  signupAllowedFromIp,
   syncRow,
 } from "../../../lib/waitlist";
 
@@ -19,7 +21,8 @@ import {
  * Waitlist signup.
  *
  * Order of operations:
- *   honeypot + timing gate → Turnstile → D1 insert → listmonk DOI in waitUntil
+ *   honeypot + timing gate → Turnstile → per-IP cap → D1 insert →
+ *   listmonk DOI in waitUntil
  *
  * D1 is written before listmonk is contacted, deliberately. An ESP outage must
  * never fail the visitor's submission — the row lands with `synced_at` NULL and
@@ -179,6 +182,29 @@ export async function POST(request: Request) {
     }
 
     return Response.json({ ok: true });
+  }
+
+  // A new address, which is the only path that creates a row and sends mail.
+  // The per-address cooldown above bounds repeats to ONE inbox and says
+  // nothing about distinct ones, so this is what stops a caller with solved
+  // Turnstile tokens from walking a list of strangers' addresses and having
+  // SES deliver one unrequested confirmation to each.
+  if (ip) {
+    const since = new Date(Date.now() - SIGNUP_WINDOW_MS);
+    const [recent] = await db
+      .select({ count: count() })
+      .from(waitlist)
+      .where(and(eq(waitlist.ip, ip), gte(waitlist.createdAt, since)));
+
+    if (!signupAllowedFromIp(recent?.count ?? 0)) {
+      // Deliberately vague and 429 rather than a silent success: a real person
+      // on a shared connection deserves to know the request was refused and
+      // that waiting fixes it.
+      return Response.json(
+        { error: "Too many signups from this connection. Try again later." },
+        { status: 429, headers: { "Retry-After": "3600" } },
+      );
+    }
   }
 
   const row = {
