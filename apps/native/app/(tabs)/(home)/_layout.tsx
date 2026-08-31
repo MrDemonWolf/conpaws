@@ -47,7 +47,12 @@ export default function HomeLayout() {
           headerShown: FORM_HEADER_SHOWN,
           presentation: FORM_PRESENTATION,
           sheetAllowedDetents: [0.55, 0.85],
-          sheetInitialDetentIndex: 0,
+          // Opens tall. At 0.55 a form with several fields showed roughly its
+          // first two, so the sheet arrived already needing to be dragged --
+          // and the reader has to discover that before they can even read what
+          // they are filling in. The short detent stays available for peeking
+          // at the list behind.
+          sheetInitialDetentIndex: 1,
           sheetGrabberVisible: true,
         }}
       />
@@ -59,7 +64,12 @@ export default function HomeLayout() {
           headerShown: FORM_HEADER_SHOWN,
           presentation: FORM_PRESENTATION,
           sheetAllowedDetents: [0.55, 0.85],
-          sheetInitialDetentIndex: 0,
+          // Opens tall. At 0.55 a form with several fields showed roughly its
+          // first two, so the sheet arrived already needing to be dragged --
+          // and the reader has to discover that before they can even read what
+          // they are filling in. The short detent stays available for peeking
+          // at the list behind.
+          sheetInitialDetentIndex: 1,
           sheetGrabberVisible: true,
         }}
       />
@@ -88,7 +98,12 @@ export default function HomeLayout() {
           headerShown: FORM_HEADER_SHOWN,
           presentation: FORM_PRESENTATION,
           sheetAllowedDetents: [0.5, 0.9, 1],
-          sheetInitialDetentIndex: 0,
+          // This screen is the worst offender at a short default: two source
+          // sections, help, and then whatever the fetch produced. At 0.5 the
+          // error, the preview and the import button all landed below the fold
+          // -- a failed fetch scrolled its own explanation out of sight, which
+          // read as the button doing nothing.
+          sheetInitialDetentIndex: 1,
           sheetGrabberVisible: true,
         }}
       />
