@@ -18,11 +18,12 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, ActivityIndicator, Alert } from "react-native";
+import { AccessibilityInfo, Alert } from "react-native";
 import { TimeZonePickerModal } from "@/components/ConventionFormFields";
 import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
 import { SafeView } from "@/components/ui";
 import { NativeText } from "@/components/ui/NativeText";
+import { RowSpinner } from "@/components/ui/RowSpinner";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
@@ -824,11 +825,14 @@ export default function ImportScreen() {
               feedback where the action happened. */}
           {loading ? (
             <FieldGroup.Section>
-              {/* Untinted UIActivityIndicatorView — system gray, matching the
-                  "checking…" rows in iOS Settings. */}
+              {/* Untinted, system gray, matching the "checking…" rows in iOS
+                  Settings. `RowSpinner` is platform-split: a React Native
+                  ActivityIndicator here is unmeasurable inside Android's
+                  Compose trailing slot, which collapses the headline to one
+                  character per line. */}
               <ListItem
                 supportingText={t("import.loadingDescription")}
-                trailing={<ActivityIndicator size="small" />}
+                trailing={<RowSpinner />}
               >
                 {t("import.loading")}
               </ListItem>
