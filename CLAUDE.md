@@ -101,7 +101,7 @@ conpaws/
 │   └── server/              # (planned — does not exist) Hono/tRPC/Better-Auth Worker
 ├── packages/
 │   ├── config/              # Shared tsconfig base
-│   ├── env/                 # Zod env schemas (src/web.ts is used; src/native.ts is not imported)
+│   ├── env/                 # Zod env schemas (src/web.ts for the site build, src/deploy.ts for alchemy.run.ts)
 │   ├── infra/               # alchemy.run.ts — D1, Worker bindings/secrets, cron
 │   └── ui/                  # Shared shadcn/ui primitives (web)
 ├── docs/                    # Widget and Watch design docs, mockups, UX opportunities
@@ -131,6 +131,8 @@ conpaws/
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Turnstile widget (public; server verify uses the secret below)
 
 Worker-side waitlist config is read at **deploy time** by `packages/infra/alchemy.run.ts` and bound onto the Workers — it never lives in `process.env` at build time, which is why `packages/env/src/web.ts` deliberately omits it: `TURNSTILE_SECRET_KEY`, `LISTMONK_BASE_URL`, `LISTMONK_API_USER`, `LISTMONK_API_TOKEN`, `LISTMONK_LIST_ID`. `ALCHEMY_PASSWORD` encrypts Alchemy state.
+
+They are validated on the deploying machine by `packages/env/src/deploy.ts` (`@conpaws/env/deploy`), which `alchemy.run.ts` calls before it creates a single resource. Everything in that schema is **required** — including `ALCHEMY_PASSWORD`, `ALCHEMY_STATE_TOKEN` and the `*_ENABLED` flags — and `LISTMONK_LIST_ID` must be plain digits, because the failure it exists to catch is silent: an unset or mistyped value used to bind fine, get rejected by `readListmonkConfig` at the edge, and take the live waitlist down while the deploy reported success. `bun run destroy` runs the same program and therefore needs the same variables present.
 
 Only `TURNSTILE_SECRET_KEY` and `LISTMONK_API_TOKEN` are real credentials, wrapped in `alchemy.secret(...)`; the other three listmonk values are plain configuration. That is why `.github/workflows/deploy-web.yml` carries them as repository **variables** and only the token as a secret. All four are required together — a partial set fails closed rather than half-opening the waitlist.
 

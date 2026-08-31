@@ -12,6 +12,9 @@
     "deploy": "tsx alchemy.run.ts",
     "destroy": "tsx alchemy.run.ts --destroy"
   },
+  "dependencies": {
+    "@conpaws/env": "workspace:*"
+  },
   "devDependencies": {
     "@conpaws/config": "workspace:*",
     "alchemy": "0.91.2",
