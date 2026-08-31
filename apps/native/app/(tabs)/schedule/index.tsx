@@ -16,7 +16,7 @@ import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
-import { isValidTimeZone } from "@/lib/convention-time";
+import { isValidTimeZone, overlappingEventIds } from "@/lib/convention-time";
 import {
   type ClusterPosition,
   type OverlapInfo,
@@ -63,6 +63,13 @@ interface ScheduleRowProps {
   conventionName?: string;
   locale: string;
   hour12?: boolean;
+  /**
+   * True when this row genuinely clashes with another starred event, by the
+   * same rule the convention screen uses. Drives the "Overlaps" label, which
+   * is a stronger claim than the grouping chrome: the cluster header only
+   * says these rows share a time band.
+   */
+  hasConflict?: boolean;
   /** Overlap grouping from `overlapInfo`, forwarded to the row chrome. */
   overlapPosition?: ClusterPosition;
   overlapGroupSize?: number;
@@ -80,6 +87,7 @@ const ScheduleRow = memo(function ScheduleRow({
   conventionName,
   locale,
   hour12,
+  hasConflict,
   overlapPosition,
   overlapGroupSize,
   overlapCount,
@@ -111,6 +119,7 @@ const ScheduleRow = memo(function ScheduleRow({
       showScheduleIndicator={false}
       contentWarning={entry.event.contentWarning}
       feedStatus={entry.event.feedStatus}
+      hasConflict={hasConflict}
       overlapPosition={overlapPosition}
       overlapGroupSize={overlapGroupSize}
       overlapCount={overlapCount}
@@ -226,6 +235,34 @@ export default function ScheduleScreen() {
     return byId;
   }, [days]);
 
+  /**
+   * Ids that actually clash, for the "Overlaps" label.
+   *
+   * Deliberately `overlappingEventIds` rather than `overlapCount > 0` off the
+   * map above: the convention screen decides a clash with this function, and
+   * the two do not agree. `overlapInfo` gives an event with no end time a
+   * fallback duration so it can still be grouped, while this skips it -- an
+   * event whose end nobody published is not evidence of a conflict. Deriving
+   * the label from the grouping would make My Schedule claim clashes the
+   * convention screen does not, for the same two events.
+   */
+  const conflictingEventIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const day of days) {
+      const live = day.data.filter((entry) => entry.event.feedStatus === null);
+      for (const id of overlappingEventIds(
+        live.map((entry) => ({
+          id: entry.event.id,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+        })),
+      )) {
+        ids.add(id);
+      }
+    }
+    return ids;
+  }, [days]);
+
   const renderSectionHeader = useCallback(
     ({ section }: { section: { key: string } }) => (
       <SectionHeader title={formatDayKeyLabel(section.key, locale)} />
@@ -240,12 +277,19 @@ export default function ScheduleScreen() {
         conventionName={showConventionName ? item.conventionName : undefined}
         locale={locale}
         hour12={hour12}
+        hasConflict={conflictingEventIds.has(item.event.id)}
         overlapPosition={overlapsByEventId.get(item.event.id)?.position}
         overlapGroupSize={overlapsByEventId.get(item.event.id)?.clusterSize}
         overlapCount={overlapsByEventId.get(item.event.id)?.overlapCount}
       />
     ),
-    [hour12, locale, showConventionName, overlapsByEventId],
+    [
+      hour12,
+      locale,
+      showConventionName,
+      overlapsByEventId,
+      conflictingEventIds,
+    ],
   );
 
   if (isLoading) {
