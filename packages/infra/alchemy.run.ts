@@ -88,6 +88,39 @@ const OBSERVABILITY = {
 } as const;
 
 /**
+ * A hard ceiling on CPU per invocation, well under the platform default.
+ *
+ * The Standard usage model bills CPU time, not wall clock: 30 million CPU-ms
+ * are included each month and every additional million costs $0.02. It also
+ * defaults `cpu_ms` to 30_000, which means one Worker stuck in a loop can
+ * spend four thousand times a normal request's CPU before the runtime stops
+ * it. That is the shape of bill worth ruling out in advance, and it is not
+ * hypothetical here: Next is pinned to 16.2.12 precisely because 16.3 with
+ * OpenNext has an unbounded prefetch loop.
+ *
+ * 500ms for the site. Cloudflare's own pricing example treats 7ms as a normal
+ * request; an OpenNext render on a cold isolate is far more than that but not
+ * remotely close to half a second, so this bounds a runaway at 1/60th of the
+ * default without being tight enough to clip a legitimate first render.
+ * Isolates also tolerate occasional overruns and only terminate a Worker that
+ * hits the limit consistently, so this cannot break a rare slow request.
+ *
+ * The reconciler gets more room because it is a batch: fifty rows, each with
+ * an HTTP round trip. Almost all of that is waiting rather than CPU -- which
+ * the Standard model does not bill -- but the CPU it does use is spread over a
+ * loop rather than one render.
+ *
+ * `subrequests` is deliberately left alone. The paid default is 10,000, and
+ * the site's real number is small, but OpenNext issues its own internal
+ * subrequests for assets and the self-reference binding and I have not
+ * measured them; guessing a cap here would trade a cost risk for an outage.
+ *
+ * Note these are enforced only on Cloudflare's network, never in local dev.
+ */
+const WEB_LIMITS = { cpu_ms: 500 } as const;
+const RECONCILER_LIMITS = { cpu_ms: 5_000 } as const;
+
+/**
  * The ESP is self-hosted listmonk at lists.mrdemonwolf.com, sending via SES.
  *
  * These read from the deploy environment (packages/infra/.env locally, repo
@@ -135,6 +168,7 @@ export const web = await Nextjs("web", {
   cwd: "../../apps/web",
   compatibilityDate: COMPATIBILITY_DATE,
   observability: OBSERVABILITY,
+  limits: WEB_LIMITS,
   // conpaws.com is attached only once the routes switch is on, so the first
   // deploy of any change lands on a Worker nothing points at yet.
   domains:
@@ -177,6 +211,7 @@ export const reconciler = await Worker("reconciler", {
   compatibility: "node",
   compatibilityDate: COMPATIBILITY_DATE,
   observability: OBSERVABILITY,
+  limits: RECONCILER_LIMITS,
   crons: ["0 * * * *"],
   // Cron-only: it exports `scheduled` and no `fetch`, so a workers.dev URL
   // would serve nothing but an exception page.
