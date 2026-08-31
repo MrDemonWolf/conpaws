@@ -46,6 +46,21 @@ jobs:
       - name: Test
         run: bun run test
 
+      # A schema edit without a regenerated migration passes lint, types, tests
+      # and the Worker smoke test, and only surfaces at deploy -- where
+      # alchemy.run.ts warns that D1 drift is not recoverable by rolling the
+      # Worker back. Regenerating and checking the tree is clean is what turns
+      # that into a failed PR instead.
+      - name: Check D1 migrations match the schema
+        working-directory: apps/web
+        run: |
+          bun run db:generate
+          if [[ -n "$(git status --porcelain drizzle/migrations)" ]]; then
+            git status --short drizzle/migrations
+            echo "::error title=Migration drift::src/db/schema.ts changed without a matching migration. Run 'bun run db:generate' in apps/web and commit the result."
+            exit 1
+          fi
+
   web:
     name: Build and smoke-test Worker
     runs-on: ubuntu-24.04
@@ -133,6 +148,21 @@ jobs:
             echo "::error title=Waitlist fail-closed check failed::Expected HTTP 503, received $http_status."
             exit 1
           fi
+
+          # The code-generated SEO surfaces. These are built by robots.ts,
+          # sitemap.ts and llms.txt/route.ts, all of which can throw at request
+          # time -- a bad date, a broken hreflang map -- while lint, types and
+          # the unit tests stay perfectly green. Fetching them is the only
+          # thing that proves they render at all.
+          for path in /robots.txt /sitemap.xml /llms.txt; do
+            curl --silent --show-error --fail "http://127.0.0.1:8787${path}" >/dev/null
+          done
+
+          # The preview has no listmonk binding, so the badge count must answer
+          # null rather than 0. Zero is a claim that nobody has signed up, and
+          # an outage must never be able to make it.
+          curl --silent --show-error --fail http://127.0.0.1:8787/api/waitlist/count |
+            jq --exit-status '.count == null' >/dev/null
 
 
   infrastructure:

@@ -7,3 +7,31 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+
+  # npm was missing entirely, so nothing watched Next, wrangler,
+  # @opennextjs/cloudflare, drizzle, zod or the Expo stack for advisories.
+  # Grouped and monthly on purpose: this is a small monorepo with several
+  # deliberate exact pins, and a weekly flood of individual PRs would be
+  # ignored, which is worse than not having them.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      # Pinned exactly, with the reason recorded in CLAUDE.md and the Notion
+      # Prerelease Site page. Next 16.3 + OpenNext has an unbounded prefetch
+      # loop (opennextjs-cloudflare#1334), and these two move together.
+      - dependency-name: next
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@opennextjs/cloudflare"
+        update-types: ["version-update:semver-major"]
+      # The Expo SDK is upgraded as a set, via `expo install`, never one
+      # package at a time -- a lone bump here produces a build that fails
+      # `expo-doctor` and wastes a review.
+      - dependency-name: expo
+      - dependency-name: "expo-*"
+      - dependency-name: react-native
