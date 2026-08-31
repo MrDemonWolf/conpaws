@@ -207,6 +207,14 @@ Three consequences that fail silently:
   `.next/server/app/<locale>.html`), and use the Worker preview for everything
   else.
 
+**Structured data** is `src/lib/structured-data.ts` rendered through
+`src/components/json-ld.tsx`. `Document` emits Organization + WebSite on every
+page; `Landing` emits SoftwareApplication + FAQPage, because structured data
+must describe the page it sits on and `/terms` has no FAQ. The FAQ entities are
+derived from `messages.faq.items` through the same `parseInline` the accordion
+renders with — never retype the answers, or the markup Google sees stops
+matching the visible text.
+
 ### Native MVP Screens
 
 The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).

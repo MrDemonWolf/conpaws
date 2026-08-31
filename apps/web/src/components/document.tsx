@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Roboto, Roboto_Mono } from "next/font/google";
 
+import { JsonLd } from "@/components/json-ld";
 import { LocaleDetect } from "@/components/locale-detect";
 import Providers from "@/components/providers";
 import { ServiceWorker } from "@/components/service-worker";
 import { getMessages } from "@/i18n";
 import { DEFAULT_LOCALE, type Locale, localeDir } from "@/i18n/config";
 import { SITE_URL } from "@/lib/site";
+import { graph, organizationNode, webSiteNode } from "@/lib/structured-data";
 
 // The global stylesheet lives with the <html> element it styles, not in each
 // root layout. There is more than one root layout and the 404 renders with no
@@ -131,6 +133,12 @@ export function Document({
         {/* First thing in the body so the language redirect is decided before
             anything paints. Everything below it is content. */}
         <LocaleDetect />
+        {/* Who publishes this and what site it is -- true of every page,
+            including the legal pages and the 404, which is why it lives in the
+            document rather than on the landing page. The app and FAQ entities
+            are page-scoped and emitted by <Landing>: structured data has to
+            describe the page it is on, and /terms has no FAQ. */}
+        <JsonLd data={graph(organizationNode(), webSiteNode())} />
         <Providers>{children}</Providers>
         <ServiceWorker />
       </body>
