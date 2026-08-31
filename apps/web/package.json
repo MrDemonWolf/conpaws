@@ -41,7 +41,7 @@
     "drizzle-kit": "^0.31.10",
     "tailwindcss": "^4.1.18",
     "typescript": "~6.0.3",
-    "vitest": "^3.2.4",
+    "vitest": "^4.1.11",
     "wrangler": "4.125.0"
   }
 }
