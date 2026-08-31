@@ -74,7 +74,12 @@ describe("iOS native stack headers", () => {
         'headerLargeTitleEnabled: process.env.EXPO_OS === "ios"',
       );
       expect(source).not.toContain("headerBlurEffect");
-      expect(source).not.toContain("headerTransparent");
+      // A transparent bar is what this guards against, not the word. The
+      // settings layout now states `headerTransparent: false` for its
+      // `@expo/ui` screens, which is the opposite of the mistake -- UIKit
+      // leaves those bars transparent on its own because nothing links them to
+      // a scroll view.
+      expect(source).not.toContain("headerTransparent: true");
     }
   });
 
