@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   InvalidScheduleUrlError,
   looksLikeCalendar,
+  ReversedSchedUrlError,
   resolveScheduleUrl,
   scheduleNameFromUrl,
 } from "./schedule-url";
@@ -106,6 +107,66 @@ describe("resolveScheduleUrl", () => {
     expect(resolveScheduleUrl("https://notsched.example/all.ics").kind).toBe(
       "ics",
     );
+  });
+});
+
+describe("a Sched address written backwards", () => {
+  it("suggests the right host instead of failing as a network error", () => {
+    // The real report: sched.furality.com. It does not resolve, so the fetch
+    // died with a DNS error the app rendered as "check your connection" --
+    // advice that is wrong, and that sent a real person chasing wifi for days.
+    try {
+      resolveScheduleUrl("https://sched.furality.com/all.ics");
+      throw new Error("expected a ReversedSchedUrlError");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReversedSchedUrlError);
+      expect((error as ReversedSchedUrlError).suggestion).toBe(
+        "furality.sched.com",
+      );
+    }
+  });
+
+  it("is caught before any network call", () => {
+    // The point of matching on the pasted text: no DNS lookup, no timeout,
+    // and no dependence on how a platform words its resolution failures.
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    expect(() => resolveScheduleUrl("https://sched.example.org")).toThrow(
+      ReversedSchedUrlError,
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("lower-cases the suggestion", () => {
+    try {
+      resolveScheduleUrl("https://SCHED.Furality.COM/all.ics");
+      throw new Error("expected a ReversedSchedUrlError");
+    } catch (error) {
+      expect((error as ReversedSchedUrlError).suggestion).toBe(
+        "furality.sched.com",
+      );
+    }
+  });
+
+  it("leaves a real Sched address alone", () => {
+    expect(resolveScheduleUrl("https://furality.sched.com").fetchUrl).toBe(
+      "https://furality.sched.com/all.ics",
+    );
+  });
+
+  it("does not fire on a deeper host that merely starts with sched", () => {
+    // Narrowness is the whole safety argument. `sched.example.co.uk` has four
+    // labels and is somebody's real subdomain, not the typo -- it must import
+    // as an ordinary .ics link.
+    const resolved = resolveScheduleUrl("https://sched.example.co.uk/all.ics");
+    expect(resolved.kind).toBe("ics");
+    expect(resolved.fetchUrl).toBe("https://sched.example.co.uk/all.ics");
+  });
+
+  it("does not fire on a host with sched in the middle", () => {
+    const resolved = resolveScheduleUrl("https://my.sched.example.com/a.ics");
+    expect(resolved.kind).toBe("ics");
   });
 });
 

@@ -257,6 +257,7 @@
       "fileType": "Kies een .ics-agendabestand.",
       "fileRead": "Het bestand kon niet worden gelezen.",
       "invalidUrl": "Dat lijkt geen programmalink. Plak een Sched-adres, een .ics-link of een webcal://-link.",
+      "reversedSchedUrl": "Sched-adressen zijn andersom. Probeer in plaats daarvan {{suggestion}}.",
       "network": "Controleer je verbinding en probeer het opnieuw.",
       "invalidResponse": "De URL heeft geen geldig agendabestand opgeleverd.",
       "tooLarge": "Dit programma is te groot om te importeren. Conventiefeeds blijven normaal ruim onder 8 MB — controleer of de link naar een programma wijst en niet naar een heel archief.",

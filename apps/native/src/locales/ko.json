@@ -257,6 +257,7 @@
       "fileType": ".ics 캘린더 파일을 선택하세요.",
       "fileRead": "파일을 읽지 못했어요.",
       "invalidUrl": "일정표 링크가 아닌 것 같아요. Sched 주소, .ics 링크 또는 webcal:// 링크를 붙여넣어 주세요.",
+      "reversedSchedUrl": "Sched 주소는 순서가 반대입니다. {{suggestion}}(을)를 사용해 보세요.",
       "network": "연결 상태를 확인하고 다시 시도해 주세요.",
       "invalidResponse": "이 URL에서 유효한 캘린더 파일을 받지 못했어요.",
       "tooLarge": "일정표가 너무 커서 가져올 수 없어요. 컨벤션 피드는 보통 8MB보다 훨씬 작아요. 링크가 전체 아카이브가 아니라 일정표를 가리키는지 확인해 주세요.",

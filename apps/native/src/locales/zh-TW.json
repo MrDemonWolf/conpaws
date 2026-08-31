@@ -257,6 +257,7 @@
       "fileType": "請選擇 .ics 行事曆檔案。",
       "fileRead": "無法讀取這個檔案。",
       "invalidUrl": "這看起來不像行程表連結。請貼上 Sched 網址、.ics 連結或 webcal:// 連結。",
+      "reversedSchedUrl": "Sched 網址的順序相反。請改用 {{suggestion}}。",
       "network": "請檢查網路連線後再試一次。",
       "invalidResponse": "這個網址沒有回傳有效的行事曆檔案。",
       "tooLarge": "這份行程表太大，無法匯入。展會的行程來源通常遠小於 8MB——請確認連結指向的是行程表，而不是整個封存檔。",

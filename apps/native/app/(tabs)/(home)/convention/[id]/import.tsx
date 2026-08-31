@@ -50,6 +50,7 @@ import {
   InvalidResponseError,
   InvalidScheduleUrlError,
   NetworkError,
+  ReversedSchedUrlError,
   ScheduleFetchCancelledError,
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
@@ -393,7 +394,17 @@ export default function ImportScreen() {
       // they are the one who caused it.
       if (err instanceof ScheduleFetchCancelledError) return;
       if (!isCurrentRequest(generation)) return;
-      if (err instanceof InvalidScheduleUrlError) {
+      if (err instanceof ReversedSchedUrlError) {
+        // Named separately from the generic invalid-URL case because it can
+        // say what to type instead, which is the whole reason it exists.
+        setError({
+          type: "file-type",
+          message: t("import.errors.reversedSchedUrl", {
+            suggestion: err.suggestion,
+          }),
+          detail: err.message,
+        });
+      } else if (err instanceof InvalidScheduleUrlError) {
         setError({
           type: "file-type",
           message: t("import.errors.invalidUrl"),

@@ -12,6 +12,32 @@ export class InvalidScheduleUrlError extends Error {
   }
 }
 
+/**
+ * A Sched address written inside out: `sched.<con>.com` rather than
+ * `<con>.sched.com`.
+ *
+ * Worth its own error because the generic one sends the reader to check a
+ * connection that is fine. The host does not resolve, so the fetch fails with
+ * a DNS error that surfaces as "Couldn't Load Schedule -- check your
+ * connection and try again", and the person retries on wifi, then cellular,
+ * then decides the app is broken. A real report reached a handoff document
+ * that way: sched.furality.com, NXDOMAIN, diagnosed as a TLS problem for days.
+ *
+ * Detected from the pasted text rather than from a failure message, so it
+ * costs no network call and does not depend on how a platform words its DNS
+ * errors.
+ */
+export class ReversedSchedUrlError extends Error {
+  /** The address the user probably meant, e.g. `furality.sched.com`. */
+  readonly suggestion: string;
+
+  constructor(url: string, suggestion: string) {
+    super(`"${url}" looks like a Sched address reversed. Try ${suggestion}.`);
+    this.name = "ReversedSchedUrlError";
+    this.suggestion = suggestion;
+  }
+}
+
 export type ScheduleUrlKind = "sched" | "ics";
 
 export interface ResolvedScheduleUrl {
@@ -23,6 +49,19 @@ export interface ResolvedScheduleUrl {
 }
 
 const SCHED_PATTERN = /^https:\/\/([a-zA-Z0-9-]+)\.sched\.com(\/.*)?$/;
+
+/**
+ * `sched.<name>.<tld>` -- the Sched pattern with the parts swapped.
+ *
+ * Deliberately narrow. It requires `sched` to be the FIRST label and the host
+ * to have exactly three labels, so a convention that genuinely runs its own
+ * `sched.example.com` and publishes an .ics there is the one case this could
+ * be wrong about. That host would have to resolve, which the reversed typo by
+ * definition does not, so the cost of being wrong is one suggestion the reader
+ * can ignore -- and it is still shown as an error they can read, not a
+ * silent rewrite of what they typed.
+ */
+const REVERSED_SCHED_PATTERN = /^sched\.([a-zA-Z0-9-]+)\.[a-zA-Z]{2,}$/;
 
 /**
  * `webcal:` is not a real transport — it is `https:` with a scheme that asks
@@ -62,6 +101,14 @@ export function resolveScheduleUrl(input: string): ResolvedScheduleUrl {
 
   if (parsed.protocol !== "https:") {
     throw new InvalidScheduleUrlError(input.trim());
+  }
+
+  const reversed = parsed.hostname.match(REVERSED_SCHED_PATTERN);
+  if (reversed) {
+    throw new ReversedSchedUrlError(
+      input.trim(),
+      `${reversed[1].toLowerCase()}.sched.com`,
+    );
   }
 
   const canonicalUrl = parsed.toString();

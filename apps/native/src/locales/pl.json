@@ -257,6 +257,7 @@
       "fileType": "Wybierz plik kalendarza .ics.",
       "fileRead": "Nie udało się odczytać pliku.",
       "invalidUrl": "To nie wygląda na link do harmonogramu. Wklej adres Sched, link .ics lub link webcal://.",
+      "reversedSchedUrl": "Adresy Sched są odwrotnie. Spróbuj {{suggestion}}.",
       "network": "Sprawdź połączenie i spróbuj ponownie.",
       "invalidResponse": "Adres URL nie zwrócił prawidłowego pliku kalendarza.",
       "tooLarge": "Ten harmonogram jest za duży, aby go zaimportować. Kanały konwentów mają zwykle znacznie mniej niż 8 MB — sprawdź, czy link prowadzi do harmonogramu, a nie do całego archiwum.",

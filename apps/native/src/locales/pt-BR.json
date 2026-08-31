@@ -257,6 +257,7 @@
       "fileType": "Escolha um arquivo de calendário .ics.",
       "fileRead": "Não foi possível ler o arquivo.",
       "invalidUrl": "Isso não parece um link de programação. Cole um endereço Sched, um link .ics ou um link webcal://.",
+      "reversedSchedUrl": "Os endereços do Sched são ao contrário. Tente {{suggestion}}.",
       "network": "Verifique sua conexão e tente novamente.",
       "invalidResponse": "A URL não retornou um arquivo de calendário válido.",
       "tooLarge": "Essa programação é grande demais para importar. Feeds de convenções costumam ficar bem abaixo de 8 MB — confira se o link aponta para uma programação e não para um arquivo inteiro.",
