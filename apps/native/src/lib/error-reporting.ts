@@ -69,7 +69,15 @@ export function reportError(error: unknown, context: ErrorReportContext): void {
   const reported = toError(error);
 
   if (isDevelopmentBuild()) {
-    console.error(`[${context.scope}]`, reported, context.extra ?? {});
+    // The stack, not the error object: React Native's console prints a caught
+    // Error as bare `[TypeError: undefined is not a function]` with no frames,
+    // which names the symptom and hides the file. Printing `.stack` is what
+    // turns a screen-boundary report into something you can act on.
+    console.error(
+      `[${context.scope}]`,
+      reported.stack ?? reported,
+      context.extra ?? {},
+    );
     return;
   }
 
