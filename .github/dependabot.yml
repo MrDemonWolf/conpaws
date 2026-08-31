@@ -35,9 +35,20 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@opennextjs/cloudflare"
         update-types: ["version-update:semver-major"]
-      # The Expo SDK is upgraded as a set, via `expo install`, never one
-      # package at a time -- a lone bump here produces a build that fails
-      # `expo-doctor` and wastes a review.
+      # The Expo SDK is upgraded as a SET, via `expo install`, never one
+      # package at a time. CI enforces this: `expo install --check` fails the
+      # native job on any version the installed SDK does not expect, so a lone
+      # bump cannot go green no matter how good the change is. Dependabot
+      # opened react-native-gesture-handler 2.32.0 -> 3.2.1 on 2026-08-31 and
+      # it failed exactly that way, plus a type error in SwipeableEventRow.
+      #
+      # `react-native-*` covers the whole family deliberately: every one of
+      # gesture-handler, reanimated, safe-area-context, screens, svg, web,
+      # worklets and css is pinned by the SDK here. react and react-dom are
+      # pinned exactly by the SDK too.
       - dependency-name: expo
       - dependency-name: "expo-*"
       - dependency-name: react-native
+      - dependency-name: "react-native-*"
+      - dependency-name: react
+      - dependency-name: react-dom
