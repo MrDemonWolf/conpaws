@@ -1,4 +1,5 @@
-import { ListItem } from "@expo/ui";
+// See components/ui/FieldRow.android.tsx — one Material surface per row.
+
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { DatePicker as SwiftDatePicker } from "@expo/ui/swift-ui";
 import { datePickerStyle } from "@expo/ui/swift-ui/modifiers";
@@ -14,6 +15,7 @@ import {
   TAP_TARGET,
   Text,
 } from "@/components/ui";
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { formatMediumDate } from "@/lib/event-time-format";
 import { searchTimeZones, type TimeZoneOption } from "@/lib/time-zone-search";
 import { cn } from "@/lib/utils";

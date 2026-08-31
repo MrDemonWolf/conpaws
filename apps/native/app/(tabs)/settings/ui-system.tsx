@@ -6,7 +6,6 @@ import {
   FieldGroup,
   Host,
   Icon,
-  ListItem,
   Button as NativeButton,
   Switch as NativeSwitch,
   TextInput as NativeTextInput,
@@ -33,6 +32,8 @@ import {
   ScheduleSkeleton,
   Text,
 } from "@/components/ui";
+// See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
