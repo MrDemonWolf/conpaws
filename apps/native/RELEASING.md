@@ -42,6 +42,29 @@ lost keystore cannot be regenerated; see the backup note below.
 `APP_VARIANT` selects these, in `app.config.ts`. The identically named `eas.json`
 profiles just set the same variable.
 
+**`APP_VARIANT` only takes effect through `prebuild`, never through `run`.** The
+bundle ID, `Info.plist`, and `AndroidManifest.xml` are written when the native
+projects are generated. `expo run:ios` and `expo run:android` reuse an existing
+`ios/` or `android/` directory as-is, so this:
+
+```bash
+APP_VARIANT=production bunx expo run:ios --configuration Release
+```
+
+against a tree last prebuilt as `development` produces a **development** binary —
+`com.mrdemonwolf.conpaws.dev`, dev icon, `ConPawsBuildVariant: development` —
+while the command line says production, and nothing in the output warns you. Run
+`APP_VARIANT=<variant> bunx expo prebuild` first, or use `ship:prep`, which
+always prebuilds. Verify with:
+
+```bash
+plutil -extract ConPawsBuildVariant raw -o - ios/ConPaws/Info.plist
+grep applicationId android/app/build.gradle
+```
+
+The release path is not exposed to this, because `ship:prep` prebuilds every
+time. It bites ad-hoc builds.
+
 | Variant | Result | Use it for |
 | --- | --- | --- |
 | `development` | Expo development client using `com.mrdemonwolf.conpaws.dev` and the DEV icon | Local development with Metro |
