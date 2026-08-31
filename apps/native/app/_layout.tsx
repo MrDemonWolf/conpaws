@@ -242,6 +242,9 @@ function RootLayout() {
 
   useEffect(() => {
     let cancelled = false;
+    // Registered only when the bootstrap outran its timeout, and torn down in
+    // the cleanup below whether or not it ever fired.
+    let onI18nInitialized: (() => void) | undefined;
 
     void (async () => {
       if (attempt > 0) {
@@ -254,10 +257,28 @@ function RootLayout() {
       setTranslationsReady(i18nInstance.isInitialized);
       setOnboardingComplete(onboarded);
       setReady(true);
+
+      // The timeout resolves the race without cancelling the work behind it,
+      // so on a slow cold start `initI18n` is often still in flight right here
+      // -- and it usually lands a moment later. Reading `isInitialized` once
+      // and stopping there turned that into a dead end: a reader who waited
+      // out a slow launch got the translations-unavailable screen while a
+      // perfectly good i18next finished behind it, and only the Retry button
+      // could clear it. Waiting for the event instead lets the app right
+      // itself. If init genuinely failed, this never fires and the fallback
+      // stands, which is the case it was written for.
+      if (i18nInstance.isInitialized) return;
+      onI18nInitialized = () => {
+        if (!cancelled) setTranslationsReady(true);
+      };
+      i18nInstance.on("initialized", onI18nInitialized);
     })();
 
     return () => {
       cancelled = true;
+      if (onI18nInitialized) {
+        i18nInstance.off("initialized", onI18nInitialized);
+      }
     };
   }, [attempt]);
 
