@@ -257,6 +257,7 @@
       "fileType": "Pilih fail kalendar .ics.",
       "fileRead": "Fail tidak dapat dibaca.",
       "invalidUrl": "Itu tidak kelihatan seperti pautan jadual. Tampal alamat Sched, pautan .ics atau pautan webcal://.",
+      "reversedSchedUrl": "Alamat Sched adalah sebaliknya. Cuba {{suggestion}} sebagai gantinya.",
       "network": "Semak sambungan anda dan cuba lagi.",
       "invalidResponse": "URL itu tidak mengembalikan fail kalendar yang sah.",
       "tooLarge": "Jadual itu terlalu besar untuk diimport. Suapan konvensyen biasanya jauh di bawah 8MB — pastikan pautan menuju ke jadual dan bukan keseluruhan arkib.",

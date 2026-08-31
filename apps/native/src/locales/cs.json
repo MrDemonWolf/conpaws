@@ -257,6 +257,7 @@
       "fileType": "Vyberte soubor kalendáře .ics.",
       "fileRead": "Soubor se nepodařilo přečíst.",
       "invalidUrl": "Tohle nevypadá jako odkaz na program. Vložte adresu Sched, odkaz .ics nebo odkaz webcal://.",
+      "reversedSchedUrl": "Adresy Sched se píší obráceně. Zkus místo toho {{suggestion}}.",
       "network": "Zkontrolujte připojení a zkuste to znovu.",
       "invalidResponse": "Adresa nevrátila platný soubor kalendáře.",
       "tooLarge": "Tento program je na import příliš velký. Cony mívají programy hluboko pod 8 MB — zkontrolujte, že odkaz vede na program, a ne na celý archiv.",

@@ -1,11 +1,12 @@
 import {
   InvalidScheduleUrlError,
   looksLikeCalendar,
+  ReversedSchedUrlError,
   resolveScheduleUrl,
   type ScheduleUrlKind,
 } from "./schedule-url";
 
-export { InvalidScheduleUrlError } from "./schedule-url";
+export { InvalidScheduleUrlError, ReversedSchedUrlError } from "./schedule-url";
 
 export class NetworkError extends Error {
   constructor(message: string) {
@@ -141,6 +142,7 @@ export async function fetchScheduleIcs(
   } catch (err) {
     if (
       err instanceof InvalidScheduleUrlError ||
+      err instanceof ReversedSchedUrlError ||
       err instanceof InvalidResponseError ||
       err instanceof ScheduleTooLargeError ||
       err instanceof ScheduleFetchCancelledError ||

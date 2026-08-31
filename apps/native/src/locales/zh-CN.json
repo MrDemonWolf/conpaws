@@ -257,6 +257,7 @@
       "fileType": "请选择 .ics 日历文件。",
       "fileRead": "无法读取该文件。",
       "invalidUrl": "这看起来不像日程链接。请粘贴 Sched 网址、.ics 链接或 webcal:// 链接。",
+      "reversedSchedUrl": "Sched 地址的顺序是反的。请改用 {{suggestion}}。",
       "network": "请检查网络连接后重试。",
       "invalidResponse": "该网址没有返回有效的日历文件。",
       "tooLarge": "这份日程太大，无法导入。展会日程源通常远小于 8MB——请确认链接指向的是日程，而不是整个存档。",

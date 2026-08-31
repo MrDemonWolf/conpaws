@@ -257,6 +257,7 @@
       "fileType": "Choose an .ics calendar file.",
       "fileRead": "The file couldn't be read.",
       "invalidUrl": "That doesn't look like a schedule link. Paste a Sched address, an .ics link, or a webcal:// link.",
+      "reversedSchedUrl": "Sched addresses are the other way round. Try {{suggestion}} instead.",
       "network": "Check your connection and try again.",
       "invalidResponse": "The URL didn't return a valid calendar file.",
       "tooLarge": "That schedule is too large to import. Convention feeds are normally well under 8MB — check the link points at a schedule and not a whole archive.",

@@ -257,6 +257,7 @@
       "fileType": "Elige un archivo de calendario .ics.",
       "fileRead": "No se pudo leer el archivo.",
       "invalidUrl": "Eso no parece un enlace de programa. Pega una dirección de Sched, un enlace .ics o un enlace webcal://.",
+      "reversedSchedUrl": "Las direcciones de Sched van al revés. Prueba con {{suggestion}}.",
       "network": "Comprueba tu conexión e inténtalo de nuevo.",
       "invalidResponse": "La URL no devolvió un archivo de calendario válido.",
       "tooLarge": "Ese horario es demasiado grande para importarlo. Los feeds de convenciones suelen ocupar bastante menos de 8 MB: comprueba que el enlace apunte a un horario y no a un archivo completo.",
