@@ -763,15 +763,28 @@ export default function ImportScreen() {
           {/* Both sources stay visible. Choosing between two options used to
               sit behind a menu picker, which cost two taps to reveal what the
               screen could simply show. */}
+          {/* The file row mirrors the link section below it: a description,
+              then its own labelled button. `chooseFile` used to be passed as
+              the ListItem's `trailing` STRING, which renders in the same grey
+              as a settings value -- so the one control that starts a file
+              import read as a label rather than something to press, and the
+              row's tap target was invisible.
+
+              Outlined against the link section's filled button, because these
+              are not equal choices: a link stays fresh and can be re-checked
+              later, a file is a snapshot. The hierarchy should say so. */}
           <FieldGroup.Section title={t("import.source")}>
-            <ListItem
-              onPress={controlsDisabled ? undefined : handleFilePick}
-              supportingText={t("import.fileDescription")}
-              trailing={t("import.chooseFile")}
-              testID="import-file-row"
-            >
+            <ListItem supportingText={t("import.fileDescription")}>
               {t("import.file")}
             </ListItem>
+            <NativeButton
+              label={t("import.chooseFile")}
+              onPress={handleFilePick}
+              disabled={controlsDisabled}
+              variant="outlined"
+              style={{ height: 48 }}
+              testID="import-file-row"
+            />
           </FieldGroup.Section>
 
           <FieldGroup.Section>
