@@ -8,12 +8,18 @@ updates:
       github-actions:
         patterns: ["*"]
 
-  # npm was missing entirely, so nothing watched Next, wrangler,
-  # @opennextjs/cloudflare, drizzle, zod or the Expo stack for advisories.
-  # Grouped and monthly on purpose: this is a small monorepo with several
-  # deliberate exact pins, and a weekly flood of individual PRs would be
-  # ignored, which is worse than not having them.
-  - package-ecosystem: npm
+  # `bun`, not `npm`. This repo installs with bun and CI runs
+  # `bun install --frozen-lockfile`, so an updater that edits package.json
+  # without touching bun.lock produces a PR that cannot pass: it fails at
+  # install with "lockfile had changes, but lockfile is frozen". The npm
+  # ecosystem does exactly that. Dependabot's bun ecosystem understands the
+  # text-based bun.lock (Bun >=1.1.39; this repo pins 1.3.10).
+  #
+  # Nothing watched Next, wrangler, @opennextjs/cloudflare, drizzle, zod or
+  # the Expo stack for advisories before this. Grouped and monthly on purpose:
+  # a small monorepo with several deliberate exact pins, where a weekly flood
+  # of individual PRs would be ignored, which is worse than not having them.
+  - package-ecosystem: bun
     directory: /
     schedule:
       interval: monthly
