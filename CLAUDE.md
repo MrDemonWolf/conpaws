@@ -101,7 +101,7 @@ conpaws/
 │   └── server/              # (planned — does not exist) Hono/tRPC/Better-Auth Worker
 ├── packages/
 │   ├── config/              # Shared tsconfig base
-│   ├── env/                 # Zod env schemas (src/web.ts is used; src/native.ts is not imported)
+│   ├── env/                 # Zod env schemas (src/web.ts for the site build, src/deploy.ts for alchemy.run.ts)
 │   ├── infra/               # alchemy.run.ts — D1, Worker bindings/secrets, cron
 │   └── ui/                  # Shared shadcn/ui primitives (web)
 ├── docs/                    # Widget and Watch design docs, mockups, UX opportunities
@@ -131,6 +131,8 @@ conpaws/
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Turnstile widget (public; server verify uses the secret below)
 
 Worker-side waitlist config is read at **deploy time** by `packages/infra/alchemy.run.ts` and bound onto the Workers — it never lives in `process.env` at build time, which is why `packages/env/src/web.ts` deliberately omits it: `TURNSTILE_SECRET_KEY`, `LISTMONK_BASE_URL`, `LISTMONK_API_USER`, `LISTMONK_API_TOKEN`, `LISTMONK_LIST_ID`. `ALCHEMY_PASSWORD` encrypts Alchemy state.
+
+They are validated on the deploying machine by `packages/env/src/deploy.ts` (`@conpaws/env/deploy`), which `alchemy.run.ts` calls before it creates a single resource. Everything in that schema is **required** — including `ALCHEMY_PASSWORD`, `ALCHEMY_STATE_TOKEN` and the `*_ENABLED` flags — and `LISTMONK_LIST_ID` must be plain digits, because the failure it exists to catch is silent: an unset or mistyped value used to bind fine, get rejected by `readListmonkConfig` at the edge, and take the live waitlist down while the deploy reported success. `bun run destroy` runs the same program and therefore needs the same variables present.
 
 Only `TURNSTILE_SECRET_KEY` and `LISTMONK_API_TOKEN` are real credentials, wrapped in `alchemy.secret(...)`; the other three listmonk values are plain configuration. That is why `.github/workflows/deploy-web.yml` carries them as repository **variables** and only the token as a secret. All four are required together — a partial set fails closed rather than half-opening the waitlist.
 
@@ -166,6 +168,52 @@ favicon, Play Store icon, and production icon unbadged.
 
 Preview and production are two builds of the same store app and cannot be
 installed side by side. Never promote a preview build publicly.
+
+### Web routing: two root layouts, and the traps in it
+
+**There is no `apps/web/src/app/layout.tsx`, deliberately.** The site has
+**two root layouts** — `app/(marketing)/layout.tsx` for the English routes and
+`app/[locale]/layout.tsx` for the 22 translated ones — because only a root
+layout renders `<html>` and only a layout at or below `[locale]` can see the
+locale. A single root layout can only hardcode `lang`, and it did: every
+language shipped `<html lang="en">`. Both delegate to `Document` in
+`src/components/document.tsx`, which owns the fonts, the shared metadata, the
+global stylesheet and `<html lang dir>`. Add anything document-level there, not
+to one layout.
+
+URLs did not move. `(marketing)` is a route group and contributes no path
+segment, so `/` is still English and `/ja` is still `/ja`. Putting every route
+under `[locale]` — the other reading of "restructure" — would drag `/privacy`
+to `/en/privacy` and is the thing not to do.
+
+Three consequences that fail silently:
+
+- **The 404 is `app/global-not-found.tsx`, not `not-found.tsx`.** With no root
+  layout there is nothing for a `not-found.tsx` to be wrapped in, and Next
+  serves it inside its own bare error shell: no stylesheet, no fonts, no
+  `lang`. `global-not-found.tsx` renders its own `<html>` (via `Document`) the
+  way `global-error.tsx` does. It needs **`experimental.globalNotFound: true`**
+  in `next.config.ts` — removing that flag does not fail the build, it reverts
+  the 404 to unstyled markup. The page body lives in
+  `src/components/not-found-page.tsx` and applies the `%s · ConPaws` title
+  template itself, because it inherits no layout metadata.
+- **Do not add a `[...catchAll]` page to funnel misses.** It was tried; it
+  works, but `global-not-found.tsx` covers the same ground without a route.
+- **`/ja` and the other locale pages 404 in the local OpenNext preview.** This
+  is **pre-existing and not a regression** — verified against an unmodified
+  build of `main`. The preview does not populate the incremental cache, so
+  prerendered `[locale]` routes miss and, with `dynamicParams = false`, 404.
+  Verify locale rendering with `bunx next start` (or the prerendered HTML in
+  `.next/server/app/<locale>.html`), and use the Worker preview for everything
+  else.
+
+**Structured data** is `src/lib/structured-data.ts` rendered through
+`src/components/json-ld.tsx`. `Document` emits Organization + WebSite on every
+page; `Landing` emits SoftwareApplication + FAQPage, because structured data
+must describe the page it sits on and `/terms` has no FAQ. The FAQ entities are
+derived from `messages.faq.items` through the same `parseInline` the accordion
+renders with — never retype the answers, or the markup Google sees stops
+matching the visible text.
 
 ### Native MVP Screens
 

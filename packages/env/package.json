@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./web": "./src/web.ts"
+    "./web": "./src/web.ts",
+    "./deploy": "./src/deploy.ts"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.1",
