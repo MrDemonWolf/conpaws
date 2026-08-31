@@ -14,7 +14,13 @@ import {
 } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, ScrollView, SectionList, View } from "react-native";
+import {
+  AccessibilityInfo,
+  ScrollView,
+  SectionList,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import {
   BlankConventionState,
   EMPTY_SCHEDULE_ICON,
@@ -143,6 +149,10 @@ export default function ConventionDetailScreen() {
   const queryClient = useQueryClient();
   const locale = currentLocale();
   const hour12 = deviceHour12();
+  // See the schedule tab: a Dynamic Type change reaches a running app, but
+  // already-measured list cells keep their old heights and clip the larger
+  // text. Part of `extraData` below so the cells are rebuilt.
+  const { fontScale } = useWindowDimensions();
   const previewState = resolveConventionPreviewState(
     requestedPreviewState,
     __DEV__,
@@ -778,6 +788,13 @@ export default function ConventionDetailScreen() {
           alwaysBounceVertical={shouldBounceSchedule(dayGroups)}
           sections={dayGroups}
           keyExtractor={(event) => event.id}
+          // Rows close over values that are not part of `dayGroups`, and
+          // VirtualizedList reuses cached cells while the data identity holds.
+          // `highlightedEventId` is the one that bites soonest -- arriving from
+          // a widget deep link changes only this, so the row it names would
+          // never repaint with its highlight. Locale and the clock preference
+          // have the same problem after a settings change.
+          extraData={`${locale}|${hour12}|${showProvenance}|${conventionTimeZone}|${highlightedEventId ?? ""}|${fontScale}`}
           contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={
             dayGroups.length === 0

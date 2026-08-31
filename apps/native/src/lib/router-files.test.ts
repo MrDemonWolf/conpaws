@@ -119,3 +119,41 @@ describe("Schedule tab", () => {
     );
   });
 });
+
+describe("Windowed lists redraw when their formatting inputs change", () => {
+  // Both schedules format their rows -- and the schedule tab its day headers --
+  // from values that live outside the section data: the locale, the clock
+  // preference, and on the convention screen the highlighted event. A
+  // VirtualizedList reuses cached cells whenever the data identity is
+  // unchanged, so without `extraData` those cells keep whatever they were first
+  // rendered with. That shipped as English chrome sitting above Russian day
+  // headers after a language change, until the next cold start.
+  //
+  // Asserting the prop is present rather than its exact contents: the set of
+  // inputs will grow, and a test that pins the string would only ever be
+  // updated to match whatever the code already says.
+  it.each([
+    ["schedule tab", scheduleScreenSource],
+    ["convention detail", conventionDetailSource],
+  ])("%s passes extraData to its SectionList", (_name, source) => {
+    expect(source).toContain("extraData={");
+  });
+
+  it("keys the schedule tab's extraData on the locale and clock", () => {
+    expect(scheduleScreenSource).toMatch(/extraData=\{`[^`]*\$\{locale\}/);
+    expect(scheduleScreenSource).toMatch(/extraData=\{`[^`]*\$\{hour12\}/);
+  });
+
+  // The font scale is the non-obvious one. iOS delivers a Dynamic Type change
+  // to a running app, and the cells that are already measured keep their old
+  // heights, so the larger text is drawn clipped through the middle of the
+  // glyphs. A cold start at the same text size is fine, which is exactly why
+  // this is easy to reintroduce.
+  it.each([
+    ["schedule tab", scheduleScreenSource],
+    ["convention detail", conventionDetailSource],
+  ])("%s rebuilds its cells when the font scale changes", (_name, source) => {
+    expect(source).toContain("useWindowDimensions");
+    expect(source).toMatch(/extraData=\{`[^`]*\$\{fontScale\}/);
+  });
+});
