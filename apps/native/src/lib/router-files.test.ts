@@ -83,6 +83,72 @@ describe("iOS native stack headers", () => {
     }
   });
 
+  // The settings family is the one shape the guard above cannot speak for.
+  //
+  // UIKit wires a bar's large-title collapse and its scroll-edge background to a
+  // scroll view it can see. A SwiftUI `List` inside an `@expo/ui` `Host` is not
+  // that view, so those bars stay in their scrolled-to-top appearance forever:
+  // transparent, never collapsing. Content then slid underneath and drew through
+  // the title -- the app icon crossed the words "About ConPaws", and the
+  // notification row crossed "Settings".
+  //
+  // `hostedScreenOptions` is the fix, and a new screen in this stack gets the
+  // bug simply by not spreading it. Asserting the pattern rather than a list of
+  // names so a screen added later is covered on the day it is added.
+  describe("settings screens hosted in @expo/ui", () => {
+    // Real `ScrollView` content: these collapse and blur correctly on their own,
+    // and forcing the hosted options on them would be the regression.
+    const REAL_SCROLLVIEW_SCREENS = ["licenses/index", "licenses/[id]"];
+    // Dev-only, behind `Stack.Protected`; they never reach a user.
+    const DEVELOPER_SCREENS = ["debug", "ui-system"];
+
+    const screens = settingsLayoutSource
+      .split("<Stack.Screen")
+      .slice(1)
+      .map((block) => ({
+        name: block.match(/name="([^"]+)"/)?.[1],
+        block,
+      }))
+      .filter(
+        (screen): screen is { name: string; block: string } =>
+          screen.name !== undefined,
+      );
+
+    it("finds the screens to check", () => {
+      expect(screens.length).toBeGreaterThan(5);
+    });
+
+    it.each(
+      screens
+        .filter(
+          ({ name }) =>
+            !REAL_SCROLLVIEW_SCREENS.includes(name) &&
+            !DEVELOPER_SCREENS.includes(name),
+        )
+        .map(({ name, block }) => [name, block] as const),
+    )('"%s" spreads hostedScreenOptions', (_name, block) => {
+      expect(block).toContain("...hostedScreenOptions");
+    });
+
+    it("leaves the real-ScrollView screens their large titles", () => {
+      for (const name of REAL_SCROLLVIEW_SCREENS) {
+        const screen = screens.find((candidate) => candidate.name === name);
+        expect(screen).toBeDefined();
+        expect(screen?.block).not.toContain("...hostedScreenOptions");
+      }
+    });
+
+    it("keeps hostedScreenOptions doing all three things", () => {
+      // Spreading an emptied-out constant would pass every assertion above while
+      // shipping the bug again.
+      expect(settingsLayoutSource).toContain("headerLargeTitleEnabled: false");
+      expect(settingsLayoutSource).toContain("headerTransparent: false");
+      expect(settingsLayoutSource).toMatch(
+        /headerStyle:\s*\{\s*backgroundColor:/,
+      );
+    });
+  });
+
   it("keeps every form sheet compact", () => {
     // Counting occurrences would just need bumping each time a sheet is added,
     // and would pass if a new sheet were added while an old one lost the flag.
