@@ -6,6 +6,8 @@ import { attendanceInterval } from "@/lib/personal-schedule";
 import { toSourceEvents } from "@/lib/schedule-source";
 import {
   cancelEventReminder,
+  cancelStartReminder,
+  reconcileEventReminders,
   scheduleEventReminder,
 } from "@/services/notifications";
 
@@ -80,7 +82,7 @@ export async function rearmImportedReminders(
     const interval = attendanceInterval(event);
     const triggerMs = Date.parse(interval.startTime) - minutes * 60 * 1000;
     if (Number.isFinite(triggerMs) && triggerMs <= now) {
-      await cancelEventReminder(event.id);
+      await cancelStartReminder(event.id);
       await eventsRepo.update(event.id, { reminderMinutes: null });
       cleared++;
       continue;
@@ -178,7 +180,13 @@ export function useImportSchedule() {
   const queryClient = useQueryClient();
 
   return useMutation<ImportResult, Error, ImportInput>({
-    mutationFn: runScheduleImport,
+    mutationFn: async (input) => {
+      const result = await runScheduleImport(input);
+      await reconcileEventReminders().catch((error) => {
+        reportError(error, { scope: "schedule-import.plan-reminders" });
+      });
+      return result;
+    },
     onSuccess: (_data, { conventionId }) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
     },

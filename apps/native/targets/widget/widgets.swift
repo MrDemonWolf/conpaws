@@ -801,11 +801,15 @@ private struct ConPawsLargeView: View {
         allDone
         Spacer()
       } else {
-        if let current {
-          nowRow(current)
-        }
-        ForEach(today.shown.filter { $0.id != current?.id }) { event in
-          eventRow(event)
+        ForEach(Array(today.shown.enumerated()), id: \.element.id) { index, event in
+          if index > 0, let gap = gapBefore(event, previous: today.shown[index - 1]) {
+            gapRow(gap)
+          }
+          if event.id == current?.id {
+            nowRow(event)
+          } else {
+            eventRow(event)
+          }
         }
         Spacer(minLength: 0)
         if today.overflow > 0 {
@@ -830,7 +834,9 @@ private struct ConPawsLargeView: View {
     let upcomingAll = ConPawsPlanTimeline(events: convention.events, now: entryDate).events
       .filter { $0.startDate > entryDate }
 
-    let capacity = 5
+    // Four event rows leave room for the transition gaps between them. Five
+    // rows plus four gaps cannot remain legible at larger widget text sizes.
+    let capacity = 4
     var shown: [ConPawsEventSnapshot] = []
     if let current {
       shown.append(current)
@@ -957,6 +963,41 @@ private struct ConPawsLargeView: View {
         ConPawsAgePill(label: pill)
       }
     }
+    .padding(.horizontal, 8)
+    .accessibilityElement(children: .combine)
+  }
+
+  private struct PlanGap {
+    let start: Date
+    let end: Date
+    let minutes: Int
+  }
+
+  private func gapBefore(
+    _ event: ConPawsEventSnapshot,
+    previous: ConPawsEventSnapshot
+  ) -> PlanGap? {
+    guard let end = previous.endDate, event.startDate > end else { return nil }
+    var calendar = Calendar.autoupdatingCurrent
+    calendar.timeZone = convention.timeZone
+    guard calendar.isDate(end, inSameDayAs: event.startDate) else { return nil }
+    let minutes = Int((event.startDate.timeIntervalSince(end) / 60).rounded())
+    return minutes > 0 ? PlanGap(start: end, end: event.startDate, minutes: minutes) : nil
+  }
+
+  private func gapRow(_ gap: PlanGap) -> some View {
+    Label {
+      Text(
+        "\(gap.start.formatted(conPawsClockStyle(convention.timeZone, locale: locale)))–\(gap.end.formatted(conPawsClockStyle(convention.timeZone, locale: locale))) · \(strings.minutes(gap.minutes))"
+      )
+      .lineLimit(1)
+      .minimumScaleFactor(0.8)
+    } icon: {
+      Image(systemName: "pause.fill")
+        .accessibilityHidden(true)
+    }
+    .font(.caption2)
+    .foregroundStyle(.secondary)
     .padding(.horizontal, 8)
     .accessibilityElement(children: .combine)
   }
@@ -1460,7 +1501,7 @@ func runConPawsWidgetSelfCheck() {
 
   // A language the app does not ship, and a regionless Portuguese, both have to
   // land somewhere renderable rather than on an empty string.
-  assert(ConPawsLanguage.resolve("ja") == .en)
+  assert(ConPawsLanguage.resolve("eo") == .en)
   assert(ConPawsLanguage.resolve("pt") == .ptBR)
   assert(ConPawsLanguage.resolve("de_DE") == .de)
   assert(ConPawsLanguage.resolve("pt-BR") == .ptBR)

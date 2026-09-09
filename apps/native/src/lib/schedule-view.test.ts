@@ -1,10 +1,27 @@
 import { describe, expect, it } from "vitest";
 import {
   eventConventionStartHour,
+  eventMatchesScheduleSearch,
   eventOccursInConventionHour,
   getNowAndNextEvents,
   type ScheduleViewEvent,
 } from "./schedule-view";
+
+describe("eventMatchesScheduleSearch", () => {
+  const searchable = {
+    title: "Character design",
+    description: "Hosted by Milo the Fox",
+    category: "Art",
+    type: "Panel",
+    room: "Cedar",
+    location: "Level 1",
+  };
+
+  it("finds a presenter's name in the source-backed description", () => {
+    expect(eventMatchesScheduleSearch(searchable, "milo")).toBe(true);
+    expect(eventMatchesScheduleSearch(searchable, "maple")).toBe(false);
+  });
+});
 
 function event(
   id: string,

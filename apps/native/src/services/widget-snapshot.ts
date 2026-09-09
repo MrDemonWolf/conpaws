@@ -259,8 +259,23 @@ export function publishWidgetSnapshot(): Promise<boolean> {
   return pendingRepublish;
 }
 
-async function buildAndPublishSnapshot(): Promise<boolean> {
+/**
+ * Publish an already-built snapshot through the same compatibility envelope as
+ * production. Developer previews use this seam to exercise WidgetKit, Watch,
+ * and Glance without changing the phone's persisted schedule.
+ */
+export async function publishWidgetSnapshotValue(
+  snapshot: WidgetSnapshot,
+): Promise<boolean> {
   if (!nativeWidgetModule) return false;
+  const compatibleSnapshot = widgetSnapshotForSupportedSchema(
+    snapshot,
+    nativeWidgetModule.getSupportedSnapshotSchemaVersion?.(),
+  );
+  return nativeWidgetModule.publishSnapshot(JSON.stringify(compatibleSnapshot));
+}
+
+async function buildAndPublishSnapshot(): Promise<boolean> {
   const conventions = await conventionsRepo.getAll();
   const eventEntries = await Promise.all(
     conventions.map(
@@ -276,9 +291,5 @@ async function buildAndPublishSnapshot(): Promise<boolean> {
     new Map(eventEntries),
     i18n.resolvedLanguage || i18n.language || "en",
   );
-  const compatibleSnapshot = widgetSnapshotForSupportedSchema(
-    snapshot,
-    nativeWidgetModule.getSupportedSnapshotSchemaVersion?.(),
-  );
-  return nativeWidgetModule.publishSnapshot(JSON.stringify(compatibleSnapshot));
+  return publishWidgetSnapshotValue(snapshot);
 }

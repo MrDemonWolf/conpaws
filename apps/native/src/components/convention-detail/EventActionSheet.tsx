@@ -25,6 +25,7 @@ import {
   type AttendanceTimeError,
   attendanceInterval,
   attendanceTimeError,
+  intervalsOverlap,
 } from "@/lib/personal-schedule";
 import { getCachedDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 
@@ -326,27 +327,6 @@ function attendancePickerDate(
   );
 }
 
-function intervalsOverlap(
-  left: ConventionEvent,
-  right: ConventionEvent,
-): boolean {
-  const leftInterval = attendanceInterval(left);
-  const rightInterval = attendanceInterval(right);
-  if (!leftInterval.endTime || !rightInterval.endTime) return false;
-  const leftStart = Date.parse(leftInterval.startTime);
-  const leftEnd = Date.parse(leftInterval.endTime);
-  const rightStart = Date.parse(rightInterval.startTime);
-  const rightEnd = Date.parse(rightInterval.endTime);
-  return (
-    Number.isFinite(leftStart) &&
-    Number.isFinite(leftEnd) &&
-    Number.isFinite(rightStart) &&
-    Number.isFinite(rightEnd) &&
-    leftStart < rightEnd &&
-    rightStart < leftEnd
-  );
-}
-
 function attendanceErrorKey(error: AttendanceTimeError) {
   switch (error) {
     case "before-event-start":
@@ -371,13 +351,24 @@ function AttendanceEditorContent({
   onSave,
 }: AttendanceEditorContentProps) {
   const { t } = useTranslation();
+  const hasSavedPersonalTime =
+    event.personalStartTime !== null || event.personalEndTime !== null;
+  const publishedStartMs = Date.parse(event.startTime);
+  const publishedEndMs = event.endTime ? Date.parse(event.endTime) : NaN;
+  const hasKnownPublishedEnd =
+    Number.isFinite(publishedEndMs) && publishedEndMs > publishedStartMs;
+  const knownPublishedEnd = hasKnownPublishedEnd ? event.endTime : null;
+  const [usePersonalStart, setUsePersonalStart] = useState(
+    event.personalStartTime !== null || !hasSavedPersonalTime,
+  );
+  const [usePersonalEnd, setUsePersonalEnd] = useState(
+    event.personalEndTime !== null ||
+      (!hasSavedPersonalTime && hasKnownPublishedEnd),
+  );
   const fallbackEnd = new Date(
     Date.parse(event.startTime) + 60 * 60 * 1000,
   ).toISOString();
-  const publishedEnd =
-    event.endTime && Number.isFinite(Date.parse(event.endTime))
-      ? event.endTime
-      : fallbackEnd;
+  const publishedEnd = knownPublishedEnd ?? fallbackEnd;
   const [startPicker, setStartPicker] = useState(() =>
     attendancePickerDate(event.personalStartTime, event.startTime, timeZone),
   );
@@ -385,18 +376,22 @@ function AttendanceEditorContent({
     attendancePickerDate(event.personalEndTime, publishedEnd, timeZone),
   );
 
-  const personalStart = resolveManualEventInstant(
-    manualEventTimeParts(startPicker),
-    timeZone,
-  )?.toISOString();
-  const personalEnd = resolveManualEventInstant(
-    manualEventTimeParts(endPicker),
-    timeZone,
-  )?.toISOString();
+  const personalStart = usePersonalStart
+    ? resolveManualEventInstant(
+        manualEventTimeParts(startPicker),
+        timeZone,
+      )?.toISOString()
+    : null;
+  const personalEnd = usePersonalEnd
+    ? resolveManualEventInstant(
+        manualEventTimeParts(endPicker),
+        timeZone,
+      )?.toISOString()
+    : null;
   const candidate = {
     ...event,
-    personalStartTime: personalStart ?? "invalid",
-    personalEndTime: personalEnd ?? "invalid",
+    personalStartTime: usePersonalStart ? (personalStart ?? "invalid") : null,
+    personalEndTime: usePersonalEnd ? (personalEnd ?? "invalid") : null,
   };
   const error = attendanceTimeError(candidate);
   const conflicts =
@@ -433,41 +428,76 @@ function AttendanceEditorContent({
         })}
       </Text>
       <View className="mx-4 mt-4 overflow-hidden rounded-xl border border-border">
-        <NativeDateTimeField
-          label={t("convention.attendance.joinAt")}
-          value={startPicker}
-          mode="time"
-          locale={locale}
-          minimumDate={attendancePickerDate(
-            event.startTime,
-            event.startTime,
-            timeZone,
-          )}
-          maximumDate={
-            event.endTime
-              ? attendancePickerDate(event.endTime, event.endTime, timeZone)
-              : undefined
-          }
-          showDivider
-          testID="attendance-start-picker"
-          onChange={setStartPicker}
-        />
-        <NativeDateTimeField
-          label={t("convention.attendance.leaveAt")}
-          value={endPicker}
-          mode="time"
-          locale={locale}
-          minimumDate={startPicker}
-          maximumDate={
-            event.endTime
-              ? attendancePickerDate(event.endTime, event.endTime, timeZone)
-              : undefined
-          }
-          testID="attendance-end-picker"
-          onChange={setEndPicker}
-        />
+        {usePersonalStart ? (
+          <NativeDateTimeField
+            label={t("convention.attendance.joinAt")}
+            value={startPicker}
+            mode="time"
+            locale={locale}
+            minimumDate={attendancePickerDate(
+              event.startTime,
+              event.startTime,
+              timeZone,
+            )}
+            maximumDate={
+              knownPublishedEnd
+                ? attendancePickerDate(
+                    knownPublishedEnd,
+                    knownPublishedEnd,
+                    timeZone,
+                  )
+                : undefined
+            }
+            showDivider
+            testID="attendance-start-picker"
+            onChange={setStartPicker}
+          />
+        ) : null}
+        <Pressable
+          onPress={() => setUsePersonalStart((value) => !value)}
+          accessibilityRole="button"
+          className="min-h-11 justify-center px-4 border-b border-border active:opacity-70"
+        >
+          <Text variant="body" className="text-primary">
+            {usePersonalStart
+              ? t("convention.attendance.usePublishedStart")
+              : t("convention.attendance.chooseJoin")}
+          </Text>
+        </Pressable>
+        {usePersonalEnd ? (
+          <NativeDateTimeField
+            label={t("convention.attendance.leaveAt")}
+            value={endPicker}
+            mode="time"
+            locale={locale}
+            minimumDate={usePersonalStart ? startPicker : undefined}
+            maximumDate={
+              knownPublishedEnd
+                ? attendancePickerDate(
+                    knownPublishedEnd,
+                    knownPublishedEnd,
+                    timeZone,
+                  )
+                : undefined
+            }
+            showDivider
+            testID="attendance-end-picker"
+            onChange={setEndPicker}
+          />
+        ) : null}
+        <Pressable
+          onPress={() => setUsePersonalEnd((value) => !value)}
+          accessibilityRole="button"
+          className="min-h-11 justify-center px-4 active:opacity-70"
+        >
+          <Text variant="body" className="text-primary">
+            {usePersonalEnd
+              ? t("convention.attendance.clearLeave")
+              : t("convention.attendance.chooseLeave")}
+          </Text>
+        </Pressable>
       </View>
-      {event.endTime === null ? (
+      {!hasKnownPublishedEnd ? (
         <Text variant="caption" className="px-4 pt-3 text-muted-foreground">
           {t("convention.attendance.unknownEndHelp")}
         </Text>
@@ -499,8 +529,13 @@ function AttendanceEditorContent({
       <Pressable
         disabled={error !== null}
         onPress={() => {
-          if (!personalStart || !personalEnd || error) return;
-          onSave(event, personalStart, personalEnd);
+          if (
+            (usePersonalStart && !personalStart) ||
+            (usePersonalEnd && !personalEnd) ||
+            error
+          )
+            return;
+          onSave(event, personalStart ?? null, personalEnd ?? null);
           onClose();
         }}
         accessibilityRole="button"

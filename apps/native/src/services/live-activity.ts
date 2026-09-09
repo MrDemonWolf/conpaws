@@ -57,6 +57,10 @@ const nativeModule =
 const UNKNOWN_END_MS = 60 * 60 * 1000;
 const LEAVE_WINDOW_MS = 60 * 1000;
 
+function hasNativePlanSurface(): boolean {
+  return Platform.OS === "ios" || Platform.OS === "android";
+}
+
 interface ProjectedEvent {
   event: WidgetEventSnapshot;
   start: number;
@@ -211,18 +215,18 @@ function unsupportedStatus(): LiveActivityStatus {
 }
 
 export async function getLiveActivityStatus(): Promise<LiveActivityStatus> {
-  if (Platform.OS !== "ios" || !nativeModule?.getLiveActivityStatus) {
+  if (!hasNativePlanSurface() || !nativeModule?.getLiveActivityStatus) {
     return unsupportedStatus();
   }
   return nativeModule.getLiveActivityStatus();
 }
 
-/** Explicit opt-in only: nothing calls this automatically in the background. */
+/** Explicit opt-in only: nothing starts an OS plan surface automatically. */
 export async function startOrUpdateLiveActivity(
   snapshot?: WidgetSnapshot,
   nowMs = Date.now(),
 ): Promise<LiveActivityStatus> {
-  if (Platform.OS !== "ios" || !nativeModule?.startOrUpdateLiveActivity) {
+  if (!hasNativePlanSurface() || !nativeModule?.startOrUpdateLiveActivity) {
     return unsupportedStatus();
   }
   const payload = projectLiveActivity(
@@ -241,7 +245,7 @@ export async function startOrUpdateLiveActivity(
 export async function endLiveActivity(
   showFinishedState = true,
 ): Promise<LiveActivityStatus> {
-  if (Platform.OS !== "ios" || !nativeModule?.endLiveActivity) {
+  if (!hasNativePlanSurface() || !nativeModule?.endLiveActivity) {
     return unsupportedStatus();
   }
   return nativeModule.endLiveActivity(showFinishedState);

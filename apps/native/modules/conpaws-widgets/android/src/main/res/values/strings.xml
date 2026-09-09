@@ -26,4 +26,22 @@
     <item quantity="one">In %d day</item>
     <item quantity="other">In %d days</item>
   </plurals>
+  <string name="conpaws_plan_channel_name">Plan updates</string>
+  <string name="conpaws_plan_channel_description">Ongoing updates for a convention plan you choose to track.</string>
+  <string name="conpaws_plan_starts_at">Starts at %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Until %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Happening now</string>
+  <string name="conpaws_plan_leave_title">Time to leave %1$s</string>
+  <string name="conpaws_plan_leave_body">Your chosen leave time is now.</string>
+  <string name="conpaws_plan_next">Next: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Next: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Your plan is finished</string>
+  <string name="conpaws_plan_finished_body">Your planned time for %1$s has ended.</string>
+  <string name="conpaws_plan_finished_continues">Your planned time ended. %1$s continues until %2$s.</string>
+  <string name="conpaws_plan_open">Open plan</string>
+  <string name="conpaws_plan_stop">Stop updates</string>
+  <string name="conpaws_plan_private_title">ConPaws plan</string>
+  <string name="conpaws_plan_private_body">Open ConPaws to view your plan.</string>
 </resources>

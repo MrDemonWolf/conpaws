@@ -25,6 +25,7 @@ internal data class ConPawsEventSnapshot(
   val endAtMs: Long?,
   val attendanceStartAtMs: Long?,
   val attendanceEndAtMs: Long?,
+  val attendanceNeedsReview: Boolean,
   val location: String?,
   val room: String?,
 ) {
@@ -128,7 +129,8 @@ internal object ConPawsSnapshotParser {
       value.nullableLong("attendanceStartAtMs", required = schemaVersion >= 3)
     val attendanceEndAtMs =
       value.nullableLong("attendanceEndAtMs", required = schemaVersion >= 3)
-    if (schemaVersion >= 3) value.requiredBoolean("attendanceNeedsReview")
+    val attendanceNeedsReview =
+      if (schemaVersion >= 3) value.requiredBoolean("attendanceNeedsReview") else false
     require(startAtMs >= 0)
     require(endAtMs == null || endAtMs > startAtMs)
     require(attendanceStartAtMs == null || attendanceStartAtMs >= 0)
@@ -144,6 +146,7 @@ internal object ConPawsSnapshotParser {
       endAtMs = endAtMs,
       attendanceStartAtMs = attendanceStartAtMs,
       attendanceEndAtMs = attendanceEndAtMs,
+      attendanceNeedsReview = attendanceNeedsReview,
       location = value.nullableString("location"),
       room = value.nullableString("room"),
     )
@@ -327,7 +330,7 @@ class ConPawsWidgetsModule : Module() {
 
     AsyncFunction("publishSnapshot") Coroutine { json: String ->
       val context = appContext.reactContext ?: return@Coroutine false
-      when (ConPawsSnapshotParser.parse(json)) {
+      when (val result = ConPawsSnapshotParser.parse(json)) {
         is SnapshotParseResult.Malformed -> false
         is SnapshotParseResult.Unsupported -> {
           if (ConPawsSnapshotStore.clear(context)) ConPawsWidget().updateAll(context)
@@ -337,9 +340,28 @@ class ConPawsWidgetsModule : Module() {
           val (saved, changed) = ConPawsSnapshotStore.save(context, json)
           if (!saved) return@Coroutine false
           if (changed) ConPawsWidget().updateAll(context)
+          ConPawsPlanNotification.reconcile(context, result.snapshot)
           true
         }
       }
+    }
+
+    Function("getLiveActivityStatus") {
+      val context = appContext.reactContext
+        ?: return@Function mapOf("availability" to "unsupported", "active" to false)
+      ConPawsPlanNotification.status(context)
+    }
+
+    AsyncFunction("startOrUpdateLiveActivity") Coroutine { json: String ->
+      val context = appContext.reactContext
+        ?: return@Coroutine mapOf("availability" to "unsupported", "active" to false)
+      ConPawsPlanNotification.startOrUpdate(context, json)
+    }
+
+    AsyncFunction("endLiveActivity") Coroutine { showFinishedState: Boolean ->
+      val context = appContext.reactContext
+        ?: return@Coroutine mapOf("availability" to "unsupported", "active" to false)
+      ConPawsPlanNotification.stop(context, showFinishedState)
     }
   }
 }

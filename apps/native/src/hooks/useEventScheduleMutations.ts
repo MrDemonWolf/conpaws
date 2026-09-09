@@ -8,6 +8,8 @@ import { attendanceTimeError } from "@/lib/personal-schedule";
 import { hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
+  cancelLeaveReminder,
+  cancelStartReminder,
   getNotificationPermissionStatus,
   reconcileEventReminders,
   scheduleEventReminder,
@@ -83,8 +85,11 @@ export function useEventScheduleMutations({
     mutationFn: async (event: ConventionEvent) => {
       const isInSchedule = !event.isInSchedule;
       if (isInSchedule && event.feedStatus !== null) return false;
-      if (isInSchedule || event.reminderMinutes === null) {
+      if (isInSchedule) {
         await eventsRepo.update(event.id, { isInSchedule });
+        await reconcileEventReminders().catch((error) => {
+          reportError(error, { scope: "event-plan.reminder-reconcile" });
+        });
         return true;
       }
 
@@ -95,6 +100,9 @@ export function useEventScheduleMutations({
       await eventsRepo.update(event.id, {
         isInSchedule,
         reminderMinutes: null,
+      });
+      await reconcileEventReminders().catch((error) => {
+        reportError(error, { scope: "event-plan.reminder-reconcile" });
       });
       return true;
     },
@@ -166,13 +174,12 @@ export function useEventScheduleMutations({
         personalStartTime,
         personalEndTime,
       });
-      if (event.reminderMinutes !== null) {
-        await reconcileEventReminders().catch((error) => {
-          reportError(error, {
-            scope: "event-attendance.reminder-reschedule",
-          });
+      await cancelLeaveReminder(event.id);
+      await reconcileEventReminders().catch((error) => {
+        reportError(error, {
+          scope: "event-attendance.reminder-reschedule",
         });
-      }
+      });
     },
     onSuccess: (_, { event }) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
@@ -261,12 +268,12 @@ export function useEventScheduleMutations({
         try {
           await eventsRepo.update(event.id, { reminderMinutes: minutes });
         } catch (error) {
-          await cancelEventReminder(event.id);
+          await cancelStartReminder(event.id);
           await restorePreviousReminder();
           throw error;
         }
       } else {
-        if (!(await cancelEventReminder(event.id))) {
+        if (!(await cancelStartReminder(event.id))) {
           throw new ReminderError("cancel-failed");
         }
         try {

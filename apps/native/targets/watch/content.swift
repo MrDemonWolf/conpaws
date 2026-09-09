@@ -13,10 +13,8 @@ struct ContentView: View {
     NavigationStack {
       TimelineView(.everyMinute) { context in
         WatchRootView(
-          snapshot: store.snapshot,
-          now: context.date,
-          isUsingSavedSchedule: store.isUsingSavedSchedule,
-          snapshotDate: store.snapshotDate
+          store: store,
+          now: context.date
         )
       }
     }
@@ -25,10 +23,10 @@ struct ContentView: View {
 
 private struct WatchRootView: View {
   @Environment(\.isLuminanceReduced) private var isLuminanceReduced
-  let snapshot: ConPawsSnapshot
+  @ObservedObject var store: WatchScheduleStore
   let now: Date
-  let isUsingSavedSchedule: Bool
-  let snapshotDate: Date?
+
+  private var snapshot: ConPawsSnapshot { store.snapshot }
 
   private var schedule: WatchScheduleProjection {
     WatchScheduleProjection(snapshot: snapshot, now: now)
@@ -51,15 +49,16 @@ private struct WatchRootView: View {
           PreConventionView(
             convention: convention,
             now: now,
-            isUsingSavedSchedule: isUsingSavedSchedule,
-            snapshotDate: snapshotDate,
+            isUsingSavedSchedule: store.isUsingSavedSchedule,
+            snapshotDate: store.snapshotDate,
             strings: strings
           )
         } else {
           ScheduleHomeView(
+            store: store,
             schedule: schedule,
-            isUsingSavedSchedule: isUsingSavedSchedule,
-            snapshotDate: snapshotDate,
+            isUsingSavedSchedule: store.isUsingSavedSchedule,
+            snapshotDate: store.snapshotDate,
             strings: strings
           )
         }
@@ -130,6 +129,7 @@ private struct PreConventionView: View {
 
 private struct ScheduleHomeView: View {
   @Environment(\.locale) private var locale
+  @ObservedObject var store: WatchScheduleStore
   let schedule: WatchScheduleProjection
   let isUsingSavedSchedule: Bool
   var snapshotDate: Date?
@@ -167,6 +167,19 @@ private struct ScheduleHomeView: View {
               Text(WatchFormat.timeRange(current, in: convention, locale: locale))
             }
           }
+
+          LeaveTimeAdjustmentButton(
+            event: current,
+            convention: convention,
+            strings: strings
+          ) { completion in
+            store.extendLeaveTime(
+              conventionID: convention.id,
+              event: current,
+              completion: completion
+            )
+          }
+          .id("\(current.id):\(current.attendanceEndAtMs ?? 0)")
         }
 
         if let next = schedule.nextEvent, let convention = schedule.convention {
@@ -256,6 +269,92 @@ private struct ScheduleHomeView: View {
       locale: locale,
       strings: strings
     )
+  }
+}
+
+private enum LeaveTimeEditState {
+  case idle
+  case saving
+  case saved
+  case failed
+}
+
+private struct LeaveTimeAdjustmentButton: View {
+  @Environment(\.locale) private var locale
+  let event: ConPawsEventSnapshot
+  let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
+  let submit: (@escaping (Result<Date, Error>) -> Void) -> Void
+  @State private var state = LeaveTimeEditState.idle
+
+  private var proposedEnd: Date? {
+    guard
+      event.hasPersonalEnd,
+      let currentEnd = event.plannedEndDate,
+      let publishedEnd = event.publishedEndDate
+    else {
+      return nil
+    }
+    let proposed = currentEnd.addingTimeInterval(300)
+    return proposed <= publishedEnd ? proposed : nil
+  }
+
+  var body: some View {
+    if let proposedEnd {
+      VStack(alignment: .leading, spacing: 4) {
+        Button {
+          state = .saving
+          submit { result in
+            state = result.isSuccess ? .saved : .failed
+          }
+        } label: {
+          HStack(spacing: 6) {
+            if state == .saving {
+              ProgressView()
+                .controlSize(.small)
+            } else {
+              Image(systemName: state == .saved ? "checkmark" : "clock.badge.plus")
+                .accessibilityHidden(true)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+              Text(state == .saved ? strings.savedSchedule : "+ \(strings.minutes(5))")
+                .font(.body.weight(.semibold))
+              Text(
+                strings.text(
+                  strings.inlineLeaveFormat,
+                  WatchFormat.time(proposedEnd, in: convention, locale: locale)
+                )
+              )
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+          }
+          .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+          .padding(.horizontal, 10)
+          .background(.quaternary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+          .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(state == .saving || state == .saved)
+        .accessibilityElement(children: .combine)
+
+        if state == .failed {
+          Text(strings.syncFromPhone)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+            .accessibilityLabel(strings.syncFromPhone)
+        }
+      }
+    }
+  }
+}
+
+private extension Result {
+  var isSuccess: Bool {
+    if case .success = self { return true }
+    return false
   }
 }
 

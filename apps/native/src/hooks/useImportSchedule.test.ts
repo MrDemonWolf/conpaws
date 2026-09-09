@@ -9,6 +9,8 @@ const { repo, notifications } = vi.hoisted(() => ({
   notifications: {
     scheduleEventReminder: vi.fn(),
     cancelEventReminder: vi.fn(),
+    cancelStartReminder: vi.fn(),
+    reconcileEventReminders: vi.fn(),
   },
 }));
 
@@ -41,6 +43,8 @@ describe("rearmImportedReminders", () => {
     repo.update.mockReset().mockResolvedValue(undefined);
     notifications.scheduleEventReminder.mockReset();
     notifications.cancelEventReminder.mockReset().mockResolvedValue(true);
+    notifications.cancelStartReminder.mockReset().mockResolvedValue(true);
+    notifications.reconcileEventReminders.mockReset().mockResolvedValue({});
   });
 
   it("keeps the saved choice when the OS request throws", async () => {
@@ -100,7 +104,7 @@ describe("rearmImportedReminders", () => {
     expect(repo.update).toHaveBeenCalledWith("past", {
       reminderMinutes: null,
     });
-    expect(notifications.cancelEventReminder).toHaveBeenCalledWith("past");
+    expect(notifications.cancelStartReminder).toHaveBeenCalledWith("past");
     expect(notifications.scheduleEventReminder).not.toHaveBeenCalled();
   });
 

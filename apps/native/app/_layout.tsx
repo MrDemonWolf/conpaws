@@ -109,9 +109,11 @@ import {
   setupNotificationHandler,
 } from "@/services/notifications";
 import { consumePendingQuickAction } from "@/services/quick-actions";
+import { setupWatchPlanEdits } from "@/services/watch-plan-edits";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
+setupWatchPlanEdits();
 
 // Notification taps already routed this launch, keyed by request identifier.
 const handledNotificationResponses = new Set<string>();
@@ -397,7 +399,12 @@ function RootLayout() {
       if (!response) return;
       const { content, identifier } = response.notification.request;
       const data = content.data as Record<string, unknown> | undefined;
-      if (data?.kind !== "event-reminder") return;
+      if (
+        data?.kind !== "event-reminder" &&
+        data?.kind !== "leave-reminder" &&
+        data?.kind !== "schedule-change"
+      )
+        return;
 
       const conventionId =
         typeof data.conventionId === "string" ? data.conventionId : null;

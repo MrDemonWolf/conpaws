@@ -118,6 +118,7 @@ private struct ConPawsWatchProvider: TimelineProvider {
 }
 
 private struct ConPawsWatchEntryView: View {
+  @Environment(\.widgetFamily) private var family
   let entry: ConPawsWatchEntry
 
   private var schedule: WidgetScheduleProjection {
@@ -126,34 +127,164 @@ private struct ConPawsWatchEntryView: View {
 
   var body: some View {
     Group {
-      switch schedule.state {
-      case let .comingUp(convention):
-        ComingUpWidgetView(
-          convention: convention,
-          now: entry.date,
+      switch family {
+      case .accessoryCircular:
+        CircularWatchWidgetView(
+          schedule: schedule,
           strings: entry.strings
         )
-      case let .current(current, next, convention):
-        CurrentWidgetView(
-          current: current,
-          next: next,
-          convention: convention,
-          now: entry.date,
+      case .accessoryInline:
+        InlineWatchWidgetView(
+          schedule: schedule,
           strings: entry.strings
         )
-      case let .next(event, convention):
-        NextWidgetView(
-          event: event,
-          convention: convention,
-          now: entry.date,
-          strings: entry.strings
-        )
-      case let .blank(convention):
-        BlankWidgetView(convention: convention, strings: entry.strings)
+      default:
+        rectangularBody
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     .environment(\.locale, entry.snapshot.locale)
+    .widgetURL(ConPawsSnapshotStore.appURL(conventionID: schedule.convention?.id))
+  }
+
+  @ViewBuilder
+  private var rectangularBody: some View {
+    switch schedule.state {
+    case let .comingUp(convention):
+      ComingUpWidgetView(
+        convention: convention,
+        now: entry.date,
+        strings: entry.strings
+      )
+    case let .current(current, next, convention):
+      CurrentWidgetView(
+        current: current,
+        next: next,
+        convention: convention,
+        now: entry.date,
+        strings: entry.strings
+      )
+    case let .next(event, convention):
+      NextWidgetView(
+        event: event,
+        convention: convention,
+        now: entry.date,
+        strings: entry.strings
+      )
+    case let .blank(convention):
+      BlankWidgetView(convention: convention, strings: entry.strings)
+    }
+  }
+}
+
+private struct CircularWatchWidgetView: View {
+  @Environment(\.locale) private var locale
+  let schedule: WidgetScheduleProjection
+  let strings: ConPawsStrings
+
+  var body: some View {
+    ZStack {
+      AccessoryWidgetBackground()
+      switch schedule.state {
+      case let .comingUp(convention):
+        VStack(spacing: 1) {
+          Image(systemName: "calendar")
+            .font(.caption2)
+          Text(
+            ConPawsCountdown.label(
+              from: schedule.now,
+              to: convention.startDate,
+              timeZone: convention.timeZone,
+              strings: strings
+            )
+          )
+          .font(.caption2.bold())
+          .minimumScaleFactor(0.55)
+          .lineLimit(1)
+        }
+      case let .current(event, _, _):
+        if event.hasPersonalEnd, let end = event.plannedEndDate {
+          VStack(spacing: 0) {
+            Text(strings.leaveInCaps)
+              .font(.system(size: 8, weight: .semibold))
+              .lineLimit(1)
+            Text(
+              timerInterval: schedule.now...end,
+              countsDown: true,
+              showsHours: false
+            )
+              .font(.headline.bold())
+              .monospacedDigit()
+              .minimumScaleFactor(0.7)
+              .lineLimit(1)
+          }
+          .foregroundStyle(Color.accentColor)
+          .widgetAccentable()
+        } else {
+          VStack(spacing: 1) {
+            Text(strings.nowCaps)
+              .font(.caption2.bold())
+            Text(event.title)
+              .font(.caption2)
+              .lineLimit(2)
+              .multilineTextAlignment(.center)
+          }
+        }
+      case let .next(event, convention):
+        VStack(spacing: 1) {
+          Text(strings.nextCaps)
+            .font(.system(size: 8, weight: .semibold))
+          Text(WidgetFormat.time(event.startDate, in: convention, locale: locale))
+            .font(.headline)
+            .monospacedDigit()
+          Text(event.title)
+            .font(.system(size: 8))
+            .lineLimit(1)
+        }
+      case .blank:
+        VStack(spacing: 2) {
+          Image(systemName: "iphone")
+          Text("ConPaws")
+            .font(.caption2.bold())
+        }
+      }
+    }
+    .accessibilityElement(children: .combine)
+  }
+}
+
+private struct InlineWatchWidgetView: View {
+  @Environment(\.locale) private var locale
+  let schedule: WidgetScheduleProjection
+  let strings: ConPawsStrings
+
+  var body: some View {
+    Text(summary)
+      .lineLimit(1)
+  }
+
+  private var summary: String {
+    switch schedule.state {
+    case let .comingUp(convention):
+      return "\(convention.name) · \(ConPawsCountdown.label(from: schedule.now, to: convention.startDate, timeZone: convention.timeZone, strings: strings))"
+    case let .current(current, next, convention):
+      if current.hasPersonalEnd, let end = current.plannedEndDate {
+        let leave = strings.text(
+          strings.inlineLeaveFormat,
+          WidgetFormat.time(end, in: convention, locale: locale)
+        )
+        if let next, let location = WidgetFormat.location(next) {
+          return "\(leave) · \(location)"
+        }
+        return "\(leave) · \(current.title)"
+      }
+      return "\(strings.now) · \(current.title)"
+    case let .next(event, convention):
+      return "\(WidgetFormat.time(event.startDate, in: convention, locale: locale)) · \(event.title)"
+    case let .blank(convention):
+      guard let convention else { return strings.noScheduleMessage }
+      return convention.events.isEmpty ? strings.starHint : strings.allDoneTitle
+    }
   }
 }
 
@@ -377,7 +508,7 @@ struct ConPawsWatchWidget: Widget {
     // resources rather than the shared string table.
     .configurationDisplayName("ConPaws Schedule")
     .description("See your current stop, chosen leave time, next event, or convention countdown.")
-    .supportedFamilies([.accessoryRectangular])
+    .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline])
   }
 }
 

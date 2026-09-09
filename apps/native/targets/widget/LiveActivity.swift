@@ -41,6 +41,25 @@ private extension ConPawsActivityAttributes.ContentState {
   var attendanceEndDate: Date? { attendanceEndAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
   var nextAttendanceStartDate: Date? { nextAttendanceStartAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
 
+  /// ActivityKit can mark one content update stale at its next boundary even
+  /// while the app is suspended. Use that boundary to advance truthful copy:
+  /// upcoming becomes current at the chosen join time, and current/leave
+  /// becomes finished at the chosen end. Later app or push updates can then
+  /// provide the next boundary; no background JavaScript countdown is needed.
+  func displayed(isStale: Bool) -> Self {
+    guard isStale else { return self }
+    var displayed = self
+    switch phase {
+    case .upcoming:
+      displayed.phase = .current
+    case .current, .leave:
+      displayed.phase = .finished
+    case .finished:
+      break
+    }
+    return displayed
+  }
+
   var cue: String {
     switch phase {
     case .upcoming: strings.startingSoon
@@ -171,12 +190,12 @@ struct ConPawsLiveActivityWidget: Widget {
 
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: ConPawsActivityAttributes.self) { context in
-      ConPawsLiveActivityView(content: context.state)
+      ConPawsLiveActivityView(content: context.state.displayed(isStale: context.isStale))
         .activityBackgroundTint(Color(uiColor: .secondarySystemBackground))
         .activitySystemActionForegroundColor(.primary)
         .widgetURL(appURL)
     } dynamicIsland: { context in
-      let content = context.state
+      let content = context.state.displayed(isStale: context.isStale)
       return DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
           Label(content.cue, systemImage: "pawprint.fill")

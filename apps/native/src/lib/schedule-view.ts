@@ -14,6 +14,32 @@ export interface ScheduleViewEvent {
   room: string | null;
 }
 
+export interface ScheduleSearchEvent {
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  type?: string | null;
+  room?: string | null;
+  location?: string | null;
+}
+
+/** Match every source-backed text field that can identify a panel or person. */
+export function eventMatchesScheduleSearch(
+  event: ScheduleSearchEvent,
+  query: string,
+): boolean {
+  const normalized = query.trim().toLocaleLowerCase();
+  if (!normalized) return true;
+  return [
+    event.title,
+    event.description,
+    event.category,
+    event.type,
+    event.room,
+    event.location,
+  ].some((value) => value?.toLocaleLowerCase().includes(normalized));
+}
+
 // End times are optional for manual and imported events. Keep them visible in
 // Now for one hour instead of dropping them at their start time.
 const NO_END_FALLBACK_MS = 60 * 60 * 1000;

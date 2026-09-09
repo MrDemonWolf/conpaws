@@ -90,6 +90,28 @@ export function attendanceInterval(
   };
 }
 
+/** Compare validated personal attendance as half-open intervals. */
+export function intervalsOverlap(
+  left: AttendanceIntervalEntry,
+  right: AttendanceIntervalEntry,
+): boolean {
+  const leftInterval = attendanceInterval(left);
+  const rightInterval = attendanceInterval(right);
+  if (!leftInterval.endTime || !rightInterval.endTime) return false;
+  const leftStart = Date.parse(leftInterval.startTime);
+  const leftEnd = Date.parse(leftInterval.endTime);
+  const rightStart = Date.parse(rightInterval.startTime);
+  const rightEnd = Date.parse(rightInterval.endTime);
+  return (
+    Number.isFinite(leftStart) &&
+    Number.isFinite(leftEnd) &&
+    Number.isFinite(rightStart) &&
+    Number.isFinite(rightEnd) &&
+    leftStart < rightEnd &&
+    rightStart < leftEnd
+  );
+}
+
 /** Signed whole minutes from one planned stop ending to the next one starting. */
 export function attendanceSeparationMinutes(
   current: AttendanceIntervalEntry,

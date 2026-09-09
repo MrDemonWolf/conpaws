@@ -116,9 +116,16 @@ private func decodeConPawsActivity(_ json: String) -> ConPawsActivityPayload? {
 }
 
 private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
+  private struct PendingReply {
+    let handler: ([String: Any]) -> Void
+    let timeout: DispatchWorkItem
+  }
+
   private let queue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-sync")
   private var latestJSON: String?
   private var shouldTransferLatest = false
+  private var pendingReplies: [String: PendingReply] = [:]
+  var onLeaveTimeEdit: (([String: Any?]) -> Void)?
 
   func activate() {
     guard WCSession.isSupported() else { return }
@@ -154,6 +161,28 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
     self.latestJSON = nil
   }
 
+  func completeLeaveTimeEdit(requestID: String, success: Bool) {
+    queue.async {
+      guard let pending = self.pendingReplies.removeValue(forKey: requestID) else { return }
+      pending.timeout.cancel()
+      pending.handler([
+        "ok": success,
+        "code": success ? "saved" : "rejected",
+      ])
+    }
+  }
+
+  func cancelPendingLeaveTimeEdits() {
+    queue.async {
+      let replies = self.pendingReplies.values
+      self.pendingReplies.removeAll()
+      for pending in replies {
+        pending.timeout.cancel()
+        pending.handler(["ok": false, "code": "phone-unavailable"])
+      }
+    }
+  }
+
   func session(
     _ session: WCSession,
     activationDidCompleteWith activationState: WCSessionActivationState,
@@ -181,6 +210,56 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
       self.flushIfActivated(session)
     }
   }
+
+  func session(
+    _ session: WCSession,
+    didReceiveMessage message: [String: Any],
+    replyHandler: @escaping ([String: Any]) -> Void
+  ) {
+    guard
+      message["type"] as? String == "conpaws.watch.leave-update.v1",
+      let requestID = message["requestId"] as? String,
+      let conventionID = message["conventionId"] as? String,
+      let eventID = message["eventId"] as? String,
+      let expectedEndAtMs = (message["expectedEndAtMs"] as? NSNumber)?.doubleValue,
+      let newEndAtMs = (message["newEndAtMs"] as? NSNumber)?.doubleValue,
+      conPawsSafeText(requestID),
+      conPawsSafeText(conventionID),
+      conPawsSafeText(eventID),
+      expectedEndAtMs.isFinite,
+      newEndAtMs.isFinite,
+      abs(newEndAtMs - expectedEndAtMs - 300_000) < 1
+    else {
+      replyHandler(["ok": false, "code": "invalid-request"])
+      return
+    }
+
+    queue.async {
+      guard self.pendingReplies[requestID] == nil else {
+        replyHandler(["ok": false, "code": "duplicate-request"])
+        return
+      }
+
+      let timeout = DispatchWorkItem { [weak self] in
+        guard let self, let pending = self.pendingReplies.removeValue(forKey: requestID) else {
+          return
+        }
+        pending.handler(["ok": false, "code": "phone-timeout"])
+      }
+      self.pendingReplies[requestID] = PendingReply(handler: replyHandler, timeout: timeout)
+      self.queue.asyncAfter(deadline: .now() + 8, execute: timeout)
+
+      DispatchQueue.main.async { [weak self] in
+        self?.onLeaveTimeEdit?([
+          "requestId": requestID,
+          "conventionId": conventionID,
+          "eventId": eventID,
+          "expectedEndAtMs": expectedEndAtMs,
+          "newEndAtMs": newEndAtMs,
+        ])
+      }
+    }
+  }
 }
 
 public class ConPawsWidgetsModule: Module {
@@ -203,8 +282,18 @@ public class ConPawsWidgetsModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ConPawsWidgets")
 
+    Events("onWatchLeaveTimeEdit")
+
     OnCreate {
+      self.watchBridge.onLeaveTimeEdit = { [weak self] request in
+        self?.sendEvent("onWatchLeaveTimeEdit", request)
+      }
       self.watchBridge.activate()
+    }
+
+    OnDestroy {
+      self.watchBridge.onLeaveTimeEdit = nil
+      self.watchBridge.cancelPendingLeaveTimeEdits()
     }
 
     Function("consumePendingQuickAction") { () -> String? in
@@ -216,6 +305,10 @@ public class ConPawsWidgetsModule: Module {
 
     Function("getSupportedSnapshotSchemaVersion") {
       Self.supportedSchemaVersions.upperBound
+    }
+
+    Function("completeWatchLeaveTimeEdit") { (requestID: String, success: Bool) in
+      self.watchBridge.completeLeaveTimeEdit(requestID: requestID, success: success)
     }
 
     Function("getLiveActivityStatus") {

@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
 import {
+  buildPlanNotificationRequests,
   cancelConventionReminders,
+  cancelEventReminder,
   cancelTestNotifications,
+  notifyScheduleChanges,
   reconcileEventReminders,
   scheduleTestNotification,
 } from "./notifications";
@@ -18,6 +21,7 @@ const notificationMocks = vi.hoisted(() => ({
 }));
 
 const eventRepoMocks = vi.hoisted(() => ({
+  getAllInSchedule: vi.fn(),
   getAllWithReminders: vi.fn(),
   update: vi.fn(),
 }));
@@ -86,6 +90,7 @@ describe("startup reminder reconciliation", () => {
       async ({ identifier }: { identifier: string }) => identifier,
     );
     eventRepoMocks.getAllWithReminders.mockResolvedValue([]);
+    eventRepoMocks.getAllInSchedule.mockResolvedValue([]);
     eventRepoMocks.update.mockResolvedValue(undefined);
   });
 
@@ -289,7 +294,7 @@ describe("startup reminder reconciliation", () => {
     i18nMock.isInitialized = true;
     i18nMock.t.mockImplementation((key: string) =>
       key === "reminders.startNotificationTitle"
-        ? "Hora de salir para Opening"
+        ? "Opening empieza pronto"
         : "Empieza en 15 min · Main Stage",
     );
     eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
@@ -299,11 +304,125 @@ describe("startup reminder reconciliation", () => {
     expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
       expect.objectContaining({
         content: expect.objectContaining({
-          title: "Hora de salir para Opening",
+          title: "Opening empieza pronto",
           body: "Empieza en 15 min · Main Stage",
         }),
       }),
     );
+  });
+
+  it("schedules explicit leave times without unsolicited overlap alerts", async () => {
+    eventRepoMocks.getAllInSchedule.mockResolvedValue([
+      {
+        event: reminderEvent({
+          id: "first",
+          reminderMinutes: null,
+          personalEndTime: "2026-08-17T13:45:00.000Z",
+        }),
+      },
+      {
+        event: reminderEvent({
+          id: "second",
+          title: "Drawing",
+          startTime: "2026-08-17T13:30:00.000Z",
+          endTime: "2026-08-17T14:30:00.000Z",
+          reminderMinutes: null,
+        }),
+      },
+    ]);
+
+    await reconcileEventReminders();
+
+    const requests = notificationMocks.scheduleNotificationAsync.mock.calls.map(
+      ([request]) => request,
+    );
+    expect(requests).toEqual([
+      expect.objectContaining({
+        identifier: "leave-first",
+        content: expect.objectContaining({
+          title: "Your leave time is now",
+        }),
+        trigger: expect.objectContaining({
+          date: new Date("2026-08-17T13:45:00.000Z"),
+        }),
+      }),
+    ]);
+  });
+});
+
+describe("plan notification selection", () => {
+  it("ignores interests and unavailable or invalid personal choices", () => {
+    const events = [
+      reminderEvent({
+        id: "interest",
+        isInSchedule: false,
+        isInterested: true,
+        personalEndTime: "2026-08-17T13:45:00.000Z",
+      }),
+      reminderEvent({
+        id: "cancelled",
+        feedStatus: "cancelled",
+        personalEndTime: "2026-08-17T13:45:00.000Z",
+      }),
+      reminderEvent({
+        id: "review",
+        personalEndTime: "2026-08-17T15:00:00.000Z",
+      }),
+    ];
+
+    expect(
+      buildPlanNotificationRequests(
+        events,
+        Date.parse("2026-08-17T12:00:00.000Z"),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("schedule change notifications", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    notificationMocks.cancelScheduledNotificationAsync.mockResolvedValue(
+      undefined,
+    );
+    notificationMocks.scheduleNotificationAsync.mockResolvedValue("change");
+  });
+
+  it("notifies planned room changes and cancellations once, never interests", async () => {
+    const roomChange = {
+      kind: "room-change" as const,
+      eventId: "event-1",
+      conventionId: "convention-1",
+      event: "Opening",
+      previousRoom: "Cedar",
+      room: "Maple",
+      isInSchedule: true,
+    };
+    const delivered = await notifyScheduleChanges([
+      roomChange,
+      roomChange,
+      {
+        kind: "cancellation",
+        eventId: "event-2",
+        conventionId: "convention-1",
+        event: "Drawing",
+        isInSchedule: true,
+      },
+      { ...roomChange, eventId: "interest", isInSchedule: false },
+    ]);
+
+    expect(delivered).toBe(2);
+    expect(
+      notificationMocks.scheduleNotificationAsync.mock.calls.map(
+        ([request]) => request.identifier,
+      ),
+    ).toEqual([
+      "schedule-change-room-change-event-1",
+      "schedule-change-cancellation-event-2",
+    ]);
   });
 });
 
@@ -357,6 +476,20 @@ describe("developer test notifications", () => {
 describe("convention reminder cleanup", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    notificationMocks.getAllScheduledNotificationsAsync.mockResolvedValue([]);
+  });
+
+  it("cancels both the start and chosen-leave request for one event", async () => {
+    notificationMocks.cancelScheduledNotificationAsync.mockResolvedValue(
+      undefined,
+    );
+
+    await expect(cancelEventReminder("event-1")).resolves.toBe(true);
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync.mock.calls.map(
+        ([identifier]) => identifier,
+      ),
+    ).toEqual(["reminder-event-1", "leave-event-1"]);
   });
 
   it("reports a partial failure without rejecting cleanup", async () => {
@@ -373,5 +506,8 @@ describe("convention reminder cleanup", () => {
     expect(
       notificationMocks.cancelScheduledNotificationAsync,
     ).toHaveBeenCalledWith("reminder-event-2");
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("leave-event-1");
   });
 });

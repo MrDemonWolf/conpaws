@@ -88,6 +88,7 @@ import {
   shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 import {
+  eventMatchesScheduleSearch,
   eventOccursInConventionHour,
   getNowAndNextEvents,
 } from "@/lib/schedule-view";
@@ -413,16 +414,7 @@ export default function ConventionDetailScreen() {
             activeHour,
             conventionTimeZone,
           ))) &&
-      (normalizedSearchQuery.length === 0 ||
-        [
-          event.title,
-          event.description ?? "",
-          event.category ?? "",
-          event.room ?? "",
-          event.location ?? "",
-        ].some((value) =>
-          value.toLocaleLowerCase().includes(normalizedSearchQuery),
-        )),
+      eventMatchesScheduleSearch(event, normalizedSearchQuery),
   );
   const dayGroups = groupEventsByDay(
     filteredEvents,
@@ -1014,14 +1006,14 @@ export default function ConventionDetailScreen() {
               />
               {nowAndNext.next.length > 0 ? (
                 nowAndNext.next.map(renderEventRow)
-              ) : (
+              ) : nowAndNext.current.length === 0 ? (
                 <Text
                   variant="body"
                   className="px-4 py-4 text-muted-foreground"
                 >
                   {t("convention.noMoreUpcomingEvents")}
                 </Text>
-              )}
+              ) : null}
             </>
           )}
         </ScrollView>
