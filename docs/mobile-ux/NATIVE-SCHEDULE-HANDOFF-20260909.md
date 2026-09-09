@@ -1,18 +1,23 @@
 # ConPaws native schedule completion handoff
 
 **Created:** September 9, 2026, UTC
-**Status:** Source implementation is complete on the server feature branch and ready for native device testing. It has not been merged, pushed, deployed, published, or released.
+**Status:** Source implementation is complete and published only to the remote feature branch for native device testing. It has not been merged, deployed, published as an app update, or released.
 
 ## Where the work lives
 
 - Repository: `/home/nathanialhenniges/Developer/mrdemonwolf/conpaws`
 - Worktree: `/tmp/conpaws-native-schedule-ux`
 - Branch: `codex/native-schedule-ux`
+- Remote branch: `origin/codex/native-schedule-ux`
 - Current `origin/main` used by the branch: `49dc7cd fix(native): My Schedule never marked a clash`
 - Main implementation commit: `23a4107 feat(native): add personal schedule planning`
 - Completion commit: `91276ec feat(native): finish schedule companion surfaces`
 
-The branch is two commits ahead of current `origin/main`. A fresh `git fetch origin` on September 9 reported no commits to bring in from `origin/main`.
+The remote feature branch is ready for a local Mac or Android development machine to fetch. Keep testing and any fixes on this branch; do not merge it into `main` as part of the device-test handoff.
+
+## Local task objective
+
+On the local development machine, locate the existing ConPaws clone and preserve any unrelated work. Fetch `origin/codex/native-schedule-ux`, create or reuse a dedicated worktree tracking that branch, read this document and the repository instructions, install from the frozen Bun lockfile, build a custom native development client, and launch it on Nathanial's connected device. Diagnose and fix build/runtime issues on the feature branch when safe. Do not merge, deploy, publish, release, or run destructive prebuild-clean commands.
 
 ## What is implemented
 
@@ -142,12 +147,19 @@ The notification refreshes when the shared snapshot is published and times out a
 
 ### 1. Open the completed worktree
 
+From an existing local clone, first preserve any local changes and inspect existing worktrees/branches. Then fetch the remote branch and either update its existing clean worktree or create a dedicated one:
+
 ```sh
-cd /tmp/conpaws-native-schedule-ux
-git status --short --branch
-git log --oneline -3
+git fetch origin
+git worktree list
+git branch --all --list '*codex/native-schedule-ux*'
+git worktree add ../conpaws-native-schedule-ux --track -b codex/native-schedule-ux origin/codex/native-schedule-ux
+cd ../conpaws-native-schedule-ux
+git pull --ff-only
 bun install --frozen-lockfile
 ```
+
+If the local branch or worktree already exists, do not recreate or reset it. Enter that worktree, inspect its status, and use `git pull --ff-only origin codex/native-schedule-ux` only when it is safe.
 
 Expected branch: `codex/native-schedule-ux`. Do not use Expo Go for this test; the branch contains custom iOS, watchOS, WidgetKit, ActivityKit, Android Glance, and notification module code that requires a fresh native development build.
 
@@ -220,4 +232,4 @@ Android:
 
 ## Finish policy
 
-This work is intentionally left on `codex/native-schedule-ux` for Nathanial to test. Do not merge, push, deploy, publish, release, or notify other people without a separate explicit instruction.
+This work is intentionally left on `origin/codex/native-schedule-ux` for Nathanial to test. Do not merge, deploy, publish, release, or notify other people without a separate explicit instruction.
