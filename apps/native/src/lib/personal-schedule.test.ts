@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  attendanceInterval,
+  attendanceSeparationMinutes,
+  attendanceTimeError,
   groupPersonalScheduleByDay,
   type PersonalScheduleEntry,
   spansMultipleConventions,
@@ -18,6 +21,131 @@ function entry(
 }
 
 const NOW = new Date("2026-07-03T12:00:00Z");
+
+describe("attendanceInterval", () => {
+  const published = {
+    startTime: "2026-07-03T23:30:00Z",
+    endTime: "2026-07-04T01:00:00Z",
+  };
+
+  it("uses personal timestamps without changing cross-midnight published times", () => {
+    const choice = {
+      ...published,
+      personalStartTime: "2026-07-03T23:45:00Z",
+      personalEndTime: "2026-07-04T00:30:00Z",
+    };
+
+    expect(attendanceInterval(choice)).toEqual({
+      startTime: choice.personalStartTime,
+      endTime: choice.personalEndTime,
+      needsReview: false,
+    });
+    expect(published).toEqual({
+      startTime: "2026-07-03T23:30:00Z",
+      endTime: "2026-07-04T01:00:00Z",
+    });
+  });
+
+  it("falls back independently and permits a leave time when the end is unknown", () => {
+    expect(
+      attendanceInterval({
+        startTime: published.startTime,
+        endTime: null,
+        personalEndTime: "2026-07-04T00:30:00Z",
+      }),
+    ).toEqual({
+      startTime: published.startTime,
+      endTime: "2026-07-04T00:30:00Z",
+      needsReview: false,
+    });
+  });
+
+  it("treats a nonpositive published end as unknown when validating a leave time", () => {
+    const choice = {
+      startTime: "2026-07-03T14:00:00Z",
+      endTime: "2026-07-03T13:00:00Z",
+      personalEndTime: "2026-07-03T14:30:00Z",
+    };
+
+    expect(attendanceTimeError(choice)).toBeNull();
+    expect(attendanceInterval(choice)).toEqual({
+      startTime: choice.startTime,
+      endTime: choice.personalEndTime,
+      needsReview: false,
+    });
+  });
+
+  it.each([
+    [
+      "before-event-start",
+      { ...published, personalStartTime: "2026-07-03T23:29:00Z" },
+    ],
+    [
+      "after-event-end",
+      { ...published, personalEndTime: "2026-07-04T01:01:00Z" },
+    ],
+    [
+      "start-not-before-end",
+      {
+        ...published,
+        personalStartTime: "2026-07-04T00:30:00Z",
+        personalEndTime: "2026-07-04T00:30:00Z",
+      },
+    ],
+    ["invalid-time", { ...published, personalStartTime: "later" }],
+  ] as const)("reports %s and uses safe published bounds", (error, choice) => {
+    expect(attendanceTimeError(choice)).toBe(error);
+    expect(attendanceInterval(choice)).toEqual({
+      startTime: published.startTime,
+      endTime: published.endTime,
+      needsReview: true,
+    });
+  });
+
+  it("derives review after an organizer moves the published bounds", () => {
+    const choice = {
+      startTime: "2026-07-04T00:00:00Z",
+      endTime: "2026-07-04T01:00:00Z",
+      personalStartTime: "2026-07-03T23:45:00Z",
+      personalEndTime: "2026-07-04T00:30:00Z",
+    };
+
+    expect(attendanceInterval(choice)).toEqual({
+      startTime: choice.startTime,
+      endTime: choice.endTime,
+      needsReview: true,
+    });
+  });
+
+  it("measures the real gap between personal attendance intervals", () => {
+    expect(
+      attendanceSeparationMinutes(
+        {
+          startTime: "2026-07-03T14:00:00Z",
+          endTime: "2026-07-03T15:00:00Z",
+          personalEndTime: "2026-07-03T14:25:00Z",
+        },
+        {
+          startTime: "2026-07-03T14:00:00Z",
+          endTime: "2026-07-03T15:30:00Z",
+          personalStartTime: "2026-07-03T14:35:00Z",
+        },
+      ),
+    ).toBe(10);
+    expect(
+      attendanceSeparationMinutes(published, {
+        startTime: published.endTime,
+        endTime: "2026-07-04T02:00:00Z",
+      }),
+    ).toBe(0);
+    expect(
+      attendanceSeparationMinutes(
+        { startTime: published.startTime, endTime: null },
+        published,
+      ),
+    ).toBeNull();
+  });
+});
 
 describe("groupPersonalScheduleByDay", () => {
   it("groups by the convention's own day, not the device's", () => {
@@ -77,6 +205,35 @@ describe("groupPersonalScheduleByDay", () => {
     expect(groups.flatMap((group) => group.data).map((e) => e.id)).toEqual([
       "ahead",
     ]);
+  });
+
+  it("uses personal attendance timestamps for ordering and completion", () => {
+    const groups = groupPersonalScheduleByDay(
+      [
+        entry({
+          id: "published-first",
+          startTime: "2026-07-03T12:30:00Z",
+          endTime: "2026-07-03T14:00:00Z",
+          personalStartTime: "2026-07-03T13:30:00Z",
+        }),
+        entry({
+          id: "personal-first",
+          startTime: "2026-07-03T13:00:00Z",
+          endTime: "2026-07-03T14:00:00Z",
+        }),
+        entry({
+          id: "personally-finished",
+          startTime: "2026-07-03T11:30:00Z",
+          endTime: "2026-07-03T13:00:00Z",
+          personalEndTime: "2026-07-03T11:59:00Z",
+        }),
+      ],
+      NOW,
+    );
+
+    expect(
+      groups.flatMap((group) => group.data).map((event) => event.id),
+    ).toEqual(["personal-first", "published-first"]);
   });
 
   it("keeps an in-progress event with no end time for an hour", () => {

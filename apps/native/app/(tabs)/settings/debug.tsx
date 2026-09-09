@@ -316,13 +316,43 @@ export default function DebugScreen() {
             label={
               isLoadingPreview
                 ? "Loading Preview Cons"
-                : "Preview Content State"
+                : "Preview Busy Schedule"
             }
             onPress={() =>
               void loadPreviewConvention(PREVIEW_CONVENTION_ID, "content")
             }
             disabled={isLoadingPreview}
             testID="debug-load-preview-con"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Preview My Plan"
+            onPress={() =>
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "plan")
+            }
+            variant="outlined"
+            disabled={isLoadingPreview}
+            testID="debug-preview-plan"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Preview Interested"
+            onPress={() =>
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "interested")
+            }
+            variant="outlined"
+            disabled={isLoadingPreview}
+            testID="debug-preview-interested"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Preview Now & Next"
+            onPress={() =>
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "now-next")
+            }
+            variant="outlined"
+            disabled={isLoadingPreview}
+            testID="debug-preview-now-next"
             style={{ height: 44 }}
           />
           <NativeButton

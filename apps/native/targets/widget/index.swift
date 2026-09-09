@@ -12,5 +12,6 @@ struct ConPawsWidgetBundle: WidgetBundle {
 
   var body: some Widget {
     ConPawsWidget()
+    ConPawsLiveActivityWidget()
   }
 }

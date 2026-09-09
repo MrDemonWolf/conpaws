@@ -16,15 +16,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
+  Pressable,
   ScrollView,
   SectionList,
   useWindowDimensions,
   View,
 } from "react-native";
+import type { SearchBarCommands } from "react-native-screens";
 import {
   BlankConventionState,
   EMPTY_SCHEDULE_ICON,
 } from "@/components/convention-detail/BlankConventionState";
+import { LiveActivityControl } from "@/components/convention-detail/LiveActivityControl";
 import {
   type ManualEventDraft,
   ManualEventModal,
@@ -64,6 +67,10 @@ import {
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
+  attendanceInterval,
+  attendanceSeparationMinutes,
+} from "@/lib/personal-schedule";
+import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
@@ -80,7 +87,10 @@ import {
   SCHEDULE_LIST_CONTENT_STYLE,
   shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
-import { getNowAndNextEvents } from "@/lib/schedule-view";
+import {
+  eventOccursInConventionHour,
+  getNowAndNextEvents,
+} from "@/lib/schedule-view";
 import { hapticSuccess } from "@/services/haptics";
 
 interface DayGroup {
@@ -91,7 +101,9 @@ interface DayGroup {
   data: ConventionEvent[];
 }
 
-type ScheduleView = "all" | "mine" | "now-next";
+type ScheduleView = "all" | "mine" | "interested" | "now-next";
+
+const PREVIEW_NOW_MS = Date.parse("2026-09-03T19:18:00-04:00");
 
 const EMPTY_CONVENTION_CONTENT_STYLE = {
   flexGrow: 1,
@@ -99,6 +111,19 @@ const EMPTY_CONVENTION_CONTENT_STYLE = {
   paddingBottom: 48,
   paddingTop: 24,
 } as const;
+
+function formatHourOption(
+  hour: number,
+  locale: string,
+  hour12: boolean | undefined,
+) {
+  return formatEventTime(
+    new Date(Date.UTC(2020, 0, 1, hour)).toISOString(),
+    "UTC",
+    locale,
+    hour12,
+  );
+}
 
 function groupEventsByDay(
   events: ConventionEvent[],
@@ -127,8 +152,11 @@ function groupEventsByDay(
     // Group only saved panels — grouping everything tints an entire con day
     // into one block (see overlapInfoAmong).
     group.overlaps = overlapInfoAmong(
-      group.data,
-      (event) => event.isInSchedule,
+      group.data.map((event) => ({
+        ...event,
+        ...attendanceInterval(event),
+      })),
+      (event) => event.isInSchedule && event.feedStatus === null,
     );
   }
   return groups;
@@ -159,9 +187,20 @@ export default function ConventionDetailScreen() {
     Constants.expoConfig?.extra?.appVariant,
   );
   const presentationLock = useRef(0);
+  const searchBarRef = useRef<SearchBarCommands>(null);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [scheduleView, setScheduleView] = useState<ScheduleView>("all");
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedHour, setSelectedHour] = useState<number | null>(null);
+  const [scheduleView, setScheduleView] = useState<ScheduleView>(() =>
+    previewState === "plan"
+      ? "mine"
+      : previewState === "interested"
+        ? "interested"
+        : previewState === "now-next"
+          ? "now-next"
+          : "all",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [manualEventVisible, setManualEventVisible] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -198,10 +237,14 @@ export default function ConventionDetailScreen() {
 
   useEffect(() => {
     if (scheduleView !== "now-next") return;
+    if (previewState === "now-next") {
+      setNow(PREVIEW_NOW_MS);
+      return;
+    }
     setNow(Date.now());
     const interval = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(interval);
-  }, [scheduleView]);
+  }, [previewState, scheduleView]);
 
   const {
     data: convention,
@@ -277,6 +320,7 @@ export default function ConventionDetailScreen() {
   );
 
   const scheduledEvents = events.filter((event) => event.isInSchedule);
+  const interestedEvents = events.filter((event) => event.isInterested);
   /**
    * Saved events the feed still publishes.
    *
@@ -290,13 +334,23 @@ export default function ConventionDetailScreen() {
   );
   // One computation per render, not per row.
   const showProvenance = useMemo(() => shouldShowProvenance(events), [events]);
-  const conflictingEventIds = overlappingEventIds(liveScheduledEvents);
+  const conflictingEventIds = overlappingEventIds(
+    liveScheduledEvents.map((event) => ({
+      id: event.id,
+      ...attendanceInterval(event),
+    })),
+  );
 
   const storedTimeZone = convention?.timeZone;
   const conventionTimeZone = isValidTimeZone(storedTimeZone)
     ? storedTimeZone
     : (getCalendars()[0]?.timeZone ?? "UTC");
-  const viewEvents = scheduleView === "all" ? events : scheduledEvents;
+  const viewEvents =
+    scheduleView === "all"
+      ? events
+      : scheduleView === "interested"
+        ? interestedEvents
+        : scheduledEvents;
   const categories = Array.from(
     new Set(
       viewEvents.flatMap((event) => (event.category ? [event.category] : [])),
@@ -306,12 +360,59 @@ export default function ConventionDetailScreen() {
     selectedCategory && categories.includes(selectedCategory)
       ? selectedCategory
       : null;
+  const dayOptions = Array.from(
+    new Map(
+      viewEvents.map((event) => [
+        conventionDayKey(event.startTime, conventionTimeZone),
+        formatEventDayLabel(event.startTime, conventionTimeZone, locale),
+      ]),
+    ),
+  ).map(([key, label]) => ({ key, label }));
+  const activeDay =
+    scheduleView !== "now-next" &&
+    selectedDay &&
+    dayOptions.some((option) => option.key === selectedDay)
+      ? selectedDay
+      : null;
+  const hourOptions =
+    activeDay === null
+      ? []
+      : Array.from({ length: 24 }, (_, hour) => hour).filter((hour) =>
+          viewEvents.some(
+            (event) =>
+              conventionDayKey(event.startTime, conventionTimeZone) ===
+                activeDay &&
+              eventOccursInConventionHour(
+                event,
+                activeDay,
+                hour,
+                conventionTimeZone,
+              ),
+          ),
+        );
+  const activeHour =
+    selectedHour !== null && hourOptions.includes(selectedHour)
+      ? selectedHour
+      : null;
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase();
   const hasActiveFilters =
-    activeCategory !== null || normalizedSearchQuery.length > 0;
+    activeCategory !== null ||
+    activeDay !== null ||
+    activeHour !== null ||
+    normalizedSearchQuery.length > 0;
   const filteredEvents = viewEvents.filter(
     (event) =>
       (activeCategory === null || event.category === activeCategory) &&
+      (activeDay === null ||
+        conventionDayKey(event.startTime, conventionTimeZone) === activeDay) &&
+      (activeHour === null ||
+        (activeDay !== null &&
+          eventOccursInConventionHour(
+            event,
+            activeDay,
+            activeHour,
+            conventionTimeZone,
+          ))) &&
       (normalizedSearchQuery.length === 0 ||
         [
           event.title,
@@ -328,10 +429,18 @@ export default function ConventionDetailScreen() {
     conventionTimeZone,
     locale,
   );
-  const nowAndNext = getNowAndNextEvents(
-    filteredEvents.filter((event) => event.feedStatus === null),
-    new Date(now),
-  );
+  const nowAndNext = getNowAndNextEvents(liveScheduledEvents, new Date(now));
+  const nextStopGap =
+    nowAndNext.current.length === 1 && nowAndNext.next[0]
+      ? attendanceSeparationMinutes(nowAndNext.current[0], nowAndNext.next[0])
+      : null;
+  function clearFilters() {
+    setSelectedCategory(null);
+    setSelectedDay(null);
+    setSelectedHour(null);
+    setSearchQuery("");
+    searchBarRef.current?.clearText();
+  }
   const currentConventionDay = conventionDayKey(new Date(), conventionTimeZone);
   const manualEventDefaultDate =
     currentConventionDay >= (convention?.startDate ?? "") &&
@@ -342,8 +451,9 @@ export default function ConventionDetailScreen() {
   const reminderOverflow = getReminderReconciliation().overflow;
   const reminderNotice = resolveReminderNotice({
     permission: notificationPermission,
-    reminderCount: events.filter((event) => event.reminderMinutes !== null)
-      .length,
+    reminderCount: events.filter(
+      (event) => event.reminderMinutes !== null && event.feedStatus === null,
+    ).length,
     overflow: reminderOverflow,
   });
 
@@ -497,6 +607,133 @@ export default function ConventionDetailScreen() {
     end: formatConventionDate(convention.endDate, locale),
   });
 
+  const scheduleFilters =
+    scheduleView === "now-next" ? null : (
+      <View className="gap-2 border-b border-border py-3">
+        <Text variant="caption" className="px-4 text-muted-foreground">
+          {t("convention.filterByDay")}
+        </Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="gap-2 px-4"
+        >
+          <Pressable
+            onPress={() => {
+              setSelectedDay(null);
+              setSelectedHour(null);
+            }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeDay === null }}
+            className={
+              activeDay === null
+                ? "min-h-11 justify-center rounded-full bg-primary px-4"
+                : "min-h-11 justify-center rounded-full border border-border bg-card px-4"
+            }
+          >
+            <Text
+              variant="label"
+              className={
+                activeDay === null
+                  ? "text-primary-foreground"
+                  : "text-foreground"
+              }
+            >
+              {t("convention.allDays")}
+            </Text>
+          </Pressable>
+          {dayOptions.map((option) => (
+            <Pressable
+              key={option.key}
+              onPress={() => {
+                setSelectedDay(option.key);
+                setSelectedHour(null);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: activeDay === option.key }}
+              className={
+                activeDay === option.key
+                  ? "min-h-11 justify-center rounded-full bg-primary px-4"
+                  : "min-h-11 justify-center rounded-full border border-border bg-card px-4"
+              }
+            >
+              <Text
+                variant="label"
+                className={
+                  activeDay === option.key
+                    ? "text-primary-foreground"
+                    : "text-foreground"
+                }
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+        {activeDay !== null && hourOptions.length > 0 ? (
+          <>
+            <Text variant="caption" className="px-4 text-muted-foreground">
+              {t("convention.filterByTime")}
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-2 px-4"
+            >
+              <Pressable
+                onPress={() => setSelectedHour(null)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: activeHour === null }}
+                className={
+                  activeHour === null
+                    ? "min-h-11 justify-center rounded-full bg-primary px-4"
+                    : "min-h-11 justify-center rounded-full border border-border bg-card px-4"
+                }
+              >
+                <Text
+                  variant="label"
+                  className={
+                    activeHour === null
+                      ? "text-primary-foreground"
+                      : "text-foreground"
+                  }
+                >
+                  {t("convention.allTimes")}
+                </Text>
+              </Pressable>
+              {hourOptions.map((hour) => (
+                <Pressable
+                  key={hour}
+                  onPress={() => setSelectedHour(hour)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: activeHour === hour }}
+                  className={
+                    activeHour === hour
+                      ? "min-h-11 justify-center rounded-full bg-primary px-4"
+                      : "min-h-11 justify-center rounded-full border border-border bg-card px-4"
+                  }
+                >
+                  <Text
+                    variant="label"
+                    className={
+                      activeHour === hour
+                        ? "text-primary-foreground"
+                        : "text-foreground"
+                    }
+                  >
+                    {formatHourOption(hour, locale, hour12)}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
+        <Text variant="caption" className="px-4 text-muted-foreground">
+          {t("convention.matchingCount", { count: filteredEvents.length })}
+        </Text>
+      </View>
+    );
+
   function renderEventRow(event: ConventionEvent) {
     return (
       <SwipeableEventRow
@@ -558,7 +795,7 @@ export default function ConventionDetailScreen() {
           title={t("convention.overlapSummary", {
             count: conflictingEventIds.size,
           })}
-          body={t("convention.overlapHelp")}
+          body={t("convention.attendance.overlapHelp")}
         />
       ) : null}
     </View>
@@ -573,8 +810,9 @@ export default function ConventionDetailScreen() {
           headerLargeTitleShadowVisible: false,
         }}
       />
-      {events.length > 0 ? (
+      {events.length > 0 && scheduleView !== "now-next" ? (
         <Stack.SearchBar
+          ref={searchBarRef}
           autoCapitalize="none"
           hideWhenScrolling
           placement={process.env.EXPO_OS === "ios" ? "stacked" : "automatic"}
@@ -663,6 +901,15 @@ export default function ConventionDetailScreen() {
               {t("convention.mySchedule")}
             </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
+              isOn={scheduleView === "interested"}
+              onPress={() => {
+                setScheduleView("interested");
+                setSelectedCategory(null);
+              }}
+            >
+              {t("convention.interested")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
               isOn={scheduleView === "now-next"}
               onPress={() => {
                 setScheduleView("now-next");
@@ -671,7 +918,7 @@ export default function ConventionDetailScreen() {
             >
               {t("convention.nowAndNext")}
             </Stack.Toolbar.MenuAction>
-            {categories.length > 0 ? (
+            {scheduleView !== "now-next" && categories.length > 0 ? (
               <Stack.Toolbar.Menu title={t("convention.categories")}>
                 <Stack.Toolbar.MenuAction
                   isOn={activeCategory === null}
@@ -701,6 +948,14 @@ export default function ConventionDetailScreen() {
           contentContainerStyle={{ paddingBottom: 32 }}
         >
           {scheduleNotices}
+          <LiveActivityControl
+            hasTrackablePlan={
+              nowAndNext.current.length > 0 || nowAndNext.next.length > 0
+            }
+            revision={`${liveScheduledEvents
+              .map((event) => `${event.id}:${event.updatedAt}`)
+              .join("|")}|${Math.floor(now / 60_000)}`}
+          />
           {scheduledEvents.length === 0 ? (
             <EmptyState
               icon={EMPTY_SCHEDULE_ICON}
@@ -708,12 +963,6 @@ export default function ConventionDetailScreen() {
               subtitle={t("convention.myScheduleNowNextSubtitle")}
               ctaLabel={t("convention.showAllEvents")}
               onCta={() => setScheduleView("all")}
-            />
-          ) : hasActiveFilters && filteredEvents.length === 0 ? (
-            <EmptyState
-              icon={EMPTY_SCHEDULE_ICON}
-              title={t("convention.noMatchingEvents")}
-              subtitle={t("convention.noMatchingEventsSubtitle")}
             />
           ) : (
             <>
@@ -733,12 +982,27 @@ export default function ConventionDetailScreen() {
                 </Text>
               )}
 
+              {nextStopGap !== null && nextStopGap >= 0 ? (
+                <View className="mx-4 my-2 rounded-xl border border-border bg-card px-4 py-3">
+                  <Text variant="label" className="tabular-nums">
+                    {nextStopGap === 0
+                      ? t("convention.attendance.backToBack")
+                      : t("convention.attendance.gapMinutes", {
+                          count: nextStopGap,
+                        })}
+                  </Text>
+                  <Text variant="caption" className="text-muted-foreground">
+                    {t("convention.attendance.gapDisclaimer")}
+                  </Text>
+                </View>
+              ) : null}
+
               <SectionHeader
                 title={
                   nowAndNext.next[0]
                     ? t("convention.nextAtCount", {
                         time: formatEventTime(
-                          nowAndNext.next[0].startTime,
+                          attendanceInterval(nowAndNext.next[0]).startTime,
                           conventionTimeZone,
                           locale,
                           hour12,
@@ -807,9 +1071,10 @@ export default function ConventionDetailScreen() {
           // convention whose feed just emptied has no day groups at all —
           // exactly the moment the user most needs telling.
           ListHeaderComponent={
-            dayGroups.length > 0 || scheduleRefresh.summary !== null
-              ? scheduleNotices
-              : null
+            <View>
+              {scheduleNotices}
+              {scheduleFilters}
+            </View>
           }
           renderSectionHeader={renderSectionHeader}
           renderItem={renderItem}
@@ -819,12 +1084,22 @@ export default function ConventionDetailScreen() {
                 icon={EMPTY_SCHEDULE_ICON}
                 title={t("convention.noMatchingEvents")}
                 subtitle={t("convention.noMatchingEventsSubtitle")}
+                ctaLabel={t("convention.clearFilters")}
+                onCta={clearFilters}
               />
             ) : scheduleView === "mine" ? (
               <EmptyState
                 icon={EMPTY_SCHEDULE_ICON}
                 title={t("convention.myScheduleEmpty")}
                 subtitle={t("convention.myScheduleSubtitle")}
+                ctaLabel={t("convention.showAllEvents")}
+                onCta={() => setScheduleView("all")}
+              />
+            ) : scheduleView === "interested" ? (
+              <EmptyState
+                icon={EMPTY_SCHEDULE_ICON}
+                title={t("convention.interestedEmpty")}
+                subtitle={t("convention.interestedEmptySubtitle")}
                 ctaLabel={t("convention.showAllEvents")}
                 onCta={() => setScheduleView("all")}
               />

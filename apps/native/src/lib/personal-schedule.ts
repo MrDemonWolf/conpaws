@@ -8,6 +8,101 @@ export interface PersonalScheduleEntry {
   timeZone: string;
   startTime: string;
   endTime: string | null;
+  personalStartTime?: string | null;
+  personalEndTime?: string | null;
+}
+
+export interface AttendanceIntervalEntry {
+  startTime: string;
+  endTime: string | null;
+  personalStartTime?: string | null;
+  personalEndTime?: string | null;
+}
+
+export type AttendanceTimeError =
+  | "invalid-time"
+  | "before-event-start"
+  | "after-event-end"
+  | "start-not-before-end";
+
+export interface AttendanceInterval {
+  startTime: string;
+  endTime: string | null;
+  needsReview: boolean;
+}
+
+/** Validate the user's chosen interval without changing the published event. */
+export function attendanceTimeError(
+  entry: AttendanceIntervalEntry,
+): AttendanceTimeError | null {
+  const hasPersonalStart = entry.personalStartTime != null;
+  const hasPersonalEnd = entry.personalEndTime != null;
+  if (!hasPersonalStart && !hasPersonalEnd) return null;
+
+  const publishedStart = Date.parse(entry.startTime);
+  const startTime = entry.personalStartTime ?? entry.startTime;
+  const endTime = entry.personalEndTime ?? entry.endTime;
+  const start = Date.parse(startTime);
+  const end = endTime === null ? null : Date.parse(endTime);
+
+  if (
+    !Number.isFinite(publishedStart) ||
+    !Number.isFinite(start) ||
+    (entry.personalEndTime != null && !Number.isFinite(end))
+  ) {
+    return "invalid-time";
+  }
+  if (start < publishedStart) return "before-event-start";
+
+  const publishedEnd =
+    entry.endTime === null ? null : Date.parse(entry.endTime);
+  if (
+    Number.isFinite(publishedEnd) &&
+    (publishedEnd as number) > publishedStart &&
+    end !== null &&
+    Number.isFinite(end) &&
+    end > (publishedEnd as number)
+  ) {
+    return "after-event-end";
+  }
+  if (end !== null && Number.isFinite(end) && start >= end) {
+    return "start-not-before-end";
+  }
+  return null;
+}
+
+/** Resolve personal choices while retaining out-of-bounds values for review. */
+export function attendanceInterval(
+  entry: AttendanceIntervalEntry,
+): AttendanceInterval {
+  const error = attendanceTimeError(entry);
+  const publishedEnd =
+    entry.endTime === null ? null : Date.parse(entry.endTime);
+  const safePublishedEnd = Number.isFinite(publishedEnd) ? entry.endTime : null;
+  return {
+    startTime: error
+      ? entry.startTime
+      : (entry.personalStartTime ?? entry.startTime),
+    endTime: error
+      ? safePublishedEnd
+      : (entry.personalEndTime ?? safePublishedEnd),
+    needsReview: error !== null,
+  };
+}
+
+/** Signed whole minutes from one planned stop ending to the next one starting. */
+export function attendanceSeparationMinutes(
+  current: AttendanceIntervalEntry,
+  next: AttendanceIntervalEntry,
+): number | null {
+  const currentEnd = attendanceInterval(current).endTime;
+  const nextStart = attendanceInterval(next).startTime;
+  if (!currentEnd) return null;
+  const end = Date.parse(currentEnd);
+  const start = Date.parse(nextStart);
+  return Number.isFinite(end) && Number.isFinite(start)
+    ? Math.round((start - end) / 60_000)
+    : null;
 }
 
 export interface PersonalScheduleDay<T extends PersonalScheduleEntry> {
@@ -22,9 +117,10 @@ export interface PersonalScheduleDay<T extends PersonalScheduleEntry> {
 const NO_END_FALLBACK_MS = 60 * 60 * 1000;
 
 function endOf(entry: PersonalScheduleEntry): number {
-  const start = Date.parse(entry.startTime);
-  if (!entry.endTime) return start + NO_END_FALLBACK_MS;
-  const end = Date.parse(entry.endTime);
+  const interval = attendanceInterval(entry);
+  const start = Date.parse(interval.startTime);
+  if (!interval.endTime) return start + NO_END_FALLBACK_MS;
+  const end = Date.parse(interval.endTime);
   return Number.isFinite(end) && end > start ? end : start + NO_END_FALLBACK_MS;
 }
 
@@ -48,11 +144,12 @@ export function groupPersonalScheduleByDay<T extends PersonalScheduleEntry>(
   const groups = new Map<string, T[]>();
 
   for (const entry of entries) {
-    const start = Date.parse(entry.startTime);
+    const interval = attendanceInterval(entry);
+    const start = Date.parse(interval.startTime);
     if (!Number.isFinite(start)) continue;
     if (endOf(entry) <= nowMs) continue;
 
-    const key = conventionDayKey(entry.startTime, entry.timeZone);
+    const key = conventionDayKey(interval.startTime, entry.timeZone);
     const bucket = groups.get(key);
     if (bucket) {
       bucket.push(entry);
@@ -66,7 +163,8 @@ export function groupPersonalScheduleByDay<T extends PersonalScheduleEntry>(
       key,
       data: data.sort(
         (left, right) =>
-          Date.parse(left.startTime) - Date.parse(right.startTime) ||
+          Date.parse(attendanceInterval(left).startTime) -
+            Date.parse(attendanceInterval(right).startTime) ||
           left.conventionName.localeCompare(right.conventionName) ||
           left.id.localeCompare(right.id),
       ),

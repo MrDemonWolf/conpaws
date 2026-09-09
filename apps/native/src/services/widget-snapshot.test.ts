@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Convention, ConventionEvent } from "@/db/schema";
-import { buildWidgetSnapshot } from "./widget-snapshot";
+import {
+  buildWidgetSnapshot,
+  widgetSnapshotForSupportedSchema,
+} from "./widget-snapshot";
 
 vi.mock("expo", () => ({ requireOptionalNativeModule: () => null }));
 vi.mock("@/db/repositories/conventions", () => ({ getAll: vi.fn() }));
@@ -45,6 +48,9 @@ function event(
     category: null,
     type: null,
     isInSchedule,
+    isInterested: false,
+    personalStartTime: null,
+    personalEndTime: null,
     reminderMinutes: 15,
     sourceUid: null,
     sourceUrl: null,
@@ -75,7 +81,7 @@ describe("buildWidgetSnapshot", () => {
       123,
     );
 
-    expect(snapshot.schemaVersion).toBe(2);
+    expect(snapshot.schemaVersion).toBe(3);
     expect(snapshot.generatedAtMs).toBe(123);
     expect(snapshot.conventions[0]?.startAtMs).toBe(
       Date.parse("2026-09-03T00:00:00-05:00"),
@@ -84,6 +90,97 @@ describe("buildWidgetSnapshot", () => {
       "first",
       "later",
     ]);
+  });
+
+  it("keeps an older native extension on its accepted envelope", () => {
+    const snapshot = buildWidgetSnapshot(
+      [convention],
+      new Map([
+        [convention.id, [event("planned", "2026-09-03T15:00:00-05:00", true)]],
+      ]),
+      "en",
+    );
+
+    expect(widgetSnapshotForSupportedSchema(snapshot, undefined)).toMatchObject(
+      {
+        schemaVersion: 2,
+        conventions: [
+          {
+            events: [
+              {
+                id: "planned",
+                attendanceStartAtMs: Date.parse("2026-09-03T15:00:00-05:00"),
+              },
+            ],
+          },
+        ],
+      },
+    );
+    expect(widgetSnapshotForSupportedSchema(snapshot, 3)).toBe(snapshot);
+  });
+
+  it("keeps published times and publishes the validated attendance interval", () => {
+    const planned = {
+      ...event("partial", "2026-09-03T14:00:00-05:00", true),
+      endTime: "2026-09-03T15:30:00-05:00",
+      personalStartTime: "2026-09-03T14:35:00-05:00",
+      personalEndTime: "2026-09-03T15:20:00-05:00",
+    };
+    const snapshot = buildWidgetSnapshot(
+      [convention],
+      new Map([[convention.id, [planned]]]),
+      "en",
+    );
+
+    expect(snapshot.conventions[0]?.events[0]).toMatchObject({
+      startAtMs: Date.parse(planned.startTime),
+      endAtMs: Date.parse(planned.endTime),
+      attendanceStartAtMs: Date.parse(planned.personalStartTime),
+      attendanceEndAtMs: Date.parse(planned.personalEndTime),
+      attendanceNeedsReview: false,
+    });
+  });
+
+  it("flags invalid personal times and gives glance surfaces a safe fallback", () => {
+    const changed = {
+      ...event("changed", "2026-09-03T14:00:00-05:00", true),
+      endTime: "2026-09-03T15:00:00-05:00",
+      personalStartTime: "2026-09-03T13:45:00-05:00",
+      personalEndTime: "2026-09-03T15:20:00-05:00",
+    };
+    const snapshot = buildWidgetSnapshot(
+      [convention],
+      new Map([[convention.id, [changed]]]),
+      "en",
+    );
+
+    expect(snapshot.conventions[0]?.events[0]).toMatchObject({
+      startAtMs: Date.parse(changed.startTime),
+      endAtMs: Date.parse(changed.endTime),
+      attendanceStartAtMs: Date.parse(changed.startTime),
+      attendanceEndAtMs: Date.parse(changed.endTime),
+      attendanceNeedsReview: true,
+    });
+  });
+
+  it("normalizes a nonpositive published end before crossing the native boundary", () => {
+    const invalid = {
+      ...event("invalid-end", "2026-09-03T14:00:00-05:00", true),
+      endTime: "2026-09-03T13:00:00-05:00",
+    };
+    const snapshot = buildWidgetSnapshot(
+      [convention],
+      new Map([[convention.id, [invalid]]]),
+      "en",
+    );
+
+    expect(snapshot.conventions[0]?.events[0]).toMatchObject({
+      startAtMs: Date.parse(invalid.startTime),
+      endAtMs: null,
+      attendanceStartAtMs: Date.parse(invalid.startTime),
+      attendanceEndAtMs: null,
+      attendanceNeedsReview: false,
+    });
   });
 
   it("leaves a saved event out once the feed stops publishing it", () => {

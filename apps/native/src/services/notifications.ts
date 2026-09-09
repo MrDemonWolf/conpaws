@@ -2,6 +2,7 @@ import * as ExpoNotifications from "expo-notifications";
 import i18n from "i18next";
 import { Platform } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
+import { attendanceInterval } from "@/lib/personal-schedule";
 
 const REMINDER_CHANNEL_ID = "event-reminders";
 const REMINDER_IDENTIFIER_PREFIX = "reminder-";
@@ -94,6 +95,9 @@ interface EventForReminder {
   id: string;
   title: string;
   startTime: string; // ISO string
+  endTime?: string | null;
+  personalStartTime?: string | null;
+  personalEndTime?: string | null;
   room: string | null;
   conventionId?: string | null;
 }
@@ -114,23 +118,65 @@ function reminderNotificationContent(
   override?: ReminderNotificationContent,
 ): ReminderNotificationContent {
   if (override) return override;
+  const isLateJoin = reminderStart(event).isPersonal;
   if (!i18n.isInitialized) {
     return {
-      title: `Time to leave for ${event.title}`,
+      title: isLateJoin
+        ? `Join ${event.title} soon`
+        : `${event.title} starts soon`,
       body: event.room
-        ? `Starts in ${minutesBefore} min · ${event.room}`
-        : `Starts in ${minutesBefore} min`,
+        ? `${isLateJoin ? "Join" : "Starts"} in ${minutesBefore} min · ${event.room}`
+        : `${isLateJoin ? "Join" : "Starts"} in ${minutesBefore} min`,
     };
   }
   return {
-    title: i18n.t("reminders.notificationTitle", { event: event.title }),
+    title: i18n.t(
+      isLateJoin
+        ? "reminders.joinNotificationTitle"
+        : "reminders.startNotificationTitle",
+      { event: event.title },
+    ),
     body: i18n.t(
-      event.room
-        ? "reminders.notificationBodyWithRoom"
-        : "reminders.notificationBody",
+      isLateJoin
+        ? event.room
+          ? "reminders.joinNotificationBodyWithRoom"
+          : "reminders.joinNotificationBody"
+        : event.room
+          ? "reminders.startNotificationBodyWithRoom"
+          : "reminders.startNotificationBody",
       { minutes: minutesBefore, room: event.room },
     ),
   };
+}
+
+function reminderStart(event: EventForReminder): {
+  startTime: string;
+  isPersonal: boolean;
+} {
+  const interval = attendanceInterval({
+    startTime: event.startTime,
+    endTime: event.endTime ?? null,
+    personalStartTime: event.personalStartTime,
+    personalEndTime: event.personalEndTime,
+  });
+  const publishedMs = Date.parse(event.startTime);
+  const effectiveMs = Date.parse(interval.startTime);
+  return {
+    startTime: interval.startTime,
+    isPersonal:
+      !interval.needsReview &&
+      event.personalStartTime != null &&
+      Number.isFinite(publishedMs) &&
+      Number.isFinite(effectiveMs) &&
+      effectiveMs !== publishedMs,
+  };
+}
+
+function reminderTriggerMs(
+  event: EventForReminder,
+  minutesBefore: number,
+): number {
+  return Date.parse(reminderStart(event).startTime) - minutesBefore * 60 * 1000;
 }
 
 /**
@@ -143,8 +189,7 @@ async function scheduleReminderRequest(
   minutesBefore: number,
   override?: ReminderNotificationContent,
 ): Promise<string | null> {
-  const triggerMs =
-    new Date(event.startTime).getTime() - minutesBefore * 60 * 1000;
+  const triggerMs = reminderTriggerMs(event, minutesBefore);
   if (triggerMs <= Date.now()) {
     return null; // In the past
   }
@@ -269,7 +314,7 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
   for (const event of events) {
     const minutes = event.reminderMinutes;
     if (minutes === null) continue;
-    const triggerMs = new Date(event.startTime).getTime() - minutes * 60 * 1000;
+    const triggerMs = reminderTriggerMs(event, minutes);
 
     if (triggerMs <= Date.now()) {
       await cancelEventReminder(event.id);
@@ -300,9 +345,8 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
   // database happened to return first.
   pending.sort(
     (a, b) =>
-      new Date(a.event.startTime).getTime() -
-      a.minutes * 60 * 1000 -
-      (new Date(b.event.startTime).getTime() - b.minutes * 60 * 1000),
+      reminderTriggerMs(a.event, a.minutes) -
+      reminderTriggerMs(b.event, b.minutes),
   );
 
   for (const { event, minutes } of pending) {
@@ -319,6 +363,9 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
           id: event.id,
           title: event.title,
           startTime: event.startTime,
+          endTime: event.endTime,
+          personalStartTime: event.personalStartTime,
+          personalEndTime: event.personalEndTime,
           room: event.room ?? event.location,
           conventionId: event.conventionId,
         },

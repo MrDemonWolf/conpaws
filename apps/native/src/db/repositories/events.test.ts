@@ -29,6 +29,9 @@ function storedEvent(
     category: "Panels",
     type: null,
     isInSchedule: true,
+    isInterested: false,
+    personalStartTime: null,
+    personalEndTime: null,
     reminderMinutes: 15,
     sourceUid: "recurring-event",
     sourceUrl: null,
@@ -223,6 +226,22 @@ describe("source snapshot reconciliation", () => {
     expect(plan.removals).toEqual([]);
     expect(plan.tombstones).toEqual([
       { existingId: "saved", status: "removed" },
+    ]);
+  });
+
+  it("leaves an interested event in place when the feed drops it", () => {
+    const interested = storedEvent({
+      id: "interested",
+      sourceUid: "feed-missing",
+      isInSchedule: false,
+      isInterested: true,
+    });
+
+    const plan = planSourceReconciliation([interested], [], snapshot([], []));
+
+    expect(plan.removals).toEqual([]);
+    expect(plan.tombstones).toEqual([
+      { existingId: "interested", status: "removed" },
     ]);
   });
 
@@ -594,11 +613,14 @@ describe("upsertBySourceUid transaction", () => {
     mockDb.transaction.mockReset();
   });
 
-  it("never writes isInSchedule or reminderMinutes when updating a matched row", async () => {
+  it("never overwrites user-owned plan fields on a matched row", async () => {
     const starred = storedEvent({
       id: "starred",
       isInSchedule: true,
       reminderMinutes: 30,
+      isInterested: true,
+      personalStartTime: "2026-06-12T16:10:00.000Z",
+      personalEndTime: "2026-06-12T16:50:00.000Z",
       sourceUid: "panel-1",
       startTime: "2026-06-12T16:00:00.000Z",
     });
@@ -641,6 +663,9 @@ describe("upsertBySourceUid transaction", () => {
     // spread of the source row here would clear both on every re-import and
     // the reconciliation tests above would stay green.
     expect(Object.keys(payload)).not.toContain("isInSchedule");
+    expect(Object.keys(payload)).not.toContain("isInterested");
+    expect(Object.keys(payload)).not.toContain("personalStartTime");
+    expect(Object.keys(payload)).not.toContain("personalEndTime");
     expect(Object.keys(payload)).not.toContain("reminderMinutes");
   });
 

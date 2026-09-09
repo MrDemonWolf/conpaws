@@ -81,6 +81,19 @@ describe("ConPaws Preview Con", () => {
     expect(firstEvents[1]?.isInSchedule).toBe(true);
     expect(firstEvents[0]?.reminderMinutes).toBe(60);
     expect(firstEvents[1]?.reminderMinutes).toBe(15);
+    expect(firstEvents.slice(0, 10).every((event) => event.isInterested)).toBe(
+      true,
+    );
+    expect(
+      Date.parse(firstEvents[0]?.personalEndTime ?? "") -
+        Date.parse(firstEvents[0]?.startTime ?? ""),
+    ).toBe(25 * 60_000);
+    expect(
+      Date.parse(firstEvents[1]?.personalStartTime ?? "") -
+        Date.parse(firstEvents[1]?.startTime ?? ""),
+    ).toBe(35 * 60_000);
+    expect(firstEvents[2]?.feedStatus).toBe("cancelled");
+    expect(firstEvents[3]?.feedStatus).toBe("removed");
   });
 
   it("cancels local reminders for every preview event after the rows are replaced", async () => {

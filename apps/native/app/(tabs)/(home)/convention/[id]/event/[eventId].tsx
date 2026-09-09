@@ -28,15 +28,19 @@ export default function EventSheetRoute() {
     enabled: !!id,
   });
 
-  const { data: event, isSuccess } = useQuery({
+  const { data: events = [], isSuccess } = useQuery({
     queryKey: ["events", id],
     queryFn: () => eventsRepo.getByConventionId(id ?? ""),
     enabled: !!id,
-    select: (events) => events.find((item) => item.id === eventId) ?? null,
   });
+  const event = events.find((item) => item.id === eventId) ?? null;
 
-  const { toggleScheduleMutation, setReminderMutation } =
-    useEventScheduleMutations({ conventionId: id });
+  const {
+    toggleScheduleMutation,
+    toggleInterestMutation,
+    setAttendanceMutation,
+    setReminderMutation,
+  } = useEventScheduleMutations({ conventionId: id });
 
   // A deleted event (re-import removed it, say) leaves nothing to show.
   useEffect(() => {
@@ -57,8 +61,17 @@ export default function EventSheetRoute() {
       event={event}
       timeZone={timeZone}
       hour12={hour12}
+      plannedEvents={events}
       onClose={() => router.back()}
       onToggleSchedule={(item) => toggleScheduleMutation.mutate(item)}
+      onToggleInterest={(item) => toggleInterestMutation.mutate(item)}
+      onSaveAttendance={(item, personalStartTime, personalEndTime) =>
+        setAttendanceMutation.mutate({
+          event: item,
+          personalStartTime,
+          personalEndTime,
+        })
+      }
       onSelectReminder={(item, minutes) =>
         setReminderMutation.mutate({ event: item, minutes })
       }

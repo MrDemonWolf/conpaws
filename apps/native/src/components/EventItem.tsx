@@ -31,6 +31,10 @@ interface EventItemProps {
    */
   contextLabel?: string;
   isInSchedule?: boolean;
+  isInterested?: boolean;
+  attendanceStartTime?: string;
+  attendanceEndTime?: string;
+  attendanceNeedsReview?: boolean;
   reminderLabel?: string;
   /**
    * Provenance is only meaningful when a convention actually mixes imported
@@ -79,6 +83,10 @@ export function EventItem({
   ageRating,
   contextLabel,
   isInSchedule = false,
+  isInterested = false,
+  attendanceStartTime,
+  attendanceEndTime,
+  attendanceNeedsReview = false,
   reminderLabel,
   provenanceLabel,
   hasConflict = false,
@@ -123,9 +131,17 @@ export function EventItem({
     ageLabel,
     room,
     category,
-    isInSchedule
-      ? t("convention.inMySchedule")
-      : t("convention.notInMySchedule"),
+    isInSchedule ? t("convention.going") : null,
+    isInterested ? t("convention.interested") : null,
+    !isInSchedule && !isInterested ? t("convention.notInMySchedule") : null,
+    attendanceNeedsReview
+      ? t("convention.attendance.reviewNeeded")
+      : attendanceStartTime
+        ? t("convention.attendance.yourTimeRange", {
+            start: attendanceStartTime,
+            end: attendanceEndTime ?? t("convention.attendance.unknownEnd"),
+          })
+        : null,
     reminderLabel ? `${t("convention.reminderSet")}: ${reminderLabel}` : null,
     provenanceLabel,
     hasConflict ? t("convention.overlapLabel") : null,
@@ -163,7 +179,7 @@ export function EventItem({
       accessibilityHint={
         interactive ? t("convention.eventActionsHint") : undefined
       }
-      accessibilityState={{ selected: isInSchedule }}
+      accessibilityState={{ selected: isInSchedule || isInterested }}
       style={inCluster ? clusterEdge : undefined}
       className={cn(
         // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
@@ -257,6 +273,35 @@ export function EventItem({
               >
                 {meta}
               </Text>
+            ) : null}
+          </View>
+        ) : null}
+
+        {attendanceNeedsReview ? (
+          <Text variant="caption" className="text-destructive">
+            {t("convention.attendance.reviewNeeded")}
+          </Text>
+        ) : attendanceStartTime ? (
+          <Text variant="caption" className="tabular-nums text-primary">
+            {t("convention.attendance.yourTimeRange", {
+              start: attendanceStartTime,
+              end: attendanceEndTime ?? t("convention.attendance.unknownEnd"),
+            })}
+          </Text>
+        ) : null}
+
+        {showScheduleIndicator && (isInSchedule || isInterested) ? (
+          <View
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            className="flex-row flex-wrap gap-1.5"
+          >
+            {isInSchedule ? (
+              <Badge variant="active" label={t("convention.going")} />
+            ) : null}
+            {isInterested ? (
+              <Badge variant="info" label={t("convention.interested")} />
             ) : null}
           </View>
         ) : null}

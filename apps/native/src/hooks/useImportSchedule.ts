@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as eventsRepo from "@/db/repositories/events";
 import { reportError } from "@/lib/error-reporting";
 import type { ParsedEvent } from "@/lib/ical-parser";
+import { attendanceInterval } from "@/lib/personal-schedule";
 import { toSourceEvents } from "@/lib/schedule-source";
 import {
   cancelEventReminder,
@@ -39,6 +40,9 @@ export interface ImportedReminderEvent {
   conventionId: string;
   title: string;
   startTime: string;
+  endTime: string | null;
+  personalStartTime: string | null;
+  personalEndTime: string | null;
   room: string | null;
   location: string | null;
   reminderMinutes: number | null;
@@ -73,7 +77,8 @@ export async function rearmImportedReminders(
     const minutes = event.reminderMinutes;
     if (minutes === null) continue;
 
-    const triggerMs = new Date(event.startTime).getTime() - minutes * 60 * 1000;
+    const interval = attendanceInterval(event);
+    const triggerMs = Date.parse(interval.startTime) - minutes * 60 * 1000;
     if (Number.isFinite(triggerMs) && triggerMs <= now) {
       await cancelEventReminder(event.id);
       await eventsRepo.update(event.id, { reminderMinutes: null });
@@ -89,6 +94,9 @@ export async function rearmImportedReminders(
           conventionId: event.conventionId,
           title: event.title,
           startTime: event.startTime,
+          endTime: event.endTime,
+          personalStartTime: event.personalStartTime,
+          personalEndTime: event.personalEndTime,
           room: event.room ?? event.location,
         },
         minutes,

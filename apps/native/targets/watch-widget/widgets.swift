@@ -6,7 +6,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
   /// Raises this card in the Smart Stack around the moments it matters —
-  /// event starts and leave windows. Without a relevance the stack never
+  /// convention starts and chosen leave times. Without a relevance the stack never
   /// surfaces the complication on its own.
   var relevance: TimelineEntryRelevance?
 
@@ -82,7 +82,7 @@ private struct ConPawsWatchProvider: TimelineProvider {
     // system waking this extension on time. Complications get an even smaller
     // refresh budget than Home Screen widgets, so a frozen label is likelier
     // here, not less.
-    // Within 30 minutes of the countdown target (an event start or a leave
+    // Within 30 minutes of the countdown target (a convention start or a leave
     // moment) the card is at its most useful; score it accordingly so the
     // Smart Stack rotates it up.
     func relevance(at date: Date) -> TimelineEntryRelevance? {
@@ -96,10 +96,10 @@ private struct ConPawsWatchProvider: TimelineProvider {
       ConPawsWatchEntry(date: now, snapshot: snapshot, relevance: relevance(at: now))
     ]
     if let target = projection.countdownTarget, let zone = projection.timeZone {
-      // The leave countdown reads in whole minutes, so it ticks per minute;
-      // every other countdown rides the shared hourly ladder.
-      let points = projection.isLeaveState
-        ? ConPawsCountdown.leaveChangePoints(from: now, to: target)
+      // Current panels show the chosen leave clock, not a synthetic walking
+      // countdown, so only the actual leave boundary needs another entry.
+      let points = projection.usesPersonalLeaveBoundary
+        ? [target]
         : ConPawsCountdown.changePoints(from: now, to: target, timeZone: zone)
       for date in points {
         entries.append(
@@ -133,8 +133,8 @@ private struct ConPawsWatchEntryView: View {
           now: entry.date,
           strings: entry.strings
         )
-      case let .leave(current, next, convention):
-        LeaveWidgetView(
+      case let .current(current, next, convention):
+        CurrentWidgetView(
           current: current,
           next: next,
           convention: convention,
@@ -223,50 +223,55 @@ private struct ComingUpWidgetView: View {
   }
 }
 
-private struct LeaveWidgetView: View {
+private struct CurrentWidgetView: View {
   @Environment(\.locale) private var locale
-  let current: ConPawsEventSnapshot?
-  let next: ConPawsEventSnapshot
+  let current: ConPawsEventSnapshot
+  let next: ConPawsEventSnapshot?
   let convention: ConPawsConventionSnapshot
   let now: Date
   let strings: ConPawsStrings
 
   var body: some View {
     VStack(alignment: .leading, spacing: 1) {
-      WatchEyebrow(
-        title: ConPawsCountdown.leaveLead(
-          from: now,
-          to: next.startDate,
-          timeZone: convention.timeZone,
-          strings: strings
-        ),
-        symbol: "figure.walk"
-      )
-      .monospacedDigit()
+      if let end = current.endDate, current.hasPersonalEnd {
+        WatchEyebrow(
+          title: strings.text(
+            strings.inlineLeaveFormat,
+            WidgetFormat.time(end, in: convention, locale: locale)
+          ),
+          symbol: "figure.walk"
+        )
+      } else {
+        WatchEyebrow(title: convention.name)
+      }
 
-      Text(next.title)
+      Text("\(strings.now) · \(current.title)")
         .font(.headline)
         .lineLimit(1)
 
-      if let location = WidgetFormat.location(next) {
-        Text("\(nextTime) · \(location)")
+      if let next {
+        Text("\(strings.nextCaps) · \(next.title) · \(nextTime(next))")
+          .font(.caption2)
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+      } else if let location = WidgetFormat.location(current) {
+        Text(location)
           .font(.caption2)
           .foregroundStyle(.secondary)
           .lineLimit(1)
       } else {
-        Text(nextTime)
+        Text(convention.name)
           .font(.caption2)
           .foregroundStyle(.secondary)
           .lineLimit(1)
       }
     }
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(accessibilitySummary)
+    .accessibilityElement(children: .combine)
   }
 
-  private var nextTime: String {
+  private func nextTime(_ event: ConPawsEventSnapshot) -> String {
     WidgetFormat.nextEventTime(
-      next.startDate,
+      event.startDate,
       relativeTo: now,
       in: convention,
       locale: locale,
@@ -274,24 +279,6 @@ private struct LeaveWidgetView: View {
     )
   }
 
-  private var accessibilitySummary: String {
-    let countdown = WidgetFormat.countdownDuration(
-      from: now,
-      to: next.startDate,
-      in: convention.timeZone,
-      strings: strings
-    )
-    if let current {
-      return strings.text(
-        strings.leaveWithCurrentA11yFormat,
-        countdown,
-        current.title,
-        next.title,
-        nextTime
-      )
-    }
-    return strings.text(strings.leaveA11yFormat, countdown, next.title, nextTime)
-  }
 }
 
 private struct NextWidgetView: View {
@@ -348,8 +335,14 @@ private struct BlankWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
-      WatchEyebrow(title: convention?.name ?? strings.syncFromPhone)
-      Text(strings.noUpcomingEvents)
+      WatchEyebrow(title: convention?.name ?? "ConPaws")
+      Text(
+        convention == nil
+          ? strings.noScheduleMessage
+          : convention?.events.isEmpty == true
+            ? strings.starHint
+            : strings.allDoneTitle
+      )
         .font(.caption)
         .foregroundStyle(.secondary)
         .lineLimit(2)
@@ -383,7 +376,7 @@ struct ConPawsWatchWidget: Widget {
     // resolves these against the watch's language, not the app's, so they need
     // resources rather than the shared string table.
     .configurationDisplayName("ConPaws Schedule")
-    .description("See your next event, leave reminder, or convention countdown.")
+    .description("See your current stop, chosen leave time, next event, or convention countdown.")
     .supportedFamilies([.accessoryRectangular])
   }
 }
@@ -391,7 +384,7 @@ struct ConPawsWatchWidget: Widget {
 private struct WidgetScheduleProjection {
   enum State {
     case comingUp(ConPawsConventionSnapshot)
-    case leave(ConPawsEventSnapshot?, ConPawsEventSnapshot, ConPawsConventionSnapshot)
+    case current(ConPawsEventSnapshot, ConPawsEventSnapshot?, ConPawsConventionSnapshot)
     case next(ConPawsEventSnapshot, ConPawsConventionSnapshot)
     case blank(ConPawsConventionSnapshot?)
   }
@@ -401,15 +394,12 @@ private struct WidgetScheduleProjection {
   let activeEvent: ConPawsEventSnapshot?
   let activeEventEnd: Date?
   let nextEvent: ConPawsEventSnapshot?
-  let leaveDate: Date?
 
   var state: State {
     guard let convention else { return .blank(nil) }
     if now < convention.startDate { return .comingUp(convention) }
+    if let activeEvent { return .current(activeEvent, nextEvent, convention) }
     guard let nextEvent else { return .blank(convention) }
-    if let leaveDate, leaveDate <= now, now < nextEvent.startDate {
-      return .leave(activeEvent, nextEvent, convention)
-    }
     return .next(nextEvent, convention)
   }
 
@@ -423,15 +413,23 @@ private struct WidgetScheduleProjection {
   var countdownTarget: Date? {
     switch state {
     case .comingUp(let convention): return convention.startDate
-    case .leave(_, let upcoming, _): return upcoming.startDate
+    case .current(let current, _, _):
+      guard
+        current.hasPersonalEnd,
+        let end = current.endDate,
+        end.timeIntervalSince(now) <= 30 * 60
+      else { return nil }
+      return end
     case .next, .blank: return nil
     }
   }
 
-  /// Whether the countdown on screen is the leave window's, which ticks in
-  /// minutes rather than on the hourly ladder.
-  var isLeaveState: Bool {
-    if case .leave = state { return true }
+  /// A chosen leave time needs one exact transition entry; the view displays
+  /// the saved clock time rather than inventing a walking countdown.
+  var usesPersonalLeaveBoundary: Bool {
+    if case .current(let current, _, _) = state {
+      return current.hasPersonalEnd
+    }
     return false
   }
 
@@ -445,7 +443,6 @@ private struct WidgetScheduleProjection {
     }
 
     let candidates = [
-      leaveDate,
       nextEvent?.startDate,
       activeEventEnd,
       convention.endDate,
@@ -456,7 +453,7 @@ private struct WidgetScheduleProjection {
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
     let selected = snapshot.conventions
-      .filter { $0.endDate >= now || $0.events.contains { $0.startDate >= now } }
+      .filter { $0.isCurrentOrUpcoming(at: now) }
       .sorted { $0.startAtMs < $1.startAtMs }
       .first
     convention = selected
@@ -465,28 +462,13 @@ private struct WidgetScheduleProjection {
       activeEvent = nil
       activeEventEnd = nil
       nextEvent = nil
-      leaveDate = nil
       return
     }
 
-    let events = selected.events.sorted { $0.startAtMs < $1.startAtMs }
-    let active = events.enumerated().compactMap { index, event -> (ConPawsEventSnapshot, Date)? in
-      guard event.startDate <= now else { return nil }
-      let nextStart = events.indices.contains(index + 1) ? events[index + 1].startDate : nil
-      let fallbackEnd = min(nextStart ?? .distantFuture, event.startDate.addingTimeInterval(3_600))
-      let end = event.endDate ?? fallbackEnd
-      return now < end ? (event, end) : nil
-    }.last
-    activeEvent = active?.0
-    activeEventEnd = active?.1
-
-    let next = events.first { $0.startDate > now }
-    nextEvent = next
-    if let next, let minutes = next.reminderMinutes {
-      leaveDate = next.startDate.addingTimeInterval(-Double(minutes) * 60)
-    } else {
-      leaveDate = nil
-    }
+    let plan = ConPawsPlanTimeline(events: selected.events, now: now)
+    activeEvent = plan.currentEvent
+    activeEventEnd = plan.currentEventEnd
+    nextEvent = plan.nextEvent
   }
 }
 
@@ -573,6 +555,6 @@ private extension ConPawsConventionSnapshot {
 }
 
 private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
+  var startDate: Date { plannedStartDate }
+  var endDate: Date? { plannedEndDate }
 }

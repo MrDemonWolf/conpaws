@@ -1,8 +1,16 @@
+import {
+  formatInConventionTime,
+  fromConventionTime,
+} from "@/lib/convention-time";
+import { attendanceInterval } from "@/lib/personal-schedule";
+
 export interface ScheduleViewEvent {
   id: string;
   title: string;
   startTime: string;
   endTime: string | null;
+  personalStartTime?: string | null;
+  personalEndTime?: string | null;
   room: string | null;
 }
 
@@ -14,8 +22,10 @@ function compareEvents(
   left: ScheduleViewEvent,
   right: ScheduleViewEvent,
 ): number {
+  const leftStart = attendanceInterval(left).startTime;
+  const rightStart = attendanceInterval(right).startTime;
   return (
-    Date.parse(left.startTime) - Date.parse(right.startTime) ||
+    Date.parse(leftStart) - Date.parse(rightStart) ||
     (left.room ?? "").localeCompare(right.room ?? "") ||
     left.title.localeCompare(right.title) ||
     left.id.localeCompare(right.id)
@@ -27,15 +37,17 @@ export function getNowAndNextEvents<T extends ScheduleViewEvent>(
   now: Date = new Date(),
 ): { current: T[]; next: T[] } {
   const nowMs = now.getTime();
-  const validEvents = events.filter((event) =>
-    Number.isFinite(Date.parse(event.startTime)),
-  );
+  const validEvents = events
+    .map((event) => {
+      const interval = attendanceInterval(event);
+      return { event, interval, start: Date.parse(interval.startTime) };
+    })
+    .filter(({ start }) => Number.isFinite(start));
 
   const current = validEvents
-    .filter((event) => {
-      const start = Date.parse(event.startTime);
-      const end = event.endTime
-        ? Date.parse(event.endTime)
+    .filter(({ interval, start }) => {
+      const end = interval.endTime
+        ? Date.parse(interval.endTime)
         : start + NO_END_FALLBACK_MS;
       return (
         Number.isFinite(start) &&
@@ -45,18 +57,59 @@ export function getNowAndNextEvents<T extends ScheduleViewEvent>(
         nowMs < end
       );
     })
+    .map(({ event }) => event)
     .sort(compareEvents);
 
-  const upcoming = validEvents.filter(
-    (event) => Date.parse(event.startTime) > nowMs,
-  );
+  const upcoming = validEvents.filter(({ start }) => start > nowMs);
   const nextStart = upcoming.reduce(
-    (earliest, event) => Math.min(earliest, Date.parse(event.startTime)),
+    (earliest, { start }) => Math.min(earliest, start),
     Number.POSITIVE_INFINITY,
   );
   const next = upcoming
-    .filter((event) => Date.parse(event.startTime) === nextStart)
+    .filter(({ start }) => start === nextStart)
+    .map(({ event }) => event)
     .sort(compareEvents);
 
   return { current, next };
+}
+
+/** The event's published starting hour in the convention's local clock. */
+export function eventConventionStartHour(
+  event: Pick<ScheduleViewEvent, "startTime">,
+  timeZone: string,
+): number | null {
+  const start = Date.parse(event.startTime);
+  if (!Number.isFinite(start)) return null;
+  const hour = Number(formatInConventionTime(event.startTime, timeZone, "H"));
+  return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : null;
+}
+
+/** Whether the published event intersects one local clock-hour slot. */
+export function eventOccursInConventionHour(
+  event: Pick<ScheduleViewEvent, "startTime" | "endTime">,
+  dayKey: string,
+  hour: number,
+  timeZone: string,
+): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dayKey);
+  if (!match || !Number.isInteger(hour) || hour < 0 || hour > 23) return false;
+
+  const start = Date.parse(event.startTime);
+  if (!Number.isFinite(start)) return false;
+  const end = event.endTime
+    ? Date.parse(event.endTime)
+    : start + NO_END_FALLBACK_MS;
+  if (!Number.isFinite(end) || end <= start) return false;
+
+  const slotStart = fromConventionTime(
+    {
+      year: Number(match[1]),
+      month: Number(match[2]),
+      day: Number(match[3]),
+      hour,
+    },
+    timeZone,
+  ).getTime();
+  const slotEnd = slotStart + NO_END_FALLBACK_MS;
+  return start < slotEnd && slotStart < end;
 }

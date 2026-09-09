@@ -72,7 +72,7 @@ export const SwipeableEventRow = memo(function SwipeableEventRow({
 }: SwipeableEventRowProps) {
   const { t } = useTranslation();
   const swipeable = useRef<SwipeableMethods>(null);
-  const sides = eventSwipeSides(event.isInSchedule);
+  const sides = eventSwipeSides(event.isInSchedule, event.feedStatus === null);
 
   return (
     <ReanimatedSwipeable

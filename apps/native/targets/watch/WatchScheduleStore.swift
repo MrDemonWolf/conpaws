@@ -115,10 +115,17 @@ final class WatchScheduleStore: NSObject, ObservableObject {
         && TimeZone(identifier: convention.timeZoneIdentifier) != nil
         && Set(eventIDs).count == eventIDs.count
         && convention.events.allSatisfy { event in
-          !event.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          let attendanceStart = event.attendanceStartAtMs ?? event.startAtMs
+          return !event.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && event.startAtMs.isFinite
             && (event.endAtMs.map { $0.isFinite && $0 >= event.startAtMs } ?? true)
+            && attendanceStart.isFinite
+            && (
+              event.attendanceEndAtMs.map {
+                $0.isFinite && $0 >= attendanceStart
+              } ?? true
+            )
             && (event.reminderMinutes.map { $0 >= 0 } ?? true)
         }
     }

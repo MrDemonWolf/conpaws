@@ -60,8 +60,18 @@ struct ConPawsConventionSnapshot: Codable, Identifiable, Hashable, Sendable {
 struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
   let id: String
   let title: String
+  /// Published organizer times. These never change when someone plans to
+  /// attend only part of an event.
   let startAtMs: Double
   let endAtMs: Double?
+  /// The validated interval used by every glanceable surface. Schema v1/v2
+  /// omit these fields, so readers fall back to the published interval.
+  let attendanceStartAtMs: Double?
+  let attendanceEndAtMs: Double?
+  /// True when saved personal values no longer fit the published event. The
+  /// effective attendance values above already fall back safely; the phone
+  /// retains the original values so the person can review them.
+  let attendanceNeedsReview: Bool?
   let location: String?
   let room: String?
   let reminderMinutes: Int?
@@ -69,15 +79,118 @@ struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
   /// `dateRangeLabel`. Absent in schema v1 payloads and for all-ages events,
   /// and optional here precisely so both decode to "no pill".
   let ageRating: String?
+
+  init(
+    id: String,
+    title: String,
+    startAtMs: Double,
+    endAtMs: Double?,
+    attendanceStartAtMs: Double? = nil,
+    attendanceEndAtMs: Double? = nil,
+    attendanceNeedsReview: Bool? = nil,
+    location: String?,
+    room: String?,
+    reminderMinutes: Int?,
+    ageRating: String?
+  ) {
+    self.id = id
+    self.title = title
+    self.startAtMs = startAtMs
+    self.endAtMs = endAtMs
+    self.attendanceStartAtMs = attendanceStartAtMs
+    self.attendanceEndAtMs = attendanceEndAtMs
+    self.attendanceNeedsReview = attendanceNeedsReview
+    self.location = location
+    self.room = room
+    self.reminderMinutes = reminderMinutes
+    self.ageRating = ageRating
+  }
+}
+
+extension ConPawsEventSnapshot {
+  var plannedStartDate: Date {
+    let milliseconds = attendanceStartAtMs.flatMap { $0.isFinite ? $0 : nil } ?? startAtMs
+    return Date(timeIntervalSince1970: milliseconds / 1_000)
+  }
+
+  var plannedEndDate: Date? {
+    let milliseconds = attendanceEndAtMs.flatMap { $0.isFinite ? $0 : nil }
+      ?? endAtMs.flatMap { $0.isFinite ? $0 : nil }
+    return milliseconds.map { Date(timeIntervalSince1970: $0 / 1_000) }
+  }
+
+  var hasPersonalStart: Bool {
+    guard attendanceNeedsReview != true, let attendanceStartAtMs else { return false }
+    return attendanceStartAtMs.isFinite && abs(attendanceStartAtMs - startAtMs) >= 1
+  }
+
+  var hasPersonalEnd: Bool {
+    guard
+      attendanceNeedsReview != true,
+      let attendanceEndAtMs,
+      attendanceEndAtMs.isFinite
+    else { return false }
+    return endAtMs == nil || abs(attendanceEndAtMs - (endAtMs ?? attendanceEndAtMs)) >= 1
+  }
+}
+
+/// One selection rule shared by WidgetKit, the Watch app and complications.
+/// It deliberately uses personal attendance intervals while keeping published
+/// timestamps available on each event for details and change review.
+struct ConPawsPlanTimeline {
+  let events: [ConPawsEventSnapshot]
+  let currentEvent: ConPawsEventSnapshot?
+  let currentEventEnd: Date?
+  let nextEvent: ConPawsEventSnapshot?
+
+  init(events sourceEvents: [ConPawsEventSnapshot], now: Date) {
+    let sortedEvents = sourceEvents.sorted {
+      if $0.plannedStartDate != $1.plannedStartDate {
+        return $0.plannedStartDate < $1.plannedStartDate
+      }
+      if $0.title != $1.title { return $0.title < $1.title }
+      return $0.id < $1.id
+    }
+
+    let active = sortedEvents.enumerated().compactMap { index, event -> (ConPawsEventSnapshot, Date)? in
+      guard event.plannedStartDate <= now else { return nil }
+      let laterStart = sortedEvents.dropFirst(index + 1)
+        .map(\.plannedStartDate)
+        .first { $0 > event.plannedStartDate }
+      let fallbackEnd = min(
+        laterStart ?? .distantFuture,
+        event.plannedStartDate.addingTimeInterval(3_600)
+      )
+      let end = event.plannedEndDate ?? fallbackEnd
+      return now < end ? (event, end) : nil
+    }.last
+
+    events = sortedEvents
+    currentEvent = active?.0
+    currentEventEnd = active?.1
+    nextEvent = sortedEvents.first { $0.plannedStartDate > now }
+  }
+}
+
+extension ConPawsConventionSnapshot {
+  /// Keep a convention selectable while its dates are active, or while a
+  /// cross-midnight personal stop is still active or waiting to begin.
+  func isCurrentOrUpcoming(at date: Date) -> Bool {
+    if Date(timeIntervalSince1970: endAtMs / 1_000) >= date {
+      return true
+    }
+    let plan = ConPawsPlanTimeline(events: events, now: date)
+    return plan.currentEvent != nil || plan.nextEvent != nil
+  }
 }
 
 enum ConPawsSnapshotStore {
   /// Snapshot schemas this binary knows how to render.
   ///
-  /// v1 payloads stay valid — v2 only adds optional fields, which decode as
-  /// absent — so an app updated under an older extension (or the reverse)
-  /// keeps rendering rather than falling back to the empty state.
-  static let supportedSchemaVersions = 1...2
+  /// v1/v2 payloads stay valid — newer versions only add optional fields,
+  /// which decode as absent — so mixed app and extension versions keep
+  /// rendering rather than falling back to the empty state.
+  static let supportedSchemaVersions = 1...3
 
   static let snapshotKey = "conpaws.widget.snapshot.v1"
 

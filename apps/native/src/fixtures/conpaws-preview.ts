@@ -291,7 +291,9 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
     ([startMinutes, durationMinutes, roomIndex, audienceIndex], index) => {
       const [topic, category] = TOPICS[index % TOPICS.length];
       const format = FORMATS[Math.floor(index / TOPICS.length)];
-      const selected = index === 1 || index % 17 === 0;
+      const unavailable =
+        index === 2 ? "cancelled" : index === 3 ? "removed" : null;
+      const selected = index < 4 || index % 17 === 0;
       const ordinal = String(index + 1).padStart(3, "0");
 
       return {
@@ -306,7 +308,20 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
         category,
         type: AUDIENCES[audienceIndex],
         isInSchedule: selected,
-        reminderMinutes: selected ? (index % 34 === 0 ? 60 : 15) : null,
+        isInterested: index < 10 || selected,
+        personalStartTime: index === 1 ? isoAt(startMinutes + 35) : null,
+        personalEndTime:
+          index === 0
+            ? isoAt(startMinutes + 25)
+            : index === 1
+              ? isoAt(startMinutes + 50)
+              : null,
+        reminderMinutes:
+          selected && unavailable === null
+            ? index % 34 === 0
+              ? 60
+              : 15
+            : null,
         sourceUid: `conpaws-preview-${ordinal}`,
         sourceUrl: null,
         // Run the label through the real classifier so the fixture exercises
@@ -314,6 +329,7 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
         ageRating: ageRatingFromCategory(AUDIENCES[audienceIndex]),
         isAgeRestricted: audienceIndex > 0,
         contentWarning: audienceIndex === 3,
+        feedStatus: unavailable,
         createdAt: FIXTURE_TIME,
         updatedAt: FIXTURE_TIME,
       } satisfies NewConventionEvent;

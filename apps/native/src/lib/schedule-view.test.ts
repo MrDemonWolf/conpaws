@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getNowAndNextEvents, type ScheduleViewEvent } from "./schedule-view";
+import {
+  eventConventionStartHour,
+  eventOccursInConventionHour,
+  getNowAndNextEvents,
+  type ScheduleViewEvent,
+} from "./schedule-view";
 
 function event(
   id: string,
@@ -98,5 +103,76 @@ describe("getNowAndNextEvents", () => {
     );
 
     expect(result).toEqual({ current: [], next: [] });
+  });
+
+  it("keeps a planned late join in next after the published start", () => {
+    const lateJoin = {
+      ...event(
+        "late-join",
+        "2026-08-17T14:00:00.000Z",
+        "2026-08-17T15:30:00.000Z",
+        "A",
+      ),
+      personalStartTime: "2026-08-17T14:35:00.000Z",
+      personalEndTime: "2026-08-17T15:20:00.000Z",
+    };
+
+    expect(
+      getNowAndNextEvents([lateJoin], new Date("2026-08-17T14:18:00.000Z")),
+    ).toEqual({ current: [], next: [lateJoin] });
+  });
+
+  it("keeps the final active personal stop current with no later event", () => {
+    const finalStop = {
+      ...event(
+        "final",
+        "2026-08-17T14:00:00.000Z",
+        "2026-08-17T15:30:00.000Z",
+        "A",
+      ),
+      personalEndTime: "2026-08-17T14:25:00.000Z",
+    };
+
+    expect(
+      getNowAndNextEvents([finalStop], new Date("2026-08-17T14:18:00.000Z")),
+    ).toEqual({ current: [finalStop], next: [] });
+    expect(
+      getNowAndNextEvents([finalStop], new Date("2026-08-17T14:25:00.000Z")),
+    ).toEqual({ current: [], next: [] });
+  });
+
+  it("filters published sessions by local day and intersecting hour", () => {
+    const overnight = event(
+      "overnight",
+      "2026-08-18T03:30:00.000Z",
+      "2026-08-18T05:30:00.000Z",
+      "A",
+    );
+
+    expect(eventConventionStartHour(overnight, "America/Chicago")).toBe(22);
+    expect(
+      eventOccursInConventionHour(
+        overnight,
+        "2026-08-17",
+        22,
+        "America/Chicago",
+      ),
+    ).toBe(true);
+    expect(
+      eventOccursInConventionHour(
+        overnight,
+        "2026-08-18",
+        0,
+        "America/Chicago",
+      ),
+    ).toBe(true);
+    expect(
+      eventOccursInConventionHour(
+        overnight,
+        "2026-08-18",
+        1,
+        "America/Chicago",
+      ),
+    ).toBe(false);
   });
 });

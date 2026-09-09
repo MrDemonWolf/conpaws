@@ -33,6 +33,12 @@ export const conventionEvents = sqliteTable("convention_events", {
   isInSchedule: integer("is_in_schedule", { mode: "boolean" })
     .notNull()
     .default(false),
+  isInterested: integer("is_interested", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  /** The portion of the published event the user plans to attend. */
+  personalStartTime: text("personal_start_time"),
+  personalEndTime: text("personal_end_time"),
   reminderMinutes: integer("reminder_minutes"),
   sourceUid: text("source_uid"),
   sourceUrl: text("source_url"),

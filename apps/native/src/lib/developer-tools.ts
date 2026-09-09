@@ -5,7 +5,14 @@ export function developerToolsEnabled(
   return appVariant === "preview" || (isDev && appVariant === "development");
 }
 
-export type ConventionPreviewState = "loading" | "empty" | "error" | "content";
+export type ConventionPreviewState =
+  | "loading"
+  | "empty"
+  | "error"
+  | "content"
+  | "plan"
+  | "interested"
+  | "now-next";
 
 export function resolveConventionPreviewState(
   value: unknown,
@@ -17,7 +24,10 @@ export function resolveConventionPreviewState(
   return value === "loading" ||
     value === "empty" ||
     value === "error" ||
-    value === "content"
+    value === "content" ||
+    value === "plan" ||
+    value === "interested" ||
+    value === "now-next"
     ? value
     : null;
 }

@@ -4,12 +4,17 @@ import * as eventsRepo from "@/db/repositories/events";
 import type { Convention, ConventionEvent } from "@/db/schema";
 import { fromConventionTime, isValidTimeZone } from "@/lib/convention-time";
 import i18n from "@/lib/i18n";
+import { attendanceInterval } from "@/lib/personal-schedule";
 
 export interface WidgetEventSnapshot {
   id: string;
   title: string;
   startAtMs: number;
   endAtMs: number | null;
+  /** Validated personal attendance timestamps; fall back to published times. */
+  attendanceStartAtMs: number;
+  attendanceEndAtMs: number | null;
+  attendanceNeedsReview: boolean;
   location: string | null;
   room: string | null;
   reminderMinutes: number | null;
@@ -34,13 +39,14 @@ export interface WidgetConventionSnapshot {
 }
 
 export interface WidgetSnapshot {
-  schemaVersion: 2;
+  schemaVersion: 3;
   generatedAtMs: number;
   localeIdentifier: string;
   conventions: WidgetConventionSnapshot[];
 }
 
 interface NativeWidgetModule {
+  getSupportedSnapshotSchemaVersion?(): number;
   publishSnapshot(json: string): Promise<boolean>;
 }
 
@@ -93,11 +99,35 @@ function eventSnapshot(
   const startAtMs = Date.parse(event.startTime);
   if (!Number.isFinite(startAtMs)) return null;
   const parsedEnd = event.endTime ? Date.parse(event.endTime) : Number.NaN;
+  const interval = attendanceInterval(event);
+  // Invalid personal values remain in SQLite for review on the phone. A
+  // glanceable surface receives a safe interval rather than trying to repair
+  // or reinterpret the person's choice independently.
+  const endAtMs =
+    Number.isFinite(parsedEnd) && parsedEnd > startAtMs ? parsedEnd : null;
+
+  const attendanceStartAtMs = interval.needsReview
+    ? startAtMs
+    : Date.parse(interval.startTime);
+  const parsedAttendanceEnd = interval.needsReview
+    ? parsedEnd
+    : interval.endTime
+      ? Date.parse(interval.endTime)
+      : Number.NaN;
   return {
     id: event.id,
     title: event.title,
     startAtMs,
-    endAtMs: Number.isFinite(parsedEnd) ? parsedEnd : null,
+    endAtMs,
+    attendanceStartAtMs: Number.isFinite(attendanceStartAtMs)
+      ? attendanceStartAtMs
+      : startAtMs,
+    attendanceEndAtMs:
+      Number.isFinite(parsedAttendanceEnd) &&
+      parsedAttendanceEnd > attendanceStartAtMs
+        ? parsedAttendanceEnd
+        : null,
+    attendanceNeedsReview: interval.needsReview,
     location: event.location,
     room: event.room,
     reminderMinutes: event.reminderMinutes,
@@ -145,7 +175,9 @@ export function buildWidgetSnapshot(
       .map((event) => eventSnapshot(event, localeIdentifier))
       .filter((event): event is WidgetEventSnapshot => event !== null)
       .sort(
-        (a, b) => a.startAtMs - b.startAtMs || a.title.localeCompare(b.title),
+        (a, b) =>
+          a.attendanceStartAtMs - b.attendanceStartAtMs ||
+          a.title.localeCompare(b.title),
       );
 
     return [
@@ -166,13 +198,34 @@ export function buildWidgetSnapshot(
   });
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAtMs,
     localeIdentifier,
     conventions: snapshots.sort(
       (a, b) => a.startAtMs - b.startAtMs || a.name.localeCompare(b.name),
     ),
   };
+}
+
+type CompatibleWidgetSnapshot = Omit<WidgetSnapshot, "schemaVersion"> & {
+  schemaVersion: 2 | 3;
+};
+
+/**
+ * Native extensions update only with a store build, while this writer can
+ * arrive in an over-the-air update. An older module has no capability method,
+ * so keep its accepted v2 envelope. The new fields are optional JSON keys and
+ * old decoders ignore them; current extensions still use them.
+ */
+export function widgetSnapshotForSupportedSchema(
+  snapshot: WidgetSnapshot,
+  supportedSchemaVersion: number | undefined,
+): CompatibleWidgetSnapshot {
+  return supportedSchemaVersion !== undefined &&
+    Number.isFinite(supportedSchemaVersion) &&
+    supportedSchemaVersion >= 3
+    ? snapshot
+    : { ...snapshot, schemaVersion: 2 };
 }
 
 let publishing: Promise<boolean> | null = null;
@@ -223,5 +276,9 @@ async function buildAndPublishSnapshot(): Promise<boolean> {
     new Map(eventEntries),
     i18n.resolvedLanguage || i18n.language || "en",
   );
-  return nativeWidgetModule.publishSnapshot(JSON.stringify(snapshot));
+  const compatibleSnapshot = widgetSnapshotForSupportedSchema(
+    snapshot,
+    nativeWidgetModule.getSupportedSnapshotSchemaVersion?.(),
+  );
+  return nativeWidgetModule.publishSnapshot(JSON.stringify(compatibleSnapshot));
 }

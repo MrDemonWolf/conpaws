@@ -1,0 +1,31 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath("org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:${kotlinVersion}")
+  }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'expo-module-gradle-plugin'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+
+group = 'expo.modules.conpawswidgets'
+version = '1.0.0'
+
+android {
+  namespace "expo.modules.conpawswidgets"
+  defaultConfig {
+    versionCode 1
+    versionName "1.0.0"
+  }
+  buildFeatures {
+    compose true
+  }
+}
+
+dependencies {
+  implementation 'androidx.glance:glance-appwidget:1.1.1'
+  implementation 'androidx.glance:glance-material3:1.1.1'
+}

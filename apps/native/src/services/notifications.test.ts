@@ -53,6 +53,9 @@ function reminderEvent(
     category: null,
     type: null,
     isInSchedule: true,
+    isInterested: false,
+    personalStartTime: null,
+    personalEndTime: null,
     reminderMinutes: 15,
     sourceUid: "opening",
     sourceUrl: null,
@@ -110,7 +113,7 @@ describe("startup reminder reconciliation", () => {
       expect.objectContaining({
         identifier: "reminder-event-1",
         content: expect.objectContaining({
-          title: "Time to leave for Opening",
+          title: "Opening starts soon",
           body: "Starts in 15 min · Main Stage",
         }),
       }),
@@ -123,6 +126,54 @@ describe("startup reminder reconciliation", () => {
       overflow: 0,
       staleCancelled: 1,
     });
+  });
+
+  it("schedules a late-join reminder from the validated personal start", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([
+      reminderEvent({
+        endTime: "2026-08-17T14:00:00.000Z",
+        personalStartTime: "2026-08-17T13:30:00.000Z",
+        personalEndTime: "2026-08-17T13:50:00.000Z",
+      }),
+    ]);
+
+    await reconcileEventReminders();
+
+    expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({
+          title: "Join Opening soon",
+          body: "Join in 15 min · Main Stage",
+        }),
+        trigger: expect.objectContaining({
+          date: new Date("2026-08-17T13:15:00.000Z"),
+        }),
+      }),
+    );
+  });
+
+  it("falls back to the published start when personal times need review", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([
+      reminderEvent({
+        endTime: "2026-08-17T14:00:00.000Z",
+        personalStartTime: "2026-08-17T12:45:00.000Z",
+        personalEndTime: "2026-08-17T13:50:00.000Z",
+      }),
+    ]);
+
+    await reconcileEventReminders();
+
+    expect(notificationMocks.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({
+          title: "Opening starts soon",
+          body: "Starts in 15 min · Main Stage",
+        }),
+        trigger: expect.objectContaining({
+          date: new Date("2026-08-17T12:45:00.000Z"),
+        }),
+      }),
+    );
   });
 
   it("keeps the saved choice when permission is missing and re-arms it later", async () => {
@@ -237,7 +288,7 @@ describe("startup reminder reconciliation", () => {
   it("uses the active app language when a reminder is rebuilt", async () => {
     i18nMock.isInitialized = true;
     i18nMock.t.mockImplementation((key: string) =>
-      key === "reminders.notificationTitle"
+      key === "reminders.startNotificationTitle"
         ? "Hora de salir para Opening"
         : "Empieza en 15 min · Main Stage",
     );

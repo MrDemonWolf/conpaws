@@ -126,6 +126,45 @@ PRAGMA user_version = 6;
 COMMIT;
 `;
 
+export const MIGRATION_7_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE convention_events ADD COLUMN is_interested INTEGER NOT NULL DEFAULT 0;
+PRAGMA user_version = 7;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_7_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 7;
+COMMIT;
+`;
+
+export const MIGRATION_8_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE convention_events ADD COLUMN personal_start_time TEXT;
+PRAGMA user_version = 8;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_8_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 8;
+COMMIT;
+`;
+
+export const MIGRATION_9_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE convention_events ADD COLUMN personal_end_time TEXT;
+PRAGMA user_version = 9;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_9_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 9;
+COMMIT;
+`;
+
 const COMPLETE_MIGRATION_4_SQL = `
 BEGIN IMMEDIATE;
 PRAGMA user_version = 4;
@@ -138,7 +177,7 @@ interface MigrationDatabase {
 }
 
 /** The highest `user_version` the migration ladder below knows how to reach. */
-export const LATEST_SCHEMA_VERSION = 6;
+export const LATEST_SCHEMA_VERSION = 9;
 
 export function initializeDatabase(database: MigrationDatabase): void {
   database.execSync(CONNECTION_SQL);
@@ -162,6 +201,9 @@ export function initializeDatabase(database: MigrationDatabase): void {
   if (version < 4) applyColumnMigration(database, "age_rating");
   if (version < 5) applyColumnMigration(database, "archived_at");
   if (version < 6) applyColumnMigration(database, "feed_status");
+  if (version < 7) applyColumnMigration(database, "is_interested");
+  if (version < 8) applyColumnMigration(database, "personal_start_time");
+  if (version < 9) applyColumnMigration(database, "personal_end_time");
 }
 
 const COLUMN_MIGRATIONS = {
@@ -190,10 +232,25 @@ const COLUMN_MIGRATIONS = {
     migrate: () => MIGRATION_6_SQL,
     complete: () => COMPLETE_MIGRATION_6_SQL,
   },
+  is_interested: {
+    table: "convention_events",
+    migrate: () => MIGRATION_7_SQL,
+    complete: () => COMPLETE_MIGRATION_7_SQL,
+  },
+  personal_start_time: {
+    table: "convention_events",
+    migrate: () => MIGRATION_8_SQL,
+    complete: () => COMPLETE_MIGRATION_8_SQL,
+  },
+  personal_end_time: {
+    table: "convention_events",
+    migrate: () => MIGRATION_9_SQL,
+    complete: () => COMPLETE_MIGRATION_9_SQL,
+  },
 } as const;
 
 /**
- * Adds one nullable column and bumps the schema version.
+ * Adds one column and bumps the schema version.
  *
  * A previous process may have stopped after ALTER TABLE but before the version
  * bump, which would make the ALTER fail forever on every launch. Detect that

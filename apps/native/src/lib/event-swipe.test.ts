@@ -17,4 +17,11 @@ describe("eventSwipeSides", () => {
   it("offers no add for a starred event", () => {
     expect(eventSwipeSides(true).leading).toBeNull();
   });
+
+  it("offers no swipe action for an unavailable unstarred event", () => {
+    expect(eventSwipeSides(false, false)).toEqual({
+      leading: null,
+      trailing: null,
+    });
+  });
 });
