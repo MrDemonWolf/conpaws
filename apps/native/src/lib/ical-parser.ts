@@ -61,6 +61,17 @@ export interface ParseOptions {
 }
 
 const UNSUPPORTED_RECURRENCE_PROPERTIES = new Set(["RRULE", "RDATE", "EXDATE"]);
+export const MAX_ICS_EVENTS = 1_000;
+const MAX_FIELD_CHARS = 1_000;
+const MAX_DESCRIPTION_CHARS = 50_000;
+const BOUNDED_FIELDS = new Set(["UID", "SUMMARY", "URL", "LOCATION"]);
+
+export class CalendarTooLargeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CalendarTooLargeError";
+  }
+}
 
 export class UnsupportedRecurrenceError extends Error {
   readonly properties: string[];
@@ -348,11 +359,36 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       currentBlock = [];
     } else if (line === "END:VEVENT") {
       if (currentBlock) {
+        if (eventBlocks.length >= MAX_ICS_EVENTS) {
+          throw new CalendarTooLargeError(
+            `Calendar exceeds ${MAX_ICS_EVENTS} events`,
+          );
+        }
         eventBlocks.push(currentBlock);
         currentBlock = null;
       }
     } else if (currentBlock !== null) {
       currentBlock.push(line);
+    }
+  }
+
+  for (const block of eventBlocks) {
+    let categoryChars = 0;
+    for (const line of block) {
+      const property = extractPropName(line).toUpperCase();
+      const value = extractValue(line);
+      if (property === "DESCRIPTION" && value.length > MAX_DESCRIPTION_CHARS) {
+        throw new CalendarTooLargeError("Calendar description is too long");
+      }
+      if (BOUNDED_FIELDS.has(property) && value.length > MAX_FIELD_CHARS) {
+        throw new CalendarTooLargeError(`Calendar ${property} is too long`);
+      }
+      if (property === "CATEGORIES") {
+        categoryChars += value.length;
+        if (categoryChars > MAX_FIELD_CHARS) {
+          throw new CalendarTooLargeError("Calendar categories are too long");
+        }
+      }
     }
   }
 
@@ -379,6 +415,9 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     );
     const recurrenceId = recurrenceLine ? extractValue(recurrenceLine) : "";
     const sourceUid = recurrenceId ? `${uid}|${recurrenceId}` : uid;
+    if (sourceUid.length > MAX_FIELD_CHARS) {
+      throw new CalendarTooLargeError("Calendar UID is too long");
+    }
     const startLine = block.find((line) => extractPropName(line) === "DTSTART");
     const titleLine = block.find((line) => extractPropName(line) === "SUMMARY");
     const sourceUrlLine = block.find((line) => extractPropName(line) === "URL");
@@ -467,6 +506,9 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     if (!uid) continue;
     const recurrenceId = props["RECURRENCE-ID"] ?? "";
     const dedupeKey = recurrenceId ? `${uid}|${recurrenceId}` : uid;
+    if (dedupeKey.length > MAX_FIELD_CHARS) {
+      throw new CalendarTooLargeError("Calendar UID is too long");
+    }
     if (cancelledSourceUids.has(dedupeKey) || cancelledSourceUids.has(uid)) {
       continue;
     }

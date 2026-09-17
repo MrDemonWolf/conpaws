@@ -1,3 +1,10 @@
+import {
+  fetchStreaming,
+  MAX_ICS_BYTES,
+  ResponseTooLargeError,
+  readResponseTextWithLimit,
+} from "./bounded-response";
+
 /**
  * Works around The Events Calendar's truncated iCal export.
  *
@@ -46,6 +53,10 @@ const PER_PAGE = 50;
  * the reader can see beats no import at all.
  */
 const MAX_PAGES = 20;
+const MAX_EVENTS = PER_PAGE * MAX_PAGES;
+const MAX_PAGE_BYTES = 4 * 1024 * 1024;
+const MAX_FIELD_CHARS = 1_000;
+const MAX_DESCRIPTION_CHARS = 50_000;
 
 /**
  * Explicit floor for the date window.
@@ -74,6 +85,60 @@ export interface EcpEvent {
   timezone?: string;
   venue?: { venue?: string } | unknown[];
   categories?: { name?: string }[];
+}
+
+function isBoundedEvent(value: unknown): value is EcpEvent {
+  if (typeof value !== "object" || value === null) return false;
+  const event = value as Record<string, unknown>;
+  if (
+    !(
+      (typeof event.id === "string" && event.id.length > 0) ||
+      (typeof event.id === "number" && Number.isFinite(event.id))
+    ) ||
+    typeof event.title !== "string"
+  ) {
+    return false;
+  }
+  const strings = [
+    event.title,
+    event.url,
+    event.modified_utc,
+    event.utc_start_date,
+    event.utc_end_date,
+    event.timezone,
+  ];
+  if (
+    strings.some(
+      (item) =>
+        item !== undefined &&
+        (typeof item !== "string" || item.length > MAX_FIELD_CHARS),
+    )
+  ) {
+    return false;
+  }
+  if (
+    event.description !== undefined &&
+    typeof event.description !== "string"
+  ) {
+    return false;
+  }
+  const venue = Array.isArray(event.venue)
+    ? undefined
+    : (event.venue as { venue?: unknown } | undefined)?.venue;
+  if (venue !== undefined && typeof venue !== "string") return false;
+  if (event.categories !== undefined && !Array.isArray(event.categories)) {
+    return false;
+  }
+  const categories = (event.categories ?? []) as { name?: unknown }[];
+  if (categories.some((item) => typeof item?.name !== "string")) return false;
+  return (
+    String(event.id).length <= MAX_FIELD_CHARS &&
+    ((event.description as string | undefined)?.length ?? 0) <=
+      MAX_DESCRIPTION_CHARS &&
+    ((event.url as string | undefined)?.length ?? 0) <= MAX_FIELD_CHARS &&
+    ((venue as string | undefined)?.length ?? 0) <= MAX_FIELD_CHARS &&
+    categories.map((item) => item.name).join(",").length <= MAX_FIELD_CHARS
+  );
 }
 
 /**
@@ -213,17 +278,31 @@ export function buildIcsFromEcpEvents(
 ): string {
   const zone = events.find((event) => event.timezone)?.timezone;
 
-  const lines: string[] = [
+  const lines: string[] = [];
+  const encoder = new TextEncoder();
+  let bytes = 0;
+  const push = (...rawLines: string[]) => {
+    for (const rawLine of rawLines) {
+      const line = foldLine(rawLine);
+      bytes += encoder.encode(line).byteLength + 2;
+      if (bytes > MAX_ICS_BYTES) {
+        throw new ResponseTooLargeError(bytes, MAX_ICS_BYTES);
+      }
+      lines.push(line);
+    }
+  };
+
+  push(
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//ConPaws//Events Calendar REST expansion//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-  ];
+  );
   if (options.calendarName) {
-    lines.push(`X-WR-CALNAME:${escapeText(options.calendarName)}`);
+    push(`X-WR-CALNAME:${escapeText(options.calendarName)}`);
   }
-  if (zone) lines.push(`X-WR-TIMEZONE:${zone}`);
+  if (zone) push(`X-WR-TIMEZONE:${zone}`);
 
   for (const event of events) {
     const start = toIcsUtc(event.utc_start_date);
@@ -232,38 +311,38 @@ export function buildIcsFromEcpEvents(
     // VEVENT without DTSTART is invalid -- skipping it keeps the rest importable.
     if (!start) continue;
 
-    lines.push("BEGIN:VEVENT");
-    lines.push(`UID:${event.id}@conpaws.ecp`);
-    lines.push(`DTSTAMP:${toIcsUtc(event.modified_utc) ?? start}`);
-    lines.push(`DTSTART:${start}`);
-    if (end) lines.push(`DTEND:${end}`);
-    lines.push(`SUMMARY:${escapeText(decodeEntities(event.title))}`);
+    push("BEGIN:VEVENT");
+    push(`UID:${event.id}@conpaws.ecp`);
+    push(`DTSTAMP:${toIcsUtc(event.modified_utc) ?? start}`);
+    push(`DTSTART:${start}`);
+    if (end) push(`DTEND:${end}`);
+    push(`SUMMARY:${escapeText(decodeEntities(event.title))}`);
 
     const venue = event.venue;
     const room =
       venue && !Array.isArray(venue)
         ? (venue as { venue?: string }).venue
         : undefined;
-    if (room) lines.push(`LOCATION:${escapeText(decodeEntities(room))}`);
+    if (room) push(`LOCATION:${escapeText(decodeEntities(room))}`);
 
     const description = htmlToText(event.description);
-    if (description) lines.push(`DESCRIPTION:${escapeText(description)}`);
+    if (description) push(`DESCRIPTION:${escapeText(description)}`);
 
     const categories = (event.categories ?? [])
       .map((category) => category?.name)
       .filter((name): name is string => Boolean(name));
     if (categories.length > 0) {
-      lines.push(
+      push(
         `CATEGORIES:${categories.map((name) => escapeText(name)).join(",")}`,
       );
     }
 
-    if (event.url) lines.push(`URL:${event.url}`);
-    lines.push("END:VEVENT");
+    if (event.url) push(`URL:${event.url}`);
+    push("END:VEVENT");
   }
 
-  lines.push("END:VCALENDAR");
-  return `${lines.map(foldLine).join("\r\n")}\r\n`;
+  push("END:VCALENDAR");
+  return `${lines.join("\r\n")}\r\n`;
 }
 
 /**
@@ -293,7 +372,7 @@ export async function fetchEcpFullSchedule(
       `${endpoint}?per_page=${PER_PAGE}&page=${page}` +
       `&start_date=${START_FLOOR}`;
 
-    const response = await fetch(url, {
+    const response = await fetchStreaming(url, {
       signal: options.signal,
       headers: { Accept: "application/json" },
     });
@@ -301,13 +380,23 @@ export async function fetchEcpFullSchedule(
 
     let payload: { events?: EcpEvent[]; total_pages?: number };
     try {
-      payload = await response.json();
-    } catch {
+      payload = JSON.parse(
+        await readResponseTextWithLimit(response, MAX_PAGE_BYTES),
+      );
+    } catch (error) {
+      if ((error as Error)?.name === "AbortError") throw error;
       return null;
     }
 
     const events = payload?.events;
-    if (!Array.isArray(events)) return null;
+    if (
+      !Array.isArray(events) ||
+      events.length > PER_PAGE ||
+      collected.length + events.length > MAX_EVENTS ||
+      !events.every(isBoundedEvent)
+    ) {
+      return null;
+    }
     collected.push(...events);
 
     // Trust the server's page count only on the first response; re-reading it
@@ -320,7 +409,12 @@ export async function fetchEcpFullSchedule(
   }
 
   if (collected.length === 0) return null;
-  return buildIcsFromEcpEvents(collected, {
-    calendarName: options.calendarName,
-  });
+  try {
+    return buildIcsFromEcpEvents(collected, {
+      calendarName: options.calendarName,
+    });
+  } catch (error) {
+    if ((error as Error)?.name === "AbortError") throw error;
+    return null;
+  }
 }

@@ -50,6 +50,7 @@ import {
   fetchScheduleIcs,
   InvalidResponseError,
   InvalidScheduleUrlError,
+  MAX_ICS_BYTES,
   NetworkError,
   reversedSchedSuggestion,
   ScheduleFetchCancelledError,
@@ -345,7 +346,17 @@ export default function ImportScreen() {
             message: t("import.errors.fileType"),
           });
         } else {
-          const content = await new File(file.uri).text();
+          const pickedFile = new File(file.uri);
+          const actualBytes = pickedFile.size;
+          if (
+            actualBytes === null ||
+            !Number.isFinite(actualBytes) ||
+            actualBytes < 0 ||
+            actualBytes > MAX_ICS_BYTES
+          ) {
+            throw new ScheduleTooLargeError(actualBytes ?? MAX_ICS_BYTES + 1);
+          }
+          const content = await pickedFile.text();
           if (isCurrentRequest(generation)) {
             processIcs(
               content,
