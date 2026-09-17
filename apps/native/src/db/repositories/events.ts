@@ -151,10 +151,6 @@ function byStartTimeThenId(
   );
 }
 
-function sameSeries(sourceUid: string, baseUid: string): boolean {
-  return sourceUid === baseUid || sourceUid.startsWith(`${baseUid}|`);
-}
-
 export function planSourceReconciliation(
   existing: ConventionEvent[],
   events: SourceEventInput[],
@@ -223,6 +219,29 @@ export function planSourceReconciliation(
         event.sourceUid !== null,
     )
     .sort(byStartTimeThenId);
+  const sourceRowsByUid = new Map<string, typeof sourceRows>();
+  const sourceRowsBySeries = new Map<string, typeof sourceRows>();
+  function addIndexedRow(
+    index: Map<string, typeof sourceRows>,
+    key: string,
+    event: (typeof sourceRows)[number],
+  ): void {
+    const rows = index.get(key);
+    if (rows) rows.push(event);
+    else index.set(key, [event]);
+  }
+  for (const event of sourceRows) {
+    addIndexedRow(sourceRowsByUid, event.sourceUid, event);
+    addIndexedRow(sourceRowsBySeries, event.sourceUid, event);
+    for (let separator = event.sourceUid.indexOf("|"); separator >= 0; ) {
+      addIndexedRow(
+        sourceRowsBySeries,
+        event.sourceUid.slice(0, separator),
+        event,
+      );
+      separator = event.sourceUid.indexOf("|", separator + 1);
+    }
+  }
   const inserts: SourceEventInput[] = [];
   const updates: PlannedUpdate[] = [];
   const identityUpdates: PlannedIdentityUpdate[] = [];
@@ -258,17 +277,24 @@ export function planSourceReconciliation(
     const hasSeriesTombstone = Array.from(group.cancelled.values()).some(
       (identity) => identity.legacySourceUid === null,
     );
-    const groupExisting = sourceRows.filter(
-      (event) =>
-        event.sourceUid === group.baseUid ||
-        knownSourceUids.has(event.sourceUid) ||
-        (hasSeriesTombstone && sameSeries(event.sourceUid, group.baseUid)),
+    const groupExistingById = new Map<string, (typeof sourceRows)[number]>();
+    for (const sourceUid of new Set([group.baseUid, ...knownSourceUids])) {
+      for (const event of sourceRowsByUid.get(sourceUid) ?? []) {
+        groupExistingById.set(event.id, event);
+      }
+    }
+    if (hasSeriesTombstone) {
+      for (const event of sourceRowsBySeries.get(group.baseUid) ?? []) {
+        groupExistingById.set(event.id, event);
+      }
+    }
+    const groupExisting = Array.from(groupExistingById.values()).sort(
+      byStartTimeThenId,
     );
 
     if (hasSeriesTombstone) {
-      for (const event of sourceRows) {
-        if (sameSeries(event.sourceUid, group.baseUid))
-          addRemoval(event, "cancelled");
+      for (const event of sourceRowsBySeries.get(group.baseUid) ?? []) {
+        addRemoval(event, "cancelled");
       }
       continue;
     }
@@ -374,10 +400,8 @@ export function planSourceReconciliation(
 
     if (ambiguous) {
       unresolvedSeries.push(group.baseUid);
-      for (const event of sourceRows) {
-        if (sameSeries(event.sourceUid, group.baseUid)) {
-          protectedIds.add(event.id);
-        }
+      for (const event of sourceRowsBySeries.get(group.baseUid) ?? []) {
+        protectedIds.add(event.id);
       }
       continue;
     }

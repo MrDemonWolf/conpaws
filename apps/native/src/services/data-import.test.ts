@@ -6,12 +6,16 @@ const documentPicker = vi.hoisted(() => ({
 
 /** Stands in for the one `File(uri).text()` call `pickBackupFile` makes. */
 const readFileText = vi.hoisted(() => vi.fn(async (_uri: string) => ""));
+const fileSizes = vi.hoisted(() => new Map<string, number | null>());
 
 vi.mock("@/db", () => ({ db: {} }));
 vi.mock("expo-document-picker", () => documentPicker);
 vi.mock("expo-file-system", () => ({
   File: class {
     constructor(readonly uri: string) {}
+    get size() {
+      return fileSizes.get(this.uri) ?? null;
+    }
     text() {
       return readFileText(this.uri);
     }
@@ -494,7 +498,12 @@ describe("convention row validation", () => {
 });
 
 describe("picking a backup file", () => {
-  function picked(uri = "file:///backup.json", size?: number) {
+  function picked(
+    uri = "file:///backup.json",
+    size?: number,
+    actualSize: number | null = size ?? 0,
+  ) {
+    fileSizes.set(uri, actualSize);
     documentPicker.getDocumentAsync.mockResolvedValueOnce({
       canceled: false,
       assets: [
@@ -506,6 +515,7 @@ describe("picking a backup file", () => {
   beforeEach(() => {
     documentPicker.getDocumentAsync.mockReset();
     readFileText.mockReset();
+    fileSizes.clear();
   });
 
   it("treats a closed picker as its own outcome, not a failure", async () => {
@@ -533,16 +543,25 @@ describe("picking a backup file", () => {
     expect(readFileText).not.toHaveBeenCalled();
   });
 
-  it("still refuses oversized content when the picker reports no size", async () => {
-    const content = "x".repeat(MAX_BACKUP_BYTES + 1);
-    picked();
-    readFileText.mockResolvedValueOnce(content);
+  it("uses the actual file size when picker metadata is absent", async () => {
+    picked("file:///huge.json", undefined, MAX_BACKUP_BYTES + 1);
 
     await expect(pickBackupFile()).resolves.toEqual({
       ok: false,
       code: "file-too-large",
-      detail: { bytes: content.length, limit: MAX_BACKUP_BYTES },
+      detail: { bytes: MAX_BACKUP_BYTES + 1, limit: MAX_BACKUP_BYTES },
     });
+    expect(readFileText).not.toHaveBeenCalled();
+  });
+
+  it("uses the actual file size when picker metadata understates it", async () => {
+    picked("file:///huge.json", 1, MAX_BACKUP_BYTES + 1);
+
+    await expect(pickBackupFile()).resolves.toMatchObject({
+      ok: false,
+      code: "file-too-large",
+    });
+    expect(readFileText).not.toHaveBeenCalled();
   });
 
   it("reads a file exactly on the byte ceiling", async () => {

@@ -2,7 +2,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  CalendarTooLargeError,
   type CategoryMeta,
+  MAX_ICS_EVENTS,
   type ParsedEvent,
   type ParseResult,
   parseIcs,
@@ -626,5 +628,36 @@ END:VCALENDAR`;
     expect(result.events).toHaveLength(1);
     expect(({} as Record<string, unknown>).polluted).toBeUndefined();
     expect(Object.hasOwn({}, "__proto__")).toBe(false);
+  });
+
+  it("rejects calendars above the event ceiling", () => {
+    const events = Array.from(
+      { length: MAX_ICS_EVENTS + 1 },
+      (_, index) => `BEGIN:VEVENT
+UID:${index}
+DTSTART:20260612T160000Z
+SUMMARY:Event ${index}
+END:VEVENT`,
+    ).join("\n");
+
+    expect(() =>
+      parseIcs(`BEGIN:VCALENDAR\n${events}\nEND:VCALENDAR`, {
+        timeZone: "UTC",
+      }),
+    ).toThrow(CalendarTooLargeError);
+  });
+
+  it("rejects an oversized stored field before decoding it", () => {
+    const ics = `BEGIN:VCALENDAR
+BEGIN:VEVENT
+UID:oversized
+DTSTART:20260612T160000Z
+SUMMARY:${"x".repeat(1_001)}
+END:VEVENT
+END:VCALENDAR`;
+
+    expect(() => parseIcs(ics, { timeZone: "UTC" })).toThrow(
+      CalendarTooLargeError,
+    );
   });
 });

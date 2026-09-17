@@ -509,18 +509,35 @@ export async function pickBackupFile(): Promise<BackupPickOutcome> {
   const file = picked.assets[0];
   if (!file) return fail("unreadable");
 
-  // The picker accepts any file on the device, so the size is checked before
-  // the contents are pulled into a string and parsed again into objects.
-  if (typeof file.size === "number" && file.size > MAX_BACKUP_BYTES) {
+  let cachedFile: File;
+  let actualBytes: number | null;
+  try {
+    cachedFile = new File(file.uri);
+    actualBytes = cachedFile.size;
+  } catch (error) {
+    reportError(error, { scope: "data-import.stat" });
+    return fail("unreadable");
+  }
+
+  // Picker metadata is optional and can be stale. The cached file is the value
+  // we will actually read, so its filesystem size owns this boundary.
+  if (
+    actualBytes === null ||
+    !Number.isFinite(actualBytes) ||
+    actualBytes < 0
+  ) {
+    return fail("unreadable");
+  }
+  if (actualBytes > MAX_BACKUP_BYTES) {
     return fail("file-too-large", {
-      bytes: file.size,
+      bytes: actualBytes,
       limit: MAX_BACKUP_BYTES,
     });
   }
 
   let content: string;
   try {
-    content = await new File(file.uri).text();
+    content = await cachedFile.text();
   } catch (error) {
     reportError(error, { scope: "data-import.read" });
     return fail("unreadable");
