@@ -3,6 +3,12 @@ import Foundation
 import WatchConnectivity
 import WidgetKit
 
+enum WatchPlanEditError: Error {
+  case unavailable
+  case invalidInterval
+  case rejected
+}
+
 final class WatchScheduleStore: NSObject, ObservableObject {
   /// How far behind the stored snapshot a candidate may be stamped before it
   /// reads as a clock correction rather than a delivery that arrived late.
@@ -43,6 +49,61 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     guard WCSession.isSupported() else { return }
     WCSession.default.delegate = self
     WCSession.default.activate()
+  }
+
+  /// Ask the phone to move an explicit personal leave time by five minutes.
+  ///
+  /// This deliberately uses `sendMessage` instead of queuing a background
+  /// transfer: the Watch must not say an edit was saved until SQLite has
+  /// accepted it and a fresh shared snapshot has been published on the phone.
+  func extendLeaveTime(
+    conventionID: String,
+    event: ConPawsEventSnapshot,
+    by interval: TimeInterval = 300,
+    completion: @escaping (Result<Date, Error>) -> Void
+  ) {
+    guard
+      event.hasPersonalEnd,
+      let currentEnd = event.plannedEndDate,
+      let publishedEnd = event.endAtMs.map({ Date(timeIntervalSince1970: $0 / 1_000) }),
+      interval > 0,
+      currentEnd.addingTimeInterval(interval) <= publishedEnd
+    else {
+      completion(.failure(WatchPlanEditError.invalidInterval))
+      return
+    }
+
+    let session = WCSession.default
+    guard session.activationState == .activated, session.isReachable else {
+      completion(.failure(WatchPlanEditError.unavailable))
+      return
+    }
+
+    let requestedEnd = currentEnd.addingTimeInterval(interval)
+    session.sendMessage(
+      [
+        "type": "conpaws.watch.leave-update.v1",
+        "requestId": UUID().uuidString,
+        "conventionId": conventionID,
+        "eventId": event.id,
+        "expectedEndAtMs": currentEnd.timeIntervalSince1970 * 1_000,
+        "newEndAtMs": requestedEnd.timeIntervalSince1970 * 1_000,
+      ],
+      replyHandler: { reply in
+        DispatchQueue.main.async {
+          if reply["ok"] as? Bool == true {
+            completion(.success(requestedEnd))
+          } else {
+            completion(.failure(WatchPlanEditError.rejected))
+          }
+        }
+      },
+      errorHandler: { error in
+        DispatchQueue.main.async {
+          completion(.failure(error))
+        }
+      }
+    )
   }
 
   private func receive(_ payload: [String: Any]) {
@@ -115,10 +176,17 @@ final class WatchScheduleStore: NSObject, ObservableObject {
         && TimeZone(identifier: convention.timeZoneIdentifier) != nil
         && Set(eventIDs).count == eventIDs.count
         && convention.events.allSatisfy { event in
-          !event.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          let attendanceStart = event.attendanceStartAtMs ?? event.startAtMs
+          return !event.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && event.startAtMs.isFinite
             && (event.endAtMs.map { $0.isFinite && $0 >= event.startAtMs } ?? true)
+            && attendanceStart.isFinite
+            && (
+              event.attendanceEndAtMs.map {
+                $0.isFinite && $0 >= attendanceStart
+              } ?? true
+            )
             && (event.reminderMinutes.map { $0 >= 0 } ?? true)
         }
     }

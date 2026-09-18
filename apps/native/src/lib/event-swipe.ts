@@ -6,11 +6,15 @@
  * cannot be "added". Encoding it here keeps the row component free of the
  * decision and gives the rule a test.
  */
-export function eventSwipeSides(isInSchedule: boolean): {
+export function eventSwipeSides(
+  isInSchedule: boolean,
+  canAdd = true,
+): {
   leading: "add" | null;
   trailing: "remove" | null;
 } {
-  return isInSchedule
-    ? { leading: null, trailing: "remove" }
-    : { leading: "add", trailing: null };
+  if (isInSchedule) return { leading: null, trailing: "remove" };
+  return canAdd
+    ? { leading: "add", trailing: null }
+    : { leading: null, trailing: null };
 }

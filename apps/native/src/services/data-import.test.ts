@@ -65,6 +65,9 @@ function eventRow(overrides: Record<string, unknown> = {}) {
     category: "Convention Services",
     type: null,
     isInSchedule: true,
+    isInterested: true,
+    personalStartTime: "2026-08-21T15:10:00.000Z",
+    personalEndTime: "2026-08-21T15:45:00.000Z",
     reminderMinutes: 15,
     sourceUid: "opening-event",
     sourceUrl: null,
@@ -176,6 +179,10 @@ describe("backup import planning", () => {
     expect(first.events[0]).toMatchObject({
       id: "event-export-id",
       conventionId: "convention-export-id",
+      isInSchedule: true,
+      isInterested: true,
+      personalStartTime: "2026-08-21T15:10:00.000Z",
+      personalEndTime: "2026-08-21T15:45:00.000Z",
       reminderMinutes: null,
     });
 
@@ -190,6 +197,28 @@ describe("backup import planning", () => {
     expect(second.events).toEqual([]);
     expect(second.result.skipped).toBe(2);
     expect(second.result.reasons.duplicate).toBe(2);
+  });
+
+  it("defaults new plan fields when restoring an older backup", () => {
+    const {
+      isInterested: _interest,
+      personalStartTime: _personalStart,
+      personalEndTime: _personalEnd,
+      ...oldEvent
+    } = eventRow();
+    const plan = planDataImport(
+      envelope([conventionRow()], [oldEvent]),
+      new Set(),
+      new Set(),
+      NOW,
+    );
+
+    expect(plan.events[0]).toMatchObject({
+      isInSchedule: true,
+      isInterested: false,
+      personalStartTime: null,
+      personalEndTime: null,
+    });
   });
 
   it("skips the event whose startTime cannot be parsed and keeps the rest", () => {
@@ -242,6 +271,18 @@ describe("backup import planning", () => {
     expect(plan.result.reasons["invalid-date"]).toBe(1);
   });
 
+  it("skips an event whose personal attendance time is unparseable", () => {
+    const plan = planDataImport(
+      envelope([conventionRow()], [eventRow({ personalStartTime: "later" })]),
+      new Set(),
+      new Set(),
+      NOW,
+    );
+
+    expect(plan.events).toEqual([]);
+    expect(plan.result.reasons["invalid-date"]).toBe(1);
+  });
+
   it("rejects type confusion in either direction", () => {
     const plan = planDataImport(
       envelope(
@@ -268,6 +309,7 @@ describe("backup import planning", () => {
     // default, not an identity, so a bad value falls back to false.
     expect(plan.events.map((event) => event.id)).toEqual(["string-flag"]);
     expect(plan.events[0].isInSchedule).toBe(false);
+    expect(plan.events[0].isInterested).toBe(true);
     expect(plan.result.reasons.malformed).toBe(5);
   });
 

@@ -143,6 +143,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "com.apple.security.application-groups": [`group.${getBundleId()}`],
     },
     infoPlist: {
+      NSSupportsLiveActivities: true,
       // Which variant produced this binary, readable from the built artifact.
       //
       // preview and production share a bundle identifier and an icon

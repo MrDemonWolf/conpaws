@@ -1,6 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import { describe, expect, it } from "vitest";
-import { initializeDatabase, MIGRATION_1_SQL } from "./bootstrap";
+import {
+  initializeDatabase,
+  LATEST_SCHEMA_VERSION,
+  MIGRATION_1_SQL,
+} from "./bootstrap";
 
 function migrationAdapter(database: DatabaseSync) {
   return {
@@ -38,7 +42,7 @@ describe("database bootstrap", () => {
     const version = database.prepare("PRAGMA user_version").get();
 
     expect(eventCount).toEqual({ count: 0 });
-    expect(version).toEqual({ user_version: 6 });
+    expect(version).toEqual({ user_version: LATEST_SCHEMA_VERSION });
     database.close();
   });
 
@@ -88,6 +92,43 @@ describe("database bootstrap", () => {
     database.close();
   });
 
+  it("adds independent plan fields without changing an existing plan", () => {
+    const database = new DatabaseSync(":memory:");
+    database.exec(MIGRATION_1_SQL);
+    database.exec(`
+      INSERT INTO conventions (id, name, start_date, end_date)
+      VALUES ('con-1', 'Con', '2026-01-01', '2026-01-02');
+      INSERT INTO convention_events (
+        id, convention_id, title, start_time, is_in_schedule, reminder_minutes
+      ) VALUES (
+        'event-1', 'con-1', 'Opening', '2026-01-01T15:00:00Z', 1, 15
+      );
+    `);
+
+    initializeDatabase(migrationAdapter(database));
+    initializeDatabase(migrationAdapter(database));
+
+    expect(
+      database
+        .prepare(
+          `SELECT is_in_schedule, reminder_minutes, is_interested,
+                  personal_start_time, personal_end_time
+             FROM convention_events WHERE id = ?`,
+        )
+        .get("event-1"),
+    ).toEqual({
+      is_in_schedule: 1,
+      reminder_minutes: 15,
+      is_interested: 0,
+      personal_start_time: null,
+      personal_end_time: null,
+    });
+    expect(database.prepare("PRAGMA user_version").get()).toEqual({
+      user_version: LATEST_SCHEMA_VERSION,
+    });
+    database.close();
+  });
+
   it("repairs an interrupted v3 migration without retrying ADD COLUMN", () => {
     const database = new DatabaseSync(":memory:");
     database.exec(MIGRATION_1_SQL);
@@ -103,7 +144,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 6,
+      user_version: LATEST_SCHEMA_VERSION,
     });
     expect(
       database
@@ -130,7 +171,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 6,
+      user_version: LATEST_SCHEMA_VERSION,
     });
     expect(
       database
@@ -150,25 +191,48 @@ describe("database bootstrap", () => {
   // v2 and v3 already have interrupted-repair coverage above; these complete
   // the matrix so every rung of the ladder proves the same recovery property.
   it.each([
-    { column: "archived_at", table: "conventions" },
-    { column: "age_rating", table: "convention_events" },
-    { column: "feed_status", table: "convention_events" },
+    { column: "archived_at", table: "conventions", definition: "TEXT" },
+    {
+      column: "age_rating",
+      table: "convention_events",
+      definition: "TEXT",
+    },
+    {
+      column: "feed_status",
+      table: "convention_events",
+      definition: "TEXT",
+    },
+    {
+      column: "is_interested",
+      table: "convention_events",
+      definition: "INTEGER NOT NULL DEFAULT 0",
+    },
+    {
+      column: "personal_start_time",
+      table: "convention_events",
+      definition: "TEXT",
+    },
+    {
+      column: "personal_end_time",
+      table: "convention_events",
+      definition: "TEXT",
+    },
   ])(
     "repairs an interrupted $column migration without retrying ADD COLUMN",
-    ({ column, table }) => {
+    ({ column, table, definition }) => {
       const database = new DatabaseSync(":memory:");
       database.exec(MIGRATION_1_SQL);
       database.exec(`
         INSERT INTO conventions (id, name, start_date, end_date)
         VALUES ('legacy-con', 'Legacy Con', '2026-01-01', '2026-01-02');
-        ALTER TABLE ${table} ADD COLUMN ${column} TEXT;
+        ALTER TABLE ${table} ADD COLUMN ${column} ${definition};
       `);
 
       initializeDatabase(migrationAdapter(database));
       initializeDatabase(migrationAdapter(database));
 
       expect(database.prepare("PRAGMA user_version").get()).toEqual({
-        user_version: 6,
+        user_version: LATEST_SCHEMA_VERSION,
       });
       expect(
         database

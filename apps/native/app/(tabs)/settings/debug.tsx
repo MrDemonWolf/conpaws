@@ -5,7 +5,7 @@ import Constants from "expo-constants";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, AppState, Linking } from "react-native";
+import { Alert, AppState, Linking, Platform } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
@@ -32,11 +32,73 @@ import {
   hapticToggle,
 } from "@/services/haptics";
 import {
+  endLiveActivity,
+  startOrUpdateLiveActivity,
+} from "@/services/live-activity";
+import {
   cancelTestNotifications,
   getNotificationPermissionStatus,
   type PermissionStatus,
+  requestNotificationPermission,
   scheduleTestNotification,
 } from "@/services/notifications";
+import {
+  publishWidgetSnapshotValue,
+  type WidgetSnapshot,
+} from "@/services/widget-snapshot";
+
+const MINUTE_MS = 60_000;
+const DAY_MS = 24 * 60 * MINUTE_MS;
+
+function buildPlanSurfacePreview(nowMs = Date.now()): WidgetSnapshot {
+  const currentMinute = Math.floor(nowMs / MINUTE_MS) * MINUTE_MS;
+  const timeZoneIdentifier =
+    Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+  return {
+    schemaVersion: 3,
+    generatedAtMs: currentMinute,
+    localeIdentifier: "en",
+    conventions: [
+      {
+        id: PREVIEW_CONVENTION_ID,
+        name: "ConPaws Surface Preview",
+        startAtMs: currentMinute - DAY_MS,
+        endAtMs: currentMinute + DAY_MS,
+        timeZoneIdentifier,
+        dateRangeLabel: "Developer preview · today",
+        events: [
+          {
+            id: "conpaws-preview-event-1",
+            title: "Fursuit photography",
+            startAtMs: currentMinute - 45 * MINUTE_MS,
+            endAtMs: currentMinute + 30 * MINUTE_MS,
+            attendanceStartAtMs: currentMinute - 18 * MINUTE_MS,
+            attendanceEndAtMs: currentMinute + 7 * MINUTE_MS,
+            attendanceNeedsReview: false,
+            location: "Convention Center",
+            room: "Ballroom A",
+            reminderMinutes: null,
+            ageRating: null,
+          },
+          {
+            id: "conpaws-preview-event-2",
+            title: "Character design lab",
+            startAtMs: currentMinute - 5 * MINUTE_MS,
+            endAtMs: currentMinute + 85 * MINUTE_MS,
+            attendanceStartAtMs: currentMinute + 17 * MINUTE_MS,
+            attendanceEndAtMs: currentMinute + 62 * MINUTE_MS,
+            attendanceNeedsReview: false,
+            location: "Convention Center",
+            room: "Cedar",
+            reminderMinutes: null,
+            ageRating: null,
+          },
+        ],
+      },
+    ],
+  };
+}
 
 export default function DebugScreen() {
   const queryClient = useQueryClient();
@@ -46,6 +108,9 @@ export default function DebugScreen() {
   >(null);
   const [notificationPermission, setNotificationPermission] =
     useState<PermissionStatus>("undetermined");
+  const [surfaceAction, setSurfaceAction] = useState<
+    "publish" | "start" | "stop" | null
+  >(null);
   const presentationLock = useRef(0);
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
@@ -178,6 +243,66 @@ export default function DebugScreen() {
       .finally(() => setNotificationAction(null));
   }
 
+  async function runSurfaceAction(action: "publish" | "start" | "stop") {
+    if (surfaceAction !== null) return;
+    setSurfaceAction(action);
+    try {
+      if (action === "stop") {
+        const status = await endLiveActivity(false);
+        Alert.alert(
+          "Plan surface stopped",
+          status.availability === "unsupported"
+            ? "This native build does not include the plan surface module."
+            : "The Live Activity or Android plan notification was removed.",
+        );
+        return;
+      }
+
+      const snapshot = buildPlanSurfacePreview();
+      if (action === "publish") {
+        const published = await publishWidgetSnapshotValue(snapshot);
+        Alert.alert(
+          published ? "Preview published" : "Preview unavailable",
+          published
+            ? "Widget, Watch, and complication timelines received a current panel, a seven-minute leave cue, and a late-join next panel."
+            : "This native build does not include the widget snapshot module.",
+        );
+        return;
+      }
+
+      if (Platform.OS === "android") {
+        const permission = await requestNotificationPermission();
+        setNotificationPermission(permission);
+        if (permission !== "granted") {
+          Alert.alert(
+            "Notifications are off",
+            "Allow notifications in System Settings, then try again.",
+          );
+          return;
+        }
+      }
+      const status = await startOrUpdateLiveActivity(
+        snapshot,
+        snapshot.generatedAtMs,
+      );
+      Alert.alert(
+        status.active ? "Plan surface started" : "Plan surface unavailable",
+        status.active
+          ? Platform.OS === "android"
+            ? "An ordinary ongoing notification now shows the current and next stops."
+            : "The Live Activity now shows the current and next stops."
+          : `Availability: ${status.availability}${status.reason ? ` · ${status.reason}` : ""}`,
+      );
+    } catch {
+      Alert.alert(
+        "Plan surface could not update",
+        "The preview was not changed. Check this native build and try again.",
+      );
+    } finally {
+      setSurfaceAction(null);
+    }
+  }
+
   return (
     <Host
       colorScheme={resolvedColorScheme}
@@ -296,6 +421,52 @@ export default function DebugScreen() {
           ) : null}
         </FieldGroup.Section>
 
+        <FieldGroup.Section
+          title="Plan surfaces"
+          disabled={surfaceAction !== null}
+        >
+          <ListItem supportingText="Uses a now-relative current stop, a leave cue in seven minutes, and a next stop with a planned late join. This does not change the saved phone plan.">
+            Native surface preview
+          </ListItem>
+          <NativeButton
+            label={
+              surfaceAction === "publish"
+                ? "Publishing Preview"
+                : "Preview Widget & Watch"
+            }
+            onPress={() => void runSurfaceAction("publish")}
+            disabled={surfaceAction !== null}
+            testID="debug-preview-widget-watch"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label={
+              surfaceAction === "start"
+                ? "Starting Plan Surface"
+                : Platform.OS === "android"
+                  ? "Preview Ongoing Notification"
+                  : "Preview Live Activity"
+            }
+            variant="outlined"
+            onPress={() => void runSurfaceAction("start")}
+            disabled={surfaceAction !== null}
+            testID="debug-preview-plan-surface"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label={
+              surfaceAction === "stop"
+                ? "Stopping Plan Surface"
+                : "Stop Plan Surface"
+            }
+            variant="text"
+            onPress={() => void runSurfaceAction("stop")}
+            disabled={surfaceAction !== null}
+            testID="debug-stop-plan-surface"
+            style={{ height: 44 }}
+          />
+        </FieldGroup.Section>
+
         <FieldGroup.Section title="Onboarding">
           <ListItem supportingText="Your conventions and settings stay unchanged.">
             Replay the first-run experience
@@ -316,13 +487,43 @@ export default function DebugScreen() {
             label={
               isLoadingPreview
                 ? "Loading Preview Cons"
-                : "Preview Content State"
+                : "Preview Busy Schedule"
             }
             onPress={() =>
               void loadPreviewConvention(PREVIEW_CONVENTION_ID, "content")
             }
             disabled={isLoadingPreview}
             testID="debug-load-preview-con"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Preview My Plan"
+            onPress={() =>
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "plan")
+            }
+            variant="outlined"
+            disabled={isLoadingPreview}
+            testID="debug-preview-plan"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Preview Interested"
+            onPress={() =>
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "interested")
+            }
+            variant="outlined"
+            disabled={isLoadingPreview}
+            testID="debug-preview-interested"
+            style={{ height: 44 }}
+          />
+          <NativeButton
+            label="Preview Now & Next"
+            onPress={() =>
+              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "now-next")
+            }
+            variant="outlined"
+            disabled={isLoadingPreview}
+            testID="debug-preview-now-next"
             style={{ height: 44 }}
           />
           <NativeButton

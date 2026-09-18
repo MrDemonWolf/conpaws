@@ -308,6 +308,8 @@ export function validateEventRow(
   const room = optionalString(row, "room");
   const category = optionalString(row, "category");
   const type = optionalString(row, "type");
+  const personalStartTime = optionalString(row, "personalStartTime");
+  const personalEndTime = optionalString(row, "personalEndTime");
   const sourceUid = optionalString(row, "sourceUid");
   const sourceUrl = optionalString(row, "sourceUrl");
   if (
@@ -316,6 +318,8 @@ export function validateEventRow(
     room === undefined ||
     category === undefined ||
     type === undefined ||
+    personalStartTime === undefined ||
+    personalEndTime === undefined ||
     sourceUid === undefined ||
     sourceUrl === undefined
   ) {
@@ -334,6 +338,12 @@ export function validateEventRow(
   if (endTime !== null && !isUsableInstant(endTime)) {
     return { reason: "invalid-date" };
   }
+  if (
+    (personalStartTime !== null && !isUsableInstant(personalStartTime)) ||
+    (personalEndTime !== null && !isUsableInstant(personalEndTime))
+  ) {
+    return { reason: "invalid-date" };
+  }
 
   return {
     row: {
@@ -348,6 +358,9 @@ export function validateEventRow(
       category,
       type,
       isInSchedule: optionalBoolean(row, "isInSchedule"),
+      isInterested: optionalBoolean(row, "isInterested"),
+      personalStartTime,
+      personalEndTime,
       // A restored reminder must be explicitly re-enabled so the OS schedule
       // matches SQLite.
       reminderMinutes: null,
@@ -445,7 +458,7 @@ export function chunkRows<T>(rows: readonly T[], columns: number): T[][] {
 }
 
 const CONVENTION_COLUMNS = 11;
-const EVENT_COLUMNS = 19;
+const EVENT_COLUMNS = 23;
 
 export async function importData(
   envelope: BackupEnvelope,

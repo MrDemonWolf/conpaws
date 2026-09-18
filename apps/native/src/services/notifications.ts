@@ -2,9 +2,13 @@ import * as ExpoNotifications from "expo-notifications";
 import i18n from "i18next";
 import { Platform } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
+import { attendanceInterval } from "@/lib/personal-schedule";
 
 const REMINDER_CHANNEL_ID = "event-reminders";
 const REMINDER_IDENTIFIER_PREFIX = "reminder-";
+const LEAVE_IDENTIFIER_PREFIX = "leave-";
+const OVERLAP_IDENTIFIER_PREFIX = "overlap-";
+const SCHEDULE_CHANGE_IDENTIFIER_PREFIX = "schedule-change-";
 const TEST_NOTIFICATION_IDENTIFIER_PREFIX = "developer-test-";
 
 // iOS keeps only the 64 soonest pending local notifications and silently
@@ -94,8 +98,16 @@ interface EventForReminder {
   id: string;
   title: string;
   startTime: string; // ISO string
+  endTime?: string | null;
+  personalStartTime?: string | null;
+  personalEndTime?: string | null;
   room: string | null;
   conventionId?: string | null;
+}
+
+interface PlannedEventForNotification extends EventForReminder {
+  isInSchedule: boolean;
+  feedStatus?: string | null;
 }
 
 interface ReminderNotificationContent {
@@ -114,23 +126,169 @@ function reminderNotificationContent(
   override?: ReminderNotificationContent,
 ): ReminderNotificationContent {
   if (override) return override;
+  const isLateJoin = reminderStart(event).isPersonal;
   if (!i18n.isInitialized) {
     return {
-      title: `Time to leave for ${event.title}`,
+      title: isLateJoin
+        ? `Join ${event.title} soon`
+        : `${event.title} starts soon`,
       body: event.room
-        ? `Starts in ${minutesBefore} min · ${event.room}`
-        : `Starts in ${minutesBefore} min`,
+        ? `${isLateJoin ? "Join" : "Starts"} in ${minutesBefore} min · ${event.room}`
+        : `${isLateJoin ? "Join" : "Starts"} in ${minutesBefore} min`,
     };
   }
   return {
-    title: i18n.t("reminders.notificationTitle", { event: event.title }),
+    title: i18n.t(
+      isLateJoin
+        ? "reminders.joinNotificationTitle"
+        : "reminders.startNotificationTitle",
+      { event: event.title },
+    ),
     body: i18n.t(
-      event.room
-        ? "reminders.notificationBodyWithRoom"
-        : "reminders.notificationBody",
+      isLateJoin
+        ? event.room
+          ? "reminders.joinNotificationBodyWithRoom"
+          : "reminders.joinNotificationBody"
+        : event.room
+          ? "reminders.startNotificationBodyWithRoom"
+          : "reminders.startNotificationBody",
       { minutes: minutesBefore, room: event.room },
     ),
   };
+}
+
+function reminderStart(event: EventForReminder): {
+  startTime: string;
+  isPersonal: boolean;
+} {
+  const interval = attendanceInterval({
+    startTime: event.startTime,
+    endTime: event.endTime ?? null,
+    personalStartTime: event.personalStartTime,
+    personalEndTime: event.personalEndTime,
+  });
+  const publishedMs = Date.parse(event.startTime);
+  const effectiveMs = Date.parse(interval.startTime);
+  return {
+    startTime: interval.startTime,
+    isPersonal:
+      !interval.needsReview &&
+      event.personalStartTime != null &&
+      Number.isFinite(publishedMs) &&
+      Number.isFinite(effectiveMs) &&
+      effectiveMs !== publishedMs,
+  };
+}
+
+function reminderTriggerMs(
+  event: EventForReminder,
+  minutesBefore: number,
+): number {
+  return Date.parse(reminderStart(event).startTime) - minutesBefore * 60 * 1000;
+}
+
+interface PlanNotificationRequest {
+  identifier: string;
+  triggerMs: number;
+  content: ReminderNotificationContent;
+  data: Record<string, unknown>;
+}
+
+function effectiveStartMs(event: EventForReminder): number {
+  return Date.parse(
+    attendanceInterval({
+      startTime: event.startTime,
+      endTime: event.endTime ?? null,
+      personalStartTime: event.personalStartTime,
+      personalEndTime: event.personalEndTime,
+    }).startTime,
+  );
+}
+
+function leaveNotificationContent(
+  event: EventForReminder,
+  next?: EventForReminder,
+): ReminderNotificationContent {
+  if (!i18n.isInitialized) {
+    return {
+      title: "Your leave time is now",
+      body: next
+        ? `You planned to leave ${event.title} now. Next: ${next.title}${next.room ? ` · ${next.room}` : ""}`
+        : `You planned to leave ${event.title} now.`,
+    };
+  }
+  return {
+    title: i18n.t("reminders.leaveNotificationTitle"),
+    body: next
+      ? i18n.t(
+          next.room
+            ? "reminders.leaveNotificationBodyWithNextRoom"
+            : "reminders.leaveNotificationBodyWithNext",
+          { event: event.title, nextEvent: next.title, room: next.room },
+        )
+      : i18n.t("reminders.leaveNotificationBody", { event: event.title }),
+  };
+}
+
+/** Build one leave request per explicit chosen leave time. */
+export function buildPlanNotificationRequests(
+  events: readonly PlannedEventForNotification[],
+  now = Date.now(),
+): PlanNotificationRequest[] {
+  const planned = events.filter(
+    (event) => event.isInSchedule && event.feedStatus == null,
+  );
+  const requests: PlanNotificationRequest[] = [];
+
+  for (const event of planned) {
+    if (event.personalEndTime === null || event.personalEndTime === undefined)
+      continue;
+    const interval = attendanceInterval({
+      startTime: event.startTime,
+      endTime: event.endTime ?? null,
+      personalStartTime: event.personalStartTime,
+      personalEndTime: event.personalEndTime,
+    });
+    const triggerMs = Date.parse(event.personalEndTime);
+    if (interval.needsReview || !Number.isFinite(triggerMs) || triggerMs <= now)
+      continue;
+    const next = planned
+      .filter(
+        (candidate) =>
+          candidate.id !== event.id && effectiveStartMs(candidate) >= triggerMs,
+      )
+      .sort(
+        (left, right) => effectiveStartMs(left) - effectiveStartMs(right),
+      )[0];
+    requests.push({
+      identifier: `${LEAVE_IDENTIFIER_PREFIX}${event.id}`,
+      triggerMs,
+      content: leaveNotificationContent(event, next),
+      data: {
+        kind: "leave-reminder",
+        eventId: event.id,
+        conventionId: event.conventionId ?? null,
+      },
+    });
+  }
+
+  return requests;
+}
+
+async function schedulePlanNotificationRequest(
+  request: PlanNotificationRequest,
+): Promise<string | null> {
+  if (request.triggerMs <= Date.now()) return null;
+  await ExpoNotifications.scheduleNotificationAsync({
+    identifier: request.identifier,
+    content: { ...request.content, sound: true, data: request.data },
+    trigger: {
+      type: ExpoNotifications.SchedulableTriggerInputTypes.DATE,
+      date: new Date(request.triggerMs),
+      channelId: REMINDER_CHANNEL_ID,
+    },
+  });
+  return request.identifier;
 }
 
 /**
@@ -143,8 +301,7 @@ async function scheduleReminderRequest(
   minutesBefore: number,
   override?: ReminderNotificationContent,
 ): Promise<string | null> {
-  const triggerMs =
-    new Date(event.startTime).getTime() - minutesBefore * 60 * 1000;
+  const triggerMs = reminderTriggerMs(event, minutesBefore);
   if (triggerMs <= Date.now()) {
     return null; // In the past
   }
@@ -200,7 +357,7 @@ export async function scheduleEventReminder(
   );
 }
 
-export async function cancelEventReminder(eventId: string): Promise<boolean> {
+export async function cancelStartReminder(eventId: string): Promise<boolean> {
   try {
     await ExpoNotifications.cancelScheduledNotificationAsync(
       `${REMINDER_IDENTIFIER_PREFIX}${eventId}`,
@@ -211,13 +368,168 @@ export async function cancelEventReminder(eventId: string): Promise<boolean> {
   }
 }
 
+export async function cancelLeaveReminder(eventId: string): Promise<boolean> {
+  try {
+    await ExpoNotifications.cancelScheduledNotificationAsync(
+      `${LEAVE_IDENTIFIER_PREFIX}${eventId}`,
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Cancel every exact notification owned by one event. */
+export async function cancelEventReminder(eventId: string): Promise<boolean> {
+  const results = await Promise.all([
+    cancelStartReminder(eventId),
+    cancelLeaveReminder(eventId),
+  ]);
+  return results.every(Boolean);
+}
+
 export async function cancelConventionReminders(
   eventIds: string[],
 ): Promise<boolean> {
-  const results = await Promise.all(
-    eventIds.map((id) => cancelEventReminder(id)),
+  const ids = new Set(eventIds);
+  const identifiers = new Set(
+    eventIds.flatMap((id) => [
+      `${REMINDER_IDENTIFIER_PREFIX}${id}`,
+      `${LEAVE_IDENTIFIER_PREFIX}${id}`,
+    ]),
   );
-  return results.every(Boolean);
+  try {
+    const scheduled =
+      await ExpoNotifications.getAllScheduledNotificationsAsync();
+    for (const request of scheduled) {
+      if (
+        request.identifier.startsWith(OVERLAP_IDENTIFIER_PREFIX) &&
+        Array.isArray(request.content.data?.eventIds) &&
+        request.content.data.eventIds.some((id) =>
+          ids.has(typeof id === "string" ? id : ""),
+        )
+      ) {
+        identifiers.add(request.identifier);
+      }
+    }
+  } catch {
+    // Known start and leave identifiers are still safe to clear below.
+  }
+  const results = await Promise.allSettled(
+    [...identifiers].map((identifier) =>
+      ExpoNotifications.cancelScheduledNotificationAsync(identifier),
+    ),
+  );
+  return results.every((result) => result.status === "fulfilled");
+}
+
+export type ScheduleChangeNotification =
+  | {
+      kind: "room-change";
+      eventId: string;
+      conventionId: string;
+      event: string;
+      previousRoom: string | null;
+      room: string | null;
+      isInSchedule: boolean;
+    }
+  | {
+      kind: "cancellation";
+      eventId: string;
+      conventionId: string;
+      event: string;
+      isInSchedule: boolean;
+    };
+
+function scheduleChangeContent(
+  notice: ScheduleChangeNotification,
+): ReminderNotificationContent {
+  if (!i18n.isInitialized) {
+    if (notice.kind === "cancellation") {
+      return {
+        title: `${notice.event} cancelled`,
+        body: `The organizer cancelled ${notice.event}. Review your plan.`,
+      };
+    }
+    return {
+      title: `${notice.event} moved`,
+      body:
+        notice.previousRoom && notice.room
+          ? `The organizer moved ${notice.event} from ${notice.previousRoom} to ${notice.room}. Your attendance times are unchanged.`
+          : `The organizer changed the room for ${notice.event}. Review your plan.`,
+    };
+  }
+  if (notice.kind === "cancellation") {
+    return {
+      title: i18n.t("reminders.cancellationNotificationTitle", {
+        event: notice.event,
+      }),
+      body: i18n.t("reminders.cancellationNotificationBody", {
+        event: notice.event,
+      }),
+    };
+  }
+  return {
+    title: i18n.t("reminders.roomChangeNotificationTitle", {
+      event: notice.event,
+    }),
+    body:
+      notice.previousRoom && notice.room
+        ? i18n.t("reminders.roomChangeNotificationBody", {
+            event: notice.event,
+            previousRoom: notice.previousRoom,
+            room: notice.room,
+          })
+        : i18n.t("reminders.roomChangeNotificationBodyGeneric", {
+            event: notice.event,
+          }),
+  };
+}
+
+/** Deliver trusted organizer changes for planned panels without prompting. */
+export async function notifyScheduleChanges(
+  notices: readonly ScheduleChangeNotification[],
+): Promise<number> {
+  const planned = [
+    ...new Map(
+      notices
+        .filter((notice) => notice.isInSchedule)
+        .map((notice) => [`${notice.kind}:${notice.eventId}`, notice]),
+    ).values(),
+  ];
+  if (
+    planned.length === 0 ||
+    (await getNotificationPermissionStatus()) !== "granted"
+  )
+    return 0;
+  await ensureReminderChannel();
+  let delivered = 0;
+  for (const notice of planned) {
+    const identifier = `${SCHEDULE_CHANGE_IDENTIFIER_PREFIX}${notice.kind}-${notice.eventId}`;
+    await ExpoNotifications.cancelScheduledNotificationAsync(identifier).catch(
+      () => undefined,
+    );
+    await ExpoNotifications.scheduleNotificationAsync({
+      identifier,
+      content: {
+        ...scheduleChangeContent(notice),
+        sound: true,
+        data: {
+          kind: "schedule-change",
+          change: notice.kind,
+          eventId: notice.eventId,
+          conventionId: notice.conventionId,
+        },
+      },
+      trigger: {
+        type: ExpoNotifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+        channelId: REMINDER_CHANNEL_ID,
+      },
+    });
+    delivered++;
+  }
+  return delivered;
 }
 
 export interface ReminderReconciliationResult {
@@ -233,22 +545,66 @@ export interface ReminderReconciliationResult {
 
 export async function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
   const events = await eventsRepo.getAllWithReminders();
-  const eventIds = new Set(events.map((event) => event.id));
-  let staleCancelled = 0;
+  let cleared = 0;
+  let paused = 0;
+  let overflow = 0;
+  let rescheduled = 0;
 
+  type Pending =
+    | {
+        kind: "event";
+        identifier: string;
+        triggerMs: number;
+        event: (typeof events)[number];
+        minutes: number;
+      }
+    | ({ kind: "plan" } & PlanNotificationRequest);
+  const pending: Pending[] = [];
+
+  for (const event of events) {
+    const minutes = event.reminderMinutes;
+    if (minutes === null) continue;
+    const triggerMs = reminderTriggerMs(event, minutes);
+
+    if (triggerMs <= Date.now()) {
+      await cancelStartReminder(event.id);
+      await eventsRepo.update(event.id, { reminderMinutes: null });
+      cleared++;
+      continue;
+    }
+
+    pending.push({
+      kind: "event",
+      identifier: `${REMINDER_IDENTIFIER_PREFIX}${event.id}`,
+      triggerMs,
+      event,
+      minutes,
+    });
+  }
+
+  const plannedRows = await eventsRepo.getAllInSchedule();
+  pending.push(
+    ...buildPlanNotificationRequests(plannedRows.map(({ event }) => event)).map(
+      (request) => ({ kind: "plan" as const, ...request }),
+    ),
+  );
+
+  const desiredIdentifiers = new Set(
+    pending.map(({ identifier }) => identifier),
+  );
+  let staleCancelled = 0;
   try {
     const scheduled =
       await ExpoNotifications.getAllScheduledNotificationsAsync();
-    const staleIdentifiers: string[] = [];
-    for (const request of scheduled) {
-      const { identifier } = request;
-      if (
-        identifier.startsWith(REMINDER_IDENTIFIER_PREFIX) &&
-        !eventIds.has(identifier.slice(REMINDER_IDENTIFIER_PREFIX.length))
-      ) {
-        staleIdentifiers.push(identifier);
-      }
-    }
+    const staleIdentifiers = scheduled
+      .map(({ identifier }) => identifier)
+      .filter(
+        (identifier) =>
+          (identifier.startsWith(REMINDER_IDENTIFIER_PREFIX) ||
+            identifier.startsWith(LEAVE_IDENTIFIER_PREFIX) ||
+            identifier.startsWith(OVERLAP_IDENTIFIER_PREFIX)) &&
+          !desiredIdentifiers.has(identifier),
+      );
     await Promise.all(
       staleIdentifiers.map((identifier) =>
         ExpoNotifications.cancelScheduledNotificationAsync(identifier),
@@ -259,36 +615,16 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
     // A later launch retries cleanup if the OS notification store is unavailable.
   }
 
-  let cleared = 0;
-  let paused = 0;
-  let overflow = 0;
-  let rescheduled = 0;
-
-  const pending: { event: (typeof events)[number]; minutes: number }[] = [];
-
-  for (const event of events) {
-    const minutes = event.reminderMinutes;
-    if (minutes === null) continue;
-    const triggerMs = new Date(event.startTime).getTime() - minutes * 60 * 1000;
-
-    if (triggerMs <= Date.now()) {
-      await cancelEventReminder(event.id);
-      await eventsRepo.update(event.id, { reminderMinutes: null });
-      cleared++;
-      continue;
-    }
-
-    pending.push({ event, minutes });
-  }
-
   const permission = await getNotificationPermissionStatus();
   if (permission !== "granted") {
-    // reminderMinutes is the only record that the user asked for a reminder at
-    // all, and a permission the user can turn back on at any moment must not
-    // erase it. Drop the OS requests and leave every row intact: the next
+    // SQLite retains the user's explicit reminder and attendance choices, and
+    // a permission the user can turn back on at any moment must not erase
+    // them. Drop the OS requests and leave every row intact: the next
     // launch after permission returns re-arms all of them for free.
-    for (const { event } of pending) {
-      await cancelEventReminder(event.id);
+    for (const request of pending) {
+      await ExpoNotifications.cancelScheduledNotificationAsync(
+        request.identifier,
+      ).catch(() => undefined);
       paused++;
     }
     return { rescheduled, cleared, paused, overflow, staleCancelled };
@@ -298,15 +634,12 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
   // Nearest first, so the reminders the OS keeps when the ceiling is reached
   // are the ones the user needs soonest rather than whichever rows the
   // database happened to return first.
-  pending.sort(
-    (a, b) =>
-      new Date(a.event.startTime).getTime() -
-      a.minutes * 60 * 1000 -
-      (new Date(b.event.startTime).getTime() - b.minutes * 60 * 1000),
-  );
+  pending.sort((a, b) => a.triggerMs - b.triggerMs);
 
-  for (const { event, minutes } of pending) {
-    await cancelEventReminder(event.id);
+  for (const request of pending) {
+    await ExpoNotifications.cancelScheduledNotificationAsync(
+      request.identifier,
+    ).catch(() => undefined);
 
     if (rescheduled >= MAX_PENDING_REMINDERS) {
       overflow++;
@@ -314,16 +647,22 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
     }
 
     try {
-      const notificationId = await scheduleReminderRequest(
-        {
-          id: event.id,
-          title: event.title,
-          startTime: event.startTime,
-          room: event.room ?? event.location,
-          conventionId: event.conventionId,
-        },
-        minutes,
-      );
+      const notificationId =
+        request.kind === "event"
+          ? await scheduleReminderRequest(
+              {
+                id: request.event.id,
+                title: request.event.title,
+                startTime: request.event.startTime,
+                endTime: request.event.endTime,
+                personalStartTime: request.event.personalStartTime,
+                personalEndTime: request.event.personalEndTime,
+                room: request.event.room ?? request.event.location,
+                conventionId: request.event.conventionId,
+              },
+              request.minutes,
+            )
+          : await schedulePlanNotificationRequest(request);
       if (notificationId) {
         rescheduled++;
         continue;

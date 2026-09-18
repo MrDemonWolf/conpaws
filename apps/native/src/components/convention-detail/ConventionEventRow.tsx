@@ -6,6 +6,7 @@ import type { ConventionEvent } from "@/db/schema";
 import type { ClusterPosition } from "@/lib/day-band";
 import { getEventIndicators } from "@/lib/event-indicators";
 import { formatEventEndTime, formatEventTime } from "@/lib/event-time-format";
+import { attendanceInterval } from "@/lib/personal-schedule";
 import { hapticLongPress, hapticTap } from "@/services/haptics";
 
 export function getEventIndicatorLabels(
@@ -65,6 +66,9 @@ export const ConventionEventRow = memo(function ConventionEventRow({
 }: ConventionEventRowProps) {
   const { t } = useTranslation();
   const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(event, t);
+  const personalInterval = attendanceInterval(event);
+  const hasPersonalTimes =
+    event.personalStartTime !== null || event.personalEndTime !== null;
 
   return (
     <EventItem
@@ -84,6 +88,31 @@ export const ConventionEventRow = memo(function ConventionEventRow({
       description={event.description}
       ageRating={event.ageRating}
       isInSchedule={event.isInSchedule}
+      isInterested={event.isInterested}
+      attendanceStartTime={
+        hasPersonalTimes && !personalInterval.needsReview
+          ? formatEventTime(
+              personalInterval.startTime,
+              timeZone,
+              locale,
+              hour12,
+            )
+          : undefined
+      }
+      attendanceEndTime={
+        hasPersonalTimes &&
+        !personalInterval.needsReview &&
+        personalInterval.endTime
+          ? formatEventEndTime(
+              personalInterval.startTime,
+              personalInterval.endTime,
+              timeZone,
+              locale,
+              hour12,
+            )
+          : undefined
+      }
+      attendanceNeedsReview={personalInterval.needsReview}
       reminderLabel={reminderLabel}
       provenanceLabel={showProvenance ? provenanceLabel : undefined}
       hasConflict={hasConflict}

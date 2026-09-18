@@ -3,10 +3,15 @@ import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, Linking } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { reportError } from "@/lib/error-reporting";
+import { attendanceTimeError } from "@/lib/personal-schedule";
 import { hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
+  cancelLeaveReminder,
+  cancelStartReminder,
   getNotificationPermissionStatus,
+  reconcileEventReminders,
   scheduleEventReminder,
 } from "@/services/notifications";
 
@@ -32,17 +37,21 @@ function confirmNotificationPriming(
   t: (key: string) => string,
 ): Promise<boolean> {
   return new Promise((resolve) => {
-    Alert.alert(t("reminders.priming.title"), t("reminders.priming.message"), [
-      {
-        text: t("reminders.priming.notNow"),
-        style: "cancel",
-        onPress: () => resolve(false),
-      },
-      {
-        text: t("reminders.priming.continue"),
-        onPress: () => resolve(true),
-      },
-    ]);
+    Alert.alert(
+      t("reminders.priming.title"),
+      t("reminders.priming.messageStart"),
+      [
+        {
+          text: t("reminders.priming.notNow"),
+          style: "cancel",
+          onPress: () => resolve(false),
+        },
+        {
+          text: t("reminders.priming.continue"),
+          onPress: () => resolve(true),
+        },
+      ],
+    );
   });
 }
 
@@ -75,9 +84,13 @@ export function useEventScheduleMutations({
   const toggleScheduleMutation = useMutation({
     mutationFn: async (event: ConventionEvent) => {
       const isInSchedule = !event.isInSchedule;
-      if (isInSchedule || event.reminderMinutes === null) {
+      if (isInSchedule && event.feedStatus !== null) return false;
+      if (isInSchedule) {
         await eventsRepo.update(event.id, { isInSchedule });
-        return;
+        await reconcileEventReminders().catch((error) => {
+          reportError(error, { scope: "event-plan.reminder-reconcile" });
+        });
+        return true;
       }
 
       // An event taken off the schedule keeps no reminder: leaving one armed
@@ -88,8 +101,13 @@ export function useEventScheduleMutations({
         isInSchedule,
         reminderMinutes: null,
       });
+      await reconcileEventReminders().catch((error) => {
+        reportError(error, { scope: "event-plan.reminder-reconcile" });
+      });
+      return true;
     },
-    onSuccess: (_, event) => {
+    onSuccess: (changed, event) => {
+      if (!changed) return;
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
       // `isInSchedule` is the state before the toggle, so the new state is its negation.
       hapticToggle(!event.isInSchedule);
@@ -110,6 +128,74 @@ export function useEventScheduleMutations({
     },
   });
 
+  const toggleInterestMutation = useMutation({
+    mutationFn: async (event: ConventionEvent) => {
+      await eventsRepo.update(event.id, {
+        isInterested: !event.isInterested,
+      });
+    },
+    onSuccess: (_, event) => {
+      queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
+      hapticToggle(!event.isInterested);
+      AccessibilityInfo.announceForAccessibility(
+        t(
+          event.isInterested
+            ? "convention.interestRemovedAnnouncement"
+            : "convention.interestAddedAnnouncement",
+          { event: event.title },
+        ),
+      );
+    },
+    onError: () => {
+      Alert.alert(
+        t("convention.scheduleUpdateErrorTitle"),
+        t("convention.scheduleUpdateErrorMessage"),
+      );
+    },
+  });
+
+  const setAttendanceMutation = useMutation({
+    mutationFn: async ({
+      event,
+      personalStartTime,
+      personalEndTime,
+    }: {
+      event: ConventionEvent;
+      personalStartTime: string | null;
+      personalEndTime: string | null;
+    }) => {
+      const updated = { ...event, personalStartTime, personalEndTime };
+      if (attendanceTimeError(updated)) {
+        throw new Error("Invalid personal attendance interval");
+      }
+
+      await eventsRepo.update(event.id, {
+        isInSchedule: true,
+        personalStartTime,
+        personalEndTime,
+      });
+      await cancelLeaveReminder(event.id);
+      await reconcileEventReminders().catch((error) => {
+        reportError(error, {
+          scope: "event-attendance.reminder-reschedule",
+        });
+      });
+    },
+    onSuccess: (_, { event }) => {
+      queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
+      hapticToggle(true);
+      AccessibilityInfo.announceForAccessibility(
+        t("convention.attendance.savedAnnouncement", { event: event.title }),
+      );
+    },
+    onError: () => {
+      Alert.alert(
+        t("convention.attendance.errorTitle"),
+        t("convention.attendance.errorMessage"),
+      );
+    },
+  });
+
   const setReminderMutation = useMutation({
     mutationFn: async ({
       event,
@@ -122,6 +208,9 @@ export function useEventScheduleMutations({
         id: event.id,
         title: event.title,
         startTime: event.startTime,
+        endTime: event.endTime,
+        personalStartTime: event.personalStartTime,
+        personalEndTime: event.personalEndTime,
         room: event.room ?? event.location,
         // Without this the notification payload carries conventionId: null and
         // tapping the reminder navigates nowhere until the next foreground
@@ -159,17 +248,7 @@ export function useEventScheduleMutations({
 
         let notificationId: string | null = null;
         try {
-          notificationId = await scheduleEventReminder(reminderEvent, minutes, {
-            notificationContent: {
-              title: t("reminders.notificationTitle", { event: event.title }),
-              body: t(
-                reminderEvent.room
-                  ? "reminders.notificationBodyWithRoom"
-                  : "reminders.notificationBody",
-                { minutes, room: reminderEvent.room },
-              ),
-            },
-          });
+          notificationId = await scheduleEventReminder(reminderEvent, minutes);
         } catch {
           // `reminderMinutes` is the only record that the user ever asked for
           // a reminder. A failed attempt at a new lead time must not wipe the
@@ -189,12 +268,12 @@ export function useEventScheduleMutations({
         try {
           await eventsRepo.update(event.id, { reminderMinutes: minutes });
         } catch (error) {
-          await cancelEventReminder(event.id);
+          await cancelStartReminder(event.id);
           await restorePreviousReminder();
           throw error;
         }
       } else {
-        if (!(await cancelEventReminder(event.id))) {
+        if (!(await cancelStartReminder(event.id))) {
           throw new ReminderError("cancel-failed");
         }
         try {
@@ -210,8 +289,8 @@ export function useEventScheduleMutations({
       AccessibilityInfo.announceForAccessibility(
         t(
           minutes === null
-            ? "reminders.clearedAnnouncement"
-            : "reminders.setAnnouncement",
+            ? "reminders.startClearedAnnouncement"
+            : "reminders.startSetAnnouncement",
           { event: event.title, minutes },
         ),
       );
@@ -228,7 +307,7 @@ export function useEventScheduleMutations({
         onPermissionDenied?.();
         Alert.alert(
           t("reminders.permissionTitle"),
-          t("reminders.permissionMessage"),
+          t("reminders.permissionMessageStart"),
           [
             { text: t("common.cancel"), style: "cancel" },
             {
@@ -257,5 +336,10 @@ export function useEventScheduleMutations({
     },
   });
 
-  return { toggleScheduleMutation, setReminderMutation };
+  return {
+    toggleScheduleMutation,
+    toggleInterestMutation,
+    setAttendanceMutation,
+    setReminderMutation,
+  };
 }

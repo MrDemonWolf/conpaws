@@ -16,7 +16,15 @@ describe("developer tools gate", () => {
   });
 
   it("accepts known convention state previews only behind the developer gate", () => {
-    for (const state of ["loading", "empty", "error", "content"]) {
+    for (const state of [
+      "loading",
+      "empty",
+      "error",
+      "content",
+      "plan",
+      "interested",
+      "now-next",
+    ]) {
       expect(resolveConventionPreviewState(state, true, "development")).toBe(
         state,
       );

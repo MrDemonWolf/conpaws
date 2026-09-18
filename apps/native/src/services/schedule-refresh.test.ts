@@ -6,6 +6,8 @@ const {
   parseIcs,
   getByConventionId,
   runScheduleImport,
+  notifyScheduleChanges,
+  reconcileEventReminders,
   publishWidgetSnapshot,
   storage,
 } = vi.hoisted(() => ({
@@ -13,6 +15,8 @@ const {
   parseIcs: vi.fn(),
   getByConventionId: vi.fn(),
   runScheduleImport: vi.fn(),
+  notifyScheduleChanges: vi.fn(),
+  reconcileEventReminders: vi.fn(),
   publishWidgetSnapshot: vi.fn(),
   storage: {
     getScheduleAutoCheck: vi.fn(),
@@ -33,6 +37,10 @@ vi.mock("@/lib/ical-parser", () => ({ parseIcs }));
 vi.mock("@/db/repositories/events", () => ({ getByConventionId }));
 vi.mock("@/hooks/useImportSchedule", () => ({ runScheduleImport }));
 vi.mock("@/services/widget-snapshot", () => ({ publishWidgetSnapshot }));
+vi.mock("@/services/notifications", () => ({
+  notifyScheduleChanges,
+  reconcileEventReminders,
+}));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
 vi.mock("@/lib/schedule-refresh-storage", () => storage);
 
@@ -61,6 +69,7 @@ function convention(overrides: Partial<Convention> = {}): Convention {
 function storedRow(overrides: Record<string, unknown> = {}) {
   return {
     id: "event-1",
+    title: "Panel",
     sourceUid: "panel-1",
     startTime: "2026-09-03T20:00:00.000Z",
     endTime: "2026-09-03T21:00:00.000Z",
@@ -102,6 +111,8 @@ beforeEach(() => {
   storage.getScheduleAllCategories.mockResolvedValue(true);
   storage.setScheduleCheckedAt.mockResolvedValue(undefined);
   publishWidgetSnapshot.mockResolvedValue(true);
+  notifyScheduleChanges.mockResolvedValue(0);
+  reconcileEventReminders.mockResolvedValue({});
   deps.refreshCaches.mockResolvedValue(undefined);
   getByConventionId.mockResolvedValue([storedRow()]);
   fetchScheduleIcs.mockResolvedValue({ icsContent: "BEGIN:VCALENDAR" });
@@ -208,6 +219,61 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(runScheduleImport).toHaveBeenCalledTimes(1);
     expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
     expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
+  it("notifies a planned room move after the trusted change is applied", async () => {
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [{ ...parsedFeed().events[0], room: "Room B" }],
+      }),
+    );
+
+    await refreshConventionSchedule(convention(), deps, { now: NOW });
+
+    expect(notifyScheduleChanges).toHaveBeenCalledWith([
+      {
+        kind: "room-change",
+        eventId: "event-1",
+        conventionId: "con-1",
+        event: "Panel",
+        previousRoom: "Room A",
+        room: "Room B",
+        isInSchedule: true,
+      },
+    ]);
+    expect(reconcileEventReminders).toHaveBeenCalledTimes(1);
+  });
+
+  it("notifies an explicit cancellation after a trusted update", async () => {
+    const fillers = Array.from({ length: 4 }, (_, index) =>
+      storedRow({
+        id: `filler-${index}`,
+        sourceUid: `filler-${index}`,
+        isInSchedule: false,
+      }),
+    );
+    getByConventionId.mockResolvedValue([storedRow(), ...fillers]);
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: fillers.map((event) => ({
+          ...parsedFeed().events[0],
+          sourceUid: event.sourceUid,
+        })),
+        cancelledSourceUids: ["panel-1"],
+      }),
+    );
+
+    await refreshConventionSchedule(convention(), deps, { now: NOW });
+
+    expect(notifyScheduleChanges).toHaveBeenCalledWith([
+      {
+        kind: "cancellation",
+        eventId: "event-1",
+        conventionId: "con-1",
+        event: "Panel",
+        isInSchedule: true,
+      },
+    ]);
   });
 
   it("takes the removal count from the write, not the comparison", async () => {

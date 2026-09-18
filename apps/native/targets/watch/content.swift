@@ -13,10 +13,8 @@ struct ContentView: View {
     NavigationStack {
       TimelineView(.everyMinute) { context in
         WatchRootView(
-          snapshot: store.snapshot,
-          now: context.date,
-          isUsingSavedSchedule: store.isUsingSavedSchedule,
-          snapshotDate: store.snapshotDate
+          store: store,
+          now: context.date
         )
       }
     }
@@ -25,10 +23,10 @@ struct ContentView: View {
 
 private struct WatchRootView: View {
   @Environment(\.isLuminanceReduced) private var isLuminanceReduced
-  let snapshot: ConPawsSnapshot
+  @ObservedObject var store: WatchScheduleStore
   let now: Date
-  let isUsingSavedSchedule: Bool
-  let snapshotDate: Date?
+
+  private var snapshot: ConPawsSnapshot { store.snapshot }
 
   private var schedule: WatchScheduleProjection {
     WatchScheduleProjection(snapshot: snapshot, now: now)
@@ -51,15 +49,16 @@ private struct WatchRootView: View {
           PreConventionView(
             convention: convention,
             now: now,
-            isUsingSavedSchedule: isUsingSavedSchedule,
-            snapshotDate: snapshotDate,
+            isUsingSavedSchedule: store.isUsingSavedSchedule,
+            snapshotDate: store.snapshotDate,
             strings: strings
           )
         } else {
           ScheduleHomeView(
+            store: store,
             schedule: schedule,
-            isUsingSavedSchedule: isUsingSavedSchedule,
-            snapshotDate: snapshotDate,
+            isUsingSavedSchedule: store.isUsingSavedSchedule,
+            snapshotDate: store.snapshotDate,
             strings: strings
           )
         }
@@ -130,6 +129,7 @@ private struct PreConventionView: View {
 
 private struct ScheduleHomeView: View {
   @Environment(\.locale) private var locale
+  @ObservedObject var store: WatchScheduleStore
   let schedule: WatchScheduleProjection
   let isUsingSavedSchedule: Bool
   var snapshotDate: Date?
@@ -151,38 +151,45 @@ private struct ScheduleHomeView: View {
             label: strings.nowCaps,
             event: current,
             convention: convention,
-            strings: strings,
-            detail: WatchFormat.timeRange(current, in: convention, locale: locale)
-          )
+            strings: strings
+          ) {
+            VStack(alignment: .leading, spacing: 1) {
+              if let leave = schedule.currentLeaveDate {
+                Text(
+                  strings.text(
+                    strings.inlineLeaveFormat,
+                    WatchFormat.time(leave, in: convention, locale: locale)
+                  )
+                )
+                .font(.headline)
+                .foregroundStyle(Color.accentColor)
+              }
+              Text(WatchFormat.timeRange(current, in: convention, locale: locale))
+            }
+          }
+
+          LeaveTimeAdjustmentButton(
+            event: current,
+            convention: convention,
+            strings: strings
+          ) { completion in
+            store.extendLeaveTime(
+              conventionID: convention.id,
+              event: current,
+              completion: completion
+            )
+          }
+          .id("\(current.id):\(current.attendanceEndAtMs ?? 0)")
         }
 
         if let next = schedule.nextEvent, let convention = schedule.convention {
           EventCard(
-            label: schedule.isLeaveWindow ? strings.leaveInCaps : strings.nextCaps,
+            label: strings.nextCaps,
             event: next,
             convention: convention,
             strings: strings
           ) {
-            if schedule.isLeaveWindow {
-              // The mockups draw LEAVE IN as the hero of the screen; the
-              // shared caption2/secondary detail style buried the single most
-              // time-critical number in the app. monospacedDigit keeps the
-              // live timer from jittering the trailing time label.
-              VStack(alignment: .leading, spacing: 1) {
-                AdaptiveCountdownView(
-                  target: next.startDate,
-                  now: schedule.now,
-                  timeZone: convention.timeZone,
-                  strings: strings
-                )
-                .font(.title3.bold())
-                .monospacedDigit()
-                .foregroundStyle(Color.accentColor)
-                Text(nextEventTime(next, in: convention))
-              }
-            } else {
-              Text(nextEventTime(next, in: convention))
-            }
+            Text(nextEventTime(next, in: convention))
           }
         }
 
@@ -210,6 +217,7 @@ private struct ScheduleHomeView: View {
               events: schedule.todayEvents,
               convention: convention,
               activeEventID: schedule.activeEvent?.id,
+              hasNextOnAnotherDay: schedule.nextEvent != nil,
               strings: strings
             )
           } label: {
@@ -229,7 +237,11 @@ private struct ScheduleHomeView: View {
         }
 
         if schedule.activeEvent == nil && schedule.nextEvent == nil {
-          Text(strings.noMoreEventsToday)
+          Text(
+            schedule.convention?.events.isEmpty == true
+              ? strings.starHint
+              : strings.noMoreEventsToday
+          )
             .font(.callout)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, minHeight: 44)
@@ -257,6 +269,92 @@ private struct ScheduleHomeView: View {
       locale: locale,
       strings: strings
     )
+  }
+}
+
+private enum LeaveTimeEditState {
+  case idle
+  case saving
+  case saved
+  case failed
+}
+
+private struct LeaveTimeAdjustmentButton: View {
+  @Environment(\.locale) private var locale
+  let event: ConPawsEventSnapshot
+  let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
+  let submit: (@escaping (Result<Date, Error>) -> Void) -> Void
+  @State private var state = LeaveTimeEditState.idle
+
+  private var proposedEnd: Date? {
+    guard
+      event.hasPersonalEnd,
+      let currentEnd = event.plannedEndDate,
+      let publishedEnd = event.publishedEndDate
+    else {
+      return nil
+    }
+    let proposed = currentEnd.addingTimeInterval(300)
+    return proposed <= publishedEnd ? proposed : nil
+  }
+
+  var body: some View {
+    if let proposedEnd {
+      VStack(alignment: .leading, spacing: 4) {
+        Button {
+          state = .saving
+          submit { result in
+            state = result.isSuccess ? .saved : .failed
+          }
+        } label: {
+          HStack(spacing: 6) {
+            if state == .saving {
+              ProgressView()
+                .controlSize(.small)
+            } else {
+              Image(systemName: state == .saved ? "checkmark" : "clock.badge.plus")
+                .accessibilityHidden(true)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+              Text(state == .saved ? strings.savedSchedule : "+ \(strings.minutes(5))")
+                .font(.body.weight(.semibold))
+              Text(
+                strings.text(
+                  strings.inlineLeaveFormat,
+                  WatchFormat.time(proposedEnd, in: convention, locale: locale)
+                )
+              )
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+          }
+          .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+          .padding(.horizontal, 10)
+          .background(.quaternary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+          .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(state == .saving || state == .saved)
+        .accessibilityElement(children: .combine)
+
+        if state == .failed {
+          Text(strings.syncFromPhone)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+            .accessibilityLabel(strings.syncFromPhone)
+        }
+      }
+    }
+  }
+}
+
+private extension Result {
+  var isSuccess: Bool {
+    if case .success = self { return true }
+    return false
   }
 }
 
@@ -338,6 +436,7 @@ private struct TodayListView: View {
   let events: [ConPawsEventSnapshot]
   let convention: ConPawsConventionSnapshot
   var activeEventID: String?
+  var hasNextOnAnotherDay: Bool
   let strings: ConPawsStrings
 
   var body: some View {
@@ -345,7 +444,9 @@ private struct TodayListView: View {
       if events.isEmpty {
         EmptyScheduleView(
           title: strings.noEventsTodayTitle,
-          message: strings.noEventsTodayMessage
+          message: hasNextOnAnotherDay
+            ? strings.noEventsTodayMessage
+            : strings.noMoreEventsToday
         )
       } else {
         List(events) { event in
@@ -409,6 +510,15 @@ private struct EventDetailView: View {
             .accessibilityHidden(true)
         }
 
+        if event.hasPersonalStart || event.hasPersonalEnd {
+          VStack(alignment: .leading, spacing: 2) {
+            Text(strings.scheduledLabel)
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+            Text(WatchFormat.publishedTimeRange(event, in: convention, locale: locale))
+          }
+        }
+
         if let location = WatchFormat.location(event) {
           Label {
             Text(location)
@@ -418,19 +528,6 @@ private struct EventDetailView: View {
           }
         }
 
-        if let minutes = event.reminderMinutes {
-          Label {
-            Text(
-              strings.text(
-                strings.leaveReminderFormat,
-                strings.text(strings.minutesBeforeFormat, String(minutes))
-              )
-            )
-          } icon: {
-            Image(systemName: "bell")
-              .accessibilityHidden(true)
-          }
-        }
       }
       .font(.callout)
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -533,17 +630,12 @@ private struct WatchScheduleProjection {
   let nextEvent: ConPawsEventSnapshot?
   let laterEvents: [ConPawsEventSnapshot]
   let todayEvents: [ConPawsEventSnapshot]
-  let nextLeaveDate: Date?
-
-  var isLeaveWindow: Bool {
-    guard let nextEvent, let nextLeaveDate else { return false }
-    return nextLeaveDate <= now && now < nextEvent.startDate
-  }
+  let currentLeaveDate: Date?
 
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
     let selected = snapshot.conventions
-      .filter { $0.endDate >= now || $0.events.contains { $0.startDate >= now } }
+      .filter { $0.isCurrentOrUpcoming(at: now) }
       .sorted { $0.startAtMs < $1.startAtMs }
       .first
     convention = selected
@@ -553,19 +645,13 @@ private struct WatchScheduleProjection {
       nextEvent = nil
       laterEvents = []
       todayEvents = []
-      nextLeaveDate = nil
+      currentLeaveDate = nil
       return
     }
 
-    let events = selected.events.sorted { $0.startAtMs < $1.startAtMs }
-    activeEvent = events.enumerated().compactMap { index, event in
-      guard event.startDate <= now else { return nil }
-      let nextStart = events.indices.contains(index + 1) ? events[index + 1].startDate : nil
-      let fallbackEnd = min(nextStart ?? .distantFuture, event.startDate.addingTimeInterval(3_600))
-      let effectiveEnd = event.endDate ?? fallbackEnd
-      return now < effectiveEnd ? event : nil
-    }.last
-
+    let plan = ConPawsPlanTimeline(events: selected.events, now: now)
+    let events = plan.events
+    activeEvent = plan.currentEvent
     let upcoming = events.filter { $0.startDate > now }
     nextEvent = upcoming.first
     laterEvents = Array(upcoming.dropFirst().prefix(2))
@@ -574,11 +660,9 @@ private struct WatchScheduleProjection {
     calendar.timeZone = selected.timeZone
     todayEvents = events.filter { calendar.isDate($0.startDate, inSameDayAs: now) }
 
-    if let next = upcoming.first, let minutes = next.reminderMinutes {
-      nextLeaveDate = next.startDate.addingTimeInterval(-Double(minutes) * 60)
-    } else {
-      nextLeaveDate = nil
-    }
+    currentLeaveDate = plan.currentEvent?.hasPersonalEnd == true
+      ? plan.currentEventEnd
+      : nil
   }
 }
 
@@ -632,6 +716,17 @@ private enum WatchFormat {
     return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
   }
 
+  static func publishedTimeRange(
+    _ event: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
+  ) -> String {
+    guard let end = event.publishedEndDate else {
+      return time(event.publishedStartDate, in: convention, locale: locale)
+    }
+    return "\(time(event.publishedStartDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
+  }
+
   static func location(_ event: ConPawsEventSnapshot) -> String? {
     let values = [event.room, event.location]
       .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -675,8 +770,12 @@ private extension ConPawsConventionSnapshot {
 }
 
 private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
+  var startDate: Date { plannedStartDate }
+  var endDate: Date? { plannedEndDate }
+  var publishedStartDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
+  var publishedEndDate: Date? {
+    endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) }
+  }
 }
 
 #if DEBUG
@@ -687,6 +786,9 @@ func runWatchScheduleSelfCheck() {
     title: "Current",
     startAtMs: now.addingTimeInterval(-600).timeIntervalSince1970 * 1_000,
     endAtMs: now.addingTimeInterval(600).timeIntervalSince1970 * 1_000,
+    attendanceStartAtMs: now.addingTimeInterval(-600).timeIntervalSince1970 * 1_000,
+    attendanceEndAtMs: now.addingTimeInterval(300).timeIntervalSince1970 * 1_000,
+    attendanceNeedsReview: false,
     location: nil,
     room: nil,
     reminderMinutes: nil,
@@ -695,8 +797,11 @@ func runWatchScheduleSelfCheck() {
   let next = ConPawsEventSnapshot(
     id: "next",
     title: "Next",
-    startAtMs: now.addingTimeInterval(1_200).timeIntervalSince1970 * 1_000,
+    startAtMs: now.addingTimeInterval(-300).timeIntervalSince1970 * 1_000,
     endAtMs: nil,
+    attendanceStartAtMs: now.addingTimeInterval(1_200).timeIntervalSince1970 * 1_000,
+    attendanceEndAtMs: nil,
+    attendanceNeedsReview: false,
     location: nil,
     room: nil,
     reminderMinutes: 30,
@@ -713,7 +818,7 @@ func runWatchScheduleSelfCheck() {
   )
   let schedule = WatchScheduleProjection(
     snapshot: ConPawsSnapshot(
-      schemaVersion: 1,
+      schemaVersion: 3,
       generatedAtMs: now.timeIntervalSince1970 * 1_000,
       localeIdentifier: "en",
       conventions: [convention]
@@ -722,7 +827,30 @@ func runWatchScheduleSelfCheck() {
   )
   assert(schedule.activeEvent?.id == "current")
   assert(schedule.nextEvent?.id == "next")
-  assert(schedule.isLeaveWindow)
+  assert(schedule.currentLeaveDate == now.addingTimeInterval(300))
+  // A chosen late join remains upcoming after the organizer's start time.
+  assert(next.startAtMs < now.timeIntervalSince1970 * 1_000)
+  assert(next.startDate > now)
+  let finalConvention = ConPawsConventionSnapshot(
+    id: convention.id,
+    name: convention.name,
+    startAtMs: convention.startAtMs,
+    endAtMs: convention.endAtMs,
+    timeZoneIdentifier: convention.timeZoneIdentifier,
+    dateRangeLabel: convention.dateRangeLabel,
+    events: [current]
+  )
+  let finalSchedule = WatchScheduleProjection(
+    snapshot: ConPawsSnapshot(
+      schemaVersion: 3,
+      generatedAtMs: now.timeIntervalSince1970 * 1_000,
+      localeIdentifier: "en",
+      conventions: [finalConvention]
+    ),
+    now: now
+  )
+  assert(finalSchedule.activeEvent?.id == "current")
+  assert(finalSchedule.nextEvent == nil)
   let deepLink = ConPawsSnapshotStore.appURL(conventionID: "con /?#")
   let deepLinkComponents = deepLink.flatMap {
     URLComponents(url: $0, resolvingAgainstBaseURL: false)

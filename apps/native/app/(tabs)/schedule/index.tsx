@@ -30,6 +30,7 @@ import {
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
+  attendanceInterval,
   groupPersonalScheduleByDay,
   type PersonalScheduleEntry,
   spansMultipleConventions,
@@ -93,6 +94,11 @@ const ScheduleRow = memo(function ScheduleRow({
   overlapCount,
   className,
 }: ScheduleRowProps) {
+  const personalInterval = attendanceInterval(entry.event);
+  const hasPersonalTimes =
+    entry.event.personalStartTime !== null ||
+    entry.event.personalEndTime !== null;
+
   return (
     <EventItem
       title={entry.event.title}
@@ -114,6 +120,31 @@ const ScheduleRow = memo(function ScheduleRow({
       contextLabel={conventionName}
       ageRating={entry.event.ageRating}
       isInSchedule
+      isInterested={entry.event.isInterested}
+      attendanceStartTime={
+        hasPersonalTimes && !personalInterval.needsReview
+          ? formatEventTime(
+              personalInterval.startTime,
+              entry.timeZone,
+              locale,
+              hour12,
+            )
+          : undefined
+      }
+      attendanceEndTime={
+        hasPersonalTimes &&
+        !personalInterval.needsReview &&
+        personalInterval.endTime
+          ? formatEventEndTime(
+              personalInterval.startTime,
+              personalInterval.endTime,
+              entry.timeZone,
+              locale,
+              hour12,
+            )
+          : undefined
+      }
+      attendanceNeedsReview={personalInterval.needsReview}
       // Every row on this tab is starred by definition; a star per row would
       // be pure noise.
       showScheduleIndicator={false}
@@ -124,10 +155,9 @@ const ScheduleRow = memo(function ScheduleRow({
       overlapGroupSize={overlapGroupSize}
       overlapCount={overlapCount}
       className={className}
-      // There is no standalone event screen -- the action sheet that owns
-      // stars and reminders lives on the convention. Send the row there
-      // rather than inventing a second place to edit the same event.
-      onPress={() => router.push(`/convention/${entry.conventionId}`)}
+      onPress={() =>
+        router.push(`/convention/${entry.conventionId}/event/${entry.event.id}`)
+      }
     />
   );
 });
@@ -189,6 +219,8 @@ export default function ScheduleScreen() {
           : deviceTimeZone,
         startTime: row.event.startTime,
         endTime: row.event.endTime,
+        personalStartTime: row.event.personalStartTime,
+        personalEndTime: row.event.personalEndTime,
         event: row.event,
       }));
   }, [conventionId, rows]);
@@ -203,7 +235,8 @@ export default function ScheduleScreen() {
   const reminderNotice = resolveReminderNotice({
     permission: notificationPermission,
     reminderCount: entries.filter(
-      (entry) => entry.event.reminderMinutes !== null,
+      (entry) =>
+        entry.event.reminderMinutes !== null && entry.event.feedStatus === null,
     ).length,
     overflow: reminderOverflow,
   });
@@ -226,7 +259,9 @@ export default function ScheduleScreen() {
     const byId = new Map<string, OverlapInfo>();
     for (const day of days) {
       const live = day.data.filter((entry) => entry.event.feedStatus === null);
-      const info = overlapInfo(live);
+      const info = overlapInfo(
+        live.map((entry) => attendanceInterval(entry.event)),
+      );
       live.forEach((entry, index) => {
         const entryInfo = info[index];
         if (entryInfo) byId.set(entry.event.id, entryInfo);
@@ -253,8 +288,7 @@ export default function ScheduleScreen() {
       for (const id of overlappingEventIds(
         live.map((entry) => ({
           id: entry.event.id,
-          startTime: entry.startTime,
-          endTime: entry.endTime,
+          ...attendanceInterval(entry.event),
         })),
       )) {
         ids.add(id);

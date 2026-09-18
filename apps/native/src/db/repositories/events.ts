@@ -1,4 +1,4 @@
-import { eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../index";
 import {
   type ConventionEvent,
@@ -65,7 +65,12 @@ export interface UpsertResult {
 
 export type SourceEventInput = Omit<
   NewConventionEvent,
-  "id" | "createdAt" | "updatedAt"
+  | "id"
+  | "createdAt"
+  | "updatedAt"
+  | "isInterested"
+  | "personalStartTime"
+  | "personalEndTime"
 > & {
   legacySourceUid?: string | null;
 };
@@ -254,12 +259,13 @@ export function planSourceReconciliation(
   /**
    * The one choke point every disappearance passes through.
    *
-   * An event the user saved is marked, not deleted — see `PlannedTombstone`.
+   * An event the user saved or bookmarked is marked, not deleted — see
+   * `PlannedTombstone`.
    * Everything else is still dropped, because a schedule that kept every panel
    * a convention ever published would be unreadable within a day.
    */
   function addRemoval(event: ConventionEvent, status: FeedStatus): void {
-    if (event.isInSchedule) {
+    if (event.isInSchedule || event.isInterested) {
       tombstonesById.set(event.id, { existingId: event.id, status });
     } else {
       removalsById.set(event.id, event);
@@ -511,8 +517,9 @@ export async function upsertBySourceUid(
         .run();
     }
     for (const tombstone of plan.tombstones) {
-      // `isInSchedule` and `reminderMinutes` are left alone on purpose: they
-      // record what the user decided, and the user has not decided anything.
+      // Plan, interest, personal times, and reminder fields are left alone on
+      // purpose: they record what the user decided, and the user has not
+      // decided anything.
       // The OS notification is cancelled by the caller, outside this
       // transaction, so the row keeps the intent while nothing fires.
       tx.update(conventionEvents)
@@ -555,7 +562,12 @@ export async function getAllWithReminders(): Promise<ConventionEvent[]> {
   return db
     .select()
     .from(conventionEvents)
-    .where(isNotNull(conventionEvents.reminderMinutes));
+    .where(
+      and(
+        isNotNull(conventionEvents.reminderMinutes),
+        isNull(conventionEvents.feedStatus),
+      ),
+    );
 }
 
 export async function remove(id: string): Promise<void> {

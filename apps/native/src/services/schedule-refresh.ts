@@ -22,6 +22,11 @@ import {
   setScheduleCheckedAt,
 } from "@/lib/schedule-refresh-storage";
 import { toSourceSnapshot } from "@/lib/schedule-source";
+import {
+  notifyScheduleChanges,
+  reconcileEventReminders,
+  type ScheduleChangeNotification,
+} from "@/services/notifications";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /**
@@ -142,6 +147,40 @@ export async function refreshConventionSchedule(
       return { status: "unchanged", checkedAt: now };
     }
 
+    const activeByUid = new Map(
+      parsed.events.map((event) => [event.sourceUid, event]),
+    );
+    const cancelledUids = new Set(parsed.cancelledSourceUids);
+    const changeNotifications: ScheduleChangeNotification[] = [];
+    for (const event of stored) {
+      if (!event.isInSchedule || event.sourceUid === null) continue;
+      if (cancelledUids.has(event.sourceUid)) {
+        changeNotifications.push({
+          kind: "cancellation",
+          eventId: event.id,
+          conventionId: convention.id,
+          event: event.title,
+          isInSchedule: true,
+        });
+        continue;
+      }
+      const updated = activeByUid.get(event.sourceUid);
+      if (
+        updated &&
+        (event.room ?? event.location) !== (updated.room ?? updated.location)
+      ) {
+        changeNotifications.push({
+          kind: "room-change",
+          eventId: event.id,
+          conventionId: convention.id,
+          event: event.title,
+          previousRoom: event.room ?? event.location,
+          room: updated.room ?? updated.location,
+          isInSchedule: true,
+        });
+      }
+    }
+
     let result: ImportResult;
     try {
       result = await runScheduleImport({
@@ -162,6 +201,12 @@ export async function refreshConventionSchedule(
     // called this. The fresh stamp is what makes that second pass skip on the
     // interval instead of fetching and applying the same feed again, forever.
     await setScheduleCheckedAt(convention.id, now);
+    await notifyScheduleChanges(changeNotifications).catch((error) =>
+      reportError(error, { scope: "schedule-refresh.notifications" }),
+    );
+    await reconcileEventReminders().catch((error) =>
+      reportError(error, { scope: "schedule-refresh.reminders" }),
+    );
     // The widget and Watch read the events this just rewrote, and the caller's
     // cache invalidation is what redraws the screen underneath the user.
     await publishWidgetSnapshot().catch(() => false);

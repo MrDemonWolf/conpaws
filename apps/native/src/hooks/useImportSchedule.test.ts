@@ -9,6 +9,8 @@ const { repo, notifications } = vi.hoisted(() => ({
   notifications: {
     scheduleEventReminder: vi.fn(),
     cancelEventReminder: vi.fn(),
+    cancelStartReminder: vi.fn(),
+    reconcileEventReminders: vi.fn(),
   },
 }));
 
@@ -26,6 +28,9 @@ function reminderEvent(
     conventionId: "convention-1",
     title: "Fursuit Parade",
     startTime: "2026-08-27T18:00:00.000Z",
+    endTime: "2026-08-27T19:00:00.000Z",
+    personalStartTime: null,
+    personalEndTime: null,
     room: "Main Stage",
     location: null,
     reminderMinutes: 30,
@@ -38,6 +43,8 @@ describe("rearmImportedReminders", () => {
     repo.update.mockReset().mockResolvedValue(undefined);
     notifications.scheduleEventReminder.mockReset();
     notifications.cancelEventReminder.mockReset().mockResolvedValue(true);
+    notifications.cancelStartReminder.mockReset().mockResolvedValue(true);
+    notifications.reconcileEventReminders.mockReset().mockResolvedValue({});
   });
 
   it("keeps the saved choice when the OS request throws", async () => {
@@ -72,6 +79,9 @@ describe("rearmImportedReminders", () => {
         conventionId: "convention-1",
         title: "Fursuit Parade",
         startTime: "2026-08-27T18:00:00.000Z",
+        endTime: "2026-08-27T19:00:00.000Z",
+        personalStartTime: null,
+        personalEndTime: null,
         room: "Main Stage",
       },
       30,
@@ -94,8 +104,36 @@ describe("rearmImportedReminders", () => {
     expect(repo.update).toHaveBeenCalledWith("past", {
       reminderMinutes: null,
     });
-    expect(notifications.cancelEventReminder).toHaveBeenCalledWith("past");
+    expect(notifications.cancelStartReminder).toHaveBeenCalledWith("past");
     expect(notifications.scheduleEventReminder).not.toHaveBeenCalled();
+  });
+
+  it("keeps a late-join reminder whose personal trigger is still ahead", async () => {
+    notifications.scheduleEventReminder.mockResolvedValue("reminder-late");
+
+    const result = await rearmImportedReminders(
+      [
+        reminderEvent({
+          id: "late",
+          startTime: "2026-08-27T11:00:00.000Z",
+          endTime: "2026-08-27T14:00:00.000Z",
+          personalStartTime: "2026-08-27T13:00:00.000Z",
+          personalEndTime: "2026-08-27T13:30:00.000Z",
+        }),
+      ],
+      NOW,
+    );
+
+    expect(result).toEqual({ rescheduled: 1, cleared: 0, paused: 0 });
+    expect(repo.update).not.toHaveBeenCalled();
+    expect(notifications.scheduleEventReminder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "late",
+        personalStartTime: "2026-08-27T13:00:00.000Z",
+      }),
+      30,
+      { requestPermission: false },
+    );
   });
 
   it("leaves an unparseable startTime alone instead of clearing it", async () => {
