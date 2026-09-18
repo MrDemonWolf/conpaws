@@ -1,3 +1,9 @@
+import {
+  fetchStreaming,
+  MAX_ICS_BYTES,
+  ResponseTooLargeError,
+  readResponseTextWithLimit,
+} from "./bounded-response";
 import { fetchEcpFullSchedule, isEventsCalendarFeed } from "./ecp-feed";
 import {
   InvalidScheduleUrlError,
@@ -6,6 +12,7 @@ import {
   type ScheduleUrlKind,
 } from "./schedule-url";
 
+export { MAX_ICS_BYTES } from "./bounded-response";
 export {
   InvalidScheduleUrlError,
   reversedSchedSuggestion,
@@ -47,14 +54,9 @@ export class ScheduleFetchCancelledError extends Error {
  * schedule and still small enough that a hostile or broken URL cannot make
  * the app buffer the device out of memory.
  *
- * ponytail: Content-Length is checked first, then the decoded body. React
- * Native's fetch has no dependable streaming reader, so a chunked response
- * that lies about its length is still buffered once before it is rejected.
- * If that ever matters, move this to an expo-file-system download with a
- * progress callback and abort mid-transfer.
+ * expo/fetch exposes the native response as a byte stream, so the cap is
+ * enforced while downloading even when Content-Length is absent or false.
  */
-export const MAX_ICS_BYTES = 8 * 1024 * 1024;
-
 export class ScheduleTooLargeError extends Error {
   constructor(bytes: number) {
     super(
@@ -101,7 +103,7 @@ export async function fetchScheduleIcs(
   options?.signal?.addEventListener("abort", abortFromCaller);
 
   try {
-    const response = await fetch(resolved.fetchUrl, {
+    const response = await fetchStreaming(resolved.fetchUrl, {
       signal: controller.signal,
       headers: { Accept: "text/calendar, text/plain;q=0.9, */*;q=0.1" },
     });
@@ -110,22 +112,7 @@ export async function fetchScheduleIcs(
       throw new NetworkError(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    // Refuse before reading when the server is honest about the size.
-    const declared = Number(response.headers.get("content-length"));
-    if (Number.isFinite(declared) && declared > MAX_ICS_BYTES) {
-      throw new ScheduleTooLargeError(declared);
-    }
-
-    const body = await response.text();
-
-    // Character count, not byte count. A UTF-8 body always has at least as
-    // many bytes as characters, so this can only under-reject — by at most 4x
-    // on a body made entirely of 4-byte characters, which is still a hard
-    // bound. It avoids re-encoding 8MB just to measure it, and avoids betting
-    // on Blob or TextEncoder being present on Hermes.
-    if (body.length > MAX_ICS_BYTES) {
-      throw new ScheduleTooLargeError(body.length);
-    }
+    const body = await readResponseTextWithLimit(response, MAX_ICS_BYTES);
 
     // Sniff the body rather than trusting Content-Type: plenty of hosts serve
     // .ics as text/plain or application/octet-stream, and a site that answers
@@ -147,6 +134,9 @@ export async function fetchScheduleIcs(
       kind: resolved.kind,
     };
   } catch (err) {
+    if (err instanceof ResponseTooLargeError) {
+      throw new ScheduleTooLargeError(err.bytes);
+    }
     if (
       err instanceof InvalidScheduleUrlError ||
       err instanceof InvalidResponseError ||
@@ -200,7 +190,9 @@ async function expandTruncatedFeed(
       signal: controller.signal,
     });
     if (!expanded) return body;
-    if (expanded.length > MAX_ICS_BYTES) return body;
+    if (new TextEncoder().encode(expanded).byteLength > MAX_ICS_BYTES) {
+      return body;
+    }
     return countEvents(expanded) > countEvents(body) ? expanded : body;
   } catch (error) {
     // A cancelled import must stay cancelled; the outer handler turns this

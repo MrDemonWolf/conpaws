@@ -27,25 +27,7 @@ function fakeDb(
   const db = {
     select: () => ({
       from: () => ({
-        // Two different queries end at `where`: the address lookup calls
-        // `.limit(1)` after it, while the per-IP count awaits it directly.
-        // One thenable with a `limit` method serves both.
-        where: () =>
-          Object.assign(Promise.resolve([{ count: recentFromIp }]), {
-            limit: () => Promise.resolve(existing),
-          }),
-      }),
-    }),
-    insert: () => ({
-      values: (row: unknown) => ({
-        onConflictDoNothing: () => ({
-          // RETURNING is empty when the INSERT lost to a concurrent one.
-          returning: () => {
-            if (!claimSucceeds) return Promise.resolve([]);
-            inserted.push(row);
-            return Promise.resolve([{ id: "inserted" }]);
-          },
-        }),
+        where: () => ({ limit: () => Promise.resolve(existing) }),
       }),
     }),
     update: () => ({
@@ -58,7 +40,33 @@ function fakeDb(
     }),
   };
 
-  return { db, inserted };
+  const d1 = {
+    prepare: () => ({
+      bind: (...values: unknown[]) => ({
+        all: async () => {
+          if (recentFromIp >= 5) return { results: [] };
+          if (!claimSucceeds) return { results: [{ id: "concurrent" }] };
+          inserted.push({
+            id: values[0],
+            email: values[1],
+            name: values[2],
+            source: values[3],
+            consentCopy: values[4],
+            ip: values[5],
+            userAgent: values[6],
+            country: values[7],
+            referer: values[8],
+            utmSource: values[9],
+            utmMedium: values[10],
+            utmCampaign: values[11],
+          });
+          return { results: [{ id: values[0] }] };
+        },
+      }),
+    }),
+  };
+
+  return { d1, db, inserted };
 }
 
 function wireWorker(
@@ -66,10 +74,13 @@ function wireWorker(
   claimSucceeds = true,
   recentFromIp = 0,
 ) {
-  const { db, inserted } = fakeDb(existing, claimSucceeds, recentFromIp);
+  const { d1, db, inserted } = fakeDb(existing, claimSucceeds, recentFromIp);
   const waitUntil = vi.fn();
   createDb.mockReturnValue(db);
-  getCloudflareContext.mockReturnValue({ env: ENV, ctx: { waitUntil } });
+  getCloudflareContext.mockReturnValue({
+    env: { ...ENV, DB: d1 },
+    ctx: { waitUntil },
+  });
   return { inserted, waitUntil };
 }
 

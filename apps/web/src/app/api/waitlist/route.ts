@@ -1,19 +1,19 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { and, count, eq, gte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createDb } from "../../../db";
-import { waitlist } from "../../../db/schema";
+import { type WaitlistInsert, waitlist } from "../../../db/schema";
 import { readBodyWithLimit } from "../../../lib/body-limit";
 import { CONSENT_COPY } from "../../../lib/consent";
 import { readListmonkConfig } from "../../../lib/listmonk";
 import { verifyTurnstile } from "../../../lib/turnstile";
 import {
   claimRow,
+  MAX_SIGNUPS_PER_IP,
   MAX_SYNC_ATTEMPTS,
   resendAllowed,
   SIGNUP_WINDOW_MS,
-  signupAllowedFromIp,
   syncRow,
 } from "../../../lib/waitlist";
 
@@ -49,6 +49,52 @@ const Body = z.object({
 
 /** Humans take longer than this to read two fields and type an email. */
 const MIN_ELAPSED_MS = 2000;
+
+async function admitWaitlistRow(
+  d1: CloudflareEnv["DB"],
+  row: WaitlistInsert & { id: string },
+): Promise<"inserted" | "duplicate" | "limited"> {
+  const result = await d1
+    .prepare(
+      `INSERT INTO waitlist (
+        id, email, name, status, source, consent_copy, ip, user_agent, country,
+        referer, utm_source, utm_medium, utm_campaign, sync_attempts,
+        sync_attempted_at
+      )
+      SELECT ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      WHERE EXISTS (SELECT 1 FROM waitlist WHERE email = ?)
+         OR ? IS NULL
+         OR (SELECT COUNT(*) FROM waitlist WHERE ip = ? AND created_at >= ?) < ?
+      ON CONFLICT(email) DO UPDATE SET email = excluded.email
+      RETURNING id`,
+    )
+    .bind(
+      row.id,
+      row.email,
+      row.name,
+      row.source,
+      row.consentCopy,
+      row.ip,
+      row.userAgent,
+      row.country,
+      row.referer,
+      row.utmSource,
+      row.utmMedium,
+      row.utmCampaign,
+      row.syncAttempts,
+      row.syncAttemptedAt?.getTime() ?? null,
+      row.email,
+      row.ip,
+      row.ip,
+      Date.now() - SIGNUP_WINDOW_MS,
+      MAX_SIGNUPS_PER_IP,
+    )
+    .all<{ id: string }>();
+
+  const id = result.results[0]?.id;
+  if (!id) return "limited";
+  return id === row.id ? "inserted" : "duplicate";
+}
 
 /**
  * Fail-closed 503 for a misconfigured or unreachable backend.
@@ -184,29 +230,6 @@ export async function POST(request: Request) {
     return Response.json({ ok: true });
   }
 
-  // A new address, which is the only path that creates a row and sends mail.
-  // The per-address cooldown above bounds repeats to ONE inbox and says
-  // nothing about distinct ones, so this is what stops a caller with solved
-  // Turnstile tokens from walking a list of strangers' addresses and having
-  // SES deliver one unrequested confirmation to each.
-  if (ip) {
-    const since = new Date(Date.now() - SIGNUP_WINDOW_MS);
-    const [recent] = await db
-      .select({ count: count() })
-      .from(waitlist)
-      .where(and(eq(waitlist.ip, ip), gte(waitlist.createdAt, since)));
-
-    if (!signupAllowedFromIp(recent?.count ?? 0)) {
-      // Deliberately vague and 429 rather than a silent success: a real person
-      // on a shared connection deserves to know the request was refused and
-      // that waiting fixes it.
-      return Response.json(
-        { error: "Too many signups from this connection. Try again later." },
-        { status: 429, headers: { "Retry-After": "3600" } },
-      );
-    }
-  }
-
   const row = {
     id: crypto.randomUUID(),
     email,
@@ -225,18 +248,19 @@ export async function POST(request: Request) {
     // moments later would see a fresh-looking row and send again.
     syncAttempts: 1,
     syncAttemptedAt: new Date(),
-  };
+  } satisfies WaitlistInsert;
 
-  // RETURNING tells us whether this request actually created the row. Two
-  // concurrent signups for the same new address both pass the SELECT above;
-  // only the one whose INSERT wins should send a confirmation email.
-  const inserted = await db
-    .insert(waitlist)
-    .values(row)
-    .onConflictDoNothing()
-    .returning({ id: waitlist.id });
+  // Admission and insertion are one SQLite statement. Concurrent distinct
+  // addresses cannot all observe the same pre-insert count and overrun the cap.
+  const admission = await admitWaitlistRow(env.DB, row);
+  if (admission === "limited") {
+    return Response.json(
+      { error: "Too many signups from this connection. Try again later." },
+      { status: 429, headers: { "Retry-After": "3600" } },
+    );
+  }
 
-  if (inserted.length > 0) {
+  if (admission === "inserted") {
     ctx.waitUntil(syncRow(db, listmonk, row));
   }
 

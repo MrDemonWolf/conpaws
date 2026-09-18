@@ -1,4 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("expo/fetch", () => ({
+  fetch: (...args: Parameters<typeof globalThis.fetch>) =>
+    globalThis.fetch(...args),
+}));
+
+import { ResponseTooLargeError } from "./bounded-response";
 import {
   buildIcsFromEcpEvents,
   type EcpEvent,
@@ -105,13 +112,19 @@ describe("buildIcsFromEcpEvents", () => {
     ]);
     expect(parseIcs(ics).events).toHaveLength(1);
   });
+
+  it("stops multibyte output at the byte ceiling while rendering", () => {
+    const events = Array.from({ length: 150 }, (_, id) =>
+      event({ id, description: "🐺".repeat(18_000) }),
+    );
+
+    expect(() => buildIcsFromEcpEvents(events)).toThrow(ResponseTooLargeError);
+  });
 });
 
 describe("fetchEcpFullSchedule", () => {
-  const page = (events: EcpEvent[], total_pages: number) => ({
-    ok: true,
-    json: async () => ({ events, total_pages }),
-  });
+  const page = (events: EcpEvent[], total_pages: number) =>
+    Response.json({ events, total_pages });
 
   it("follows pagination and asks for the whole date range", async () => {
     const fetchMock = vi
@@ -138,15 +151,7 @@ describe("fetchEcpFullSchedule", () => {
   });
 
   it("gives up quietly when the response is not JSON", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => {
-          throw new Error("not json");
-        },
-      }),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("not json")));
     expect(
       await fetchEcpFullSchedule("https://example.org/?ical=1"),
     ).toBeNull();
@@ -154,11 +159,59 @@ describe("fetchEcpFullSchedule", () => {
   });
 
   it("stops at the page cap even when the server keeps claiming more", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(page([event()], 9999));
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(async () => page([event()], 9999));
     vi.stubGlobal("fetch", fetchMock);
 
     await fetchEcpFullSchedule("https://example.org/?ical=1");
     expect(fetchMock).toHaveBeenCalledTimes(20);
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects a page that ignores the requested event cap", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        page(
+          Array.from({ length: 51 }, () => event()),
+          1,
+        ),
+      ),
+    );
+
+    await expect(
+      fetchEcpFullSchedule("https://example.org/?ical=1"),
+    ).resolves.toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it("does not swallow cancellation while reading an ECP page", async () => {
+    const controller = new AbortController();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(
+        async (_url: string, init?: { signal?: AbortSignal }) =>
+          new Response(
+            new ReadableStream({
+              start(stream) {
+                init?.signal?.addEventListener("abort", () => {
+                  stream.error(
+                    Object.assign(new Error("Aborted"), { name: "AbortError" }),
+                  );
+                });
+              },
+            }),
+          ),
+      ),
+    );
+
+    const pending = fetchEcpFullSchedule("https://example.org/?ical=1", {
+      signal: controller.signal,
+    });
+    controller.abort();
+
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
     vi.unstubAllGlobals();
   });
 });
