@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  conventionDateKeys,
   conventionDayKey,
   conventionStatusForDay,
   formatInConventionTime,
@@ -9,6 +10,17 @@ import {
 } from "./convention-time";
 
 describe("convention time", () => {
+  it("lists inclusive convention days and rejects invalid ranges", () => {
+    expect(conventionDateKeys("2026-09-03", "2026-09-06")).toEqual([
+      "2026-09-03",
+      "2026-09-04",
+      "2026-09-05",
+      "2026-09-06",
+    ]);
+    expect(conventionDateKeys("2026-02-30", "2026-03-02")).toEqual([]);
+    expect(conventionDateKeys("2026-09-06", "2026-09-03")).toEqual([]);
+  });
+
   it("uses the convention day when UTC has crossed midnight", () => {
     const instant = "2026-07-16T01:00:00.000Z";
 

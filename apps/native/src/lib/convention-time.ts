@@ -1,6 +1,18 @@
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 
+const DAY_MS = 86_400_000;
+const MAX_CONVENTION_DAY_KEYS = 366;
+
+function parseConventionDateKey(value: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const timestamp = Date.parse(`${value}T00:00:00Z`);
+  if (!Number.isFinite(timestamp)) return null;
+  return new Date(timestamp).toISOString().slice(0, 10) === value
+    ? timestamp
+    : null;
+}
+
 export function isValidTimeZone(timeZone: unknown): timeZone is string {
   if (typeof timeZone !== "string" || !timeZone) return false;
 
@@ -50,6 +62,23 @@ export function conventionDayKey(
   timeZone: string,
 ): string {
   return formatInConventionTime(value, timeZone, "yyyy-MM-dd");
+}
+
+/** Enumerate a bounded, inclusive convention date range. */
+export function conventionDateKeys(
+  startDate: string,
+  endDate: string,
+): string[] {
+  const start = parseConventionDateKey(startDate);
+  const end = parseConventionDateKey(endDate);
+  if (start === null || end === null || end < start) return [];
+
+  const dayCount = Math.floor((end - start) / DAY_MS) + 1;
+  if (dayCount > MAX_CONVENTION_DAY_KEYS) return [];
+
+  return Array.from({ length: dayCount }, (_, index) =>
+    new Date(start + index * DAY_MS).toISOString().slice(0, 10),
+  );
 }
 
 export function conventionStatusForDay(

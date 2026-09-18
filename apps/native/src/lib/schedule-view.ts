@@ -110,6 +110,35 @@ export function eventConventionStartHour(
   return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : null;
 }
 
+/** Whether the published event intersects one convention-local calendar day. */
+export function eventOccursOnConventionDay(
+  event: Pick<ScheduleViewEvent, "startTime" | "endTime">,
+  dayKey: string,
+  timeZone: string,
+): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dayKey);
+  if (!match) return false;
+
+  const start = Date.parse(event.startTime);
+  if (!Number.isFinite(start)) return false;
+  const end = event.endTime
+    ? Date.parse(event.endTime)
+    : start + NO_END_FALLBACK_MS;
+  if (!Number.isFinite(end) || end <= start) return false;
+
+  const day = {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3]),
+  };
+  const dayStart = fromConventionTime(day, timeZone).getTime();
+  const dayEnd = fromConventionTime(
+    { ...day, day: day.day + 1 },
+    timeZone,
+  ).getTime();
+  return start < dayEnd && dayStart < end;
+}
+
 /** Whether the published event intersects one local clock-hour slot. */
 export function eventOccursInConventionHour(
   event: Pick<ScheduleViewEvent, "startTime" | "endTime">,

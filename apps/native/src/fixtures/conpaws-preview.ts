@@ -10,14 +10,14 @@ const FIXTURE_TIME = "2026-08-19T12:00:00.000Z";
 // Timing, duration, venue concurrency, and audience mix model the public IFC
 // 2026 schedule. Names, descriptions, rooms, and identifiers are synthetic.
 const SCHEDULE_SHAPE = [
-  [1140, 60, 8, 1],
-  [1140, 60, 5, 0],
-  [1140, 180, 8, 0],
-  [1140, 180, 8, 0],
-  [1140, 360, 8, 0],
-  [1140, 420, 4, 0],
-  [1200, 60, 9, 1],
-  [1200, 60, 7, 0],
+  [840, 60, 8, 0],
+  [840, 90, 5, 0],
+  [840, 60, 8, 0],
+  [840, 60, 8, 0],
+  [840, 60, 8, 0],
+  [840, 60, 4, 0],
+  [855, 60, 9, 1],
+  [870, 60, 7, 0],
   [1230, 60, 1, 0],
   [1230, 60, 6, 1],
   [1230, 180, 5, 2],
@@ -250,6 +250,17 @@ const TOPICS = [
   ["Wellness Break", "Wellness"],
 ] as const;
 
+const FEATURED_EVENTS = [
+  ["Fursuit photography", "Ballroom A", "Fursuiting"],
+  ["Character design lab", "Cedar", "Art"],
+  ["Find your local pack", "Birch", "Community"],
+  ["Board game social", "Game Lounge", "Gaming"],
+  ["Worldbuilding together", "Willow", "Writing"],
+  ["Paw-friendly prop making", "Oak", "Art"],
+  ["Dance, paws & all", "Ballroom B", "Performance"],
+  ["Your first fursuit", "Maple", "Fursuiting"],
+] as const;
+
 const FORMATS = [
   "101",
   "Workshop",
@@ -290,31 +301,33 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
   const events = SCHEDULE_SHAPE.map(
     ([startMinutes, durationMinutes, roomIndex, audienceIndex], index) => {
       const [topic, category] = TOPICS[index % TOPICS.length];
+      const featured = FEATURED_EVENTS[index];
+      const eventCategory = featured?.[2] ?? category;
       const format = FORMATS[Math.floor(index / TOPICS.length)];
       const unavailable =
-        index === 2 ? "cancelled" : index === 3 ? "removed" : null;
-      const selected = index < 4 || index % 17 === 0;
+        index === 10 ? "cancelled" : index === 11 ? "removed" : null;
+      const selected = [0, 1, 8, 12, 16].includes(index);
       const ordinal = String(index + 1).padStart(3, "0");
 
       return {
         id: `conpaws-preview-event-${ordinal}`,
         conventionId: PREVIEW_CONVENTION_ID,
-        title: `${topic} ${format}`,
-        description: `A synthetic ${category.toLowerCase()} session for previewing schedules, filters, conflicts, reminders, and offline behavior.`,
+        title: featured?.[0] ?? `${topic} ${format}`,
+        description: `A synthetic ${eventCategory.toLowerCase()} session for previewing schedules, filters, conflicts, reminders, and offline behavior.`,
         startTime: isoAt(startMinutes),
         endTime: isoAt(startMinutes + durationMinutes),
         location: "ConPaws Convention Center",
-        room: ROOMS[roomIndex],
-        category,
+        room: featured?.[1] ?? ROOMS[roomIndex],
+        category: eventCategory,
         type: AUDIENCES[audienceIndex],
         isInSchedule: selected,
-        isInterested: index < 10 || selected,
+        isInterested: index < 2 || index === 7 || selected,
         personalStartTime: index === 1 ? isoAt(startMinutes + 35) : null,
         personalEndTime:
           index === 0
             ? isoAt(startMinutes + 25)
             : index === 1
-              ? isoAt(startMinutes + 50)
+              ? isoAt(startMinutes + 80)
               : null,
         reminderMinutes:
           selected && unavailable === null

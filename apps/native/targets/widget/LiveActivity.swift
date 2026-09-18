@@ -204,6 +204,8 @@ struct ConPawsLiveActivityWidget: Widget {
         }
         DynamicIslandExpandedRegion(.trailing) {
           ConPawsActivityTimer(content: content)
+            .environment(\.locale, content.locale)
+            .environment(\.timeZone, content.timeZone)
         }
         DynamicIslandExpandedRegion(.center) {
           VStack(spacing: 2) {
@@ -242,19 +244,21 @@ struct ConPawsLiveActivityWidget: Widget {
                   .monospacedDigit()
               }
             }
+            .environment(\.locale, content.locale)
+            .environment(\.timeZone, content.timeZone)
           }
         }
       } compactLeading: {
         Image(systemName: "pawprint.fill")
       } compactTrailing: {
         ConPawsActivityTimer(content: content, compact: true)
+          .environment(\.locale, content.locale)
+          .environment(\.timeZone, content.timeZone)
       } minimal: {
         Image(systemName: content.phase == .finished ? "checkmark" : "pawprint.fill")
       }
       .widgetURL(appURL)
       .keylineTint(.accentColor)
-      .environment(\.locale, content.locale)
-      .environment(\.timeZone, content.timeZone)
     }
   }
 }
