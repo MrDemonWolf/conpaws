@@ -3,6 +3,7 @@ import {
   eventConventionStartHour,
   eventMatchesScheduleSearch,
   eventOccursInConventionHour,
+  eventOccursOnConventionDay,
   getNowAndNextEvents,
   type ScheduleViewEvent,
 } from "./schedule-view";
@@ -191,5 +192,18 @@ describe("getNowAndNextEvents", () => {
         "America/Chicago",
       ),
     ).toBe(false);
+  });
+
+  it("includes an overnight session in the next day's All times view", () => {
+    const overnight = event(
+      "overnight",
+      "2026-08-18T03:30:00.000Z",
+      "2026-08-18T05:30:00.000Z",
+      "A",
+    );
+
+    expect(
+      eventOccursOnConventionDay(overnight, "2026-08-18", "America/Chicago"),
+    ).toBe(true);
   });
 });

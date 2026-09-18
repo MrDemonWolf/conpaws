@@ -23,6 +23,7 @@ interface SwipeableEventRowProps {
   overlapCount?: number;
   onSelect: (event: ConventionEvent) => void;
   onToggleSchedule: (event: ConventionEvent) => void;
+  onToggleInterest: (event: ConventionEvent) => void;
   /** Day-band background, forwarded to the row. */
   className?: string;
 }

@@ -1,4 +1,4 @@
-import { Redirect } from "expo-router";
+import { Redirect, useSegments } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,8 @@ import { getCachedOnboardingFlag } from "@/lib/onboarding-storage";
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const segments = useSegments();
+  const conventionOpen = segments.join("/").includes("convention");
 
   // Inbound links resolve straight into the tabs without passing app/index's
   // gate — a widget tap (conpaws://schedule) on a fresh install used to land
@@ -21,6 +23,7 @@ export default function TabsLayout() {
 
   return (
     <NativeTabs
+      hidden={conventionOpen}
       tintColor={colors.primary}
       minimizeBehavior="never"
       disableTransparentOnScrollEdge
