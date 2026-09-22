@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Harmonogram</string>
+  <string name="conpaws_widget_description">Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Otwórz konwent →</string>
+  <string name="conpaws_widget_unavailable_title">Nie udało się wczytać harmonogramu.</string>
+  <string name="conpaws_widget_unavailable_body">Nie udało się wczytać konwentów.</string>
+  <string name="conpaws_widget_empty_title">Nic jeszcze nie oznaczono</string>
+  <string name="conpaws_widget_empty_body">Dotknij wydarzenia w konwencie, aby dodać je do Mojego planu — pojawi się tutaj.</string>
+  <string name="conpaws_widget_finished_title">W moim harmonogramie nie ma więcej nadchodzących wydarzeń.</string>
+  <string name="conpaws_widget_finished_body">W tej chwili nic z mojego harmonogramu się nie odbywa.</string>
+  <string name="conpaws_widget_upcoming">Nadchodzące najpierw</string>
+  <string name="conpaws_widget_today">Dzisiaj</string>
+  <string name="conpaws_widget_tomorrow">Jutro</string>
+  <string name="conpaws_widget_now">Teraz</string>
+  <string name="conpaws_widget_next">Następne →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Teraz · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">W moim harmonogramie nie ma więcej nadchodzących wydarzeń.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Nakłada się na inny zapisany panel</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Za %1$d dni</item>
+    <item quantity="other">Za %1$d dni</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Następne o %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Teraz</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Następne: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Następne: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">W moim harmonogramie nie ma więcej nadchodzących wydarzeń.</string>
+  <string name="conpaws_plan_finished_body">Brak zapisanych wydarzeń dla %1$s</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Otwórz konwent</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

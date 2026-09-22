@@ -4,8 +4,8 @@ import { Alert, View } from "react-native";
 import { Button, Text } from "@/components/ui";
 import {
   endLiveActivity,
-  getLiveActivityStatus,
   type LiveActivityStatus,
+  reconcileLiveActivity,
   startOrUpdateLiveActivity,
 } from "@/services/live-activity";
 import type { LiveActivityControlProps } from "./LiveActivityControl";
@@ -20,12 +20,9 @@ export function LiveActivityControl({
 
   useEffect(() => {
     let cancelled = false;
-    void getLiveActivityStatus()
-      .then((current) =>
-        current.active && revision !== ""
-          ? startOrUpdateLiveActivity()
-          : current,
-      )
+    // The revision triggers this read; the service loads the current DB state.
+    void revision;
+    void reconcileLiveActivity()
       .then((current) => {
         if (!cancelled) setStatus(current);
       })

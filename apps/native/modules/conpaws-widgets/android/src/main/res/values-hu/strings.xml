@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Program</string>
+  <string name="conpaws_widget_description">Építsd fel a Saját programot, nézd a Most és következőt, és szúrd ki az átfedéseket.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Con megnyitása →</string>
+  <string name="conpaws_widget_unavailable_title">A programodat nem sikerült betölteni.</string>
+  <string name="conpaws_widget_unavailable_body">A conokat nem sikerült betölteni.</string>
+  <string name="conpaws_widget_empty_title">Még nincs semmi megjelölve</string>
+  <string name="conpaws_widget_empty_body">Koppints egy eseményre egy conon belül, hogy hozzáadd a Saját programhoz — itt fog megjelenni.</string>
+  <string name="conpaws_widget_finished_title">Nincs több közelgő esemény a Saját programban.</string>
+  <string name="conpaws_widget_finished_body">A Saját programból most semmi sem zajlik.</string>
+  <string name="conpaws_widget_upcoming">Közelgők elöl</string>
+  <string name="conpaws_widget_today">Ma</string>
+  <string name="conpaws_widget_tomorrow">Holnap</string>
+  <string name="conpaws_widget_now">Most</string>
+  <string name="conpaws_widget_next">Következő →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Most · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Nincs több közelgő esemény a Saját programban.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Átfed egy másik mentett panelt</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">%1$d nap múlva</item>
+    <item quantity="other">%1$d nap múlva</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Következő %1$s-kor</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Most</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Következő: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Következő: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Nincs több közelgő esemény a Saját programban.</string>
+  <string name="conpaws_plan_finished_body">Ehhez még nincs semmi mentve: %1$s</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Con megnyitása</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

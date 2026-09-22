@@ -25,7 +25,6 @@ import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.defaultWeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -33,7 +32,6 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
-import androidx.glance.text.TextOverflow
 import androidx.glance.text.TextStyle
 import java.util.Date
 import java.util.TimeZone
@@ -97,16 +95,15 @@ private fun WidgetHeader(state: ConPawsWidgetState) {
   Row(GlanceModifier.fillMaxWidth()) {
     Text(
       text = context.getString(R.string.conpaws_widget_brand),
-      modifier = GlanceModifier.defaultWeight(),
       style = labelStyle(),
       maxLines = 1,
     )
+    Spacer(GlanceModifier.width(12.dp))
     convention?.let {
       Text(
         text = it.name,
         style = captionStyle(),
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
       )
     }
   }
@@ -123,10 +120,10 @@ private fun CompactContent(state: ConPawsWidgetState) {
       } else {
         Text(text = eventCue(context, state, event), style = labelStyle())
         Spacer(GlanceModifier.height(4.dp))
-        Text(text = event.title, style = titleStyle(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(text = event.title, style = titleStyle(), maxLines = 2)
         eventPlace(event)?.let {
           Spacer(GlanceModifier.height(4.dp))
-          Text(text = it, style = captionStyle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+          Text(text = it, style = captionStyle(), maxLines = 1)
         }
       }
     }
@@ -150,13 +147,13 @@ private fun WideContent(state: ConPawsWidgetState) {
   val context = LocalContext.current
   when (state) {
     is ConPawsWidgetState.Active -> Row(GlanceModifier.fillMaxWidth()) {
-      PlanColumn(state, state.timeline.currentEvent ?: state.timeline.nextEvent, GlanceModifier.defaultWeight())
+      PlanColumn(state, state.timeline.currentEvent ?: state.timeline.nextEvent, GlanceModifier.width(136.dp))
       Spacer(GlanceModifier.width(16.dp))
       val second = state.timeline.nextEvent.takeIf { state.timeline.currentEvent != null }
       if (second != null) {
-        PlanColumn(state, second, GlanceModifier.defaultWeight())
+        PlanColumn(state, second, GlanceModifier.width(136.dp))
       } else {
-        Column(GlanceModifier.defaultWeight()) {
+        Column(GlanceModifier.width(136.dp)) {
           Text(text = context.getString(R.string.conpaws_widget_no_next), style = bodyStyle(), maxLines = 2)
           Spacer(GlanceModifier.height(5.dp))
           Text(text = context.getString(R.string.conpaws_widget_open), style = labelStyle())
@@ -164,12 +161,12 @@ private fun WideContent(state: ConPawsWidgetState) {
       }
     }
     is ConPawsWidgetState.Upcoming -> Row(GlanceModifier.fillMaxWidth()) {
-      Column(GlanceModifier.defaultWeight()) {
+      Column(GlanceModifier.width(136.dp)) {
         Text(text = countdown(context, state.daysUntil), style = heroStyle())
-        Text(text = state.convention.name, style = bodyStyle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = state.convention.name, style = bodyStyle(), maxLines = 1)
       }
       Spacer(GlanceModifier.width(16.dp))
-      Column(GlanceModifier.defaultWeight()) {
+      Column(GlanceModifier.width(136.dp)) {
         Text(text = state.convention.dateRangeLabel, style = bodyStyle(), maxLines = 2)
         Spacer(GlanceModifier.height(5.dp))
         Text(text = context.getString(R.string.conpaws_widget_open), style = labelStyle())
@@ -207,7 +204,7 @@ private fun TallContent(state: ConPawsWidgetState) {
       Text(text = "${state.convention.name} · ${state.convention.dateRangeLabel}", style = bodyStyle(), maxLines = 2)
       Spacer(GlanceModifier.height(8.dp))
       state.convention.events.take(3).forEach { EventRow(state, it) }
-      Spacer(GlanceModifier.defaultWeight())
+      Spacer(GlanceModifier.height(8.dp))
       Text(text = context.getString(R.string.conpaws_widget_open), style = labelStyle())
     }
     is ConPawsWidgetState.Finished -> {
@@ -233,10 +230,10 @@ private fun PlanColumn(
   val context = LocalContext.current
   Column(modifier) {
     Text(text = eventCue(context, state, event), style = labelStyle(), maxLines = 1)
-    Text(text = event.title, style = bodyStyle(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+    Text(text = event.title, style = bodyStyle(), maxLines = 2)
     eventPlace(event)?.let {
       Spacer(GlanceModifier.height(3.dp))
-      Text(text = it, style = captionStyle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+      Text(text = it, style = captionStyle(), maxLines = 1)
     }
   }
 }
@@ -256,10 +253,9 @@ private fun EventRow(state: ConPawsWidgetState, event: ConPawsEventSnapshot) {
       text = "${formatTime(context, convention, event.plannedStartAtMs)} · ${event.title}",
       style = rowStyle(),
       maxLines = 1,
-      overflow = TextOverflow.Ellipsis,
     )
     eventPlace(event)?.let {
-      Text(text = it, style = rowCaptionStyle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+      Text(text = it, style = rowCaptionStyle(), maxLines = 1)
     }
   }
   Spacer(GlanceModifier.height(5.dp))
@@ -271,7 +267,7 @@ private fun EmptyMessage(title: Int, body: Int) {
   Text(text = context.getString(title), style = titleStyle(), maxLines = 2)
   Spacer(GlanceModifier.height(5.dp))
   Text(text = context.getString(body), style = captionStyle(), maxLines = 3)
-  Spacer(GlanceModifier.defaultWeight())
+  Spacer(GlanceModifier.height(8.dp))
   Text(text = context.getString(R.string.conpaws_widget_open), style = labelStyle())
 }
 
@@ -279,9 +275,9 @@ private fun EmptyMessage(title: Int, body: Int) {
 private fun WideMessage(title: Int, body: Int) {
   val context = LocalContext.current
   Row(GlanceModifier.fillMaxWidth()) {
-    Text(text = context.getString(title), modifier = GlanceModifier.defaultWeight(), style = titleStyle(), maxLines = 2)
+    Text(text = context.getString(title), modifier = GlanceModifier.width(136.dp), style = titleStyle(), maxLines = 2)
     Spacer(GlanceModifier.width(16.dp))
-    Column(GlanceModifier.defaultWeight()) {
+    Column(GlanceModifier.width(136.dp)) {
       Text(text = context.getString(body), style = captionStyle(), maxLines = 3)
       Spacer(GlanceModifier.height(5.dp))
       Text(text = context.getString(R.string.conpaws_widget_open), style = labelStyle())

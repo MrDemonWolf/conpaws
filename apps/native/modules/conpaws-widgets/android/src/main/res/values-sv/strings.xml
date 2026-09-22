@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Schema</string>
+  <string name="conpaws_widget_description">Skapa ditt schema, se vad som händer nu och härnäst och upptäck krockar.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Öppna konventet →</string>
+  <string name="conpaws_widget_unavailable_title">Ditt schema kunde inte läsas in.</string>
+  <string name="conpaws_widget_unavailable_body">Det gick inte att läsa in konvent.</string>
+  <string name="conpaws_widget_empty_title">Inget stjärnmärkt än</string>
+  <string name="conpaws_widget_empty_body">Tryck på ett evenemang i ett konvent för att lägga till det i Mitt schema – det hamnar här.</string>
+  <string name="conpaws_widget_finished_title">Det finns inga fler kommande evenemang i ditt schema.</string>
+  <string name="conpaws_widget_finished_body">Inget från ditt schema pågår just nu.</string>
+  <string name="conpaws_widget_upcoming">Kommande först</string>
+  <string name="conpaws_widget_today">I dag</string>
+  <string name="conpaws_widget_tomorrow">I morgon</string>
+  <string name="conpaws_widget_now">Nu</string>
+  <string name="conpaws_widget_next">Härnäst →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Nu · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Det finns inga fler kommande evenemang i ditt schema.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Överlappar en annan sparad panel</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Om %1$d dagar</item>
+    <item quantity="other">Om %1$d dagar</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Härnäst klockan %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Nu</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Härnäst: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Härnäst: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Det finns inga fler kommande evenemang i ditt schema.</string>
+  <string name="conpaws_plan_finished_body">Inget sparat för %1$s än</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Öppna konventet</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

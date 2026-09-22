@@ -7,6 +7,7 @@ enum ConPawsActivityPhase: String, Codable, Hashable, Sendable {
   case current
   case leave
   case finished
+  case stale
 }
 
 struct ConPawsActivityAttributes: ActivityAttributes, Sendable {
@@ -41,20 +42,16 @@ private extension ConPawsActivityAttributes.ContentState {
   var attendanceEndDate: Date? { attendanceEndAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
   var nextAttendanceStartDate: Date? { nextAttendanceStartAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
 
-  /// ActivityKit can mark one content update stale at its next boundary even
-  /// while the app is suspended. Use that boundary to advance truthful copy:
-  /// upcoming becomes current at the chosen join time, and current/leave
-  /// becomes finished at the chosen end. Later app or push updates can then
-  /// provide the next boundary; no background JavaScript countdown is needed.
+  /// With no push updates, ActivityKit supplies only one reliable boundary
+  /// while the app is suspended. Stop making schedule claims at that boundary;
+  /// the next foreground reconciliation replaces this saved state.
   func displayed(isStale: Bool) -> Self {
     guard isStale else { return self }
     var displayed = self
     switch phase {
-    case .upcoming:
-      displayed.phase = .current
-    case .current, .leave:
-      displayed.phase = .finished
-    case .finished:
+    case .upcoming, .current, .leave:
+      displayed.phase = .stale
+    case .finished, .stale:
       break
     }
     return displayed
@@ -66,6 +63,7 @@ private extension ConPawsActivityAttributes.ContentState {
     case .current: hasPersonalEnd ? strings.leaveIn : strings.nowCaps
     case .leave: strings.leaveCaps
     case .finished: strings.allDoneTitle
+    case .stale: strings.savedSchedule
     }
   }
 }
@@ -90,6 +88,8 @@ private struct ConPawsActivityTimer: View {
         Text(content.strings.now)
       case .finished:
         Image(systemName: "checkmark")
+      case .stale:
+        Image(systemName: "arrow.clockwise")
       }
     }
     .font(compact ? .caption : .headline)

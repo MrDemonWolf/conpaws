@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   endLiveActivity,
   projectLiveActivity,
+  reconcileLiveActivity,
   startOrUpdateLiveActivity,
 } from "./live-activity";
 import type { WidgetEventSnapshot, WidgetSnapshot } from "./widget-snapshot";
@@ -156,6 +157,53 @@ describe("projectLiveActivity", () => {
 });
 
 describe("ActivityKit bridge", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("refreshes an existing activity with the current plan", async () => {
+    nativeMocks.getLiveActivityStatus.mockResolvedValue({
+      availability: "available",
+      active: true,
+    });
+    nativeMocks.startOrUpdateLiveActivity.mockResolvedValue({
+      availability: "available",
+      active: true,
+      phase: "current",
+    });
+
+    await reconcileLiveActivity(
+      snapshot([
+        event(
+          "current",
+          "2026-09-19T19:00:00.000Z",
+          "2026-09-19T20:00:00.000Z",
+        ),
+      ]),
+      now,
+    );
+
+    expect(nativeMocks.getLiveActivityStatus).toHaveBeenCalledOnce();
+    expect(nativeMocks.startOrUpdateLiveActivity).toHaveBeenCalledOnce();
+  });
+
+  it("does not start an inactive activity during reconciliation", async () => {
+    const inactive = { availability: "available", active: false } as const;
+    nativeMocks.getLiveActivityStatus.mockResolvedValue(inactive);
+
+    await expect(
+      reconcileLiveActivity(
+        snapshot([
+          event(
+            "current",
+            "2026-09-19T19:00:00.000Z",
+            "2026-09-19T20:00:00.000Z",
+          ),
+        ]),
+        now,
+      ),
+    ).resolves.toEqual(inactive);
+    expect(nativeMocks.startOrUpdateLiveActivity).not.toHaveBeenCalled();
+  });
+
   it("starts only when explicitly requested and forwards the projection", async () => {
     nativeMocks.startOrUpdateLiveActivity.mockResolvedValue({
       availability: "available",

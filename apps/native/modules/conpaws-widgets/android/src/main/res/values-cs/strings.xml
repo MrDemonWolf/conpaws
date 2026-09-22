@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Program</string>
+  <string name="conpaws_widget_description">Sestavte si Můj program, sledujte Teď a potom a odhalte překryvy.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Otevřít con →</string>
+  <string name="conpaws_widget_unavailable_title">Váš program se nepodařilo načíst.</string>
+  <string name="conpaws_widget_unavailable_body">Cony se nepodařilo načíst.</string>
+  <string name="conpaws_widget_empty_title">Zatím nic označeného</string>
+  <string name="conpaws_widget_empty_body">Klepněte na událost uvnitř conu a přidejte ji do Mého programu — objeví se tady.</string>
+  <string name="conpaws_widget_finished_title">V Mém programu už nejsou žádné další události.</string>
+  <string name="conpaws_widget_finished_body">Z Mého programu právě nic neprobíhá.</string>
+  <string name="conpaws_widget_upcoming">Nejbližší první</string>
+  <string name="conpaws_widget_today">Dnes</string>
+  <string name="conpaws_widget_tomorrow">Zítra</string>
+  <string name="conpaws_widget_now">Teď</string>
+  <string name="conpaws_widget_next">Potom →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Teď · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">V Mém programu už nejsou žádné další události.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Překrývá se s jiným uloženým panelem</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Za %1$d dní</item>
+    <item quantity="other">Za %1$d dní</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Potom v %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Teď</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Potom: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Potom: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">V Mém programu už nejsou žádné další události.</string>
+  <string name="conpaws_plan_finished_body">Pro %1$s zatím nic uloženého</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Otevřít con</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

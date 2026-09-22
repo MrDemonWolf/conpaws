@@ -73,6 +73,7 @@ async function handleWatchLeaveTimeEdit(
 ): Promise<void> {
   if (!nativeModule) return;
   let success = false;
+  let restorePersonalEndTime: (() => Promise<void>) | null = null;
   try {
     const event = isValidRequest(request)
       ? await eventsRepo.getById(request.eventId)
@@ -96,17 +97,29 @@ async function handleWatchLeaveTimeEdit(
     if (createsConflict) return;
 
     await eventsRepo.update(request.eventId, { personalEndTime });
+    restorePersonalEndTime = () =>
+      eventsRepo.update(request.eventId, {
+        personalEndTime: event.personalEndTime,
+      });
     const savedEvent = await eventsRepo.getById(request.eventId);
     if (savedEvent?.personalEndTime !== personalEndTime) return;
+    success = await publishWidgetSnapshot();
+    if (!success) return;
     try {
       await reconcileEventReminders();
     } catch (error) {
       reportError(error, { scope: "watch-plan-edit.reminders" });
     }
-    success = await publishWidgetSnapshot();
   } catch (error) {
     reportError(error, { scope: "watch-plan-edit" });
   } finally {
+    if (!success && restorePersonalEndTime) {
+      try {
+        await restorePersonalEndTime();
+      } catch (error) {
+        reportError(error, { scope: "watch-plan-edit.rollback" });
+      }
+    }
     nativeModule.completeWatchLeaveTimeEdit(request.requestId, success);
   }
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Jadual</string>
+  <string name="conpaws_widget_description">Bina Jadual Saya, lihat Sekarang &amp; Seterusnya, dan kesan pertindihan.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Buka Konvensyen →</string>
+  <string name="conpaws_widget_unavailable_title">Jadual anda tidak dapat dimuatkan.</string>
+  <string name="conpaws_widget_unavailable_body">Konvensyen tidak dapat dimuatkan.</string>
+  <string name="conpaws_widget_empty_title">Belum ada yang ditanda</string>
+  <string name="conpaws_widget_empty_body">Ketik acara dalam konvensyen untuk menambahkannya ke Jadual Saya — ia akan muncul di sini.</string>
+  <string name="conpaws_widget_finished_title">Tiada lagi acara akan datang dalam Jadual Saya.</string>
+  <string name="conpaws_widget_finished_body">Tiada acara daripada Jadual Saya yang sedang berlangsung.</string>
+  <string name="conpaws_widget_upcoming">Akan Datang Dahulu</string>
+  <string name="conpaws_widget_today">Hari ini</string>
+  <string name="conpaws_widget_tomorrow">Esok</string>
+  <string name="conpaws_widget_now">Sekarang</string>
+  <string name="conpaws_widget_next">Seterusnya →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Sekarang · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Tiada lagi acara akan datang dalam Jadual Saya.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Bertindih dengan panel tersimpan yang lain</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Dalam %1$d hari</item>
+    <item quantity="other">Dalam %1$d hari</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Seterusnya pada %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Sekarang</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Seterusnya: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Seterusnya: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Tiada lagi acara akan datang dalam Jadual Saya.</string>
+  <string name="conpaws_plan_finished_body">Belum ada yang disimpan untuk %1$s</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Buka Konvensyen</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

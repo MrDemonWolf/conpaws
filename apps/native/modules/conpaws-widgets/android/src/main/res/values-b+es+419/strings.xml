@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Horario</string>
+  <string name="conpaws_widget_description">Crea tu horario, consulta qué hay ahora y después, y detecta superposiciones.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Abrir convención →</string>
+  <string name="conpaws_widget_unavailable_title">No se pudo cargar tu horario.</string>
+  <string name="conpaws_widget_unavailable_body">No se pudieron cargar las convenciones.</string>
+  <string name="conpaws_widget_empty_title">Aún no hay nada destacado</string>
+  <string name="conpaws_widget_empty_body">Toca un evento dentro de una convención para agregarlo a Mi horario: aparecerá aquí.</string>
+  <string name="conpaws_widget_finished_title">No hay más eventos próximos en tu horario.</string>
+  <string name="conpaws_widget_finished_body">No hay ningún evento de tu horario en curso.</string>
+  <string name="conpaws_widget_upcoming">Próximas primero</string>
+  <string name="conpaws_widget_today">Hoy</string>
+  <string name="conpaws_widget_tomorrow">Mañana</string>
+  <string name="conpaws_widget_now">Ahora</string>
+  <string name="conpaws_widget_next">Después →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Ahora · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">No hay más eventos próximos en tu horario.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Se superpone con otro panel guardado</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">En %1$d días</item>
+    <item quantity="other">En %1$d días</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Después a las %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Ahora</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Después: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Después: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">No hay más eventos próximos en tu horario.</string>
+  <string name="conpaws_plan_finished_body">Aún no hay nada guardado para %1$s</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Abrir convención</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>

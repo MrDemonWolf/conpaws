@@ -71,7 +71,6 @@ import {
   router,
   Stack,
   ThemeProvider,
-  usePathname,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
@@ -104,6 +103,7 @@ import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import { getScheduleAutoCheck } from "@/lib/schedule-refresh-storage";
 import { themeTokens } from "@/lib/theme-tokens";
+import { reconcileLiveActivity } from "@/services/live-activity";
 import {
   reconcileEventReminders,
   setupNotificationHandler,
@@ -232,7 +232,6 @@ function RootLayout() {
   const [translationsReady, setTranslationsReady] = useState(true);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const colorScheme = useColorScheme();
-  const pathname = usePathname();
   const databaseInitError = getDatabaseInitError();
 
   // `ready` deliberately stays true across a retry: the splash is long gone,
@@ -297,11 +296,10 @@ function RootLayout() {
     void publishWidgetSnapshot().catch((error) => {
       reportError(error, { scope: "bootstrap.publishWidgetSnapshot" });
     });
+    void reconcileLiveActivity().catch((error) => {
+      reportError(error, { scope: "bootstrap.reconcileLiveActivity" });
+    });
   }, [ready, databaseInitError]);
-
-  useEffect(() => {
-    addReportBreadcrumb(pathname, { scope: "navigation" });
-  }, [pathname]);
 
   // Neither a quick action nor a tapped reminder has anywhere to land while
   // the database-unavailable screen is up: that branch renders no navigator.
@@ -351,6 +349,9 @@ function RootLayout() {
           void publishWidgetSnapshot().catch((error) => {
             reportError(error, { scope: "appState.publishWidgetSnapshot" });
           });
+          void reconcileLiveActivity().catch((error) => {
+            reportError(error, { scope: "appState.reconcileLiveActivity" });
+          });
           // Reminders the OS refused for want of permission stay saved but
           // unscheduled. Reconciling on every foreground re-arms them the moment
           // the user comes back from granting it, rather than at the next cold
@@ -373,6 +374,9 @@ function RootLayout() {
         ) {
           void publishWidgetSnapshot().catch((error) => {
             reportError(error, { scope: "mutation.publishWidgetSnapshot" });
+          });
+          void reconcileLiveActivity().catch((error) => {
+            reportError(error, { scope: "mutation.reconcileLiveActivity" });
           });
         }
       });

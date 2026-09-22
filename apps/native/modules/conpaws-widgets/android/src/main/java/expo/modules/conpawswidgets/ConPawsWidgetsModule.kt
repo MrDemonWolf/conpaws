@@ -8,15 +8,21 @@ import expo.modules.kotlin.modules.ModuleDefinition
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
-import java.time.Instant
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
+import java.util.Calendar
+import java.util.TimeZone
 
 internal const val CONPAWS_SNAPSHOT_SCHEMA_VERSION = 3
 private val SUPPORTED_SNAPSHOT_SCHEMAS = 2..CONPAWS_SNAPSHOT_SCHEMA_VERSION
 private const val MAX_SNAPSHOT_BYTES = 2_000_000
 private const val MAX_CONVENTIONS = 100
 private const val MAX_EVENTS = 5_000
+private const val MILLIS_PER_DAY = 86_400_000L
+private val AVAILABLE_TIME_ZONE_IDS = TimeZone.getAvailableIDs().toHashSet()
+
+internal fun requireTimeZone(identifier: String): TimeZone {
+  require(identifier in AVAILABLE_TIME_ZONE_IDS)
+  return TimeZone.getTimeZone(identifier)
+}
 
 internal data class ConPawsEventSnapshot(
   val id: String,
@@ -91,7 +97,7 @@ internal object ConPawsSnapshotParser {
           val endAtMs = value.requiredLong("endAtMs")
           require(startAtMs >= 0 && endAtMs > startAtMs)
           val timeZoneIdentifier = value.requiredString("timeZoneIdentifier")
-          ZoneId.of(timeZoneIdentifier)
+          requireTimeZone(timeZoneIdentifier)
           add(
             ConPawsConventionSnapshot(
               id = value.requiredString("id"),
@@ -288,10 +294,19 @@ internal sealed interface ConPawsWidgetState {
       convention: ConPawsConventionSnapshot,
       nowMs: Long,
     ): Int {
-      val zone = ZoneId.of(convention.timeZoneIdentifier)
-      val today = Instant.ofEpochMilli(nowMs).atZone(zone).toLocalDate()
-      val firstDay = Instant.ofEpochMilli(convention.startAtMs).atZone(zone).toLocalDate()
-      return ChronoUnit.DAYS.between(today, firstDay).coerceAtLeast(0).toInt()
+      val zone = requireTimeZone(convention.timeZoneIdentifier)
+      val today = localEpochDay(nowMs, zone)
+      val firstDay = localEpochDay(convention.startAtMs, zone)
+      return (firstDay - today).coerceIn(0, Int.MAX_VALUE.toLong()).toInt()
+    }
+
+    private fun localEpochDay(milliseconds: Long, zone: TimeZone): Long {
+      val local = Calendar.getInstance(zone).apply { timeInMillis = milliseconds }
+      return Calendar.getInstance(TimeZone.getTimeZone("UTC")).run {
+        clear()
+        set(local.get(Calendar.YEAR), local.get(Calendar.MONTH), local.get(Calendar.DAY_OF_MONTH))
+        timeInMillis / MILLIS_PER_DAY
+      }
     }
   }
 }
@@ -334,6 +349,7 @@ class ConPawsWidgetsModule : Module() {
         is SnapshotParseResult.Malformed -> false
         is SnapshotParseResult.Unsupported -> {
           if (ConPawsSnapshotStore.clear(context)) ConPawsWidget().updateAll(context)
+          ConPawsBoundaryScheduler.schedule(context)
           false
         }
         is SnapshotParseResult.Valid -> {
@@ -341,6 +357,7 @@ class ConPawsWidgetsModule : Module() {
           if (!saved) return@Coroutine false
           if (changed) ConPawsWidget().updateAll(context)
           ConPawsPlanNotification.reconcile(context, result.snapshot)
+          ConPawsBoundaryScheduler.schedule(context, result.snapshot)
           true
         }
       }

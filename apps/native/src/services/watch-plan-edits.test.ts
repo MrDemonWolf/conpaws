@@ -103,6 +103,13 @@ describe("Watch leave-time acknowledgement", () => {
     await vi.waitFor(() => {
       expect(mocks.complete).toHaveBeenCalledWith("request-2", false);
     });
+    expect(mocks.update).toHaveBeenNthCalledWith(1, request.eventId, {
+      personalEndTime: new Date(request.newEndAtMs).toISOString(),
+    });
+    expect(mocks.update).toHaveBeenNthCalledWith(2, request.eventId, {
+      personalEndTime: event.personalEndTime,
+    });
+    expect(mocks.reconcile).not.toHaveBeenCalled();
   });
 
   it("does not acknowledge a write that cannot be read back", async () => {

@@ -74,7 +74,7 @@ const getScheme = (): string => {
  * projects, and checks that they picked the new number up; see the "Local
  * builds" section of RELEASING.md. Commit it with the release.
  */
-const BUILD_NUMBER = 207;
+const BUILD_NUMBER = 208;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
@@ -238,6 +238,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@bacons/apple-targets",
     "expo-sqlite",
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          enableSceneSupport: true,
+        },
+      },
+    ],
     // expo-location is autolinked, so this entry exists only to pass props. Left
     // at its defaults the plugin writes four purpose strings into Info.plist --
     // three location ones, including background "Always", plus Motion &

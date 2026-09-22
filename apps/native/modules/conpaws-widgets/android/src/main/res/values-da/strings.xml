@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Program</string>
+  <string name="conpaws_widget_description">Byg Mit program, se Nu og næste, og fang overlap.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Åbn konvent →</string>
+  <string name="conpaws_widget_unavailable_title">Dit program kunne ikke indlæses.</string>
+  <string name="conpaws_widget_unavailable_body">Konventerne kunne ikke indlæses.</string>
+  <string name="conpaws_widget_empty_title">Intet markeret endnu</string>
+  <string name="conpaws_widget_empty_body">Tryk på en begivenhed i et konvent for at tilføje den til Mit program — så lander den her.</string>
+  <string name="conpaws_widget_finished_title">Ikke flere kommende begivenheder i Mit program.</string>
+  <string name="conpaws_widget_finished_body">Intet fra Mit program er i gang lige nu.</string>
+  <string name="conpaws_widget_upcoming">Kommende først</string>
+  <string name="conpaws_widget_today">I dag</string>
+  <string name="conpaws_widget_tomorrow">I morgen</string>
+  <string name="conpaws_widget_now">Nu</string>
+  <string name="conpaws_widget_next">Næste →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Nu · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Ikke flere kommende begivenheder i Mit program.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Overlapper et andet gemt panel</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Om %1$d dage</item>
+    <item quantity="other">Om %1$d dage</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Næste kl. %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Nu</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Næste: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Næste: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Ikke flere kommende begivenheder i Mit program.</string>
+  <string name="conpaws_plan_finished_body">Intet gemt for %1$s endnu</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Åbn konvent</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

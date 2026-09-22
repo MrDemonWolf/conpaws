@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Programme</string>
+  <string name="conpaws_widget_description">Créez votre programme, voyez ce qui se passe maintenant et ensuite, et repérez les chevauchements.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Ouvrir la convention →</string>
+  <string name="conpaws_widget_unavailable_title">Impossible de charger votre programme.</string>
+  <string name="conpaws_widget_unavailable_body">Impossible de charger les conventions.</string>
+  <string name="conpaws_widget_empty_title">Rien en favori pour l\'instant</string>
+  <string name="conpaws_widget_empty_body">Touchez un événement dans une convention pour l\'ajouter à Mon programme — il apparaîtra ici.</string>
+  <string name="conpaws_widget_finished_title">Aucun autre événement à venir dans votre programme.</string>
+  <string name="conpaws_widget_finished_body">Aucun événement de votre programme n\'est en cours.</string>
+  <string name="conpaws_widget_upcoming">À venir en premier</string>
+  <string name="conpaws_widget_today">Aujourd’hui</string>
+  <string name="conpaws_widget_tomorrow">Demain</string>
+  <string name="conpaws_widget_now">Maintenant</string>
+  <string name="conpaws_widget_next">Ensuite →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Maintenant · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Aucun autre événement à venir dans votre programme.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Chevauche un autre panel enregistré</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Dans %1$d jours</item>
+    <item quantity="other">Dans %1$d jours</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Ensuite à %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Maintenant</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Ensuite: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Ensuite: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Aucun autre événement à venir dans votre programme.</string>
+  <string name="conpaws_plan_finished_body">Rien d’enregistré pour %1$s</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Ouvrir la convention</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>

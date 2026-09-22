@@ -500,8 +500,13 @@ struct ConPawsWatchWidget: Widget {
 
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: ConPawsWatchProvider()) { entry in
-      ConPawsWatchEntryView(entry: entry)
-        .containerBackground(Color.black, for: .widget)
+      if #available(iOS 17.0, watchOS 10.0, *) {
+        ConPawsWatchEntryView(entry: entry)
+          .containerBackground(Color.black, for: .widget)
+      } else {
+        ConPawsWatchEntryView(entry: entry)
+          .background(Color.black)
+      }
     }
     // System-drawn, like the iPhone widget's gallery entry: the Smart Stack
     // resolves these against the watch's language, not the app's, so they need

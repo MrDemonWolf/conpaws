@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Розклад</string>
+  <string name="conpaws_widget_description">Складайте Мій розклад, дивіться «Зараз і далі» та помічайте перетини.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Відкрити конвент →</string>
+  <string name="conpaws_widget_unavailable_title">Не вдалося завантажити ваш розклад.</string>
+  <string name="conpaws_widget_unavailable_body">Не вдалося завантажити конвенти.</string>
+  <string name="conpaws_widget_empty_title">Поки нічого не позначено</string>
+  <string name="conpaws_widget_empty_body">Торкніться події всередині конвенту, щоб додати її до Мого розкладу — вона з\'явиться тут.</string>
+  <string name="conpaws_widget_finished_title">У Моєму розкладі більше немає майбутніх подій.</string>
+  <string name="conpaws_widget_finished_body">Зараз не триває жодна подія з Мого розкладу.</string>
+  <string name="conpaws_widget_upcoming">Спочатку найближчі</string>
+  <string name="conpaws_widget_today">Сьогодні</string>
+  <string name="conpaws_widget_tomorrow">Завтра</string>
+  <string name="conpaws_widget_now">Зараз</string>
+  <string name="conpaws_widget_next">Далі →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Зараз · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">У Моєму розкладі більше немає майбутніх подій.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Перетинається з іншою збереженою панеллю</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Через %1$d дн.</item>
+    <item quantity="other">Через %1$d дн.</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Далі о %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Зараз</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Далі: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Далі: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">У Моєму розкладі більше немає майбутніх подій.</string>
+  <string name="conpaws_plan_finished_body">Для %1$s поки нічого не збережено</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Відкрити конвент</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>

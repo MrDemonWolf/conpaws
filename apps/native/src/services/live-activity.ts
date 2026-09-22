@@ -221,6 +221,15 @@ export async function getLiveActivityStatus(): Promise<LiveActivityStatus> {
   return nativeModule.getLiveActivityStatus();
 }
 
+/** Refresh an existing OS plan surface without opting the user into one. */
+export async function reconcileLiveActivity(
+  snapshot?: WidgetSnapshot,
+  nowMs = Date.now(),
+): Promise<LiveActivityStatus> {
+  const current = await getLiveActivityStatus();
+  return current.active ? startOrUpdateLiveActivity(snapshot, nowMs) : current;
+}
+
 /** Explicit opt-in only: nothing starts an OS plan surface automatically. */
 export async function startOrUpdateLiveActivity(
   snapshot?: WidgetSnapshot,

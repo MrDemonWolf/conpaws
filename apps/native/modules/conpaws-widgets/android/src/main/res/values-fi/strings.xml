@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Ohjelma</string>
+  <string name="conpaws_widget_description">Kokoa oma ohjelma, katso mitä on nyt ja seuraavaksi, ja huomaa päällekkäisyydet.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Avaa coni →</string>
+  <string name="conpaws_widget_unavailable_title">Ohjelmaasi ei voitu ladata.</string>
+  <string name="conpaws_widget_unavailable_body">Coneja ei voitu ladata.</string>
+  <string name="conpaws_widget_empty_title">Et ole vielä merkinnyt mitään</string>
+  <string name="conpaws_widget_empty_body">Napauta tapahtumaa conin sisällä lisätäksesi sen omaan ohjelmaan — se ilmestyy tänne.</string>
+  <string name="conpaws_widget_finished_title">Omassa ohjelmassa ei ole enempää tulevia tapahtumia.</string>
+  <string name="conpaws_widget_finished_body">Omasta ohjelmasta ei ole mitään käynnissä juuri nyt.</string>
+  <string name="conpaws_widget_upcoming">Tulevat ensin</string>
+  <string name="conpaws_widget_today">Tänään</string>
+  <string name="conpaws_widget_tomorrow">Huomenna</string>
+  <string name="conpaws_widget_now">Nyt</string>
+  <string name="conpaws_widget_next">Seuraavaksi →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Nyt · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Omassa ohjelmassa ei ole enempää tulevia tapahtumia.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Menee päällekkäin toisen tallennetun paneelin kanssa</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">%1$d päivän päästä</item>
+    <item quantity="other">%1$d päivän päästä</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Seuraavaksi klo %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Nyt</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Seuraavaksi: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Seuraavaksi: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Omassa ohjelmassa ei ole enempää tulevia tapahtumia.</string>
+  <string name="conpaws_plan_finished_body">Conille %1$s ei ole vielä tallennettu mitään</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Avaa coni</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+

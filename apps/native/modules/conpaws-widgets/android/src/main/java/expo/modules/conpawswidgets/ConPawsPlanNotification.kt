@@ -17,7 +17,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import org.json.JSONObject
 import org.json.JSONTokener
-import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -110,7 +109,7 @@ internal object ConPawsPlanNotificationPayloadParser {
         nextEventTitle = nextTitle,
         nextRoom = content.nullableString("nextRoom"),
         nextAttendanceStartAtMs = nextStart,
-      ).also { ZoneId.of(it.timeZoneIdentifier) }
+      ).also { requireTimeZone(it.timeZoneIdentifier) }
     } catch (_: Exception) {
       null
     }
@@ -249,6 +248,7 @@ internal object ConPawsPlanNotification {
     if (!notificationsEnabled(context)) return status(context)
     post(context, payload)
     save(context, json, payload)
+    ConPawsBoundaryScheduler.schedule(context)
     return status(context)
   }
 
@@ -281,7 +281,28 @@ internal object ConPawsPlanNotification {
         if (showFinishedState && savedPayload != null) ConPawsPlanPhase.FINISHED.wireValue else null,
       )
       .apply()
+    ConPawsBoundaryScheduler.schedule(context)
     return status(context)
+  }
+
+  fun reconcileStoredSnapshot(context: Context) {
+    val preferences = context.getSharedPreferences(PLAN_PREFERENCES, Context.MODE_PRIVATE)
+    if (!preferences.getBoolean(PLAN_ACTIVE_KEY, false)) return
+    val snapshot = ConPawsSnapshotStore.load(context)
+    if (snapshot == null) stop(context, false) else reconcile(context, snapshot)
+  }
+
+  fun nextBoundary(context: Context, nowMs: Long): Long? {
+    val preferences = context.getSharedPreferences(PLAN_PREFERENCES, Context.MODE_PRIVATE)
+    if (!preferences.getBoolean(PLAN_ACTIVE_KEY, false)) return null
+    val payload = preferences.getString(PLAN_PAYLOAD_KEY, null)
+      ?.let(ConPawsPlanNotificationPayloadParser::parse) ?: return null
+    val staleAtMs = payload.staleAtMs ?: return null
+    if (payload.phase == ConPawsPlanPhase.CURRENT && staleAtMs > 60_000L) {
+      val leaveBoundary = staleAtMs - 60_000L
+      if (leaveBoundary > nowMs) return leaveBoundary
+    }
+    return staleAtMs.takeIf { it > nowMs }
   }
 
   private fun save(

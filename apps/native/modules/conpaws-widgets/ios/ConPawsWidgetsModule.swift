@@ -16,6 +16,7 @@ enum ConPawsActivityPhase: String, Codable, Hashable, Sendable {
   case current
   case leave
   case finished
+  case stale
 }
 
 struct ConPawsActivityAttributes: ActivityAttributes, Sendable {

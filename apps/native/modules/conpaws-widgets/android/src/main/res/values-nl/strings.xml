@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="conpaws_widget_name">ConPaws · Programma</string>
+  <string name="conpaws_widget_description">Maak je planning, zie wat er nu en hierna komt en ontdek overlap.</string>
+  <string name="conpaws_widget_brand">ConPaws</string>
+  <string name="conpaws_widget_open">Conventie openen →</string>
+  <string name="conpaws_widget_unavailable_title">Je programma kon niet worden geladen.</string>
+  <string name="conpaws_widget_unavailable_body">Conventies konden niet worden geladen.</string>
+  <string name="conpaws_widget_empty_title">Nog niets met een ster</string>
+  <string name="conpaws_widget_empty_body">Tik op een evenement in een conventie om het aan Mijn schema toe te voegen – het verschijnt hier.</string>
+  <string name="conpaws_widget_finished_title">Er staan geen komende evenementen meer in je programma.</string>
+  <string name="conpaws_widget_finished_body">Er is nu niets uit je programma bezig.</string>
+  <string name="conpaws_widget_upcoming">Aankomende eerst</string>
+  <string name="conpaws_widget_today">Vandaag</string>
+  <string name="conpaws_widget_tomorrow">Morgen</string>
+  <string name="conpaws_widget_now">Nu</string>
+  <string name="conpaws_widget_next">Hierna →</string>
+  <string name="conpaws_widget_leave_at">Leave at → %1$s</string>
+  <string name="conpaws_widget_until">Nu · Leave at %1$s</string>
+  <string name="conpaws_widget_join_at">Join at %1$s</string>
+  <string name="conpaws_widget_no_next">Er staan geen komende evenementen meer in je programma.</string>
+  <string name="conpaws_widget_free_minutes">%1$d min between panels</string>
+  <string name="conpaws_widget_overlap_minutes">%1$d min · Overlapt met een ander opgeslagen panel</string>
+  <string name="conpaws_widget_back_to_back">Back-to-back</string>
+  <plurals name="conpaws_widget_days">
+    <item quantity="one">Over %1$d dagen</item>
+    <item quantity="other">Over %1$d dagen</item>
+  </plurals>
+  <string name="conpaws_plan_channel_name">Show Plan Updates</string>
+  <string name="conpaws_plan_channel_description">Plan updates are on for this plan.</string>
+  <string name="conpaws_plan_starts_at">Hierna om %1$s</string>
+  <string name="conpaws_plan_join_at">Join at %1$s</string>
+  <string name="conpaws_plan_until">Leave at %1$s</string>
+  <string name="conpaws_plan_leave_at">Leave at %1$s</string>
+  <string name="conpaws_plan_happening_now">Nu</string>
+  <string name="conpaws_plan_leave_title">You planned to leave %1$s now.</string>
+  <string name="conpaws_plan_leave_body">Your leave time is now</string>
+  <string name="conpaws_plan_next">Hierna: %1$s · %2$s</string>
+  <string name="conpaws_plan_next_with_room">Hierna: %1$s · %2$s · %3$s</string>
+  <string name="conpaws_plan_finished_title">Er staan geen komende evenementen meer in je programma.</string>
+  <string name="conpaws_plan_finished_body">Nog niets opgeslagen voor %1$s</string>
+  <string name="conpaws_plan_finished_continues">You planned to leave %1$s now. Leave at %2$s.</string>
+  <string name="conpaws_plan_open">Conventie openen</string>
+  <string name="conpaws_plan_stop">Stop Plan Updates</string>
+  <string name="conpaws_plan_private_title">Show Plan Updates</string>
+  <string name="conpaws_plan_private_body">Plan updates are on for this plan.</string>
+</resources>
+
