@@ -10,18 +10,92 @@ const watchScenarios: Record<WatchScenario, string> = {
   done: "No more picks · all have ended",
 };
 const watchScenarioCopy = {
-  upcoming: { title: "Your next con", message: "Lakeside Fur Con", condition: "A convention is saved and its first date is still ahead. This takes priority even when no panels are picked.", current: "Coming Up · In 15 days · Until the convention", idea: "Use one countdown phrase and the date range. The saved start date is not a doors-open time.", compact: "In 15 days", secondary: "Sep 18–20" },
-  empty: { title: "No plan yet", message: "Open ConPaws on your iPhone. Add a convention to get started.", condition: "This watch has no convention in its saved snapshot. It cannot tell whether the phone is also empty or the first snapshot has not arrived.", current: "No schedule yet · Open ConPaws on your iPhone to sync a convention.", idea: "Give a concrete action on the phone. Do not invent a Sync button or imply a transfer is in progress.", compact: "No plan yet", secondary: "Open ConPaws on iPhone" },
-  "no-picks": { title: "Your plan is empty", message: "Add panels to your schedule in ConPaws on your iPhone.", condition: "The convention is running, but its saved snapshot contains no planned panels. This says nothing about whether the full program has been published.", current: "No more events today · Today 0", idea: "An empty plan is a starting point. It does not mean the day is finished or the program is unavailable.", compact: "No planned panels", secondary: "Add panels on iPhone" },
-  done: { title: "All done for today", message: "All your planned panels have ended.", condition: "In this sample, all three chosen panels have ended and none is still running. The convention itself continues tomorrow.", current: "No more events today", idea: "Only show a done message when the saved plan has earlier events and no current or later event today.", compact: "No more picks today", secondary: "Your last panel ended at 5:00" },
-} satisfies Record<Exclude<WatchScenario, "active">, { title: string; message: string; condition: string; current: string; idea: string; compact: string; secondary: string }>;
+  upcoming: {
+    title: "Your next con",
+    message: "Lakeside Fur Con",
+    condition:
+      "A convention is saved and its first date is still ahead. This takes priority even when no panels are picked.",
+    current: "Coming Up · In 15 days · Until the convention",
+    idea: "Use one countdown phrase and the date range. The saved start date is not a doors-open time.",
+    compact: "In 15 days",
+    secondary: "Sep 18–20",
+  },
+  empty: {
+    title: "No plan yet",
+    message: "Open ConPaws on your iPhone. Add a convention to get started.",
+    condition:
+      "This watch has no convention in its saved snapshot. It cannot tell whether the phone is also empty or the first snapshot has not arrived.",
+    current:
+      "No schedule yet · Open ConPaws on your iPhone to sync a convention.",
+    idea: "Give a concrete action on the phone. Do not invent a Sync button or imply a transfer is in progress.",
+    compact: "No plan yet",
+    secondary: "Open ConPaws on iPhone",
+  },
+  "no-picks": {
+    title: "Your plan is empty",
+    message: "Add panels to your schedule in ConPaws on your iPhone.",
+    condition:
+      "The convention is running, but its saved snapshot contains no planned panels. This says nothing about whether the full program has been published.",
+    current: "No more events today · Today 0",
+    idea: "An empty plan is a starting point. It does not mean the day is finished or the program is unavailable.",
+    compact: "No planned panels",
+    secondary: "Add panels on iPhone",
+  },
+  done: {
+    title: "All done for today",
+    message: "All your planned panels have ended.",
+    condition:
+      "In this sample, all three chosen panels have ended and none is still running. The convention itself continues tomorrow.",
+    current: "No more events today",
+    idea: "Only show a done message when the saved plan has earlier events and no current or later event today.",
+    compact: "No more picks today",
+    secondary: "Your last panel ended at 5:00",
+  },
+} satisfies Record<
+  Exclude<WatchScenario, "active">,
+  {
+    title: string;
+    message: string;
+    condition: string;
+    current: string;
+    idea: string;
+    compact: string;
+    secondary: string;
+  }
+>;
 
-const watchTiming = (stayFive: boolean) => ({ leave: 865 + (stayFive ? 5 : 0), join: 875, gap: stayFive ? 5 : 10 });
-const watchTime = (minutes: number) => `${Math.floor(minutes / 60) % 12 || 12}:${String(minutes % 60).padStart(2, "0")}`;
-const watchEvents: Record<WatchEvent, { title: string; room: string; official: string; from: number; until: number }> = {
-  photo: { title: "Fursuit photography", room: "Ballroom A", official: "2:00–3:00 PM", from: 840, until: 865 },
-  draw: { title: "Character design lab", room: "Cedar", official: "2:00–3:30 PM", from: 875, until: 920 },
-  story: { title: "The art of storytelling", room: "Cedar", official: "4:00–5:00 PM", from: 960, until: 1020 },
+const watchTiming = (stayFive: boolean) => ({
+  leave: 865 + (stayFive ? 5 : 0),
+  join: 875,
+  gap: stayFive ? 5 : 10,
+});
+const watchTime = (minutes: number) =>
+  `${Math.floor(minutes / 60) % 12 || 12}:${String(minutes % 60).padStart(2, "0")}`;
+const watchEvents: Record<
+  WatchEvent,
+  { title: string; room: string; official: string; from: number; until: number }
+> = {
+  photo: {
+    title: "Fursuit photography",
+    room: "Ballroom A",
+    official: "2:00–3:00 PM",
+    from: 840,
+    until: 865,
+  },
+  draw: {
+    title: "Character design lab",
+    room: "Cedar",
+    official: "2:00–3:30 PM",
+    from: 875,
+    until: 920,
+  },
+  story: {
+    title: "The art of storytelling",
+    room: "Cedar",
+    official: "4:00–5:00 PM",
+    from: 960,
+    until: 1020,
+  },
 };
 
 const watchCSS = `
@@ -48,14 +122,38 @@ export function mountWatch(root: HTMLElement): void {
   let cueTime = false;
   let notice = "";
   const steps: { view: WatchView; title: string; detail: string }[] = [
-    { view: "face", title: "Glance at the complication", detail: "One useful cue on the watch face." },
-    { view: "glance", title: "See now, leave time, and next", detail: "Your attendance times, including late joins." },
-    { view: "leave", title: "Know when to switch rooms", detail: "A leave cue with the next panel and room." },
-    { view: "change", title: "Make one quick adjustment", detail: "Stay 5 minutes, with the tradeoff visible." },
-    { view: "today", title: "Scroll the rest of your day", detail: "Three stops, personal times, one vertical list." },
+    {
+      view: "face",
+      title: "Glance at the complication",
+      detail: "One useful cue on the watch face.",
+    },
+    {
+      view: "glance",
+      title: "See now, leave time, and next",
+      detail: "Your attendance times, including late joins.",
+    },
+    {
+      view: "leave",
+      title: "Know when to switch rooms",
+      detail: "A leave cue with the next panel and room.",
+    },
+    {
+      view: "change",
+      title: "Make one quick adjustment",
+      detail: "Stay 5 minutes, with the tradeoff visible.",
+    },
+    {
+      view: "today",
+      title: "Scroll the rest of your day",
+      detail: "Three stops, personal times, one vertical list.",
+    },
   ];
-  const button = (action: string, label: string, kind = "") => `<button class="cpw-watch-button ${kind}" data-watch-action="${action}">${label}</button>`;
-  const savedNote = () => saved && scenario !== "empty" ? `<p class="cpw-saved">Saved plan<br>Last updated ${scenario === "upcoming" ? "1 hour" : `${cueTime ? 55 : 48} min`} ago</p>` : "";
+  const button = (action: string, label: string, kind = "") =>
+    `<button class="cpw-watch-button ${kind}" data-watch-action="${action}">${label}</button>`;
+  const savedNote = () =>
+    saved && scenario !== "empty"
+      ? `<p class="cpw-saved">Saved plan<br>Last updated ${scenario === "upcoming" ? "1 hour" : `${cueTime ? 55 : 48} min`} ago</p>`
+      : "";
   const watchRow = (id: WatchEvent, label: string, current = false) => {
     const item = watchEvents[id];
     const until = id === "photo" ? watchTiming(stayFive).leave : item.until;
@@ -65,23 +163,48 @@ export function mountWatch(root: HTMLElement): void {
     const timing = watchTiming(stayFive);
     const now = scenario === "done" ? 1080 : cueTime ? 865 : 858;
     const minutes = timing.leave - now;
-    if (scenario !== "active" && view !== "detail" && !(scenario === "done" && view === "today")) {
+    if (
+      scenario !== "active" &&
+      view !== "detail" &&
+      !(scenario === "done" && view === "today")
+    ) {
       const copy = watchScenarioCopy[scenario];
-      const mark = '<svg class="cpw-state-mark" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/></svg>';
-      const body = scenario === "upcoming"
-        ? `<div class="cpw-state-box"><p class="cpw-label cyan">YOUR NEXT CON</p><h3>Lakeside Fur Con</h3><strong class="cpw-leave-value" style="margin:14px 0 9px">15 <span>days to go</span></strong><p>Sep 18–20</p></div>`
-        : `<div class="cpw-state-box">${mark}<h3>${copy.title}</h3><p>${copy.message}</p></div>${scenario === "done" ? button("today", "Today's plan", "secondary") : ""}`;
+      const mark =
+        '<svg class="cpw-state-mark" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/></svg>';
+      const body =
+        scenario === "upcoming"
+          ? `<div class="cpw-state-box"><p class="cpw-label cyan">YOUR NEXT CON</p><h3>Lakeside Fur Con</h3><strong class="cpw-leave-value" style="margin:14px 0 9px">15 <span>days to go</span></strong><p>Sep 18–20</p></div>`
+          : `<div class="cpw-state-box">${mark}<h3>${copy.title}</h3><p>${copy.message}</p></div>${scenario === "done" ? button("today", "Today's plan", "secondary") : ""}`;
       return `<div class="cpw-screen"><div class="cpw-watch-bar"><span>${scenario === "upcoming" ? "Coming Up" : "ConPaws"}</span><time>${watchTime(now)}</time></div><div class="cpw-scroll" tabindex="0" aria-label="${copy.title}; scroll to see more">${body}${savedNote()}</div></div>`;
     }
-    if (view === "face") return `<div class="cpw-screen cpw-face"><div class="cpw-watch-bar">SAT 19</div><div class="cpw-face-time">${watchTime(now)}</div><button class="cpw-face-comp" data-watch-view="glance" aria-label="Open ConPaws. Leave ${watchTime(timing.leave)}. Character design lab, Cedar, join 2:35 PM."><small>CONPAWS · ${saved ? "SAVED PLAN" : "MY PLAN"}</small><strong>${minutes > 0 ? `Leave in ${minutes} min` : "Leave now"}</strong><span>Cedar · join 2:35</span></button><div class="cpw-face-foot"><i></i><span>${saved ? "Updated 48 min ago" : "Tap your plan to open"}</span></div></div>`;
-    const title = { glance: "ConPaws", leave: "Next stop", change: "Leave time", today: "Today", detail: "Panel" }[view];
-    const back = view === "detail" ? "today" : view === "change" ? "leave" : view === "glance" ? "face" : "glance";
+    if (view === "face")
+      return `<div class="cpw-screen cpw-face"><div class="cpw-watch-bar">SAT 19</div><div class="cpw-face-time">${watchTime(now)}</div><button class="cpw-face-comp" data-watch-view="glance" aria-label="Open ConPaws. Leave ${watchTime(timing.leave)}. Character design lab, Cedar, join 2:35 PM."><small>CONPAWS · ${saved ? "SAVED PLAN" : "MY PLAN"}</small><strong>${minutes > 0 ? `Leave in ${minutes} min` : "Leave now"}</strong><span>Cedar · join 2:35</span></button><div class="cpw-face-foot"><i></i><span>${saved ? "Updated 48 min ago" : "Tap your plan to open"}</span></div></div>`;
+    const title = {
+      glance: "ConPaws",
+      leave: "Next stop",
+      change: "Leave time",
+      today: "Today",
+      detail: "Panel",
+    }[view];
+    const back =
+      view === "detail"
+        ? "today"
+        : view === "change"
+          ? "leave"
+          : view === "glance"
+            ? "face"
+            : "glance";
     let body = "";
-    if (view === "glance") body = `${savedNote()}${notice ? `<p class="cpw-confirmation">${notice}</p>` : ""}<div class="cpw-leave-hero"><p class="cpw-label cyan">${minutes > 0 ? "LEAVE IN" : "YOUR LEAVE TIME"}</p><strong class="cpw-leave-value">${minutes > 0 ? `${minutes} <span>min</span>` : "Now"}</strong></div><div class="cpw-watch-current"><strong>Fursuit photography</strong><p>Ballroom A · leave ${watchTime(timing.leave)}</p></div><button class="cpw-watch-row" data-watch-view="leave"><span class="cpw-label cyan">NEXT · JOIN 2:35</span><strong>Character design lab</strong><span class="cpw-muted">Cedar <span aria-hidden="true">›</span></span></button>${button("today", "Today's plan")}<p class="cpw-watch-footnote">Scroll for your day${saved ? ". Schedule changes may be missing." : "."}</p>`;
-    if (view === "leave") body = `${savedNote()}<div class="cpw-watch-block"><p class="cpw-label cyan">${stayFive ? "LEAVE AT 2:30" : "TIME TO LEAVE"}</p><h3 class="cpw-room-hero">Cedar</h3><p>Character design lab</p><p class="cpw-tiny cpw-muted" style="margin-top:6px">Your join time · 2:35 PM</p><div class="cpw-mini-map">Ballroom A <span></span> Cedar</div></div>${button("change", "Adjust leave time", "secondary")}${button("today", "Today's plan")}<p class="cpw-watch-footnote">${timing.gap} min between your leave and join times. Check venue signs for directions.</p>`;
-    if (view === "change") body = `${savedNote()}<div class="cpw-watch-block"><p class="cpw-label">FURSUIT PHOTOGRAPHY</p><h3 class="cpw-room-hero small">Stay 5 min?</h3></div><div class="cpw-compare" style="padding:8px;margin:4px 0"><p><span>Leave</span><strong>2:25 → 2:30</strong></p><p><span>Join</span><strong>2:35 PM</strong></p></div><p class="cpw-warning">5 min gap · was 10 min</p>${button("stay", stayFive ? "5 minutes already added" : "Stay 5 more min", "primary")}${button("keep", "Keep 2:25 leave time")}<p class="cpw-watch-footnote">This uses 5 min of your transition buffer. It does not change your next join time.${saved ? " Watch edits are a proposed feature; this change stays in the demo." : ""}</p>`;
-    if (view === "today") body = `${savedNote()}<div class="cpw-watch-block"><p class="cpw-label">SATURDAY, SEP 19</p><p class="cpw-tiny cpw-muted">Lakeside Fur Con · your plan</p></div>${watchRow("photo", "NOW · LEAVE EARLY", true)}<p class="cpw-watch-gap">${timing.gap} min transition gap</p>${watchRow("draw", "NEXT · JOIN LATE")}${watchRow("story", "LATER")}${button("glance", "Now & next")}<p class="cpw-watch-footnote">Times show when you plan to attend. Tap a panel for official times.</p>`;
-    if (view === "today" && scenario === "done") body = `<div class="cpw-watch-block"><p class="cpw-label">SATURDAY, SEP 19</p><p class="cpw-tiny cpw-muted">Three planned panels · all ended</p></div>${watchRow("photo", "EARLIER")}${watchRow("draw", "EARLIER")}${watchRow("story", "EARLIER")}${button("glance", "Back to overview")}${savedNote()}`;
+    if (view === "glance")
+      body = `${savedNote()}${notice ? `<p class="cpw-confirmation">${notice}</p>` : ""}<div class="cpw-leave-hero"><p class="cpw-label cyan">${minutes > 0 ? "LEAVE IN" : "YOUR LEAVE TIME"}</p><strong class="cpw-leave-value">${minutes > 0 ? `${minutes} <span>min</span>` : "Now"}</strong></div><div class="cpw-watch-current"><strong>Fursuit photography</strong><p>Ballroom A · leave ${watchTime(timing.leave)}</p></div><button class="cpw-watch-row" data-watch-view="leave"><span class="cpw-label cyan">NEXT · JOIN 2:35</span><strong>Character design lab</strong><span class="cpw-muted">Cedar <span aria-hidden="true">›</span></span></button>${button("today", "Today's plan")}<p class="cpw-watch-footnote">Scroll for your day${saved ? ". Schedule changes may be missing." : "."}</p>`;
+    if (view === "leave")
+      body = `${savedNote()}<div class="cpw-watch-block"><p class="cpw-label cyan">${stayFive ? "LEAVE AT 2:30" : "TIME TO LEAVE"}</p><h3 class="cpw-room-hero">Cedar</h3><p>Character design lab</p><p class="cpw-tiny cpw-muted" style="margin-top:6px">Your join time · 2:35 PM</p><div class="cpw-mini-map">Ballroom A <span></span> Cedar</div></div>${button("change", "Adjust leave time", "secondary")}${button("today", "Today's plan")}<p class="cpw-watch-footnote">${timing.gap} min between your leave and join times. Check venue signs for directions.</p>`;
+    if (view === "change")
+      body = `${savedNote()}<div class="cpw-watch-block"><p class="cpw-label">FURSUIT PHOTOGRAPHY</p><h3 class="cpw-room-hero small">Stay 5 min?</h3></div><div class="cpw-compare" style="padding:8px;margin:4px 0"><p><span>Leave</span><strong>2:25 → 2:30</strong></p><p><span>Join</span><strong>2:35 PM</strong></p></div><p class="cpw-warning">5 min gap · was 10 min</p>${button("stay", stayFive ? "5 minutes already added" : "Stay 5 more min", "primary")}${button("keep", "Keep 2:25 leave time")}<p class="cpw-watch-footnote">This uses 5 min of your transition buffer. It does not change your next join time.${saved ? " Watch edits are a proposed feature; this change stays in the demo." : ""}</p>`;
+    if (view === "today")
+      body = `${savedNote()}<div class="cpw-watch-block"><p class="cpw-label">SATURDAY, SEP 19</p><p class="cpw-tiny cpw-muted">Lakeside Fur Con · your plan</p></div>${watchRow("photo", "NOW · LEAVE EARLY", true)}<p class="cpw-watch-gap">${timing.gap} min transition gap</p>${watchRow("draw", "NEXT · JOIN LATE")}${watchRow("story", "LATER")}${button("glance", "Now & next")}<p class="cpw-watch-footnote">Times show when you plan to attend. Tap a panel for official times.</p>`;
+    if (view === "today" && scenario === "done")
+      body = `<div class="cpw-watch-block"><p class="cpw-label">SATURDAY, SEP 19</p><p class="cpw-tiny cpw-muted">Three planned panels · all ended</p></div>${watchRow("photo", "EARLIER")}${watchRow("draw", "EARLIER")}${watchRow("story", "EARLIER")}${button("glance", "Back to overview")}${savedNote()}`;
     if (view === "detail") {
       const item = watchEvents[detail];
       const until = detail === "photo" ? timing.leave : item.until;
@@ -94,17 +217,42 @@ export function mountWatch(root: HTMLElement): void {
     const timing = watchTiming(stayFive);
     const now = scenario === "done" ? 1080 : cueTime ? 865 : 858;
     const minutes = timing.leave - now;
-    const step = steps.findIndex(item => item.view === (view === "detail" ? "today" : view));
-    root.innerHTML = `<style>${watchCSS}</style><div class="cpw-intro"><div><p class="cpw-kicker">APPLE WATCH · FLOW EXPLORATION</p><h2>Less planning.<br>More being there.</h2><p>Keep the wrist focused on your next move: when to leave, where to go, and a quick adjustment if a panel is too good to leave.</p></div><div class="cpw-demo-state"><label class="cpw-scenario-label">Watch scenario<select data-watch-scenario>${Object.entries(watchScenarios).map(([value, label]) => `<option value="${value}" ${scenario === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>${scenario === "empty" ? "" : `<label><input type="checkbox" data-watch-saved ${saved ? "checked" : ""}>Older saved plan</label>`}<small>Fictional demo · ${scenario === "upcoming" ? "Thu, Sep 3" : "Sat, Sep 19"} · ${watchTime(now)} PM</small></div></div><div class="cpw-flow-layout"><div><div class="cpw-device-space"><div class="cpw-hardware">${renderWatch()}</div></div><p class="cpw-caption">Enlarged 208 × 248 pt reference · scroll inside the watch<br>Browser approximation; Crown and haptics need a real watch.</p></div><div class="cpw-guide"><p class="cpw-kicker">TRY THE WRIST FLOW</p><h3>Two panels.<br>One clear next move.</h3><p>Photography until ${watchTime(timing.leave)}. Character design at 2:35. The official panels overlap, but your planned attendance does not.</p><nav class="cpw-step-list" aria-label="Watch demo steps">${steps.map((item, index) => `<button class="cpw-step ${index === step ? "selected" : ""}" data-watch-view="${item.view}" aria-current="${index === step ? "step" : "false"}"><b>${index + 1}</b><span><strong>${item.title}</strong><small>${item.detail}</small></span></button>`).join("")}</nav><div class="cpw-player"><button data-watch-action="previous" ${step === 0 ? "disabled" : ""}>← Previous</button><button data-watch-action="next" ${step === steps.length - 1 ? "disabled" : ""}>Next →</button><button class="cpw-reset" data-watch-action="reset">Reset demo</button></div><div class="cpw-status" role="status" aria-live="polite">${notice ? `<strong>${notice}</strong> ` : ""}Leave ${watchTime(timing.leave)} · join 2:35 · ${timing.gap} min transition gap.${saved ? " Saved plan; recent schedule changes may be missing." : ""}</div></div></div><section class="cpw-complications" aria-label="Watch complication ideas"><h3 class="cpw-section-title">Useful before you open the app.</h3><p class="cpw-section-copy">Three complication families, each with one clear job. Tap any example to open Now & next.</p><div class="cpw-comp-grid"><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-circle" data-watch-complication aria-label="Open Now and next; ${minutes > 0 ? `leave in ${minutes} minutes` : "leave now"}"><small>LEAVE</small><strong>${minutes > 0 ? minutes : "0"}</strong><small>MIN</small></button></div><div class="cpw-comp-body"><h4>Circular · urgency</h4><p>A number with a clear label. No decorative progress ring implying completion.</p></div></article><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-inline" data-watch-complication><span>↗</span> Leave ${watchTime(timing.leave)} · Cedar</button></div><div class="cpw-comp-body"><h4>Inline · leave time</h4><p>Time and next room on one line. Face space determines truncation.</p></div></article><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-rect" data-watch-complication><small>CONPAWS${saved ? " · SAVED PLAN" : ""}</small><strong>${minutes > 0 ? `Leave in ${minutes} min` : "Leave now"}</strong><span>Character design lab</span><br><small>Join 2:35 · Cedar</small></button></div><div class="cpw-comp-body"><h4>Rectangular · next move</h4><p>Countdown, next panel, room, and join time. Also a starting point for Smart Stack.</p></div></article></div></section><aside class="cpw-native-note"><strong>Native implementation:</strong> watch screens use SwiftUI; complications use SwiftUI and WidgetKit. NativeWind applies to supported React Native views on the phone, not these watch surfaces. Use native vertical scrolling and standard buttons, keep hierarchy shallow, and test Dynamic Type, VoiceOver, small watches, tinted faces, and Always On. <a href="https://developer.apple.com/design/human-interface-guidelines/designing-for-watchos/" target="_blank" rel="noreferrer">watchOS HIG</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/digital-crown" target="_blank" rel="noreferrer">Digital Crown</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/complications" target="_blank" rel="noreferrer">Complications</a> · <a href="https://developer.apple.com/documentation/widgetkit/creating-accessory-widgets-and-watch-complications" target="_blank" rel="noreferrer">WidgetKit</a></aside>`;
-    if (stayFive) root.querySelector<HTMLButtonElement>('[data-watch-action="stay"]')?.setAttribute("disabled", "");
-    root.querySelector(".cpw-native-note")?.insertAdjacentHTML("afterbegin", '<strong>Proposal boundary:</strong> The current watch app is read-only and its widget supports the rectangular family. Quick edits, circular and inline complications, and the revised empty-state wording here are proposals. <br>');
+    const step = steps.findIndex(
+      (item) => item.view === (view === "detail" ? "today" : view),
+    );
+    root.innerHTML = `<style>${watchCSS}</style><div class="cpw-intro"><div><p class="cpw-kicker">APPLE WATCH · FLOW EXPLORATION</p><h2>Less planning.<br>More being there.</h2><p>Keep the wrist focused on your next move: when to leave, where to go, and a quick adjustment if a panel is too good to leave.</p></div><div class="cpw-demo-state"><label class="cpw-scenario-label">Watch scenario<select data-watch-scenario>${Object.entries(
+      watchScenarios,
+    )
+      .map(
+        ([value, label]) =>
+          `<option value="${value}" ${scenario === value ? "selected" : ""}>${label}</option>`,
+      )
+      .join(
+        "",
+      )}</select></label>${scenario === "empty" ? "" : `<label><input type="checkbox" data-watch-saved ${saved ? "checked" : ""}>Older saved plan</label>`}<small>Fictional demo · ${scenario === "upcoming" ? "Thu, Sep 3" : "Sat, Sep 19"} · ${watchTime(now)} PM</small></div></div><div class="cpw-flow-layout"><div><div class="cpw-device-space"><div class="cpw-hardware">${renderWatch()}</div></div><p class="cpw-caption">Enlarged 208 × 248 pt reference · scroll inside the watch<br>Browser approximation; Crown and haptics need a real watch.</p></div><div class="cpw-guide"><p class="cpw-kicker">TRY THE WRIST FLOW</p><h3>Two panels.<br>One clear next move.</h3><p>Photography until ${watchTime(timing.leave)}. Character design at 2:35. The official panels overlap, but your planned attendance does not.</p><nav class="cpw-step-list" aria-label="Watch demo steps">${steps.map((item, index) => `<button class="cpw-step ${index === step ? "selected" : ""}" data-watch-view="${item.view}" aria-current="${index === step ? "step" : "false"}"><b>${index + 1}</b><span><strong>${item.title}</strong><small>${item.detail}</small></span></button>`).join("")}</nav><div class="cpw-player"><button data-watch-action="previous" ${step === 0 ? "disabled" : ""}>← Previous</button><button data-watch-action="next" ${step === steps.length - 1 ? "disabled" : ""}>Next →</button><button class="cpw-reset" data-watch-action="reset">Reset demo</button></div><div class="cpw-status" role="status" aria-live="polite">${notice ? `<strong>${notice}</strong> ` : ""}Leave ${watchTime(timing.leave)} · join 2:35 · ${timing.gap} min transition gap.${saved ? " Saved plan; recent schedule changes may be missing." : ""}</div></div></div><section class="cpw-complications" aria-label="Watch complication ideas"><h3 class="cpw-section-title">Useful before you open the app.</h3><p class="cpw-section-copy">Three complication families, each with one clear job. Tap any example to open Now & next.</p><div class="cpw-comp-grid"><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-circle" data-watch-complication aria-label="Open Now and next; ${minutes > 0 ? `leave in ${minutes} minutes` : "leave now"}"><small>LEAVE</small><strong>${minutes > 0 ? minutes : "0"}</strong><small>MIN</small></button></div><div class="cpw-comp-body"><h4>Circular · urgency</h4><p>A number with a clear label. No decorative progress ring implying completion.</p></div></article><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-inline" data-watch-complication><span>↗</span> Leave ${watchTime(timing.leave)} · Cedar</button></div><div class="cpw-comp-body"><h4>Inline · leave time</h4><p>Time and next room on one line. Face space determines truncation.</p></div></article><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-rect" data-watch-complication><small>CONPAWS${saved ? " · SAVED PLAN" : ""}</small><strong>${minutes > 0 ? `Leave in ${minutes} min` : "Leave now"}</strong><span>Character design lab</span><br><small>Join 2:35 · Cedar</small></button></div><div class="cpw-comp-body"><h4>Rectangular · next move</h4><p>Countdown, next panel, room, and join time. Also a starting point for Smart Stack.</p></div></article></div></section><aside class="cpw-native-note"><strong>Native implementation:</strong> watch screens use SwiftUI; complications use SwiftUI and WidgetKit. NativeWind applies to supported React Native views on the phone, not these watch surfaces. Use native vertical scrolling and standard buttons, keep hierarchy shallow, and test Dynamic Type, VoiceOver, small watches, tinted faces, and Always On. <a href="https://developer.apple.com/design/human-interface-guidelines/designing-for-watchos/" target="_blank" rel="noreferrer">watchOS HIG</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/digital-crown" target="_blank" rel="noreferrer">Digital Crown</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/complications" target="_blank" rel="noreferrer">Complications</a> · <a href="https://developer.apple.com/documentation/widgetkit/creating-accessory-widgets-and-watch-complications" target="_blank" rel="noreferrer">WidgetKit</a></aside>`;
+    if (stayFive)
+      root
+        .querySelector<HTMLButtonElement>('[data-watch-action="stay"]')
+        ?.setAttribute("disabled", "");
+    root
+      .querySelector(".cpw-native-note")
+      ?.insertAdjacentHTML(
+        "afterbegin",
+        "<strong>Proposal boundary:</strong> The current watch app is read-only and its widget supports the rectangular family. Quick edits, circular and inline complications, and the revised empty-state wording here are proposals. <br>",
+      );
     if (scenario !== "active") {
       const copy = watchScenarioCopy[scenario];
       root.querySelector(".cpw-intro h2")!.textContent = "A clear next step.";
-      root.querySelector(".cpw-intro > div:first-child > p:last-child")!.textContent = "The watch should tell you what is saved, what comes next, and when to use your iPhone.";
-      root.querySelector(".cpw-guide")!.innerHTML = `<p class="cpw-kicker">WATCH STATE · COPY EXPLORATION</p><h3>${copy.title}</h3><p>${copy.condition}</p><div class="cpw-copy-card"><span>Current watch wording</span><p>${copy.current}</p></div><div class="cpw-copy-card proposed"><span>Why this wording</span><p>${copy.idea}</p></div><div class="cpw-status" role="status" aria-live="polite">${notice || (scenario === "upcoming" ? "Sample date: September 3, 2026. Con starts September 18: 15 calendar days away." : scenario === "done" ? "Sample time: 6:00 PM. The last chosen panel ended at 5:00 PM." : "Sample state is local to this watch preview.")}</div><div class="cpw-player"><button data-watch-action="reset">Try the active plan →</button></div>`;
-      root.querySelector(".cpw-complications")!.innerHTML = `<h3 class="cpw-section-title">The same state, at a glance.</h3><p class="cpw-section-copy">Rectangular complication proposal. Tap to open this state in the watch app.</p><div class="cpw-comp-grid cpw-single-comp"><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-rect" data-watch-complication aria-label="Open ConPaws: ${copy.title}"><small>${scenario === "empty" ? "CONPAWS" : "LAKESIDE FUR CON"}</small><strong>${copy.compact}</strong><small>${copy.secondary}</small></button></div><div class="cpw-comp-body"><h4>Rectangular · ${scenario === "upcoming" ? "countdown" : "next step"}</h4><p>${scenario === "empty" ? "A phone instruction, not a button that launches the iPhone app." : scenario === "done" ? "Shown only after every chosen panel has ended." : scenario === "no-picks" ? "An empty personal plan does not tell us whether a program is published." : "Date-based countdown. No invented opening time."}</p></div></article></div>`;
-      if (scenario === "done") root.querySelector('[data-watch-action="change"]')?.remove();
+      root.querySelector(
+        ".cpw-intro > div:first-child > p:last-child",
+      )!.textContent =
+        "The watch should tell you what is saved, what comes next, and when to use your iPhone.";
+      root.querySelector(".cpw-guide")!.innerHTML =
+        `<p class="cpw-kicker">WATCH STATE · COPY EXPLORATION</p><h3>${copy.title}</h3><p>${copy.condition}</p><div class="cpw-copy-card"><span>Current watch wording</span><p>${copy.current}</p></div><div class="cpw-copy-card proposed"><span>Why this wording</span><p>${copy.idea}</p></div><div class="cpw-status" role="status" aria-live="polite">${notice || (scenario === "upcoming" ? "Sample date: September 3, 2026. Con starts September 18: 15 calendar days away." : scenario === "done" ? "Sample time: 6:00 PM. The last chosen panel ended at 5:00 PM." : "Sample state is local to this watch preview.")}</div><div class="cpw-player"><button data-watch-action="reset">Try the active plan →</button></div>`;
+      root.querySelector(".cpw-complications")!.innerHTML =
+        `<h3 class="cpw-section-title">The same state, at a glance.</h3><p class="cpw-section-copy">Rectangular complication proposal. Tap to open this state in the watch app.</p><div class="cpw-comp-grid cpw-single-comp"><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-rect" data-watch-complication aria-label="Open ConPaws: ${copy.title}"><small>${scenario === "empty" ? "CONPAWS" : "LAKESIDE FUR CON"}</small><strong>${copy.compact}</strong><small>${copy.secondary}</small></button></div><div class="cpw-comp-body"><h4>Rectangular · ${scenario === "upcoming" ? "countdown" : "next step"}</h4><p>${scenario === "empty" ? "A phone instruction, not a button that launches the iPhone app." : scenario === "done" ? "Shown only after every chosen panel has ended." : scenario === "no-picks" ? "An empty personal plan does not tell us whether a program is published." : "Date-based countdown. No invented opening time."}</p></div></article></div>`;
+      if (scenario === "done")
+        root.querySelector('[data-watch-action="change"]')?.remove();
     }
   }
   function show(next: WatchView): void {
@@ -113,21 +261,28 @@ export function mountWatch(root: HTMLElement): void {
     if (next === "leave" || next === "change") cueTime = true;
     if (next === "face") cueTime = false;
   }
-  root.onclick = event => {
+  root.onclick = (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
-    const control = target.closest<HTMLElement>("[data-watch-view],[data-watch-action],[data-watch-detail],[data-watch-complication]");
+    const control = target.closest<HTMLElement>(
+      "[data-watch-view],[data-watch-action],[data-watch-detail],[data-watch-complication]",
+    );
     if (!control || !root.contains(control)) return;
-    if (control.hasAttribute("data-watch-view")) show(control.dataset.watchView as WatchView);
-    else if (control.hasAttribute("data-watch-detail")) { detail = control.dataset.watchDetail as WatchEvent; show("detail"); }
-    else if (control.hasAttribute("data-watch-complication")) {
+    if (control.hasAttribute("data-watch-view"))
+      show(control.dataset.watchView as WatchView);
+    else if (control.hasAttribute("data-watch-detail")) {
+      detail = control.dataset.watchDetail as WatchEvent;
+      show("detail");
+    } else if (control.hasAttribute("data-watch-complication")) {
       show("glance");
-      if (scenario !== "active") notice = `Opened ConPaws: ${watchScenarioCopy[scenario].title}.`;
-    }
-    else {
+      if (scenario !== "active")
+        notice = `Opened ConPaws: ${watchScenarioCopy[scenario].title}.`;
+    } else {
       const action = control.dataset.watchAction;
       if (action === "next" || action === "previous") {
-        const index = steps.findIndex(item => item.view === (view === "detail" ? "today" : view));
+        const index = steps.findIndex(
+          (item) => item.view === (view === "detail" ? "today" : view),
+        );
         const next = steps[index + (action === "next" ? 1 : -1)];
         if (next) show(next.view);
       } else if (action === "stay" || action === "keep") {
@@ -136,36 +291,71 @@ export function mountWatch(root: HTMLElement): void {
         cueTime = true;
         notice = `${stayFive ? "Leave time moved to 2:30." : "Leave time kept at 2:25."} Updated in this demo.`;
       } else if (action === "reset") {
-        stayFive = false; saved = false; cueTime = false; notice = ""; view = "face"; scenario = "active";
-      } else if (action === "today" || action === "glance" || action === "change") show(action);
+        stayFive = false;
+        saved = false;
+        cueTime = false;
+        notice = "";
+        view = "face";
+        scenario = "active";
+      } else if (
+        action === "today" ||
+        action === "glance" ||
+        action === "change"
+      )
+        show(action);
     }
     const bringWatchIntoView = control.hasAttribute("data-watch-complication");
     const focusWithinWatch = Boolean(control.closest(".cpw-screen"));
     render();
-    if (bringWatchIntoView) root.querySelector(".cpw-flow-layout")?.scrollIntoView({ behavior: "auto", block: "start" });
-    if (focusWithinWatch || bringWatchIntoView) root.querySelector<HTMLElement>(".cpw-scroll, .cpw-face-comp")?.focus({ preventScroll: true });
+    if (bringWatchIntoView)
+      root
+        .querySelector(".cpw-flow-layout")
+        ?.scrollIntoView({ behavior: "auto", block: "start" });
+    if (focusWithinWatch || bringWatchIntoView)
+      root
+        .querySelector<HTMLElement>(".cpw-scroll, .cpw-face-comp")
+        ?.focus({ preventScroll: true });
     else {
       const action = control.dataset.watchAction;
-      const nextControl = action ? root.querySelector<HTMLElement>(`[data-watch-action="${action}"]:not(:disabled)`) : null;
-      (nextControl ?? root.querySelector<HTMLElement>(".cpw-step.selected"))?.focus({ preventScroll: true });
+      const nextControl = action
+        ? root.querySelector<HTMLElement>(
+            `[data-watch-action="${action}"]:not(:disabled)`,
+          )
+        : null;
+      (
+        nextControl ?? root.querySelector<HTMLElement>(".cpw-step.selected")
+      )?.focus({ preventScroll: true });
     }
   };
-  root.onchange = event => {
-    if (event.target instanceof HTMLSelectElement && event.target.hasAttribute("data-watch-scenario")) {
+  root.onchange = (event) => {
+    if (
+      event.target instanceof HTMLSelectElement &&
+      event.target.hasAttribute("data-watch-scenario")
+    ) {
       if (!Object.hasOwn(watchScenarios, event.target.value)) return;
       scenario = event.target.value as WatchScenario;
       view = scenario === "active" ? "face" : "glance";
-      stayFive = false; cueTime = false; notice = "";
+      stayFive = false;
+      cueTime = false;
+      notice = "";
       if (scenario === "empty") saved = false;
       render();
-      root.querySelector<HTMLSelectElement>("[data-watch-scenario]")?.focus({ preventScroll: true });
+      root
+        .querySelector<HTMLSelectElement>("[data-watch-scenario]")
+        ?.focus({ preventScroll: true });
       return;
     }
-    if (!(event.target instanceof HTMLInputElement) || !event.target.hasAttribute("data-watch-saved")) return;
+    if (
+      !(event.target instanceof HTMLInputElement) ||
+      !event.target.hasAttribute("data-watch-saved")
+    )
+      return;
     saved = event.target.checked;
     notice = "";
     render();
-    root.querySelector<HTMLInputElement>("[data-watch-saved]")?.focus({ preventScroll: true });
+    root
+      .querySelector<HTMLInputElement>("[data-watch-saved]")
+      ?.focus({ preventScroll: true });
   };
   render();
 }
@@ -173,12 +363,29 @@ export function mountWatch(root: HTMLElement): void {
 if ((import.meta as ImportMeta & { main?: boolean }).main) {
   const original = watchTiming(false);
   const delayed = watchTiming(true);
-  if (original.leave !== 865 || original.gap !== 10 || delayed.leave !== 870 || delayed.gap !== 5 || delayed.join !== original.join || delayed.join - delayed.leave !== delayed.gap) {
-    throw new Error("Watch leave adjustment must consume five minutes of the transition gap without moving the join time.");
+  if (
+    original.leave !== 865 ||
+    original.gap !== 10 ||
+    delayed.leave !== 870 ||
+    delayed.gap !== 5 ||
+    delayed.join !== original.join ||
+    delayed.join - delayed.leave !== delayed.gap
+  ) {
+    throw new Error(
+      "Watch leave adjustment must consume five minutes of the transition gap without moving the join time.",
+    );
   }
   const pastPicks = Object.values(watchEvents);
-  if (pastPicks.length === 0 || pastPicks.some(item => item.until > 1080) || (Date.UTC(2026, 8, 18) - Date.UTC(2026, 8, 3)) / 86_400_000 !== 15) {
-    throw new Error("Watch scenario fixtures must have 15 days until the convention and known completed picks at 6 PM.");
+  if (
+    pastPicks.length === 0 ||
+    pastPicks.some((item) => item.until > 1080) ||
+    (Date.UTC(2026, 8, 18) - Date.UTC(2026, 8, 3)) / 86_400_000 !== 15
+  ) {
+    throw new Error(
+      "Watch scenario fixtures must have 15 days until the convention and known completed picks at 6 PM.",
+    );
   }
-  console.log("Watch timing self-check passed: leave 2:25 → 2:30, join 2:35, gap 10 → 5 minutes.");
+  console.log(
+    "Watch timing self-check passed: leave 2:25 → 2:30, join 2:35, gap 10 → 5 minutes.",
+  );
 }

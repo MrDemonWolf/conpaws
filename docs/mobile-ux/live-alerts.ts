@@ -4,57 +4,208 @@ type ActivityState = "upcoming" | "current" | "leave" | "finished";
 
 export const liveAlertScenarios = {
   upcoming: {
-    label: "Upcoming panel", clock: "1:50 PM", channel: "Event reminders",
-    context: "10 minutes before the organizer's 2:00 PM start. You chose a start reminder.",
-    short: { title: "Photography Starts Soon", body: "Fursuit photography starts at 2:00 PM in Ballroom A." },
-    friendly: { title: "Photography Starts Soon", body: "Your next panel is Fursuit photography, at 2:00 PM in Ballroom A." },
+    label: "Upcoming panel",
+    clock: "1:50 PM",
+    channel: "Event reminders",
+    context:
+      "10 minutes before the organizer's 2:00 PM start. You chose a start reminder.",
+    short: {
+      title: "Photography Starts Soon",
+      body: "Fursuit photography starts at 2:00 PM in Ballroom A.",
+    },
+    friendly: {
+      title: "Photography Starts Soon",
+      body: "Your next panel is Fursuit photography, at 2:00 PM in Ballroom A.",
+    },
   },
   leave: {
-    label: "Your leave time", clock: "2:25 PM", channel: "Plan reminders",
-    context: "Your saved leave time is due. The panel itself continues until 3:00 PM.",
-    short: { title: "Your Leave Time Is Now", body: "You planned to leave photography at 2:25 PM. Join Character design at 2:35 PM in Cedar." },
-    friendly: { title: "Ready for Your Next Panel?", body: "You chose to leave photography at 2:25 PM. Character design is next, at 2:35 PM in Cedar." },
+    label: "Your leave time",
+    clock: "2:25 PM",
+    channel: "Plan reminders",
+    context:
+      "Your saved leave time is due. The panel itself continues until 3:00 PM.",
+    short: {
+      title: "Your Leave Time Is Now",
+      body: "You planned to leave photography at 2:25 PM. Join Character design at 2:35 PM in Cedar.",
+    },
+    friendly: {
+      title: "Ready for Your Next Panel?",
+      body: "You chose to leave photography at 2:25 PM. Character design is next, at 2:35 PM in Cedar.",
+    },
   },
   joining: {
-    label: "Joining a panel late", clock: "2:35 PM", channel: "Plan reminders",
-    context: "Your personal attendance starts now. The organizer's panel started at 2:00 PM.",
-    short: { title: "Join Character Design", body: "Your plan starts at 2:35 PM in Cedar. This panel has been running since 2:00 PM." },
-    friendly: { title: "Time for Character Design", body: "You planned to join at 2:35 PM in Cedar. The panel started at 2:00 PM, so you are joining partway through." },
+    label: "Joining a panel late",
+    clock: "2:35 PM",
+    channel: "Plan reminders",
+    context:
+      "Your personal attendance starts now. The organizer's panel started at 2:00 PM.",
+    short: {
+      title: "Join Character Design",
+      body: "Your plan starts at 2:35 PM in Cedar. This panel has been running since 2:00 PM.",
+    },
+    friendly: {
+      title: "Time for Character Design",
+      body: "You planned to join at 2:35 PM in Cedar. The panel started at 2:00 PM, so you are joining partway through.",
+    },
   },
   moved: {
-    label: "Organizer changes room", clock: "2:20 PM", channel: "Schedule changes",
-    context: "Separate what the organizer changed from the time you chose. Fictional room-change scenario.",
-    short: { title: "Character Design Moved", body: "The organizer moved Character design from Cedar to Maple. Your join time is still 2:35 PM." },
-    friendly: { title: "A New Room for Your Panel", body: "Character design is now in Maple instead of Cedar. Your planned join time is still 2:35 PM." },
+    label: "Organizer changes room",
+    clock: "2:20 PM",
+    channel: "Schedule changes",
+    context:
+      "Separate what the organizer changed from the time you chose. Fictional room-change scenario.",
+    short: {
+      title: "Character Design Moved",
+      body: "The organizer moved Character design from Cedar to Maple. Your join time is still 2:35 PM.",
+    },
+    friendly: {
+      title: "A New Room for Your Panel",
+      body: "Character design is now in Maple instead of Cedar. Your planned join time is still 2:35 PM.",
+    },
   },
   cancelled: {
-    label: "Organizer cancels panel", clock: "2:20 PM", channel: "Schedule changes",
-    context: "Keep the cancelled entry visible until reviewed. Never replace someone's choice automatically.",
-    short: { title: "Character Design Cancelled", body: "The organizer cancelled Character design. Review your 2:35 PM plan to choose another panel." },
-    friendly: { title: "Character Design Cancelled", body: "The organizer cancelled this panel. You can review your 2:35 PM plan and pick something else." },
+    label: "Organizer cancels panel",
+    clock: "2:20 PM",
+    channel: "Schedule changes",
+    context:
+      "Keep the cancelled entry visible until reviewed. Never replace someone's choice automatically.",
+    short: {
+      title: "Character Design Cancelled",
+      body: "The organizer cancelled Character design. Review your 2:35 PM plan to choose another panel.",
+    },
+    friendly: {
+      title: "Character Design Cancelled",
+      body: "The organizer cancelled this panel. You can review your 2:35 PM plan and pick something else.",
+    },
   },
   overlap: {
-    label: "Unresolved overlap", clock: "1:30 PM", channel: "Plan reminders",
-    context: "Alternative example: both full panels are saved and attendance times are unresolved. Send only if requested.",
-    short: { title: "Two Plans Overlap", body: "Photography and Character design overlap in your plan. Choose attendance times or keep both as options." },
-    friendly: { title: "Two Panels, One Time Slot", body: "Still choosing between photography and Character design? Set your attendance times, or keep both as options." },
+    label: "Unresolved overlap",
+    clock: "1:30 PM",
+    channel: "Plan reminders",
+    context:
+      "Alternative example: both full panels are saved and attendance times are unresolved. Send only if requested.",
+    short: {
+      title: "Two Plans Overlap",
+      body: "Photography and Character design overlap in your plan. Choose attendance times or keep both as options.",
+    },
+    friendly: {
+      title: "Two Panels, One Time Slot",
+      body: "Still choosing between photography and Character design? Set your attendance times, or keep both as options.",
+    },
   },
   test: {
-    label: "Test notification", clock: "2:18 PM", channel: "Event reminders",
-    context: "Review wording for a user-requested test. This browser preview does not request permission or send notifications.",
-    short: { title: "Test Reminder", body: "This is a test reminder from ConPaws." },
-    friendly: { title: "A Little Reminder Test", body: "This is your ConPaws test reminder. You can adjust reminders in Settings." },
+    label: "Test notification",
+    clock: "2:18 PM",
+    channel: "Event reminders",
+    context:
+      "Review wording for a user-requested test. This browser preview does not request permission or send notifications.",
+    short: {
+      title: "Test Reminder",
+      body: "This is a test reminder from ConPaws.",
+    },
+    friendly: {
+      title: "A Little Reminder Test",
+      body: "This is your ConPaws test reminder. You can adjust reminders in Settings.",
+    },
   },
-} satisfies Record<string, { label: string; clock: string; channel: string; context: string; short: AlertCopy; friendly: AlertCopy }>;
+} satisfies Record<
+  string,
+  {
+    label: string;
+    clock: string;
+    channel: string;
+    context: string;
+    short: AlertCopy;
+    friendly: AlertCopy;
+  }
+>;
 
 export const liveActivitySamples = {
-  upcoming: { clock: "1:50", label: "Starts in", value: "10", unit: "min", compact: "10m", title: "Fursuit photography", room: "Ballroom A", instruction: "Starts at 2:00 PM", next: "Your plan: 2:00–2:25 PM", footer: "Then Character design · 2:35 PM · Cedar", progress: 0, context: "Sample time 1:50 PM. You chose to track this afternoon's plan." },
-  current: { clock: "2:18", label: "Leave in", value: "7", unit: "min", compact: "7m", title: "Fursuit photography", room: "Ballroom A", instruction: "Your leave time · 2:25 PM", next: "Next · Character design", footer: "Join at 2:35 PM · Cedar", progress: 72, context: "Sample time 2:18 PM. Leave time is yours; the panel continues until 3:00 PM." },
-  leave: { clock: "2:25", label: "Your leave time", value: "Now", unit: "2:25 PM", compact: "Now", title: "Fursuit photography", room: "Ballroom A", instruction: "You planned to leave now", next: "Next · Character design", footer: "Join at 2:35 PM · Cedar", progress: 100, context: "Sample time advances to 2:25 PM. This is the leave time you saved, not a walking-time estimate." },
-  finished: { clock: "3:20", label: "Your plan", value: "Done", unit: "3:20 PM", compact: "✓", title: "Afternoon plan finished", room: "Your attendance ended at 3:20 PM", instruction: "Character design continues until 3:30 PM", next: "Next · Storytelling", footer: "4:00–5:00 PM · See your plan", progress: 100, context: "Sample time 3:20 PM. End this Live Activity; a later panel gets its own reminder." },
-} satisfies Record<ActivityState, { clock: string; label: string; value: string; unit: string; compact: string; title: string; room: string; instruction: string; next: string; footer: string; progress: number; context: string }>;
+  upcoming: {
+    clock: "1:50",
+    label: "Starts in",
+    value: "10",
+    unit: "min",
+    compact: "10m",
+    title: "Fursuit photography",
+    room: "Ballroom A",
+    instruction: "Starts at 2:00 PM",
+    next: "Your plan: 2:00–2:25 PM",
+    footer: "Then Character design · 2:35 PM · Cedar",
+    progress: 0,
+    context: "Sample time 1:50 PM. You chose to track this afternoon's plan.",
+  },
+  current: {
+    clock: "2:18",
+    label: "Leave in",
+    value: "7",
+    unit: "min",
+    compact: "7m",
+    title: "Fursuit photography",
+    room: "Ballroom A",
+    instruction: "Your leave time · 2:25 PM",
+    next: "Next · Character design",
+    footer: "Join at 2:35 PM · Cedar",
+    progress: 72,
+    context:
+      "Sample time 2:18 PM. Leave time is yours; the panel continues until 3:00 PM.",
+  },
+  leave: {
+    clock: "2:25",
+    label: "Your leave time",
+    value: "Now",
+    unit: "2:25 PM",
+    compact: "Now",
+    title: "Fursuit photography",
+    room: "Ballroom A",
+    instruction: "You planned to leave now",
+    next: "Next · Character design",
+    footer: "Join at 2:35 PM · Cedar",
+    progress: 100,
+    context:
+      "Sample time advances to 2:25 PM. This is the leave time you saved, not a walking-time estimate.",
+  },
+  finished: {
+    clock: "3:20",
+    label: "Your plan",
+    value: "Done",
+    unit: "3:20 PM",
+    compact: "✓",
+    title: "Afternoon plan finished",
+    room: "Your attendance ended at 3:20 PM",
+    instruction: "Character design continues until 3:30 PM",
+    next: "Next · Storytelling",
+    footer: "4:00–5:00 PM · See your plan",
+    progress: 100,
+    context:
+      "Sample time 3:20 PM. End this Live Activity; a later panel gets its own reminder.",
+  },
+} satisfies Record<
+  ActivityState,
+  {
+    clock: string;
+    label: string;
+    value: string;
+    unit: string;
+    compact: string;
+    title: string;
+    room: string;
+    instruction: string;
+    next: string;
+    footer: string;
+    progress: number;
+    context: string;
+  }
+>;
 
-const escapeLiveText = (value: string) => value.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
+const escapeLiveText = (value: string) =>
+  value.replace(
+    /[&<>"']/g,
+    (char) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        char
+      ]!,
+  );
 const paw = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="6" cy="8" rx="2.3" ry="3" transform="rotate(-25 6 8)"/><ellipse cx="11" cy="5.5" rx="2.3" ry="3"/><ellipse cx="16.3" cy="6.5" rx="2.3" ry="3" transform="rotate(20 16.3 6.5)"/><ellipse cx="20" cy="11" rx="2" ry="2.8" transform="rotate(30 20 11)"/><path d="M6.8 15.2c1.6-1.6 2.5-4.1 5-4.1s3.6 2.4 5.2 4c2.7 2.8.6 6-2 5.4-2.1-.5-3.7-.5-5.8 0-3 .7-5-2.6-2.4-5.3Z"/></svg>`;
 
 const liveStyles = `
@@ -79,12 +230,31 @@ export function mountLiveAlerts(root: HTMLElement): void {
 
   root.innerHTML = `<style>${liveStyles}</style>
     <div class="live-section-top"><div><p class="live-eyebrow">Live Activities & notifications</p><h2>The next move, at a glance.</h2><p class="live-intro">A glance tells you where you are going and when you chose to leave. These examples use a separate sample plan; edits in Phone flow do not change them.</p></div><span class="live-native-tag">System surfaces · Native first</span></div>
-    <div class="live-toolbar"><div class="live-segment" role="group" aria-label="Live Activity scenario">${([['upcoming','Upcoming'],['current','In a panel'],['leave','Leave time'],['finished','Finished']] as const).map(([key,label]) => `<button type="button" data-live-state="${key}" aria-pressed="${key === activityState}">${label}</button>`).join("")}</div><p class="live-context" data-live-context></p></div>
+    <div class="live-toolbar"><div class="live-segment" role="group" aria-label="Live Activity scenario">${(
+      [
+        ["upcoming", "Upcoming"],
+        ["current", "In a panel"],
+        ["leave", "Leave time"],
+        ["finished", "Finished"],
+      ] as const
+    )
+      .map(
+        ([key, label]) =>
+          `<button type="button" data-live-state="${key}" aria-pressed="${key === activityState}">${label}</button>`,
+      )
+      .join("")}</div><p class="live-context" data-live-context></p></div>
     <div class="live-surfaces" data-live-surfaces></div>
     <section class="live-notification-section" aria-label="Notification copy playground">
       <div class="live-section-top"><div><p class="live-eyebrow">Copy playground</p><h2>Helpful words. No unnecessary rush.</h2><p class="live-intro">Try each moment, edit the wording, then preview both platforms. Short and friendly versions keep the same facts.</p></div></div>
       <div class="live-copy-grid"><form class="live-editor" data-live-editor>
-        <label class="live-field">Moment<select data-live-scenario>${Object.entries(liveAlertScenarios).map(([key,value]) => `<option value="${key}" ${key === scenario ? "selected" : ""}>${value.label}</option>`).join("")}</select></label>
+        <label class="live-field">Moment<select data-live-scenario>${Object.entries(
+          liveAlertScenarios,
+        )
+          .map(
+            ([key, value]) =>
+              `<option value="${key}" ${key === scenario ? "selected" : ""}>${value.label}</option>`,
+          )
+          .join("")}</select></label>
         <div class="live-segment" role="group" aria-label="Notification tone"><button type="button" data-live-tone="short" aria-pressed="true">Short</button><button type="button" data-live-tone="friendly" aria-pressed="false">Friendly</button></div>
         <p class="live-context" data-live-copy-context></p>
         <label class="live-field">Title <span class="live-copy-count" data-live-title-count></span><input data-live-title aria-describedby="live-title-help" required><small id="live-title-help">Aim for 30 characters or fewer. Put key words first.</small></label>
@@ -98,29 +268,52 @@ export function mountLiveAlerts(root: HTMLElement): void {
 
   function renderActivities() {
     const sample = liveActivitySamples[activityState];
-    root.querySelector<HTMLElement>("[data-live-context]")!.textContent = sample.context;
-    root.querySelectorAll<HTMLButtonElement>("[data-live-state]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.liveState === activityState)));
+    root.querySelector<HTMLElement>("[data-live-context]")!.textContent =
+      sample.context;
+    root
+      .querySelectorAll<HTMLButtonElement>("[data-live-state]")
+      .forEach((button) => {
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.liveState === activityState),
+        );
+      });
     const count = `<div class="live-count"><small>${sample.label}</small><strong>${sample.value}</strong><span>${sample.unit}</span></div>`;
     const progress = `<div class="live-progress" aria-hidden="true"><span style="width:${sample.progress}%"></span></div>`;
-    root.querySelector<HTMLElement>("[data-live-surfaces]")!.innerHTML = `<article class="live-artboard"><div class="live-art-label"><span>iPhone · Lock Screen</span><span>Live Activity</span></div><div class="live-lockscreen"><div class="live-sensor" aria-hidden="true"></div><div class="live-lock-date">Saturday, September 19</div><div class="live-lock-clock">${sample.clock}</div><p class="live-lock-hint">Lakeside Fur Con</p><button type="button" class="live-lock-activity" data-live-open-plan aria-label="Preview your afternoon plan"><div class="live-activity-brand">${paw} ConPaws · My plan</div><div class="live-activity-main"><div><div class="live-activity-title">${sample.title}</div><div class="live-activity-room">${sample.room}</div></div>${count}</div>${progress}<div class="live-next">${sample.next}<small>${sample.footer}</small></div></button><div class="live-lock-home" aria-hidden="true"></div></div><p class="live-spec-note">${activityState === "finished" ? "Final state before dismissal. The plan ended; the organizer's panel may continue." : "Tap the activity to preview your attendance plan. One activity follows this short run of panels."}</p></article>
+    root.querySelector<HTMLElement>("[data-live-surfaces]")!.innerHTML =
+      `<article class="live-artboard"><div class="live-art-label"><span>iPhone · Lock Screen</span><span>Live Activity</span></div><div class="live-lockscreen"><div class="live-sensor" aria-hidden="true"></div><div class="live-lock-date">Saturday, September 19</div><div class="live-lock-clock">${sample.clock}</div><p class="live-lock-hint">Lakeside Fur Con</p><button type="button" class="live-lock-activity" data-live-open-plan aria-label="Preview your afternoon plan"><div class="live-activity-brand">${paw} ConPaws · My plan</div><div class="live-activity-main"><div><div class="live-activity-title">${sample.title}</div><div class="live-activity-room">${sample.room}</div></div>${count}</div>${progress}<div class="live-next">${sample.next}<small>${sample.footer}</small></div></button><div class="live-lock-home" aria-hidden="true"></div></div><p class="live-spec-note">${activityState === "finished" ? "Final state before dismissal. The plan ended; the organizer's panel may continue." : "Tap the activity to preview your attendance plan. One activity follows this short run of panels."}</p></article>
       <article class="live-artboard live-island-board"><div class="live-art-label"><span>iPhone · Dynamic Island</span><span>One plan, three presentations</span></div><div class="live-island-pair"><div><button type="button" class="live-compact" data-live-open-plan aria-label="${sample.label}: ${sample.value} ${sample.unit}. Preview plan">${paw}<strong>${sample.compact}</strong></button><div class="live-island-label">Compact</div></div><div><button type="button" class="live-minimal" data-live-open-plan aria-label="${sample.label}: ${sample.value} ${sample.unit}. Preview plan">${sample.compact}</button><div class="live-island-label">Minimal</div></div></div><div><button type="button" class="live-expanded" data-live-open-plan aria-label="Preview expanded activity and your plan"><div class="live-expanded-top"><div class="live-activity-brand">${paw}<span>${sample.instruction}</span></div>${count}</div><div class="live-expanded-title">${sample.title}</div><div class="live-activity-room">${sample.room}</div><div class="live-next">${sample.next}<small>${sample.footer}</small></div></button><div class="live-island-label">Expanded · key context stays close to the camera</div></div><div class="live-android-block"><div class="live-art-label"><span>Android</span><span>${activityState === "upcoming" || activityState === "finished" ? "Standard notification" : "Active plan notification"}</span></div><div class="live-android-card"><div class="live-android-head">${paw}<span>ConPaws · ${sample.clock} PM</span></div><div class="live-android-title">${androidStopped ? "Plan updates stopped" : activityState === "finished" ? "Your afternoon plan is finished" : activityState === "upcoming" ? "Photography starts at 2:00 PM" : "Photography · leave at 2:25 PM"}</div><div class="live-android-body">${androidStopped ? "Your saved attendance times are unchanged." : sample.footer}</div><div class="live-android-actions"><button type="button" data-live-open-plan>View plan</button>${activityState === "current" || activityState === "leave" ? `<button type="button" data-live-stop-android>${androidStopped ? "Preview updates" : "Stop updates"}</button>` : ""}</div></div><p class="live-spec-note">${androidStopped ? "Preview only. Re-enable updates to compare the active state." : "Android uses its own notification template. This example assumes you chose to track this plan; system presentation can vary."}</p></div></article>`;
   }
 
   function updateCounts() {
-    const title = root.querySelector<HTMLInputElement>("[data-live-title]")!.value;
-    const body = root.querySelector<HTMLTextAreaElement>("[data-live-body]")!.value;
-    root.querySelector<HTMLElement>("[data-live-title-count]")!.textContent = `${[...title].length} characters`;
-    root.querySelector<HTMLElement>("[data-live-body-count]")!.textContent = `${[...body].length} characters`;
+    const title =
+      root.querySelector<HTMLInputElement>("[data-live-title]")!.value;
+    const body =
+      root.querySelector<HTMLTextAreaElement>("[data-live-body]")!.value;
+    root.querySelector<HTMLElement>("[data-live-title-count]")!.textContent =
+      `${[...title].length} characters`;
+    root.querySelector<HTMLElement>("[data-live-body-count]")!.textContent =
+      `${[...body].length} characters`;
     drafts.set(`${scenario}:${tone}`, { title, body });
   }
 
   function loadCopy() {
     const chosen = liveAlertScenarios[scenario];
     const copy = drafts.get(`${scenario}:${tone}`) ?? chosen[tone];
-    root.querySelector<HTMLInputElement>("[data-live-title]")!.value = copy.title;
-    root.querySelector<HTMLTextAreaElement>("[data-live-body]")!.value = copy.body;
-    root.querySelector<HTMLElement>("[data-live-copy-context]")!.textContent = `Sample time ${chosen.clock}. ${chosen.context}`;
-    root.querySelectorAll<HTMLButtonElement>("[data-live-tone]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.liveTone === tone)));
+    root.querySelector<HTMLInputElement>("[data-live-title]")!.value =
+      copy.title;
+    root.querySelector<HTMLTextAreaElement>("[data-live-body]")!.value =
+      copy.body;
+    root.querySelector<HTMLElement>("[data-live-copy-context]")!.textContent =
+      `Sample time ${chosen.clock}. ${chosen.context}`;
+    root
+      .querySelectorAll<HTMLButtonElement>("[data-live-tone]")
+      .forEach((button) => {
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.liveTone === tone),
+        );
+      });
     updateCounts();
     preview = { ...copy };
     renderNotifications();
@@ -129,16 +322,22 @@ export function mountLiveAlerts(root: HTMLElement): void {
   function renderNotifications() {
     const chosen = liveAlertScenarios[scenario];
     const title = escapeLiveText(hideContent ? "Plan Reminder" : preview.title);
-    const body = escapeLiveText(hideContent ? "Open ConPaws to view this reminder." : preview.body);
-    const output = root.querySelector<HTMLElement>("[data-live-notifications]")!;
+    const body = escapeLiveText(
+      hideContent ? "Open ConPaws to view this reminder." : preview.body,
+    );
+    const output = root.querySelector<HTMLElement>(
+      "[data-live-notifications]",
+    )!;
     output.classList.toggle("live-large-copy", largeText);
     output.classList.toggle("live-collapsed", collapsed);
     output.innerHTML = `<div class="live-notification-stage"><div class="live-art-label"><span>iOS · ${collapsed ? "Collapsed" : "Expanded"} preview</span><span>${chosen.clock}</span></div><div class="live-ios-alert"><img class="live-app-icon" src="/app-icon.png" alt=""><div><div class="live-alert-app"><strong>ConPaws</strong><span>now</span></div><div class="live-alert-title">${title}</div><div class="live-alert-body">${body}</div></div></div><p class="live-preview-meta">${hideContent ? "Hidden content example; real visibility follows the person's device settings." : "Panel names may appear on the Lock Screen when previews are allowed."}</p></div>
       <div class="live-notification-stage"><div class="live-art-label"><span>Android · ${collapsed ? "Collapsed" : "Expanded"} preview</span><span>${chosen.clock}</span></div><div class="live-alert-android"><div class="live-android-head">${paw}<span>ConPaws · ${chosen.channel} · now</span><span aria-hidden="true" style="margin-left:auto">${collapsed ? "⌄" : "⌃"}</span></div><div class="live-alert-title">${title}</div><div class="live-alert-body">${body}</div>${collapsed || hideContent ? "" : '<div class="live-android-actions"><button type="button" data-live-notification-open>View plan</button></div>'}</div><p class="live-preview-meta">System template, standard priority. Channel and device settings control interruptions.</p></div>`;
   }
 
-  root.addEventListener("click", event => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
+  root.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "button",
+    );
     if (!button || !root.contains(button)) return;
     const data = button.dataset;
     if (data.liveState && data.liveState in liveActivitySamples) {
@@ -150,36 +349,62 @@ export function mountLiveAlerts(root: HTMLElement): void {
     } else if ("liveStopAndroid" in data) {
       androidStopped = !androidStopped;
       renderActivities();
-      root.querySelector<HTMLButtonElement>("[data-live-stop-android]")?.focus({ preventScroll: true });
+      root
+        .querySelector<HTMLButtonElement>("[data-live-stop-android]")
+        ?.focus({ preventScroll: true });
     } else if ("liveOpenPlan" in data) {
-      root.querySelector<HTMLDialogElement>("[data-live-plan-dialog]")!.showModal();
+      root
+        .querySelector<HTMLDialogElement>("[data-live-plan-dialog]")!
+        .showModal();
     } else if ("liveNotificationOpen" in data) {
-      root.querySelector<HTMLElement>("[data-live-status]")!.textContent = `Preview action: open the ${liveAlertScenarios[scenario].label.toLowerCase()} in your plan. No app navigation or notification was sent.`;
+      root.querySelector<HTMLElement>("[data-live-status]")!.textContent =
+        `Preview action: open the ${liveAlertScenarios[scenario].label.toLowerCase()} in your plan. No app navigation or notification was sent.`;
     } else if ("liveCloseDialog" in data) {
       root.querySelector<HTMLDialogElement>("[data-live-plan-dialog]")!.close();
     }
   });
-  root.addEventListener("change", event => {
+  root.addEventListener("change", (event) => {
     const input = event.target as HTMLInputElement | HTMLSelectElement;
-    if (input.matches("[data-live-scenario]") && input.value in liveAlertScenarios) {
+    if (
+      input.matches("[data-live-scenario]") &&
+      input.value in liveAlertScenarios
+    ) {
       scenario = input.value as keyof typeof liveAlertScenarios;
       loadCopy();
-    } else if (input.matches("[data-live-hide],[data-live-large],[data-live-collapse]")) {
-      hideContent = root.querySelector<HTMLInputElement>("[data-live-hide]")!.checked;
-      largeText = root.querySelector<HTMLInputElement>("[data-live-large]")!.checked;
-      collapsed = root.querySelector<HTMLInputElement>("[data-live-collapse]")!.checked;
+    } else if (
+      input.matches("[data-live-hide],[data-live-large],[data-live-collapse]")
+    ) {
+      hideContent =
+        root.querySelector<HTMLInputElement>("[data-live-hide]")!.checked;
+      largeText =
+        root.querySelector<HTMLInputElement>("[data-live-large]")!.checked;
+      collapsed = root.querySelector<HTMLInputElement>(
+        "[data-live-collapse]",
+      )!.checked;
       renderNotifications();
     }
   });
-  root.addEventListener("input", event => {
-    if ((event.target as HTMLElement).matches("[data-live-title],[data-live-body]")) updateCounts();
+  root.addEventListener("input", (event) => {
+    if (
+      (event.target as HTMLElement).matches(
+        "[data-live-title],[data-live-body]",
+      )
+    )
+      updateCounts();
   });
-  root.querySelector<HTMLFormElement>("[data-live-editor]")!.addEventListener("submit", event => {
-    event.preventDefault();
-    preview = { title: root.querySelector<HTMLInputElement>("[data-live-title]")!.value, body: root.querySelector<HTMLTextAreaElement>("[data-live-body]")!.value };
-    renderNotifications();
-    root.querySelector<HTMLElement>("[data-live-status]")!.textContent = "Preview updated on both platforms. Nothing sent to a device.";
-  });
+  root
+    .querySelector<HTMLFormElement>("[data-live-editor]")!
+    .addEventListener("submit", (event) => {
+      event.preventDefault();
+      preview = {
+        title: root.querySelector<HTMLInputElement>("[data-live-title]")!.value,
+        body: root.querySelector<HTMLTextAreaElement>("[data-live-body]")!
+          .value,
+      };
+      renderNotifications();
+      root.querySelector<HTMLElement>("[data-live-status]")!.textContent =
+        "Preview updated on both platforms. Nothing sent to a device.";
+    });
   renderActivities();
   loadCopy();
 }

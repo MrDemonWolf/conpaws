@@ -31,10 +31,10 @@
   <header class="site-header">
     <div class="brand"><img src="http://127.0.0.1:4173/app-icon.png" alt="ConPaws">ConPaws<span>Design explorations</span></div>
     <nav class="site-actions" aria-label="Preview controls">
-      <button class="active" data-page="prototype">Prototype</button>
-      <button data-page="notes">Design notes</button>
-      <button class="text-size" data-action="text-size" aria-label="Toggle larger text" aria-pressed="false">aA</button>
-      <button data-action="theme" aria-label="Toggle dark appearance" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.7 8.7 0 1 0 20.5 14Z"/></svg></button>
+      <button type="button" class="active" data-page="prototype">Prototype</button>
+      <button type="button" data-page="notes">Design notes</button>
+      <button type="button" class="text-size" data-action="text-size" aria-label="Toggle larger text" aria-pressed="false">aA</button>
+      <button type="button" data-action="theme" aria-label="Toggle dark appearance" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.7 8.7 0 1 0 20.5 14Z"/></svg></button>
     </nav>
   </header>
   <main>
@@ -43,23 +43,23 @@
       <div class="hero-right"><div class="prototype-badge"><i></i>INTERACTIVE iOS CONCEPT</div><p>Time-first browsing · Thoughtful choices · Your own plan<br>Fictional convention and sample schedule</p></div>
     </section>
     <nav class="workbench-nav" aria-label="Design explorations">
-      <button data-page="prototype" class="active" aria-current="page">Phone flow</button>
-      <button data-page="widgets">Widgets</button>
-      <button data-page="watch">Apple Watch</button>
-      <button data-page="live">Live & alerts</button>
-      <button data-page="states">Empty & upcoming</button>
-      <button data-page="notes">Design notes</button>
+      <button type="button" data-page="prototype" class="active" aria-pressed="true">Phone flow</button>
+      <button type="button" data-page="widgets">Widgets</button>
+      <button type="button" data-page="watch">Apple Watch</button>
+      <button type="button" data-page="live">Live & alerts</button>
+      <button type="button" data-page="states">Empty & upcoming</button>
+      <button type="button" data-page="notes">Design notes</button>
     </nav>
     <div id="prototype">
       <div class="toolbar">
-        <div class="mode-switch" aria-label="Preview layout"><button data-mode="overview" class="active" aria-pressed="true">The whole flow</button><button data-mode="focus" aria-pressed="false">Try it yourself</button></div>
-        <div class="density"><label for="density">Busy time slot</label><select id="density"><option value="6">6 panels</option><option value="8" selected>8 panels</option><option value="10">10 panels</option></select><button class="reset" data-action="reset">Reset demo ↺</button></div>
+        <div class="mode-switch"><button type="button" data-mode="overview" class="active" aria-pressed="true">The whole flow</button><button type="button" data-mode="focus" aria-pressed="false">Try it yourself</button></div>
+        <div class="density"><label for="density">Busy time slot</label><select id="density"><option value="6">6 panels</option><option value="8" selected>8 panels</option><option value="10">10 panels</option></select><button type="button" class="reset" data-action="reset">Reset demo ↺</button></div>
       </div>
       <div class="stage">
         <section class="specimen" aria-label="Browse mockup"><div class="specimen-caption"><span class="caption-title"><span class="step-number">01</span>Find your thing</span><span class="caption-tail">BROWSE</span></div><div class="device"><div class="screen" id="phone-browse" data-phone="browse"></div></div><p class="specimen-note"><strong>One time. Every possibility.</strong><br>Readable rows, real times, and a quick way to save an interest.</p></section>
         <section class="specimen" aria-label="Attendance mockup"><div class="specimen-caption"><span class="caption-title"><span class="step-number">02</span>Make time for both</span><span class="caption-tail">YOUR TIMES</span></div><div class="device"><div class="screen" id="phone-compare" data-phone="compare"></div></div><p class="specimen-note"><strong>You don't have to choose just one.</strong><br>Set your own join and leave times. Keep event times intact.</p></section>
         <section class="specimen" aria-label="Plan mockup"><div class="specimen-caption"><span class="caption-title"><span class="step-number">03</span>Enjoy your con</span><span class="caption-tail">MY PLAN</span></div><div class="device"><div class="screen" id="phone-plan" data-phone="plan"></div></div><p class="specimen-note"><strong>Your day, with room to breathe.</strong><br>A clear next stop, honest overlaps, and time for a break.</p></section>
-        <aside class="focus-helper"><div class="eyebrow">Take it for a spin</div><h2>A little of this.<br>A little of that.</h2><ol><li><strong>Browse the 2 PM slot.</strong> Save all the panels you want to see.</li><li><strong>Open a panel → Set join & leave times.</strong> Photography and Character design are already in the sample plan.</li><li><strong>Leave at 2:25. Join at 2:35.</strong> Edit either time and save. The published schedule stays unchanged.</li><li><strong>Tap Now.</strong> See your leave time and the panel you'll join next.</li></ol><p>Phone changes sync across these three screens. Widget, Watch, and alert galleries have their own labeled sample states.</p><button class="reset" data-action="reset">Start over ↺</button></aside>
+        <aside class="focus-helper"><div class="eyebrow">Take it for a spin</div><h2>A little of this.<br>A little of that.</h2><ol><li><strong>Browse the 2 PM slot.</strong> Save all the panels you want to see.</li><li><strong>Open a panel → Set join & leave times.</strong> Photography and Character design are already in the sample plan.</li><li><strong>Leave at 2:25. Join at 2:35.</strong> Edit either time and save. The published schedule stays unchanged.</li><li><strong>Tap Now.</strong> See your leave time and the panel you'll join next.</li></ol><p>Phone changes sync across these three screens. Widget, Watch, and alert galleries have their own labeled sample states.</p><button type="button" class="reset" data-action="reset">Start over ↺</button></aside>
       </div>
     </div>
     <section id="widgets" class="surface-page hidden" aria-label="Widget mockups"></section>
@@ -93,7 +93,7 @@
       <div class="source-list"><strong>Research limits.</strong> Mobbin's screen and flow searches were attempted; its connector requires a paid plan. No Mobbin screens were available to inspect. The visual reference inspected was Fantastical's official iPhone calendar example. Apple HIG and official event-app help informed the remaining patterns.<br><strong>Prototype limits.</strong> Browser simulation of iOS, not a native build. Fictional data; no booking, notification delivery, map routing, or persistence after reload. Interested/Going would be a new product distinction. The existing app currently uses one saved state.<br><a href="/research" target="_blank">Read complete research and evaluation plan ↗</a></div>
     </section>
   </main>
-  <footer class="foot"><span>ConPaws · iOS schedule exploration 01 · September 2026</span><span>Built for crowded con schedules. <button data-page="notes" style="color:#52728b;text-decoration:underline;padding:0;font-size:inherit">Research & rationale ↗</button></span></footer>
+  <footer class="foot"><span>ConPaws · iOS schedule exploration 01 · September 2026</span><span>Built for crowded con schedules. <button type="button" data-page="notes" style="color:#52728b;text-decoration:underline;padding:0;font-size:inherit">Research & rationale ↗</button></span></footer>
   <script type="module" src="./app.ts"></script>
 </body>
 </html>

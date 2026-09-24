@@ -9,6 +9,7 @@
     "ignoreUnknown": true,
     "includes": [
       "**",
+      "!**/.codex",
       "!**/.claude",
       "!**/.next",
       "!**/.open-next",

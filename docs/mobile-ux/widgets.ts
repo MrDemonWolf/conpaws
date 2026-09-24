@@ -13,22 +13,57 @@ export const widgetScenarioLabels = {
 } as const;
 
 export const widgetStatusCopy = {
-  empty: { title: "Your plan is empty", body: "Add panels in ConPaws.", action: "Open schedule", detail: "Open your convention's schedule to add panels to your plan." },
-  noConvention: { title: "Open ConPaws", body: "Choose a convention to show here.", action: "Open ConPaws", detail: "Open ConPaws to check your saved conventions and choose a convention for this widget." },
-  finished: { title: "Nothing else planned", body: "Your saved panels have ended.", action: "Review plan", detail: "All three panels in this sample plan have ended. The convention continues through September 20." },
+  empty: {
+    title: "Your plan is empty",
+    body: "Add panels in ConPaws.",
+    action: "Open schedule",
+    detail: "Open your convention's schedule to add panels to your plan.",
+  },
+  noConvention: {
+    title: "Open ConPaws",
+    body: "Choose a convention to show here.",
+    action: "Open ConPaws",
+    detail:
+      "Open ConPaws to check your saved conventions and choose a convention for this widget.",
+  },
+  finished: {
+    title: "Nothing else planned",
+    body: "Your saved panels have ended.",
+    action: "Review plan",
+    detail:
+      "All three panels in this sample plan have ended. The convention continues through September 20.",
+  },
 } as const;
 
-const widgetEvents: Record<WidgetEvent, { title: string; room: string; official: string; attending: string; note: string }> = {
+const widgetEvents: Record<
+  WidgetEvent,
+  {
+    title: string;
+    room: string;
+    official: string;
+    attending: string;
+    note: string;
+  }
+> = {
   photo: {
-    title: "Fursuit photography", room: "Ballroom A", official: "2:00–3:00 PM", attending: "2:00–2:25 PM",
+    title: "Fursuit photography",
+    room: "Ballroom A",
+    official: "2:00–3:00 PM",
+    attending: "2:00–2:25 PM",
     note: "Leave at 2:25 PM. You have a 10-minute buffer before joining Character design lab.",
   },
   design: {
-    title: "Character design lab", room: "Cedar", official: "2:00–3:30 PM", attending: "2:35–3:20 PM",
+    title: "Character design lab",
+    room: "Cedar",
+    official: "2:00–3:30 PM",
+    attending: "2:35–3:20 PM",
     note: "You plan to join after the session starts. Check the event's late-entry policy before relying on this plan.",
   },
   story: {
-    title: "The art of storytelling", room: "See event details", official: "4:00–5:00 PM", attending: "4:00–5:00 PM",
+    title: "The art of storytelling",
+    room: "See event details",
+    official: "4:00–5:00 PM",
+    attending: "4:00–5:00 PM",
     note: "You have 40 minutes free after Character design lab ends for you.",
   },
 };
@@ -59,20 +94,31 @@ export function mountWidgets(root: HTMLElement): void {
   root.innerHTML = `<style>${widgetStyles}</style><section class="widget-gallery" aria-label="ConPaws widget concepts"></section>`;
   const gallery = root.querySelector<HTMLElement>(".widget-gallery")!;
 
-  const brand = (full = false): string => `<span class="w-brand">${widgetMark}${full ? "Lakeside Fur Con" : "ConPaws"}</span>`;
-  const header = (): string => `<div class="w-widget-head">${brand(true)}<span class="w-widget-date">SAT 19</span></div>`;
-  const surface = (): string => platform === "android" ? "w-surface w-material" : "w-surface";
-  const departure = (): string => state === "leave" ? "Leave now" : "Leave at 2:25";
+  const brand = (full = false): string =>
+    `<span class="w-brand">${widgetMark}${full ? "Lakeside Fur Con" : "ConPaws"}</span>`;
+  const header = (): string =>
+    `<div class="w-widget-head">${brand(true)}<span class="w-widget-date">SAT 19</span></div>`;
+  const surface = (): string =>
+    platform === "android" ? "w-surface w-material" : "w-surface";
+  const departure = (): string =>
+    state === "leave" ? "Leave now" : "Leave at 2:25";
 
-  function row(event: WidgetEvent, time: string, meta: string, current = false): string {
+  function row(
+    event: WidgetEvent,
+    time: string,
+    meta: string,
+    current = false,
+  ): string {
     return `<button class="w-agenda-row w-tappable${current ? " w-current" : ""}" data-w-event="${event}" aria-label="${widgetEvents[event].title}, ${time}, ${meta}"><span class="w-row-time">${time}${current ? "<span>HERE NOW</span>" : ""}</span><span><strong class="w-row-title">${widgetEvents[event].title}</strong><span class="w-row-meta">${meta}</span></span></button>`;
   }
 
   function upcomingWidget(size: "small" | "medium" | "large"): string {
     const action = `<button class="w-empty-action w-tappable" data-w-context="true">Open ConPaws <span aria-hidden="true">&nbsp;›</span></button>`;
     const count = `<strong class="w-upcoming-count">15<small>days</small></strong>`;
-    if (size === "small") return `<button class="${surface()} w-small w-upcoming" data-w-context="true" aria-label="Lakeside Fur Con, in 15 days, September 18 to 20. Open ConPaws.">${brand()}<strong class="w-upcoming-name">Lakeside Fur Con</strong>${count}<span class="w-upcoming-date">September 18–20</span><span class="w-empty-action">Open ConPaws <span aria-hidden="true">&nbsp;›</span></span></button>`;
-    if (size === "medium") return `<div class="${surface()} w-medium w-upcoming"><div class="w-widget-head">${brand()}<span class="w-widget-date">COMING UP</span></div><div class="w-summary"><div class="w-summary-col"><strong class="w-upcoming-name">Lakeside Fur Con</strong>${count}</div><div class="w-summary-col"><strong class="w-upcoming-date">September 18–20</strong><span class="w-tiny">3 panels picked<br><span class="w-secondary-detail">Your plan is saved.</span></span>${action}</div></div></div>`;
+    if (size === "small")
+      return `<button class="${surface()} w-small w-upcoming" data-w-context="true" aria-label="Lakeside Fur Con, in 15 days, September 18 to 20. Open ConPaws.">${brand()}<strong class="w-upcoming-name">Lakeside Fur Con</strong>${count}<span class="w-upcoming-date">September 18–20</span><span class="w-empty-action">Open ConPaws <span aria-hidden="true">&nbsp;›</span></span></button>`;
+    if (size === "medium")
+      return `<div class="${surface()} w-medium w-upcoming"><div class="w-widget-head">${brand()}<span class="w-widget-date">COMING UP</span></div><div class="w-summary"><div class="w-summary-col"><strong class="w-upcoming-name">Lakeside Fur Con</strong>${count}</div><div class="w-summary-col"><strong class="w-upcoming-date">September 18–20</strong><span class="w-tiny">3 panels picked<br><span class="w-secondary-detail">Your plan is saved.</span></span>${action}</div></div></div>`;
     return `<div class="${surface()} w-large w-upcoming"><div class="w-widget-head">${brand(true)}<span class="w-widget-date">COMING UP</span></div><div class="w-upcoming-top">${count}<span class="w-upcoming-date">September 18–20<br>3 panels picked</span></div><span class="w-history-label">YOUR SATURDAY PLAN · SEPTEMBER 19</span><div class="w-agenda">${row("photo", "2:00", "Ballroom A · Leave 2:25")}${row("design", "2:35", "Cedar · Your stop until 3:20")}${row("story", "4:00", "Full session · Until 5:00")}</div>${action}</div>`;
   }
 
@@ -81,13 +127,16 @@ export function mountWidgets(root: HTMLElement): void {
     if (state === "now" || state === "leave") return "";
     const copy = widgetStatusCopy[state];
     const action = `<button class="w-empty-action w-tappable" data-w-context="true">${copy.action} <span aria-hidden="true">&nbsp;›</span></button>`;
-    if (size === "small") return `<button class="${surface()} w-small w-empty w-status" data-w-context="true" aria-label="${copy.title}. ${copy.body}">${brand()}<strong class="w-empty-heading">${copy.title}</strong><p>${copy.body}</p><span class="w-empty-action">${copy.action} <span aria-hidden="true">&nbsp;›</span></span></button>`;
-    if (size === "medium") return `<div class="${surface()} w-medium w-empty w-status"><div>${brand()}<strong class="w-empty-heading">${copy.title}</strong><p>${state === "noConvention" ? "Check your conventions." : "Lakeside Fur Con"}</p></div><div class="w-empty-side"><strong>${state === "finished" ? "3 panels in your plan" : state === "empty" ? "Make room for your favorites." : "Choose your convention."}</strong><p>${copy.body}</p>${action}</div></div>`;
-    const content = state === "finished"
-      ? `<span class="w-history-label">YOUR EARLIER PICKS · SATURDAY</span><div class="w-agenda">${row("photo", "2:00", "Planned until 2:25")}${row("design", "2:35", "Planned until 3:20")}${row("story", "4:00", "Planned until 5:00")}</div>`
-      : state === "empty"
-        ? `<div class="w-status-lines"><div class="w-status-line">Choose your panels<span>Open the schedule in ConPaws and add panels to your plan.</span></div><div class="w-status-line">Keep the next step close<span>Your next saved panel and leave reminders appear here.</span></div></div>`
-        : `<div class="w-status-lines"><div class="w-status-line">Before the convention<span>See your convention dates and a countdown.</span></div><div class="w-status-line">During the convention<span>See your picked panels and leave reminders.</span></div></div>`;
+    if (size === "small")
+      return `<button class="${surface()} w-small w-empty w-status" data-w-context="true" aria-label="${copy.title}. ${copy.body}">${brand()}<strong class="w-empty-heading">${copy.title}</strong><p>${copy.body}</p><span class="w-empty-action">${copy.action} <span aria-hidden="true">&nbsp;›</span></span></button>`;
+    if (size === "medium")
+      return `<div class="${surface()} w-medium w-empty w-status"><div>${brand()}<strong class="w-empty-heading">${copy.title}</strong><p>${state === "noConvention" ? "Check your conventions." : "Lakeside Fur Con"}</p></div><div class="w-empty-side"><strong>${state === "finished" ? "3 panels in your plan" : state === "empty" ? "Make room for your favorites." : "Choose your convention."}</strong><p>${copy.body}</p>${action}</div></div>`;
+    const content =
+      state === "finished"
+        ? `<span class="w-history-label">YOUR EARLIER PICKS · SATURDAY</span><div class="w-agenda">${row("photo", "2:00", "Planned until 2:25")}${row("design", "2:35", "Planned until 3:20")}${row("story", "4:00", "Planned until 5:00")}</div>`
+        : state === "empty"
+          ? `<div class="w-status-lines"><div class="w-status-line">Choose your panels<span>Open the schedule in ConPaws and add panels to your plan.</span></div><div class="w-status-line">Keep the next step close<span>Your next saved panel and leave reminders appear here.</span></div></div>`
+          : `<div class="w-status-lines"><div class="w-status-line">Before the convention<span>See your convention dates and a countdown.</span></div><div class="w-status-line">During the convention<span>See your picked panels and leave reminders.</span></div></div>`;
     return `<div class="${surface()} w-large w-empty w-status">${state === "noConvention" ? `<div class="w-widget-head">${brand()}<span class="w-widget-date">OPEN APP</span></div>` : header()}<strong class="w-empty-heading">${copy.title}</strong><p>${state === "finished" ? "Your saved panels have ended. Review your plan in ConPaws." : copy.detail}</p>${content}${action}</div>`;
   }
 
@@ -111,16 +160,51 @@ export function mountWidgets(root: HTMLElement): void {
     gallery.dataset.wLarge = String(largeText);
     const android = platform === "android";
     const active = state === "now" || state === "leave";
-    const sampleLabel = state === "noConvention" ? "No convention saved · Sample state" : state === "upcoming" ? "Lakeside Fur Con · Demo date: Thu, Sep 3" : `Lakeside Fur Con · Sat, Sep 19 · ${state === "leave" ? "2:25" : state === "finished" ? "5:00" : "2:18"} PM`;
-    const stateNote = state === "upcoming" ? "Sample convention dates: September 18–20. The countdown counts calendar days to September 18, not an opening time. Three panels are already picked." : state === "noConvention" ? "Sample condition: no convention saved. Missing widget data currently uses the same native fallback, so this mockup does not diagnose a sync failure." : state === "empty" ? "Sample condition: a convention is saved with no active panels in the widget snapshot. Cancelled, removed, or invalid picked panels are filtered out too. The snapshot does not reveal whether the full schedule has been published." : state === "finished" ? "Sample condition: every saved panel has ended, with no panel running and none still to come. The convention itself is still in progress." : "";
-    const smallExplain = active ? "Leave time stays prominent. Your room stays one line away." : state === "upcoming" ? "Convention name, dates, and countdown stay together. Tap to open ConPaws." : "Name the state clearly and offer one useful next action.";
-    const mediumExplain = active ? "The leave time and join time sit together. Both overlapping sessions stay in your plan." : state === "upcoming" ? "A wider layout adds the number of panels already picked and a direct path back to your plan." : "Keep the saved convention visible when one exists. The action opens the matching app destination.";
-    const largeExplain = active ? "Three stops, a leave cue, and a 40-minute opening. Extra height adds useful context." : state === "upcoming" ? "Extra height adds your saved Saturday picks. The countdown leads without taking over the whole widget." : state === "finished" ? "Show the earlier plan for context. A picked panel is not proof that someone attended it." : "Use the space to explain how the widget becomes useful. Do not invent panel suggestions from data the widget does not have.";
+    const sampleLabel =
+      state === "noConvention"
+        ? "No convention saved · Sample state"
+        : state === "upcoming"
+          ? "Lakeside Fur Con · Demo date: Thu, Sep 3"
+          : `Lakeside Fur Con · Sat, Sep 19 · ${state === "leave" ? "2:25" : state === "finished" ? "5:00" : "2:18"} PM`;
+    const stateNote =
+      state === "upcoming"
+        ? "Sample convention dates: September 18–20. The countdown counts calendar days to September 18, not an opening time. Three panels are already picked."
+        : state === "noConvention"
+          ? "Sample condition: no convention saved. Missing widget data currently uses the same native fallback, so this mockup does not diagnose a sync failure."
+          : state === "empty"
+            ? "Sample condition: a convention is saved with no active panels in the widget snapshot. Cancelled, removed, or invalid picked panels are filtered out too. The snapshot does not reveal whether the full schedule has been published."
+            : state === "finished"
+              ? "Sample condition: every saved panel has ended, with no panel running and none still to come. The convention itself is still in progress."
+              : "";
+    const smallExplain = active
+      ? "Leave time stays prominent. Your room stays one line away."
+      : state === "upcoming"
+        ? "Convention name, dates, and countdown stay together. Tap to open ConPaws."
+        : "Name the state clearly and offer one useful next action.";
+    const mediumExplain = active
+      ? "The leave time and join time sit together. Both overlapping sessions stay in your plan."
+      : state === "upcoming"
+        ? "A wider layout adds the number of panels already picked and a direct path back to your plan."
+        : "Keep the saved convention visible when one exists. The action opens the matching app destination.";
+    const largeExplain = active
+      ? "Three stops, a leave cue, and a 40-minute opening. Extra height adds useful context."
+      : state === "upcoming"
+        ? "Extra height adds your saved Saturday picks. The countdown leads without taking over the whole widget."
+        : state === "finished"
+          ? "Show the earlier plan for context. A picked panel is not proof that someone attended it."
+          : "Use the space to explain how the widget becomes useful. Do not invent panel suggestions from data the widget does not have.";
     gallery.innerHTML = `
       <div class="w-intro"><div><div class="w-kicker">The next step, at a glance</div><h2>More useful.<br><span>Every size.</span></h2></div><p>See when to leave, where to join, and what comes after. Extra space earns its place with your actual day.</p></div>
       <div class="w-controls" aria-label="Widget preview controls">
         <div class="w-segment" role="group" aria-label="Widget platform"><button data-w-platform="ios" aria-pressed="${!android}">iOS widgets</button><button data-w-platform="android" aria-pressed="${android}">Android widgets</button></div>
-        <label class="w-control-label">Moment <select data-w-state="true" aria-label="Widget scenario">${Object.entries(widgetScenarioLabels).map(([value, label]) => `<option value="${value}"${state === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>
+        <label class="w-control-label">Moment <select data-w-state="true" aria-label="Widget scenario">${Object.entries(
+          widgetScenarioLabels,
+        )
+          .map(
+            ([value, label]) =>
+              `<option value="${value}"${state === value ? " selected" : ""}>${label}</option>`,
+          )
+          .join("")}</select></label>
         <label class="w-control-label">Look <select data-w-appearance="true" aria-label="Widget appearance"><option value="light"${appearance === "light" ? " selected" : ""}>Light</option><option value="dark"${appearance === "dark" ? " selected" : ""}>Dark</option><option value="tinted"${appearance === "tinted" ? " selected" : ""}>${android ? "Wallpaper color" : "Tinted"}</option></select></label>
         <label class="w-control-label w-check"><input type="checkbox" data-w-large="true"${largeText ? " checked" : ""}>Larger text</label>
       </div>
@@ -138,41 +222,78 @@ export function mountWidgets(root: HTMLElement): void {
 
   function openEvent(event: WidgetEvent): void {
     const detail = widgetEvents[event];
-    gallery.querySelector<HTMLElement>("[data-w-dialog-body]")!.innerHTML = `<h3 id="w-dialog-title">${detail.title}</h3><p class="w-dialog-room">${detail.room}</p><dl><div><dt>Official session</dt><dd>${detail.official}</dd></div><div><dt>${state === "finished" ? "You planned" : "You're attending"}</dt><dd>${detail.attending}</dd></div></dl><p class="w-dialog-note">${state === "finished" ? "These are the times you planned to attend." : detail.note}</p><button class="w-dialog-button" data-w-close="true">Back to widgets</button><p class="w-dialog-demo">Fictional event · Proposed destination: the matching event and your planned attendance details. Current native widgets open the convention schedule.</p>`;
+    gallery.querySelector<HTMLElement>("[data-w-dialog-body]")!.innerHTML =
+      `<h3 id="w-dialog-title">${detail.title}</h3><p class="w-dialog-room">${detail.room}</p><dl><div><dt>Official session</dt><dd>${detail.official}</dd></div><div><dt>${state === "finished" ? "You planned" : "You're attending"}</dt><dd>${detail.attending}</dd></div></dl><p class="w-dialog-note">${state === "finished" ? "These are the times you planned to attend." : detail.note}</p><button class="w-dialog-button" data-w-close="true">Back to widgets</button><p class="w-dialog-demo">Fictional event · Proposed destination: the matching event and your planned attendance details. Current native widgets open the convention schedule.</p>`;
     gallery.querySelector<HTMLDialogElement>("[data-w-dialog]")!.showModal();
   }
 
   gallery.addEventListener("click", (event) => {
-    const target = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
+    const target = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "button",
+    );
     if (!target) return;
-    if (target.dataset.wPlatform === "ios" || target.dataset.wPlatform === "android") {
+    if (
+      target.dataset.wPlatform === "ios" ||
+      target.dataset.wPlatform === "android"
+    ) {
       platform = target.dataset.wPlatform;
       render();
-      gallery.querySelector<HTMLButtonElement>(`[data-w-platform="${platform}"]`)?.focus({ preventScroll: true });
+      gallery
+        .querySelector<HTMLButtonElement>(`[data-w-platform="${platform}"]`)
+        ?.focus({ preventScroll: true });
     } else if (target.dataset.wEvent && target.dataset.wEvent in widgetEvents) {
       openEvent(target.dataset.wEvent as WidgetEvent);
     } else if (target.dataset.wClose) {
       gallery.querySelector<HTMLDialogElement>("[data-w-dialog]")?.close();
     } else if (target.dataset.wContext) {
-      const title = state === "upcoming" ? "Your convention is coming up." : state === "noConvention" ? "Choose your convention." : state === "finished" ? "Review your plan." : "Choose your panels.";
-      const body = state === "upcoming" ? "Lakeside Fur Con is saved for September 18–20. Open its schedule in ConPaws to review your three picked panels." : state === "noConvention" ? "ConPaws opens to your conventions. Choose a convention or add one with your own dates." : state === "finished" ? "All panels in this sample plan have ended. Open your convention schedule in ConPaws to review your earlier picks." : "ConPaws opens your convention schedule. Add panels to your plan to see your next panel and leave reminders here.";
-      const action = state === "finished" ? '<button class="w-dialog-button" data-w-close="true">Back to widgets</button>' : `<button class="w-dialog-button" data-w-fill="${state === "noConvention" ? "upcoming" : "now"}">${state === "noConvention" ? "Load a sample convention" : state === "upcoming" ? "Preview Saturday's plan" : "Load the sample plan"}</button>`;
-      gallery.querySelector<HTMLElement>("[data-w-dialog-body]")!.innerHTML = `<h3 id="w-dialog-title">${title}</h3><p class="w-dialog-room">${state === "noConvention" ? "ConPaws · App home" : "Lakeside Fur Con · September 18–20"}</p><p class="w-dialog-note">${body}</p>${action}<p class="w-dialog-demo">Preview action only. Native widget taps open ConPaws; the buttons here demonstrate fictional states.</p>`;
+      const title =
+        state === "upcoming"
+          ? "Your convention is coming up."
+          : state === "noConvention"
+            ? "Choose your convention."
+            : state === "finished"
+              ? "Review your plan."
+              : "Choose your panels.";
+      const body =
+        state === "upcoming"
+          ? "Lakeside Fur Con is saved for September 18–20. Open its schedule in ConPaws to review your three picked panels."
+          : state === "noConvention"
+            ? "ConPaws opens to your conventions. Choose a convention or add one with your own dates."
+            : state === "finished"
+              ? "All panels in this sample plan have ended. Open your convention schedule in ConPaws to review your earlier picks."
+              : "ConPaws opens your convention schedule. Add panels to your plan to see your next panel and leave reminders here.";
+      const action =
+        state === "finished"
+          ? '<button class="w-dialog-button" data-w-close="true">Back to widgets</button>'
+          : `<button class="w-dialog-button" data-w-fill="${state === "noConvention" ? "upcoming" : "now"}">${state === "noConvention" ? "Load a sample convention" : state === "upcoming" ? "Preview Saturday's plan" : "Load the sample plan"}</button>`;
+      gallery.querySelector<HTMLElement>("[data-w-dialog-body]")!.innerHTML =
+        `<h3 id="w-dialog-title">${title}</h3><p class="w-dialog-room">${state === "noConvention" ? "ConPaws · App home" : "Lakeside Fur Con · September 18–20"}</p><p class="w-dialog-note">${body}</p>${action}<p class="w-dialog-demo">Preview action only. Native widget taps open ConPaws; the buttons here demonstrate fictional states.</p>`;
       gallery.querySelector<HTMLDialogElement>("[data-w-dialog]")!.showModal();
-    } else if (target.dataset.wFill === "now" || target.dataset.wFill === "upcoming") {
+    } else if (
+      target.dataset.wFill === "now" ||
+      target.dataset.wFill === "upcoming"
+    ) {
       state = target.dataset.wFill;
       render();
-      gallery.querySelector<HTMLSelectElement>("select[data-w-state]")?.focus({ preventScroll: true });
+      gallery
+        .querySelector<HTMLSelectElement>("select[data-w-state]")
+        ?.focus({ preventScroll: true });
     }
   });
 
   gallery.addEventListener("change", (event) => {
     const target = event.target as HTMLSelectElement | HTMLInputElement;
     let restore = "";
-    if (target.matches("select[data-w-state]") && Object.hasOwn(widgetScenarioLabels, target.value)) {
+    if (
+      target.matches("select[data-w-state]") &&
+      Object.hasOwn(widgetScenarioLabels, target.value)
+    ) {
       state = target.value as WidgetState;
       restore = "select[data-w-state]";
-    } else if (target.matches("select[data-w-appearance]") && ["light", "dark", "tinted"].includes(target.value)) {
+    } else if (
+      target.matches("select[data-w-appearance]") &&
+      ["light", "dark", "tinted"].includes(target.value)
+    ) {
       appearance = target.value as WidgetAppearance;
       restore = "select[data-w-appearance]";
     } else if (target.matches("input[data-w-large]")) {
@@ -181,7 +302,9 @@ export function mountWidgets(root: HTMLElement): void {
     }
     if (restore) {
       render();
-      gallery.querySelector<HTMLElement>(restore)?.focus({ preventScroll: true });
+      gallery
+        .querySelector<HTMLElement>(restore)
+        ?.focus({ preventScroll: true });
     }
   });
   render();
