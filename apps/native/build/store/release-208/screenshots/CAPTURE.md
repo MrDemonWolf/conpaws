@@ -19,8 +19,13 @@ The original demo calendar is in the release worktree at `apps/native/build/stor
 
 - **6.9-inch iPhone:** Required. Accepted portrait sizes include 1260 × 2736, 1290 × 2796, and 1320 × 2868. Build 208 launched on an iPhone 18 Pro Max iOS 27.0 simulator, then exited before onboarding appeared. Crash: `EXC_BREAKPOINT` in `___UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption_block_invoke`.
 - **13-inch iPad:** Required because the app supports iPad. Accepted portrait sizes: 2064 × 2752 or 2048 × 2732. The same build exited on a separate iPad Air 13-inch iOS 27.0 simulator. The existing SonaPin iPad simulator was untouched.
-- **Apple Watch:** Required because this release includes a watch app. An upload image needs a supported watch size, such as 416 × 496 for Series 12. No Watch simulator screenshot has been captured yet.
+- **Apple Watch:** Required because this release includes a watch app. An upload image needs a supported watch size, such as 416 × 496 for Series 12. The release Xcode workspace reports `TARGETED_DEVICE_FAMILY = 1,2` for `ConPawsWatch`, so Xcode rejects every available Watch simulator as outside the target's device families. No Watch screenshot was captured.
 
 The iPhone, iPad, and Watch sets remain incomplete. Do not substitute the Android screenshots for Apple device screenshots.
+
+## Build 208 observations
+
+- On Android, the app sometimes reopens to its in-app error screen after data has been saved. The captured startup log reports `TypeError: undefined is not a function` in `RootLayout`. A fresh install allowed the captures above; the relaunch issue needs a separate fix before release.
+- In the Android join and leave sheet, selecting 6:30 PM displayed 11:30 PM in the picker summary. After saving, My Schedule displayed the correct personal time, 6:00–6:30 PM. The screenshot set shows the saved schedule, not the inconsistent picker summary.
 
 Sources: [Apple screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications), [Google Play preview asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151?hl=en).
