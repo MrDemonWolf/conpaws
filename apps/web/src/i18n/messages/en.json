@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "ConPaws — your furry convention companion",
+    "title": "Furry Convention Schedule App for iOS & Android | ConPaws",
     "titleTemplate": "%s · ConPaws",
-    "description": "Import a convention schedule, build your own, get reminders — all of it working offline. iOS and Android.",
-    "descriptionShort": "Import a convention schedule, build your own, get reminders — all of it working offline.",
+    "description": "Plan your furry convention weekend with ConPaws. Import Sched or .ics schedules, star events, get reminders, and keep everything available offline. Join the beta.",
+    "descriptionShort": "Plan your furry convention weekend. Import schedules, star events, get reminders, and stay ready offline.",
     "ogImageAlt": "ConPaws"
   },
   "nav": {
@@ -28,7 +28,7 @@
   "inside": {
     "eyebrow": "A look inside",
     "title": "Your whole weekend, one thumb",
-    "blurb": "Illustrations of the real screens, drawn to match. The schedule you build is the schedule you see — no feeds, no algorithm, no pull-to-refresh roulette.",
+    "blurb": "See your saved events, reminders, and what's next — even when the venue WiFi fails. These preview screens illustrate the app experience.",
     "frameSchedule": "Build your weekend",
     "frameEvent": "Never miss a lineup",
     "frameOffline": "WiFi optional"
@@ -183,7 +183,7 @@
     "badgeSoon": "Beta waitlist coming soon",
     "title": "Your con schedule, sorted.",
     "titleAccent": "schedule",
-    "body": "Import a convention schedule, build your own, get reminders — all of it working offline, because con WiFi never does.",
+    "body": "The furry convention schedule app for your whole weekend. Import a schedule, star events, and get reminders — even when con WiFi drops.",
     "nameLabel": "Your name or fursona",
     "emailLabel": "Email",
     "namePlaceholder": "Luna Starfall",

@@ -3,7 +3,7 @@ import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Waitlist } from "@/components/waitlist";
-import { LINEUP, STATS, STEPS } from "@/content/landing";
+import { LINEUP, STEPS } from "@/content/landing";
 import type { Messages } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import {
@@ -25,40 +25,10 @@ import {
  * Copy comes from the locale catalog (`src/i18n/messages/*.json`). What stays
  * in `content/landing.ts` is the part that is structure rather than language:
  * the decorative programme times, the `tag` union that drives badge styling,
- * the stat *values*, and the step numbers. Those are zipped with the
+ * and the step numbers. Those are zipped with the
  * translated titles and bodies by index, so the two files must keep the same
  * number of entries — a mismatch is a missing row, not a crash.
  */
-
-function Ticker({ messages }: { messages: Messages }) {
-  const row = messages.ticker.items.map((item) => (
-    <span key={item} className="flex items-center gap-6 pr-6">
-      {/* Filled, not outlined. These were transparent with a 1px stroke, which
-          is a fine effect on the 170px footer wordmark and unreadable at 15px:
-          a hairline outline leaves the letterform mostly background, so the
-          eye gets no shape to lock onto and the whole strip reads as texture.
-          The other two outlined elements on this page are 38px and 170px and
-          keep the effect. */}
-      <span className="font-display font-semibold text-[15px] text-slate-300 uppercase tracking-[0.14em]">
-        {item}
-      </span>
-      <CompassPaw className="h-3.5 w-3.5 shrink-0 text-primary/50" />
-    </span>
-  ));
-
-  return (
-    <div className="relative z-content mt-28 overflow-hidden border-border border-y bg-background/80 py-5">
-      <p className="sr-only">{messages.ticker.screenReaderSummary}</p>
-      <div
-        aria-hidden="true"
-        className="motion-safe:animate-marquee flex w-max"
-      >
-        <div className="flex">{row}</div>
-        <div className="flex">{row}</div>
-      </div>
-    </div>
-  );
-}
 
 function SectionHeading({
   eyebrow,
@@ -119,8 +89,6 @@ function PhoneFrame({
           letterboxes the day someone drops an <Image> in here.
         */}
         <div className="relative aspect-[1320/2868] overflow-hidden rounded-[29px] border border-border/60 bg-background">
-          {/* speaker/camera pill */}
-          <div className="-translate-x-1/2 absolute top-[9px] left-1/2 z-10 h-[18px] w-[74px] rounded-full bg-black/90" />
           {children}
         </div>
       </div>
@@ -454,10 +422,8 @@ export function Landing({
           <Waitlist messages={messages.waitlist} />
         </section>
 
-        <Ticker messages={messages} />
-
         {/* ---- a look inside ---- */}
-        <section className="relative z-content mt-28">
+        <section className="relative z-content mt-20">
           <SectionHeading
             eyebrow={messages.inside.eyebrow}
             title={messages.inside.title}
@@ -527,23 +493,6 @@ export function Landing({
                 </div>
               );
             })}
-          </div>
-        </section>
-
-        {/* ---- stats strip ---- */}
-        <section className="relative z-content mt-28">
-          <h2 className="sr-only">{messages.stats.screenReaderHeading}</h2>
-          <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-            {STATS.map((stat, i) => (
-              <div key={stat.value} className="bg-card/60 px-7 py-8">
-                <p className="font-bold text-[clamp(34px,4vw,44px)] text-primary leading-none tracking-[-0.02em]">
-                  {stat.value}
-                </p>
-                <p className="mt-2.5 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-                  {messages.stats.labels[i] ?? stat.label}
-                </p>
-              </div>
-            ))}
           </div>
         </section>
 

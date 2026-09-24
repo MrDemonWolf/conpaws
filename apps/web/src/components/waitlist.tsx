@@ -113,13 +113,8 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
   }
 
   return (
-    // Three grid children, not two, so mobile can read copy -> badge -> form.
-    // Stacked in one column the badge is 450px of decoration, and putting it
-    // first (which it used to be) pushed the <h1> to y720 on a 812px screen --
-    // the whole first screen was a badge with no explanation of the product.
-    // Desktop is unchanged: copy and form share column 1 in rows 1 and 2, the
-    // badge spans both in column 2, so it still sits beside the name field
-    // that drives it. Row gap replaces the `mt-8` the form used to carry.
+    // On mobile, put the signup form directly after the promise so the action
+    // appears before the decorative badge. Desktop keeps the badge beside it.
     <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-x-16">
       <div className="relative z-content pt-6 md:col-start-1 md:row-start-1 md:pt-14">
         <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[11px] text-primary uppercase tracking-[0.24em]">
@@ -156,17 +151,6 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
         <p className="motion-safe:animate-rise mt-6 max-w-[42ch] text-[16px] text-muted-foreground leading-relaxed [animation-delay:160ms]">
           {messages.body}
         </p>
-      </div>
-
-      {/* The badge hangs in front of the nav and every section below it. Its
-          lanyard runs off the top of the hero, so anything lower makes it look
-          clipped rather than hung. This only works while the hero section
-          stays free of a z-index -- see the note in landing.tsx.
-
-          The one thing that must beat it is the language menu, which lives
-          inside the nav: see the `z-menu` note in index.css. */}
-      <div className="relative z-badge md:col-start-2 md:row-span-2 md:row-start-1 md:pt-2">
-        <Badge name={name} />
       </div>
 
       <div className="relative z-content md:col-start-1 md:row-start-2">
@@ -305,6 +289,11 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
             </p>
           </form>
         )}
+      </div>
+      {/* On desktop the lanyard rises above the nav; the language menu has
+          its own higher layer while open. */}
+      <div className="relative z-badge md:col-start-2 md:row-span-2 md:row-start-1 md:pt-2">
+        <Badge name={name} />
       </div>
     </div>
   );

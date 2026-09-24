@@ -81,7 +81,6 @@ h3 {
 
   --animate-rise: rise 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) both;
   --animate-sway: sway 6.5s ease-in-out infinite;
-  --animate-marquee: marquee 28s linear infinite;
   --animate-holo: holo 6s linear infinite;
 }
 
@@ -137,12 +136,6 @@ body::after {
   }
   50% {
     transform: rotate(1.4deg);
-  }
-}
-
-@keyframes marquee {
-  to {
-    transform: translateX(-50%);
   }
 }
 

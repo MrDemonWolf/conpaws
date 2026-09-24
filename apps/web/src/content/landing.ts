@@ -58,20 +58,3 @@ export const STEPS: readonly Step[] = [
   { n: "02" },
   { n: "03" },
 ] as const;
-
-export interface Stat {
-  value: string;
-  label: string;
-}
-
-/**
- * Claims, not metrics. Every one has to stay literally true — "0 accounts"
- * stops being true the day sign-in ships, and this is the line that has to
- * change with it.
- */
-export const STATS: readonly Stat[] = [
-  { value: "100%", label: "of features work offline" },
-  { value: "0", label: "accounts needed to use it" },
-  { value: "1 link", label: "imports a whole schedule" },
-  { value: "∞", label: "conventions in one app" },
-] as const;
