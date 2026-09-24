@@ -1,0 +1,44 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//MrDemonWolf//ConPaws Store Capture//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:ConPaws Night Owl
+X-WR-TIMEZONE:America/Chicago
+BEGIN:VEVENT
+UID:night-owl-001@conpaws.com
+DTSTAMP:20260924T070000Z
+DTSTART;TZID=America/Chicago:20260924T023000
+DTEND;TZID=America/Chicago:20260924T033000
+SUMMARY:Late Night Sketch Jam
+LOCATION:Art Lounge
+DESCRIPTION:Bring your sketchbook and draw with friends.
+END:VEVENT
+BEGIN:VEVENT
+UID:night-owl-002@conpaws.com
+DTSTAMP:20260924T070000Z
+DTSTART;TZID=America/Chicago:20260924T024500
+DTEND;TZID=America/Chicago:20260924T034500
+SUMMARY:After Dark Fursuit Photos
+LOCATION:Photo Studio
+DESCRIPTION:An open photo session for night owls.
+END:VEVENT
+BEGIN:VEVENT
+UID:night-owl-003@conpaws.com
+DTSTAMP:20260924T070000Z
+DTSTART;TZID=America/Chicago:20260924T033000
+DTEND;TZID=America/Chicago:20260924T043000
+SUMMARY:Midnight Makers Meetup
+LOCATION:Workshop 1
+DESCRIPTION:Share projects and meet other makers.
+END:VEVENT
+BEGIN:VEVENT
+UID:night-owl-004@conpaws.com
+DTSTAMP:20260924T070000Z
+DTSTART;TZID=America/Chicago:20260924T040000
+DTEND;TZID=America/Chicago:20260924T050000
+SUMMARY:Early Bird Coffee
+LOCATION:Con Suite
+DESCRIPTION:Coffee and a quiet start to the day.
+END:VEVENT
+END:VCALENDAR
