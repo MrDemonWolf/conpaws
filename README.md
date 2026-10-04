@@ -133,7 +133,7 @@ All scripts run from the repo root and fan out through Turborepo:
 - `bun lint:fix` - Run Biome with `--write`
 - `bun format` - Format with Biome
 - `bun check-types` - TypeScript type checking across all packages
-- `bun test` - Run the Vitest suites across the workspace
+- `bun run test` - Run the Vitest suites across the workspace
 - `bun prebuild` / `bun prebuild:clean` - Generate native projects
 - `bun run deploy` / `bun run destroy` - Apply or tear down the Alchemy
   stack

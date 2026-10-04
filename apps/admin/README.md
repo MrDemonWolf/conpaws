@@ -73,3 +73,10 @@ Policy and implementation references, checked October 4, 2026:
 Admin has a separate Alchemy program and D1 database. Put deployment values in `packages/infra/.env` or the protected GitHub environment. Before running `bun run deploy:admin`, verify the Cloudflare Access policy. Set `ADMIN_ROUTES_ENABLED=true` only for the approved domain cutover.
 
 Deploying creates or updates Cloudflare resources. Local development and the normal website deploy do not run this command.
+
+Deploy and migrate the admin stack before enabling the public catalog binding.
+Set the existing catalog D1 UUID as the `CATALOG_DATABASE_ID` repository variable
+(or local Alchemy environment value), then deploy the website. The website binds
+that database by ID and does not create, migrate or delete it. Leaving the value
+unset keeps catalog endpoints unavailable while the existing website and waitlist
+continue to work.

@@ -12,6 +12,7 @@ import {
   Surface,
   TextAreaField,
 } from "../../../../components/ui";
+import { requireAdmin } from "../../../../lib/auth";
 import {
   availabilityLabels,
   availabilityOptions,
@@ -75,6 +76,7 @@ export default async function ConventionWorkspacePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAdmin();
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const workspace = await getConventionWorkspace(id);
   if (!workspace) notFound();
@@ -186,7 +188,7 @@ export default async function ConventionWorkspacePage({
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-5">
-          <Surface id="schedule" className="overflow-hidden">
+          <Surface className="overflow-hidden">
             <div className="border-b border-slate-100 px-5 py-4 sm:px-7">
               <h2 className="font-display text-base font-bold text-[#091533]">
                 Convention details
@@ -319,7 +321,7 @@ export default async function ConventionWorkspacePage({
             </form>
           </Surface>
 
-          <Surface className="overflow-hidden">
+          <Surface id="schedule" className="overflow-hidden">
             <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
               <div>
                 <h2 className="font-display text-base font-bold text-[#091533]">
@@ -348,7 +350,7 @@ export default async function ConventionWorkspacePage({
                   <input
                     type="search"
                     name="sessionSearch"
-                    value={sessionSearch}
+                    defaultValue={sessionSearch}
                     placeholder="Search titles, rooms and descriptions"
                     className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
                   />
@@ -503,7 +505,7 @@ export default async function ConventionWorkspacePage({
                   {Math.min(
                     sessionOffset + sessionPageSize,
                     filteredSessions.length,
-                  )}
+                  )}{" "}
                   of {filteredSessions.length} matching sessions
                 </p>
                 <div className="flex gap-2">

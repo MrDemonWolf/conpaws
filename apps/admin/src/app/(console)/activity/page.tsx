@@ -48,7 +48,10 @@ export default async function ActivityPage() {
                     status={
                       entry.resourceType === "admin_member"
                         ? "owner"
-                        : "published"
+                        : entry.action === "convention.published" ||
+                            entry.action === "convention.restored"
+                          ? "published"
+                          : "draft"
                     }
                   />
                   <time dateTime={new Date(entry.createdAt).toISOString()}>

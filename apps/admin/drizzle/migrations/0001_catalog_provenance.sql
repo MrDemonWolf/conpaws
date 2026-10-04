@@ -14,6 +14,8 @@ ADD COLUMN `source_url` text DEFAULT '' NOT NULL;
 ALTER TABLE `convention_revisions`
 ADD COLUMN `source_verified_at` text DEFAULT '' NOT NULL;
 --> statement-breakpoint
+DROP TRIGGER `convention_revisions_no_update`;
+--> statement-breakpoint
 UPDATE `convention_revisions`
 SET `source_url` = COALESCE(
       (SELECT `official_url` FROM `conventions` WHERE `conventions`.`id` = `convention_revisions`.`convention_id`),
@@ -23,3 +25,9 @@ SET `source_url` = COALESCE(
       (SELECT `source_verified_at` FROM `conventions` WHERE `conventions`.`id` = `convention_revisions`.`convention_id`),
       ''
     );
+--> statement-breakpoint
+CREATE TRIGGER `convention_revisions_no_update`
+BEFORE UPDATE ON `convention_revisions`
+BEGIN
+  SELECT RAISE(ABORT, 'convention revisions are immutable');
+END;

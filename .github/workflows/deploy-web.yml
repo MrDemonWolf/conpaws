@@ -54,6 +54,7 @@ jobs:
       ROUTES_ENABLED: ${{ vars.PRODUCTION_ROUTES_ENABLED }}
       WORKERS_DEV_ENABLED: ${{ vars.WORKERS_DEV_ENABLED }}
       PREVIEW_URLS_ENABLED: ${{ vars.PREVIEW_URLS_ENABLED }}
+      CATALOG_DATABASE_ID: ${{ vars.CATALOG_DATABASE_ID }}
     steps:
       - name: Check out verified commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

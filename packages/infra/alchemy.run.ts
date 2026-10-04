@@ -98,12 +98,20 @@ const db = await D1Database("database", {
 
 /**
  * Read-only public API binding to the admin-owned catalog database. The admin
- * stack owns migrations; this stack only adopts the same D1 resource by name.
+ * stack owns creation, migrations and deletion. This stack binds its existing
+ * ID only, after the admin stack has been deployed and migrated.
  */
-const catalogDb = await D1Database("catalog-database", {
-  name: "conpaws-admin-catalog-db",
-  adopt: true,
-});
+const catalogBinding: Record<string, D1Database> = env.CATALOG_DATABASE_ID
+  ? {
+      CATALOG_DB: {
+        type: "d1" as const,
+        name: "conpaws-admin-catalog-db",
+        id: env.CATALOG_DATABASE_ID,
+        jurisdiction: "default",
+        dev: { id: "conpaws-admin-preview-local-v2", remote: false },
+      },
+    }
+  : {};
 
 /**
  * Observability is billed per event, and one event is a single log line or a
@@ -228,7 +236,7 @@ export const web = await Nextjs("web", {
   previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     DB: db,
-    CATALOG_DB: catalogDb,
+    ...catalogBinding,
     TURNSTILE_SECRET_KEY: alchemy.secret(env.TURNSTILE_SECRET_KEY),
     ...waitlistSecrets,
   },

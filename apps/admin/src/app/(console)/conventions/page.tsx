@@ -8,6 +8,7 @@ import {
   StatusPill,
   Surface,
 } from "../../../components/ui";
+import { requireAdmin } from "../../../lib/auth";
 import { getConventions } from "../../../lib/queries";
 
 export default async function ConventionsPage({
@@ -15,6 +16,7 @@ export default async function ConventionsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAdmin();
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q : "";
   const requestedStatus =
@@ -51,7 +53,7 @@ export default async function ConventionsPage({
             <input
               type="search"
               name="q"
-              value={query}
+              defaultValue={query}
               placeholder="Name, location or short code"
               className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
             />

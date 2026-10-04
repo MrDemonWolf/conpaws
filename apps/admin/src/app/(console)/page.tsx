@@ -9,9 +9,11 @@ import {
   StatusPill,
   Surface,
 } from "../../components/ui";
+import { requireAdmin } from "../../lib/auth";
 import { getDashboardData } from "../../lib/queries";
 
 export default async function OverviewPage() {
+  await requireAdmin();
   const data = await getDashboardData();
   const hasConventions = data.published + data.drafts > 0;
 
