@@ -8,7 +8,7 @@ describe("launch configuration", () => {
     ).not.toThrow();
     expect(() =>
       validateLaunch({ mode: "live", appStoreUrl: "", googlePlayUrl: "" }),
-    ).toThrow();
+    ).toThrow("apps.apple.com");
     expect(() =>
       validateLaunch({
         mode: "live",

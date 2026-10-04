@@ -18,9 +18,15 @@ export function validateLaunch(config = LAUNCH) {
     [config.appStoreUrl, "apps.apple.com"],
     [config.googlePlayUrl, "play.google.com"],
   ] as const) {
-    const url = new URL(value);
+    const message = `Live mode requires a verified HTTPS listing on ${host}.`;
+    let url: URL;
+    try {
+      url = new URL(value);
+    } catch {
+      throw new Error(message);
+    }
     if (url.protocol !== "https:" || url.hostname !== host) {
-      throw new Error("Live mode requires verified HTTPS store listing URLs.");
+      throw new Error(message);
     }
   }
 }

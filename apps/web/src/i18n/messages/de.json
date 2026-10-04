@@ -156,6 +156,7 @@
         "a": "Mit allen, die einen `.ics`-Kalender oder eine [Sched](https://sched.com)-Seite veröffentlichen — das deckt die meisten Furry-Cons ab. Für die anderen kannst du einen Zeitplan von Hand anlegen."
       },
       {
+        "id": "launch-timing",
         "q": "Wann erscheint es?",
         "a": "Die Beta öffnet zuerst für die Warteliste, iOS und Android gemeinsam. Trag dich oben ein und du bekommst eine E-Mail, sobald deine Einladung bereit ist."
       },

@@ -116,7 +116,7 @@ export function getMessages(locale: Locale): Messages {
     meta: { ...messages.meta, description: messages.meta.descriptionShort },
     faq: {
       ...messages.faq,
-      items: messages.faq.items.filter((_, index) => index !== 4),
+      items: messages.faq.items.filter((item) => item.id !== "launch-timing"),
     },
     cta: {
       ...messages.cta,

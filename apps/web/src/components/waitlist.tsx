@@ -112,7 +112,6 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       const message =
         error instanceof Error ? error.message : messages.errorGeneric;
       setErrorMessage(message);
-      toast.error(message);
     }
   }
 
@@ -208,9 +207,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                 >
                   {messages.nameLabel}
                 </label>
-                {/* Deliberately never disabled: the badge filling in as you
-                    type is the page's one interactive moment, and it works
-                    whether or not signups are open. */}
+                {/* The badge fills in as you type, even before signup opens. */}
                 <input
                   id={nameId}
                   name="name"
@@ -218,7 +215,10 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                   autoComplete="name"
                   placeholder={messages.namePlaceholder}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setErrorMessage("");
+                  }}
                   maxLength={60}
                   className={INPUT_CLASS}
                 />
@@ -238,6 +238,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                   required
                   disabled={!acceptingSignups || status === "submitting"}
                   autoComplete="email"
+                  onChange={() => setErrorMessage("")}
                   placeholder={messages.emailPlaceholder}
                   className={INPUT_CLASS}
                 />

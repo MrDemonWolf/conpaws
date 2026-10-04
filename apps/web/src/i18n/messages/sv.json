@@ -156,6 +156,7 @@
         "a": "Alla som publicerar en `.ics`-kalender eller en [Sched](https://sched.com)-sida — vilket täcker de flesta furrykonvent. Du kan också bygga ett program för hand för de övriga."
       },
       {
+        "id": "launch-timing",
         "q": "När släpps den?",
         "a": "Betan öppnar först för väntelistan, iOS och Android samtidigt. Anmäl dig ovan så får du ett mejl när din inbjudan är klar."
       },

@@ -156,6 +156,7 @@
         "a": "Z każdym, który publikuje kalendarz `.ics` albo stronę [Sched](https://sched.com) — a to większość konwentów furry. Dla pozostałych możesz ułożyć plan ręcznie."
       },
       {
+        "id": "launch-timing",
         "q": "Kiedy premiera?",
         "a": "Beta otwiera się najpierw dla listy oczekujących, iOS i Android razem. Zapisz się powyżej, a dostaniesz jednego maila, gdy twoje zaproszenie będzie gotowe."
       },

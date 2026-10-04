@@ -156,6 +156,7 @@
         "a": "Kaikkien, jotka julkaisevat `.ics`-kalenterin tai [Sched](https://sched.com)-sivun — mikä kattaa useimmat furry-tapahtumat. Muille voit koota ohjelman käsin."
       },
       {
+        "id": "launch-timing",
         "q": "Milloin se julkaistaan?",
         "a": "Beta avautuu ensin jonotuslistalle, iOS ja Android yhtä aikaa. Liity yllä, niin saat yhden sähköpostin kun kutsusi on valmis."
       },
