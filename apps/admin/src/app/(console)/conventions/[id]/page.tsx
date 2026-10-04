@@ -189,136 +189,171 @@ export default async function ConventionWorkspacePage({
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-5">
           <Surface className="overflow-hidden">
-            <div className="border-b border-slate-100 px-5 py-4 sm:px-7">
-              <h2 className="font-display text-base font-bold text-[#091533]">
-                Convention details
-              </h2>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Changes here update your private draft. The attendee copy
-                remains on its published revision.
-              </p>
-            </div>
-            <form action={updateConvention}>
-              <input type="hidden" name="id" value={convention.id} />
-              <input
-                type="hidden"
-                name="updatedAt"
-                value={convention.updatedAt}
-              />
-              <div className="grid gap-x-5 gap-y-4 p-5 sm:grid-cols-2 sm:p-7">
-                <Field
-                  name="name"
-                  label="Convention name"
-                  defaultValue={convention.name}
-                  required
-                  maxLength={120}
-                  className="sm:col-span-2"
+            <details
+              open={
+                !convention.sourceVerifiedAt ||
+                Boolean(errorMessages[errorKey]) ||
+                saved === "details"
+              }
+              className="group/details"
+            >
+              <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 border-b border-slate-100 px-5 py-4 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-7 [&::-webkit-details-marker]:hidden">
+                <span className="min-w-0">
+                  <span className="block font-display text-base font-bold text-[#091533]">
+                    Convention details
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">
+                    Changes here update your private draft. The attendee copy
+                    remains on its published revision.
+                  </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-2 text-xs font-semibold text-slate-600">
+                  {convention.sourceVerifiedAt ? "Edit" : "Set up"}
+                  <Icon
+                    name="chevron"
+                    className="size-4 transition-transform group-open/details:rotate-90"
+                  />
+                </span>
+              </summary>
+              <form action={updateConvention}>
+                <input type="hidden" name="id" value={convention.id} />
+                <input
+                  type="hidden"
+                  name="updatedAt"
+                  value={convention.updatedAt}
                 />
-                <Field
-                  name="acronym"
-                  label="Short name"
-                  defaultValue={convention.acronym}
-                  maxLength={16}
-                />
-                <Field
-                  name="slug"
-                  label="Public URL key"
-                  defaultValue={convention.slug}
-                  required
-                  maxLength={96}
-                />
-                <Field
-                  name="city"
-                  label="City"
-                  defaultValue={convention.city}
-                  required
-                  maxLength={80}
-                />
-                <Field
-                  name="region"
-                  label="State / region"
-                  defaultValue={convention.region}
-                  maxLength={80}
-                />
-                <Field
-                  name="country"
-                  label="Country"
-                  defaultValue={convention.country}
-                  required
-                  maxLength={80}
-                />
-                <Field
-                  name="timezone"
-                  label="IANA time zone"
-                  defaultValue={convention.timezone}
-                  required
-                />
-                <Field
-                  name="startsOn"
-                  label="Start date"
-                  type="date"
-                  defaultValue={convention.startsOn}
-                  required
-                />
-                <Field
-                  name="endsOn"
-                  label="End date"
-                  type="date"
-                  defaultValue={convention.endsOn}
-                  required
-                />
-                <Field
-                  name="venue"
-                  label="Venue"
-                  defaultValue={convention.venue}
-                  maxLength={160}
-                  className="sm:col-span-2"
-                />
-                <Field
-                  name="officialUrl"
-                  label="Organizer website"
-                  type="url"
-                  defaultValue={convention.officialUrl}
-                  required
-                  className="sm:col-span-2"
-                />
-                <SelectField
-                  name="availability"
-                  label="Registration availability"
-                  defaultValue={convention.availability}
-                >
-                  {availabilityOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {availabilityLabels[value]}
-                    </option>
-                  ))}
-                </SelectField>
-                <SelectField
-                  name="scheduleStatus"
-                  label="Program schedule"
-                  defaultValue={convention.scheduleStatus}
-                >
-                  {scheduleStatusOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {scheduleStatusLabels[value]}
-                    </option>
-                  ))}
-                </SelectField>
-                <Field
-                  name="sourceVerifiedAt"
-                  label="Organizer source checked"
-                  type="date"
-                  defaultValue={convention.sourceVerifiedAt ?? ""}
-                  hint="Publishing requires a recorded check date. The URL and date are kept privately in each revision."
-                  className="sm:col-span-2"
-                />
-              </div>
-              <div className="flex justify-end border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:px-7">
-                <Button type="submit" variant="secondary">
-                  Save details
-                </Button>
-              </div>
-            </form>
+                <div className="grid gap-7 p-5 sm:p-7">
+                  <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                    <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                      1. Convention
+                    </legend>
+                    <Field
+                      name="name"
+                      label="Convention name"
+                      defaultValue={convention.name}
+                      required
+                      maxLength={120}
+                      className="sm:col-span-2"
+                    />
+                    <Field
+                      name="acronym"
+                      label="Short name"
+                      defaultValue={convention.acronym}
+                      maxLength={16}
+                    />
+                    <Field
+                      name="slug"
+                      label="Public URL key"
+                      defaultValue={convention.slug}
+                      required
+                      maxLength={96}
+                    />
+                  </fieldset>
+
+                  <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                    <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                      2. Dates and location
+                    </legend>
+                    <Field
+                      name="startsOn"
+                      label="Start date"
+                      type="date"
+                      defaultValue={convention.startsOn}
+                      required
+                    />
+                    <Field
+                      name="endsOn"
+                      label="End date"
+                      type="date"
+                      defaultValue={convention.endsOn}
+                      required
+                    />
+                    <Field
+                      name="timezone"
+                      label="IANA time zone"
+                      defaultValue={convention.timezone}
+                      required
+                    />
+                    <Field
+                      name="venue"
+                      label="Venue"
+                      defaultValue={convention.venue}
+                      maxLength={160}
+                    />
+                    <Field
+                      name="city"
+                      label="City"
+                      defaultValue={convention.city}
+                      required
+                      maxLength={80}
+                    />
+                    <Field
+                      name="region"
+                      label="State / region"
+                      defaultValue={convention.region}
+                      maxLength={80}
+                    />
+                    <Field
+                      name="country"
+                      label="Country"
+                      defaultValue={convention.country}
+                      required
+                      maxLength={80}
+                      className="sm:col-span-2"
+                    />
+                  </fieldset>
+
+                  <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                    <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                      3. Organizer and program
+                    </legend>
+                    <Field
+                      name="officialUrl"
+                      label="Organizer website"
+                      type="url"
+                      defaultValue={convention.officialUrl}
+                      required
+                      className="sm:col-span-2"
+                    />
+                    <SelectField
+                      name="availability"
+                      label="Registration availability"
+                      defaultValue={convention.availability}
+                    >
+                      {availabilityOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {availabilityLabels[value]}
+                        </option>
+                      ))}
+                    </SelectField>
+                    <SelectField
+                      name="scheduleStatus"
+                      label="Program schedule"
+                      defaultValue={convention.scheduleStatus}
+                    >
+                      {scheduleStatusOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {scheduleStatusLabels[value]}
+                        </option>
+                      ))}
+                    </SelectField>
+                    <Field
+                      name="sourceVerifiedAt"
+                      label="Organizer source checked"
+                      type="date"
+                      defaultValue={convention.sourceVerifiedAt ?? ""}
+                      hint="Publishing requires a recorded check date. The URL and date are kept privately in each revision."
+                      className="sm:col-span-2"
+                    />
+                  </fieldset>
+                </div>
+                <div className="flex justify-end border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:px-7">
+                  <Button type="submit" variant="secondary">
+                    Save details
+                  </Button>
+                </div>
+              </form>
+            </details>
           </Surface>
 
           <Surface id="schedule" className="overflow-hidden">
@@ -343,11 +378,12 @@ export default async function ConventionWorkspacePage({
                 method="get"
                 className="grid gap-3 border-b border-slate-100 bg-slate-50/60 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-7"
               >
-                <label className="block">
+                <label htmlFor="schedule-search" className="block">
                   <span className="mb-1.5 block text-sm font-semibold text-slate-800">
                     Find a session
                   </span>
                   <input
+                    id="schedule-search"
                     type="search"
                     name="sessionSearch"
                     defaultValue={sessionSearch}

@@ -13,22 +13,29 @@ import { getCatalogDb } from "./db";
 
 export async function getDashboardData() {
   const db = await getCatalogDb();
-  const [published, drafts, sessions, members, recent] = await Promise.all([
-    db
-      .select({ total: count() })
-      .from(conventions)
-      .where(eq(conventions.status, "published")),
-    db
-      .select({ total: count() })
-      .from(conventions)
-      .where(eq(conventions.status, "draft")),
-    db.select({ total: count() }).from(scheduleEvents),
-    db
-      .select({ total: count() })
-      .from(adminMembers)
-      .where(eq(adminMembers.status, "active")),
-    db.select().from(auditLog).orderBy(desc(auditLog.createdAt)).limit(6),
-  ]);
+  const [published, drafts, sessions, members, recent, draftItems] =
+    await Promise.all([
+      db
+        .select({ total: count() })
+        .from(conventions)
+        .where(eq(conventions.status, "published")),
+      db
+        .select({ total: count() })
+        .from(conventions)
+        .where(eq(conventions.status, "draft")),
+      db.select({ total: count() }).from(scheduleEvents),
+      db
+        .select({ total: count() })
+        .from(adminMembers)
+        .where(eq(adminMembers.status, "active")),
+      db.select().from(auditLog).orderBy(desc(auditLog.createdAt)).limit(6),
+      db
+        .select()
+        .from(conventions)
+        .where(eq(conventions.status, "draft"))
+        .orderBy(asc(conventions.startsOn))
+        .limit(3),
+    ]);
 
   const upcoming = await db
     .select()
@@ -44,6 +51,7 @@ export async function getDashboardData() {
     members: members[0]?.total ?? 0,
     recent,
     upcoming,
+    draftItems,
   };
 }
 

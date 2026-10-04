@@ -26,7 +26,7 @@ function NavItem({ href, label, icon }: (typeof links)[number]) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold leading-none transition md:flex-row md:gap-3 md:px-3 md:text-sm ${active ? "bg-[#091533]/5 text-[#091533] md:bg-white/10 md:text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 md:text-slate-300 md:hover:bg-white/5 md:hover:text-white"}`}
+      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1 text-[10px] font-semibold leading-none transition md:flex-row md:justify-start md:gap-3 md:px-3 md:text-sm ${active ? "bg-sky-50 text-[#091533] md:border-l-2 md:border-l-[#0faced] md:bg-white/10 md:text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 md:text-slate-300 md:hover:bg-white/10 md:hover:text-white"}`}
     >
       <Icon name={icon} className="size-4 shrink-0 md:size-[18px]" />
       <span className="truncate">{label}</span>
@@ -43,7 +43,7 @@ export function ConsoleShell({
 }) {
   return (
     <div className="min-h-screen bg-[#f5f7fb] md:flex">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-[252px] flex-col bg-[#091533] px-4 py-5 text-white md:flex">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-[252px] flex-col border-r border-white/5 bg-[#091533] px-4 py-5 text-white md:flex">
         <Link href="/" className="flex items-center gap-3 rounded-xl px-2 py-2">
           <span className="grid size-10 place-items-center rounded-xl bg-[#0faced] text-[#091533]">
             <CompassPaw className="size-7" />
@@ -98,7 +98,7 @@ export function ConsoleShell({
             </span>
           </div>
         </header>
-        <main className="admin-main mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-9 lg:py-10">
+        <main className="admin-main mx-auto w-full max-w-[1360px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
           {children}
           <footer className="mt-12 border-t border-slate-200 py-5 text-xs text-slate-500">
             ConPaws Admin <span className="mx-1.5">·</span> Published catalog

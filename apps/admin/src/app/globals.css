@@ -6,13 +6,34 @@
   --font-mono: var(--font-roboto-mono);
 }
 
+:root {
+  color-scheme: light;
+  --background: #f5f7fb;
+  --foreground: #091533;
+  --card: #ffffff;
+  --card-foreground: #091533;
+  --popover: #ffffff;
+  --popover-foreground: #091533;
+  --secondary: #eef2f7;
+  --secondary-foreground: #091533;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #eaf7fc;
+  --accent-foreground: #091533;
+  --border: #dce3ec;
+  --input: #d5dde8;
+  --ring: #0faced;
+  --radius: 0.75rem;
+}
+
 html {
   color-scheme: light;
 }
 
 body {
   min-width: 320px;
-  background: #f5f7fb;
+  color: var(--foreground);
+  background: var(--background);
   font-family: var(--font-roboto), Arial, sans-serif;
   font-feature-settings: "tnum" 1;
 }
@@ -47,169 +68,4 @@ textarea {
 ::selection {
   color: #091533;
   background: #9be7fa;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-
-  body {
-    color: #e2e8f0;
-    background: #080e20;
-  }
-
-  [class~="bg-white"],
-  [class~="bg-white/95"] {
-    background-color: #111b30;
-  }
-
-  [class~="bg-[#f5f7fb]"],
-  [class~="bg-[#f8fafc]"],
-  [class~="bg-slate-50"],
-  [class~="bg-slate-50/60"],
-  [class~="bg-slate-50/70"] {
-    background-color: #0c1528;
-  }
-
-  [class~="bg-slate-100"] {
-    background-color: #202c43;
-  }
-
-  [class~="bg-sky-50"],
-  [class~="bg-sky-100"] {
-    background-color: #082b43;
-  }
-
-  [class~="bg-emerald-50"] {
-    background-color: #082b22;
-  }
-
-  [class~="bg-amber-50"] {
-    background-color: #35250b;
-  }
-
-  [class~="bg-rose-50"] {
-    background-color: #3c1727;
-  }
-
-  [class~="bg-indigo-50"] {
-    background-color: #211c42;
-  }
-
-  [class~="bg-violet-50"] {
-    background-color: #2b1b45;
-  }
-
-  [class~="text-[#091533]"],
-  [class~="text-slate-900"] {
-    color: #f1f5f9;
-  }
-
-  [class~="text-slate-800"] {
-    color: #e2e8f0;
-  }
-
-  [class~="text-slate-700"] {
-    color: #cbd5e1;
-  }
-
-  [class~="text-slate-600"] {
-    color: #b7c4d8;
-  }
-
-  [class~="text-slate-500"] {
-    color: #94a3b8;
-  }
-
-  [class~="text-slate-400"] {
-    color: #8090a7;
-  }
-
-  [class~="text-sky-700"],
-  [class~="text-sky-800"] {
-    color: #7dd3fc;
-  }
-
-  [class~="text-sky-950"],
-  [class~="text-sky-900"] {
-    color: #bae6fd;
-  }
-
-  [class~="text-emerald-700"],
-  [class~="text-emerald-800"] {
-    color: #6ee7b7;
-  }
-
-  [class~="text-emerald-950"] {
-    color: #a7f3d0;
-  }
-
-  [class~="text-amber-800"],
-  [class~="text-amber-900"] {
-    color: #fcd34d;
-  }
-
-  [class~="text-amber-950"] {
-    color: #fde68a;
-  }
-
-  [class~="text-rose-800"],
-  [class~="text-rose-900"] {
-    color: #fda4af;
-  }
-
-  [class~="text-rose-950"] {
-    color: #fecdd3;
-  }
-
-  [class~="text-indigo-700"] {
-    color: #c4b5fd;
-  }
-
-  [class~="text-violet-800"] {
-    color: #d8b4fe;
-  }
-
-  [class~="border-slate-100"],
-  [class~="border-slate-200"],
-  [class~="border-slate-200/80"],
-  [class~="border-slate-300"] {
-    border-color: #2b3951;
-  }
-
-  [class~="border-sky-200"] {
-    border-color: #155e75;
-  }
-
-  [class~="border-emerald-200"] {
-    border-color: #16634f;
-  }
-
-  [class~="border-amber-300"] {
-    border-color: #8a5a12;
-  }
-
-  [class~="border-rose-200"] {
-    border-color: #9f3452;
-  }
-
-  [class~="bg-[#091533]"] {
-    background-color: #070d1c;
-  }
-
-  section.rounded-2xl {
-    box-shadow: 0 8px 28px rgb(0 0 0 / 16%);
-  }
-
-  input,
-  select,
-  textarea {
-    color-scheme: dark;
-  }
-
-  ::selection {
-    color: #091533;
-    background: #67d7f4;
-  }
 }
