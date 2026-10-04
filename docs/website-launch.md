@@ -27,3 +27,7 @@ Use a preview without production secrets for the fail-closed test. The script re
 Browser checks during this change cover 375px layout and overflow; English, German, Japanese, Latin American Spanish, Traditional Chinese, and Ukrainian metadata; FAQ expansion; updates navigation; language picker; and temporary live mode in English and German with fixture URLs. Live fixtures were restored to waitlist before building.
 
 Browser checks do not submit a real signup or validate email delivery. Existing waitlist unit tests cover the mocked API flow.
+
+## Static cache
+
+OpenNext uses its read-only static-assets cache for prerendered public pages. The build:cloudflare command populates cache files before Alchemy uploads assets. This fixes translated pages returning 404 in the Worker without adding R2 or a revalidation queue. Public copy updates take effect after a build and deployment.

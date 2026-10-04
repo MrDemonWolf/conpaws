@@ -203,6 +203,8 @@ export const web = await Nextjs("web", {
   name: "conpaws",
   adopt: true,
   cwd: "../../apps/web",
+  // Populate read-only prerendered cache files before Alchemy uploads ASSETS.
+  build: "bun run build:cloudflare",
   compatibilityDate: COMPATIBILITY_DATE,
   observability: OBSERVABILITY,
   limits: WEB_LIMITS,

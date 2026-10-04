@@ -8,6 +8,7 @@ import { LAUNCH } from "@/content/launch";
 import type { Messages } from "@/i18n";
 import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
+import { CompassPaw } from "./compass-paw";
 
 type Status = "idle" | "submitting" | "done";
 type WaitlistMessages = Messages["waitlist"];
@@ -322,7 +323,15 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       {/* On desktop the lanyard rises above the nav; the language menu has
           its own higher layer while open. */}
       <div className="relative z-badge hidden md:col-start-2 md:row-span-2 md:row-start-1 md:block md:pt-2">
-        <Badge name={name} />
+        {LAUNCH.mode === "live" ? (
+          <div className="rounded-3xl border border-primary/20 bg-card/40 p-8 text-center">
+            <CompassPaw className="mx-auto h-48 w-48 text-primary" />
+            <p className="mt-8 text-3xl font-bold">ConPaws</p>
+            <p className="mt-4 text-muted-foreground">iOS · Android</p>
+          </div>
+        ) : (
+          <Badge name={name} />
+        )}
       </div>
     </div>
   );

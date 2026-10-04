@@ -8,7 +8,7 @@
     "start": "next start",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
-    "build:cloudflare": "opennextjs-cloudflare build",
+    "build:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --local"
   },
