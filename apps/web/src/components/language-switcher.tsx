@@ -61,16 +61,10 @@ export function LanguageSwitcher({
           ▾
         </span>
       </summary>
-      {/* A bare `z-10`, not one of the named page layers, because raising it
-          here cannot work: the site nav around this is positioned, so it opens
-          a stacking context and this menu can never climb out of it however
-          high the number goes. It used to be `z-30` and still lost to the hero
-          badge at `z-40` — on a phone the badge covered ten of the twenty-three
-          options and swallowed their clicks. The fix is on the nav itself,
-          which rises to `z-menu` while this is open. */}
+      {/* Local layer within the header; the open header uses the menu layer. */}
       <nav
         aria-label={label}
-        className="absolute right-0 z-10 mt-2 max-h-[60vh] w-[220px] overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.8)]"
+        className="absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-112px))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(9_21_51/0.65)]"
       >
         {/* `publishedLocales()`, not LOCALES: `[locale]/page.tsx` sets
             `dynamicParams = false`, so a locale listed in config without a
@@ -85,7 +79,7 @@ export function LanguageSwitcher({
             lang={locale.code}
             data-locale={locale.code}
             aria-current={locale.code === current ? "true" : undefined}
-            className={`block rounded-lg px-3 py-2 text-[13px] transition hover:bg-primary/10 hover:text-primary ${
+            className={`flex min-h-11 items-center rounded-xl px-3 py-2 text-base transition hover:bg-primary/5 hover:text-primary ${
               locale.code === current
                 ? "bg-primary/10 font-medium text-primary"
                 : "text-muted-foreground"

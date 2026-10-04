@@ -2,7 +2,7 @@
 
 /* ---------------------------------------------------------------------------
  * ConPaws pre-release page
- * Typography: Montserrat (headings, badge) · Roboto (body) · Roboto Mono
+ * Typography: Montserrat (headings, body, badge) · Roboto Mono
  * (technical labels, times, badge numbers)
  * ------------------------------------------------------------------------- */
 
@@ -39,44 +39,22 @@ h3 {
   letter-spacing: -0.02em;
 }
 
-/* The page's stacking order, named once so nothing has to guess.
- *
- * These five are the only cross-component layers; anything else is local to
- * one component's own stacking context and stays a bare `z-10` there, where
- * it competes with its siblings and nothing else.
- *
- * The order is load-bearing, not decorative:
- *
- *   content < nav   — sections must not paint over the nav.
- *   nav     < badge — the hero badge hangs on a lanyard that runs off the top
- *                     of the hero and past the nav. Below the nav it reads as
- *                     clipped rather than hung.
- *   badge   < menu  — but the language menu lives inside the nav, so the nav's
- *                     own z-index traps it under the badge, and the badge then
- *                     covers most of the list and swallows its clicks. `nav`
- *                     rises to this layer only while the menu is open, which
- *                     is the one moment the badge must lose.
- *   menu    < grain — the film-grain overlay is a fixed, pointer-events-none
- *                     film over the finished page, so it sits on top of all
- *                     of it by design.
- *
- * Plain `@theme`, not `@theme inline`: `inline` resolves tokens into the
- * generated utilities and emits no `:root` custom property, and the grain
- * overlay below reads `var(--z-index-grain)` directly.
- */
+/* Decoration stays behind controls. Page shells isolate these layers from
+ * provider overlays; local component layers remain inside their own context.
+ * Plain @theme also exposes the grain token to the pseudo-element below. */
 @theme {
+  --z-index-grain: 0;
   --z-index-content: 10;
-  --z-index-nav: 20;
-  --z-index-badge: 30;
-  --z-index-menu: 40;
-  --z-index-grain: 50;
+  --z-index-badge: 20;
+  --z-index-floating: 30;
+  --z-index-nav: 40;
+  --z-index-menu: 50;
+  --z-index-skip: 60;
 }
 
 @theme inline {
-  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
-  --font-display:
-    var(--font-montserrat), var(--font-roboto), ui-sans-serif, system-ui,
-    sans-serif;
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
   --font-tech: var(--font-roboto-mono), ui-monospace, "SF Mono", monospace;
 
   --animate-rise: rise 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) both;
@@ -87,6 +65,7 @@ h3 {
 /* Atmosphere: two brand-blue glows, a faint dot grid like a con-hall carpet
    seen from above, and film grain so the flat navy doesn't band. */
 body {
+  isolation: isolate;
   background-image:
     radial-gradient(
       1000px 560px at 12% -12%,
@@ -105,6 +84,19 @@ body {
     26px 26px;
   background-repeat: no-repeat, no-repeat, repeat;
   background-attachment: fixed;
+}
+
+/* Reserve room when keyboard navigation scrolls a control above the thumb bar.
+ * Hide the bar during menu use and text entry, including a software keyboard. */
+@media (width < 48rem) {
+  html {
+    scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .marketing-shell:has(details[open]) .mobile-action,
+  .marketing-shell:has(input:focus) .mobile-action {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 body::after {

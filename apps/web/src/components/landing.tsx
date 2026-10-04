@@ -2,6 +2,7 @@ import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { MobileAction } from "@/components/mobile-action";
 import { Waitlist } from "@/components/waitlist";
 import { UPDATES_LABEL } from "@/content/changelog";
 import { LINEUP, STEPS } from "@/content/landing";
@@ -385,10 +386,10 @@ export function Landing({
     // footer, which makes the footer not a contentinfo landmark and leaves the
     // page with no banner landmark at all -- so landmark navigation offered
     // exactly one destination, "main", on every page.
-    <div className="relative mx-auto max-w-[1120px] px-6 pb-28">
+    <div className="marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(112px,calc(96px+env(safe-area-inset-bottom)))]">
       <a
         href="#main"
-        className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-menu"
+        className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-skip"
       >
         {messages.nav.skipToContent}
       </a>
@@ -433,11 +434,7 @@ export function Landing({
             </a>
           ))}
         </nav>
-        {/* No z-index here on purpose. `relative` alone does not open a stacking
-          context, so the badge inside can raise itself above the nav and every
-          section below — it hangs on a lanyard that runs off the top, and it
-          should read as hanging in front of the page, not trapped behind it.
-          Adding a z-index back to this section would box the badge in. */}
+        {/* Keep the lanyard above section art, below all navigation controls. */}
         <section id="waitlist" className="relative pt-6">
           <Waitlist messages={messages.waitlist} />
         </section>
@@ -648,14 +645,7 @@ export function Landing({
           </nav>
         </div>
       </footer>
-      <div className="fixed inset-x-0 bottom-0 z-menu border-t border-primary/20 bg-background/95 px-6 py-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
-        <a
-          href="#waitlist"
-          className="flex min-h-12 items-center justify-center rounded-xl bg-primary px-4 text-center font-bold text-sm text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-        >
-          {messages.cta.button}
-        </a>
-      </div>
+      <MobileAction label={messages.cta.button} />
     </div>
   );
 }

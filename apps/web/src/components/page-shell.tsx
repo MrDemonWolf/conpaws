@@ -46,13 +46,13 @@ export function PageShell({
     <div
       lang={locale}
       className={cn(
-        "relative mx-auto px-6 pb-24",
+        "marketing-shell relative z-content isolate mx-auto px-6 pb-24",
         narrow ? "max-w-[760px]" : "max-w-[1120px]",
       )}
     >
       <a
         href="#main"
-        className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-menu"
+        className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-skip"
       >
         {messages.nav.skipToContent}
       </a>

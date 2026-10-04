@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Roboto, Roboto_Mono } from "next/font/google";
+import { Montserrat, Roboto_Mono } from "next/font/google";
 
 import { JsonLd } from "@/components/json-ld";
 import { LocaleDetect } from "@/components/locale-detect";
@@ -24,21 +24,16 @@ import "../index.css";
 // and Korean are not in these families at all and fall back to the system
 // font, which is the right outcome: a CJK webfont is megabytes.
 //
-// Montserrat sets headings and the badge; Roboto sets body text; Roboto Mono
-// sets the technical micro-labels, times and badge numbers. All three are
+// Montserrat sets headings, body text and the badge; Roboto Mono sets
+// technical micro-labels, times and badge numbers. Both are
 // variable fonts, so no `weight` array — one file per subset covers the whole
 // range and `font-bold` is a real weight rather than a synthesised one.
 //
-// The subset list is repeated three times rather than hoisted to a constant:
+// The subset list is repeated rather than hoisted to a constant:
 // next/font parses these calls at build time and rejects anything that is not
 // a literal ("Font loader values must be explicitly written literals").
 const montserrat = Montserrat({
   variable: "--font-montserrat",
-  subsets: ["latin", "latin-ext", "cyrillic"],
-});
-
-const roboto = Roboto({
-  variable: "--font-roboto",
   subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
@@ -128,7 +123,7 @@ export function Document({
   return (
     <html lang={locale} dir={localeDir(locale)} suppressHydrationWarning>
       <body
-        className={`${montserrat.variable} ${roboto.variable} ${robotoMono.variable} font-sans antialiased`}
+        className={`${montserrat.variable} ${robotoMono.variable} font-sans antialiased`}
       >
         {/* First thing in the body so the language redirect is decided before
             anything paints. Everything below it is content. */}
