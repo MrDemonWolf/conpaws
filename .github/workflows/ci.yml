@@ -85,7 +85,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build OpenNext Worker
-        run: bunx opennextjs-cloudflare build
+        run: bun run build:cloudflare
         working-directory: apps/web
 
       - name: Build admin OpenNext Worker

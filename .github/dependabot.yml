@@ -28,7 +28,7 @@ updates:
       minor-and-patch:
         update-types: ["minor", "patch"]
     ignore:
-      # Pinned exactly, with the reason recorded in CLAUDE.md and the Notion
+      # Pinned exactly, with the reason recorded in AGENTS.md and the Notion
       # Prerelease Site page. Next 16.3 + OpenNext has an unbounded prefetch
       # loop (opennextjs-cloudflare#1334), and these two move together.
       - dependency-name: next

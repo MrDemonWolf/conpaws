@@ -5,7 +5,7 @@ your convention schedule, track panels, set reminders for meetups, and
 optionally share it all with friends. It is built local-first: everything
 works offline with zero login required, because con WiFi is a myth. The
 project is currently pre-release; the monorepo holds the Expo mobile app,
-the Next.js website, and the planning docs that drive development.
+the Next.js website, a private convention catalog console, and development docs.
 
 Never miss a panel again.
 
@@ -62,7 +62,7 @@ Never miss a panel again.
    ```
 
    The web app serves at `http://localhost:3001`; the Expo dev server
-   starts for the native app.
+   starts for the native app. The admin dev server starts at `http://localhost:3003`.
 
 ## Tech Stack
 
@@ -73,7 +73,7 @@ Never miss a panel again.
 | Local database    | expo-sqlite with Drizzle ORM                                 |
 | Backend (target)  | Cloudflare Workers — Hono, tRPC, Better-Auth                 |
 | Cloud database    | Cloudflare D1 (SQLite) with Drizzle ORM                      |
-| File storage      | Cloudflare R2 (zero egress)                                  |
+| File storage (planned) | Cloudflare R2                                  |
 | Website           | Next.js 16.2.12 on Cloudflare Workers via OpenNext           |
 | Infrastructure    | Alchemy — D1, Worker bindings and secrets, cron              |
 | Bot protection    | Cloudflare Turnstile (server-side siteverify)                |
@@ -105,11 +105,10 @@ Never miss a panel again.
    cp .env.example .env
    ```
 
-   Note: `.env` files are local-development-only. EAS builds read EAS
-   Environment Variables (`eas env:pull`). Cloudflare Workers read their
-   bindings and secrets from `packages/infra/alchemy.run.ts` at deploy
-   time — `apps/web/wrangler.jsonc` is local development and CI preview
-   only, and is never used to deploy.
+   Environment setup is app-specific. Native local builds use the root example;
+   follow `apps/admin/README.md` for catalog development. Production Worker
+   bindings and secrets are managed by `packages/infra`; Wrangler configs are
+   for local development and CI.
 
 3. Start the dev servers:
 
@@ -121,13 +120,14 @@ Never miss a panel again.
 
 All scripts run from the repo root and fan out through Turborepo:
 
-- `bun dev` - Start web and native in development mode
+- `bun dev` - Start web, admin, and native in development mode
 - `bun dev:web` - Start only the Next.js app (`http://localhost:3001`)
 - `bun dev:native` - Start only the Expo dev server
+- `bun dev:admin` - Start the private catalog console (`http://localhost:3003`)
 - `bun start` / `bun start:preview` / `bun start:prod` - Expo dev server
   per app variant
 - `bun android` / `bun ios` - Run on emulator/simulator
-- `bun web` - Run the Expo app's web target
+- `bun native:web` - Run the Expo app's web target
 - `bun build` - Build all applications and packages
 - `bun lint` - Run Biome (`biome check .`)
 - `bun lint:fix` - Run Biome with `--write`
@@ -176,8 +176,8 @@ The full going-live runbook lives on the **Prerelease Site** page in Notion.
 
 ### Mobile Releases and OTA Updates
 
-Store releases remain operator-controlled. EAS creates signed production
-IPA/AAB artifacts, then the exact tested artifacts are uploaded to
+Store releases remain operator-controlled. Local Xcode and Gradle builds create
+signed IPA/AAB artifacts, then the exact tested artifacts are uploaded to
 TestFlight and Play Internal Testing and promoted manually. There is no
 auto-submit.
 
@@ -205,17 +205,22 @@ conpaws/
 │   │   └── modules/ # Local Expo module bridging the App Group and Watch
 │   ├── web/         # Next.js site on Cloudflare Workers via OpenNext
 │   │   └── workers/ # Hourly waitlist reconciler (a separate Worker)
-│   └── server/      # (planned) Hono + tRPC + Better-Auth Worker
+│   └── admin/       # Private catalog console; separate Access-protected Worker
 ├── packages/
 │   ├── config/      # Shared tsconfig base
 │   ├── env/         # Zod environment schemas
 │   ├── infra/       # Alchemy — D1, Worker bindings and secrets, cron
 │   └── ui/          # Shared shadcn/ui components and styles
-├── docs/            # Widget and Watch design docs and mockups
+├── docs/            # Architecture, website, Widget and Watch docs
 ├── infra/
 │   └── xprem/       # xprem OTA descriptor and runbook (not deployed)
 └── test-data/       # iCal fixtures for import development
 ```
+
+The layout follows [Better-T Stack](https://www.better-t-stack.dev/docs/project-structure).
+See [workspace ownership and development](docs/repository-layout.md) and
+[agent instructions](AGENTS.md). App-specific schemas and migrations stay in
+those apps; an `apps/server` workspace is reserved for future native cloud features.
 
 ## License
 

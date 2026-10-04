@@ -21,7 +21,7 @@
     "test": "turbo test",
     "dev:native": "turbo -F @conpaws/native dev",
     "dev:admin": "turbo -F @conpaws/admin dev",
-    "dev:web": "turbo -F web dev",
+    "dev:web": "turbo -F @conpaws/web dev",
     "start": "turbo -F @conpaws/native start",
     "start:preview": "turbo -F @conpaws/native start:preview",
     "start:prod": "turbo -F @conpaws/native start:prod",
@@ -36,8 +36,8 @@
     "deploy:admin": "bun run --filter @conpaws/infra deploy:admin",
     "destroy": "bun run --filter @conpaws/infra destroy",
     "infra:dev": "bun run --filter @conpaws/infra dev",
-    "db:generate": "bun run --filter web db:generate",
-    "db:migrate:local": "bun run --filter web db:migrate:local",
+    "db:generate": "bun run --filter @conpaws/web db:generate",
+    "db:migrate:local": "bun run --filter @conpaws/web db:migrate:local",
     "native:web": "turbo -F @conpaws/native web"
   },
   "devDependencies": {
