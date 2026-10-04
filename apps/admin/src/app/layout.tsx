@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat, Roboto, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -30,6 +30,11 @@ export const metadata: Metadata = {
   },
   description: "Private convention catalog and schedule publishing workspace.",
   robots: { index: false, follow: false, noarchive: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#091533",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

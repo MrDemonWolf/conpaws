@@ -17,6 +17,20 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
+.admin-main {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+
+.admin-mobile-nav {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+@media (width >= 48rem) {
+  .admin-main {
+    padding-bottom: 2.5rem;
+  }
+}
+
 h1,
 h2,
 h3,

@@ -97,16 +97,8 @@ export function ConsoleShell({
               ConPaws Admin
             </span>
           </div>
-          <nav
-            aria-label="Main navigation"
-            className="grid grid-cols-4 gap-1 px-3 pb-2"
-          >
-            {links.map((item) => (
-              <NavItem key={item.href} {...item} />
-            ))}
-          </nav>
         </header>
-        <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-9 lg:py-10">
+        <main className="admin-main mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-9 lg:py-10">
           {children}
           <footer className="mt-12 border-t border-slate-200 py-5 text-xs text-slate-500">
             ConPaws Admin <span className="mx-1.5">·</span> Published catalog
@@ -114,6 +106,14 @@ export function ConsoleShell({
             gate
           </footer>
         </main>
+        <nav
+          aria-label="Main navigation"
+          className="admin-mobile-nav fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 gap-1 border-t border-slate-200/80 bg-white/95 px-3 pt-2 shadow-[0_-8px_24px_rgba(9,21,51,0.08)] backdrop-blur md:hidden"
+        >
+          {links.map((item) => (
+            <NavItem key={item.href} {...item} />
+          ))}
+        </nav>
       </div>
     </div>
   );

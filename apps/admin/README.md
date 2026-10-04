@@ -43,6 +43,31 @@ Each route reads only the snapshot selected by the convention’s current publis
 
 The native app does not download this catalog yet. Offline schedule access, organizer-feed imports, Watch and widget updates, and push or local alerts still need their own implementation and device testing. Cancellations reach attendees only after staff publish a new revision.
 
+## Mobile host experience and PWA direction
+
+**Recommendation: make `admin.conpaws.com` a mobile-first, installable PWA before building a separate host app.** Keep host operations separate from the attendee app so the attendee experience stays focused and host-only editing remains behind its own authorization checks. The admin site is already the right product surface; it needs a deliberate phone workflow, not just a smaller desktop layout.
+
+Current state: the admin console is responsive in a browser, but it is not installable as a PWA yet. A web manifest, app icons, install guidance, and service-worker behavior remain to be built.
+
+Design around convention setup and schedule corrections:
+
+- Put the next setup task first, with clear progress from convention details to schedule review and publication.
+- Keep mobile navigation within easy thumb reach and make important controls at least 44 px high.
+- Show sessions as compact searchable rows with their local time, room, and status. Expand one edit form at a time instead of showing a page of full forms.
+- Keep edits online for the first PWA release. Show save and connection state clearly; never imply a schedule change or publication succeeded while offline.
+- Add offline editing only after conflict resolution, local-data protection, and audit behavior are designed and tested. Do not cache authenticated admin pages or private API responses in a general service-worker cache.
+
+Before inviting convention hosts outside the ConPaws team, replace the current global owner/editor access model with tenant-scoped organizations, memberships, convention-level permissions, and an invitation/onboarding flow. Current roles can see the shared catalog; they do not isolate each organizer's conventions.
+
+A future native “ConPaws Hosts” app is possible, but not a launch requirement. Apple App Review guideline 4.2 expects useful app-specific features beyond a repackaged website, and Google Play requires adequate mobile functionality and content. **My reading is that neither policy creates a blanket ban on admin apps; review depends on the actual product.** A native app should wait until host research justifies distinct platform value such as event-day QR check-in, reliable offline operations, or time-sensitive push alerts. Keep the PWA and any later native client on the same catalog API and permission model.
+
+Policy and implementation references, checked October 4, 2026:
+
+- [Apple App Review Guidelines, section 4.2](https://developer.apple.com/app-store/review/guidelines/)
+- [Google Play functionality, content, and user experience policy](https://support.google.com/googleplay/android-developer/answer/9898783)
+- [Next.js PWA guide](https://nextjs.org/docs/app/guides/progressive-web-apps)
+- [WebKit: Web Push for Home Screen web apps](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/)
+
 ## Production release
 
 Admin has a separate Alchemy program and D1 database. Put deployment values in `packages/infra/.env` or the protected GitHub environment. Before running `bun run deploy:admin`, verify the Cloudflare Access policy. Set `ADMIN_ROUTES_ENABLED=true` only for the approved domain cutover.

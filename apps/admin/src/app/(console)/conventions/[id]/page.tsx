@@ -382,87 +382,114 @@ export default async function ConventionWorkspacePage({
             ) : (
               <div className="divide-y divide-slate-100">
                 {visibleSessions.map((event) => (
-                  <form
-                    action={updateScheduleEvent}
+                  <details
                     key={event.id}
-                    className="grid gap-3 px-5 py-5 sm:px-7"
+                    name={`schedule-${convention.id}`}
+                    className="group px-4 py-3 sm:px-7 sm:py-4"
                   >
-                    <input
-                      type="hidden"
-                      name="conventionId"
-                      value={convention.id}
-                    />
-                    <input type="hidden" name="eventId" value={event.id} />
-                    <input
-                      type="hidden"
-                      name="eventUpdatedAt"
-                      value={event.updatedAt}
-                    />
-                    <input
-                      type="hidden"
-                      name="conventionUpdatedAt"
-                      value={convention.updatedAt}
-                    />
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-                        {dateTime(event.startsAt)}–{event.endsAt.slice(11)}{" "}
-                        <span className="font-normal normal-case">
-                          {convention.timezone}
+                    <summary className="flex min-h-12 cursor-pointer list-none flex-wrap items-center justify-between gap-3 rounded-xl py-2 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 [&::-webkit-details-marker]:hidden">
+                      <span className="grid min-w-0 flex-1 gap-1">
+                        <span className="truncate text-sm font-semibold text-[#091533]">
+                          {event.title}
                         </span>
-                      </p>
-                      <StatusPill status={event.status} />
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <Field
-                        name="title"
-                        label="Session title"
-                        defaultValue={event.title}
-                        required
-                        maxLength={140}
+                        <span className="text-xs leading-5 text-slate-600">
+                          {dateTime(event.startsAt)}–{event.endsAt.slice(11)}
+                          <span className="mx-1.5">·</span>
+                          {event.room || "Room to be assigned"}
+                        </span>
+                      </span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        <StatusPill status={event.status} />
+                        <span className="text-xs font-semibold text-sky-800">
+                          Edit
+                        </span>
+                        <Icon
+                          name="chevron"
+                          className="size-4 text-slate-500 transition-transform group-open:rotate-90"
+                        />
+                      </span>
+                    </summary>
+                    <form
+                      action={updateScheduleEvent}
+                      className="grid gap-3 pb-2 pt-4 sm:pt-5"
+                    >
+                      <input
+                        type="hidden"
+                        name="conventionId"
+                        value={convention.id}
                       />
-                      <Field
-                        name="room"
-                        label="Room"
-                        defaultValue={event.room}
-                        maxLength={100}
+                      <input type="hidden" name="eventId" value={event.id} />
+                      <input
+                        type="hidden"
+                        name="eventUpdatedAt"
+                        value={event.updatedAt}
                       />
-                      <Field
-                        name="startsAt"
-                        label="Starts (local time)"
-                        type="datetime-local"
-                        defaultValue={event.startsAt}
-                        required
+                      <input
+                        type="hidden"
+                        name="conventionUpdatedAt"
+                        value={convention.updatedAt}
                       />
-                      <Field
-                        name="endsAt"
-                        label="Ends (local time)"
-                        type="datetime-local"
-                        defaultValue={event.endsAt}
-                        required
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+                          {dateTime(event.startsAt)}–{event.endsAt.slice(11)}{" "}
+                          <span className="font-normal normal-case">
+                            {convention.timezone}
+                          </span>
+                        </p>
+                        <StatusPill status={event.status} />
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field
+                          name="title"
+                          label="Session title"
+                          defaultValue={event.title}
+                          required
+                          maxLength={140}
+                        />
+                        <Field
+                          name="room"
+                          label="Room"
+                          defaultValue={event.room}
+                          maxLength={100}
+                        />
+                        <Field
+                          name="startsAt"
+                          label="Starts (local time)"
+                          type="datetime-local"
+                          defaultValue={event.startsAt}
+                          required
+                        />
+                        <Field
+                          name="endsAt"
+                          label="Ends (local time)"
+                          type="datetime-local"
+                          defaultValue={event.endsAt}
+                          required
+                        />
+                      </div>
+                      <TextAreaField
+                        name="description"
+                        label="Description"
+                        defaultValue={event.description}
+                        maxLength={1000}
+                        rows={2}
                       />
-                    </div>
-                    <TextAreaField
-                      name="description"
-                      label="Description"
-                      defaultValue={event.description}
-                      maxLength={1000}
-                      rows={2}
-                    />
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <SelectField
-                        name="status"
-                        label="Session status"
-                        defaultValue={event.status}
-                        className="sm:max-w-56"
-                      >
-                        <option value="scheduled">Scheduled</option>
-                        <option value="cancelled">Cancelled</option>
-                      </SelectField>
-                      <Button type="submit" variant="secondary">
-                        Save session
-                      </Button>
-                    </div>
-                  </form>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <SelectField
+                          name="status"
+                          label="Session status"
+                          defaultValue={event.status}
+                          className="sm:max-w-56"
+                        >
+                          <option value="scheduled">Scheduled</option>
+                          <option value="cancelled">Cancelled</option>
+                        </SelectField>
+                        <Button type="submit" variant="secondary">
+                          Save session
+                        </Button>
+                      </div>
+                    </form>
+                  </details>
                 ))}
               </div>
             )}
