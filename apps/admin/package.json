@@ -1,0 +1,38 @@
+{
+  "name": "@conpaws/admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3003",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3003",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "build:cloudflare": "opennextjs-cloudflare build",
+    "preview": "bun run build:cloudflare && opennextjs-cloudflare preview --ip 127.0.0.1 --port 8788 --persist-to .wrangler/state",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply CATALOG_DB --local --persist-to .wrangler/state",
+    "db:seed:local": "bun scripts/seed-local.mjs"
+  },
+  "dependencies": {
+    "@conpaws/ui": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "jose": "^6.2.9",
+    "next": "16.2.12",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250505.0",
+    "@opennextjs/cloudflare": "1.20.2",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^20",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "drizzle-kit": "^0.31.10",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~6.0.3",
+    "vitest": "^3.2.7"
+  }
+}

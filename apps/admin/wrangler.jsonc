@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Local OpenNext/Workers preview only. Production D1 and bindings are
+  // provisioned by the separate Alchemy admin stack in packages/infra.
+  "name": "conpaws-admin-local",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-03-10",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "conpaws-admin-local"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "CATALOG_DB",
+      "database_name": "conpaws-admin-preview-local-v2",
+      "database_id": "conpaws-admin-preview-local-v2",
+      "migrations_table": "drizzle_migrations",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ]
+}

@@ -62,7 +62,7 @@ jobs:
           fi
 
   web:
-    name: Build and smoke-test Worker
+    name: Build and smoke-test Cloudflare Workers
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -85,8 +85,11 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build OpenNext Worker
-        run: bunx opennextjs-cloudflare build
+        run: bun run build:cloudflare
         working-directory: apps/web
+
+      - name: Build admin OpenNext Worker
+        run: bun run --filter @conpaws/admin build:cloudflare
 
       - name: Smoke-test built Worker
         working-directory: apps/web

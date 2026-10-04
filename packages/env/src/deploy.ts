@@ -45,6 +45,11 @@ const required = (name: string) => {
 };
 
 export const deployEnvSchema = z.object({
+  /** Existing admin-owned D1 ID; omit until the admin stack is deployed. */
+  CATALOG_DATABASE_ID: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.string().uuid().optional(),
+  ),
   /** Encrypts `alchemy.secret(...)` values at rest. Serializing fails without it. */
   ALCHEMY_PASSWORD: required("ALCHEMY_PASSWORD"),
   /** Auth for the shared account-wide `alchemy-state` store worker. */

@@ -1,5 +1,5 @@
 import type { NewConvention, NewConventionEvent } from "@/db/schema";
-import { ageRatingFromCategory } from "@/lib/event-categories";
+import { ageRatingFromCategory } from "../lib/event-categories";
 
 export const PREVIEW_CONVENTION_ID = "conpaws-preview-con";
 export const BLANK_PREVIEW_CONVENTION_ID = "conpaws-blank-preview-con";
