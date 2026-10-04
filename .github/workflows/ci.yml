@@ -164,6 +164,8 @@ jobs:
           curl --silent --show-error --fail http://127.0.0.1:8787/api/waitlist/count |
             jq --exit-status '.count == null' >/dev/null
 
+          bun scripts/e2e.ts http://127.0.0.1:8787
+
 
   infrastructure:
     name: Validate deployment descriptors

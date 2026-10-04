@@ -1,3 +1,4 @@
+import { LAUNCH } from "@/content/launch";
 import { DEFAULT_LOCALE, type Locale } from "./config";
 import cs from "./messages/cs.json";
 import da from "./messages/da.json";
@@ -106,9 +107,31 @@ function deepMerge<T>(base: T, overlay: unknown): T {
 
 /** Returns a fully-populated catalog for `locale`, English-filled. */
 export function getMessages(locale: Locale): Messages {
-  if (locale === DEFAULT_LOCALE) return en;
   const overlay = CATALOGS[locale];
-  return overlay ? deepMerge(en, overlay) : en;
+  const messages =
+    locale === DEFAULT_LOCALE ? en : overlay ? deepMerge(en, overlay) : en;
+  if (LAUNCH.mode !== "live") return messages;
+  return {
+    ...messages,
+    meta: { ...messages.meta, description: messages.meta.descriptionShort },
+    faq: {
+      ...messages.faq,
+      items: messages.faq.items.filter((_, index) => index !== 4),
+    },
+    cta: {
+      ...messages.cta,
+      eyebrow: "iOS · Android",
+      title: messages.waitlist.title,
+      body: messages.waitlist.body,
+      button: messages.steps.items[0]?.title ?? messages.waitlist.title,
+    },
+    steps: {
+      ...messages.steps,
+      items: messages.steps.items.map((item, index) =>
+        index === 0 ? { ...item, body: "App Store · Google Play" } : item,
+      ),
+    },
+  };
 }
 
 /**

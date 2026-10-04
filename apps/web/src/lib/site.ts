@@ -44,6 +44,13 @@ export const PUBLIC_ROUTES: readonly PublicRoute[] = [
     priority: 1,
   },
   {
+    path: "/updates",
+    title: "Updates",
+    summary: "Published ConPaws release notes and improvements.",
+    changeFrequency: "monthly",
+    priority: 0.5,
+  },
+  {
     path: "/privacy",
     title: "Privacy Policy",
     summary:

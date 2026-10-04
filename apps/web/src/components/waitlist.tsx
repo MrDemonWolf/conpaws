@@ -4,7 +4,7 @@ import { env } from "@conpaws/env/web";
 import Script from "next/script";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
-
+import { LAUNCH } from "@/content/launch";
 import type { Messages } from "@/i18n";
 import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
@@ -49,6 +49,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
   const [name, setName] = useState("");
   const doneRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Moves focus onto the confirmation once it replaces the form. Only on the
   // transition, so a re-render for any other reason does not yank focus back.
@@ -75,6 +76,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
     const params = new URLSearchParams(window.location.search);
 
     setStatus("submitting");
+    setErrorMessage("");
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
@@ -106,9 +108,10 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       // still holds the spent token, so every retry re-submits it and fails
       // again — the user would be stuck with no way out but a page reload.
       window.turnstile?.reset();
-      toast.error(
-        error instanceof Error ? error.message : messages.errorGeneric,
-      );
+      const message =
+        error instanceof Error ? error.message : messages.errorGeneric;
+      setErrorMessage(message);
+      toast.error(message);
     }
   }
 
@@ -122,7 +125,11 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
           </span>
-          {acceptingSignups ? messages.badgeOpen : messages.badgeSoon}
+          {LAUNCH.mode === "live"
+            ? "iOS · Android"
+            : acceptingSignups
+              ? messages.badgeOpen
+              : messages.badgeSoon}
         </span>
 
         {/*
@@ -154,7 +161,22 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       </div>
 
       <div className="relative z-content md:col-start-1 md:row-start-2">
-        {status === "done" ? (
+        {LAUNCH.mode === "live" ? (
+          <div className="grid max-w-[440px] gap-4 sm:grid-cols-2">
+            {[
+              ["App Store", LAUNCH.appStoreUrl],
+              ["Google Play", LAUNCH.googlePlayUrl],
+            ].map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                className="inline-flex min-h-14 items-center justify-center rounded-xl bg-primary px-6 py-4 font-bold text-primary-foreground transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        ) : status === "done" ? (
           // The form this replaces is where focus was, so without somewhere to
           // send it focus falls to <body> and a keyboard or screen-reader user
           // is dropped at the top of the document with no idea the submission
@@ -174,6 +196,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
         ) : (
           <form
             onSubmit={onSubmit}
+            aria-busy={status === "submitting"}
             className="motion-safe:animate-rise max-w-[440px] [animation-delay:240ms]"
           >
             <div className="grid gap-4">
@@ -190,6 +213,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                 <input
                   id={nameId}
                   name="name"
+                  disabled={status === "submitting"}
                   autoComplete="name"
                   placeholder={messages.namePlaceholder}
                   value={name}
@@ -211,7 +235,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                   name="email"
                   type="email"
                   required
-                  disabled={!acceptingSignups}
+                  disabled={!acceptingSignups || status === "submitting"}
                   autoComplete="email"
                   placeholder={messages.emailPlaceholder}
                   className={INPUT_CLASS}
@@ -261,6 +285,11 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
                   ? messages.submitting
                   : messages.submit}
             </button>
+            {errorMessage ? (
+              <p role="alert" className="mt-4 text-[14px] text-destructive">
+                {errorMessage}
+              </p>
+            ) : null}
 
             {/*
               CONSENT_COPY is deliberately NOT translated.
@@ -292,7 +321,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       </div>
       {/* On desktop the lanyard rises above the nav; the language menu has
           its own higher layer while open. */}
-      <div className="relative z-badge md:col-start-2 md:row-span-2 md:row-start-1 md:pt-2">
+      <div className="relative z-badge hidden md:col-start-2 md:row-span-2 md:row-start-1 md:block md:pt-2">
         <Badge name={name} />
       </div>
     </div>
