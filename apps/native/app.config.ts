@@ -237,6 +237,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@bacons/apple-targets",
     "expo-sqlite",
+    ["expo-build-properties", { ios: { enableSceneSupport: true } }],
     // expo-location is autolinked, so this entry exists only to pass props. Left
     // at its defaults the plugin writes four purpose strings into Info.plist --
     // three location ones, including background "Always", plus Motion &

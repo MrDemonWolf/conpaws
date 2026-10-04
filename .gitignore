@@ -8,6 +8,7 @@ build
 # Expo
 .expo/
 ios/
+apps/native/ios-prebuild-backup-*/
 android/
 web-build/
 
@@ -74,6 +75,7 @@ coverage
 .nyc_output
 
 # Misc
+.codex/worktrees/
 *.tgz
 .cache
 tmp

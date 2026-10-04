@@ -11,6 +11,15 @@ const server = Bun.serve({
           new URL("../../apps/native/assets/images/icon.png", import.meta.url),
         ),
       ),
+    "/brand-logo.png": () =>
+      new Response(
+        Bun.file(
+          new URL(
+            "../../apps/native/assets/images/ConPaws.icon/Assets/logo.png",
+            import.meta.url,
+          ),
+        ),
+      ),
     "/research": () =>
       new Response(Bun.file(new URL("./RESEARCH.md", import.meta.url)), {
         headers: { "Content-Type": "text/plain; charset=utf-8" },

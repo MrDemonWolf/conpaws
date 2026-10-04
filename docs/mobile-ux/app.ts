@@ -1,5 +1,6 @@
 import { mountEmptyStates } from "./empty-states";
 import { mountLiveAlerts } from "./live-alerts";
+import { mountReview } from "./review";
 import { mountWatch } from "./watch";
 import { mountWidgets } from "./widgets";
 
@@ -770,24 +771,34 @@ function reset() {
   renderAll();
 }
 function showPage(page: string) {
-  const pages = ["prototype", "widgets", "watch", "live", "states", "notes"];
-  if (!pages.includes(page)) page = "prototype";
+  if (page === "states-overview") page = "states";
+  if (page === "phone-statuses-overview") page = "prototype";
+  if (page === "phone-statuses") page = "prototype";
+  const pages = [
+    "review",
+    "prototype",
+    "widgets",
+    "watch",
+    "live",
+    "states",
+    "notes",
+  ];
+  if (!pages.includes(page)) page = "review";
   for (const id of pages)
     document.getElementById(id)!.classList.toggle("hidden", id !== page);
   document.getElementById("notes")!.classList.toggle("open", page === "notes");
   document.querySelectorAll<HTMLElement>("[data-page]").forEach((button) => {
     button.classList.toggle("active", button.dataset.page === page);
-    button.setAttribute(
-      "aria-current",
-      button.dataset.page === page ? "page" : "false",
-    );
+    button.setAttribute("aria-pressed", String(button.dataset.page === page));
   });
   history.replaceState(null, "", `#${page}`);
 }
 function init() {
+  mountReview(document.getElementById("review")!);
   mountWidgets(document.getElementById("widgets")!);
   mountWatch(document.getElementById("watch")!);
   mountEmptyStates(document.getElementById("states")!);
+  mountEmptyStates(document.getElementById("phone-statuses")!);
   mountLiveAlerts(document.getElementById("live")!);
   renderAll();
   showPage(location.hash.slice(1));

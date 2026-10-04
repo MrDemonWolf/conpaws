@@ -12,7 +12,16 @@ import {
   timeRange,
   validateAttendance,
 } from "./app";
+import { emptyStateScenarios, phoneFlowSteps } from "./empty-states";
 import { liveActivitySamples, liveAlertScenarios } from "./live-alerts";
+
+assert.equal(new Set(emptyStateScenarios.map((state) => state.id)).size, 22);
+for (const id of phoneFlowSteps) {
+  assert.ok(
+    emptyStateScenarios.some((state) => state.id === id),
+    `flow state exists: ${id}`,
+  );
+}
 
 const sample = (
   id: string,

@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f6f8">
-  <title>ConPaws · A little less FOMO</title>
+  <title>ConPaws · Convention-day review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500;600;700&display=swap">
   <link rel="icon" href="http://127.0.0.1:4173/app-icon.png">
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:#091533;background:#f4f6f8;font-synthesis:none;-webkit-font-smoothing:antialiased;--blue:#007ba8;--cyan:#0faced;--ink:#131b2a;--secondary:#647080;--paper:#fff;--group:#f2f2f7;--line:#e2e4e9;--soft:#e8f4fa;--green:#23774c;--orange:#99600d;--orange-bg:#fff5e6;--glass:rgba(255,255,255,.88)}
@@ -26,12 +29,13 @@
     @media(max-width:360px){.device{width:290px;height:614px}.screen{transform:scale(.695)}.specimen{width:290px}.stage{padding-left:15px}.focus .stage{padding-right:15px}.hero h1{font-size:32px}.site-actions button{padding:8px}.brand{font-size:18px}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
   </style>
+  <link rel="stylesheet" href="./review.css">
 </head>
 <body>
   <header class="site-header">
     <div class="brand"><img src="http://127.0.0.1:4173/app-icon.png" alt="ConPaws">ConPaws<span>Design explorations</span></div>
     <nav class="site-actions" aria-label="Preview controls">
-      <button type="button" class="active" data-page="prototype">Prototype</button>
+      <button type="button" class="active" data-page="review">Latest review</button>
       <button type="button" data-page="notes">Design notes</button>
       <button type="button" class="text-size" data-action="text-size" aria-label="Toggle larger text" aria-pressed="false">aA</button>
       <button type="button" data-action="theme" aria-label="Toggle dark appearance" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.7 8.7 0 1 0 20.5 14Z"/></svg></button>
@@ -39,21 +43,109 @@
   </header>
   <main>
     <section class="hero">
-      <div><div class="eyebrow">A little less FOMO. A lot more con.</div><h1>Your con. <span>On your time.</span></h1><p>Catch a little of both. Keep your next move close.</p></div>
-      <div class="hero-right"><div class="prototype-badge"><i></i>INTERACTIVE iOS CONCEPT</div><p>Time-first browsing · Thoughtful choices · Your own plan<br>Fictional convention and sample schedule</p></div>
+      <div><div class="eyebrow">Code review + product research · October 2, 2026</div><h1>Get set up. <span>Enjoy the con.</span></h1><p>A clearer first run, a curated convention catalog, and useful glances.</p></div>
+      <div class="hero-right"><div class="prototype-badge"><i></i>REVIEW + WORKING CONCEPTS</div><p>Code evidence is separated from proposed behavior.<br>All new demo data is fictional.</p></div>
     </section>
     <nav class="workbench-nav" aria-label="Design explorations">
-      <button type="button" data-page="prototype" class="active" aria-pressed="true">Phone flow</button>
+      <button type="button" data-page="review" class="active" aria-pressed="true">Review & setup</button>
+      <button type="button" data-page="prototype">Phone flow</button>
       <button type="button" data-page="widgets">Widgets</button>
       <button type="button" data-page="watch">Apple Watch</button>
       <button type="button" data-page="live">Live & alerts</button>
       <button type="button" data-page="states">Empty & upcoming</button>
       <button type="button" data-page="notes">Design notes</button>
     </nav>
-    <div id="prototype">
+    <section id="review" class="review-page" aria-label="Convention-day review">
+      <div class="review-intro">
+        <div><span class="review-kicker">Recommended direction</span><h2>Start with a convention.</h2><p>The app asks people to bring their own schedule before it can help them. Prefilled conventions and a safe admin publishing flow are now the first product milestone.</p></div>
+        <aside><strong>The hard feedback</strong><p>The old prototype starts after the hardest step is done. More polished attendance editors will not fix an empty first run. Watch and widgets need to stay useful during the final panel, not just before the next one.</p></aside>
+      </div>
+      <nav class="review-jump" aria-label="Review sections"><a href="#setup-concept">Try setup</a><a href="#admin-concept">Try publishing</a><a href="#glance-concept">Compare glances</a><a href="#code-findings">Code findings</a><a href="#research-decisions">Research</a><a href="#delivery-plan">Build order</a></nav>
+      <div class="review-priorities">
+        <article><span>01 · Required now</span><h3>Find my convention</h3><p>Search a curated catalog. See dates, time zone, source, and schedule availability. Download once, then use it offline.</p></article>
+        <article><span>02 · Required now</span><h3>Publish with confidence</h3><p>An admin edits a draft, checks a feed, reviews the changes, and explicitly publishes a revision. Failed imports keep the previous revision live.</p></article>
+        <article><span>03 · Convention-day quality</span><h3>Know my next move</h3><p>Event, room, start time, reminder time. Keep the current event visible when there is no next event. Explain the age of the saved plan.</p></article>
+      </div>
+      <div class="review-demo-grid">
+        <article id="setup-concept" class="review-demo">
+          <div class="review-demo-heading"><span class="review-kicker">Proposed first-run flow</span><h3>Pick it. Download it. Plan.</h3><p>Choose, confirm, download, then save your first event. The progress bar tracks four stages. This demo changes local preview state only.</p></div>
+          <div class="setup-preview">
+            <div class="setup-top"><strong>ConPaws</strong><span data-setup-progress>Step 1 of 4</span></div>
+            <progress class="setup-progress" data-setup-meter value="1" max="4" aria-label="Convention setup progress">1 of 4</progress>
+            <h4 data-setup-title>Find your convention</h4>
+            <p data-setup-help>A ready-to-use schedule, saved on your phone.</p>
+            <div class="catalog-card"><span class="review-pill">Fictional catalog entry</span><h5>Lakeside Fur Con</h5><p>October 16–18, 2026 · Madison, WI</p><dl><div><dt>Convention time</dt><dd>America/Chicago</dd></div><div><dt>Schedule</dt><dd data-setup-state>124 sample events · Ready to download</dd></div><div><dt>Source</dt><dd>Organizer feed · Sample only</dd></div></dl></div>
+            <button type="button" class="review-primary" data-setup-next>Choose this convention</button>
+            <p class="review-status" data-setup-status aria-live="polite">No account needed for your local plan.</p>
+            <button type="button" class="review-secondary" data-setup-reset>Restart setup demo</button>
+          </div>
+          <p class="review-caption"><strong>Fallbacks must stay visible:</strong> “Con not listed? Import a schedule” and “Create a convention.” With no connection, use an already downloaded plan or explain that the first download needs internet.</p>
+        </article>
+        <article id="admin-concept" class="review-demo">
+          <div class="review-demo-heading"><span class="review-kicker">admin.conpaws.com · Planned website</span><h3>Review before it goes live.</h3><p>A real Next.js + Tailwind CSS dashboard using Better-T Stack conventions. This publishing card is a concept; the preview has no backend, account system, or real publishing.</p></div>
+          <div class="admin-preview">
+            <div class="setup-top"><strong>Convention editor</strong><span class="review-pill" data-admin-state>Draft revision 8</span></div>
+            <h4>Lakeside Fur Con</h4><p>Current published revision: 7 · Fictional sample</p>
+            <dl><div><dt>Dates</dt><dd>Oct 16–18, 2026</dd></div><div><dt>Time zone</dt><dd>America/Chicago</dd></div><div><dt>Feed check</dt><dd>124 sample events · 2 changes</dd></div></dl>
+            <div class="review-diff"><span>Review changes</span><p><strong>Character design lab</strong><br>Room Cedar → Oak</p><p><strong>Evening sketch jam</strong><br>Cancelled · Keep a notice in saved plans</p></div>
+            <label class="review-check"><input type="checkbox" data-admin-reviewed> I checked dates, time zone, source, and changes.</label>
+            <button type="button" class="review-primary" data-admin-publish disabled>Publish sample revision</button>
+            <p class="review-status" data-admin-status aria-live="polite">Publishing is blocked until the review is confirmed.</p>
+            <button type="button" class="review-secondary" data-admin-reset>Reset publishing demo</button>
+          </div>
+          <p class="review-caption"><strong>A dashboard is more than CRUD:</strong> draft/published states, feed errors, preview diffs, source attribution, rollback, and an audit trail. Deleting an entry must not erase an attendee's downloaded plan.</p>
+        </article>
+      </div>
+      <section id="glance-concept" class="review-block">
+        <div class="review-section-heading"><div><span class="review-kicker">Watch + widget direction</span><h3>One glance. One useful answer.</h3></div><label>Sample state <select data-glance-state><option value="next">Next event</option><option value="last">Final event still running</option><option value="stale">Older saved copy</option><option value="empty">No saved events today</option></select></label></div>
+        <div class="glance-layout">
+          <div><span class="review-device-label">Small widget · layout concept</span><div class="review-widget"><div class="glance-eyebrow" data-glance-widget-label>UP NEXT · 2:45 PM</div><h4 data-glance-widget-title>Character design lab</h4><strong class="glance-room" data-glance-widget-room>Oak</strong><p data-glance-widget-detail>Reminder at 2:35 · 10 min before</p><small data-glance-widget-copy>Saved plan copied at 2:16 PM</small></div></div>
+          <div><span class="review-device-label">Watch · layout concept</span><div class="review-watch"><span data-glance-clock>2:18</span><div class="glance-eyebrow" data-glance-watch-label>UP NEXT · 2:45 PM</div><h4 data-glance-watch-title>Character design lab</h4><strong class="glance-room" data-glance-watch-room>Oak</strong><p data-glance-watch-detail>Reminder at 2:35</p><small data-glance-watch-copy>Saved copy · 2:16 PM</small></div></div>
+          <div class="glance-rationale"><h4 data-glance-explanation-title>Make the room easy to find.</h4><p data-glance-explanation>Title, room, and start time carry the decision. A reminder offset is not a calculated walking time. On the real Watch, tap for the current event and today's plan.</p><p><strong>Three clocks, three meanings:</strong> when the official feed was checked, when the phone downloaded the published revision, and when the phone copied your plan to Watch/widgets.</p><p class="review-caption">These new glances are fixed sample states. They do not read your phone plan, schedule notifications, or run WidgetKit. Native light/dark/tinted modes and paired-device sync still need testing.</p></div>
+        </div>
+      </section>
+      <section id="code-findings" class="review-block">
+        <span class="review-kicker">Evidence from the repository</span><h3>Fix trust before adding more controls.</h3><p>Reviewed the recent commits after <code>8c853a5</code>, plus the current uncommitted config, package, lockfile, and license changes. Current local tests pass: 693 native + 113 web. Type checks pass. Passing suites do not cover every behavior below.</p>
+        <div class="review-table-wrap"><table><caption>Standards and correctness review</caption><thead><tr><th>Priority / finding</th><th>Evidence and trigger</th><th>Smallest useful fix</th></tr></thead><tbody>
+          <tr><td><strong>P2 · Overnight clashes lose warnings</strong></td><td><code>app/(tabs)/schedule/index.tsx:251</code> checks conflicts inside each start-day group. 23:30–01:00 and 00:15–00:45 overlap but fall into different groups. Reproduced with the actual helpers.</td><td>Compute conflicts over all live saved events, then group for display. Add a cross-midnight regression.</td></tr>
+          <tr><td><strong>P2 · Oversize header leaves stream open</strong></td><td><code>src/lib/bounded-response.ts:21</code> throws before cancelling the response body. Reproduced with a cancellation spy. Resource leak demonstrated; no memory crash demonstrated.</td><td>Cancel the body before rejecting the declared size. Keep byte limits and timeout protection.</td></tr>
+        </tbody></table></div>
+        <div class="review-table-wrap"><table><caption>Product contract and native behavior review</caption><thead><tr><th>Finding</th><th>Current evidence</th><th>Required behavior</th></tr></thead><tbody>
+          <tr><td><strong>Required · Prefilled setup is absent</strong></td><td><code>app/(onboarding)/get-started.tsx:84</code> opens import. <code>src/db/repositories/conventions.ts:9</code> reads local SQLite. No published catalog/admin workflow exists.</td><td>Find convention → confirm → download → save first event. Import remains the fallback.</td></tr>
+          <tr><td><strong>P1 · Last active panel gets an empty widget</strong></td><td><code>targets/widget/widgets.swift:143</code> and <code>targets/watch-widget/widgets.swift:409</code> require a future event even when a current event exists. Branch verified from Swift; not device-tested.</td><td>Model current-only separately from an empty day. Show the final panel until its end.</td></tr>
+          <tr><td><strong>P1 · Refresh and import disagree on time zone</strong></td><td><code>src/services/schedule-refresh.ts:111</code> overrides the feed with the stored zone. <code>src/lib/import-policy.ts:47</code> prefers the feed. Floating times can shift when those zones differ.</td><td>Use the shared feed-first parser for both paths; test a changed feed zone and a zone-less feed.</td></tr>
+          <tr><td><strong>P2 · “Time to leave” overstates the data</strong></td><td><code>src/services/notifications.ts:119–146</code> subtracts a chosen reminder offset from the published start. It does not calculate travel or know your location.</td><td>Use “Starts in 10 min · Oak” or “Your reminder.” Only say “Leave at” for an explicit personal setting.</td></tr>
+          <tr><td><strong>Proposal · Partial attendance and Live Activities</strong></td><td><code>src/db/schema.ts:27–36</code> has published times and one saved flag. Snapshot v2 has no personal join/leave times. Browser controls are not native functionality.</td><td>Ship the catalog and trustworthy base surfaces first. Validate interest/attendance complexity with attendees before schema expansion.</td></tr>
+        </tbody></table></div>
+        <p class="review-caption">Standards axis: 2 verified findings. Product/spec axis: setup gap, native surface/data mismatches, and refresh inconsistency. A New York feed parsed at 18:00 UTC on initial import and 19:00 UTC on refresh with a saved Chicago zone. Exact reproductions and implementation acceptance checks are in <a href="./research">the full research doc</a>. These are review findings; production code has not been fixed in this doc update.</p>
+      </section>
+      <section id="research-decisions" class="review-block">
+        <span class="review-kicker">Research → product decisions</span><h3>Borrow proven behavior. Test our assumptions.</h3>
+        <div class="review-research-grid">
+          <article><h4>Sched: clear personal agenda</h4><p>Official help describes agenda filtering, selecting sessions, and organizer-specific overlap restrictions. <strong>Decision:</strong> keep every option readable and label a saved plan as personal intent, never a reservation.</p><a href="https://support.sched.com/knowledge/manage-event-schedule-/-agenda">Sched agenda guidance ↗</a></article>
+          <article><h4>Whova: offline event information</h4><p>Whova describes cached agenda access without service. <strong>Decision:</strong> download schedules before the con; preserve usable saved data through network failures. Offline access cannot include changes the phone has never received.</p><a href="https://whova.com/faq/why-should-i-download-whova-app/">Whova offline capability ↗</a></article>
+          <article><h4>Apple: relevant, glanceable widgets</h4><p>Apple calls for essential information at a glance. <strong>Decision:</strong> event + room + time outrank decoration. Timeline updates are system-budgeted, so a pretty countdown is not evidence of instant feed freshness.</p><a href="https://developer.apple.com/design/human-interface-guidelines/widgets">Widget design ↗</a> · <a href="https://developer.apple.com/documentation/widgetkit/keeping-a-widget-up-to-date">Timeline limits ↗</a></article>
+          <article><h4>Watch: test the real pair</h4><p>Apple documents current-context and complication transfers; complication transfers require paired-device testing. <strong>Decision:</strong> verify the built Watch with the phone asleep, disconnected, and after a plan edit. A browser drawing cannot prove sync.</p><a href="https://developer.apple.com/documentation/watchconnectivity/transferring-data-with-watch-connectivity">Watch Connectivity ↗</a></article>
+          <article><h4>Expo: preserve existing platform UI</h4><p>Keep the app's semantic NativeWind tokens, native tabs, and platform controls. SDK 57 List creates React rows up front. <strong>Decision:</strong> retain virtualized schedule lists where volume matters; benchmark a full con, not eight sample rows.</p><a href="https://docs.expo.dev/versions/v57.0.0/sdk/ui/universal/list/">Versioned List guidance ↗</a></article>
+          <article><h4>Accessibility: real touch and text tests</h4><p>WCAG defines a 24 CSS pixel minimum with exceptions for web targets. This concept uses a 44 pixel control target. <strong>Decision:</strong> reflow text, expose state beyond color, and separately verify native VoiceOver and large text.</p><a href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html">W3C target size ↗</a></article>
+        </div>
+        <p class="review-caption">Official documentation supports these patterns, not a claim that ConPaws is already usable. No attendee interviews, current competitor app walkthroughs, Mobbin screens, or native device screenshots were collected in this review. New catalog and glance designs remain hypotheses.</p>
+      </section>
+      <section id="delivery-plan" class="review-block">
+        <span class="review-kicker">Concrete build order</span><h3>The next milestone is a working first con.</h3>
+        <ol class="review-plan"><li><strong>Curated catalog + admin publishing.</strong> Verified dates, venue, time zone, source and availability. Draft → validate → preview changes → publish version → rollback.</li><li><strong>Guided first run + offline download.</strong> Add a published con to local SQLite. Show progress/retry, keep last good data, save an event, explain optional reminders at the point of use.</li><li><strong>Trust fixes + useful Watch/widgets.</strong> Overnight conflict regression, consistent time zones, current-only state, accurate reminder wording, visible saved-copy age, native build verification.</li><li><strong>Test at a real convention-sized workload.</strong> Long titles, hundreds of sessions, two conventions, overnight panels, room changes, airplane mode, denied permissions, paired Watch, largest text.</li><li><strong>Advanced attendance after validation.</strong> Interested/Going, join/leave times, Watch edits, and Live Activities need one shared model and verified sync. Keep the earlier galleries for exploration.</li></ol>
+        <div class="review-architecture"><span>Admin draft + reviewed source</span><b aria-hidden="true">→</b><span>Published catalog revision</span><b aria-hidden="true">→</b><span>Phone local SQLite + plan</span><b aria-hidden="true">→</b><span>Watch / widget snapshot</span></div>
+        <p><strong>Admin website:</strong> <code>admin.conpaws.com</code> will be a separate <code>apps/admin</code> Next.js + Tailwind CSS app using Better-T Stack conventions, shared ConPaws UI, and its own Cloudflare deployment. A catalog D1 database supports protected editing and public published reads. Attendee plans stay local. This is a plan, not deployed infrastructure.</p>
+        <details><summary>Admin website plan: screens and delivery</summary><p><strong>Typography:</strong> Montserrat headings and Roboto body text, matching mrdemonwolf.com. Production will self-host fonts through Next.js.</p><ul><li>Overview: failed imports, stale sources, drafts and recent publications.</li><li>Convention editions: search, create, dates, time zone, venue and source.</li><li>Edition workspace: Details, Schedule, Import, Review &amp; publish, History.</li><li>Session corrections: explicit staff overrides with source provenance.</li><li>Audit history: who changed or published which revision.</li></ul><p><strong>Delivery:</strong> protected app shell → first validated edition → diff/publish/restore → native catalog download → production domain and offline acceptance checks. The full architecture and release gates are in <a href="./RESEARCH.md">the research document</a>.</p></details>
+        <p class="review-caption">The <a href="https://app.notion.com/p/3c8d61481c7b811caa75f0b6019fee9c">existing Notion roadmap</a> already chooses a curated D1 directory plus user import. Your October 2 instruction moves catalog/admin ahead of accounts and premium. Admin operator scope and first real convention editions still need a decision.</p>
+        <details><summary>Definition of done: show this works</summary><ul><li>A new attendee adds a supported con without finding a feed URL, then opens a saved session in airplane mode.</li><li>A broken admin import cannot replace the published schedule. A room change or cancellation keeps saved choices and displays a notice.</li><li>The last ongoing panel stays visible on widgets until its end. Empty, finished, unknown-end, overlapping, and stale states have accurate wording.</li><li>No draft feed, private URL, secret, or admin write endpoint is accessible through public catalog data.</li><li>The built Watch and widgets pass paired-device checks, dark/tinted modes, truncation tests, and accessibility checks.</li></ul></details>
+      </section>
+      <div class="review-verdict"><strong>Next action:</strong> agree on the first admin operator and the first real conventions to curate, then implement one complete publish → download → offline schedule path.</div>
+    </section>
+    <div id="prototype" class="hidden">
       <div class="toolbar">
         <div class="mode-switch"><button type="button" data-mode="overview" class="active" aria-pressed="true">The whole flow</button><button type="button" data-mode="focus" aria-pressed="false">Try it yourself</button></div>
-        <div class="density"><label for="density">Busy time slot</label><select id="density"><option value="6">6 panels</option><option value="8" selected>8 panels</option><option value="10">10 panels</option></select><button type="button" class="reset" data-action="reset">Reset demo ↺</button></div>
+        <div class="density"><a href="#phone-statuses">Empty &amp; status states ↓</a><label for="density">Busy time slot</label><select id="density"><option value="6">6 panels</option><option value="8" selected>8 panels</option><option value="10">10 panels</option></select><button type="button" class="reset" data-action="reset">Reset demo ↺</button></div>
       </div>
       <div class="stage">
         <section class="specimen" aria-label="Browse mockup"><div class="specimen-caption"><span class="caption-title"><span class="step-number">01</span>Find your thing</span><span class="caption-tail">BROWSE</span></div><div class="device"><div class="screen" id="phone-browse" data-phone="browse"></div></div><p class="specimen-note"><strong>One time. Every possibility.</strong><br>Readable rows, real times, and a quick way to save an interest.</p></section>
@@ -61,6 +153,7 @@
         <section class="specimen" aria-label="Plan mockup"><div class="specimen-caption"><span class="caption-title"><span class="step-number">03</span>Enjoy your con</span><span class="caption-tail">MY PLAN</span></div><div class="device"><div class="screen" id="phone-plan" data-phone="plan"></div></div><p class="specimen-note"><strong>Your day, with room to breathe.</strong><br>A clear next stop, honest overlaps, and time for a break.</p></section>
         <aside class="focus-helper"><div class="eyebrow">Take it for a spin</div><h2>A little of this.<br>A little of that.</h2><ol><li><strong>Browse the 2 PM slot.</strong> Save all the panels you want to see.</li><li><strong>Open a panel → Set join & leave times.</strong> Photography and Character design are already in the sample plan.</li><li><strong>Leave at 2:25. Join at 2:35.</strong> Edit either time and save. The published schedule stays unchanged.</li><li><strong>Tap Now.</strong> See your leave time and the panel you'll join next.</li></ol><p>Phone changes sync across these three screens. Widget, Watch, and alert galleries have their own labeled sample states.</p><button type="button" class="reset" data-action="reset">Start over ↺</button></aside>
       </div>
+      <section id="phone-statuses" class="surface-page" aria-label="Phone empty and status states"></section>
     </div>
     <section id="widgets" class="surface-page hidden" aria-label="Widget mockups"></section>
     <section id="watch" class="surface-page hidden" aria-label="Apple Watch mockups"></section>
@@ -93,7 +186,7 @@
       <div class="source-list"><strong>Research limits.</strong> Mobbin's screen and flow searches were attempted; its connector requires a paid plan. No Mobbin screens were available to inspect. The visual reference inspected was Fantastical's official iPhone calendar example. Apple HIG and official event-app help informed the remaining patterns.<br><strong>Prototype limits.</strong> Browser simulation of iOS, not a native build. Fictional data; no booking, notification delivery, map routing, or persistence after reload. Interested/Going would be a new product distinction. The existing app currently uses one saved state.<br><a href="/research" target="_blank">Read complete research and evaluation plan ↗</a></div>
     </section>
   </main>
-  <footer class="foot"><span>ConPaws · iOS schedule exploration 01 · September 2026</span><span>Built for crowded con schedules. <button type="button" data-page="notes" style="color:#52728b;text-decoration:underline;padding:0;font-size:inherit">Research & rationale ↗</button></span></footer>
+  <footer class="foot"><span>ConPaws · Convention-day review · October 2, 2026</span><span>Fictional demos · Native verification remains required</span></footer>
   <script type="module" src="./app.ts"></script>
 </body>
 </html>
