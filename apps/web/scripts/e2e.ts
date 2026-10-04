@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { LAUNCH } from "../src/content/launch";
 import { LOCALE_CODES } from "../src/i18n/config";
 
 const origin = new URL(process.argv[2] ?? "http://127.0.0.1:8787");
@@ -20,7 +21,8 @@ for (const locale of LOCALE_CODES) {
   assert(html.includes('href="/updates"'), locale);
   assert(html.includes('href="#waitlist"'), locale);
   assert(/hreflang="x-default"/i.test(html), locale);
-  assert(html.includes("https://schema.org/PreOrder"), locale);
+  const availability = LAUNCH.mode === "live" ? "InStock" : "PreOrder";
+  assert(html.includes(`https://schema.org/${availability}`), locale);
 }
 
 for (const path of [
