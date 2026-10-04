@@ -17,6 +17,31 @@
         "typescript": "~6.0.3",
       },
     },
+    "apps/admin": {
+      "name": "@conpaws/admin",
+      "version": "0.1.0",
+      "dependencies": {
+        "@conpaws/ui": "workspace:*",
+        "drizzle-orm": "^0.45.2",
+        "jose": "^6.2.9",
+        "next": "16.2.12",
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3",
+        "zod": "^4.1.13",
+      },
+      "devDependencies": {
+        "@cloudflare/workers-types": "^4.20250505.0",
+        "@opennextjs/cloudflare": "1.20.2",
+        "@tailwindcss/postcss": "^4.1.18",
+        "@types/node": "^20",
+        "@types/react": "^19.2.10",
+        "@types/react-dom": "^19.2.3",
+        "drizzle-kit": "^0.31.10",
+        "tailwindcss": "^4.1.18",
+        "typescript": "~6.0.3",
+        "vitest": "^3.2.7",
+      },
+    },
     "apps/native": {
       "name": "@conpaws/native",
       "version": "0.1.0",
@@ -489,6 +514,8 @@
     "@cloudflare/workerd-windows-64": ["@cloudflare/workerd-windows-64@1.20260820.1", "", { "os": "win32", "cpu": "x64" }, "sha512-BPvCuMxIQfA47wtYsGbBG6Bcar57Qs7yHqU2jWkT1+sRnL/741/ZbQGP9kVRMQ5fwBMuqNFmQRzAu8gSm7ri/w=="],
 
     "@cloudflare/workers-types": ["@cloudflare/workers-types@4.20260702.1", "", {}, "sha512-mOhf5TUEB1m2vPrxtqoIGfz0fUC9xyxRDx5gWHy5s+OCo6dcV+g7wI1R7gYCMFohhqF/2y2xeKVwMwCJjfn/WA=="],
+
+    "@conpaws/admin": ["@conpaws/admin@workspace:apps/admin"],
 
     "@conpaws/config": ["@conpaws/config@workspace:packages/config"],
 

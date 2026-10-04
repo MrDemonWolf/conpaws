@@ -97,6 +97,15 @@ const db = await D1Database("database", {
 });
 
 /**
+ * Read-only public API binding to the admin-owned catalog database. The admin
+ * stack owns migrations; this stack only adopts the same D1 resource by name.
+ */
+const catalogDb = await D1Database("catalog-database", {
+  name: "conpaws-admin-catalog-db",
+  adopt: true,
+});
+
+/**
  * Observability is billed per event, and one event is a single log line or a
  * single trace span: 20M/month included on the Workers Paid plan, then $0.60
  * per additional million. Traces are free until 2026-10-01 and then join that
@@ -217,6 +226,7 @@ export const web = await Nextjs("web", {
   previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     DB: db,
+    CATALOG_DB: catalogDb,
     TURNSTILE_SECRET_KEY: alchemy.secret(env.TURNSTILE_SECRET_KEY),
     ...waitlistSecrets,
   },
