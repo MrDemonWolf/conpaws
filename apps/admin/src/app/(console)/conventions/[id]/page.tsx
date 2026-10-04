@@ -153,6 +153,14 @@ export default async function ConventionWorkspacePage({
   const published =
     typeof query.published === "string" ? query.published : null;
   const saved = typeof query.saved === "string" ? query.saved : null;
+  const sourceCheckComplete =
+    Boolean(convention.sourceVerifiedAt) &&
+    !publicationIssues.some((issue) => issue.toLowerCase().includes("source"));
+  const publishStepStatus = publicationIssues.length
+    ? `${publicationIssues.length} ${publicationIssues.length === 1 ? "item" : "items"} to fix`
+    : hasUnpublishedChanges
+      ? "Ready to publish"
+      : "No new changes";
 
   return (
     <>
@@ -186,9 +194,54 @@ export default async function ConventionWorkspacePage({
         </Banner>
       ) : null}
 
+      <nav
+        aria-label="Convention sections"
+        className="sticky top-[57px] z-10 -mx-4 mb-5 grid grid-cols-3 gap-2 border-y border-slate-200 bg-[#f5f7fb]/95 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:mb-5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0"
+      >
+        <a
+          href={sourceCheckComplete ? "#setup-details" : "#organizer-source"}
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+            01 · Details
+          </span>
+          <span
+            className={`mt-0.5 text-[11px] font-semibold leading-4 ${sourceCheckComplete ? "text-emerald-700" : "text-amber-800"}`}
+          >
+            {sourceCheckComplete ? "Source checked" : "Verify source"}
+          </span>
+        </a>
+        <a
+          href="#schedule"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+            02 · Schedule
+          </span>
+          <span className="mt-0.5 truncate text-xs font-semibold text-slate-700">
+            {sessions.length
+              ? `${sessions.length} ${sessions.length === 1 ? "session" : "sessions"}`
+              : "Add sessions"}
+          </span>
+        </a>
+        <a
+          href="#publish"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+            03 · Publish
+          </span>
+          <span
+            className={`mt-0.5 truncate text-xs font-semibold ${publicationIssues.length ? "text-amber-800" : hasUnpublishedChanges ? "text-emerald-700" : "text-slate-600"}`}
+          >
+            {publishStepStatus}
+          </span>
+        </a>
+      </nav>
+
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-5">
-          <Surface className="overflow-hidden">
+          <Surface id="setup-details" className="scroll-mt-36 overflow-hidden">
             <details
               open={
                 !convention.sourceVerifiedAt ||
@@ -303,7 +356,10 @@ export default async function ConventionWorkspacePage({
                     />
                   </fieldset>
 
-                  <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                  <fieldset
+                    id="organizer-source"
+                    className="scroll-mt-36 grid gap-x-5 gap-y-4 sm:grid-cols-2"
+                  >
                     <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
                       3. Organizer and program
                     </legend>
@@ -313,6 +369,14 @@ export default async function ConventionWorkspacePage({
                       type="url"
                       defaultValue={convention.officialUrl}
                       required
+                      className="sm:col-span-2"
+                    />
+                    <Field
+                      name="sourceVerifiedAt"
+                      label="Organizer source checked"
+                      type="date"
+                      defaultValue={convention.sourceVerifiedAt ?? ""}
+                      hint="Required before publishing."
                       className="sm:col-span-2"
                     />
                     <SelectField
@@ -356,7 +420,7 @@ export default async function ConventionWorkspacePage({
             </details>
           </Surface>
 
-          <Surface id="schedule" className="overflow-hidden">
+          <Surface id="schedule" className="scroll-mt-36 overflow-hidden">
             <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
               <div>
                 <h2 className="font-display text-base font-bold text-[#091533]">
@@ -367,7 +431,7 @@ export default async function ConventionWorkspacePage({
                   attendees on the next publish.
                 </p>
               </div>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+              <span className="w-fit self-start rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                 {sessions.length}{" "}
                 {sessions.length === 1 ? "session" : "sessions"}
               </span>
@@ -631,7 +695,7 @@ export default async function ConventionWorkspacePage({
         </div>
 
         <aside className="grid gap-5">
-          <Surface className="overflow-hidden">
+          <Surface id="publish" className="scroll-mt-36 overflow-hidden">
             <div className="border-b border-slate-100 px-5 py-4">
               <h2 className="font-display text-base font-bold text-[#091533]">
                 Publication status
