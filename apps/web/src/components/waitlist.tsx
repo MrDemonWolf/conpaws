@@ -29,7 +29,7 @@ declare global {
 const WAITLIST_ACCEPTING_SIGNUPS = true;
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-input bg-card/70 px-4 py-3.5 text-[15px] outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
+  "w-full min-h-12 rounded-xl border border-input bg-card/70 px-4 py-3 text-base outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
 
 export function Waitlist({ messages }: { messages: WaitlistMessages }) {
   const nameId = useId();
@@ -120,7 +120,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
     // appears before the decorative badge. Desktop keeps the badge beside it.
     <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-x-16">
       <div className="relative z-content pt-6 md:col-start-1 md:row-start-1 md:pt-14">
-        <span className="motion-safe:animate-rise inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 font-tech text-[11px] text-primary uppercase tracking-[0.24em]">
+        <span className="motion-safe:animate-rise inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 font-tech text-[12px] text-primary uppercase tracking-[0.24em]">
           <span className="relative flex h-[7px] w-[7px]">
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
