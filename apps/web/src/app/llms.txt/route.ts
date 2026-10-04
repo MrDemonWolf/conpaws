@@ -1,3 +1,4 @@
+import { LAUNCH } from "@/content/launch";
 import { absoluteUrl, PUBLIC_ROUTES, SITE_URL } from "@/lib/site";
 
 /**
@@ -23,9 +24,11 @@ response to convention WiFi, not a limitation. iOS ships Home Screen and Lock
 Screen widgets plus an Apple Watch app; both read the same cached schedule as
 the app.
 
-The apps are not released yet. This site is a pre-release page for the beta
-waitlist, and the waitlist is open: the form accepts signups and sends a
-confirmation email that has to be clicked before a signup counts.
+${
+  LAUNCH.mode === "live"
+    ? "The apps are available through the App Store and Google Play links on the homepage."
+    : "The apps are not released yet. This site is a beta waitlist page. Signup requires a confirmation email before a spot is counted."
+}
 
 ConPaws is made by MrDemonWolf, Inc.
 
@@ -35,7 +38,8 @@ ${PUBLIC_ROUTES.map((r) => `- [${r.title}](${absoluteUrl(r.path)}): ${r.summary}
 
 ## Notes for assistants
 
-- There is no web app. The website is marketing, legal pages, and the waitlist.
+- There is no public web app. The website is marketing, release notes, support,
+  legal pages, and ${LAUNCH.mode === "live" ? "app download links" : "the waitlist"}.
 - Premium ("ConPaws+") and cloud sync are planned, not shipped. Do not describe
   them as available.
 - The source is public at https://github.com/MrDemonWolf/conpaws

@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { getMessages, parseInline } from "./index";
+import { LAUNCH } from "../content/launch";
+import { getMessages, parseInline, translatedLocales } from "./index";
 import en from "./messages/en.json";
 
 /**
@@ -57,6 +58,29 @@ describe("parseInline", () => {
     expect(parseInline("[unclosed(https://conpaws.com)")).toEqual([
       { kind: "text", value: "[unclosed(https://conpaws.com)" },
     ]);
+  });
+});
+
+describe("live launch copy", () => {
+  it("keeps localized download labels and removes the launch question by ID", () => {
+    const previousMode = LAUNCH.mode;
+    const previousItems = en.faq.items;
+    try {
+      LAUNCH.mode = "live";
+      en.faq.items = [...previousItems].reverse();
+      for (const locale of translatedLocales()) {
+        const messages = getMessages(locale);
+        expect(messages.faq.items).toHaveLength(5);
+        expect(
+          messages.faq.items.some((item) => item.id === "launch-timing"),
+        ).toBe(false);
+        expect(messages.cta.button).toBe(messages.steps.items[0]?.title);
+        expect(messages.cta.body).toBe(messages.waitlist.body);
+      }
+    } finally {
+      LAUNCH.mode = previousMode;
+      en.faq.items = previousItems;
+    }
   });
 });
 

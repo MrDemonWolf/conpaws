@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { CompassPaw } from "@/components/compass-paw";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { UPDATES_LABEL } from "@/content/changelog";
 import type { Messages } from "@/i18n";
 import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 
@@ -80,13 +81,19 @@ export function PageShell({
 
       <main id="main">{children}</main>
 
-      <PageFooter messages={messages} />
+      <PageFooter messages={messages} locale={locale} />
     </div>
   );
 }
 
 /** The landing page's footer, minus its decorative oversized wordmark. */
-function PageFooter({ messages }: { messages: Messages }) {
+function PageFooter({
+  messages,
+  locale,
+}: {
+  messages: Messages;
+  locale: Locale;
+}) {
   const year = new Date().getFullYear();
 
   return (
@@ -107,8 +114,14 @@ function PageFooter({ messages }: { messages: Messages }) {
             The MrDemonWolf link above is exempt — it sits inside a sentence. */}
         <nav
           aria-label={messages.nav.footerLabel}
-          className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
+          className="-my-3 flex flex-wrap gap-x-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
         >
+          <a
+            href="/updates"
+            className="inline-flex min-h-11 items-center transition hover:text-primary"
+          >
+            {UPDATES_LABEL[locale]}
+          </a>
           <a
             href="/support"
             className="inline-flex min-h-11 items-center transition hover:text-primary"

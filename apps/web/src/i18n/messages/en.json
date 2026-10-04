@@ -156,6 +156,7 @@
         "a": "Any that publish an `.ics` calendar or a [Sched](https://sched.com) page — which covers most furry cons. You can also build a schedule by hand for the ones that don't."
       },
       {
+        "id": "launch-timing",
         "q": "When does it launch?",
         "a": "The beta opens to the waitlist first, iOS and Android together. Join above and you'll get one email when your invite is ready."
       },

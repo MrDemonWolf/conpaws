@@ -3,6 +3,7 @@ import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Waitlist } from "@/components/waitlist";
+import { UPDATES_LABEL } from "@/content/changelog";
 import { LINEUP, STEPS } from "@/content/landing";
 import type { Messages } from "@/i18n";
 import type { Locale } from "@/i18n/config";
@@ -413,6 +414,25 @@ export function Landing({
       </header>
 
       <main id="main">
+        <nav
+          aria-label={messages.inside.title}
+          className="relative z-content flex flex-wrap gap-2 border-b border-border pb-4 text-sm"
+        >
+          {[
+            ["#inside", messages.inside.eyebrow],
+            ["#features", messages.lineup.title],
+            ["#faq", messages.faq.title],
+            ["/updates", UPDATES_LABEL[locale]],
+          ].map(([href, label]) => (
+            <a
+              key={href}
+              href={href}
+              className="inline-flex min-h-11 items-center rounded-xl px-3 text-muted-foreground transition hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
         {/* No z-index here on purpose. `relative` alone does not open a stacking
           context, so the badge inside can raise itself above the nav and every
           section below — it hangs on a lanyard that runs off the top, and it
@@ -423,7 +443,7 @@ export function Landing({
         </section>
 
         {/* ---- a look inside ---- */}
-        <section className="relative z-content mt-20">
+        <section id="inside" className="relative z-content mt-20 scroll-mt-8">
           <SectionHeading
             eyebrow={messages.inside.eyebrow}
             title={messages.inside.title}
@@ -449,7 +469,7 @@ export function Landing({
         </section>
 
         {/* ---- feature lineup ---- */}
-        <section className="relative z-content mt-28">
+        <section id="features" className="relative z-content mt-24 scroll-mt-8">
           <div className="flex items-end justify-between gap-6">
             <SectionHeading
               eyebrow={messages.lineup.eyebrow}
@@ -497,7 +517,7 @@ export function Landing({
         </section>
 
         {/* ---- how it works ---- */}
-        <section className="relative z-content mt-28">
+        <section className="relative z-content mt-24">
           <SectionHeading
             eyebrow={messages.steps.eyebrow}
             title={messages.steps.title}
@@ -527,7 +547,7 @@ export function Landing({
         </section>
 
         {/* ---- FAQ ---- */}
-        <section className="relative z-content mt-28">
+        <section id="faq" className="relative z-content mt-24 scroll-mt-8">
           <SectionHeading
             eyebrow={messages.faq.eyebrow}
             title={messages.faq.title}
@@ -599,8 +619,14 @@ export function Landing({
               a link inside a sentence is exempt from the target-size rule. */}
           <nav
             aria-label={messages.nav.footerLabel}
-            className="-my-3 flex gap-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
+            className="-my-3 flex flex-wrap gap-x-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
           >
+            <a
+              href="/updates"
+              className="inline-flex min-h-11 items-center transition hover:text-primary"
+            >
+              {UPDATES_LABEL[locale]}
+            </a>
             <a
               href="/support"
               className="inline-flex min-h-11 items-center transition hover:text-primary"
@@ -622,6 +648,14 @@ export function Landing({
           </nav>
         </div>
       </footer>
+      <div className="fixed inset-x-0 bottom-0 z-menu border-t border-primary/20 bg-background/95 px-6 py-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <a
+          href="#waitlist"
+          className="flex min-h-12 items-center justify-center rounded-xl bg-primary px-4 text-center font-bold text-sm text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        >
+          {messages.cta.button}
+        </a>
+      </div>
     </div>
   );
 }

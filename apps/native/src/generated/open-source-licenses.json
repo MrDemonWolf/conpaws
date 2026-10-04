@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T11:00:27.592Z",
+  "generatedAt": "2026-10-04T19:15:59.927Z",
   "packages": [
     {
       "name": "@babel/code-frame",
@@ -851,7 +851,7 @@
     },
     {
       "name": "@expo/ui",
-      "version": "57.0.20",
+      "version": "57.0.21",
       "license": "MIT",
       "repository": "https://github.com/expo/expo",
       "homepage": "https://docs.expo.dev/versions/latest/sdk/ui/",
@@ -2491,7 +2491,7 @@
     },
     {
       "name": "expo",
-      "version": "57.0.25",
+      "version": "57.0.26",
       "license": "MIT",
       "repository": "https://github.com/expo/expo",
       "homepage": "https://github.com/expo/expo/tree/main/packages/expo",
@@ -2523,7 +2523,7 @@
     },
     {
       "name": "expo-constants",
-      "version": "57.0.19",
+      "version": "57.0.20",
       "license": "MIT",
       "repository": "https://github.com/expo/expo",
       "homepage": "https://docs.expo.dev/versions/latest/sdk/constants/",
@@ -2563,7 +2563,7 @@
     },
     {
       "name": "expo-document-picker",
-      "version": "57.0.2",
+      "version": "57.0.3",
       "license": "MIT",
       "repository": "https://github.com/expo/expo",
       "homepage": "https://docs.expo.dev/versions/latest/sdk/document-picker/",
@@ -2659,7 +2659,7 @@
     },
     {
       "name": "expo-modules-core",
-      "version": "57.0.19",
+      "version": "57.0.20",
       "license": "MIT",
       "repository": "https://github.com/expo/expo",
       "homepage": "https://github.com/expo/expo/tree/main/packages/expo-modules-core",
@@ -2683,7 +2683,7 @@
     },
     {
       "name": "expo-router",
-      "version": "57.0.23",
+      "version": "57.0.24",
       "license": "MIT",
       "repository": "https://github.com/expo/expo",
       "homepage": "https://docs.expo.dev/routing/introduction/",

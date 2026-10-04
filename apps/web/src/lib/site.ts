@@ -1,4 +1,5 @@
 import { env } from "@conpaws/env/web";
+import { LAUNCH } from "@/content/launch";
 
 export const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
@@ -39,9 +40,18 @@ export const PUBLIC_ROUTES: readonly PublicRoute[] = [
     path: "/",
     title: "ConPaws",
     summary:
-      "What ConPaws is, who it is for, and the beta waitlist, which is open for signups.",
+      LAUNCH.mode === "live"
+        ? "What ConPaws is, who it is for, and links to download the app."
+        : "What ConPaws is, who it is for, and the beta waitlist.",
     changeFrequency: "weekly",
     priority: 1,
+  },
+  {
+    path: "/updates",
+    title: "Updates",
+    summary: "Published ConPaws release notes and improvements.",
+    changeFrequency: "monthly",
+    priority: 0.5,
   },
   {
     path: "/privacy",

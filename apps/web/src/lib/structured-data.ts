@@ -1,3 +1,4 @@
+import { LAUNCH } from "@/content/launch";
 import { type Messages, parseInline } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import { localeHref, publishedLocales } from "@/i18n/routing";
@@ -88,13 +89,19 @@ export function softwareApplicationNode(
     operatingSystem: "iOS, Android",
     inLanguage: locale,
     image: absoluteUrl("/og.png"),
+    ...(LAUNCH.mode === "live"
+      ? { downloadUrl: [LAUNCH.appStoreUrl, LAUNCH.googlePlayUrl] }
+      : {}),
     publisher: { "@id": organizationId },
     isPartOf: { "@id": websiteId },
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
-      availability: "https://schema.org/PreOrder",
+      availability:
+        LAUNCH.mode === "live"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/PreOrder",
     },
   };
 }

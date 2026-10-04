@@ -156,6 +156,7 @@
         "a": "Met elke die een `.ics`-agenda of een [Sched](https://sched.com)-pagina publiceert — dat is het merendeel van de furry-conventions. Voor de rest kun je zelf een programma samenstellen."
       },
       {
+        "id": "launch-timing",
         "q": "Wanneer komt het uit?",
         "a": "De bèta opent eerst voor de wachtlijst, iOS en Android tegelijk. Schrijf je hierboven in en je krijgt één mail zodra je uitnodiging klaarstaat."
       },

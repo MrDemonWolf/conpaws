@@ -156,6 +156,7 @@
         "a": "Com qualquer uma que publique um calendário `.ics` ou uma página no [Sched](https://sched.com) — o que cobre a maioria das convenções furry. Para as restantes, podes montar o programa à mão."
       },
       {
+        "id": "launch-timing",
         "q": "Quando é o lançamento?",
         "a": "A beta abre primeiro para a lista de espera, iOS e Android em conjunto. Inscreve-te acima e recebes um e-mail quando o teu convite estiver pronto."
       },

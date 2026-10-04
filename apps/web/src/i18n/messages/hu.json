@@ -156,6 +156,7 @@
         "a": "Mindegyikkel, amelyik közzétesz `.ics` naptárat vagy [Sched](https://sched.com) oldalt — ez a furry conventek nagy részét lefedi. A többihez kézzel is összeállíthatod a programot."
       },
       {
+        "id": "launch-timing",
         "q": "Mikor jelenik meg?",
         "a": "A béta először a várólistának nyílik meg, iOS-en és Androidon egyszerre. Iratkozz fel fent, és kapsz egy e-mailt, amint a meghívód elkészül."
       },
