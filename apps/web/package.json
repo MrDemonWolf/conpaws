@@ -9,6 +9,7 @@
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "build:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
+    "preview": "bun run build:cloudflare && opennextjs-cloudflare preview --ip 127.0.0.1 --port 8789 --persist-to ../../apps/admin/.wrangler/state",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --local"
   },
