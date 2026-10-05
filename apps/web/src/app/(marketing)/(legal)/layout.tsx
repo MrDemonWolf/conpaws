@@ -26,7 +26,7 @@ export default function LegalLayout({
       navAside={
         <Link
           href="/"
-          className="inline-flex min-h-11 items-center font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em] transition hover:text-primary"
+          className="hidden min-h-11 items-center font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em] transition hover:text-primary sm:inline-flex"
         >
           ← {messages.nav.back}
         </Link>

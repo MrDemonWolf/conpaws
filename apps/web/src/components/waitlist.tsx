@@ -118,7 +118,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
   return (
     // On mobile, put the signup form directly after the promise so the action
     // appears before the decorative badge. Desktop keeps the badge beside it.
-    <div className="grid items-start gap-8 md:grid-cols-[1fr_380px] md:gap-x-16">
+    <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(0,1fr)_380px] md:gap-x-16">
       <div className="relative z-content pt-6 md:col-start-1 md:row-start-1 md:pt-14">
         <span className="motion-safe:animate-rise inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 font-tech text-[12px] text-primary uppercase tracking-[0.24em]">
           <span className="relative flex h-[7px] w-[7px]">

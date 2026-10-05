@@ -148,6 +148,27 @@ body::after {
   }
 }
 
+/* The app previews become a swipe rail on narrow screens. Keep a restrained
+   brand-colored scrollbar so the sideways movement is discoverable even
+   without touch. */
+.phone-preview-rail {
+  scrollbar-color: rgb(15 172 237 / 0.42) transparent;
+  scrollbar-width: thin;
+}
+
+.phone-preview-rail::-webkit-scrollbar {
+  height: 4px;
+}
+
+.phone-preview-rail::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phone-preview-rail::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgb(15 172 237 / 0.42);
+}
+
 .badge-tilt {
   transition: transform 0.5s cubic-bezier(0.22, 0.9, 0.3, 1);
   transform-style: preserve-3d;

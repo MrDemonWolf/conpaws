@@ -120,12 +120,12 @@ export function BadgeCard({ name }: { name: string }) {
 
   return (
     <div
-      className="group/badge flex select-none flex-col items-center"
+      className="group/badge flex w-full max-w-[320px] select-none flex-col items-center"
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
     >
       {/* Everything below sways together, hinged where the clip sits. */}
-      <div className="motion-safe:animate-sway flex origin-[50%_-30px] flex-col items-center">
+      <div className="motion-safe:animate-sway flex w-full max-w-[320px] origin-[50%_-30px] flex-col items-center">
         {/* ---- lanyard straps ----
             Anchored at the BOTTOM and much taller than their visible area, so
             their top ends always sit above the viewport edge — a strap that
@@ -150,7 +150,7 @@ export function BadgeCard({ name }: { name: string }) {
             the 560px height exists to avoid. `mask-size` is 240% because the
             ring and clip hang BELOW this container — at the default 100% they
             fall outside the mask and vanish with the overflow. */}
-        <div className="pointer-events-none relative z-10 h-[110px] w-[300px] [mask-image:linear-gradient(to_bottom,transparent_0,black_60px)] [mask-repeat:no-repeat] [mask-size:100%_240%] md:h-[150px] md:[mask-image:none]">
+        <div className="pointer-events-none relative z-10 h-[110px] w-full max-w-[300px] [mask-image:linear-gradient(to_bottom,transparent_0,black_60px)] [mask-repeat:no-repeat] [mask-size:100%_240%] md:h-[150px] md:[mask-image:none]">
           {/* Both straps pivot from the SAME point — the centre, just under the
               ring — so they meet at the clip and splay upward in a V, the way
               a real lanyard does. They used to hang from left-[52px] and
@@ -186,7 +186,7 @@ export function BadgeCard({ name }: { name: string }) {
         </div>
 
         {/* ---- the card, with pointer tilt ---- */}
-        <div className="[perspective:1100px]">
+        <div className="w-full max-w-[320px] [perspective:1100px]">
           <div ref={cardRef} className="badge-tilt">
             <BadgeFace name={name} badgeNumber={badgeNumber} />
           </div>

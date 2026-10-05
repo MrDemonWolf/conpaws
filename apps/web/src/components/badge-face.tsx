@@ -32,7 +32,7 @@ export function BadgeFace({
   const filled = name.trim().length > 0;
 
   return (
-    <div className="relative w-[320px] overflow-hidden rounded-[20px] border border-border bg-gradient-to-b from-[#13234f] via-card to-[#0b1839] shadow-[0_50px_90px_-30px_rgb(0_0_0/0.85),inset_0_1px_0_rgb(255_255_255/0.07)]">
+    <div className="relative w-full max-w-[320px] overflow-hidden rounded-[20px] border border-border bg-gradient-to-b from-[#13234f] via-card to-[#0b1839] shadow-[0_50px_90px_-30px_rgb(0_0_0/0.85),inset_0_1px_0_rgb(255_255_255/0.07)]">
       {/* punched slot the ring passes through */}
       <div className="-translate-x-1/2 absolute top-[12px] left-1/2 h-[10px] w-[76px] rounded-full bg-background shadow-[inset_0_2px_4px_rgb(0_0_0/0.9),0_1px_0_rgb(255_255_255/0.06)]" />
 

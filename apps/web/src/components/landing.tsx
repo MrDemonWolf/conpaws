@@ -440,33 +440,48 @@ export function Landing({
         </section>
 
         {/* ---- a look inside ---- */}
-        <section id="inside" className="relative z-content mt-20 scroll-mt-8">
+        <section
+          id="inside"
+          className="relative z-content mt-16 scroll-mt-8 sm:mt-20"
+        >
           <SectionHeading
             eyebrow={messages.inside.eyebrow}
             title={messages.inside.title}
             blurb={messages.inside.blurb}
           />
-          <div className="mt-12 flex flex-wrap items-start justify-center gap-8 md:gap-6">
+          <section
+            aria-roledescription="carousel"
+            aria-label={messages.inside.title}
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: Keep the horizontal scroll region keyboard-scrollable.
+            tabIndex={0}
+            className="phone-preview-rail -mx-6 mt-8 flex snap-x snap-mandatory scroll-px-6 items-start gap-4 overflow-x-auto overscroll-x-contain px-6 pt-2 pb-4 sm:mt-12 md:mx-0 md:flex-wrap md:justify-center md:gap-6 md:overflow-visible md:scroll-p-0 md:p-0"
+          >
             <PhoneFrame
               label={messages.inside.frameSchedule}
-              className="md:translate-y-8 md:rotate-[-4deg]"
+              className="snap-start md:translate-y-8 md:rotate-[-4deg]"
             >
               <ScheduleScreen messages={messages} />
             </PhoneFrame>
-            <PhoneFrame label={messages.inside.frameEvent} className="z-10">
+            <PhoneFrame
+              label={messages.inside.frameEvent}
+              className="snap-start z-10"
+            >
               <EventSheetScreen messages={messages} />
             </PhoneFrame>
             <PhoneFrame
               label={messages.inside.frameOffline}
-              className="md:translate-y-8 md:rotate-[4deg]"
+              className="snap-start md:translate-y-8 md:rotate-[4deg]"
             >
               <OfflineScreen messages={messages} />
             </PhoneFrame>
-          </div>
+          </section>
         </section>
 
         {/* ---- feature lineup ---- */}
-        <section id="features" className="relative z-content mt-24 scroll-mt-8">
+        <section
+          id="features"
+          className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
+        >
           <div className="flex items-end justify-between gap-6">
             <SectionHeading
               eyebrow={messages.lineup.eyebrow}
@@ -514,7 +529,7 @@ export function Landing({
         </section>
 
         {/* ---- how it works ---- */}
-        <section className="relative z-content mt-24">
+        <section className="relative z-content mt-20 sm:mt-24">
           <SectionHeading
             eyebrow={messages.steps.eyebrow}
             title={messages.steps.title}
@@ -544,7 +559,10 @@ export function Landing({
         </section>
 
         {/* ---- FAQ ---- */}
-        <section id="faq" className="relative z-content mt-24 scroll-mt-8">
+        <section
+          id="faq"
+          className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
+        >
           <SectionHeading
             eyebrow={messages.faq.eyebrow}
             title={messages.faq.title}
@@ -562,8 +580,8 @@ export function Landing({
         </section>
 
         {/* ---- closing CTA ---- */}
-        <section className="relative z-content mt-28">
-          <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-8 py-14 text-center sm:py-16">
+        <section className="relative z-content mt-20 sm:mt-28">
+          <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-5 py-10 text-center sm:px-8 sm:py-16">
             <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
             <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
             <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
@@ -586,7 +604,7 @@ export function Landing({
       </main>
 
       {/* ---- footer ---- */}
-      <footer className="relative z-content mt-28 overflow-hidden border-border border-t pt-10">
+      <footer className="relative z-content mt-20 overflow-hidden border-border border-t pt-8 sm:mt-28 sm:pt-10">
         {/* Decorative wordmark. Hidden below `sm` on purpose: at 375px the
             120px type is wider than the viewport, so it clipped to a
             meaningless "nPaws" AND sat directly behind the footer links --
@@ -616,7 +634,7 @@ export function Landing({
               a link inside a sentence is exempt from the target-size rule. */}
           <nav
             aria-label={messages.nav.footerLabel}
-            className="-my-3 flex flex-wrap gap-x-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
+            className="-my-3 flex flex-wrap gap-x-5 gap-y-1 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
           >
             <a
               href="/updates"
