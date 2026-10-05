@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AdminSession } from "../lib/auth";
 import { Icon } from "./icons";
+import { InstallAppButton, PwaRuntime } from "./pwa-client";
 
 const links = [
   { href: "/", label: "Overview", icon: "grid" as const },
@@ -43,8 +44,8 @@ export function ConsoleShell({
 }) {
   return (
     <div className="min-h-screen bg-[#f5f7fb]">
-      <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex min-h-16 w-full max-w-[1360px] items-center gap-3 px-4 sm:px-6 lg:gap-6 lg:px-10">
+      <header className="admin-header sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex min-h-16 w-full max-w-[1360px] items-center gap-2 px-4 sm:gap-3 sm:px-6 lg:gap-6 lg:px-10">
           <Link
             href="/"
             aria-label="ConPaws Admin workspace"
@@ -63,12 +64,14 @@ export function ConsoleShell({
 
           <nav
             aria-label="Main navigation"
-            className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex"
+            className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
           >
             {links.map((item) => (
               <NavItem key={item.href} {...item} />
             ))}
           </nav>
+
+          <InstallAppButton />
 
           <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <span
@@ -94,6 +97,8 @@ export function ConsoleShell({
         </div>
       </header>
 
+      <PwaRuntime />
+
       <main className="admin-main mx-auto w-full max-w-[1360px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
         {children}
         <footer className="mt-12 border-t border-slate-200 py-5 text-xs text-slate-500">
@@ -105,7 +110,7 @@ export function ConsoleShell({
 
       <nav
         aria-label="Main navigation"
-        className="admin-mobile-nav fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 gap-1 border-t border-slate-200/80 bg-white/95 px-3 pt-2 shadow-[0_-8px_24px_rgba(9,21,51,0.08)] backdrop-blur md:hidden"
+        className="admin-mobile-nav fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 gap-1 border-t border-slate-200/80 bg-white/95 px-3 pt-2 shadow-[0_-8px_24px_rgba(9,21,51,0.08)] backdrop-blur lg:hidden"
       >
         {links.map((item) => (
           <NavItem key={item.href} {...item} />

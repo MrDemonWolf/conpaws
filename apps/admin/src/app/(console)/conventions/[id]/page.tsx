@@ -196,29 +196,29 @@ export default async function ConventionWorkspacePage({
 
       <nav
         aria-label="Convention sections"
-        className="sticky top-[57px] z-10 -mx-4 mb-5 grid grid-cols-3 gap-2 border-y border-slate-200 bg-[#f5f7fb]/95 px-4 py-2 backdrop-blur sm:static sm:mx-0 sm:mb-5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0"
+        className="admin-section-nav sticky z-10 -mx-4 mb-5 grid grid-cols-3 gap-2 border-y border-slate-200 bg-[#f5f7fb]/95 px-4 py-2 backdrop-blur lg:static lg:mx-0 lg:mb-5 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0"
       >
         <a
           href={sourceCheckComplete ? "#setup-details" : "#organizer-source"}
-          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-3"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
-            01 · Details
+          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.12em]">
+            01 Details
           </span>
           <span
-            className={`mt-0.5 text-[11px] font-semibold leading-4 ${sourceCheckComplete ? "text-emerald-700" : "text-amber-800"}`}
+            className={`mt-0.5 text-[10px] font-semibold leading-4 ${sourceCheckComplete ? "text-emerald-700" : "text-amber-800"}`}
           >
             {sourceCheckComplete ? "Source checked" : "Verify source"}
           </span>
         </a>
         <a
           href="#schedule"
-          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-3"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
-            02 · Schedule
+          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.12em]">
+            02 Schedule
           </span>
-          <span className="mt-0.5 truncate text-xs font-semibold text-slate-700">
+          <span className="mt-0.5 truncate text-[10px] font-semibold leading-4 text-slate-700">
             {sessions.length
               ? `${sessions.length} ${sessions.length === 1 ? "session" : "sessions"}`
               : "Add sessions"}
@@ -226,13 +226,13 @@ export default async function ConventionWorkspacePage({
         </a>
         <a
           href="#publish"
-          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-3"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
-            03 · Publish
+          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.12em]">
+            03 Publish
           </span>
           <span
-            className={`mt-0.5 truncate text-xs font-semibold ${publicationIssues.length ? "text-amber-800" : hasUnpublishedChanges ? "text-emerald-700" : "text-slate-600"}`}
+            className={`mt-0.5 truncate text-[10px] font-semibold leading-4 ${publicationIssues.length ? "text-amber-800" : hasUnpublishedChanges ? "text-emerald-700" : "text-slate-600"}`}
           >
             {publishStepStatus}
           </span>

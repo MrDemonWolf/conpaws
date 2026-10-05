@@ -8,6 +8,7 @@
 
 :root {
   color-scheme: light;
+  --admin-header-height: calc(4rem + env(safe-area-inset-top) + 1px);
   --background: #f5f7fb;
   --foreground: #091533;
   --card: #ffffff;
@@ -38,6 +39,10 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
+.admin-header {
+  padding-top: env(safe-area-inset-top);
+}
+
 .admin-main {
   padding-bottom: calc(7rem + env(safe-area-inset-bottom));
 }
@@ -46,10 +51,14 @@ body {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
-@media (width >= 48rem) {
+@media (width >= 64rem) {
   .admin-main {
     padding-bottom: 2.5rem;
   }
+}
+
+.admin-section-nav {
+  top: var(--admin-header-height);
 }
 
 h1,

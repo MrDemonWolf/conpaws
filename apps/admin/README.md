@@ -47,15 +47,16 @@ The native app does not download this catalog yet. Offline schedule access, orga
 
 **Recommendation: make `admin.conpaws.com` a mobile-first, installable PWA before building a separate host app.** Keep host operations separate from the attendee app so the attendee experience stays focused and host-only editing remains behind its own authorization checks. The admin site is already the right product surface; it needs a deliberate phone workflow, not just a smaller desktop layout.
 
-Current state: the admin console is responsive in a browser, but it is not installable as a PWA yet. A web manifest, app icons, install guidance, and service-worker behavior remain to be built.
+The admin console is an installable PWA with a home-screen manifest, branded icons, browser-aware install guidance, and a cached offline fallback page. Phone and tablet layouts keep navigation within reach, respect display safe areas, and provide a visible connection warning.
 
 Design around convention setup and schedule corrections:
 
 - Put the next setup task first, with clear progress from convention details to schedule review and publication.
 - Keep mobile navigation within easy thumb reach and make important controls at least 44 px high.
 - Show sessions as compact searchable rows with their local time, room, and status. Expand one edit form at a time instead of showing a page of full forms.
-- Keep edits online for the first PWA release. Show save and connection state clearly; never imply a schedule change or publication succeeded while offline.
-- Add offline editing only after conflict resolution, local-data protection, and audit behavior are designed and tested. Do not cache authenticated admin pages or private API responses in a general service-worker cache.
+- Keep edits online for the first PWA release. Offline form submissions are blocked and explain that the host should reconnect and submit again; the PWA never implies a schedule change or publication succeeded while offline.
+- The service worker caches only the public offline fallback page, manifest, and public app icons. It does not cache authenticated admin pages, form data, or private API responses.
+- Add offline editing only after conflict resolution, local-data protection, and audit behavior are designed and tested.
 
 Before inviting convention hosts outside the ConPaws team, replace the current global owner/editor access model with tenant-scoped organizations, memberships, convention-level permissions, and an invitation/onboarding flow. Current roles can see the shared catalog; they do not isolate each organizer's conventions.
 
