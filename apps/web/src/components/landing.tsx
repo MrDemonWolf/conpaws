@@ -450,7 +450,6 @@ export function Landing({
             blurb={messages.inside.blurb}
           />
           <section
-            aria-roledescription="carousel"
             aria-label={messages.inside.title}
             // biome-ignore lint/a11y/noNoninteractiveTabindex: Keep the horizontal scroll region keyboard-scrollable.
             tabIndex={0}
