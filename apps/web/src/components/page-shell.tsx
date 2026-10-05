@@ -149,7 +149,7 @@ function PageFooter({
 /** The pill the landing page uses for "Est. 2025", for page-specific markers. */
 export function NavPill({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+    <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline-flex">
       {children}
     </span>
   );
