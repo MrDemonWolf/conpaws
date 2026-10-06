@@ -38,8 +38,10 @@ export function LanguageSwitcher({
 
   return (
     <details className="group relative" data-lang-menu>
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-border px-3 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.16em] transition hover:text-primary [&::-webkit-details-marker]:hidden">
-        <span className="sr-only">{label}</span>
+      <summary className="flex min-h-11 min-w-0 max-w-[min(11rem,calc(100vw_-_13rem))] cursor-pointer list-none items-center gap-2 rounded-full border border-border px-3 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.16em] transition hover:text-primary sm:max-w-none [&::-webkit-details-marker]:hidden">
+        <span className="sr-only">
+          {label}: {active.nativeName}
+        </span>
         <svg
           aria-hidden="true"
           viewBox="0 0 24 24"
@@ -53,7 +55,15 @@ export function LanguageSwitcher({
           {/* The two meridians that make a bare circle read as a globe. */}
           <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" />
         </svg>
-        <span aria-hidden="true">{active.nativeName}</span>
+        <span
+          aria-hidden="true"
+          className="min-w-0 truncate max-[23rem]:hidden"
+        >
+          {active.nativeName}
+        </span>
+        <span aria-hidden="true" className="hidden max-[23rem]:inline">
+          {active.code.slice(0, 2).toUpperCase()}
+        </span>
         <span
           aria-hidden="true"
           className="text-primary transition group-open:rotate-180"
