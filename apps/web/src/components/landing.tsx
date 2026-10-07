@@ -6,6 +6,7 @@ import { MobileAction } from "@/components/mobile-action";
 import { Waitlist } from "@/components/waitlist";
 import { UPDATES_LABEL } from "@/content/changelog";
 import { LINEUP, STEPS } from "@/content/landing";
+import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import type { Messages } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import {
@@ -370,9 +371,11 @@ function OfflineScreen({ messages }: { messages: Messages }) {
 export function Landing({
   locale,
   messages,
+  launch = LAUNCH,
 }: {
   locale: Locale;
   messages: Messages;
+  launch?: LaunchConfig;
 }) {
   const year = new Date().getFullYear();
 
@@ -432,7 +435,7 @@ export function Landing({
       <main id="main">
         {/* Keep the lanyard above section art, below all navigation controls. */}
         <section id="waitlist" className="relative pt-4 sm:pt-6">
-          <Waitlist messages={messages.waitlist} />
+          <Waitlist messages={messages.waitlist} launch={launch} />
         </section>
 
         {/* ---- a look inside ---- */}
@@ -568,7 +571,7 @@ export function Landing({
               answers, and a second hardcoded copy is how it stops matching. */}
           <JsonLd
             data={graph(
-              softwareApplicationNode(locale, messages),
+              softwareApplicationNode(locale, messages, launch),
               faqPageNode(messages),
             )}
           />

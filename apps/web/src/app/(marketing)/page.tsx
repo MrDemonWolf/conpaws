@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Landing } from "@/components/landing";
+import { LAUNCH, launchForPreview } from "@/content/launch";
 import { getMessages } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { languageAlternates } from "@/i18n/routing";
@@ -18,7 +19,7 @@ import { languageAlternates } from "@/i18n/routing";
 
 const messages = getMessages(DEFAULT_LOCALE);
 
-export const metadata: Metadata = {
+const homeMetadata: Metadata = {
   // `absolute` because the catalog title already ends in the brand. The root
   // layout's `%s · ConPaws` template would otherwise render
   // "ConPaws — your furry convention companion · ConPaws".
@@ -30,6 +31,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <Landing locale={DEFAULT_LOCALE} messages={messages} />;
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string | string[] }>;
+}): Promise<Metadata> {
+  const preview =
+    (await searchParams).mode === "live" && LAUNCH.mode !== "live";
+  return preview
+    ? { ...homeMetadata, robots: { index: false, follow: false } }
+    : homeMetadata;
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string | string[] }>;
+}) {
+  const launch = launchForPreview((await searchParams).mode);
+  return (
+    <Landing
+      locale={DEFAULT_LOCALE}
+      messages={getMessages(DEFAULT_LOCALE, launch.mode)}
+      launch={launch}
+    />
+  );
 }

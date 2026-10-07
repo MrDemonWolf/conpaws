@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Landing } from "@/components/landing";
+import { LAUNCH, launchForPreview } from "@/content/launch";
 import { getMessages } from "@/i18n";
 import { isLocale, type Locale } from "@/i18n/config";
 import {
@@ -33,13 +34,17 @@ export function generateStaticParams(): { locale: Locale }[] {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ mode?: string | string[] }>;
 }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
 
   const messages = getMessages(locale);
+  const preview =
+    (await searchParams).mode === "live" && LAUNCH.mode !== "live";
   return {
     // See the note on the English route: the catalog title already carries the
     // brand, so the root layout's title template must not append it again.
@@ -54,16 +59,26 @@ export async function generateMetadata({
       description: messages.meta.description,
       locale,
     },
+    ...(preview ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
 export default async function LocaleHome({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ mode?: string | string[] }>;
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  return <Landing locale={locale} messages={getMessages(locale)} />;
+  const launch = launchForPreview((await searchParams).mode);
+  return (
+    <Landing
+      locale={locale}
+      messages={getMessages(locale, launch.mode)}
+      launch={launch}
+    />
+  );
 }

@@ -1,4 +1,4 @@
-import { LAUNCH } from "@/content/launch";
+import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import { type Messages, parseInline } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import { localeHref, publishedLocales } from "@/i18n/routing";
@@ -78,7 +78,10 @@ export function webSiteNode(): Node {
 export function softwareApplicationNode(
   locale: Locale,
   messages: Messages,
+  launch: LaunchConfig = LAUNCH,
 ): Node {
+  const hasStoreLinks = Boolean(launch.appStoreUrl && launch.googlePlayUrl);
+
   return {
     "@type": "SoftwareApplication",
     "@id": applicationId,
@@ -89,8 +92,8 @@ export function softwareApplicationNode(
     operatingSystem: "iOS, Android",
     inLanguage: locale,
     image: absoluteUrl("/og.png"),
-    ...(LAUNCH.mode === "live"
-      ? { downloadUrl: [LAUNCH.appStoreUrl, LAUNCH.googlePlayUrl] }
+    ...(launch.mode === "live" && hasStoreLinks
+      ? { downloadUrl: [launch.appStoreUrl, launch.googlePlayUrl] }
       : {}),
     publisher: { "@id": organizationId },
     isPartOf: { "@id": websiteId },
@@ -99,7 +102,7 @@ export function softwareApplicationNode(
       price: "0",
       priceCurrency: "USD",
       availability:
-        LAUNCH.mode === "live"
+        launch.mode === "live" && hasStoreLinks
           ? "https://schema.org/InStock"
           : "https://schema.org/PreOrder",
     },

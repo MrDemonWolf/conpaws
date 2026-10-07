@@ -46,7 +46,7 @@ const ELSEWHERE = (["/", "/support", "/privacy"] as const).map((href, i) => ({
 export function NotFoundPage() {
   return (
     <PageShell messages={messages} navAside={<NavPill>404</NavPill>}>
-      <section className="relative mt-10 overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
+      <section className="relative mt-8 overflow-hidden rounded-[32px] border border-primary/20 bg-[radial-gradient(ellipse_at_50%_0%,rgb(15_172_237/0.13),transparent_58%),linear-gradient(155deg,#0b1a3a,#101b32_62%,#0b1428)] px-5 py-12 text-center shadow-[0_24px_90px_rgb(0_0_0/0.2)] sm:px-12 sm:py-16">
         <CompassPaw
           aria-hidden="true"
           className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-muted-foreground opacity-[0.06]"
@@ -56,10 +56,23 @@ export function NotFoundPage() {
           className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-muted-foreground opacity-[0.06]"
         />
 
-        <p className="font-tech text-[12px] text-muted-foreground uppercase tracking-[0.3em]">
+        <p className="font-tech text-[11px] text-primary uppercase tracking-[0.24em] sm:text-[12px] sm:tracking-[0.3em]">
           {messages.notFound.eyebrow}
         </p>
-        <h1 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(32px,5.2vw,56px)] leading-[1.02] tracking-[-0.02em]">
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-5 flex w-fit items-center gap-3 text-primary"
+        >
+          <span className="font-tech font-bold text-[clamp(54px,15vw,112px)] tabular-nums leading-[0.8] tracking-[-0.1em] drop-shadow-[0_0_28px_rgb(15_172_237/0.24)]">
+            404
+          </span>
+          <CompassPaw className="h-12 w-12 rotate-[-18deg] sm:h-16 sm:w-16" />
+        </div>
+        <p className="mx-auto mt-5 inline-flex max-w-full items-center gap-2 rounded-full border border-border/80 bg-background/40 px-4 py-2 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.14em] sm:text-[11px]">
+          <span aria-hidden="true">🐾</span>
+          Last seen sprinting toward a squirrel
+        </p>
+        <h1 className="mx-auto mt-5 max-w-[18ch] text-balance font-bold text-[clamp(32px,5.2vw,56px)] leading-[1.02] tracking-[-0.02em]">
           {messages.notFound.heading}
         </h1>
         <p className="mx-auto mt-5 max-w-[48ch] text-[16px] text-muted-foreground leading-relaxed">
@@ -68,7 +81,7 @@ export function NotFoundPage() {
 
         <Link
           href="/"
-          className="mt-9 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99]"
+          className="mt-8 inline-flex min-h-14 items-center justify-center rounded-xl bg-primary px-8 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99]"
         >
           {messages.notFound.cta} ←
         </Link>

@@ -4,7 +4,7 @@ import { env } from "@conpaws/env/web";
 import Script from "next/script";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
-import { LAUNCH } from "@/content/launch";
+import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import type { Messages } from "@/i18n";
 import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
@@ -31,7 +31,13 @@ const WAITLIST_ACCEPTING_SIGNUPS = true;
 const INPUT_CLASS =
   "w-full min-h-12 rounded-xl border border-input bg-card/70 px-4 py-3 text-base outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
 
-export function Waitlist({ messages }: { messages: WaitlistMessages }) {
+export function Waitlist({
+  messages,
+  launch = LAUNCH,
+}: {
+  messages: WaitlistMessages;
+  launch?: LaunchConfig;
+}) {
   const nameId = useId();
   const emailId = useId();
   const hpId = useId();
@@ -125,7 +131,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
             <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-primary" />
           </span>
-          {LAUNCH.mode === "live"
+          {launch.mode === "live"
             ? "iOS · Android"
             : acceptingSignups
               ? messages.badgeOpen
@@ -161,20 +167,33 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       </div>
 
       <div className="relative z-content md:col-start-1 md:row-start-2">
-        {LAUNCH.mode === "live" ? (
+        {launch.mode === "live" ? (
           <div className="grid max-w-[440px] gap-4 sm:grid-cols-2">
             {[
-              ["App Store", LAUNCH.appStoreUrl],
-              ["Google Play", LAUNCH.googlePlayUrl],
-            ].map(([label, href]) => (
-              <a
-                key={label}
-                href={href}
-                className="inline-flex min-h-14 items-center justify-center rounded-xl bg-primary px-6 py-4 font-bold text-primary-foreground transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-              >
-                {label}
-              </a>
-            ))}
+              ["App Store", launch.appStoreUrl],
+              ["Google Play", launch.googlePlayUrl],
+            ].map(([label, href]) =>
+              href ? (
+                <a
+                  key={label}
+                  href={href}
+                  className="inline-flex min-h-14 items-center justify-center rounded-xl bg-primary px-6 py-4 font-bold text-primary-foreground transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                >
+                  {label}
+                </a>
+              ) : (
+                <span
+                  key={label}
+                  aria-disabled="true"
+                  className="inline-flex min-h-14 items-center justify-center rounded-xl border border-border bg-card/60 px-6 py-4 font-bold text-muted-foreground"
+                >
+                  {label}
+                  <span className="ml-2 font-tech text-[10px] uppercase tracking-[0.14em]">
+                    preview
+                  </span>
+                </span>
+              ),
+            )}
           </div>
         ) : status === "done" ? (
           // The form this replaces is where focus was, so without somewhere to
@@ -324,7 +343,7 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
       {/* On desktop the lanyard rises above the nav; the language menu has
           its own higher layer while open. */}
       <div className="relative z-badge hidden md:col-start-2 md:row-span-2 md:row-start-1 md:block md:pt-2">
-        {LAUNCH.mode === "live" ? (
+        {launch.mode === "live" ? (
           <div className="rounded-3xl border border-primary/20 bg-card/40 p-8 text-center">
             <CompassPaw className="mx-auto h-48 w-48 text-primary" />
             <p className="mt-8 text-3xl font-bold">ConPaws</p>
