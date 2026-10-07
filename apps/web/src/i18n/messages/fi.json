@@ -199,7 +199,8 @@
     "doneTitle": "Olet listalla.",
     "doneBody": "Lähetimme vahvistuslinkin sähköpostiisi. Klikkaa sitä, niin paikkasi on varmistettu — emme kirjoita uudelleen ennen kuin on jotain avaamisen arvoista.",
     "closedNotice": "Viimeistelemme turvallista ilmoittautumista ja sähköpostivahvistusta. Osoitteita ei vielä oteta vastaan.",
-    "privacyLink": "Tietosuoja"
+    "privacyLink": "Tietosuoja",
+    "consentSummary": "Lähetämme sinulle sähköpostia ConPawsin julkaisusta. Voit peruuttaa tilauksen milloin tahansa."
   },
   "confirmed": {
     "title": "Olet listalla",

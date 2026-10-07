@@ -199,7 +199,8 @@
     "doneTitle": "You're on the list.",
     "doneBody": "We sent a confirmation link to your inbox. Click it and your spot is locked in — we won't email you again until there's something worth opening.",
     "closedNotice": "We're finishing secure signup and email confirmation. No addresses are being accepted yet.",
-    "privacyLink": "Privacy"
+    "privacyLink": "Privacy",
+    "consentSummary": "We’ll email you about the ConPaws launch. You can unsubscribe at any time."
   },
   "confirmed": {
     "title": "You're on the list",

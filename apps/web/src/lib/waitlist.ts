@@ -1,8 +1,12 @@
-import { and, asc, eq, gte, isNull, lt } from "drizzle-orm";
+import { and, asc, eq, gte, isNull, lt, sql } from "drizzle-orm";
 
 import type { Db } from "../db";
 import { type WaitlistRow, waitlist } from "../db/schema";
-import { type ListmonkConfig, sendDoubleOptIn } from "./listmonk";
+import {
+  fetchListSubscribers,
+  type ListmonkConfig,
+  sendDoubleOptIn,
+} from "./listmonk";
 
 /**
  * Maximum number of sends attempted for one address before leaving it alone.
@@ -38,6 +42,54 @@ export const RESEND_COOLDOWN_MS = 10 * 60 * 1000;
 export const MAX_SIGNUPS_PER_IP = 5;
 export const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
 export const RECONCILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+export const UNCONFIRMED_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Apply listmonk-owned state to local records; D1 remains the suppression log. */
+export async function syncSubscriptionStatuses(db: Db, config: ListmonkConfig) {
+  let updated = 0;
+  for (const [remoteStatus, status] of [
+    ["unsubscribed", "unsubscribed"],
+    ["confirmed", "confirmed"],
+  ] as const) {
+    const emails = await fetchListSubscribers(config, remoteStatus);
+    for (const email of emails) {
+      const values =
+        status === "unsubscribed"
+          ? {
+              status,
+              name: "",
+              confirmedAt: null,
+              ip: null,
+              ipBucket: null,
+              userAgent: null,
+              country: null,
+              referer: null,
+              utmSource: null,
+              utmMedium: null,
+              utmCampaign: null,
+            }
+          : {
+              status,
+              confirmedAt: sql`coalesce(${waitlist.confirmedAt}, ${Date.now()})`,
+            };
+      await db
+        .update(waitlist)
+        .set(values)
+        .where(and(eq(waitlist.email, email), isNull(waitlist.erasedAt)));
+      updated += 1;
+    }
+  }
+  await db
+    .delete(waitlist)
+    .where(
+      and(
+        eq(waitlist.status, "pending"),
+        isNull(waitlist.confirmedAt),
+        lt(waitlist.createdAt, new Date(Date.now() - UNCONFIRMED_RETENTION_MS)),
+      ),
+    );
+  return { updated };
+}
 
 /** IPv4 keeps its address; IPv6 shares an admission bucket per /64. */
 export function ipBucket(ip: string | null): string | null {
@@ -226,6 +278,7 @@ export async function reconcile(
         isNull(waitlist.syncedAt),
         lt(waitlist.syncAttempts, MAX_SYNC_ATTEMPTS),
         eq(waitlist.status, "pending"),
+        isNull(waitlist.erasedAt),
         gte(waitlist.createdAt, new Date(Date.now() - RECONCILE_MAX_AGE_MS)),
       ),
     )

@@ -315,6 +315,9 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
               ) : (
                 messages.closedNotice
               )}{" "}
+              {acceptingSignups ? (
+                <span>{messages.consentSummary} </span>
+              ) : null}
               <a href="/privacy" className="text-primary hover:underline">
                 {messages.privacyLink}
               </a>

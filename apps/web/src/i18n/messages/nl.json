@@ -199,7 +199,8 @@
     "doneTitle": "Je staat op de lijst.",
     "doneBody": "We hebben een bevestigingslink naar je inbox gestuurd. Klik erop en je plek staat vast — we mailen je pas weer als er iets is dat het openen waard is.",
     "closedNotice": "We leggen de laatste hand aan veilig aanmelden en e-mailbevestiging. Er worden nog geen adressen aangenomen.",
-    "privacyLink": "Privacy"
+    "privacyLink": "Privacy",
+    "consentSummary": "We mailen je over de lancering van ConPaws. Je kunt je op elk moment afmelden."
   },
   "confirmed": {
     "title": "Je staat op de lijst",

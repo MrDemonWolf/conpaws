@@ -209,6 +209,7 @@ export async function POST(request: Request) {
       email: waitlist.email,
       name: waitlist.name,
       status: waitlist.status,
+      erasedAt: waitlist.erasedAt,
       syncedAt: waitlist.syncedAt,
       syncAttempts: waitlist.syncAttempts,
       syncAttemptedAt: waitlist.syncAttemptedAt,
@@ -218,6 +219,7 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existing) {
+    if (existing.erasedAt) return Response.json({ ok: true });
     // Already known. Re-sending the confirmation only makes sense while
     // listmonk has never accepted this address, and never faster than the
     // cooldown —

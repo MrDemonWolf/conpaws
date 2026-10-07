@@ -192,7 +192,8 @@
     "doneTitle": "你已在名單中。",
     "doneBody": "我們已把確認連結寄到你的信箱。點開它，名額就鎖定了 —— 在有值得一看的消息之前，我們不會再寄信給你。",
     "closedNotice": "我們正在完成安全註冊與信件確認功能。目前尚未開放登記電子郵件。",
-    "privacyLink": "隱私"
+    "privacyLink": "隱私",
+    "consentSummary": "ConPaws 發佈時，我們會透過電子郵件通知您。您可以隨時取消訂閱。"
   },
   "confirmed": {
     "title": "你已在名單中",

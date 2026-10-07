@@ -199,7 +199,8 @@
     "doneTitle": "Estás na lista.",
     "doneBody": "Enviámos um link de confirmação para o teu e-mail. Clica nele e o teu lugar fica garantido — não voltamos a escrever até haver algo que valha a pena abrir.",
     "closedNotice": "Estamos a terminar o registo seguro e a confirmação por e-mail. Ainda não estamos a aceitar endereços.",
-    "privacyLink": "Privacidade"
+    "privacyLink": "Privacidade",
+    "consentSummary": "Enviaremos um e-mail sobre o lançamento do ConPaws. Pode cancelar a subscrição a qualquer momento."
   },
   "confirmed": {
     "title": "Estás na lista",

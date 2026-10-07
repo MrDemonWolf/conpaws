@@ -199,7 +199,8 @@
     "doneTitle": "Du är med på listan.",
     "doneBody": "Vi har skickat en bekräftelselänk till din inkorg. Klicka på den så är din plats spikad — vi hör inte av oss igen förrän det finns något värt att öppna.",
     "closedNotice": "Vi håller på att färdigställa säker anmälan och e-postbekräftelse. Inga adresser tas emot ännu.",
-    "privacyLink": "Integritet"
+    "privacyLink": "Integritet",
+    "consentSummary": "Vi mejlar dig om lanseringen av ConPaws. Du kan avsluta prenumerationen när som helst."
   },
   "confirmed": {
     "title": "Du är med på listan",

@@ -324,6 +324,38 @@ describe("POST /api/waitlist", () => {
     expect(waitUntil).not.toHaveBeenCalled();
   });
 
+  it("does not recreate or send mail to an erased address", async () => {
+    const { inserted, waitUntil } = wireWorker([
+      {
+        id: "erased",
+        email: "person@example.com",
+        name: "",
+        status: "unsubscribed",
+        erasedAt: new Date(),
+        syncedAt: new Date(),
+        syncAttempts: 0,
+        syncAttemptedAt: null,
+      },
+    ]);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
+    );
+    const response = await POST(
+      request({
+        email: "person@example.com",
+        elapsedMs: 3000,
+        turnstileToken: "good-token",
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(inserted).toHaveLength(0);
+    expect(waitUntil).not.toHaveBeenCalled();
+  });
+
   it("retries an address listmonk has never accepted", async () => {
     const { waitUntil } = wireWorker([
       {

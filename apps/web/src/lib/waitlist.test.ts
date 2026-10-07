@@ -10,6 +10,8 @@ import {
   reconcile,
   resendAllowed,
   syncRow,
+  syncSubscriptionStatuses,
+  UNCONFIRMED_RETENTION_MS,
 } from "./waitlist";
 
 const CONFIG = {
@@ -24,6 +26,7 @@ type PendingRow = {
   email: string;
   name: string;
   syncAttempts: number;
+  erasedAt?: Date | null;
 };
 
 /**
@@ -67,7 +70,9 @@ function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
               return {
                 limit: (value: number) => {
                   limit = value;
-                  return Promise.resolve(pending.slice(0, value));
+                  return Promise.resolve(
+                    pending.filter((row) => !row.erasedAt).slice(0, value),
+                  );
                 },
               };
             },
@@ -283,6 +288,82 @@ describe("reconcile", () => {
     const { columns, values } = describePredicate(selectWhereUsed());
     expect(columns).toEqual(expect.arrayContaining(["synced_at", "status"]));
     expect(values).toContain("pending");
+  });
+
+  it("excludes erased rows from replay even if their state is stale", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { db, selectWhereUsed } = fakeDb([
+      {
+        id: "erased",
+        email: "erased@example.com",
+        name: "",
+        syncAttempts: 0,
+        erasedAt: new Date(),
+      },
+    ]);
+    await expect(reconcile(db, CONFIG)).resolves.toMatchObject({
+      attempted: 0,
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(describePredicate(selectWhereUsed()).columns).toContain("erased_at");
+  });
+
+  it("syncs unsubscribe and confirmation states, anonymises, and purges after 30 days", async () => {
+    const writes: Array<Record<string, unknown>> = [];
+    const deletes: unknown[] = [];
+    const db = {
+      update: () => ({
+        set: (value: Record<string, unknown>) => ({
+          where: async () => {
+            writes.push(value);
+          },
+        }),
+      }),
+      delete: () => ({
+        where: async (value: unknown) => {
+          deletes.push(value);
+        },
+      }),
+    } as unknown as Db;
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        Response.json({ data: { results: [{ email: "left@example.com" }] } }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          data: { results: [{ email: "confirmed@example.com" }] },
+        }),
+      );
+    await expect(syncSubscriptionStatuses(db, CONFIG)).resolves.toEqual({
+      updated: 2,
+    });
+    expect(writes[0]).toMatchObject({
+      status: "unsubscribed",
+      name: "",
+      confirmedAt: null,
+      ip: null,
+      ipBucket: null,
+      userAgent: null,
+      country: null,
+      referer: null,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+    });
+    expect(writes[1]).toMatchObject({ status: "confirmed" });
+    expect(writes[1]).toHaveProperty("confirmedAt");
+    expect(deletes).toHaveLength(1);
+    const purge = describePredicate(deletes[0]);
+    expect(purge.values).toContain("pending");
+    expect(purge.columns).toContain("created_at");
+    expect(
+      purge.values.some(
+        (value) =>
+          value instanceof Date &&
+          value.getTime() <= Date.now() - UNCONFIRMED_RETENTION_MS,
+      ),
+    ).toBe(true);
+    expect(UNCONFIRMED_RETENTION_MS).toBe(30 * 24 * 60 * 60 * 1000);
   });
 
   it("orders by oldest sync attempt and excludes rows older than seven days", async () => {

@@ -1,0 +1,1 @@
+ALTER TABLE `waitlist` ADD `erased_at` integer;

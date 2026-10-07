@@ -199,7 +199,8 @@
     "doneTitle": "Du er på listen.",
     "doneBody": "Vi har sendt et bekræftelseslink til din indbakke. Klik på det, så er din plads sikret — vi skriver ikke igen, før der er noget værd at åbne.",
     "closedNotice": "Vi er ved at færdiggøre sikker tilmelding og e-mailbekræftelse. Der modtages ingen adresser endnu.",
-    "privacyLink": "Privatliv"
+    "privacyLink": "Privatliv",
+    "consentSummary": "Vi sender dig en e-mail om lanceringen af ConPaws. Du kan til enhver tid afmelde dig."
   },
   "confirmed": {
     "title": "Du er på listen",

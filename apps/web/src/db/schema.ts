@@ -58,6 +58,9 @@ export const waitlist = sqliteTable(
       .default(sql`(unixepoch() * 1000)`),
     confirmedAt: integer("confirmed_at", { mode: "timestamp_ms" }),
 
+    /** Suppression tombstone: prevents erased addresses being re-created or replayed. */
+    erasedAt: integer("erased_at", { mode: "timestamp_ms" }),
+
     /** NULL means listmonk has not accepted this subscriber yet. The cron replays these. */
     syncedAt: integer("synced_at", { mode: "timestamp_ms" }),
 
@@ -87,6 +90,11 @@ export const waitlist = sqliteTable(
     // scanned rows -- an abuse guard that gets more expensive the more it is
     // exercised is the wrong shape.
     index("waitlist_ip_bucket_recent_idx").on(table.ipBucket, table.createdAt),
+    index("waitlist_pending_retention_idx").on(
+      table.status,
+      table.confirmedAt,
+      table.createdAt,
+    ),
   ],
 );
 

@@ -199,7 +199,8 @@
     "doneTitle": "Anda dalam senarai.",
     "doneBody": "Kami telah hantar pautan pengesahan ke peti masuk anda. Klik pautan itu dan tempat anda terjamin — kami tidak akan e-mel lagi sehingga ada sesuatu yang berbaloi dibuka.",
     "closedNotice": "Kami sedang menyiapkan pendaftaran selamat dan pengesahan e-mel. Belum ada alamat yang diterima buat masa ini.",
-    "privacyLink": "Privasi"
+    "privacyLink": "Privasi",
+    "consentSummary": "Kami akan menghantar e-mel tentang pelancaran ConPaws. Anda boleh berhenti melanggan pada bila-bila masa."
   },
   "confirmed": {
     "title": "Anda dalam senarai",

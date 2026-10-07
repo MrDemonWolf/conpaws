@@ -14,6 +14,7 @@ type ListmonkEnv = {
 
 /** Outbound calls are capped so a stalled ESP cannot hold a Worker open. */
 const TIMEOUT_MS = 10_000;
+const STATUS_PAGE_SIZE = 100;
 
 /**
  * Reads the listmonk configuration, or returns null if any part is missing.
@@ -45,6 +46,38 @@ function headers(config: ListmonkConfig): HeadersInit {
     "content-type": "application/json",
     accept: "application/json",
   };
+}
+
+/** Reads one list-scoped subscription status at a time; never uses SQL lookup. */
+export async function fetchListSubscribers(
+  config: ListmonkConfig,
+  status: "confirmed" | "unsubscribed",
+): Promise<string[]> {
+  const emails: string[] = [];
+  for (let page = 1; ; page += 1) {
+    const url = new URL(`${config.baseUrl}/api/subscribers`);
+    url.searchParams.set("list_id", String(config.listId));
+    url.searchParams.set("subscription_status", status);
+    url.searchParams.set("page", String(page));
+    url.searchParams.set("per_page", String(STATUS_PAGE_SIZE));
+    const response = await fetch(url, {
+      headers: headers(config),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!response.ok)
+      throw new Error(`listmonk status query failed: ${response.status}`);
+    const body = (await response.json()) as {
+      data?: { results?: Array<{ email?: unknown }> };
+    };
+    const results = body.data?.results;
+    if (!Array.isArray(results))
+      throw new Error("listmonk status query returned invalid results");
+    for (const item of results) {
+      if (typeof item.email === "string")
+        emails.push(item.email.trim().toLowerCase());
+    }
+    if (results.length < STATUS_PAGE_SIZE) return emails;
+  }
 }
 
 async function readDetail(response: Response): Promise<string> {

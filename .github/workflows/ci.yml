@@ -235,6 +235,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Check generated native license manifest
+        run: bun run licenses:check
+        working-directory: apps/native
+
       - name: Check Expo package compatibility
         run: bunx expo install --check
         working-directory: apps/native

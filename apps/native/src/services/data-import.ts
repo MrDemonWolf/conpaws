@@ -510,54 +510,64 @@ export async function pickBackupFile(): Promise<BackupPickOutcome> {
   if (!file) return fail("unreadable");
 
   let cachedFile: File;
-  let actualBytes: number | null;
   try {
     cachedFile = new File(file.uri);
-    actualBytes = cachedFile.size;
   } catch (error) {
     reportError(error, { scope: "data-import.stat" });
     return fail("unreadable");
   }
 
-  // Picker metadata is optional and can be stale. The cached file is the value
-  // we will actually read, so its filesystem size owns this boundary.
-  if (
-    actualBytes === null ||
-    !Number.isFinite(actualBytes) ||
-    actualBytes < 0
-  ) {
-    return fail("unreadable");
-  }
-  if (actualBytes > MAX_BACKUP_BYTES) {
-    return fail("file-too-large", {
-      bytes: actualBytes,
-      limit: MAX_BACKUP_BYTES,
-    });
-  }
-
-  let content: string;
   try {
-    content = await cachedFile.text();
-  } catch (error) {
-    reportError(error, { scope: "data-import.read" });
-    return fail("unreadable");
-  }
+    let actualBytes: number | null;
+    try {
+      actualBytes = cachedFile.size;
+    } catch (error) {
+      reportError(error, { scope: "data-import.stat" });
+      return fail("unreadable");
+    }
 
-  if (content.length > MAX_BACKUP_BYTES) {
-    return fail("file-too-large", {
-      bytes: content.length,
-      limit: MAX_BACKUP_BYTES,
-    });
-  }
+    // Picker metadata is optional and can be stale. The cached file is the value
+    // we will actually read, so its filesystem size owns this boundary.
+    if (
+      actualBytes === null ||
+      !Number.isFinite(actualBytes) ||
+      actualBytes < 0
+    ) {
+      return fail("unreadable");
+    }
+    if (actualBytes > MAX_BACKUP_BYTES) {
+      return fail("file-too-large", {
+        bytes: actualBytes,
+        limit: MAX_BACKUP_BYTES,
+      });
+    }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    return fail("invalid-json");
-  }
+    let content: string;
+    try {
+      content = await cachedFile.text();
+    } catch (error) {
+      reportError(error, { scope: "data-import.read" });
+      return fail("unreadable");
+    }
 
-  return validateImportFile(parsed);
+    if (content.length > MAX_BACKUP_BYTES) {
+      return fail("file-too-large", {
+        bytes: content.length,
+        limit: MAX_BACKUP_BYTES,
+      });
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      return fail("invalid-json");
+    }
+
+    return validateImportFile(parsed);
+  } finally {
+    cachedFile.delete();
+  }
 }
 
 /**

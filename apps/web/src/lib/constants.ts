@@ -6,4 +6,4 @@
  * than the date visitors saw. Bump this when the wording of `/privacy` or
  * `/terms` actually changes -- it is a reviewed date, not a build timestamp.
  */
-export const LEGAL_LAST_UPDATED = "August 30, 2026";
+export const LEGAL_LAST_UPDATED = "October 7, 2026";

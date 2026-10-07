@@ -199,7 +199,8 @@
     "doneTitle": "Jsi na listině.",
     "doneBody": "Poslali jsme ti na e-mail potvrzovací odkaz. Klikni na něj a místo je tvoje — znovu se ozveme, až bude co otevírat.",
     "closedNotice": "Dokončujeme bezpečnou registraci a potvrzování e-mailu. Zatím nepřijímáme adresy.",
-    "privacyLink": "Soukromí"
+    "privacyLink": "Soukromí",
+    "consentSummary": "Pošleme vám e-mail o spuštění ConPaws. Z odběru se můžete kdykoli odhlásit."
   },
   "confirmed": {
     "title": "Jsi na listině",

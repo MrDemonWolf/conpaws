@@ -199,7 +199,8 @@
     "doneTitle": "Jesteś na liście.",
     "doneBody": "Wysłaliśmy link potwierdzający na twoją skrzynkę. Kliknij go i miejsce jest twoje — nie napiszemy ponownie, dopóki nie będzie czegoś wartego otwarcia.",
     "closedNotice": "Kończymy bezpieczne zapisy i potwierdzanie adresu e-mail. Na razie nie przyjmujemy adresów.",
-    "privacyLink": "Prywatność"
+    "privacyLink": "Prywatność",
+    "consentSummary": "Wyślemy Ci e-mail o premierze ConPaws. Możesz zrezygnować z subskrypcji w dowolnym momencie."
   },
   "confirmed": {
     "title": "Jesteś na liście",
