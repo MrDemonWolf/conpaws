@@ -98,7 +98,7 @@ Each phase is one PR-sized Codex run on branch `fix/review-2026-10`, in order. I
   - `WatchScheduleStore.isValid` filters bad entries instead of rejecting the whole snapshot.
   - The widget's `.empty` branch keeps the current-only event and distinguishes current/next/finished.
   - Fix the stale `resolve("ja")` assertion, give Czech its own plural rule, map `es`→es-419 and zh-Hant/HK/TW→zhTW, and remove the 8 dead string fields.
-- **Swift tests:** add `apps/native/targets/_shared/Package.swift` (Swift Testing; Foundation-only sources). Move the widget's runtime self-checks there and add parameterized plural, resolve, countdown and snapshot-decode tests (TEST-1).
+- **Swift tests:** add `apps/native/swift-tests/Package.swift` (Swift Testing; symlinks to the Foundation-only `targets/_shared` sources, kept outside `_shared` because apple-targets compiles that whole folder into every target). Move the widget's runtime self-checks there and add parameterized plural, resolve, countdown and snapshot-decode tests (TEST-1).
 - **Tests:**
   - `notifications.test.ts`: tombstoned and archived events are not re-armed.
   - `schedule-changes.test.ts`: accumulated tombstones.
@@ -108,7 +108,7 @@ Each phase is one PR-sized Codex run on branch `fix/review-2026-10`, in order. I
   - Overnight overlap.
   - Bounded-response cancel spy.
   - `widget-snapshot.test.ts`: inverted ranges.
-  - `swift test --package-path apps/native/targets/_shared`.
+  - `swift test --package-path apps/native/swift-tests`.
 
 ### Phase 4 — Native UX and accessibility
 **Findings:** DEV-17, DEV-2, DEV-3, DEV-4, DEV-5, DEV-6, DEV-7, DEV-8, DEV-9, DEV-10, DEV-18, DEV-19, the prior P2 "leave" wording, SAL-11, I18N-2.
@@ -213,7 +213,7 @@ Each phase is one PR-sized Codex run on branch `fix/review-2026-10`, in order. I
   - `bun lint`: 0 errors, and no more than 82 warnings.
   - `bun check-types`: passes.
   - `CI=true bun run test`: green, including `ecp-feed` under parallel load.
-  - `swift test --package-path apps/native/targets/_shared` from Phase 3 on.
+  - `swift test --package-path apps/native/swift-tests` from Phase 3 on.
 - **Web:**
   - `bun run --filter @conpaws/web preview` (local Worker on 8789, local D1 migrated).
   - `apps/web/scripts/e2e.ts` across 23 locales at 320/375 px.
