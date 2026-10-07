@@ -612,3 +612,17 @@ The first 20-agent run hit the account's session limit three times and returned 
   - Lighthouse or WebPageTest on the live site.
   - Hermes profiling beyond PERF-1.
 - **Usage:** the first workflow used about 8.5M subagent tokens and returned nothing (session limit, three times). The lean re-run used about 0.54M. For future large reviews, keep at most 3 concurrent agents at high effort with capped tool budgets. The Codex phases use your OpenAI quota, not Claude's.
+
+## Implementation status (fix/review-2026-10)
+
+- Phase 1: `3bb6c5e` — live waitlist and public API hardening.
+- Phase 2: `7bb07d3` — privacy, consent and store-privacy accuracy.
+- Phase 3: `9df604e` — native correctness and Swift tests.
+- Phase 4: `dd2182f` — native type scale and honest states.
+- Phase 5: `31f818a` — web/admin accessibility and UX polish.
+- Phase 6: `a31e6e3` — deploy, rollback, signing and observability.
+- Phase 7: this commit — admin authorization tests and documentation.
+- Deferred: the 320/375px overflow check needs a headless browser; listmonk
+  subscriber deletion awaits the permission decision; privacy-policy legal
+  review and the VPS provider name remain open; Cloudflare zone header decision;
+  Mobbin benchmark; and physical-device checks.
