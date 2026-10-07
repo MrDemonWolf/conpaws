@@ -3,9 +3,9 @@ import { cn } from "./utils";
 
 describe("cn", () => {
   it("keeps iOS text-style sizes next to text colors", () => {
-    expect(cn("text-largeTitle font-bold text-foreground", "text-primary")).toBe(
-      "text-largeTitle font-bold text-primary",
-    );
+    expect(
+      cn("text-largeTitle font-bold text-foreground", "text-primary"),
+    ).toBe("text-largeTitle font-bold text-primary");
     expect(cn("text-footnote text-muted-foreground", "text-center")).toBe(
       "text-footnote text-muted-foreground text-center",
     );
