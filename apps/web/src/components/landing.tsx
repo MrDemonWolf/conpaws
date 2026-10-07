@@ -396,16 +396,31 @@ export function Landing({
       <header>
         <nav
           aria-label={messages.nav.primaryLabel}
-          className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu"
+          className="relative z-nav grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-border py-4 has-[details[open]]:z-menu sm:gap-y-2 sm:py-5 lg:flex lg:justify-between lg:gap-5 lg:py-6"
         >
-          <span className="flex items-center gap-3">
-            <CompassPaw className="h-10 w-10 text-primary" />
-            <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
+          <span className="flex items-center gap-2.5">
+            <CompassPaw className="h-9 w-9 text-primary sm:h-10 sm:w-10" />
+            <b className="font-bold text-[20px] tracking-tight sm:text-[22px]">
+              ConPaws
+            </b>
           </span>
-          <span className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline">
-              {messages.nav.established}
-            </span>
+          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5 sm:gap-x-2 lg:order-2 lg:flex-1 lg:justify-center lg:gap-x-1">
+            {[
+              ["#inside", messages.inside.eyebrow],
+              ["#features", messages.lineup.title],
+              ["#faq", messages.faq.title],
+              ["/updates", UPDATES_LABEL[locale]],
+            ].map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                className="inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-2.5 text-[13px] text-muted-foreground transition hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:px-3 sm:text-sm"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+          <span className="col-start-2 row-start-1 justify-self-end lg:order-3">
             <LanguageSwitcher
               current={locale}
               label={messages.nav.languageLabel}
@@ -415,27 +430,8 @@ export function Landing({
       </header>
 
       <main id="main">
-        <nav
-          aria-label={messages.inside.title}
-          className="relative z-content flex flex-wrap gap-2 border-b border-border pb-4 text-sm"
-        >
-          {[
-            ["#inside", messages.inside.eyebrow],
-            ["#features", messages.lineup.title],
-            ["#faq", messages.faq.title],
-            ["/updates", UPDATES_LABEL[locale]],
-          ].map(([href, label]) => (
-            <a
-              key={href}
-              href={href}
-              className="inline-flex min-h-11 items-center rounded-xl px-3 text-muted-foreground transition hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
         {/* Keep the lanyard above section art, below all navigation controls. */}
-        <section id="waitlist" className="relative pt-6">
+        <section id="waitlist" className="relative pt-4 sm:pt-6">
           <Waitlist messages={messages.waitlist} />
         </section>
 

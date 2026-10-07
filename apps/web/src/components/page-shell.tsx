@@ -31,8 +31,7 @@ export function PageShell({
   locale?: Locale;
   messages: Messages;
   /**
-   * Sits left of the language switcher. Defaults to the landing page's
-   * "Est. 2025" pill; pages pass their own marker instead ("404", "← Back").
+   * Optional page-specific marker to the left of the language switcher.
    */
   navAside?: ReactNode;
   /** Legal pages read as prose and use a 760px measure, not the 1120px grid. */
@@ -59,18 +58,14 @@ export function PageShell({
       <header>
         <nav
           aria-label={messages.nav.primaryLabel}
-          className="relative z-nav flex items-center justify-between py-7 has-[details[open]]:z-menu"
+          className="relative z-nav flex items-center justify-between py-5 has-[details[open]]:z-menu sm:py-6"
         >
           <Link href="/" className="flex items-center gap-3">
             <CompassPaw className="h-10 w-10 text-primary" />
             <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
           </Link>
           <span className="flex items-center gap-3">
-            {navAside ?? (
-              <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline">
-                {messages.nav.established}
-              </span>
-            )}
+            {navAside}
             <LanguageSwitcher
               current={locale}
               label={messages.nav.languageLabel}
@@ -146,7 +141,7 @@ function PageFooter({
   );
 }
 
-/** The pill the landing page uses for "Est. 2025", for page-specific markers. */
+/** A restrained pill for page-specific navigation markers. */
 export function NavPill({ children }: { children: ReactNode }) {
   return (
     <span className="hidden rounded-full border border-border px-3 py-1 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:inline-flex">
