@@ -37,6 +37,35 @@ struct ConPawsSnapshot: Codable, Sendable {
   var strings: ConPawsStrings {
     ConPawsStrings.resolve(localeIdentifier)
   }
+
+  func filteringInvalidRecords() -> ConPawsSnapshot {
+    var seenConventions = Set<String>()
+    let validConventions = conventions.compactMap { convention -> ConPawsConventionSnapshot? in
+      guard seenConventions.insert(convention.id).inserted,
+        !convention.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+        !convention.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+        convention.startAtMs.isFinite, convention.endAtMs.isFinite,
+        convention.endAtMs >= convention.startAtMs,
+        TimeZone(identifier: convention.timeZoneIdentifier) != nil
+      else { return nil }
+      var seenEvents = Set<String>()
+      let events = convention.events.filter { event in
+        seenEvents.insert(event.id).inserted
+          && !event.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          && !event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          && event.startAtMs.isFinite
+          && (event.endAtMs.map { $0.isFinite && $0 >= event.startAtMs } ?? true)
+          && (event.reminderMinutes.map { $0 >= 0 } ?? true)
+      }
+      return ConPawsConventionSnapshot(
+        id: convention.id, name: convention.name, startAtMs: convention.startAtMs,
+        endAtMs: convention.endAtMs, timeZoneIdentifier: convention.timeZoneIdentifier,
+        dateRangeLabel: convention.dateRangeLabel, events: events
+      )
+    }
+    return ConPawsSnapshot(schemaVersion: schemaVersion, generatedAtMs: generatedAtMs,
+      localeIdentifier: localeIdentifier, conventions: validConventions)
+  }
 }
 
 /// Widget kinds, named once because `WidgetCenter.reloadTimelines(ofKind:)`

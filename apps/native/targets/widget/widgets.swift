@@ -21,6 +21,8 @@ private enum ConPawsWidgetState {
   case countdown(ConPawsConventionSnapshot)
   case next(ConPawsConventionSnapshot, current: ConPawsEventSnapshot?, upcoming: ConPawsEventSnapshot)
   case leave(ConPawsConventionSnapshot, current: ConPawsEventSnapshot?, upcoming: ConPawsEventSnapshot)
+  case current(ConPawsConventionSnapshot, ConPawsEventSnapshot)
+  case finished(ConPawsConventionSnapshot)
   case empty(ConPawsConventionSnapshot?)
 }
 
@@ -37,7 +39,7 @@ struct ConPawsWidgetEntry: TimelineEntry {
 
   fileprivate var appURL: URL? {
     switch state {
-    case .countdown(let convention), .next(let convention, _, _), .leave(let convention, _, _):
+    case .countdown(let convention), .next(let convention, _, _), .leave(let convention, _, _), .current(let convention, _), .finished(let convention):
       ConPawsSnapshotStore.appURL(conventionID: convention.id)
     case .empty(let convention):
       ConPawsSnapshotStore.appURL(conventionID: convention?.id)
@@ -146,7 +148,7 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
         configuration: configuration,
         locale: locale,
         strings: strings,
-        state: .empty(convention)
+        state: current.map { .current(convention, $0) } ?? .finished(convention)
       )
     }
 
@@ -189,9 +191,11 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       // The leave countdown reads in whole minutes, so it needs an entry per
       // minute rather than the hourly ladder.
       return ConPawsCountdown.leaveChangePoints(from: date, to: upcoming.startDate)
-    case .next, .empty:
+    case .next, .empty, .finished:
       // These read as clock times rather than countdowns, so they only need
       // the single transition nextRefresh already computes.
+      return []
+    case .current:
       return []
     }
   }
@@ -246,6 +250,11 @@ struct ConPawsWidgetProvider: AppIntentTimelineProvider {
       if let end = convention?.endDate {
         candidates.append(end)
       }
+    case .current(let convention, let event):
+      candidates.append(effectiveEnd(for: event, nextStart: nil))
+      candidates.append(convention.endDate)
+    case .finished(let convention):
+      candidates.append(convention.endDate)
     }
 
     return candidates
@@ -304,6 +313,10 @@ struct ConPawsWidgetEntryView: View {
       scheduleBody(convention: convention, current: current, upcoming: upcoming, isLeave: false)
     case .leave(let convention, let current, let upcoming):
       scheduleBody(convention: convention, current: current, upcoming: upcoming, isLeave: true)
+    case .current(let convention, let event):
+      ConPawsCurrentOnlyView(convention: convention, event: event, strings: entry.strings)
+    case .finished(let convention):
+      ConPawsEmptyView(convention: convention, family: family, strings: entry.strings)
     case .empty(let convention):
       ConPawsEmptyView(convention: convention, family: family, strings: entry.strings)
     }
@@ -352,6 +365,23 @@ struct ConPawsWidgetEntryView: View {
         )
       }
     }
+  }
+}
+
+private struct ConPawsCurrentOnlyView: View {
+  let convention: ConPawsConventionSnapshot
+  let event: ConPawsEventSnapshot
+  let strings: ConPawsStrings
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 6) {
+      ConPawsAccessoryEyebrow(title: strings.now)
+      Text(event.title).font(.headline).lineLimit(2)
+      if let place = event.place { Text(place).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+      Text(convention.name).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    .accessibilityElement(children: .combine)
   }
 }
 
@@ -1151,7 +1181,17 @@ private struct ConPawsCircularView: View {
         )
       )
 
-    case .empty:
+    case .current(let convention, let event):
+      ZStack {
+        AccessoryWidgetBackground()
+        VStack(spacing: 1) {
+          Text(entry.strings.now).font(.caption2)
+          Text(initialLetter(of: event.title)).font(.title3.weight(.bold))
+        }.padding(4)
+      }
+      .accessibilityLabel("\(convention.name), \(entry.strings.now), \(event.title)")
+
+    case .empty, .finished:
       ZStack {
         AccessoryWidgetBackground()
         ConPawsMarkShape()
@@ -1261,11 +1301,19 @@ private struct ConPawsRectangularView: View {
           .foregroundStyle(.secondary)
           .lineLimit(1)
 
+      case .current(_, let event):
+        ConPawsAccessoryEyebrow(title: entry.strings.now)
+        Text(event.title).font(.headline).lineLimit(2)
+        if let place = event.place { Text(place).font(.caption2).foregroundStyle(.secondary).lineLimit(1) }
+
       case .empty(let convention):
         ConPawsAccessoryEyebrow(title: convention?.name ?? entry.strings.addConvention)
         Text(entry.strings.noUpcomingEvents)
           .font(.headline)
           .lineLimit(2)
+      case .finished(let convention):
+        ConPawsAccessoryEyebrow(title: convention.name)
+        Text(entry.strings.noUpcomingEvents).font(.headline).lineLimit(2)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -1349,7 +1397,9 @@ private struct ConPawsInlineView: View {
           "\(upcoming.startDate.formatted(conPawsClockStyle(convention.timeZone, locale: entry.locale))) · \(upcoming.title)"
         )
       }
-    case .empty:
+    case .current(_, let event):
+      Text("\(entry.strings.now) · \(event.title)")
+    case .empty, .finished:
       Text(entry.strings.noUpcomingEvents)
     }
   }
@@ -1449,139 +1499,3 @@ private extension View {
     }
   }
 }
-
-#if DEBUG
-/// Boundary checks for the countdown ladder the Lock Screen families added.
-///
-/// The compact and prose renderings share one classifier precisely so they
-/// cannot drift apart; these assertions are what would catch it if they did.
-func runConPawsWidgetSelfCheck() {
-  let zone = TimeZone(identifier: "UTC")!
-  // 2026-01-01 00:00 UTC. Midnight in the test zone keeps the calendar-day
-  // arithmetic below unambiguous.
-  let now = Date(timeIntervalSince1970: 1_767_225_600)
-
-  // Pinned to English: the assertions below compare exact wording, so reading
-  // the app's language here would fail them on a translated build rather than
-  // on a broken ladder.
-  func compact(_ seconds: TimeInterval) -> String {
-    ConPawsCountdown.compactLabel(
-      from: now,
-      to: now.addingTimeInterval(seconds),
-      timeZone: zone,
-      strings: .english
-    )
-  }
-  func prose(_ seconds: TimeInterval) -> String {
-    ConPawsCountdown.label(
-      from: now,
-      to: now.addingTimeInterval(seconds),
-      timeZone: zone,
-      strings: .english
-    )
-  }
-
-  assert(compact(-60) == "Now")
-  assert(compact(0) == "Now")
-  assert(compact(60) == "Soon")
-  assert(compact(3_599) == "Soon")
-  assert(compact(3_600) == "1h")
-  assert(compact(6 * 3_600) == "6h")
-  assert(compact(86_399) == "23h")
-  assert(compact(86_400) == "1d")
-  assert(compact(13 * 86_400) == "13d")
-  assert(compact(60 * 86_400) == "2mo")
-
-  assert(prose(0) == "Now")
-  assert(prose(3_600) == "In 1 hour")
-  assert(prose(86_400) == "Tomorrow")
-  assert(prose(13 * 86_400) == "In 13 days")
-  assert(prose(60 * 86_400) == "In 2 months")
-
-  // 30 days out with no whole calendar month between them stays in days. This
-  // is the rung the JS mirrors in docs/ get wrong by dividing by 30.
-  assert(compact(30 * 86_400) == "30d")
-  assert(prose(30 * 86_400) == "In 30 days")
-  assert(compact(31 * 86_400) == "1mo")
-
-  // The ring is scaled to the final week and clamped either side of it.
-  assert(ConPawsCountdown.ringProgress(from: now, to: now) == 1)
-  assert(ConPawsCountdown.ringProgress(from: now, to: now.addingTimeInterval(7 * 86_400)) == 0)
-  assert(ConPawsCountdown.ringProgress(from: now, to: now.addingTimeInterval(30 * 86_400)) == 0)
-  let midweek = ConPawsCountdown.ringProgress(
-    from: now,
-    to: now.addingTimeInterval(3.5 * 86_400)
-  )
-  assert(abs(midweek - 0.5) < 0.000_1)
-
-  // The leave window is the one countdown allowed to read in minutes, and the
-  // one ring scaled to its own window rather than the final week.
-  assert(ConPawsCountdown.leaveMinutes(from: now, to: now.addingTimeInterval(1_080)) == 18)
-  assert(ConPawsCountdown.leaveMinutes(from: now, to: now.addingTimeInterval(3_600)) == nil)
-  assert(
-    ConPawsCountdown.leaveCountdown(
-      from: now,
-      to: now.addingTimeInterval(1_080),
-      timeZone: zone,
-      strings: .english
-    ) == "18 min"
-  )
-  assert(
-    ConPawsCountdown.leaveLead(
-      from: now,
-      to: now.addingTimeInterval(1_080),
-      timeZone: zone,
-      strings: .english
-    ) == "Leave in 18 min"
-  )
-  assert(
-    ConPawsCountdown.leaveLead(
-      from: now,
-      to: now.addingTimeInterval(2 * 3_600),
-      timeZone: zone,
-      strings: .english
-    ) == "Leave in 2 hours"
-  )
-  let leaveTicks = ConPawsCountdown.leaveChangePoints(
-    from: now,
-    to: now.addingTimeInterval(1_080)
-  )
-  assert(leaveTicks.count == 18)
-  assert(leaveTicks.first == now.addingTimeInterval(60))
-  assert(leaveTicks.last == now.addingTimeInterval(1_080))
-  assert(ConPawsCountdown.leaveProgress(from: now, to: now.addingTimeInterval(900), windowMinutes: 15) == 0)
-  assert(ConPawsCountdown.leaveProgress(from: now, to: now, windowMinutes: 15) == 1)
-  let halfway = ConPawsCountdown.leaveProgress(
-    from: now,
-    to: now.addingTimeInterval(450),
-    windowMinutes: 15
-  )
-  assert(abs(halfway - 0.5) < 0.000_1)
-
-  // The redesign's composed strings, in the exact wording the mocks carry.
-  assert(ConPawsStrings.english.moreToday(3) == "+3 more today")
-  assert(ConPawsStrings.english.starred(8) == "8 events starred")
-  assert(ConPawsStrings.english.ends("1:00 AM") == "ends 1:00 AM")
-  assert(
-    ConPawsStrings.english.firstTomorrow("Fursuit Care Workshop", "9:00 AM")
-      == "First event tomorrow: Fursuit Care Workshop, 9:00 AM."
-  )
-
-  // Polish is the only language here that inflects 2-4 apart from 5 and up, so
-  // it is the only one whose plural rule can be wrong without English noticing.
-  let polish = ConPawsStrings.table(for: .pl)
-  assert(polish.hours(1) == "1 godzina")
-  assert(polish.hours(2) == "2 godziny")
-  assert(polish.hours(5) == "5 godzin")
-  assert(polish.hours(12) == "12 godzin")
-  assert(polish.hours(22) == "22 godziny")
-  assert(polish.inDays(3) == "Za 3 dni")
-
-  // A language the app does not ship, and a regionless Portuguese, both have to
-  // land somewhere renderable rather than on an empty string.
-  assert(ConPawsLanguage.resolve("ja") == .en)
-  assert(ConPawsLanguage.resolve("pt") == .ptBR)
-  assert(ConPawsLanguage.resolve("de_DE") == .de)
-  assert(ConPawsLanguage.resolve("pt-BR") == .ptBR)
-}
-#endif

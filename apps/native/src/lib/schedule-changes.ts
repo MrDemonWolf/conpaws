@@ -21,6 +21,7 @@ export interface ScheduleOccurrence {
   room: string | null;
   location: string | null;
   isInSchedule: boolean;
+  feedStatus?: string | null;
 }
 
 export interface ScheduleChangeSummary {
@@ -91,6 +92,9 @@ export function summarizeScheduleChanges(
     (event): event is ScheduleOccurrence & { sourceUid: string } =>
       event.sourceUid !== null,
   );
+  const liveSourcedCount = sourced.filter(
+    (event) => event.feedStatus == null,
+  ).length;
   // Nothing here came from a feed, so the feed cannot have changed it.
   if (sourced.length === 0) return { status: "unchanged" };
 
@@ -116,13 +120,14 @@ export function summarizeScheduleChanges(
     const match = activeByUid.get(event.sourceUid);
     if (match) {
       overlap++;
-      if (movedFrom(event, match)) {
+      if (event.feedStatus != null || movedFrom(event, match)) {
         moved++;
         if (event.isInSchedule) savedMoved++;
       }
       continue;
     }
     if (cancelledUids.has(event.sourceUid)) overlap++;
+    if (event.feedStatus != null) continue;
     gone++;
     if (event.isInSchedule) savedGone++;
   }
@@ -133,7 +138,7 @@ export function summarizeScheduleChanges(
   if (overlap === 0) return { status: "untrusted", reason: "no-overlap" };
 
   if (
-    gone / sourced.length > MASS_REMOVAL_FRACTION ||
+    gone / Math.max(1, liveSourcedCount) > MASS_REMOVAL_FRACTION ||
     savedGone > MASS_REMOVAL_SAVED_LIMIT
   ) {
     return { status: "untrusted", reason: "mass-removal" };

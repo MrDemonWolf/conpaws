@@ -86,6 +86,24 @@ describe("buildWidgetSnapshot", () => {
     ]);
   });
 
+  it("clamps inverted convention dates and nulls an inverted event end", () => {
+    const invertedConvention = { ...convention, endDate: "2026-09-02" };
+    const malformed = {
+      ...event("bad-end", "2026-09-03T15:00:00Z", true),
+      endTime: "2026-09-03T14:00:00Z",
+    };
+    const snapshot = buildWidgetSnapshot(
+      [invertedConvention],
+      new Map([[convention.id, [malformed]]]),
+      "en",
+      123,
+    );
+    expect(snapshot.conventions[0]?.endAtMs).toBe(
+      snapshot.conventions[0]?.startAtMs,
+    );
+    expect(snapshot.conventions[0]?.events[0]?.endAtMs).toBeNull();
+  });
+
   it("leaves a saved event out once the feed stops publishing it", () => {
     const snapshot = buildWidgetSnapshot(
       [convention],

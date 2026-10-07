@@ -117,8 +117,11 @@ export default function SettingsScreen() {
 
   function handleExport() {
     exportData(undefined, {
-      onError: () =>
-        Alert.alert(t("common.error"), t("settings.data.exportError")),
+      onError: (error) =>
+        Alert.alert(
+          t("common.error"),
+          error.message || t("settings.data.exportError"),
+        ),
     });
   }
 

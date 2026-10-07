@@ -1,6 +1,7 @@
 import * as ExpoNotifications from "expo-notifications";
 import i18n from "i18next";
 import { Platform } from "react-native";
+import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 
 const REMINDER_CHANNEL_ID = "event-reminders";
@@ -233,7 +234,17 @@ export interface ReminderReconciliationResult {
 
 export async function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
   const events = await eventsRepo.getAllWithReminders();
-  const eventIds = new Set(events.map((event) => event.id));
+  const archivedConventionIds = new Set(
+    (await conventionsRepo.getAll())
+      .filter((convention) => convention.archivedAt !== null)
+      .map((convention) => convention.id),
+  );
+  const armableEvents = events.filter(
+    (event) =>
+      event.feedStatus === null &&
+      !archivedConventionIds.has(event.conventionId),
+  );
+  const eventIds = new Set(armableEvents.map((event) => event.id));
   let staleCancelled = 0;
 
   try {
@@ -267,6 +278,10 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
   const pending: { event: (typeof events)[number]; minutes: number }[] = [];
 
   for (const event of events) {
+    if (!eventIds.has(event.id)) {
+      await cancelEventReminder(event.id);
+      continue;
+    }
     const minutes = event.reminderMinutes;
     if (minutes === null) continue;
     const triggerMs = new Date(event.startTime).getTime() - minutes * 60 * 1000;

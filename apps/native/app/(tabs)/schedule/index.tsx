@@ -247,21 +247,15 @@ export default function ScheduleScreen() {
    * convention screen does not, for the same two events.
    */
   const conflictingEventIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const day of days) {
-      const live = day.data.filter((entry) => entry.event.feedStatus === null);
-      for (const id of overlappingEventIds(
-        live.map((entry) => ({
-          id: entry.event.id,
-          startTime: entry.startTime,
-          endTime: entry.endTime,
-        })),
-      )) {
-        ids.add(id);
-      }
-    }
-    return ids;
-  }, [days]);
+    const live = entries.filter((entry) => entry.event.feedStatus === null);
+    return overlappingEventIds(
+      live.map((entry) => ({
+        id: entry.event.id,
+        startTime: entry.startTime,
+        endTime: entry.endTime,
+      })),
+    );
+  }, [entries]);
 
   const renderSectionHeader = useCallback(
     ({ section }: { section: { key: string } }) => (

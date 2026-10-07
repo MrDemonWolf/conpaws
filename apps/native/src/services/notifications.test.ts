@@ -21,6 +21,7 @@ const eventRepoMocks = vi.hoisted(() => ({
   getAllWithReminders: vi.fn(),
   update: vi.fn(),
 }));
+const conventionRepoMocks = vi.hoisted(() => ({ getAll: vi.fn() }));
 const i18nMock = vi.hoisted(() => ({
   isInitialized: false,
   t: vi.fn(),
@@ -36,6 +37,7 @@ vi.mock("expo-notifications", () => ({
 }));
 vi.mock("react-native", () => ({ Platform: { OS: "ios" } }));
 vi.mock("@/db/repositories/events", () => eventRepoMocks);
+vi.mock("@/db/repositories/conventions", () => conventionRepoMocks);
 vi.mock("i18next", () => ({ default: i18nMock }));
 
 function reminderEvent(
@@ -83,6 +85,7 @@ describe("startup reminder reconciliation", () => {
       async ({ identifier }: { identifier: string }) => identifier,
     );
     eventRepoMocks.getAllWithReminders.mockResolvedValue([]);
+    conventionRepoMocks.getAll.mockResolvedValue([]);
     eventRepoMocks.update.mockResolvedValue(undefined);
   });
 
@@ -123,6 +126,33 @@ describe("startup reminder reconciliation", () => {
       overflow: 0,
       staleCancelled: 1,
     });
+  });
+
+  it.each([
+    ["cancelled feed event", reminderEvent({ feedStatus: "cancelled" })],
+    ["removed feed event", reminderEvent({ feedStatus: "removed" })],
+  ])("does not re-arm a %s", async (_label, row) => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([row]);
+    const result = await reconcileEventReminders();
+    expect(notificationMocks.scheduleNotificationAsync).not.toHaveBeenCalled();
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-event-1");
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
+    expect(result.cleared).toBe(0);
+  });
+
+  it("cancels archived convention reminders without clearing saved choices", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
+    conventionRepoMocks.getAll.mockResolvedValue([
+      { id: "convention-1", archivedAt: "2026-08-01" },
+    ]);
+    await reconcileEventReminders();
+    expect(notificationMocks.scheduleNotificationAsync).not.toHaveBeenCalled();
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-event-1");
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
   });
 
   it("keeps the saved choice when permission is missing and re-arms it later", async () => {

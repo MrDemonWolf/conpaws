@@ -8,18 +8,12 @@ import {
   conventionEvents,
   conventions,
 } from "@/db/schema";
+import { MAX_BACKUP_BYTES } from "@/lib/backup-limits";
 import { isValidTimeZone } from "@/lib/convention-time";
-import { reportError } from "@/lib/error-reporting";
 
-/**
- * Largest backup this will read into memory.
- *
- * A restore of a heavy schedule year is a few megabytes of JSON. The ICS path
- * already draws its line at 8MB (`MAX_ICS_BYTES`) and the same number is
- * generous here, while still keeping `JSON.parse` off a file big enough to get
- * the app killed by the OS before it can say what went wrong.
- */
-export const MAX_BACKUP_BYTES = 8 * 1024 * 1024;
+export { MAX_BACKUP_BYTES } from "@/lib/backup-limits";
+
+import { reportError } from "@/lib/error-reporting";
 
 /**
  * Largest row count a backup may carry. Every insert runs synchronously inside

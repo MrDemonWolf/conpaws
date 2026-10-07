@@ -133,6 +133,20 @@ describe("refreshConventionSchedule gates", () => {
     expect(fetchScheduleIcs).not.toHaveBeenCalled();
   });
 
+  it("uses the saved convention zone only as a feed parse fallback", async () => {
+    parseIcs
+      .mockReturnValueOnce({ requiresTimeZone: true })
+      .mockReturnValueOnce(parsedFeed());
+    await refreshConventionSchedule(convention(), deps, {
+      force: true,
+      now: NOW,
+    });
+    expect(parseIcs).toHaveBeenNthCalledWith(1, "BEGIN:VCALENDAR");
+    expect(parseIcs).toHaveBeenNthCalledWith(2, "BEGIN:VCALENDAR", {
+      timeZone: "America/Chicago",
+    });
+  });
+
   it("does nothing when the setting is off", async () => {
     storage.getScheduleAutoCheck.mockResolvedValue(false);
 
