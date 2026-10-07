@@ -3,15 +3,15 @@ type WatchEvent = "photo" | "draw" | "story";
 type WatchScenario = "active" | "upcoming" | "empty" | "no-picks" | "done";
 
 const watchScenarios: Record<WatchScenario, string> = {
-  active: "Active plan · now & next",
-  upcoming: "Upcoming con · 15 days away",
-  empty: "No convention on this watch",
+  active: "Panel happening now · next panel",
+  upcoming: "Con in 15 days",
+  empty: "Choose a convention",
   "no-picks": "No panels picked",
-  done: "No more picks · all have ended",
+  done: "Today’s panels have ended",
 };
 const watchScenarioCopy = {
   upcoming: {
-    title: "Your next con",
+    title: "Your next convention",
     message: "Lakeside Fur Con",
     condition:
       "A convention is saved and its first date is still ahead. This takes priority even when no panels are picked.",
@@ -21,34 +21,33 @@ const watchScenarioCopy = {
     secondary: "Sep 18–20",
   },
   empty: {
-    title: "No plan yet",
-    message: "Open ConPaws on your iPhone. Add a convention to get started.",
+    title: "Open ConPaws on your iPhone",
+    message: "Choose a convention there to see your plan here.",
     condition:
-      "This watch has no convention in its saved snapshot. It cannot tell whether the phone is also empty or the first snapshot has not arrived.",
-    current:
-      "No schedule yet · Open ConPaws on your iPhone to sync a convention.",
-    idea: "Give a concrete action on the phone. Do not invent a Sync button or imply a transfer is in progress.",
+      "No convention is showing on the watch yet. It may be because none has been chosen, or the watch hasn’t received the plan from your iPhone yet.",
+    current: "Open ConPaws on your iPhone to choose a convention.",
+    idea: "Ask the person to open ConPaws on their iPhone. Don’t say anything is being sent unless it really is.",
     compact: "No plan yet",
     secondary: "Open ConPaws on iPhone",
   },
   "no-picks": {
-    title: "Your plan is empty",
-    message: "Add panels to your schedule in ConPaws on your iPhone.",
+    title: "No panels picked",
+    message: "Choose panels in ConPaws on your iPhone to see them here.",
     condition:
-      "The convention is running, but its saved snapshot contains no planned panels. This says nothing about whether the full program has been published.",
-    current: "No more events today · Today 0",
-    idea: "An empty plan is a starting point. It does not mean the day is finished or the program is unavailable.",
-    compact: "No planned panels",
+      "The convention is happening, but no panels have been picked. That doesn’t mean there are no other panels to choose from.",
+    current: "No panels picked for today",
+    idea: "Make it clear that the person can still choose panels. Don’t make it sound like the schedule is missing or the day is over.",
+    compact: "No panels picked",
     secondary: "Add panels on iPhone",
   },
   done: {
     title: "All done for today",
-    message: "All your planned panels have ended.",
+    message: "All the panels you picked have ended.",
     condition:
       "In this sample, all three chosen panels have ended and none is still running. The convention itself continues tomorrow.",
-    current: "No more events today",
-    idea: "Only show a done message when the saved plan has earlier events and no current or later event today.",
-    compact: "No more picks today",
+    current: "No more panels you picked today",
+    idea: "Show this only after every panel in the person’s plan has ended.",
+    compact: "No more panels today",
     secondary: "Your last panel ended at 5:00",
   },
 } satisfies Record<
@@ -248,9 +247,9 @@ export function mountWatch(root: HTMLElement): void {
       )!.textContent =
         "The watch should tell you what is saved, what comes next, and when to use your iPhone.";
       root.querySelector(".cpw-guide")!.innerHTML =
-        `<p class="cpw-kicker">WATCH STATE · COPY EXPLORATION</p><h3>${copy.title}</h3><p>${copy.condition}</p><div class="cpw-copy-card"><span>Current watch wording</span><p>${copy.current}</p></div><div class="cpw-copy-card proposed"><span>Why this wording</span><p>${copy.idea}</p></div><div class="cpw-status" role="status" aria-live="polite">${notice || (scenario === "upcoming" ? "Sample date: September 3, 2026. Con starts September 18: 15 calendar days away." : scenario === "done" ? "Sample time: 6:00 PM. The last chosen panel ended at 5:00 PM." : "Sample state is local to this watch preview.")}</div><div class="cpw-player"><button data-watch-action="reset">Try the active plan →</button></div>`;
+        `<p class="cpw-kicker">WATCH EXAMPLE</p><h3>${copy.title}</h3><p>${copy.condition}</p><div class="cpw-copy-card"><span>Wording in the app today</span><p>${copy.current}</p></div><div class="cpw-copy-card proposed"><span>Why this message helps</span><p>${copy.idea}</p></div><div class="cpw-status" role="status" aria-live="polite">${notice || (scenario === "upcoming" ? "Example date: September 3, 2026. Lakeside Fur Con starts September 18, 15 days later." : scenario === "done" ? "Example time: 6:00 PM. The last panel you picked ended at 5:00 PM." : "This example only changes what you see on this page.")}</div><div class="cpw-player"><button data-watch-action="reset">Show the active plan →</button></div>`;
       root.querySelector(".cpw-complications")!.innerHTML =
-        `<h3 class="cpw-section-title">The same state, at a glance.</h3><p class="cpw-section-copy">Rectangular complication proposal. Tap to open this state in the watch app.</p><div class="cpw-comp-grid cpw-single-comp"><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-rect" data-watch-complication aria-label="Open ConPaws: ${copy.title}"><small>${scenario === "empty" ? "CONPAWS" : "LAKESIDE FUR CON"}</small><strong>${copy.compact}</strong><small>${copy.secondary}</small></button></div><div class="cpw-comp-body"><h4>Rectangular · ${scenario === "upcoming" ? "countdown" : "next step"}</h4><p>${scenario === "empty" ? "A phone instruction, not a button that launches the iPhone app." : scenario === "done" ? "Shown only after every chosen panel has ended." : scenario === "no-picks" ? "An empty personal plan does not tell us whether a program is published." : "Date-based countdown. No invented opening time."}</p></div></article></div>`;
+        `<h3 class="cpw-section-title">The same state, at a glance.</h3><p class="cpw-section-copy">Watch face preview. Tap to open this state in the watch app.</p><div class="cpw-comp-grid cpw-single-comp"><article class="cpw-comp-card"><div class="cpw-comp-stage"><button class="cpw-comp-rect" data-watch-complication aria-label="Open ConPaws: ${copy.title}"><small>${scenario === "empty" ? "CONPAWS" : "LAKESIDE FUR CON"}</small><strong>${copy.compact}</strong><small>${copy.secondary}</small></button></div><div class="cpw-comp-body"><h4>Watch face · ${scenario === "upcoming" ? "countdown" : "next step"}</h4><p>${scenario === "empty" ? "A message tells you to choose a convention on your iPhone." : scenario === "done" ? "Shown only after every panel you picked has ended." : scenario === "no-picks" ? "No panels are in your plan yet. You can still choose from the convention schedule." : "Countdown to the date. No opening time is shown because it is not saved."}</p></div></article></div>`;
       if (scenario === "done")
         root.querySelector('[data-watch-action="change"]')?.remove();
     }
