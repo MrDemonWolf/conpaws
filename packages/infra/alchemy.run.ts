@@ -97,9 +97,10 @@ const db = await D1Database("database", {
 });
 
 /**
- * Read-only public API binding to the admin-owned catalog database. The admin
- * stack owns creation, migrations and deletion. This stack binds its existing
- * ID only, after the admin stack has been deployed and migrated.
+ * Public API binding to the admin-owned catalog database. D1 grants this
+ * Worker write access; public handlers enforce the read-only boundary in code.
+ * The admin stack owns creation, migrations and deletion. This stack binds its
+ * existing ID only, after the admin stack has been deployed and migrated.
  */
 const catalogBinding: Record<string, D1Database> = env.CATALOG_DATABASE_ID
   ? {
@@ -221,7 +222,7 @@ export const web = await Nextjs("web", {
   name: "conpaws",
   adopt: true,
   cwd: "../../apps/web",
-  // Populate read-only prerendered cache files before Alchemy uploads ASSETS.
+  // Populate prerendered cache files before Alchemy uploads ASSETS.
   build: "bun run build:cloudflare",
   compatibilityDate: COMPATIBILITY_DATE,
   observability: OBSERVABILITY,

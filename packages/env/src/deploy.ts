@@ -45,6 +45,16 @@ const required = (name: string) => {
 };
 
 export const deployEnvSchema = z.object({
+  /** Cloudflare credentials consumed by Alchemy's provider. */
+  CLOUDFLARE_API_TOKEN: required("CLOUDFLARE_API_TOKEN"),
+  CLOUDFLARE_ACCOUNT_ID: required("CLOUDFLARE_ACCOUNT_ID"),
+  NEXT_PUBLIC_SITE_URL: z
+    .url("NEXT_PUBLIC_SITE_URL must be an absolute URL")
+    .refine((value) => {
+      const hostname = new URL(value).hostname;
+      return hostname !== "localhost" && hostname !== "127.0.0.1";
+    }, "NEXT_PUBLIC_SITE_URL must not use localhost or 127.0.0.1"),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: required("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
   /** Existing admin-owned D1 ID; omit until the admin stack is deployed. */
   CATALOG_DATABASE_ID: z.preprocess(
     (value) => (value === "" ? undefined : value),

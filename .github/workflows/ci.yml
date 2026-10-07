@@ -46,6 +46,11 @@ jobs:
       - name: Test
         run: bun run test
 
+      - name: Test native under Pacific/Auckland
+        env:
+          TZ: Pacific/Auckland
+        run: bun run --filter @conpaws/native test
+
       # A schema edit without a regenerated migration passes lint, types, tests
       # and the Worker smoke test, and only surfaces at deploy -- where
       # alchemy.run.ts warns that D1 drift is not recoverable by rolling the
@@ -58,6 +63,16 @@ jobs:
           if [[ -n "$(git status --porcelain drizzle/migrations)" ]]; then
             git status --short drizzle/migrations
             echo "::error title=Migration drift::src/db/schema.ts changed without a matching migration. Run 'bun run db:generate' in apps/web and commit the result."
+            exit 1
+          fi
+
+      - name: Check admin D1 migrations match the schema
+        working-directory: apps/admin
+        run: |
+          bun run db:generate
+          if [[ -n "$(git status --porcelain drizzle/migrations)" ]]; then
+            git status --short drizzle/migrations
+            echo "::error title=Migration drift::src/db/schema.ts changed without a matching migration. Run 'bun run db:generate' in apps/admin and commit the result."
             exit 1
           fi
 
