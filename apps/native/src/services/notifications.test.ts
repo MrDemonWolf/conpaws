@@ -3,6 +3,7 @@ import type { ConventionEvent } from "@/db/schema";
 import {
   cancelConventionReminders,
   cancelTestNotifications,
+  getNotificationPermissionStatus,
   reconcileEventReminders,
   scheduleTestNotification,
 } from "./notifications";
@@ -352,5 +353,25 @@ describe("convention reminder cleanup", () => {
     expect(
       notificationMocks.cancelScheduledNotificationAsync,
     ).toHaveBeenCalledWith("reminder-event-2");
+  });
+});
+
+describe("getNotificationPermissionStatus", () => {
+  it("reads Android's pre-prompt denied state as undetermined", async () => {
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "denied",
+      canAskAgain: true,
+    });
+    await expect(getNotificationPermissionStatus()).resolves.toBe(
+      "undetermined",
+    );
+  });
+
+  it("keeps a real refusal as denied", async () => {
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "denied",
+      canAskAgain: false,
+    });
+    await expect(getNotificationPermissionStatus()).resolves.toBe("denied");
   });
 });

@@ -2,13 +2,11 @@ import { Redirect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "react-i18next";
-import { useWindowDimensions } from "react-native";
 import { ScreenErrorFallback } from "@/lib/error-fallback";
 import { getCachedOnboardingFlag } from "@/lib/onboarding-storage";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
-  const { fontScale } = useWindowDimensions();
   const { colors } = useTheme();
 
   // Inbound links resolve straight into the tabs without passing app/index's
@@ -40,7 +38,7 @@ export default function TabsLayout() {
           md="star"
         />
         <NativeTabs.Trigger.Label>
-          {fontScale >= 2 ? "" : t("schedule.title")}
+          {t("schedule.title")}
         </NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger

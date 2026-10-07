@@ -47,7 +47,11 @@ export async function requestNotificationPermission(): Promise<PermissionStatus>
 }
 
 export async function getNotificationPermissionStatus(): Promise<PermissionStatus> {
-  const { status } = await ExpoNotifications.getPermissionsAsync();
+  const { status, canAskAgain } = await ExpoNotifications.getPermissionsAsync();
+  // Android 13+ reports POST_NOTIFICATIONS as "denied" before the app has ever
+  // asked; only canAskAgain tells that apart from a real refusal. Treating it
+  // as denied would send the user to system settings instead of the prompt.
+  if (status === "denied" && canAskAgain) return "undetermined";
   return status as PermissionStatus;
 }
 
