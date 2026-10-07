@@ -5,6 +5,20 @@
 @import "nativewind/theme";
 
 @theme {
+  /* iOS text styles in points; Dynamic Type scales font size natively, so
+     Text variants omit fixed leading utilities and keep natural line height. */
+  --text-footnote: 13px;
+  --text-footnote--line-height: 1.385;
+  --text-subheadline: 15px;
+  --text-subheadline--line-height: 1.333;
+  --text-body: 17px;
+  --text-body--line-height: 1.294;
+  --text-title2: 22px;
+  --text-title2--line-height: 1.273;
+  --text-title1: 28px;
+  --text-title1--line-height: 1.214;
+  --text-largeTitle: 34px;
+  --text-largeTitle--line-height: 1.206;
   --color-primary: #005575;
   --color-primary-foreground: #ffffff;
   --color-background: #ffffff;

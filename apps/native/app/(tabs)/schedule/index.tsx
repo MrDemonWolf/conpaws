@@ -31,6 +31,7 @@ import {
 import { currentLocale } from "@/lib/i18n";
 import {
   groupPersonalScheduleByDay,
+  hasEndedStarredEvents,
   type PersonalScheduleEntry,
   spansMultipleConventions,
 } from "@/lib/personal-schedule";
@@ -197,6 +198,9 @@ export default function ScheduleScreen() {
     () => groupPersonalScheduleByDay(entries, now),
     [entries, now],
   );
+  const caughtUpEntry = hasEndedStarredEvents(entries, days)
+    ? entries[0]
+    : undefined;
 
   const notificationPermission = useNotificationPermission();
   const reminderOverflow = getReminderReconciliation().overflow;
@@ -356,7 +360,19 @@ export default function ScheduleScreen() {
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
         ListEmptyComponent={
-          linkedConvention ? (
+          caughtUpEntry ? (
+            <EmptyState
+              icon={EMPTY_ICON}
+              title={t("schedule.caughtUp.title")}
+              subtitle={t("schedule.caughtUp.subtitle", {
+                name: caughtUpEntry.conventionName,
+              })}
+              ctaLabel={t("schedule.caughtUp.cta")}
+              onCta={() =>
+                router.push(`/convention/${caughtUpEntry.conventionId}`)
+              }
+            />
+          ) : linkedConvention ? (
             <EmptyState
               icon={EMPTY_ICON}
               title={t("schedule.conventionEmpty.title", {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   groupPersonalScheduleByDay,
+  hasEndedStarredEvents,
   type PersonalScheduleEntry,
   spansMultipleConventions,
 } from "./personal-schedule";
@@ -132,6 +133,21 @@ describe("groupPersonalScheduleByDay", () => {
       "2026-07-04",
       "2026-07-05",
     ]);
+  });
+});
+
+describe("hasEndedStarredEvents", () => {
+  it("distinguishes ended starred events from an empty schedule", () => {
+    const ended = entry({
+      id: "ended",
+      startTime: "2026-07-03T09:00:00Z",
+      endTime: "2026-07-03T10:00:00Z",
+    });
+    expect(hasEndedStarredEvents([], [])).toBe(false);
+    expect(hasEndedStarredEvents([ended], [])).toBe(true);
+    expect(
+      hasEndedStarredEvents([ended], [{ key: "2026-07-03", data: [ended] }]),
+    ).toBe(false);
   });
 });
 

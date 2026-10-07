@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Wybierz wydarzenia w sekcji Wszystkie, aby zobaczyć, co trwa teraz i co będzie następne.",
     "myScheduleSubtitle": "Otwórz Wszystkie i dodaj wydarzenia, których nie chcesz przegapić.",
     "overlapSummary": "Zapisane panele z nakładającymi się godzinami: {{count}}",
-    "overlapHelp": "Możesz zachować je wszystkie. Ustaw przypomnienie o wyjściu dla późniejszego panelu, aby mieć czas na zmianę sali.",
+    "overlapHelp": "Możesz zachować je wszystkie. Ustaw przypomnienie dla późniejszego panelu, aby mieć czas na zmianę sali.",
     "overlapLabel": "Nakłada się na inny zapisany panel",
     "runsAlongsideOne": "Odbywa się w tym samym czasie co 1 inne wydarzenie",
     "runsAlongsideMany": "Odbywa się w tym samym czasie co inne wydarzenia: {{count}}",
@@ -135,6 +135,10 @@
     },
     "nameTooLong": "Nazwa może mieć maksymalnie {{max}} znaków.",
     "longSpan": "To konwent trwający {{count}} dni. Sprawdź daty.",
+    "longSpan_one": "To konwent trwający {{count}} dzień. Sprawdź daty.",
+    "longSpan_few": "To konwent trwający {{count}} dni. Sprawdź daty.",
+    "longSpan_many": "To konwent trwający {{count}} dni. Sprawdź daty.",
+    "longSpan_other": "To konwent trwający {{count}} dnia. Sprawdź daty.",
     "updateError": "Nie udało się zapisać zmian.",
     "nameCounter": "{{count}} z {{max}}",
     "feedStatus": {
@@ -336,15 +340,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Włącz przypomnienia",
     "minutesBefore": "{{minutes}} min wcześniej",
     "atTime": "O czasie wydarzenia",
-    "none": "Brak przypomnienia o wyjściu",
+    "none": "Brak przypomnienia",
     "hourBefore": "1 godzinę wcześniej",
-    "setLeave": "Ustaw przypomnienie o wyjściu",
-    "changeLeave": "Zmień przypomnienie o wyjściu",
+    "setLeave": "Ustaw przypomnienie",
+    "changeLeave": "Zmień przypomnienie",
     "pickerTitle": "Kiedy ConPaws ma Ci przypomnieć?",
-    "pickerDescription": "Wybierz, jak wcześnie wyjść na {{event}}.",
-    "notificationTitle": "Czas wyjść na {{event}}",
+    "pickerDescription": "Wybierz, kiedy chcesz otrzymać przypomnienie o {{event}}.",
+    "notificationTitle": "Przypomnienie o {{event}}",
     "notificationBody": "Zaczyna się za {{minutes}} min",
     "notificationBodyWithRoom": "Zaczyna się za {{minutes}} min · {{room}}",
     "channelName": "Przypomnienia o wydarzeniach",
@@ -363,12 +368,17 @@
     "overflowMessage": "To urządzenie utrzymuje ograniczoną liczbę oczekujących przypomnień, więc tyle z Twoich czeka: {{count}}. Najbliższe planowane są w pierwszej kolejności.",
     "priming": {
       "title": "Otrzymuj przypomnienia przed panelami",
-      "message": "ConPaws może przypomnieć ci, kiedy czas wyjść na panel. Telefon poprosi teraz o zgodę na powiadomienia.",
+      "message": "ConPaws może przypomnieć ci przed rozpoczęciem panelu. Telefon poprosi teraz o zgodę na powiadomienia.",
       "continue": "Kontynuuj",
       "notNow": "Nie teraz"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Masz już wszystko za sobą",
+      "subtitle": "Wszystkie zapisane wydarzenia na {{name}} już się skończyły.",
+      "cta": "Zobacz konwent"
+    },
     "title": "Harmonogram",
     "empty": {
       "title": "Nic jeszcze nie oznaczono",
@@ -476,6 +486,10 @@
       "website": "Witryna",
       "builtWith": "Stworzono z użyciem",
       "licenseDescription": "{{count}} pakietów i narzędzi",
+      "licenseDescription_one": "{{count}} pakiet i narzędzie",
+      "licenseDescription_few": "{{count}} pakiety i narzędzia",
+      "licenseDescription_many": "{{count}} pakietów i narzędzi",
+      "licenseDescription_other": "{{count}} pakietu i narzędzia",
       "support": "Pomoc",
       "helpCenter": "Centrum pomocy",
       "email": "E-mail",
@@ -502,7 +516,7 @@
       "enabled": "Dozwolone — przypomnienia mogą przychodzić",
       "disabled": "Wyłączone — przypomnienia nie będą przychodzić",
       "notRequested": "Jeszcze nie poproszono",
-      "defaultLead": "Domyślne przypomnienie o wyjściu",
+      "defaultLead": "Domyślne przypomnienie",
       "defaultLeadDescription": "Wstępnie wybrane przy ustawianiu przypomnienia dla nowego wydarzenia.",
       "noDefault": "Brak"
     },

@@ -9,7 +9,11 @@ import type { PermissionStatus } from "@/services/notifications";
  * ceiling was reached -- so the badge on its own can promise something that
  * will not happen. These notices are how the screen stays honest about it.
  */
-export type ReminderNotice = "none" | "permission" | "overflow";
+export type ReminderNotice =
+  | "none"
+  | "requestPermission"
+  | "permission"
+  | "overflow";
 
 export interface ReminderNoticeInput {
   /** Null while the permission status is still being read. */
@@ -26,9 +30,11 @@ export function resolveReminderNotice({
   overflow,
 }: ReminderNoticeInput): ReminderNotice {
   if (reminderCount === 0) return "none";
+  if (permission === null) return "none";
   // Permission first: with it revoked, nothing is scheduled at all, which
   // makes the ceiling beside the point.
-  if (permission !== null && permission !== "granted") return "permission";
+  if (permission === "undetermined") return "requestPermission";
+  if (permission === "denied") return "permission";
   if (overflow > 0) return "overflow";
   return "none";
 }

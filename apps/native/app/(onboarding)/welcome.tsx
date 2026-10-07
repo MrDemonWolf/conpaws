@@ -49,7 +49,7 @@ export default function WelcomeScreen() {
                 </Text>
                 <Text
                   variant="caption"
-                  className="max-w-xs text-center leading-5 text-muted-foreground"
+                  className="max-w-xs text-center text-muted-foreground"
                 >
                   {t("onboarding.welcome.subtitle")}
                 </Text>

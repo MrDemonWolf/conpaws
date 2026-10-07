@@ -47,7 +47,7 @@ export function Input({
         // fields pasted their own `bg-card ... px-4 py-3` string, so the
         // design system and the product disagreed about what an input is.
         className={cn(
-          "border rounded-xl px-4 py-3 text-base text-foreground bg-card",
+          "border rounded-xl px-4 py-3 text-body text-foreground bg-card",
           error ? "border-destructive" : "border-border",
           className,
         )}

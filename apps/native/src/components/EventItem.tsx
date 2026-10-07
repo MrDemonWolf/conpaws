@@ -1,20 +1,17 @@
 import { AlertTriangle, Clock, Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Pressable, useColorScheme, View } from "react-native";
-import { Badge, type BadgeVariant, PRESS_DIM, Text } from "@/components/ui";
+import {
+  Pressable,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { Badge, PRESS_DIM, Text } from "@/components/ui";
+import { ageBadgeFor } from "@/lib/age-badge";
 import type { ClusterPosition } from "@/lib/day-band";
 import type { AgeRating } from "@/lib/event-categories";
 import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
-
-/** Only ratings that restrict who may attend get a pill. */
-const AGE_BADGES: Partial<
-  Record<AgeRating, { variant: BadgeVariant; key: string }>
-> = {
-  teen: { variant: "age-teen", key: "convention.ageRatings.teen" },
-  mature: { variant: "age-mature", key: "convention.ageRatings.mature" },
-  adult: { variant: "age-adult", key: "convention.ageRatings.adult" },
-};
 
 interface EventItemProps {
   title: string;
@@ -95,8 +92,9 @@ export function EventItem({
   testID,
 }: EventItemProps) {
   const { t } = useTranslation();
+  const { fontScale } = useWindowDimensions();
   const isDark = useColorScheme() === "dark";
-  const ageBadge = ageRating ? AGE_BADGES[ageRating] : undefined;
+  const ageBadge = ageBadgeFor(ageRating);
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
   const feedStatusLabel = feedStatus
     ? t(
@@ -168,7 +166,8 @@ export function EventItem({
       className={cn(
         // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
         // the old py-2 broke.
-        "min-h-14 flex-row gap-3 border-b border-border px-4 py-3",
+        "min-h-14 gap-3 border-b border-border px-4 py-3",
+        fontScale >= 1.6 ? "flex-col" : "flex-row",
         PRESS_DIM,
         // Overlap-group chrome: shared tint + accent edge mark every row of
         // the cluster; the edge, not colour alone, carries the grouping.
@@ -176,20 +175,12 @@ export function EventItem({
         className,
       )}
     >
-      <View className="w-20 shrink-0">
-        <Text
-          variant="label"
-          className="tabular-nums text-primary"
-          maxFontSizeMultiplier={1.6}
-        >
+      <View className="min-w-20 shrink-0">
+        <Text variant="label" className="tabular-nums text-primary">
           {startTime}
         </Text>
         {endTime ? (
-          <Text
-            variant="caption"
-            className="tabular-nums"
-            maxFontSizeMultiplier={1.6}
-          >
+          <Text variant="caption" className="tabular-nums">
             {endTime}
           </Text>
         ) : null}

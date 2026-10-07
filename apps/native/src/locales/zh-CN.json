@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "在“全部”里选择活动，就能看到现在和接下来的安排。",
     "myScheduleSubtitle": "打开“全部”，把不想错过的活动加进来。",
     "overlapSummary": "时间重叠的已保存活动：{{count}}",
-    "overlapHelp": "可以全部保留。给靠后的活动设一个出发提醒，留出换场地的时间。",
+    "overlapHelp": "可以全部保留。给靠后的活动设一个提醒，留出换场地的时间。",
     "overlapLabel": "与另一个已保存的活动时间重叠",
     "runsAlongsideOne": "与另外 1 场活动同时进行",
     "runsAlongsideMany": "与另外 {{count}} 场活动同时进行",
@@ -336,20 +336,21 @@
     }
   },
   "reminders": {
+    "turnOn": "开启提醒",
     "minutesBefore": "提前 {{minutes}} 分钟",
     "atTime": "活动开始时",
-    "none": "无出发提醒",
+    "none": "无提醒",
     "hourBefore": "提前 1 小时",
-    "setLeave": "设置出发提醒",
-    "changeLeave": "更改出发提醒",
+    "setLeave": "设置提醒",
+    "changeLeave": "更改提醒",
     "pickerTitle": "希望 ConPaws 何时提醒你？",
-    "pickerDescription": "选择提前多久出发去{{event}}。",
-    "notificationTitle": "该出发去{{event}}了",
+    "pickerDescription": "选择何时接收关于{{event}}的提醒。",
+    "notificationTitle": "{{event}}提醒",
     "notificationBody": "{{minutes}} 分钟后开始",
     "notificationBodyWithRoom": "{{minutes}} 分钟后开始 · {{room}}",
     "channelName": "活动提醒",
-    "setAnnouncement": "已为{{event}}设置出发提醒。",
-    "clearedAnnouncement": "已清除{{event}}的出发提醒。",
+    "setAnnouncement": "已为{{event}}设置提醒。",
+    "clearedAnnouncement": "已清除{{event}}的提醒。",
     "errorTitle": "提醒未设置",
     "errorMessage": "ConPaws 无法更新这个提醒。请重试。",
     "permissionTitle": "通知已关闭",
@@ -363,12 +364,17 @@
     "overflowMessage": "此设备可保留的待发提醒数量有限，目前有 {{count}} 个提醒在等待。距离最近的会优先安排。",
     "priming": {
       "title": "活动开始前收到提示",
-      "message": "ConPaws 可以在该出发去活动时提醒你。接下来手机会请求通知权限。",
+      "message": "ConPaws 可以在活动开始前提醒你。接下来手机会请求通知权限。",
       "continue": "继续",
       "notNow": "暂不"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "已全部完成",
+      "subtitle": "{{name}}中已收藏的活动都已结束。",
+      "cta": "查看展会"
+    },
     "title": "日程",
     "empty": {
       "title": "还没有收藏任何活动",
@@ -502,7 +508,7 @@
       "enabled": "已允许——提醒可以送达",
       "disabled": "已关闭——提醒不会送达",
       "notRequested": "尚未请求",
-      "defaultLead": "默认出发提醒",
+      "defaultLead": "默认提醒",
       "defaultLeadDescription": "给新活动设置提醒时的预选项。",
       "noDefault": "无"
     },

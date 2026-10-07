@@ -33,7 +33,11 @@ describe("locale catalogs", () => {
     const catalog = JSON.parse(
       readFileSync(path.join(dir, `${locale}.json`), "utf8"),
     ) as Json;
-    expect(flatten(catalog).sort()).toEqual([...enKeys].sort());
+    const keys = flatten(catalog);
+    const keysWithoutLocalePluralForms = keys.filter(
+      (key) => !/_zero|_one|_two|_few|_many|_other$/.test(key),
+    );
+    expect(keysWithoutLocalePluralForms.sort()).toEqual([...enKeys].sort());
   });
 });
 
