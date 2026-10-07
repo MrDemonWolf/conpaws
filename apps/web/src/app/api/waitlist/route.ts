@@ -2,6 +2,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
+import { LAUNCH } from "@/content/launch";
 import { createDb } from "../../../db";
 import { type WaitlistInsert, waitlist } from "../../../db/schema";
 import { readBodyWithLimit } from "../../../lib/body-limit";
@@ -117,6 +118,8 @@ function unavailable() {
 }
 
 export async function POST(request: Request) {
+  if (LAUNCH.mode !== "waitlist") return unavailable();
+
   // Bound the read before anything parses it. Zod's field caps are applied to
   // a value that has already been decoded, so on their own they still let an
   // unauthenticated caller spend the Worker's memory on a payload that was

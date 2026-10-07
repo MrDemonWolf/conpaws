@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Document, rootMetadata, rootViewport } from "@/components/document";
+import { SiteModePage } from "@/components/site-mode-page";
+import { LAUNCH } from "@/content/launch";
+import { getMessages } from "@/i18n";
 import { isLocale } from "@/i18n/config";
 
 /**
@@ -25,7 +29,14 @@ import { isLocale } from "@/i18n/config";
  * `<html lang>` before the page had a chance to 404.
  */
 
-export const metadata = rootMetadata;
+const pausedMode =
+  LAUNCH.mode === "maintenance" || LAUNCH.mode === "coming-soon"
+    ? LAUNCH.mode
+    : null;
+
+export const metadata: Metadata = pausedMode
+  ? { ...rootMetadata, robots: { index: false, follow: false } }
+  : rootMetadata;
 export const viewport = rootViewport;
 
 export default async function LocaleRootLayout({
@@ -38,5 +49,19 @@ export default async function LocaleRootLayout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  return <Document locale={locale}>{children}</Document>;
+  const displayLocale = pausedMode ? "en" : locale;
+
+  return (
+    <Document locale={displayLocale}>
+      {pausedMode ? (
+        <SiteModePage
+          mode={pausedMode}
+          locale={displayLocale}
+          messages={getMessages(displayLocale)}
+        />
+      ) : (
+        children
+      )}
+    </Document>
+  );
 }

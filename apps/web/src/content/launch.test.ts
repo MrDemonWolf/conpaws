@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateLaunch } from "./launch";
+import { launchForPreview, validateLaunch } from "./launch";
 
 describe("launch configuration", () => {
   it("allows waitlist without listings and refuses incomplete live mode", () => {
@@ -23,5 +23,30 @@ describe("launch configuration", () => {
         googlePlayUrl: "https://play.google.com/store/apps/details?id=example",
       }),
     ).toThrow();
+  });
+
+  it("requires a UTC target for countdown mode", () => {
+    expect(() =>
+      validateLaunch({
+        mode: "coming-soon",
+        appStoreUrl: "",
+        googlePlayUrl: "",
+      }),
+    ).toThrow("NEXT_PUBLIC_COUNTDOWN_AT");
+    expect(() =>
+      validateLaunch({
+        mode: "coming-soon",
+        appStoreUrl: "",
+        googlePlayUrl: "",
+        countdownAt: "2026-12-01T18:00:00Z",
+      }),
+    ).not.toThrow();
+  });
+
+  it("lets the homepage preview live mode without publishing store links", () => {
+    const preview = launchForPreview("live");
+    expect(preview.mode).toBe("live");
+    expect(preview.appStoreUrl).toBe("");
+    expect(launchForPreview("maintenance").mode).toBe("waitlist");
   });
 });

@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
+
 import { Document, rootMetadata, rootViewport } from "@/components/document";
+import { SiteModePage } from "@/components/site-mode-page";
+import { LAUNCH } from "@/content/launch";
+import { getMessages } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 
 /**
@@ -15,11 +20,30 @@ import { DEFAULT_LOCALE } from "@/i18n/config";
  * `DEFAULT_LOCALE` here is a fact about the routes rather than a fallback.
  */
 
-export const metadata = rootMetadata;
+const pausedMode =
+  LAUNCH.mode === "maintenance" || LAUNCH.mode === "coming-soon"
+    ? LAUNCH.mode
+    : null;
+
+export const metadata: Metadata = pausedMode
+  ? { ...rootMetadata, robots: { index: false, follow: false } }
+  : rootMetadata;
 export const viewport = rootViewport;
 
 export default function MarketingRootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <Document locale={DEFAULT_LOCALE}>{children}</Document>;
+  return (
+    <Document locale={DEFAULT_LOCALE}>
+      {pausedMode ? (
+        <SiteModePage
+          mode={pausedMode}
+          locale={DEFAULT_LOCALE}
+          messages={getMessages(DEFAULT_LOCALE)}
+        />
+      ) : (
+        children
+      )}
+    </Document>
+  );
 }
