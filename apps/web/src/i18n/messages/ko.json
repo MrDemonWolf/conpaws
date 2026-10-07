@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "Est. 2025",
     "languageLabel": "언어",
     "back": "뒤로",
     "skipToContent": "본문으로 건너뛰기",
@@ -166,7 +165,7 @@
     "button": "줄 서기 →"
   },
   "footer": {
-    "copyright": "© {year} ConPaws by",
+    "copyright": "© {year} ConPaws",
     "company": "MrDemonWolf, Inc.",
     "support": "지원",
     "privacy": "개인정보",

@@ -12,6 +12,7 @@ import {
   Surface,
   TextAreaField,
 } from "../../../../components/ui";
+import { adminErrorMessage } from "../../../../lib/admin-error-message";
 import { requireAdmin } from "../../../../lib/auth";
 import {
   availabilityLabels,
@@ -34,6 +35,8 @@ import {
   updateConvention,
   updateScheduleEvent,
 } from "../../actions";
+
+export const metadata = { title: "Convention" };
 
 const errorMessages: Record<string, string> = {
   conflict:
@@ -150,6 +153,11 @@ export default async function ConventionWorkspacePage({
     today: todayInTimezone(convention.timezone),
   });
   const errorKey = typeof query.error === "string" ? query.error : "";
+  const invalidField = typeof query.field === "string" ? query.field : "";
+  const invalidMessage =
+    typeof query.message === "string" ? query.message : "Check this value.";
+  const fieldError = (name: string) =>
+    invalidField === name ? invalidMessage : undefined;
   const published =
     typeof query.published === "string" ? query.published : null;
   const saved = typeof query.saved === "string" ? query.saved : null;
@@ -162,8 +170,10 @@ export default async function ConventionWorkspacePage({
         description={`${convention.city}, ${convention.region || convention.country} · ${formatDate(convention.startsOn)}–${formatDate(convention.endsOn)} · ${convention.timezone}`}
         action={<StatusPill status={convention.status} />}
       />
-      {errorMessages[errorKey] ? (
-        <Banner tone="error">{errorMessages[errorKey]}</Banner>
+      {(errorMessages[errorKey] ?? adminErrorMessage(errorKey)) ? (
+        <Banner tone="error">
+          {errorMessages[errorKey] ?? adminErrorMessage(errorKey)}
+        </Banner>
       ) : null}
       {published ? (
         <Banner tone="success">
@@ -209,53 +219,71 @@ export default async function ConventionWorkspacePage({
                 <Field
                   name="name"
                   label="Convention name"
+                  error={fieldError("name")}
                   defaultValue={convention.name}
                   required
+                  minLength={2}
                   maxLength={120}
                   className="sm:col-span-2"
                 />
                 <Field
                   name="acronym"
                   label="Short name"
+                  error={fieldError("acronym")}
                   defaultValue={convention.acronym}
                   maxLength={16}
                 />
                 <Field
                   name="slug"
                   label="Public URL key"
+                  error={
+                    fieldError("slug") ??
+                    (errorKey === "slug"
+                      ? (adminErrorMessage("slug") ?? undefined)
+                      : undefined)
+                  }
                   defaultValue={convention.slug}
                   required
+                  minLength={2}
                   maxLength={96}
+                  pattern="[a-z0-9]+(-[a-z0-9]+)*"
                 />
                 <Field
                   name="city"
                   label="City"
+                  error={fieldError("city")}
                   defaultValue={convention.city}
                   required
+                  minLength={1}
                   maxLength={80}
                 />
                 <Field
                   name="region"
                   label="State / region"
+                  error={fieldError("region")}
                   defaultValue={convention.region}
                   maxLength={80}
                 />
                 <Field
                   name="country"
                   label="Country"
+                  error={fieldError("country")}
                   defaultValue={convention.country}
                   required
+                  minLength={2}
                   maxLength={80}
                 />
                 <Field
                   name="timezone"
                   label="IANA time zone"
+                  error={fieldError("timezone")}
                   defaultValue={convention.timezone}
                   required
                 />
                 <Field
                   name="startsOn"
                   label="Start date"
+                  error={fieldError("startsOn")}
                   type="date"
                   defaultValue={convention.startsOn}
                   required
@@ -263,6 +291,7 @@ export default async function ConventionWorkspacePage({
                 <Field
                   name="endsOn"
                   label="End date"
+                  error={fieldError("endsOn")}
                   type="date"
                   defaultValue={convention.endsOn}
                   required
@@ -270,6 +299,7 @@ export default async function ConventionWorkspacePage({
                 <Field
                   name="venue"
                   label="Venue"
+                  error={fieldError("venue")}
                   defaultValue={convention.venue}
                   maxLength={160}
                   className="sm:col-span-2"
@@ -277,9 +307,11 @@ export default async function ConventionWorkspacePage({
                 <Field
                   name="officialUrl"
                   label="Organizer website"
+                  error={fieldError("officialUrl")}
                   type="url"
                   defaultValue={convention.officialUrl}
                   required
+                  pattern="https://.+"
                   className="sm:col-span-2"
                 />
                 <SelectField
@@ -307,6 +339,7 @@ export default async function ConventionWorkspacePage({
                 <Field
                   name="sourceVerifiedAt"
                   label="Organizer source checked"
+                  error={fieldError("sourceVerifiedAt")}
                   type="date"
                   defaultValue={convention.sourceVerifiedAt ?? ""}
                   hint="Publishing requires a recorded check date. The URL and date are kept privately in each revision."
@@ -444,19 +477,23 @@ export default async function ConventionWorkspacePage({
                         <Field
                           name="title"
                           label="Session title"
+                          error={fieldError("title")}
                           defaultValue={event.title}
                           required
+                          minLength={2}
                           maxLength={140}
                         />
                         <Field
                           name="room"
                           label="Room"
+                          error={fieldError("room")}
                           defaultValue={event.room}
                           maxLength={100}
                         />
                         <Field
                           name="startsAt"
                           label="Starts (local time)"
+                          error={fieldError("startsAt")}
                           type="datetime-local"
                           defaultValue={event.startsAt}
                           required
@@ -464,6 +501,7 @@ export default async function ConventionWorkspacePage({
                         <Field
                           name="endsAt"
                           label="Ends (local time)"
+                          error={fieldError("endsAt")}
                           type="datetime-local"
                           defaultValue={event.endsAt}
                           required
@@ -472,6 +510,7 @@ export default async function ConventionWorkspacePage({
                       <TextAreaField
                         name="description"
                         label="Description"
+                        error={fieldError("description")}
                         defaultValue={event.description}
                         maxLength={1000}
                         rows={2}
@@ -555,25 +594,30 @@ export default async function ConventionWorkspacePage({
                 <Field
                   name="title"
                   label="Session title"
+                  error={fieldError("title")}
                   placeholder="Opening ceremony"
                   required
+                  minLength={2}
                   maxLength={140}
                 />
                 <Field
                   name="room"
                   label="Room"
+                  error={fieldError("room")}
                   placeholder="Main stage"
                   maxLength={100}
                 />
                 <Field
                   name="startsAt"
                   label="Starts (local time)"
+                  error={fieldError("startsAt")}
                   type="datetime-local"
                   required
                 />
                 <Field
                   name="endsAt"
                   label="Ends (local time)"
+                  error={fieldError("endsAt")}
                   type="datetime-local"
                   required
                 />
@@ -581,6 +625,7 @@ export default async function ConventionWorkspacePage({
               <TextAreaField
                 name="description"
                 label="Description"
+                error={fieldError("description")}
                 placeholder="What attendees need to know"
                 maxLength={1000}
                 rows={2}

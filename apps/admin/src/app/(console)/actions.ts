@@ -77,7 +77,13 @@ function nextTimestamp(expected: number) {
 export async function createConvention(formData: FormData) {
   const actor = await requireAdmin();
   const parsed = conventionValues(formData);
-  if (!parsed.success) redirect("/conventions/new?error=invalid");
+  if (!parsed.success) {
+    const field = String(parsed.error.issues[0]?.path[0] ?? "");
+    const message = parsed.error.issues[0]?.message ?? "Check this value.";
+    redirect(
+      `/conventions/new?error=invalid${field ? `&field=${field}&message=${encodeURIComponent(message)}` : ""}`,
+    );
+  }
 
   const values = parsed.data;
   const database = await getCatalogDatabase();
@@ -144,7 +150,15 @@ export async function updateConvention(formData: FormData) {
   const expectedUpdatedAt = Number(formString(formData, "updatedAt"));
   const parsed = conventionValues(formData);
   if (!parsed.success || !Number.isFinite(expectedUpdatedAt)) {
-    redirect(`/conventions/${id}?error=invalid`);
+    const field = parsed.success
+      ? ""
+      : String(parsed.error.issues[0]?.path[0] ?? "");
+    const message = parsed.success
+      ? ""
+      : (parsed.error.issues[0]?.message ?? "Check this value.");
+    redirect(
+      `/conventions/${id}?error=invalid${field ? `&field=${field}&message=${encodeURIComponent(message)}` : ""}`,
+    );
   }
 
   const values = parsed.data;
@@ -216,7 +230,15 @@ export async function createScheduleEvent(formData: FormData) {
   const expectedUpdatedAt = Number(formString(formData, "updatedAt"));
   const parsed = eventValues(formData);
   if (!parsed.success || !Number.isFinite(expectedUpdatedAt)) {
-    redirect(`/conventions/${conventionId}?error=invalid-event`);
+    const field = parsed.success
+      ? ""
+      : String(parsed.error.issues[0]?.path[0] ?? "");
+    const message = parsed.success
+      ? ""
+      : (parsed.error.issues[0]?.message ?? "Check this value.");
+    redirect(
+      `/conventions/${conventionId}?error=invalid-event${field ? `&field=${field}&message=${encodeURIComponent(message)}` : ""}`,
+    );
   }
 
   const workspace = await getConventionWorkspace(conventionId);
@@ -302,7 +324,15 @@ export async function updateScheduleEvent(formData: FormData) {
     !Number.isFinite(expectedEventUpdatedAt) ||
     !Number.isFinite(expectedConventionUpdatedAt)
   ) {
-    redirect(`/conventions/${conventionId}?error=invalid-event`);
+    const field = parsed.success
+      ? ""
+      : String(parsed.error.issues[0]?.path[0] ?? "");
+    const message = parsed.success
+      ? ""
+      : (parsed.error.issues[0]?.message ?? "Check this value.");
+    redirect(
+      `/conventions/${conventionId}?error=invalid-event${field ? `&field=${field}&message=${encodeURIComponent(message)}` : ""}`,
+    );
   }
 
   const workspace = await getConventionWorkspace(conventionId);

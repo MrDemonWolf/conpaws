@@ -38,10 +38,18 @@ h4 {
   font-family: var(--font-montserrat), Arial, sans-serif;
 }
 
-input,
-select,
-textarea {
+.admin-main :is(input, select, textarea) {
   font-size: 16px;
+  border-color: #64748b;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #0369a1;
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -202,10 +210,17 @@ textarea {
     box-shadow: 0 8px 28px rgb(0 0 0 / 16%);
   }
 
-  input,
-  select,
-  textarea {
+  .admin-main :is(input, select, textarea) {
     color-scheme: dark;
+    border-color: #8090a7;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline-color: #7dd3fc;
   }
 
   ::selection {

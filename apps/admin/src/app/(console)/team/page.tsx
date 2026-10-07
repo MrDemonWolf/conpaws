@@ -11,6 +11,8 @@ import { requireAdmin } from "../../../lib/auth";
 import { getMembers } from "../../../lib/queries";
 import { grantAdminRole, updateAdminRole } from "../actions";
 
+export const metadata = { title: "Team" };
+
 export default async function TeamPage({
   searchParams,
 }: {
@@ -83,7 +85,7 @@ export default async function TeamPage({
                       {member.email}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Added{" "}
+                      Added (UTC){" "}
                       {new Intl.DateTimeFormat("en-US", {
                         dateStyle: "medium",
                         timeZone: "UTC",

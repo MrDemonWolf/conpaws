@@ -325,8 +325,8 @@ export function Waitlist({ messages }: { messages: WaitlistMessages }) {
           </form>
         )}
       </div>
-      {/* On desktop the lanyard rises above the nav; the language menu has
-          its own higher layer while open. */}
+      {/* The lanyard sits behind the nav stacking layer; the language menu
+          raises the header further while open. */}
       <div className="relative z-badge hidden md:col-start-2 md:row-span-2 md:row-start-1 md:block md:pt-2">
         {LAUNCH.mode === "live" ? (
           <div className="rounded-3xl border border-primary/20 bg-card/40 p-8 text-center">

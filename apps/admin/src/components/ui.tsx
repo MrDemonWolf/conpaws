@@ -96,9 +96,14 @@ export function Surface({
 export function Field({
   label,
   hint,
+  error,
   className = "",
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  hint?: string;
+  error?: string;
+}) {
   return (
     <label className={`block ${className}`}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
@@ -106,8 +111,22 @@ export function Field({
       </span>
       <input
         {...props}
+        id={props.id ?? `${props.name}-field`}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={
+          error ? `${props.name}-error` : props["aria-describedby"]
+        }
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100"
       />
+      {error ? (
+        <span
+          id={`${props.name}-error`}
+          role="alert"
+          className="mt-1.5 block text-sm font-medium text-rose-700"
+        >
+          {error}
+        </span>
+      ) : null}
       {hint ? (
         <span className="mt-1.5 block text-xs leading-5 text-slate-500">
           {hint}
@@ -143,9 +162,13 @@ export function SelectField({
 
 export function TextAreaField({
   label,
+  error,
   className = "",
   ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  error?: string;
+}) {
   return (
     <label className={`block ${className}`}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
@@ -153,8 +176,22 @@ export function TextAreaField({
       </span>
       <textarea
         {...props}
+        id={props.id ?? `${props.name}-field`}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={
+          error ? `${props.name}-error` : props["aria-describedby"]
+        }
         className="min-h-24 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
       />
+      {error ? (
+        <span
+          id={`${props.name}-error`}
+          role="alert"
+          className="mt-1.5 block text-sm font-medium text-rose-700"
+        >
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -274,11 +311,12 @@ export function formatDate(value: string) {
 }
 
 export function formatMoment(value: number) {
-  return new Intl.DateTimeFormat("en-US", {
+  return `${new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(value);
+    timeZone: "UTC",
+  }).format(value)} UTC`;
 }

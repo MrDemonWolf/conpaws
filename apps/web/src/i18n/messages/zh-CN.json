@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "Est. 2025",
     "languageLabel": "语言",
     "back": "返回",
     "skipToContent": "跳到主要内容",
@@ -166,7 +165,7 @@
     "button": "去排队 →"
   },
   "footer": {
-    "copyright": "© {year} ConPaws by",
+    "copyright": "© {year} ConPaws",
     "company": "MrDemonWolf, Inc.",
     "support": "支持",
     "privacy": "隐私",

@@ -7,6 +7,8 @@ import {
 import { requireAdmin } from "../../../lib/auth";
 import { getRecentActivity } from "../../../lib/queries";
 
+export const metadata = { title: "Activity history" };
+
 export default async function ActivityPage() {
   await requireAdmin();
   const entries = await getRecentActivity();

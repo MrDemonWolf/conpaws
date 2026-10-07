@@ -42,10 +42,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <strong className="font-semibold text-foreground">{children}</strong>
     ),
     a: ({ href, children }) => (
-      <a
-        href={href}
-        className="text-primary underline-offset-2 hover:underline"
-      >
+      <a href={href} className="text-primary underline underline-offset-2">
         {children}
       </a>
     ),

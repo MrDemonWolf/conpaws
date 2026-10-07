@@ -12,6 +12,8 @@ import {
 import { requireAdmin } from "../../lib/auth";
 import { getDashboardData } from "../../lib/queries";
 
+export const metadata = { title: "Overview" };
+
 export default async function OverviewPage() {
   await requireAdmin();
   const data = await getDashboardData();
