@@ -90,6 +90,8 @@ jobs:
           ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          WAITLIST_ACCEPTING_SIGNUPS: ${{ vars.WAITLIST_ACCEPTING_SIGNUPS }}
+          NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS: ${{ vars.WAITLIST_ACCEPTING_SIGNUPS }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           # Build-time and client-side. Without it the env schema falls back to
           # localhost, which makes robots.txt ask crawlers to stay away -- the
@@ -131,11 +133,16 @@ jobs:
           # site. Better to refuse the deploy.
           missing=()
           for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN ALCHEMY_PASSWORD \
-            TURNSTILE_SECRET_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY NEXT_PUBLIC_SITE_URL; do
+            TURNSTILE_SECRET_KEY WAITLIST_ACCEPTING_SIGNUPS NEXT_PUBLIC_TURNSTILE_SITE_KEY NEXT_PUBLIC_SITE_URL; do
             if [[ -z "${!name}" ]]; then
               missing+=("$name")
             fi
           done
+
+          if [[ "$WAITLIST_ACCEPTING_SIGNUPS" != "true" && "$WAITLIST_ACCEPTING_SIGNUPS" != "false" ]]; then
+            echo "::error title=Invalid waitlist switch::WAITLIST_ACCEPTING_SIGNUPS must be true or false"
+            exit 1
+          fi
 
           if (( ${#missing[@]} > 0 )); then
             echo "::error title=Missing deploy configuration::${missing[*]}"
@@ -164,6 +171,8 @@ jobs:
           ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          WAITLIST_ACCEPTING_SIGNUPS: ${{ vars.WAITLIST_ACCEPTING_SIGNUPS }}
+          NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS: ${{ vars.WAITLIST_ACCEPTING_SIGNUPS }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           # Build-time and client-side. Without it the env schema falls back to
           # localhost, which makes robots.txt ask crawlers to stay away -- the

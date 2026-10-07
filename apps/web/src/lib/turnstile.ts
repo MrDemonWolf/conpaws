@@ -37,8 +37,20 @@ export async function verifyTurnstile(
     });
     if (!response.ok) return false;
 
-    const result = (await response.json()) as { success?: boolean };
-    return result.success === true;
+    const result = (await response.json()) as {
+      success?: boolean;
+      hostname?: string;
+      action?: string;
+    };
+    const allowedHostnames = ["conpaws.com", "www.conpaws.com"];
+    if (process.env.NODE_ENV !== "production") {
+      allowedHostnames.push("localhost");
+    }
+    return (
+      result.success === true &&
+      allowedHostnames.includes(result.hostname ?? "") &&
+      result.action === "waitlist"
+    );
   } catch {
     return false;
   }

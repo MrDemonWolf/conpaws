@@ -57,6 +57,10 @@ export const deployEnvSchema = z.object({
 
   /** Server half of the Turnstile pair. The site key is a build-time client var. */
   TURNSTILE_SECRET_KEY: required("TURNSTILE_SECRET_KEY"),
+  /** Shared with the public build so the form and POST gate change together. */
+  WAITLIST_ACCEPTING_SIGNUPS: z.enum(["true", "false"], {
+    message: "WAITLIST_ACCEPTING_SIGNUPS must be true or false",
+  }),
 
   /**
    * listmonk. All four are required together: a partial set is precisely the

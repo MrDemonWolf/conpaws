@@ -196,6 +196,7 @@ const waitlistSecrets = {
   // Bindings are strings; the number was parsed only so a non-number fails the
   // deploy instead of reaching `readListmonkConfig` at the edge.
   LISTMONK_LIST_ID: String(env.LISTMONK_LIST_ID),
+  WAITLIST_ACCEPTING_SIGNUPS: env.WAITLIST_ACCEPTING_SIGNUPS,
 };
 
 /**

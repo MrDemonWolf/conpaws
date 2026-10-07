@@ -78,7 +78,7 @@ describe("published convention API data", () => {
     expect(calls[0]?.sql).not.toContain("c.official_url");
   });
 
-  it("looks up the snapshot slug and never consults a mutable draft slug", async () => {
+  it("looks up by the unique current published slug", async () => {
     const { database, calls } = fakeD1([], {
       snapshot_json: JSON.stringify(snapshot),
     });
@@ -87,8 +87,9 @@ describe("published convention API data", () => {
 
     expect(result?.slug).toBe("demo-con");
     expect(calls[0]?.values).toEqual(["demo-con"]);
-    expect(calls[0]?.sql).toContain(
-      "json_extract(r.snapshot_json, '$.slug') = ?",
+    expect(calls[0]?.sql).toContain("c.published_slug = ?");
+    expect(calls[0]?.sql).not.toContain(
+      "json_extract(r.snapshot_json, '$.slug')",
     );
     expect(calls[0]?.sql).not.toContain("c.slug");
   });

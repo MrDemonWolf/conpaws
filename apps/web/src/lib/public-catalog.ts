@@ -99,7 +99,7 @@ export async function getPublishedSnapshot(
            ON c.id = r.convention_id
           AND c.published_revision = r.revision
         WHERE c.status = 'published'
-          AND json_extract(r.snapshot_json, '$.slug') = ?
+          AND c.published_slug = ?
         LIMIT 1`,
     )
     .bind(slug)

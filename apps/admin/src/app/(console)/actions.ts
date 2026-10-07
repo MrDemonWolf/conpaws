@@ -499,13 +499,30 @@ export async function publishConvention(formData: FormData) {
       ),
     database
       .prepare(
+        `UPDATE conventions SET published_slug = NULL
+         WHERE published_slug = ? AND id <> ?
+           AND EXISTS (SELECT 1 FROM conventions
+             WHERE id = ? AND updated_at = ? AND COALESCE(published_revision, 0) = ?
+               AND EXISTS (SELECT 1 FROM convention_revisions WHERE id = ?))`,
+      )
+      .bind(
+        snapshot.slug,
+        id,
+        id,
+        expectedUpdatedAt,
+        expectedRevision,
+        revisionId,
+      ),
+    database
+      .prepare(
         `UPDATE conventions
-         SET status = 'published', published_revision = ?, updated_by = ?, updated_at = ?
+         SET status = 'published', published_revision = ?, published_slug = ?, updated_by = ?, updated_at = ?
          WHERE id = ? AND updated_at = ? AND COALESCE(published_revision, 0) = ?
            AND EXISTS (SELECT 1 FROM convention_revisions WHERE id = ?)`,
       )
       .bind(
         nextRevision,
+        snapshot.slug,
         actor.email,
         now,
         id,
@@ -533,7 +550,7 @@ export async function publishConvention(formData: FormData) {
       ),
   ]);
 
-  if (results[1]?.meta.changes !== 1) {
+  if (results[2]?.meta.changes !== 1) {
     redirect(`/conventions/${id}?error=conflict`);
   }
   revalidatePath("/");
@@ -660,11 +677,27 @@ export async function restoreRevision(formData: FormData) {
       ),
     database
       .prepare(
+        `UPDATE conventions SET published_slug = NULL
+         WHERE published_slug = ? AND id <> ?
+           AND EXISTS (SELECT 1 FROM conventions
+             WHERE id = ? AND updated_at = ? AND COALESCE(published_revision, 0) = ?
+               AND EXISTS (SELECT 1 FROM convention_revisions WHERE id = ?))`,
+      )
+      .bind(
+        values.slug,
+        id,
+        id,
+        expectedUpdatedAt,
+        expectedRevision,
+        revisionId,
+      ),
+    database
+      .prepare(
         `UPDATE conventions SET
            slug = ?, name = ?, acronym = ?, city = ?, region = ?, country = ?,
            starts_on = ?, ends_on = ?, timezone = ?, venue = ?, official_url = ?,
            availability = ?, schedule_status = ?, source_verified_at = ?,
-           status = 'published', published_revision = ?, updated_by = ?, updated_at = ?
+           status = 'published', published_revision = ?, published_slug = ?, updated_by = ?, updated_at = ?
          WHERE id = ? AND updated_at = ? AND COALESCE(published_revision, 0) = ?
            AND EXISTS (SELECT 1 FROM convention_revisions WHERE id = ?)`,
       )
@@ -684,6 +717,7 @@ export async function restoreRevision(formData: FormData) {
         values.scheduleStatus,
         values.sourceVerifiedAt,
         nextRevision,
+        values.slug,
         actor.email,
         now,
         id,
@@ -741,7 +775,7 @@ export async function restoreRevision(formData: FormData) {
       ),
   ];
   const results = await database.batch(statements);
-  if (results[1]?.meta.changes !== 1) {
+  if (results[2]?.meta.changes !== 1) {
     redirect(`/conventions/${id}?error=restore-conflict`);
   }
   revalidatePath("/");

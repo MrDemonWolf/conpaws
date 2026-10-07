@@ -49,6 +49,7 @@ export const conventions = sqliteTable(
       .notNull()
       .default("draft"),
     publishedRevision: integer("published_revision"),
+    publishedSlug: text("published_slug"),
     createdBy: text("created_by").notNull(),
     updatedBy: text("updated_by").notNull(),
     createdAt: integer("created_at").notNull(),
@@ -56,6 +57,9 @@ export const conventions = sqliteTable(
   },
   (table) => [
     uniqueIndex("conventions_slug_unique").on(table.slug),
+    uniqueIndex("conventions_published_slug_unique")
+      .on(table.publishedSlug)
+      .where(sql`${table.publishedSlug} IS NOT NULL`),
     index("conventions_status_start_idx").on(table.status, table.startsOn),
   ],
 );

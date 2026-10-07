@@ -10,6 +10,7 @@ import { readListmonkConfig } from "../../../lib/listmonk";
 import { verifyTurnstile } from "../../../lib/turnstile";
 import {
   claimRow,
+  ipBucket,
   MAX_SIGNUPS_PER_IP,
   MAX_SYNC_ATTEMPTS,
   resendAllowed,
@@ -38,8 +39,15 @@ const Body = z.object({
   // typo, not a malformed address, and lowercasing here is what makes the
   // unique index on `email` actually mean one address per person.
   email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
-  name: z.string().trim().max(60).optional().default(""),
-  honeypot: z.string().max(200).optional().default(""),
+  name: z
+    .string()
+    .max(60)
+    .refine((value) => !/\p{Cc}/u.test(value))
+    .trim()
+    .regex(/^[\p{L}\p{M} '’-]*$/u)
+    .optional()
+    .default(""),
+  favoriteSeason: z.string().max(200).optional().default(""),
   elapsedMs: z.number().int().nonnegative().optional().default(0),
   turnstileToken: z.string().max(2048).optional().default(""),
   utmSource: z.string().max(120).optional(),
@@ -57,14 +65,14 @@ async function admitWaitlistRow(
   const result = await d1
     .prepare(
       `INSERT INTO waitlist (
-        id, email, name, status, source, consent_copy, ip, user_agent, country,
+        id, email, name, status, source, consent_copy, ip, ip_bucket, user_agent, country,
         referer, utm_source, utm_medium, utm_campaign, sync_attempts,
         sync_attempted_at
       )
-      SELECT ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      SELECT ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       WHERE EXISTS (SELECT 1 FROM waitlist WHERE email = ?)
          OR ? IS NULL
-         OR (SELECT COUNT(*) FROM waitlist WHERE ip = ? AND created_at >= ?) < ?
+         OR (SELECT COUNT(*) FROM waitlist WHERE ip_bucket = ? AND created_at >= ?) < ?
       ON CONFLICT(email) DO UPDATE SET email = excluded.email
       RETURNING id`,
     )
@@ -75,6 +83,7 @@ async function admitWaitlistRow(
       row.source,
       row.consentCopy,
       row.ip,
+      row.ipBucket,
       row.userAgent,
       row.country,
       row.referer,
@@ -84,8 +93,8 @@ async function admitWaitlistRow(
       row.syncAttempts,
       row.syncAttemptedAt?.getTime() ?? null,
       row.email,
-      row.ip,
-      row.ip,
+      row.ipBucket,
+      row.ipBucket,
       Date.now() - SIGNUP_WINDOW_MS,
       MAX_SIGNUPS_PER_IP,
     )
@@ -102,9 +111,8 @@ async function admitWaitlistRow(
  * The wording matters. This used to say "Beta registration is not open yet"
  * with `Retry-After: 86400`, which was true while the form was shut but became
  * a lie the moment signups opened: a D1 or listmonk outage would tell the
- * visitor the beta had not started and to come back tomorrow. The form being
- * deliberately closed is a separate state, and the client already renders it
- * without posting at all.
+ * visitor the beta had not started and to come back tomorrow. The deliberate
+ * closed state is returned separately as `{ error: "closed" }`.
  */
 function unavailable() {
   return Response.json(
@@ -141,12 +149,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Silently accept bot submissions. Returning an error just tells them which
-  // gate they tripped, so they retune and retry.
-  if (parsed.honeypot.length > 0 || parsed.elapsedMs < MIN_ELAPSED_MS) {
-    return Response.json({ ok: true });
-  }
-
   let env: CloudflareEnv;
   let ctx: { waitUntil: (promise: Promise<unknown>) => void };
   try {
@@ -156,6 +158,20 @@ export async function POST(request: Request) {
   } catch {
     // No Worker context: local `next dev` without bindings, or a unit test.
     return unavailable();
+  }
+
+  if (env.WAITLIST_ACCEPTING_SIGNUPS === "false") {
+    return Response.json({ error: "closed" }, { status: 503 });
+  }
+
+  // Silently accept bot submissions and log only a bounded reason label.
+  if (parsed.favoriteSeason.length > 0) {
+    console.info("waitlist.rejected", { reason: "honeypot" });
+    return Response.json({ ok: true });
+  }
+  if (parsed.elapsedMs < MIN_ELAPSED_MS) {
+    console.info("waitlist.rejected", { reason: "timing" });
+    return Response.json({ ok: true });
   }
 
   const listmonk = readListmonkConfig(env);
@@ -237,6 +253,7 @@ export async function POST(request: Request) {
     consentCopy: CONSENT_COPY,
     source: "web",
     ip,
+    ipBucket: ipBucket(ip),
     userAgent: request.headers.get("user-agent"),
     country: request.headers.get("cf-ipcountry"),
     referer: request.headers.get("referer"),

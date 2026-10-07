@@ -14,6 +14,7 @@ const ENV = {
   LISTMONK_API_USER: "conpaws-web",
   LISTMONK_API_TOKEN: "listmonk-token",
   LISTMONK_LIST_ID: "3",
+  WAITLIST_ACCEPTING_SIGNUPS: "true",
 };
 
 /** Covers only the query shapes the route builds. */
@@ -53,12 +54,13 @@ function fakeDb(
             source: values[3],
             consentCopy: values[4],
             ip: values[5],
-            userAgent: values[6],
-            country: values[7],
-            referer: values[8],
-            utmSource: values[9],
-            utmMedium: values[10],
-            utmCampaign: values[11],
+            ipBucket: values[6],
+            userAgent: values[7],
+            country: values[8],
+            referer: values[9],
+            utmSource: values[10],
+            utmMedium: values[11],
+            utmCampaign: values[12],
           });
           return { results: [{ id: values[0] }] };
         },
@@ -117,17 +119,61 @@ describe("POST /api/waitlist", () => {
     });
   });
 
-  it("silently accepts bot-shaped submissions", async () => {
+  it("silently accepts and counts honeypot submissions without PII", async () => {
+    wireWorker();
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
     const response = await POST(
       request({
         email: "bot@example.com",
-        honeypot: "spam",
+        favoriteSeason: "spam",
         elapsedMs: 3_000,
       }),
     );
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ ok: true });
+    expect(info).toHaveBeenCalledWith("waitlist.rejected", {
+      reason: "honeypot",
+    });
+  });
+
+  it("silently accepts and counts timing rejections", async () => {
+    wireWorker();
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const response = await POST(
+      request({ email: "bot@example.com", elapsedMs: 1_999 }),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true });
+    expect(info).toHaveBeenCalledWith("waitlist.rejected", {
+      reason: "timing",
+    });
+  });
+
+  it("closes POST when the server switch is false", async () => {
+    const { d1, db } = fakeDb();
+    createDb.mockReturnValue(db);
+    getCloudflareContext.mockReturnValue({
+      env: { ...ENV, DB: d1, WAITLIST_ACCEPTING_SIGNUPS: "false" },
+      ctx: { waitUntil: vi.fn() },
+    });
+
+    const response = await POST(
+      request({ email: "person@example.com", elapsedMs: 3_000 }),
+    );
+
+    expect(response.status).toBe(503);
+    await expect(response.json()).resolves.toEqual({ error: "closed" });
+  });
+
+  it("rejects control characters and unsupported name characters", async () => {
+    for (const name of ["\nPaws", "Paws 2", "🐾"]) {
+      const response = await POST(
+        request({ email: "person@example.com", name, elapsedMs: 3_000 }),
+      );
+      expect(response.status).toBe(400);
+    }
   });
 
   it("does not claim success or log PII before persistence is available", async () => {
@@ -168,7 +214,11 @@ describe("POST /api/waitlist", () => {
   it("stores the consent record and pushes to listmonk outside the response", async () => {
     const { inserted, waitUntil } = wireWorker();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(
@@ -199,6 +249,7 @@ describe("POST /api/waitlist", () => {
       name: "Paws",
       source: "web",
       ip: "203.0.113.7",
+      ipBucket: "203.0.113.7",
       country: "US",
       userAgent: "test-agent",
       utmSource: "bluesky",
@@ -210,6 +261,33 @@ describe("POST /api/waitlist", () => {
 
     // listmonk is contacted after the response, never as part of it.
     expect(waitUntil).toHaveBeenCalledTimes(1);
+  });
+
+  it("stores the IPv6 /64 admission bucket", async () => {
+    const { inserted } = wireWorker();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
+    );
+    const response = await POST(
+      request(
+        {
+          email: "person@example.com",
+          elapsedMs: 3_000,
+          turnstileToken: "good-token",
+        },
+        "2001:db8:abcd:12:ffff::1",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(inserted[0]).toMatchObject({
+      ip: "2001:db8:abcd:12:ffff::1",
+      ipBucket: "2001:db8:abcd:12::/64",
+    });
   });
 
   it("does not re-send confirmation to an address listmonk already accepted", async () => {
@@ -225,7 +303,11 @@ describe("POST /api/waitlist", () => {
       },
     ]);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(
@@ -255,7 +337,11 @@ describe("POST /api/waitlist", () => {
       },
     ]);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(
@@ -292,7 +378,11 @@ describe("POST /api/waitlist", () => {
   it("does not send when a concurrent request already claimed the address", async () => {
     const { inserted, waitUntil } = wireWorker([], false);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(
@@ -324,7 +414,11 @@ describe("POST /api/waitlist", () => {
       },
     ]);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(
@@ -345,7 +439,11 @@ describe("POST /api/waitlist", () => {
     // legitimate-looking confirmation it never asked for.
     const { inserted, waitUntil } = wireWorker([], true, 5);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(
@@ -366,7 +464,11 @@ describe("POST /api/waitlist", () => {
   it("still accepts a signup while the IP is under the cap", async () => {
     const { inserted, waitUntil } = wireWorker([], true, 4);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     const response = await POST(

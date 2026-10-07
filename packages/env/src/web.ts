@@ -26,10 +26,18 @@ export const env = createEnv({
      */
     NEXT_PUBLIC_SITE_URL: z.url().default("http://localhost:3001"),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
+    NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS: z
+      .enum(["true", "false"])
+      .default(
+        process.env.WAITLIST_ACCEPTING_SIGNUPS === "false" ? "false" : "true",
+      ),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS:
+      process.env.NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS ??
+      process.env.WAITLIST_ACCEPTING_SIGNUPS,
   },
   emptyStringAsUndefined: true,
 });

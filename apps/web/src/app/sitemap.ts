@@ -26,7 +26,14 @@ const LEGAL_PATHS = new Set(["/privacy", "/terms", "/support"]);
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const legalDate = new Date(LEGAL_LAST_UPDATED);
-  const alternates = { languages: languageAlternates() };
+  const alternates = {
+    languages: Object.fromEntries(
+      Object.entries(languageAlternates()).map(([language, path]) => [
+        language,
+        absoluteUrl(path),
+      ]),
+    ),
+  };
 
   const entries: MetadataRoute.Sitemap = PUBLIC_ROUTES.map((route) => ({
     url: absoluteUrl(route.path),

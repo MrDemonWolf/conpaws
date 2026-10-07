@@ -17,8 +17,8 @@ import {
  * unreachable. Zero is a claim ("nobody has signed up"); null is the absence of
  * one, and the badge falls back to its static number on null.
  *
- * Cached at the edge for five minutes. The badge is decorative, a stale count
- * costs nothing, and without this every page view would hit listmonk.
+ * Cached through the Cloudflare edge cache for five minutes. The badge is
+ * decorative, so a stale count costs nothing.
  */
 export async function GET(request: Request) {
   // The edge cache keys on the full URL, and this handler ignores the request
@@ -35,6 +35,10 @@ export async function GET(request: Request) {
     );
   }
 
+  const cache = (caches as CacheStorage & { default: Cache }).default;
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
   let env: CloudflareEnv;
   try {
     env = getCloudflareContext().env;
@@ -49,14 +53,16 @@ export async function GET(request: Request) {
   const count = await fetchConfirmedCount(config);
   if (count === null) return unknown();
 
-  return Response.json(
+  const response = Response.json(
     { count },
     {
       headers: {
-        "Cache-Control": "public, max-age=60, s-maxage=300",
+        "Cache-Control": "public, max-age=300",
       },
     },
   );
+  await cache.put(request, response.clone());
+  return response;
 }
 
 /** Cached briefly, so an outage does not pin the page to a stale answer. */
