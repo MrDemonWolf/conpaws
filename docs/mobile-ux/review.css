@@ -34,6 +34,37 @@
 .dark .screen {
   --secondary: #bbc8d7;
 }
+.date-strip .date-all {
+  width: 56px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.date-strip .date-all.selected {
+  border-color: transparent;
+}
+.date-strip .date-all strong {
+  font-size: 17px;
+}
+.time-strip {
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-inline: contain;
+}
+.time-strip::-webkit-scrollbar {
+  display: none;
+}
+.time-chip {
+  min-height: 44px;
+}
+.day-group-heading {
+  padding: 16px 22px 8px;
+  color: var(--secondary);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
 :root {
   --preview-space: 24px;
   --preview-radius: 16px;

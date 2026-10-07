@@ -12,33 +12,34 @@ export function mountReview(root: HTMLElement) {
   const setup = [
     {
       title: "Find your convention",
-      help: "A ready-to-use schedule, saved on your phone.",
-      state: "124 sample events · Ready to download",
+      help: "Choose the convention you’re attending.",
+      state: "124 sample panels · Ready to download",
       button: "Choose this convention",
-      status: "No account needed for your local plan.",
+      status: "No account needed. Your plan stays on your phone.",
     },
     {
-      title: "Check your convention",
-      help: "Confirm the dates and convention time zone before downloading.",
-      state: "124 sample events · Ready to download",
+      title: "Check the dates",
+      help: "Make sure the dates match, then download the schedule.",
+      state: "124 sample panels · Ready to download",
       button: "Download sample schedule",
-      status: "Real downloads need progress, failure, and retry states.",
-    },
-    {
-      title: "Your con is ready",
-      help: "Next: open the schedule and save your first panel.",
-      state: "Saved on this preview · 124 sample events",
-      button: "Save a sample event",
       status:
-        "Demo only: no SQLite download occurred. Real cached plans must work in airplane mode.",
+        "Show download progress. If it stops, explain what happened and offer Try Again.",
     },
     {
-      title: "Your first event is saved",
+      title: "Your schedule is ready",
+      help: "Open the schedule and choose your first panel.",
+      state: "Saved in this demo · 124 sample panels",
+      button: "Save a sample panel",
+      status:
+        "This is only a demo. No schedule was downloaded to your phone. A saved schedule should still open without an internet connection.",
+    },
+    {
+      title: "Your first panel is saved",
       help: "You're ready to plan your day. Reminders are optional.",
       state: "Character design lab · Oak · 2:45 PM",
-      button: "Setup demo complete",
+      button: "You’re all set",
       status:
-        "Next in the real app: choose a reminder and explain notification permission when needed.",
+        "Next: ask if you’d like reminders, and explain how to turn them on.",
     },
   ];
   function renderSetup() {
@@ -79,10 +80,10 @@ export function mountReview(root: HTMLElement) {
       published = true;
       publish.disabled = true;
       reviewed.disabled = true;
-      text("[data-admin-state]", "Sample revision 8 published");
+      text("[data-admin-state]", "Sample schedule published");
       text(
         "[data-admin-status]",
-        "Preview complete. No real convention, feed, or published data was changed.",
+        "Demo complete. No real convention or schedule was changed.",
       );
     }
     if (button.hasAttribute("data-admin-reset")) {
@@ -90,10 +91,10 @@ export function mountReview(root: HTMLElement) {
       reviewed.checked = false;
       reviewed.disabled = false;
       publish.disabled = true;
-      text("[data-admin-state]", "Draft revision 8");
+      text("[data-admin-state]", "Sample schedule draft");
       text(
         "[data-admin-status]",
-        "Publishing is blocked until the review is confirmed.",
+        "Check the sample schedule before publishing it.",
       );
     }
   });
@@ -104,8 +105,8 @@ export function mountReview(root: HTMLElement) {
       room: "Oak",
       detail: "Reminder at 2:35 · 10 min before",
       watchDetail: "Reminder at 2:35",
-      copy: "Saved plan copied at 2:16 PM",
-      watchCopy: "Saved copy · 2:16 PM",
+      copy: "Plan last updated here · 2:16 PM",
+      watchCopy: "Last updated · 2:16 PM",
       heading: "Make the room easy to find.",
       explanation:
         "Title, room, and start time carry the decision. A reminder offset is not a calculated walking time. On the real Watch, tap for the current event and today's plan.",
@@ -116,8 +117,8 @@ export function mountReview(root: HTMLElement) {
       room: "Ballroom A",
       detail: "No later events in your saved plan",
       watchDetail: "No later saved events",
-      copy: "Saved plan copied at 2:16 PM",
-      watchCopy: "Saved copy · 2:16 PM",
+      copy: "Plan last updated here · 2:16 PM",
+      watchCopy: "Last updated · 2:16 PM",
       heading: "The last panel is still a panel.",
       explanation:
         "The current Swift widget paths require a future event. That drops a valid ongoing final panel into an empty state. Add a current-only state and move to finished only after the known end.",
@@ -127,19 +128,19 @@ export function mountReview(root: HTMLElement) {
       title: "Character design lab",
       room: "Oak · Saved room",
       detail: "Open ConPaws to check for changes",
-      watchDetail: "Older saved copy",
-      copy: "Plan last copied 2 hours ago",
-      watchCopy: "Last copied 2 hours ago",
+      watchDetail: "This plan may be out of date",
+      copy: "Plan last updated here · 2 hours ago",
+      watchCopy: "Last updated · 2 hours ago",
       heading: "Show what freshness actually means.",
       explanation:
         "An old phone-to-Watch copy is not proof that the organizer's feed is old. Keep the last good plan useful and show copy age. The real refresh threshold is a product decision to test; this two-hour state is illustrative.",
     },
     empty: {
       label: "YOUR PLAN · TODAY",
-      title: "No saved events today",
+      title: "No panels picked today",
       room: "Browse the schedule",
-      detail: "Save a panel in ConPaws on your phone",
-      watchDetail: "Add events on your phone",
+      detail: "Choose a panel in ConPaws on your phone",
+      watchDetail: "Choose panels on your iPhone",
       copy: "This does not mean the convention has no events",
       watchCopy: "Saved plan only",
       heading: "Empty is a reason, not a dead end.",
