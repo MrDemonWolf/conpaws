@@ -11,7 +11,8 @@
     "build:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
     "preview": "bun run build:cloudflare && opennextjs-cloudflare preview --ip 127.0.0.1 --port 8789 --persist-to ../../apps/admin/.wrangler/state",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply DB --local"
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "check:overflow": "bun scripts/overflow.ts"
   },
   "dependencies": {
     "@conpaws/env": "workspace:*",
@@ -40,6 +41,7 @@
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "drizzle-kit": "^0.31.10",
+    "playwright-core": "^1.63.0",
     "tailwindcss": "^4.1.18",
     "typescript": "~6.0.3",
     "vitest": "^3.2.4",

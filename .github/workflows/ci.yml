@@ -184,6 +184,11 @@ jobs:
 
           bun scripts/e2e.ts http://127.0.0.1:8787
 
+          # Rendered check: no locale page may scroll sideways at 320 or 375px
+          # (e2e.ts only sees HTML; a long Norwegian hero word slipped past it).
+          bunx playwright-core install --with-deps chromium-headless-shell
+          bun scripts/overflow.ts http://127.0.0.1:8787
+
 
   infrastructure:
     name: Validate deployment descriptors
