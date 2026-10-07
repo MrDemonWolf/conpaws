@@ -93,6 +93,8 @@ export function EventItem({
 }: EventItemProps) {
   const { t } = useTranslation();
   const { fontScale } = useWindowDimensions();
+  // Past this scale the 80pt time column squeezes titles to a few letters.
+  const stacked = fontScale >= 1.6;
   const isDark = useColorScheme() === "dark";
   const ageBadge = ageBadgeFor(ageRating);
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
@@ -167,7 +169,7 @@ export function EventItem({
         // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
         // the old py-2 broke.
         "min-h-14 gap-3 border-b border-border px-4 py-3",
-        fontScale >= 1.6 ? "flex-col" : "flex-row",
+        stacked ? "flex-col" : "flex-row",
         PRESS_DIM,
         // Overlap-group chrome: shared tint + accent edge mark every row of
         // the cluster; the edge, not colour alone, carries the grouping.
@@ -186,7 +188,10 @@ export function EventItem({
         ) : null}
       </View>
 
-      <View className="flex-1 gap-1.5">
+      {/* flex-1 only beside the time column: in the stacked layout the row's
+          height is content-sized, so flex-1's zero basis collapsed this whole
+          block and only the times showed. */}
+      <View className={cn("gap-1.5", stacked ? "self-stretch" : "flex-1")}>
         <View className="flex-row items-start justify-between gap-2">
           <Text
             variant="label"
