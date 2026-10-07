@@ -1,9 +1,17 @@
+import { Badge } from "@conpaws/ui/components/badge";
+import { buttonVariants } from "@conpaws/ui/components/button";
+import { Card, CardContent } from "@conpaws/ui/components/card";
+import { Input } from "@conpaws/ui/components/input";
+import { Textarea } from "@conpaws/ui/components/textarea";
+import { cn } from "@conpaws/ui/lib/utils";
+import { CalendarDays } from "lucide-react";
 import type {
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
+import { useId } from "react";
 
 export function PageHeading({
   eyebrow,
@@ -17,14 +25,14 @@ export function PageHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+    <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
         {eyebrow ? (
-          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-700">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-sky-800">
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="text-3xl font-bold tracking-tight text-[#091533] sm:text-[34px]">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-[#091533] sm:text-[34px]">
           {title}
         </h1>
         {description ? (
@@ -33,7 +41,11 @@ export function PageHeading({
           </p>
         ) : null}
       </div>
-      {action}
+      {action ? (
+        <div className="w-full shrink-0 [&>a]:w-full [&>button]:w-full sm:w-auto sm:[&>a]:w-auto sm:[&>button]:w-auto">
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -44,31 +56,37 @@ export function Button({
   variant = "primary",
   type,
   disabled,
+  className,
 }: {
   children: ReactNode;
   href?: string;
   variant?: "primary" | "secondary" | "quiet";
   type?: "submit" | "button";
   disabled?: boolean;
+  className?: string;
 }) {
-  const styles = {
-    primary:
-      "bg-[#091533] text-white shadow-sm hover:bg-[#132752] focus-visible:outline-sky-600",
-    secondary:
-      "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 focus-visible:outline-sky-600",
-    quiet:
-      "text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-sky-600",
-  }[variant];
-  const className = `inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${styles}`;
+  const style =
+    variant === "primary"
+      ? "default"
+      : variant === "secondary"
+        ? "outline"
+        : "ghost";
+  const classes = buttonVariants({ variant: style, className });
+
   if (href) {
     return (
-      <a href={href} className={className} aria-disabled={disabled}>
+      <a
+        href={href}
+        className={cn(classes, disabled && "pointer-events-none opacity-50")}
+        aria-disabled={disabled || undefined}
+      >
         {children}
       </a>
     );
   }
+
   return (
-    <button className={className} type={type ?? "submit"} disabled={disabled}>
+    <button className={classes} type={type ?? "submit"} disabled={disabled}>
       {children}
     </button>
   );
@@ -86,7 +104,11 @@ export function Surface({
   return (
     <section
       id={id}
-      className={`rounded-2xl border border-slate-200/80 bg-white shadow-[0_6px_24px_rgba(9,21,51,0.035)] ${className}`}
+      data-slot="card"
+      className={cn(
+        "overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm",
+        className,
+      )}
     >
       {children}
     </section>
@@ -99,15 +121,14 @@ export function Field({
   className = "",
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
+  const fallbackId = useId();
+  const inputId = props.id ?? fallbackId;
   return (
-    <label className={`block ${className}`}>
+    <label htmlFor={inputId} className={cn("block", className)}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
         {label}
       </span>
-      <input
-        {...props}
-        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100"
-      />
+      <Input {...props} id={inputId} />
       {hint ? (
         <span className="mt-1.5 block text-xs leading-5 text-slate-500">
           {hint}
@@ -127,13 +148,13 @@ export function SelectField({
   children: ReactNode;
 }) {
   return (
-    <label className={`block ${className}`}>
+    <label className={cn("block", className)}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
         {label}
       </span>
       <select
         {...props}
-        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+        className="min-h-11 w-full rounded-md border border-input bg-background px-3 text-base text-foreground shadow-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 md:text-sm"
       >
         {children}
       </select>
@@ -146,40 +167,46 @@ export function TextAreaField({
   className = "",
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
+  const fallbackId = useId();
+  const textareaId = props.id ?? fallbackId;
   return (
-    <label className={`block ${className}`}>
+    <label htmlFor={textareaId} className={cn("block", className)}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
         {label}
       </span>
-      <textarea
-        {...props}
-        className="min-h-24 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
-      />
+      <Textarea {...props} id={textareaId} />
     </label>
   );
 }
 
+const statusStyles: Record<string, string> = {
+  published: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  draft: "border-amber-200 bg-amber-50 text-amber-900",
+  archived: "border-slate-200 bg-slate-100 text-slate-700",
+  scheduled: "border-sky-200 bg-sky-50 text-sky-800",
+  cancelled: "border-rose-200 bg-rose-50 text-rose-800",
+  active: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  disabled: "border-slate-200 bg-slate-100 text-slate-700",
+  owner: "border-violet-200 bg-violet-50 text-violet-800",
+  editor: "border-slate-200 bg-slate-100 text-slate-700",
+};
+
 export function StatusPill({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    published: "bg-emerald-50 text-emerald-800 ring-emerald-600/15",
-    draft: "bg-amber-50 text-amber-800 ring-amber-600/15",
-    archived: "bg-slate-100 text-slate-600 ring-slate-400/20",
-    scheduled: "bg-sky-50 text-sky-800 ring-sky-600/15",
-    cancelled: "bg-rose-50 text-rose-800 ring-rose-600/15",
-    active: "bg-emerald-50 text-emerald-800 ring-emerald-600/15",
-    disabled: "bg-slate-100 text-slate-600 ring-slate-400/20",
-    owner: "bg-violet-50 text-violet-800 ring-violet-600/15",
-    editor: "bg-slate-100 text-slate-700 ring-slate-400/20",
-  };
+  const normalized = status.toLowerCase();
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ring-1 ring-inset ${styles[status] ?? styles.draft}`}
+    <Badge
+      variant="outline"
+      data-status={normalized}
+      className={cn(
+        "rounded-full px-2.5 font-semibold capitalize",
+        statusStyles[normalized] ?? statusStyles.draft,
+      )}
     >
-      {status === "published" ? (
-        <span className="size-1.5 rounded-full bg-emerald-600" />
+      {normalized === "published" ? (
+        <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
       ) : null}
-      {status.replaceAll("_", " ")}
-    </span>
+      {normalized.replaceAll("_", " ")}
+    </Badge>
   );
 }
 
@@ -197,7 +224,7 @@ export function Banner({
   }[tone];
   return (
     <div
-      className={`mb-5 rounded-xl border px-4 py-3 text-sm leading-6 ${styles}`}
+      className={`mb-5 rounded-lg border px-4 py-3 text-sm leading-6 ${styles}`}
     >
       {children}
     </div>
@@ -209,33 +236,45 @@ export function StatCard({
   value,
   detail,
   accent = "sky",
+  icon,
 }: {
   label: string;
   value: number | string;
   detail: string;
   accent?: "sky" | "navy" | "green" | "amber";
+  icon?: ReactNode;
 }) {
   const tones = {
-    sky: "bg-sky-50 text-sky-700",
-    navy: "bg-indigo-50 text-indigo-700",
-    green: "bg-emerald-50 text-emerald-700",
-    amber: "bg-amber-50 text-amber-700",
+    sky: "bg-sky-50 text-sky-800",
+    navy: "bg-indigo-50 text-indigo-800",
+    green: "bg-emerald-50 text-emerald-800",
+    amber: "bg-amber-50 text-amber-900",
   };
   return (
-    <Surface className="p-5">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-semibold text-slate-600">{label}</p>
-        <span
-          className={`grid size-9 place-items-center rounded-xl ${tones[accent]}`}
-        >
-          <span className="block size-2 rounded-full bg-current" />
-        </span>
-      </div>
-      <p className="mt-4 font-display text-3xl font-bold tabular-nums text-[#091533]">
-        {value}
-      </p>
-      <p className="mt-1 text-xs text-slate-500">{detail}</p>
-    </Surface>
+    <Card className="shadow-none">
+      <CardContent className="min-h-[132px] p-4 sm:min-h-[124px] sm:p-4">
+        <div className="flex items-start justify-between gap-2">
+          <p className="pr-1 text-xs font-semibold text-slate-600 sm:text-sm">
+            {label}
+          </p>
+          <span
+            className={`grid size-9 shrink-0 place-items-center rounded-lg ${tones[accent]}`}
+          >
+            {icon ?? (
+              <CalendarDays className="size-[18px]" aria-hidden="true" />
+            )}
+          </span>
+        </div>
+        <div className="mt-2">
+          <p className="font-display text-2xl font-bold tabular-nums leading-none text-[#091533]">
+            {value}
+          </p>
+          <p className="mt-1.5 text-[11px] leading-4 text-slate-500 sm:text-xs sm:leading-5">
+            {detail}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -249,11 +288,11 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-60 flex-col items-center justify-center px-6 py-12 text-center">
-      <span className="mb-4 grid size-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
-        <span className="size-3 rounded-full bg-current" />
+    <div className="flex min-h-52 flex-col items-center justify-center px-6 py-10 text-center">
+      <span className="mb-4 grid size-11 place-items-center rounded-xl bg-sky-50 text-sky-800">
+        <CalendarDays className="size-5" aria-hidden="true" />
       </span>
-      <h3 className="text-lg font-bold text-[#091533]">{title}</h3>
+      <h3 className="text-base font-semibold text-[#091533]">{title}</h3>
       <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
         {description}
       </p>
