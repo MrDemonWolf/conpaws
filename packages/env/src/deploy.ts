@@ -45,9 +45,13 @@ const required = (name: string) => {
 };
 
 export const deployEnvSchema = z.object({
-  /** Cloudflare credentials consumed by Alchemy's provider. */
-  CLOUDFLARE_API_TOKEN: required("CLOUDFLARE_API_TOKEN"),
-  CLOUDFLARE_ACCOUNT_ID: required("CLOUDFLARE_ACCOUNT_ID"),
+  /**
+   * Cloudflare credentials consumed by Alchemy's provider. Optional: a local
+   * deploy may authenticate through an Alchemy/Wrangler login profile instead.
+   * deploy-web.yml always passes both, and Alchemy fails loudly without auth.
+   */
+  CLOUDFLARE_API_TOKEN: z.string().min(1).optional(),
+  CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
   NEXT_PUBLIC_SITE_URL: z
     .url("NEXT_PUBLIC_SITE_URL must be an absolute URL")
     .refine((value) => {
