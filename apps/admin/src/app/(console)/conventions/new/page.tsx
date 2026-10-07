@@ -58,137 +58,153 @@ export default async function NewConventionPage({
               information against the organizer’s own website.
             </p>
           </div>
-          <div className="grid gap-x-5 gap-y-5 p-5 sm:grid-cols-2 sm:p-7">
-            <Field
-              name="name"
-              label="Convention name"
-              error={fieldError("name")}
-              placeholder="Example: Midwest FurFest"
-              required
-              minLength={2}
-              maxLength={120}
-              className="sm:col-span-2"
-            />
-            <Field
-              name="acronym"
-              label="Short name"
-              error={fieldError("acronym")}
-              placeholder="MFF"
-              maxLength={16}
-            />
-            <Field
-              name="slug"
-              label="Public URL key"
-              error={
-                fieldError("slug") ??
-                (error === "slug"
-                  ? "That URL slug is already in use."
-                  : undefined)
-              }
-              placeholder="midwest-furfest"
-              hint="Lowercase letters, numbers and hyphens. Used by the app API."
-              required
-              minLength={2}
-              maxLength={96}
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-            />
-            <Field
-              name="city"
-              label="City"
-              error={fieldError("city")}
-              placeholder="Rosemont"
-              required
-              minLength={1}
-              maxLength={80}
-            />
-            <Field
-              name="region"
-              label="State / region"
-              error={fieldError("region")}
-              placeholder="Illinois"
-              maxLength={80}
-            />
-            <Field
-              name="country"
-              label="Country"
-              error={fieldError("country")}
-              placeholder="United States"
-              required
-              minLength={2}
-              maxLength={80}
-            />
-            <Field
-              name="timezone"
-              label="IANA time zone"
-              error={fieldError("timezone")}
-              placeholder="America/Chicago"
-              defaultValue="America/Chicago"
-              hint="Use an IANA zone such as America/Chicago or Europe/London."
-              required
-            />
-            <Field
-              name="startsOn"
-              label="Start date"
-              type="date"
-              required
-              error={fieldError("startsOn")}
-            />
-            <Field
-              name="endsOn"
-              label="End date"
-              type="date"
-              required
-              error={fieldError("endsOn")}
-            />
-            <Field
-              name="venue"
-              label="Venue"
-              error={fieldError("venue")}
-              placeholder="Donald E. Stephens Convention Center"
-              maxLength={160}
-              className="sm:col-span-2"
-            />
-            <Field
-              name="officialUrl"
-              label="Official organizer website"
-              error={fieldError("officialUrl")}
-              type="url"
-              placeholder="https://example.org"
-              hint="Only the HTTPS URL is accepted; it is kept in the private admin record."
-              required
-              pattern="https://.+"
-              className="sm:col-span-2"
-            />
-            <SelectField
-              name="availability"
-              label="Registration availability"
-              defaultValue="unknown"
-            >
-              {availabilityOptions.map((value) => (
-                <option key={value} value={value}>
-                  {availabilityLabels[value]}
-                </option>
-              ))}
-            </SelectField>
-            <SelectField
-              name="scheduleStatus"
-              label="Program schedule"
-              defaultValue="not-released"
-            >
-              {scheduleStatusOptions.map((value) => (
-                <option key={value} value={value}>
-                  {scheduleStatusLabels[value]}
-                </option>
-              ))}
-            </SelectField>
-            <Field
-              name="sourceVerifiedAt"
-              label="Organizer source checked"
-              error={fieldError("sourceVerifiedAt")}
-              type="date"
-              hint="Required before publishing. This date and URL are retained in private revision history."
-              className="sm:col-span-2"
-            />
+          <div className="grid gap-7 p-5 sm:p-7">
+            <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                1. Convention
+              </legend>
+              <p className="col-span-full -mt-2 text-xs leading-5 text-slate-500">
+                Start with the name attendees will recognize and a short app
+                URL.
+              </p>
+              <Field
+                name="name"
+                error={fieldError("name")}
+                minLength={2}
+                label="Convention name"
+                placeholder="Example: Midwest FurFest"
+                required
+                maxLength={120}
+                className="sm:col-span-2"
+              />
+              <Field
+                name="acronym"
+                error={fieldError("acronym")}
+                label="Short name"
+                placeholder="MFF"
+                maxLength={16}
+              />
+              <Field
+                name="slug"
+                error={
+                  fieldError("slug") ??
+                  (error === "slug"
+                    ? "That URL slug is already in use."
+                    : undefined)
+                }
+                minLength={2}
+                pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                label="Public URL key"
+                placeholder="midwest-furfest"
+                hint="Lowercase letters, numbers and hyphens."
+                required
+                maxLength={96}
+              />
+            </fieldset>
+
+            <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                2. Dates and location
+              </legend>
+              <p className="col-span-full -mt-2 text-xs leading-5 text-slate-500">
+                Schedule times use this convention’s local time zone.
+              </p>
+              <Field name="startsOn" label="Start date" type="date" required />
+              <Field name="endsOn" label="End date" type="date" required />
+              <Field
+                name="timezone"
+                error={fieldError("timezone")}
+                label="IANA time zone"
+                placeholder="America/Chicago"
+                defaultValue="America/Chicago"
+                hint="Example: America/Chicago or Europe/London."
+                required
+              />
+              <Field
+                name="venue"
+                error={fieldError("venue")}
+                label="Venue"
+                placeholder="Convention center"
+                maxLength={160}
+              />
+              <Field
+                name="city"
+                error={fieldError("city")}
+                minLength={1}
+                label="City"
+                placeholder="Rosemont"
+                required
+                maxLength={80}
+              />
+              <Field
+                name="region"
+                error={fieldError("region")}
+                label="State / region"
+                placeholder="Illinois"
+                maxLength={80}
+              />
+              <Field
+                name="country"
+                error={fieldError("country")}
+                minLength={2}
+                label="Country"
+                placeholder="United States"
+                required
+                maxLength={80}
+                className="sm:col-span-2"
+              />
+            </fieldset>
+
+            <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                3. Organizer and program
+              </legend>
+              <p className="col-span-full -mt-2 text-xs leading-5 text-slate-500">
+                Keep this listing private until the organizer details have been
+                checked.
+              </p>
+              <Field
+                name="officialUrl"
+                error={fieldError("officialUrl")}
+                pattern="https://.+"
+                label="Official organizer website"
+                type="url"
+                placeholder="https://example.org"
+                hint="Only HTTPS links are accepted. This stays in the private admin record."
+                required
+                className="sm:col-span-2"
+              />
+              <SelectField
+                name="availability"
+                label="Registration availability"
+                defaultValue="unknown"
+              >
+                {availabilityOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {availabilityLabels[value]}
+                  </option>
+                ))}
+              </SelectField>
+              <SelectField
+                name="scheduleStatus"
+                label="Program schedule"
+                defaultValue="not-released"
+              >
+                {scheduleStatusOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {scheduleStatusLabels[value]}
+                  </option>
+                ))}
+              </SelectField>
+              <Field
+                name="sourceVerifiedAt"
+                error={fieldError("sourceVerifiedAt")}
+                label="Organizer source checked"
+                type="date"
+                hint="Required before publishing."
+                className="sm:col-span-2"
+              />
+            </fieldset>
           </div>
           <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
             <Button href="/conventions" variant="secondary">

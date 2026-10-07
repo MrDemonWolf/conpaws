@@ -231,10 +231,11 @@ export function validateAttendance(
   value: Attendance,
 ): string | null {
   if (!Number.isInteger(value.join) || !Number.isInteger(value.leave))
-    return "Choose a valid join and leave time.";
+    return "Choose when you plan to arrive and leave.";
   if (value.join < item.start || value.leave > item.end)
-    return "Your times must stay within the event's published times.";
-  if (value.join >= value.leave) return "Leave time must be after join time.";
+    return "Choose times between this panel’s start and end.";
+  if (value.join >= value.leave)
+    return "Choose a leave time after the time you plan to arrive.";
   return null;
 }
 export function attendancePanel(
@@ -336,7 +337,9 @@ type PhoneState = {
   selected: string;
   candidates: string[];
   day: number;
+  allDays: boolean;
   slot: number;
+  allTimes: boolean;
   category: string;
   query: string;
   segment: "going" | "interested";
@@ -351,8 +354,18 @@ let interested = new Set([
   "makers",
   "story",
   "social",
+  "welcome",
+  "farewell",
 ]);
-let plan = new Set(["photo", "draw", "makers", "story", "social"]);
+let plan = new Set([
+  "photo",
+  "draw",
+  "makers",
+  "story",
+  "social",
+  "welcome",
+  "farewell",
+]);
 const sampleAttendance = (): Record<string, Attendance> => ({
   photo: { join: 840, leave: 865 },
   draw: { join: 875, leave: 920 },
@@ -370,7 +383,9 @@ const initialState = (view: View): PhoneState => ({
   selected: "draw",
   candidates: ["photo", "draw", "first"],
   day: 19,
+  allDays: false,
   slot: 840,
+  allTimes: false,
   category: "All categories",
   query: "",
   segment: "going",
@@ -386,24 +401,46 @@ const states: Record<string, PhoneState> = {
 const demoPanels = () =>
   panels.filter((_, index) => index >= 10 || index < density);
 const dayPanels = (state: PhoneState) =>
-  demoPanels().filter((item) => item.day === state.day && !item.dropIn);
-const slotPanels = (state: PhoneState) =>
-  dayPanels(state)
-    .filter((item) => item.start < state.slot + 60 && item.end > state.slot)
-    .sort((a, b) => a.start - b.start);
-const filteredPanels = (state: PhoneState) =>
-  slotPanels(state).filter(
+  demoPanels().filter(
     (item) =>
-      (state.category === "All categories" ||
-        item.category === state.category) &&
-      `${item.title} ${item.room} ${item.host} ${item.category}`
-        .toLowerCase()
-        .includes(state.query.toLowerCase()),
+      (state.allDays || item.day === state.day) &&
+      !item.dropIn &&
+      (state.allTimes ||
+        (item.start < state.slot + 60 && item.end > state.slot)),
+  );
+export function selectSchedulePanels(
+  source: readonly Panel[],
+  day: number | null,
+  slot: number | null,
+  category = "All categories",
+  query = "",
+): Panel[] {
+  const needle = query.trim().toLowerCase();
+  return source
+    .filter(
+      (item) =>
+        !item.dropIn &&
+        (day === null || item.day === day) &&
+        (slot === null || (item.start < slot + 60 && item.end > slot)) &&
+        (category === "All categories" || item.category === category) &&
+        `${item.title} ${item.room} ${item.host} ${item.category}`
+          .toLowerCase()
+          .includes(needle),
+    )
+    .sort((a, b) => a.day - b.day || a.start - b.start);
+}
+const filteredPanels = (state: PhoneState) =>
+  selectSchedulePanels(
+    demoPanels(),
+    state.allDays ? null : state.day,
+    state.allTimes ? null : state.slot,
+    state.category,
+    state.query,
   );
 const allConflicts = (state: PhoneState) =>
   panels.filter(
     (item) =>
-      item.day === state.day &&
+      (state.allDays || item.day === state.day) &&
       plan.has(item.id) &&
       getConflicts(item, plan, attendance).length > 0,
   );
@@ -432,6 +469,7 @@ function tabs(active: View) {
     .join("")}</nav></div>`;
 }
 function header(title: string, state: PhoneState, dates = false, extra = "") {
+  const dayCount = new Set(demoPanels().map((item) => item.day)).size;
   return `<header class="native-header"><div class="navline"><button class="navback" data-action="convention">${icon("back")}Lakeside Fur Con</button><button class="circle-btn" data-action="filters" aria-label="Filter schedule">${icon("filter")}</button></div><div class="title-line"><h2>${title}</h2>${extra}</div>${
     dates
       ? `<div class="date-strip"><div class="month-label">SEPTEMBER<br>2026</div>${[
@@ -443,7 +481,9 @@ function header(title: string, state: PhoneState, dates = false, extra = "") {
             ([day, label]) =>
               `<button class="date ${state.day === day ? "selected" : ""}" data-day="${day}" aria-label="${label} September ${day}" aria-pressed="${state.day === day}"><span>${label}</span><strong>${day}</strong></button>`,
           )
-          .join("")}</div>`
+          .join(
+            "",
+          )}<button class="date date-all ${state.allDays ? "selected" : ""}" data-day="all" aria-label="All days" aria-pressed="${state.allDays}"><span>ALL</span><strong>${dayCount}</strong></button></div>`
       : `<div class="native-subtitle">${dayName(state.day)}, September ${state.day}</div>`
   }</header>`;
 }
@@ -452,25 +492,61 @@ function eventRow(item: Panel) {
 }
 function schedule(state: PhoneState) {
   const rows = filteredPanels(state);
-  return `${header("Schedule", state, true)}<div class="native-header" style="padding-top:0"><label class="searchbox">${icon("search")}<input aria-label="Search panels, people, rooms" placeholder="Search panels, people, rooms" value="${escapeHtml(state.query)}"></label></div><div class="time-strip" aria-label="Time slots">${[660, 840, 960, 1200].map((minute) => `<button data-slot="${minute}" class="time-chip ${state.slot === minute ? "active" : ""}" aria-pressed="${state.slot === minute}">${Math.floor(minute / 60) % 12 || 12} ${minute < 720 ? "AM" : "PM"}</button>`).join("")}</div><div class="scroll" data-scroll><div class="section-heading"><span>${time(state.slot)}–${time(state.slot + 60)} ${state.slot < 720 ? "AM" : "PM"}</span><small>${rows.length}${rows.length !== slotPanels(state).length ? ` of ${slotPanels(state).length}` : ""} ${rows.length === 1 ? "option" : "options"}</small></div>${state.category !== "All categories" ? `<p class="section-hint">${state.category} filter <button data-action="clear-filters" style="color:var(--blue)">Clear</button></p>` : '<p class="section-hint">Pick what catches your eye. Decide later.</p>'}<div class="event-list">${rows.length ? rows.map(eventRow).join("") : '<div class="empty">No panels here yet.<br>Try another time or clear your filters.<br><button class="secondary-button" data-action="clear-filters">Clear filters</button></div>'}</div>${state.day === 19 ? `<div class="section-heading"><span>Drop in anytime</span><small>Not a timed commitment</small></div><button class="dropin" data-detail="market"><span class="icon">${icon("store")}</span><span><strong>Artists' Alley</strong><small>10 AM–6 PM · Exhibit Hall</small></span>${icon("chevron")}</button>` : ""}<div class="inline-note">${icon("bookmark")}Interested is a bookmark, not a reservation.</div></div>${tabs("schedule")}`;
+  const dayCount = new Set(rows.map((item) => item.day)).size;
+  const heading = state.allDays
+    ? state.allTimes
+      ? "All panels"
+      : `${time(state.slot)}–${time(state.slot + 60)} ${state.slot < 720 ? "AM" : "PM"} · all days`
+    : state.allTimes
+      ? `${dayName(state.day)} · all times`
+      : `${time(state.slot)}–${time(state.slot + 60)} ${state.slot < 720 ? "AM" : "PM"}`;
+  const count = `${rows.length}${state.allDays ? ` panels · ${dayCount} days` : rows.length === 1 ? " option" : " options"}`;
+  let previousDay = -1;
+  const groupedRows = rows
+    .map((item) => {
+      const heading =
+        state.allDays && item.day !== previousDay
+          ? `<div class="day-group-heading">${dayName(item.day)} · September ${item.day}</div>`
+          : "";
+      previousDay = item.day;
+      return `${heading}${eventRow(item)}`;
+    })
+    .join("");
+  const unfilteredCount = selectSchedulePanels(
+    demoPanels(),
+    state.allDays ? null : state.day,
+    state.allTimes ? null : state.slot,
+  ).length;
+  return `${header("Schedule", state, true)}<div class="native-header" style="padding-top:0"><label class="searchbox">${icon("search")}<input aria-label="Search panels, people, rooms" placeholder="Search panels, people, rooms" value="${escapeHtml(state.query)}"></label></div><div class="time-strip" aria-label="Time range"><button data-slot="all" class="time-chip ${state.allTimes ? "active" : ""}" aria-pressed="${state.allTimes}">All times</button>${[660, 840, 960, 1200].map((minute) => `<button data-slot="${minute}" class="time-chip ${!state.allTimes && state.slot === minute ? "active" : ""}" aria-pressed="${!state.allTimes && state.slot === minute}">${Math.floor(minute / 60) % 12 || 12} ${minute < 720 ? "AM" : "PM"}</button>`).join("")}</div><div class="scroll" data-scroll><div class="section-heading"><span>${heading}</span><small>${count}${rows.length !== unfilteredCount ? ` · ${unfilteredCount} total` : ""}</small></div>${state.category !== "All categories" ? `<p class="section-hint">${state.category} filter <button data-action="clear-filters" style="color:var(--blue)">Clear</button></p>` : '<p class="section-hint">Pick what catches your eye. Decide later.</p>'}<div class="event-list">${rows.length ? groupedRows : '<div class="empty">No panels match these choices.<br>Try another time or clear your filters.<br><button class="secondary-button" data-action="clear-filters">Clear filters</button></div>'}</div>${state.day === 19 || state.allDays ? `<div class="section-heading"><span>Drop in anytime</span><small>Not a timed commitment</small></div><button class="dropin" data-detail="market"><span class="icon">${icon("store")}</span><span><strong>Artists' Alley</strong><small>Saturday · 10 AM–6 PM · Exhibit Hall</small></span>${icon("chevron")}</button>` : ""}<div class="inline-note">${icon("bookmark")}Interested is a bookmark, not a reservation.</div></div>${tabs("schedule")}`;
 }
 function agenda(state: PhoneState) {
-  const personal = panels.filter((item) => item.day === state.day);
+  const personal = panels.filter(
+    (item) => state.allDays || item.day === state.day,
+  );
   const list = personal
     .filter((item) =>
       (state.segment === "going" ? plan : interested).has(item.id),
     )
-    .sort((a, b) =>
-      state.segment === "going"
-        ? planned(a).start - planned(b).start
-        : a.start - b.start,
-    );
+    .sort((a, b) => {
+      const startA = state.segment === "going" ? planned(a).start : a.start;
+      const startB = state.segment === "going" ? planned(b).start : b.start;
+      return a.day - b.day || startA - startB;
+    });
   const conflicts = allConflicts(state);
   const hasPortions = list.some(
     (item) =>
       attendance[item.id] &&
       (planned(item).start !== item.start || planned(item).end !== item.end),
   );
+  const groupedInterests = list
+    .map((item, index) => {
+      const heading =
+        state.allDays && item.day !== list[index - 1]?.day
+          ? `<div class="day-group-heading">${dayName(item.day)} · September ${item.day}</div>`
+          : "";
+      return `${heading}${eventRow(item)}`;
+    })
+    .join("");
   return `${header("My Plan", state, true)}
     <div class="native-header" style="padding-top:0"><div class="segment" aria-label="Plan view">
       <button data-segment="going" class="${state.segment === "going" ? "active" : ""}" aria-pressed="${state.segment === "going"}">Going · ${personal.filter((p) => plan.has(p.id)).length}</button>
@@ -478,20 +554,27 @@ function agenda(state: PhoneState) {
     </div></div>
     <div class="scroll" data-scroll>
       ${notice ? `<div class="notice success">${icon("check")}<div class="notice-content"><strong>Plan updated</strong><p>${escapeHtml(notice)}</p></div></div>` : ""}
-      ${conflicts.length ? `<div class="notice warn">${icon("alert")}<div class="notice-content"><strong>${conflicts.length} attendance windows overlap</strong><p>Keep both or adjust when you join and leave.</p><button data-attendance="${conflicts[0].id}">Adjust your times →</button></div></div>` : hasPortions && state.segment === "going" ? `<div class="notice">${icon("overlap")}<div class="notice-content"><strong>A little of both</strong><p>Your chosen times make room for more panels.</p><button data-attendance="draw">Edit join & leave times →</button></div></div>` : ""}
+      ${conflicts.length ? `<div class="notice warn">${icon("alert")}<div class="notice-content"><strong>Some panels overlap</strong><p>Keep both, or change when you plan to arrive and leave.</p><button data-attendance="${conflicts[0].id}">Adjust times →</button></div></div>` : hasPortions && state.segment === "going" ? `<div class="notice">${icon("overlap")}<div class="notice-content"><strong>A little of both</strong><p>Your chosen times make room for more panels.</p><button data-attendance="draw">Edit arrival and leave times →</button></div></div>` : ""}
       ${
         state.segment === "interested"
-          ? `<p class="section-hint">Save as many as you like. Plan the parts you want.</p><div class="event-list">${list.length ? list.map(eventRow).join("") : '<div class="empty">No interests saved for this day.<br>Bookmark a panel in Schedule.</div>'}</div>`
+          ? `<p class="section-hint">Save as many as you like. Plan the parts you want.</p><div class="event-list">${list.length ? groupedInterests : `<div class="empty">No panels saved for ${state.allDays ? "this convention" : "this day"}.<br>Save a panel from Schedule to see it here.</div>`}</div>`
           : `
-        <div class="section-heading"><span>Your ${dayName(state.day)}</span><small>${list.length} planned</small></div>
+        <div class="section-heading"><span>Your ${state.allDays ? "convention" : dayName(state.day)}</span><small>${list.length} ${state.segment === "going" ? "planned" : "saved"}${state.allDays ? ` · ${new Set(personal.map((item) => item.day)).size} days` : ""}</small></div>
         <div class="agenda">${
           list.length
             ? list
                 .map((item, index) => {
                   const visit = planned(item);
+                  const previous = index > 0 ? planned(list[index - 1]) : null;
                   const partial =
                     visit.start !== item.start || visit.end !== item.end;
-                  return `${index ? gap(planned(list[index - 1]), visit) : ""}
+                  const dayHeading =
+                    state.allDays && item.day !== list[index - 1]?.day
+                      ? `<div class="day-group-heading">${dayName(item.day)} · September ${item.day}</div>`
+                      : "";
+                  const between =
+                    previous?.day === item.day ? gap(previous, visit) : "";
+                  return `${dayHeading}${between}
             <div class="agenda-row"><div class="agenda-time">${time(visit.start)}<small>${visit.start >= 720 ? "PM" : "AM"}</small></div>
               <button class="agenda-entry ${visit.end <= prototypeNow ? "past" : ""}" data-detail="${item.id}" style="--event:${item.color}">
                 <strong>${item.title}</strong><span class="event-meta">${item.room} · ${partial ? "Your time" : "Until"} ${partial ? timeRange(visit) : time(visit.end)}</span>
@@ -501,7 +584,7 @@ function agenda(state: PhoneState) {
             </div>`;
                 })
                 .join("")
-            : '<div class="empty">Your day is open.<button class="secondary-button" data-nav="schedule">Browse panels</button></div>'
+            : `<div class="empty">Your ${state.allDays ? "convention" : "day"} is open.<button class="secondary-button" data-nav="schedule">Browse panels</button></div>`
         }</div>`
       }
       <div class="inline-note">${icon("heart")}Your plan changes. Event times stay the same.</div>
@@ -546,7 +629,7 @@ function now(state: PhoneState) {
         ${following ? `<div class="next-hop"><span>${plannedOverlap(next, following) > 0 ? "ALSO PLANNED · FROM" : "NEXT · JOIN"} ${time(planned(following).start)} PM</span><strong>${following.title}</strong><small>${following.room} · ${plannedOverlap(next, following) > 0 ? `${plannedOverlap(next, following)} min overlaps your attendance` : `${planned(following).start - visit.end} min between your choices`}</small></div>` : ""}
         <button class="primary" data-attendance="${next.id}">Adjust my times ${icon("chevron")}</button>
       </section>`
-          : '<div class="empty">No next stop picked yet.<button class="secondary-button" data-nav="schedule">Explore the schedule</button></div>'
+          : '<div class="empty">No next panel picked yet.<button class="secondary-button" data-nav="schedule">Browse the schedule</button></div>'
       }
       <div class="section-heading"><span>Other options this hour</span><small>${options.length} options</small></div><div class="event-list">${options.map(eventRow).join("")}</div>
     </div>${tabs("now")}`;
@@ -619,8 +702,8 @@ function attendanceEditor(state: PhoneState) {
         </section>`,
           )
           .join("")}
-        ${valid && (conflicts.length || draftVisits.length > 1) ? `<div class="timing-summary ${conflicts.length ? "warning" : ""}">${icon(conflicts.length ? "alert" : "clock")}<div><strong>${conflicts.length > 1 ? `${conflicts.length} overlaps in your plan` : conflicts.length ? `${conflicts[0]} min still overlaps` : minutesBetween === 0 ? "Back-to-back" : minutesBetween !== null ? `${minutesBetween} min between panels` : "Your times fit together"}</strong><span>${conflicts.length ? "You can keep these choices and adjust later." : "Any gap is your buffer, not a walking-time estimate."}</span></div></div>` : ""}
-        <p class="section-hint">Joining late depends on the panel's entry rules. Your choices don't change the published schedule.</p>
+        ${valid && (conflicts.length || draftVisits.length > 1) ? `<div class="timing-summary ${conflicts.length ? "warning" : ""}">${icon(conflicts.length ? "alert" : "clock")}<div><strong>${conflicts.length ? "Some panels overlap" : minutesBetween === 0 ? "Back-to-back" : minutesBetween !== null ? `${minutesBetween} min between panels` : "Your times fit together"}</strong><span>${conflicts.length ? "You can keep these choices and adjust later." : "Time between panels is your buffer. It doesn’t include travel time."}</span></div></div>` : ""}
+          <p class="section-hint">Joining late depends on the panel’s entry rules. Your choices don’t change the schedule.</p>
         ${state.timingError ? `<div class="timing-error" role="alert">${escapeHtml(state.timingError)}</div>` : ""}
       </div>
       <div class="sheet-footer"><button class="primary" data-action="save-attendance">${icon("check")}${conflicts.length ? "Save with overlap" : "Save my times"}</button><button class="secondary-button" data-action="full-events">Use full event times</button></div>
@@ -761,8 +844,25 @@ function commit(key: string, keepBoth = false) {
   renderAll();
 }
 function reset() {
-  interested = new Set(["photo", "draw", "first", "makers", "story", "social"]);
-  plan = new Set(["photo", "draw", "makers", "story", "social"]);
+  interested = new Set([
+    "photo",
+    "draw",
+    "first",
+    "makers",
+    "story",
+    "social",
+    "welcome",
+    "farewell",
+  ]);
+  plan = new Set([
+    "photo",
+    "draw",
+    "makers",
+    "story",
+    "social",
+    "welcome",
+    "farewell",
+  ]);
   attendance = sampleAttendance();
   states.browse = initialState("schedule");
   states.compare = initialState("attendance");
@@ -842,13 +942,15 @@ function init() {
       return;
     }
     if (data.day) {
-      state.day = Number(data.day);
+      state.allDays = data.day === "all";
+      if (!state.allDays) state.day = Number(data.day);
       notice = "";
       navigate(key, state.view);
       return;
     }
     if (data.slot) {
-      state.slot = Number(data.slot);
+      state.allTimes = data.slot === "all";
+      if (!state.allTimes) state.slot = Number(data.slot);
       navigate(key, "schedule");
       return;
     }

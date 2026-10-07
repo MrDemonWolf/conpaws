@@ -1,6 +1,10 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { Document, rootMetadata, rootViewport } from "@/components/document";
+import { notFoundMetadata } from "@/components/not-found-page";
+import { SiteModePage } from "@/components/site-mode-page";
+import { LAUNCH } from "@/content/launch";
+import { getMessages } from "@/i18n";
 import { isLocale } from "@/i18n/config";
 
 /**
@@ -19,13 +23,26 @@ import { isLocale } from "@/i18n/config";
  * would drag `/privacy` to `/en/privacy` and throw away the indexing this
  * pre-launch site exists to earn.
  *
- * `isLocale` is re-checked here even though `page.tsx` sets
- * `dynamicParams = false` and returns only real locales. A layout renders
- * before the page it wraps, so without this an unexpected segment would reach
- * `<html lang>` before the page had a chance to 404.
+ * Unknown single-segment paths also match `[locale]`. Use English for their
+ * error document so they keep the site's styling and fonts.
  */
 
-export const metadata = rootMetadata;
+const pausedMode =
+  LAUNCH.mode === "maintenance" || LAUNCH.mode === "coming-soon"
+    ? LAUNCH.mode
+    : null;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return notFoundMetadata;
+  return pausedMode
+    ? { ...rootMetadata, robots: { index: false, follow: false } }
+    : rootMetadata;
+}
 export const viewport = rootViewport;
 
 export default async function LocaleRootLayout({
@@ -36,7 +53,19 @@ export default async function LocaleRootLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
-  if (!isLocale(locale)) notFound();
+  const displayLocale = pausedMode || !isLocale(locale) ? "en" : locale;
 
-  return <Document locale={locale}>{children}</Document>;
+  return (
+    <Document locale={displayLocale}>
+      {pausedMode ? (
+        <SiteModePage
+          mode={pausedMode}
+          locale={displayLocale}
+          messages={getMessages(displayLocale)}
+        />
+      ) : (
+        children
+      )}
+    </Document>
+  );
 }

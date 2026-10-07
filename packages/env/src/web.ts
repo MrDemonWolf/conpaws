@@ -31,6 +31,13 @@ export const env = createEnv({
       .default(
         process.env.WAITLIST_ACCEPTING_SIGNUPS === "false" ? "false" : "true",
       ),
+    NEXT_PUBLIC_SITE_MODE: z
+      .enum(["waitlist", "live", "coming-soon", "maintenance"])
+      .default("waitlist"),
+    NEXT_PUBLIC_COUNTDOWN_AT: z.iso.datetime().optional(),
+    NEXT_PUBLIC_APP_STORE_URL: z.url().optional(),
+    NEXT_PUBLIC_GOOGLE_PLAY_URL: z.url().optional(),
+    NEXT_PUBLIC_MAINTENANCE_MESSAGE: z.string().min(1).optional(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
@@ -38,6 +45,12 @@ export const env = createEnv({
     NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS:
       process.env.NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS ??
       process.env.WAITLIST_ACCEPTING_SIGNUPS,
+    NEXT_PUBLIC_SITE_MODE: process.env.NEXT_PUBLIC_SITE_MODE,
+    NEXT_PUBLIC_COUNTDOWN_AT: process.env.NEXT_PUBLIC_COUNTDOWN_AT,
+    NEXT_PUBLIC_APP_STORE_URL: process.env.NEXT_PUBLIC_APP_STORE_URL,
+    NEXT_PUBLIC_GOOGLE_PLAY_URL: process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL,
+    NEXT_PUBLIC_MAINTENANCE_MESSAGE:
+      process.env.NEXT_PUBLIC_MAINTENANCE_MESSAGE,
   },
   emptyStringAsUndefined: true,
 });

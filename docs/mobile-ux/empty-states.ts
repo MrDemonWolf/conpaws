@@ -2,99 +2,99 @@
 const statusScenarios = [
   [
     "loading",
-    "Quick load · schedule skeleton",
     "Loading your schedule",
-    "Reading the schedule saved on this phone. Your picks will appear when loading finishes.",
+    "Loading your schedule",
+    "Getting your saved schedule ready. Your panels will appear here in a moment.",
     "View Conventions",
-    "A local query is pending. Keep the screen shell and show matching skeleton rows only if loading lasts long enough to be visible. Cached rows stay visible during refresh.",
+    "The app is getting your saved schedule ready. Keep any panels already on screen visible while it checks for changes.",
   ],
   [
     "downloading",
-    "First schedule download",
+    "Downloading the first schedule",
     "Downloading the schedule",
-    "Keep ConPaws open while this sample download finishes. The schedule is not ready offline yet.",
+    "Keep ConPaws open until the download finishes. You can use this schedule without an internet connection once it’s saved.",
     "Cancel Download",
-    "First download is incomplete. Only confirm offline readiness after the complete schedule is committed locally.",
+    "The download is not finished yet. Say the schedule is ready only after the full schedule has been saved on this phone.",
   ],
   [
     "offline-ready",
-    "Offline · saved schedule available",
-    "Your saved schedule is available",
-    "You’re offline. Browse your downloaded schedule and saved picks. New organizer changes need a connection.",
-    "Browse Saved Schedule",
-    "Connectivity is known to be offline and a complete local copy exists. Do not hide readable events behind this message.",
+    "No internet · saved schedule",
+    "Your saved schedule is ready",
+    "You don’t have an internet connection, but your saved schedule and panels are still here. A connection is needed to check for changes.",
+    "View Saved Schedule",
+    "There is no internet connection, but a full saved schedule is available. Keep it easy to open.",
   ],
   [
     "offline-no-copy",
-    "Offline · no downloaded schedule",
+    "No internet · schedule not saved",
     "Connect to download this con",
-    "There is no downloaded schedule on this phone yet. Connect to the internet, then try again.",
+    "This schedule isn’t saved on your phone yet. Connect to the internet, then try again.",
     "Try Again",
-    "Connectivity is known to be offline and this edition has no local copy. Other downloaded conventions remain available.",
+    "There is no internet connection, and this convention hasn’t been saved on this phone yet. Other saved conventions are still available.",
   ],
   [
     "refreshing",
     "Checking for schedule changes",
     "Checking for updates",
-    "Your saved schedule stays available while we check for room, time, and cancellation changes.",
+    "Your saved schedule stays here while we check for room, time, or cancellation changes.",
     "Browse Saved Schedule",
-    "Refresh is pending with a last good local copy. This is a nonblocking status, not a replacement for the event list.",
+    "Keep the saved schedule on screen while ConPaws checks for changes.",
   ],
   [
     "refresh-failed",
-    "Update failed · saved copy retained",
-    "Couldn’t update the schedule",
-    "Your previous download is still available. Last downloaded today at 10:15 AM. Try again when you have a connection.",
-    "Retry Update",
-    "An update failed and the previous complete copy was retained. Show the failure separately from the last successful download.",
+    "Couldn’t check for changes",
+    "Couldn’t check for changes",
+    "Your saved schedule is still here. It was last downloaded today at 10:15 AM. Try again when you’re back online.",
+    "Try Again",
+    "The latest check did not finish, but the saved schedule is still available. Keep the last download time clear.",
   ],
   [
     "unavailable",
-    "Catalog · schedule unavailable",
-    "Schedule unavailable in ConPaws",
-    "This convention is listed, but its schedule is not available in ConPaws yet. You can check the organizer’s website or import a verified feed.",
-    "View Organizer Website",
-    "Catalog availability is explicit. This does not prove that the organizer has not published a schedule elsewhere.",
+    "Schedule not in ConPaws yet",
+    "This schedule isn’t in ConPaws yet",
+    "This convention is listed, but its schedule isn’t available here yet. Check the convention’s website, or add a schedule from a link or file.",
+    "Visit Convention Website",
+    "The convention is listed here, but we don’t know whether its schedule is available somewhere else. Don’t say the organizer hasn’t posted it.",
   ],
   [
     "cancelled",
-    "Saved panel cancelled",
+    "A saved panel was cancelled",
     "This panel was cancelled",
-    "Evening sketch jam is cancelled in the latest schedule. It remains in your plan with this notice so you can choose another panel.",
-    "Browse Alternatives",
-    "A published revision explicitly marks a saved event cancelled. Retain its stable ID and saved choice; suppress its obsolete reminder.",
+    "Evening sketch jam was cancelled. It’s still in your plan so you can choose another panel.",
+    "Find Another Panel",
+    "The schedule says this panel was cancelled. Keep it in the plan until the person reviews it, and stop its reminder.",
   ],
   [
     "changed",
-    "Saved panel room or time changed",
-    "Your panel has changed",
-    "Character design now starts at 2:45 PM in Oak. Previously: 2:35 PM in Cedar. Review your plan and reminder.",
-    "Review Changed Panel",
-    "A new revision changed a saved event. Show old and new values; preserve personal choices and recompute affected reminders.",
+    "A panel’s time or room changed",
+    "A panel has changed",
+    "Character design now starts at 2:45 PM in Oak. It used to start at 2:35 PM in Cedar. Review your plan and reminder.",
+    "Review Panel",
+    "The schedule changed this panel’s time or room. Show the old and new details, and keep the person’s saved choice.",
   ],
   [
     "alerts-denied",
-    "Reminders · permission denied",
+    "Reminders are off",
     "Reminders are turned off",
-    "Your plan is saved, but ConPaws cannot send notifications. Allow notifications in Settings if you want reminders.",
-    "Open Notification Settings",
-    "Notification permission is denied. Saving a panel still works; do not claim a reminder has been scheduled.",
+    "Your plan is saved, but reminders are off. Turn on notifications in Settings if you’d like a reminder.",
+    "Open Settings",
+    "Notifications are turned off for ConPaws. Saving panels still works, but reminders won’t appear until they’re turned on.",
   ],
   [
     "conflict",
-    "Saved panels overlap",
+    "Two panels overlap",
     "Two picks overlap",
-    "Fursuit photography and Character design overlap for 25 minutes. Keep both or review which parts you want to attend.",
-    "Review Overlap",
-    "A strict interval overlap exists, including across midnight. This is a warning, not a forced removal or reservation rule.",
+    "Fursuit photography and Character design overlap for 25 minutes. Keep both, or choose how long you want to attend each.",
+    "Review Times",
+    "The times you chose overlap. Show how long they overlap, but let the person keep both panels if they want.",
   ],
   [
     "current-only",
-    "Final picked panel still running",
-    "You’re at your last pick",
-    "Closing circle is running until 4:00 PM in Ballroom A. No later panels are saved today.",
+    "Your last panel is still happening",
+    "You’re at your last planned panel",
+    "Closing circle runs until 4:00 PM in Ballroom A. You don’t have another panel picked after it today.",
     "View Current Panel",
-    "A saved panel is still active with no later pick. Keep the current panel visible until its actual end.",
+    "A panel you picked is still happening, and nothing else is planned for later today. Keep showing it until it ends.",
   ],
 ] as const;
 
@@ -113,45 +113,44 @@ export const emptyStateScenarios = [
         : "warning",
     secondary: "",
     destination: action,
-    date: "Fictional status scenario · September 19",
-    current:
-      "Proposed status presentation; native delivery is not verified by this preview.",
+    date: "Example status · September 19",
+    current: "Example wording only. The current ConPaws app has not changed.",
     boundary:
-      "This selector illustrates known state. It does not perform downloads, detect connectivity, publish changes, or schedule notifications.",
+      "These examples don’t download schedules, check your internet, publish changes, or send reminders.",
   })),
   {
     id: "upcoming-empty",
-    label: "Con coming up · no picks",
+    label: "Con in 15 days · no panels picked",
     screen: "My Plan",
     symbol: "calendar",
-    title: "15 days to go",
-    body: "Lakeside Fur Con starts September 18. Browse the schedule and pick what you want to catch.",
+    title: "15 days until Lakeside Fur Con",
+    body: "Lakeside Fur Con starts September 18. Browse the schedule and choose the panels you want to catch.",
     action: "Browse Schedule",
     secondary: "",
-    destination: "The convention schedule",
+    destination: "the convention schedule",
     date: "September 3 · 15 days before the con",
     current: "In 15 days" + " · My Schedule is empty",
     condition:
-      "The convention starts in the future, its schedule has events, and you have not picked any. Keep the countdown and the next step together.",
+      "The convention is coming up, its schedule is available, and no panels have been picked. Show the date and an easy first step.",
     boundary:
-      "The date is the first convention day. It is not a doors-open time. Picking a panel does not reserve a seat.",
+      "The countdown uses the first day of the convention, not the time doors open. Picking a panel doesn’t save you a seat.",
   },
   {
     id: "upcoming-ready",
-    label: "Con coming up · picks ready",
+    label: "Con in 15 days · plan ready",
     screen: "My Plan",
     symbol: "calendar",
-    title: "Your con is getting closer",
-    body: "15 days until Lakeside Fur Con. Your picks are ready to review, and you can change them anytime.",
+    title: "Your plan is ready",
+    body: "Lakeside Fur Con starts in 15 days. Review your picks anytime, or browse the schedule to add more.",
     action: "Review My Plan",
     secondary: "Browse Schedule",
-    destination: "Your picked panels",
+    destination: "your picked panels",
     date: "September 3 · 15 days before the con",
     current: "In 15 days" + " · saved events already appear in My Schedule",
     condition:
-      "The same upcoming convention, with picked panels. Show the dates and the next saved stop; do not ask the person to start over.",
+      "The convention is coming up and panels are already picked. Show the dates and the next panel; don’t ask the person to start over.",
     boundary:
-      "The native app already computes the countdown in the convention’s time zone. Keep Today / Tomorrow / In N days as the date changes.",
+      "The countdown uses the convention’s local time. Change the wording as the date gets closer: Today, Tomorrow, then In N days.",
   },
   {
     id: "no-convention",
@@ -159,68 +158,68 @@ export const emptyStateScenarios = [
     screen: "Conventions",
     symbol: "calendar",
     title: "No conventions yet",
-    body: "Import a schedule to start planning your con. You can also create a convention and add events yourself.",
-    action: "Import Schedule",
+    body: "Add a convention to start planning. Use a schedule link or file, or create one and add panels yourself.",
+    action: "Add a Schedule",
     secondary: "Create Convention",
-    destination: "The existing schedule importer",
-    date: "First use · no convention on this device",
+    destination: "a screen to add a convention",
+    date: "First use · no convention added yet",
     current: "No conventions yet · Create one or import an existing schedule.",
     condition:
-      "The local convention list is empty. The current app already makes Import Schedule the primary action and Create Convention the secondary action.",
+      "There’s no convention in ConPaws yet. Make it easy to add one from a schedule or create one from scratch.",
     boundary:
-      "An empty widget snapshot can also mean unavailable data. A widget should say Open ConPaws, not assume the person has never added a convention.",
+      "Don’t tell someone to start over just because a widget is blank; it may not have updated yet.",
   },
   {
     id: "no-events",
-    label: "Con added · no events",
+    label: "Convention saved · no panels yet",
     screen: "Schedule",
     symbol: "calendar",
-    title: "No events added yet",
-    body: "Import a schedule or add events yourself. They’ll appear here when you add them.",
-    action: "Import Schedule",
+    title: "No panels added yet",
+    body: "No panels have been added to this convention yet. Add a schedule from a link or file, or add panels yourself.",
+    action: "Add a Schedule",
     secondary: "Add Event",
-    destination: "The existing schedule importer",
-    date: "September 3 · convention saved, event list empty",
+    destination: "a screen to add panels",
+    date: "September 3 · convention saved, no panels added",
     current: "No events yet · Import a schedule or add events manually.",
     condition:
-      "A convention exists, but its local event list is empty. Show the convention dates so this screen still feels connected to the upcoming con.",
+      "A convention is saved, but it has no panels listed in ConPaws yet. Show the dates so it still feels connected to the upcoming event.",
     boundary:
-      "There is no schedule-publication field. Do not claim the organizer has not published it, or promise an alert when it arrives.",
+      "We don’t know whether the organizer has posted a schedule. Don’t say it hasn’t been posted or promise an alert when it is.",
   },
   {
     id: "no-picks",
-    label: "Con underway · no picks",
+    label: "Con underway · no panels picked",
     screen: "My Plan",
     symbol: "bookmark",
-    title: "Your plan starts with a panel",
-    body: "Browse the schedule and add the panels you want to catch. You can make time for more than one.",
+    title: "No panels picked yet",
+    body: "Browse the schedule and choose the panels you want to catch. You can add more than one.",
     action: "Browse Schedule",
     secondary: "",
-    destination: "The convention schedule",
-    date: "September 19 · schedule available, no picked panels",
+    destination: "the convention schedule",
+    date: "September 19 · schedule available, no panels picked",
     current:
       "Nothing starred yet · Tap an event inside a convention to add it to My Schedule — it lands here.",
     condition:
-      "The schedule has events, but your personal list is empty. The native app currently has one saved state; My Plan / Interested are proposed terms in this exploration.",
+      "Panels are listed, but none are in your plan yet. Point to the schedule so you can start choosing.",
     boundary:
-      "No picks is different from no events. Do not send the person back through Import when the schedule is already available.",
+      "No panels picked is different from no panels available. Don’t ask someone to import again when the schedule is already there.",
   },
   {
     id: "no-matches",
     label: "Search or filters match nothing",
     screen: "Schedule",
     symbol: "search",
-    title: "No panels match",
-    body: "Try another search or clear your filters to see more of the schedule.",
+    title: "No panels match these choices",
+    body: "Try another time or clear your filters to see more of the schedule.",
     action: "Clear Filters",
     secondary: "",
-    destination: "The schedule with search and filters cleared",
-    date: "September 19 · active search or category filter",
+    destination: "the schedule with your search and filters cleared",
+    date: "September 19 · search or filter hides all panels",
     current: "No matching events · Try another search or filter.",
     condition:
-      "The current view has an active search or filter, and no matching rows. Clearing it should preserve the selected convention.",
+      "The current search or filter hides every panel. Clearing it should keep the selected convention.",
     boundary:
-      "Do not say No events yet here. The filter result does not describe the whole convention schedule.",
+      "These results don’t mean the full schedule is empty. Make it easy to change the search or filters.",
   },
   {
     id: "between-panels",
@@ -228,16 +227,16 @@ export const emptyStateScenarios = [
     screen: "Now & next",
     symbol: "clock",
     title: "Nothing planned right now",
-    body: "Your next stop is Character design at 2:35 PM in Cedar. You have a little time before you join.",
+    body: "Character design starts at 2:35 PM in Cedar. You have a little time before it starts.",
     action: "View Next Panel",
     secondary: "Browse Schedule",
     destination: "Character design panel details",
-    date: "September 19 · 2:30 PM · next join at 2:35 PM",
+    date: "September 19 · 2:30 PM · next panel starts at 2:35 PM",
     current: "Nothing from My Schedule is happening right now.",
     condition:
-      "No picked panel is active, but a future one exists. Use that real next stop to make the quiet moment useful.",
+      "Nothing you picked is happening now, but another panel starts later. Show that next panel and its start time.",
     boundary:
-      "The native app uses published event times today. The partial-attendance proposal uses your join time. Neither gap is a measured walking time.",
+      "The schedule shows when the panel starts. Your chosen arrival time may be different. Time between panels is not a travel-time estimate.",
   },
   {
     id: "plan-finished",
@@ -248,47 +247,47 @@ export const emptyStateScenarios = [
     body: "You’ve reached the end of today’s picks. There may still be other panels to catch.",
     action: "Browse Schedule",
     secondary: "Review My Plan",
-    destination: "The convention schedule",
-    date: "September 19 · 9:35 PM · final pick has ended",
+    destination: "the convention schedule",
+    date: "September 19 · 9:35 PM · last picked panel has ended",
     current: "No more upcoming events in My Schedule.",
     condition:
-      "There were picked panels today, none is still running, and none remains today. If another pick exists tomorrow, show it instead of implying the whole plan is finished.",
+      "Today’s picked panels have ended, and nothing else is planned for today. If another panel is picked for tomorrow, show it instead of saying the whole plan is done.",
     boundary:
-      "The convention may still be running. Some existing widget branches lose the final active panel; fix that selection before using finished copy there.",
+      "The convention may still be running. Keep a panel on screen while it’s happening, even if nothing else is planned after it.",
   },
   {
     id: "no-upcoming",
-    label: "Past cons only",
+    label: "Past conventions only",
     screen: "Conventions",
     symbol: "archive",
     title: "Ready for your next con?",
-    body: "Your past conventions are in Archive. Import a schedule when you’re ready to plan another.",
-    action: "Import Schedule",
+    body: "Your past conventions are in Archive. Add a schedule when you’re ready to plan another.",
+    action: "Add a Schedule",
     secondary: "View Archive",
-    destination: "The existing schedule importer",
-    date: "September 21 · past convention retained in Archive",
+    destination: "a screen to add a schedule",
+    date: "September 21 · past convention is in Archive",
     current: "No upcoming conventions.",
     condition:
-      "The local list contains past or archived conventions, with no current convention. The native app already keeps this separate from first use.",
+      "Your saved conventions have all ended or are in Archive. Keep them available; don’t show this as a first-use screen.",
     boundary:
-      "Do not erase the person’s history or present them as a new user. Explicitly archived future conventions can also appear in Archive.",
+      "Keep past conventions in Archive. A future convention can be there too if the person moved it.",
   },
   {
     id: "load-error",
-    label: "Schedule could not load",
+    label: "Couldn’t show the schedule",
     screen: "My Plan",
     symbol: "warning",
-    title: "Couldn’t load your schedule",
-    body: "Try again to load your picked panels.",
+    title: "We couldn’t show your schedule",
+    body: "Please try again in a moment.",
     action: "Try Again",
     secondary: "",
-    destination: "Retry loading the local schedule",
-    date: "Loading failed · data state is unknown",
+    destination: "your saved schedule",
+    date: "The schedule could not be shown",
     current: "Your schedule could not be loaded.",
     condition:
-      "A data query failed. This must win over empty-state messaging; the app has not established that the list is empty.",
+      "The app couldn’t show the saved schedule. We don’t know whether it’s empty, so show an error instead of an empty message.",
     boundary:
-      "A widget or Watch has different snapshot information. Do not label a stale snapshot Offline unless connectivity is actually known.",
+      "Only say there’s no internet when ConPaws knows that. Otherwise, simply say it couldn’t show the schedule.",
   },
 ] as const;
 
@@ -334,10 +333,10 @@ export function mountEmptyStates(root: HTMLElement) {
     @media(max-width:740px){.es-head{display:block}.es-head p{margin-top:17px}.es-layout{grid-template-columns:1fr;justify-items:center;gap:25px}.es-copy-column{width:100%;max-width:520px}.es-controls label{display:block;width:100%}.es-controls select{display:block;margin-top:8px;width:100%}.es-head h2{font-size:32px}}
     @media(max-width:390px){.es-layout{justify-items:start}.es-phone-wrap{width:318px}.es-device{transform:scale(.9);transform-origin:top left;margin-bottom:-75px}.es-phone-label{font-size:11px}}
   </style><div class="es-page">
-    <div class="es-head"><div><div class="es-kicker">Phone flow · Empty & status states</div><h2>Every state.<br><span>A clear next step.</span></h2></div><p>Compare empty, upcoming, loading, download, offline, update, reminder, and event-change states. These are fictional previews; a status must not hide a usable saved schedule.</p></div>
-    <div class="es-controls"><label>Situation<select aria-label="Empty or upcoming situation">${emptyStateScenarios.map((s) => `<option value="${s.id}" ${s.id === selected ? "selected" : ""}>${s.label}</option>`).join("")}</select></label><span>Fictional sample data · Edit copy to compare</span></div>
-    <div class="es-layout"><div class="es-phone-wrap"><p class="es-phone-label" data-es-date></p><div class="device es-device"><div class="screen"><div class="statusbar"><span>9:41</span><div class="island"></div><div class="status-icons"><span aria-hidden="true">▮▮▮</span><i class="battery"></i></div></div><div class="app-body" data-es-phone></div><div class="home-indicator"></div></div></div><p class="es-footnote">iOS layout illustration · Use the top controls to compare larger text and dark appearance.</p></div>
-    <div class="es-copy-column"><section class="es-copy" aria-label="Empty state copy editor"><div class="es-kicker">Copy playground</div><h3>Say what happened.<br>Show what to do next.</h3><p>Try the wording on the phone. Edits stay in this tab until you reload.</p><label>Title<input data-es-title aria-label="Empty state title" maxlength="100"></label><label>Message<textarea data-es-body aria-label="Empty state message" maxlength="400"></textarea></label><button class="es-reset" data-es-reset>Reset this wording</button></section><section class="es-context" aria-label="Codebase findings"><h4>When this message fits</h4><p data-es-condition></p><div class="es-current"><span>Current app wording</span><p data-es-current></p></div><h4 style="margin-top:22px">What the app can tell us</h4><p data-es-boundary></p><div class="es-links"><button data-page="widgets">See widget states</button><button data-page="watch">See Watch states</button></div><p class="es-footnote">Mockup copy only. Existing app translations, imports, and saved schedules are unchanged.</p></section></div></div>
+    <div class="es-head"><div><div class="es-kicker">Phone flow · Empty screens and updates</div><h2>Every situation.<br><span>A clear next step.</span></h2></div><p>See what someone reads when they’re getting started, have nothing planned, or need help. These examples use made-up details and won’t change your saved schedule.</p></div>
+    <div class="es-controls"><label>Situation<select aria-label="Empty or upcoming situation">${emptyStateScenarios.map((s) => `<option value="${s.id}" ${s.id === selected ? "selected" : ""}>${s.label}</option>`).join("")}</select></label><span>Sample details · Edit the wording to compare</span></div>
+    <div class="es-layout"><div class="es-phone-wrap"><p class="es-phone-label" data-es-date></p><div class="device es-device"><div class="screen"><div class="statusbar"><span>9:41</span><div class="island"></div><div class="status-icons"><span aria-hidden="true">▮▮▮</span><i class="battery"></i></div></div><div class="app-body" data-es-phone></div><div class="home-indicator"></div></div></div><p class="es-footnote">iPhone screen example · Use the controls above to try larger text and dark appearance.</p></div>
+    <div class="es-copy-column"><section class="es-copy" aria-label="Empty state copy editor"><div class="es-kicker">Edit this message</div><h3>Say what happened.<br>Show what to do next.</h3><p>Try the wording on the phone. Changes stay here until you reload this page.</p><label>Title<input data-es-title aria-label="Empty state title" maxlength="100"></label><label>Message<textarea data-es-body aria-label="Empty state message" maxlength="400"></textarea></label><button class="es-reset" data-es-reset>Restore original wording</button></section><section class="es-context" aria-label="Why this message fits"><h4>Why this message fits</h4><p data-es-condition></p><div class="es-current"><span>Wording in the app today</span><p data-es-current></p></div><h4 style="margin-top:22px">What ConPaws can tell</h4><p data-es-boundary></p><div class="es-links"><button data-page="widgets">See widget examples</button><button data-page="watch">See Watch examples</button></div><p class="es-footnote">These are mockups. The app’s current wording, imports, and saved schedules have not changed.</p></section></div></div>
     <dialog class="es-dialog" aria-label="Mockup action destination"><div class="es-kicker">Action preview</div><h3 data-es-action-title></h3><p data-es-action-body></p><button data-es-populated>Explore the sample schedule</button><button data-es-close>Back to wording</button></dialog>
   </div>`;
 
@@ -349,11 +348,11 @@ export function mountEmptyStates(root: HTMLElement) {
     `<div class="es-skeleton-group"></div>${Array.from({ length: 4 }, () => '<div class="es-skeleton-row"><span class="es-skeleton-time"></span><span class="es-skeleton-lines"><i></i><i></i></span></div>').join("")}`;
   query(".es-controls").insertAdjacentHTML(
     "afterend",
-    `<nav class="es-flow-controls" aria-label="Phone flow playback"><button type="button" data-es-play>Play flow</button><button type="button" data-es-back>Previous</button><button type="button" data-es-next>Next</button><span data-es-flow-label aria-live="polite">Nine moments from setup to the end of your day · 3 seconds each</span><a href="#${root.id}-overview">Review all 22 states ↓</a></nav>`,
+    `<nav class="es-flow-controls" aria-label="Phone flow playback"><button type="button" data-es-play>Play flow</button><button type="button" data-es-back>Previous</button><button type="button" data-es-next>Next</button><span data-es-flow-label aria-live="polite">Nine moments from setup to the end of your day · 3 seconds each</span><a href="#${root.id}-overview">See all 22 examples ↓</a></nav>`,
   );
   query(".es-page").insertAdjacentHTML(
     "beforeend",
-    `<section id="${root.id}-overview" class="es-overview" aria-label="All phone states"><h3>All 22 states, together.</h3><p>Baseline copy and compact screen previews. Choose any card to inspect it on the full phone above. Playback shows proposed moments across different days; it does not perform a download or sync.</p><div class="es-state-grid">${emptyStateScenarios.map((s) => `<button type="button" class="es-state-tile" data-es-select="${s.id}" aria-label="Review ${s.label}" aria-pressed="false"><small>${s.label}</small><div class="es-mini-phone"><span>ConPaws · ${s.screen}</span>${s.id === "loading" ? `<div class="es-skeleton" aria-hidden="true">${skeletonRows()}</div><span>Schedule placeholders</span>` : `${symbol(s.symbol)}<strong>${s.title}</strong><p>${s.body}</p><em>${s.action} ›</em>`}</div><small>Open full preview ↑</small></button>`).join("")}</div></section>`,
+    `<section id="${root.id}-overview" class="es-overview" aria-label="All phone examples"><h3>All 22 examples, together.</h3><p>Choose any card to see it on the phone above. The walkthrough shows examples from different days; it won’t download or update anything.</p><div class="es-state-grid">${emptyStateScenarios.map((s) => `<button type="button" class="es-state-tile" data-es-select="${s.id}" aria-label="Review ${s.label}" aria-pressed="false"><small>${s.label}</small><div class="es-mini-phone"><span>ConPaws · ${s.screen}</span>${s.id === "loading" ? `<div class="es-skeleton" aria-hidden="true">${skeletonRows()}</div><span>Loading your schedule</span>` : `${symbol(s.symbol)}<strong>${s.title}</strong><p>${s.body}</p><em>${s.action} ›</em>`}</div><small>View this on the phone ↑</small></button>`).join("")}</div></section>`,
   );
 
   function pause() {
@@ -412,8 +411,7 @@ export function mountEmptyStates(root: HTMLElement) {
     if (!emptyStateScenarios.some((s) => s.id === id)) return;
     selected = id as StateId;
     pause();
-    query("[data-es-flow-label]").textContent =
-      "Paused · reviewing a selected state";
+    query("[data-es-flow-label]").textContent = "Paused · viewing this example";
     render();
   });
   root.addEventListener("input", (event) => {
@@ -478,7 +476,7 @@ export function mountEmptyStates(root: HTMLElement) {
       query<HTMLSelectElement>("select").value = selected;
       render();
       query("[data-es-flow-label]").textContent =
-        "Paused · reviewing a selected state";
+        "Paused · viewing this example";
       query(".es-flow-controls").scrollIntoView({
         block: "start",
         behavior: "auto",
@@ -502,8 +500,10 @@ export function mountEmptyStates(root: HTMLElement) {
       query("[data-es-action-title]").textContent = action;
       query("[data-es-action-body]").textContent =
         button.dataset.esAction === "primary"
-          ? `${state.destination}. This is a preview of the action; no data is imported or changed.`
-          : `This action would open ${action.toLowerCase()}. This preview keeps your data unchanged.`;
+          ? state.action === "Try Again"
+            ? "In the finished app, this would try again to show your schedule. This is only a preview; nothing will change."
+            : `In the finished app, this would open ${state.destination}. This is only a preview; nothing will change.`
+          : `This would open ${action.toLowerCase()}. This is only a preview; nothing will change.`;
       dialog.showModal();
     }
     if (button.hasAttribute("data-es-close")) dialog.close();

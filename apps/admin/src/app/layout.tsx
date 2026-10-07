@@ -24,12 +24,23 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
+  applicationName: "ConPaws Admin",
   title: {
     default: "ConPaws Admin",
     template: "%s · ConPaws Admin",
   },
   description: "Private convention catalog and schedule publishing workspace.",
   robots: { index: false, follow: false, noarchive: true },
+  icons: {
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "ConPaws Admin",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {

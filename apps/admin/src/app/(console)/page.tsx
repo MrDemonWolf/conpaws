@@ -18,44 +18,57 @@ export default async function OverviewPage() {
   await requireAdmin();
   const data = await getDashboardData();
   const hasConventions = data.published + data.drafts > 0;
+  const currentDraft = data.draftItems[0];
 
   return (
     <>
       <PageHeading
-        eyebrow="Operations overview"
-        title="Your convention catalog"
-        description="Curate verified convention records, build their schedules, and keep every published revision auditable."
+        eyebrow="Workspace"
+        title="Overview"
+        description="See what is published, move drafts toward review, and set up the next convention."
         action={
-          <Button href="/conventions/new">
-            <Icon name="plus" className="size-4" /> Add convention
-          </Button>
+          hasConventions ? (
+            currentDraft ? (
+              <Button href={`/conventions/${currentDraft.id}`}>
+                Continue draft <Icon name="chevron" className="size-4" />
+              </Button>
+            ) : (
+              <Button href="/conventions/new">
+                <Icon name="plus" className="size-4" /> Add convention
+              </Button>
+            )
+          ) : undefined
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatCard
-          label="Published conventions"
+          label="Published"
           value={data.published}
-          detail="Stored as published catalog revisions"
+          detail="Live editions"
           accent="green"
+          icon={<Icon name="check" className="size-[18px]" />}
         />
         <StatCard
-          label="Drafts to review"
+          label="Drafts"
           value={data.drafts}
-          detail="Private until a revision is published"
+          detail="Need review"
           accent="amber"
+          icon={<Icon name="activity" className="size-[18px]" />}
         />
         <StatCard
-          label="Schedule entries"
+          label="Sessions"
           value={data.sessions}
-          detail="Sessions across the catalog"
+          detail="Across the catalog"
           accent="sky"
+          icon={<Icon name="calendar" className="size-[18px]" />}
         />
         <StatCard
-          label="Active admins"
+          label="Admins"
           value={data.members}
-          detail="Owner and editor accounts"
+          detail="Owner and editors"
           accent="navy"
+          icon={<Icon name="users" className="size-[18px]" />}
         />
       </div>
 
@@ -64,21 +77,19 @@ export default async function OverviewPage() {
           <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.3fr_0.7fr] lg:p-10">
             <div className="max-w-xl">
               <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-800">
-                <span className="size-1.5 rounded-full bg-sky-500" /> Ready for
-                your first convention
+                <span className="size-1.5 rounded-full bg-sky-500" /> A simple
+                path to launch
               </span>
               <h2 className="mt-5 font-display text-2xl font-bold tracking-tight text-[#091533] sm:text-[28px]">
-                Give attendees a schedule they can trust.
+                Set up your first convention.
               </h2>
               <p className="mt-3 text-[15px] leading-7 text-slate-600">
-                Add an organizer-verified convention listing, enter sessions as
-                they become available, and publish each reviewed revision.
-                Drafts stay private. The attendee download connection is a
-                separate release gate.
+                Start with the details you have. Add the schedule when it is
+                ready, then publish a reviewed edition for attendees.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button href="/conventions/new">
-                  <Icon name="plus" className="size-4" /> Set up a convention
+                  <Icon name="plus" className="size-4" /> Start setup
                 </Button>
                 <a
                   href="/conventions"
@@ -96,22 +107,22 @@ export default async function OverviewPage() {
                 {[
                   [
                     "01",
-                    "Add the verified listing",
-                    "Dates, time zone, venue and organizer website.",
+                    "Create the listing",
+                    "Add the event dates, location and official website.",
                   ],
                   [
                     "02",
-                    "Build the schedule",
-                    "Add sessions and make corrections as details change.",
+                    "Add the schedule",
+                    "Enter sessions as the organizer releases them.",
                   ],
                   [
                     "03",
                     "Review and publish",
-                    "Create a numbered, immutable catalog snapshot.",
+                    "Check the details, then make the edition available.",
                   ],
                 ].map(([number, title, detail]) => (
                   <li key={number} className="flex gap-3">
-                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-white font-mono text-xs font-bold text-sky-800 shadow-sm ring-1 ring-slate-200">
+                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-white font-mono text-xs font-bold text-sky-900 ring-1 ring-slate-200">
                       {number}
                     </span>
                     <span>
@@ -134,25 +145,62 @@ export default async function OverviewPage() {
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
               <div>
                 <h2 className="font-display text-base font-bold text-[#091533]">
-                  Upcoming conventions
+                  {data.upcoming.length === 0 && data.draftItems.length > 0
+                    ? "Drafts to finish"
+                    : "Upcoming conventions"}
                 </h2>
                 <p className="mt-1 text-xs text-slate-500">
-                  Published catalog records, ordered by start date
+                  {data.upcoming.length === 0 && data.draftItems.length > 0
+                    ? "Finish the details and review before publishing."
+                    : "Published catalog records, ordered by start date."}
                 </p>
               </div>
               <a
                 href="/conventions"
-                className="text-sm font-semibold text-sky-800 hover:underline"
+                className="shrink-0 whitespace-nowrap text-sm font-semibold text-sky-900 hover:underline"
               >
                 View all
               </a>
             </div>
             {data.upcoming.length === 0 ? (
-              <EmptyState
-                title="No published editions yet"
-                description="Your drafts stay private until you publish the first reviewed revision."
-                action={<Button href="/conventions">Open drafts</Button>}
-              />
+              data.draftItems.length > 0 ? (
+                <ul className="divide-y divide-slate-100">
+                  {data.draftItems.map((convention) => (
+                    <li key={convention.id}>
+                      <a
+                        href={`/conventions/${convention.id}`}
+                        className="flex items-center justify-between gap-3 px-5 py-4 transition hover:bg-slate-50 sm:px-6"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-[#091533]">
+                            {convention.name}
+                          </span>
+                          <span className="mt-1 block text-xs leading-5 text-slate-500">
+                            {formatDate(convention.startsOn)}–
+                            {formatDate(convention.endsOn)}
+                            {convention.city ? ` · ${convention.city}` : ""}
+                          </span>
+                        </span>
+                        <span className="flex shrink-0 items-center gap-2">
+                          <StatusPill status={convention.status} />
+                          <Icon
+                            name="chevron"
+                            className="size-4 text-slate-400"
+                          />
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <EmptyState
+                  title="No published editions yet"
+                  description="Add an organizer-verified convention listing, then create its first schedule."
+                  action={
+                    <Button href="/conventions/new">Set up a convention</Button>
+                  }
+                />
+              )
             ) : (
               <ul className="divide-y divide-slate-100">
                 {data.upcoming.map((convention) => (

@@ -1,3 +1,12 @@
+import { Input } from "@conpaws/ui/components/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@conpaws/ui/components/table";
 import { Icon } from "../../../components/icons";
 import {
   Banner,
@@ -53,16 +62,16 @@ export default async function ConventionsPage({
           method="get"
           className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px_auto] sm:items-end"
         >
-          <label className="block">
+          <label htmlFor="convention-search" className="block">
             <span className="mb-1.5 block text-sm font-semibold text-slate-800">
               Search conventions
             </span>
-            <input
+            <Input
               type="search"
+              id="convention-search"
               name="q"
               defaultValue={query}
               placeholder="Name, location or short code"
-              className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
             />
           </label>
           <SelectField name="status" label="Status" defaultValue={status}>
@@ -71,7 +80,9 @@ export default async function ConventionsPage({
             <option value="published">Published</option>
             <option value="archived">Archived</option>
           </SelectField>
-          <Button type="submit">Filter</Button>
+          <Button type="submit" variant="secondary">
+            Filter
+          </Button>
         </form>
       </Surface>
       <Surface className="overflow-hidden">
@@ -106,24 +117,52 @@ export default async function ConventionsPage({
           />
         ) : (
           <>
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[720px] border-collapse text-left">
-                <thead className="bg-slate-50 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+            <div className="hidden md:block">
+              <Table className="min-w-[720px]">
+                <TableHeader>
                   <tr>
-                    <th className="px-5 py-3.5">Convention</th>
-                    <th className="px-5 py-3.5">Dates</th>
-                    <th className="px-5 py-3.5">Location</th>
-                    <th className="px-5 py-3.5">Status</th>
-                    <th className="px-5 py-3.5">Published revision</th>
-                    <th className="px-4 py-3.5">
+                    <TableHead
+                      scope="col"
+                      className="uppercase tracking-[0.1em]"
+                    >
+                      Convention
+                    </TableHead>
+                    <TableHead
+                      scope="col"
+                      className="uppercase tracking-[0.1em]"
+                    >
+                      Dates
+                    </TableHead>
+                    <TableHead
+                      scope="col"
+                      className="uppercase tracking-[0.1em]"
+                    >
+                      Location
+                    </TableHead>
+                    <TableHead
+                      scope="col"
+                      className="uppercase tracking-[0.1em]"
+                    >
+                      Status
+                    </TableHead>
+                    <TableHead
+                      scope="col"
+                      className="uppercase tracking-[0.1em]"
+                    >
+                      Published revision
+                    </TableHead>
+                    <TableHead scope="col" className="w-12 px-4">
                       <span className="sr-only">Open</span>
-                    </th>
+                    </TableHead>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+                </TableHeader>
+                <TableBody>
                   {items.map((item) => (
-                    <tr key={item.id} className="group hover:bg-slate-50/70">
-                      <td className="px-5 py-4">
+                    <TableRow
+                      key={item.id}
+                      className="group hover:bg-slate-50/70"
+                    >
+                      <TableCell>
                         <a
                           href={`/conventions/${item.id}`}
                           className="font-semibold text-[#091533] group-hover:text-sky-800"
@@ -133,38 +172,38 @@ export default async function ConventionsPage({
                         <p className="mt-1 text-xs text-slate-500">
                           {item.acronym || item.slug}
                         </p>
-                      </td>
-                      <td className="px-5 py-4 text-sm text-slate-700">
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-700">
                         {formatDate(item.startsOn)}
                         <span className="mx-1.5 text-slate-400">—</span>
                         {formatDate(item.endsOn)}
-                      </td>
-                      <td className="px-5 py-4 text-sm text-slate-700">
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-700">
                         {[item.city, item.region, item.country]
                           .filter(Boolean)
                           .join(", ")}
-                      </td>
-                      <td className="px-5 py-4">
+                      </TableCell>
+                      <TableCell>
                         <StatusPill status={item.status} />
-                      </td>
-                      <td className="px-5 py-4 font-mono text-sm tabular-nums text-slate-700">
+                      </TableCell>
+                      <TableCell className="font-mono text-sm tabular-nums text-slate-700">
                         {item.publishedRevision
                           ? `v${item.publishedRevision}`
                           : "—"}
-                      </td>
-                      <td className="px-4 py-4">
+                      </TableCell>
+                      <TableCell className="px-4">
                         <a
                           href={`/conventions/${item.id}`}
                           aria-label={`Open ${item.name}`}
-                          className="grid size-9 place-items-center rounded-lg text-slate-500 hover:bg-white hover:text-sky-800"
+                          className="grid size-11 place-items-center rounded-md text-slate-500 hover:bg-white hover:text-sky-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
                         >
                           <Icon name="chevron" className="size-4" />
                         </a>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
             <ul className="divide-y divide-slate-100 md:hidden">
               {items.map((item) => (

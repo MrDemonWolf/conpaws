@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { LAUNCH } from "@/content/launch";
+
 import { POST } from "./route";
 
 const getCloudflareContext = vi.hoisted(() => vi.fn());
@@ -108,6 +111,18 @@ afterEach(() => {
 });
 
 describe("POST /api/waitlist", () => {
+  it("pauses new signups outside waitlist mode", async () => {
+    const previousMode = LAUNCH.mode;
+    LAUNCH.mode = "maintenance";
+    try {
+      const response = await POST(request({ email: "person@example.com" }));
+      expect(response.status).toBe(503);
+      expect(response.headers.get("Retry-After")).toBe("300");
+    } finally {
+      LAUNCH.mode = previousMode;
+    }
+  });
+
   it("rejects malformed signup data", async () => {
     const response = await POST(
       request({ email: "not-an-email", elapsedMs: 3_000 }),

@@ -10,11 +10,11 @@ export const liveAlertScenarios = {
     context:
       "10 minutes before the organizer's 2:00 PM start. You chose a start reminder.",
     short: {
-      title: "Photography Starts Soon",
+      title: "Photography starts soon",
       body: "Fursuit photography starts at 2:00 PM in Ballroom A.",
     },
     friendly: {
-      title: "Photography Starts Soon",
+      title: "Photography starts soon",
       body: "Your next panel is Fursuit photography, at 2:00 PM in Ballroom A.",
     },
   },
@@ -25,12 +25,12 @@ export const liveAlertScenarios = {
     context:
       "Your saved leave time is due. The panel itself continues until 3:00 PM.",
     short: {
-      title: "Your Leave Time Is Now",
-      body: "You planned to leave photography at 2:25 PM. Join Character design at 2:35 PM in Cedar.",
+      title: "Time to leave photography",
+      body: "You planned to leave Fursuit photography at 2:25 PM. Character design lab starts at 2:35 PM in Cedar.",
     },
     friendly: {
-      title: "Ready for Your Next Panel?",
-      body: "You chose to leave photography at 2:25 PM. Character design is next, at 2:35 PM in Cedar.",
+      title: "Ready for your next panel?",
+      body: "You chose to leave Fursuit photography at 2:25 PM. Character design lab starts at 2:35 PM in Cedar.",
     },
   },
   joining: {
@@ -40,12 +40,12 @@ export const liveAlertScenarios = {
     context:
       "Your personal attendance starts now. The organizer's panel started at 2:00 PM.",
     short: {
-      title: "Join Character Design",
-      body: "Your plan starts at 2:35 PM in Cedar. This panel has been running since 2:00 PM.",
+      title: "Join Character design lab",
+      body: "You planned to join at 2:35 PM in Cedar. The panel started at 2:00 PM.",
     },
     friendly: {
-      title: "Time for Character Design",
-      body: "You planned to join at 2:35 PM in Cedar. The panel started at 2:00 PM, so you are joining partway through.",
+      title: "Time for Character design lab",
+      body: "You planned to join at 2:35 PM in Cedar. The panel started at 2:00 PM, so you’ll arrive partway through.",
     },
   },
   moved: {
@@ -55,56 +55,56 @@ export const liveAlertScenarios = {
     context:
       "Separate what the organizer changed from the time you chose. Fictional room-change scenario.",
     short: {
-      title: "Character Design Moved",
-      body: "The organizer moved Character design from Cedar to Maple. Your join time is still 2:35 PM.",
+      title: "New room: Character design lab",
+      body: "The panel moved from Cedar to Maple. You still plan to join at 2:35 PM.",
     },
     friendly: {
-      title: "A New Room for Your Panel",
-      body: "Character design is now in Maple instead of Cedar. Your planned join time is still 2:35 PM.",
+      title: "A new room for your panel",
+      body: "Character design lab is now in Maple instead of Cedar. You still plan to join at 2:35 PM.",
     },
   },
   cancelled: {
-    label: "Organizer cancels panel",
+    label: "Panel cancelled",
     clock: "2:20 PM",
     channel: "Schedule changes",
     context:
       "Keep the cancelled entry visible until reviewed. Never replace someone's choice automatically.",
     short: {
-      title: "Character Design Cancelled",
-      body: "The organizer cancelled Character design. Review your 2:35 PM plan to choose another panel.",
+      title: "Character design cancelled",
+      body: "The organizer cancelled Character design. Review your 2:35 PM plan and choose another if you’d like.",
     },
     friendly: {
-      title: "Character Design Cancelled",
-      body: "The organizer cancelled this panel. You can review your 2:35 PM plan and pick something else.",
+      title: "This panel was cancelled",
+      body: "The organizer cancelled this panel. Review your 2:35 PM plan and choose another panel if you’d like.",
     },
   },
   overlap: {
-    label: "Unresolved overlap",
+    label: "Two panels at the same time",
     clock: "1:30 PM",
     channel: "Plan reminders",
     context:
       "Alternative example: both full panels are saved and attendance times are unresolved. Send only if requested.",
     short: {
-      title: "Two Plans Overlap",
-      body: "Photography and Character design overlap in your plan. Choose attendance times or keep both as options.",
+      title: "Two panels overlap",
+      body: "Photography and Character design happen at the same time. Choose how long to stay at each, or keep both saved.",
     },
     friendly: {
-      title: "Two Panels, One Time Slot",
-      body: "Still choosing between photography and Character design? Set your attendance times, or keep both as options.",
+      title: "Two panels, one time",
+      body: "Still choosing between photography and Character design? Plan to catch part of each, or keep both saved for later.",
     },
   },
   test: {
-    label: "Test notification",
+    label: "Test reminder",
     clock: "2:18 PM",
     channel: "Event reminders",
     context:
       "Review wording for a user-requested test. This browser preview does not request permission or send notifications.",
     short: {
-      title: "Test Reminder",
+      title: "Test reminder",
       body: "This is a test reminder from ConPaws.",
     },
     friendly: {
-      title: "A Little Reminder Test",
+      title: "Test your reminder",
       body: "This is your ConPaws test reminder. You can adjust reminders in Settings.",
     },
   },
@@ -358,7 +358,7 @@ export function mountLiveAlerts(root: HTMLElement): void {
         .showModal();
     } else if ("liveNotificationOpen" in data) {
       root.querySelector<HTMLElement>("[data-live-status]")!.textContent =
-        `Preview action: open the ${liveAlertScenarios[scenario].label.toLowerCase()} in your plan. No app navigation or notification was sent.`;
+        `This would open the ${liveAlertScenarios[scenario].label.toLowerCase()} in your plan. It’s only a preview; no reminder was sent.`;
     } else if ("liveCloseDialog" in data) {
       root.querySelector<HTMLDialogElement>("[data-live-plan-dialog]")!.close();
     }
@@ -403,7 +403,7 @@ export function mountLiveAlerts(root: HTMLElement): void {
       };
       renderNotifications();
       root.querySelector<HTMLElement>("[data-live-status]")!.textContent =
-        "Preview updated on both platforms. Nothing sent to a device.";
+        "The example is updated for iPhone and Android. No reminder was sent.";
     });
   renderActivities();
   loadCopy();

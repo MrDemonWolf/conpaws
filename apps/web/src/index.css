@@ -1,5 +1,10 @@
 @import "@conpaws/ui/globals.css";
 
+.landing-block {
+  background-color: color-mix(in srgb, var(--card) 94%, black);
+  box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.28);
+}
+
 /* ---------------------------------------------------------------------------
  * ConPaws pre-release page
  * Typography: Montserrat (headings, body, badge) · Roboto Mono

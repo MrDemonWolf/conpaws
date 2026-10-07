@@ -1,0 +1,104 @@
+name: Deploy admin
+
+# The admin app is deployed separately from conpaws.com. This privileged
+# workflow runs only after CI passes for a push to the repository's main branch.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: admin-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy admin Worker
+    # This must be a repository-level variable: environment variables are only
+    # available after the job starts, but this condition runs before that.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      vars.ADMIN_PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment:
+      name: admin-production
+    env:
+      RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+
+    steps:
+      - name: Check out verified commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.10
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Reject stale release
+        run: |
+          git fetch --no-tags origin main
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$RELEASE_SHA" ]]; then
+            echo "::notice title=Stale admin release skipped::A newer main commit exists."
+            exit 1
+          fi
+
+      - name: Require admin deploy configuration
+        env:
+          ADMIN_ROUTES_ENABLED: ${{ vars.ADMIN_ROUTES_ENABLED }}
+          ADMIN_ACCESS_READY: ${{ vars.ADMIN_ACCESS_READY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ADMIN_OWNER_EMAIL: ${{ secrets.ADMIN_OWNER_EMAIL }}
+          CF_ACCESS_TEAM_DOMAIN: ${{ vars.CF_ACCESS_TEAM_DOMAIN }}
+          CF_ACCESS_AUD: ${{ vars.CF_ACCESS_AUD }}
+        run: |
+          missing=()
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ALCHEMY_STATE_TOKEN \
+            ALCHEMY_PASSWORD ADMIN_OWNER_EMAIL CF_ACCESS_TEAM_DOMAIN CF_ACCESS_AUD; do
+            if [[ -z "${!name}" ]]; then
+              missing+=("$name")
+            fi
+          done
+
+          if (( ${#missing[@]} > 0 )); then
+            echo "::error title=Missing admin deploy configuration::${missing[*]}"
+            exit 1
+          fi
+
+          if [[ "$ADMIN_ROUTES_ENABLED" == "true" && "$ADMIN_ACCESS_READY" != "true" ]]; then
+            echo "::error title=Admin Access is not confirmed::Configure the Cloudflare Access application and owner/staff allow policy first, then set ADMIN_ACCESS_READY=true."
+            exit 1
+          fi
+
+      - name: Deploy admin stack
+        working-directory: packages/infra
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ADMIN_OWNER_EMAIL: ${{ secrets.ADMIN_OWNER_EMAIL }}
+          CF_ACCESS_TEAM_DOMAIN: ${{ vars.CF_ACCESS_TEAM_DOMAIN }}
+          CF_ACCESS_AUD: ${{ vars.CF_ACCESS_AUD }}
+          ADMIN_ROUTES_ENABLED: ${{ vars.ADMIN_ROUTES_ENABLED }}
+        run: bun run deploy:admin

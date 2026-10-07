@@ -221,16 +221,16 @@
   },
   "notFound": {
     "title": "Page not found",
-    "description": "That page isn't on the program.",
-    "eyebrow": "Wrong room",
-    "heading": "That page isn’t on the program",
-    "body": "The link may be out of date, or the address may have a typo in it. Nothing is broken on your end.",
-    "cta": "Back to the program",
-    "tryThese": "Try one of these",
+    "description": "This page got the zoomies and bolted after a squirrel.",
+    "eyebrow": "Scent trail: cold",
+    "heading": "This page got the zoomies.",
+    "body": "Our little wolf scout followed a squirrel right off the map. Check the URL or head back to the den — the rest of ConPaws is right where you left it.",
+    "cta": "Back to the den",
+    "tryThese": "Other dens to sniff around",
     "links": [
       {
-        "label": "The main program",
-        "hint": "What ConPaws is, and the waitlist"
+        "label": "The main den",
+        "hint": "See what ConPaws can do"
       },
       {
         "label": "Support",

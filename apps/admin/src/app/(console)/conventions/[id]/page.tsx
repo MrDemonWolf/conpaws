@@ -161,6 +161,14 @@ export default async function ConventionWorkspacePage({
   const published =
     typeof query.published === "string" ? query.published : null;
   const saved = typeof query.saved === "string" ? query.saved : null;
+  const sourceCheckComplete =
+    Boolean(convention.sourceVerifiedAt) &&
+    !publicationIssues.some((issue) => issue.toLowerCase().includes("source"));
+  const publishStepStatus = publicationIssues.length
+    ? `${publicationIssues.length} ${publicationIssues.length === 1 ? "item" : "items"} to fix`
+    : hasUnpublishedChanges
+      ? "Ready to publish"
+      : "No new changes";
 
   return (
     <>
@@ -196,165 +204,248 @@ export default async function ConventionWorkspacePage({
         </Banner>
       ) : null}
 
+      <nav
+        aria-label="Convention sections"
+        className="admin-section-nav sticky z-10 -mx-4 mb-5 grid grid-cols-3 gap-2 border-y border-slate-200 bg-[#f5f7fb]/95 px-4 py-2 backdrop-blur lg:static lg:mx-0 lg:mb-5 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0"
+      >
+        <a
+          href={sourceCheckComplete ? "#setup-details" : "#organizer-source"}
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-3"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.12em]">
+            01 Details
+          </span>
+          <span
+            className={`mt-0.5 text-[10px] font-semibold leading-4 ${sourceCheckComplete ? "text-emerald-700" : "text-amber-800"}`}
+          >
+            {sourceCheckComplete ? "Source checked" : "Verify source"}
+          </span>
+        </a>
+        <a
+          href="#schedule"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-3"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.12em]">
+            02 Schedule
+          </span>
+          <span className="mt-0.5 truncate text-[10px] font-semibold leading-4 text-slate-700">
+            {sessions.length
+              ? `${sessions.length} ${sessions.length === 1 ? "session" : "sessions"}`
+              : "Add sessions"}
+          </span>
+        </a>
+        <a
+          href="#publish"
+          className="flex min-h-14 min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-sm outline-none transition hover:border-sky-300 focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-3"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.12em]">
+            03 Publish
+          </span>
+          <span
+            className={`mt-0.5 truncate text-[10px] font-semibold leading-4 ${publicationIssues.length ? "text-amber-800" : hasUnpublishedChanges ? "text-emerald-700" : "text-slate-600"}`}
+          >
+            {publishStepStatus}
+          </span>
+        </a>
+      </nav>
+
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-5">
-          <Surface className="overflow-hidden">
-            <div className="border-b border-slate-100 px-5 py-4 sm:px-7">
-              <h2 className="font-display text-base font-bold text-[#091533]">
-                Convention details
-              </h2>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Changes here update your private draft. The attendee copy
-                remains on its published revision.
-              </p>
-            </div>
-            <form action={updateConvention}>
-              <input type="hidden" name="id" value={convention.id} />
-              <input
-                type="hidden"
-                name="updatedAt"
-                value={convention.updatedAt}
-              />
-              <div className="grid gap-x-5 gap-y-4 p-5 sm:grid-cols-2 sm:p-7">
-                <Field
-                  name="name"
-                  label="Convention name"
-                  error={fieldError("name")}
-                  defaultValue={convention.name}
-                  required
-                  minLength={2}
-                  maxLength={120}
-                  className="sm:col-span-2"
+          <Surface id="setup-details" className="scroll-mt-36 overflow-hidden">
+            <details
+              open={
+                !convention.sourceVerifiedAt ||
+                Boolean(errorMessages[errorKey]) ||
+                saved === "details"
+              }
+              className="group/details"
+            >
+              <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 border-b border-slate-100 px-5 py-4 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 sm:px-7 [&::-webkit-details-marker]:hidden">
+                <span className="min-w-0">
+                  <span className="block font-display text-base font-bold text-[#091533]">
+                    Convention details
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">
+                    Changes here update your private draft. The attendee copy
+                    remains on its published revision.
+                  </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-2 text-xs font-semibold text-slate-600">
+                  {convention.sourceVerifiedAt ? "Edit" : "Set up"}
+                  <Icon
+                    name="chevron"
+                    className="size-4 transition-transform group-open/details:rotate-90"
+                  />
+                </span>
+              </summary>
+              <form action={updateConvention}>
+                <input type="hidden" name="id" value={convention.id} />
+                <input
+                  type="hidden"
+                  name="updatedAt"
+                  value={convention.updatedAt}
                 />
-                <Field
-                  name="acronym"
-                  label="Short name"
-                  error={fieldError("acronym")}
-                  defaultValue={convention.acronym}
-                  maxLength={16}
-                />
-                <Field
-                  name="slug"
-                  label="Public URL key"
-                  error={
-                    fieldError("slug") ??
-                    (errorKey === "slug"
-                      ? (adminErrorMessage("slug") ?? undefined)
-                      : undefined)
-                  }
-                  defaultValue={convention.slug}
-                  required
-                  minLength={2}
-                  maxLength={96}
-                  pattern="[a-z0-9]+(-[a-z0-9]+)*"
-                />
-                <Field
-                  name="city"
-                  label="City"
-                  error={fieldError("city")}
-                  defaultValue={convention.city}
-                  required
-                  minLength={1}
-                  maxLength={80}
-                />
-                <Field
-                  name="region"
-                  label="State / region"
-                  error={fieldError("region")}
-                  defaultValue={convention.region}
-                  maxLength={80}
-                />
-                <Field
-                  name="country"
-                  label="Country"
-                  error={fieldError("country")}
-                  defaultValue={convention.country}
-                  required
-                  minLength={2}
-                  maxLength={80}
-                />
-                <Field
-                  name="timezone"
-                  label="IANA time zone"
-                  error={fieldError("timezone")}
-                  defaultValue={convention.timezone}
-                  required
-                />
-                <Field
-                  name="startsOn"
-                  label="Start date"
-                  error={fieldError("startsOn")}
-                  type="date"
-                  defaultValue={convention.startsOn}
-                  required
-                />
-                <Field
-                  name="endsOn"
-                  label="End date"
-                  error={fieldError("endsOn")}
-                  type="date"
-                  defaultValue={convention.endsOn}
-                  required
-                />
-                <Field
-                  name="venue"
-                  label="Venue"
-                  error={fieldError("venue")}
-                  defaultValue={convention.venue}
-                  maxLength={160}
-                  className="sm:col-span-2"
-                />
-                <Field
-                  name="officialUrl"
-                  label="Organizer website"
-                  error={fieldError("officialUrl")}
-                  type="url"
-                  defaultValue={convention.officialUrl}
-                  required
-                  pattern="https://.+"
-                  className="sm:col-span-2"
-                />
-                <SelectField
-                  name="availability"
-                  label="Registration availability"
-                  defaultValue={convention.availability}
-                >
-                  {availabilityOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {availabilityLabels[value]}
-                    </option>
-                  ))}
-                </SelectField>
-                <SelectField
-                  name="scheduleStatus"
-                  label="Program schedule"
-                  defaultValue={convention.scheduleStatus}
-                >
-                  {scheduleStatusOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {scheduleStatusLabels[value]}
-                    </option>
-                  ))}
-                </SelectField>
-                <Field
-                  name="sourceVerifiedAt"
-                  label="Organizer source checked"
-                  error={fieldError("sourceVerifiedAt")}
-                  type="date"
-                  defaultValue={convention.sourceVerifiedAt ?? ""}
-                  hint="Publishing requires a recorded check date. The URL and date are kept privately in each revision."
-                  className="sm:col-span-2"
-                />
-              </div>
-              <div className="flex justify-end border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:px-7">
-                <Button type="submit" variant="secondary">
-                  Save details
-                </Button>
-              </div>
-            </form>
+                <div className="grid gap-7 p-5 sm:p-7">
+                  <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                    <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                      1. Convention
+                    </legend>
+                    <Field
+                      name="name"
+                      error={fieldError("name")}
+                      minLength={2}
+                      label="Convention name"
+                      defaultValue={convention.name}
+                      required
+                      maxLength={120}
+                      className="sm:col-span-2"
+                    />
+                    <Field
+                      name="acronym"
+                      error={fieldError("acronym")}
+                      label="Short name"
+                      defaultValue={convention.acronym}
+                      maxLength={16}
+                    />
+                    <Field
+                      name="slug"
+                      error={
+                        fieldError("slug") ??
+                        (errorKey === "slug"
+                          ? (adminErrorMessage("slug") ?? undefined)
+                          : undefined)
+                      }
+                      minLength={2}
+                      pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                      label="Public URL key"
+                      defaultValue={convention.slug}
+                      required
+                      maxLength={96}
+                    />
+                  </fieldset>
+
+                  <fieldset className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                    <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                      2. Dates and location
+                    </legend>
+                    <Field
+                      name="startsOn"
+                      error={fieldError("startsOn")}
+                      label="Start date"
+                      type="date"
+                      defaultValue={convention.startsOn}
+                      required
+                    />
+                    <Field
+                      name="endsOn"
+                      error={fieldError("endsOn")}
+                      label="End date"
+                      type="date"
+                      defaultValue={convention.endsOn}
+                      required
+                    />
+                    <Field
+                      name="timezone"
+                      error={fieldError("timezone")}
+                      label="IANA time zone"
+                      defaultValue={convention.timezone}
+                      required
+                    />
+                    <Field
+                      name="venue"
+                      error={fieldError("venue")}
+                      label="Venue"
+                      defaultValue={convention.venue}
+                      maxLength={160}
+                    />
+                    <Field
+                      name="city"
+                      error={fieldError("city")}
+                      minLength={1}
+                      label="City"
+                      defaultValue={convention.city}
+                      required
+                      maxLength={80}
+                    />
+                    <Field
+                      name="region"
+                      error={fieldError("region")}
+                      label="State / region"
+                      defaultValue={convention.region}
+                      maxLength={80}
+                    />
+                    <Field
+                      name="country"
+                      error={fieldError("country")}
+                      minLength={2}
+                      label="Country"
+                      defaultValue={convention.country}
+                      required
+                      maxLength={80}
+                      className="sm:col-span-2"
+                    />
+                  </fieldset>
+
+                  <fieldset
+                    id="organizer-source"
+                    className="scroll-mt-36 grid gap-x-5 gap-y-4 sm:grid-cols-2"
+                  >
+                    <legend className="mb-1 w-full border-b border-slate-100 pb-3 font-display text-sm font-semibold text-[#091533]">
+                      3. Organizer and program
+                    </legend>
+                    <Field
+                      name="officialUrl"
+                      error={fieldError("officialUrl")}
+                      pattern="https://.+"
+                      label="Organizer website"
+                      type="url"
+                      defaultValue={convention.officialUrl}
+                      required
+                      className="sm:col-span-2"
+                    />
+                    <Field
+                      name="sourceVerifiedAt"
+                      error={fieldError("sourceVerifiedAt")}
+                      label="Organizer source checked"
+                      type="date"
+                      defaultValue={convention.sourceVerifiedAt ?? ""}
+                      hint="Required before publishing."
+                      className="sm:col-span-2"
+                    />
+                    <SelectField
+                      name="availability"
+                      label="Registration availability"
+                      defaultValue={convention.availability}
+                    >
+                      {availabilityOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {availabilityLabels[value]}
+                        </option>
+                      ))}
+                    </SelectField>
+                    <SelectField
+                      name="scheduleStatus"
+                      label="Program schedule"
+                      defaultValue={convention.scheduleStatus}
+                    >
+                      {scheduleStatusOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {scheduleStatusLabels[value]}
+                        </option>
+                      ))}
+                    </SelectField>
+                  </fieldset>
+                </div>
+                <div className="flex justify-end border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:px-7">
+                  <Button type="submit" variant="secondary">
+                    Save details
+                  </Button>
+                </div>
+              </form>
+            </details>
           </Surface>
 
-          <Surface id="schedule" className="overflow-hidden">
+          <Surface id="schedule" className="scroll-mt-36 overflow-hidden">
             <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
               <div>
                 <h2 className="font-display text-base font-bold text-[#091533]">
@@ -365,7 +456,7 @@ export default async function ConventionWorkspacePage({
                   attendees on the next publish.
                 </p>
               </div>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+              <span className="w-fit self-start rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                 {sessions.length}{" "}
                 {sessions.length === 1 ? "session" : "sessions"}
               </span>
@@ -376,11 +467,12 @@ export default async function ConventionWorkspacePage({
                 method="get"
                 className="grid gap-3 border-b border-slate-100 bg-slate-50/60 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-7"
               >
-                <label className="block">
+                <label htmlFor="schedule-search" className="block">
                   <span className="mb-1.5 block text-sm font-semibold text-slate-800">
                     Find a session
                   </span>
                   <input
+                    id="schedule-search"
                     type="search"
                     name="sessionSearch"
                     defaultValue={sessionSearch}
@@ -640,7 +732,7 @@ export default async function ConventionWorkspacePage({
         </div>
 
         <aside className="grid gap-5">
-          <Surface className="overflow-hidden">
+          <Surface id="publish" className="scroll-mt-36 overflow-hidden">
             <div className="border-b border-slate-100 px-5 py-4">
               <h2 className="font-display text-base font-bold text-[#091533]">
                 Publication status

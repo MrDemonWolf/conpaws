@@ -9,6 +9,7 @@ import {
   type Panel,
   panels,
   parseTimeInput,
+  selectSchedulePanels,
   timeRange,
   validateAttendance,
 } from "./app";
@@ -46,6 +47,28 @@ const originalLength = panels.length;
 
 panels.push(...samples);
 try {
+  const everyPanel = selectSchedulePanels(panels, null, null);
+  assert.ok(everyPanel.some((item) => item.day === 18));
+  assert.ok(everyPanel.some((item) => item.day === 19));
+  assert.ok(everyPanel.some((item) => item.day === 20));
+  assert.ok(everyPanel.every((item) => !item.dropIn));
+  assert.ok(
+    selectSchedulePanels(panels, 19, null).every((item) => item.day === 19),
+    "All times keeps the selected day while showing its full schedule",
+  );
+  assert.ok(
+    selectSchedulePanels(panels, null, 840).every(
+      (item) => item.start < 900 && item.end > 840,
+    ),
+    "a time filter spans every day without leaking unrelated panels",
+  );
+  assert.deepEqual(
+    selectSchedulePanels(panels, null, null, "Art", "  cedar  ").map(
+      (item) => item.id,
+    ),
+    ["draw"],
+    "all-days search combines category and trimmed text filters",
+  );
   assert.equal(
     overlapMinutes(a, b),
     30,
@@ -358,7 +381,7 @@ try {
   );
   assert.match(
     liveAlertScenarios.moved.short.body,
-    /Cedar to Maple.*still 2:35 PM/,
+    /Cedar to Maple.*still plan to join at 2:35 PM/,
     "room-change copy preserves the chosen attendance time",
   );
   assert.match(
@@ -368,7 +391,7 @@ try {
   );
   assert.match(
     liveAlertScenarios.overlap.short.body,
-    /keep both as options/,
+    /keep both saved/,
     "overlap copy permits multiple candidates instead of forcing replacement",
   );
   assert.match(

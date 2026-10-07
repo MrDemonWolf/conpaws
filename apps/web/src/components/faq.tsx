@@ -54,7 +54,7 @@ function Answer({ text }: { text: string }) {
 
 function FaqItem({ q, children }: { q: string; children?: ReactNode }) {
   return (
-    <details className="group bg-card/40 not-first:border-border not-first:border-t open:bg-card">
+    <details className="group not-first:border-border not-first:border-t open:bg-card">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-bold text-[15.5px] tracking-tight transition hover:text-primary [&::-webkit-details-marker]:hidden">
         {q}
         <span
@@ -75,7 +75,7 @@ export function FaqSection({
   items: readonly { q: string; a: string }[];
 }) {
   return (
-    <div className="mt-8 overflow-hidden rounded-2xl border border-border">
+    <div className="landing-block mt-8 overflow-hidden rounded-2xl border border-border">
       {items.map((item) => (
         <FaqItem key={item.q} q={item.q}>
           <Answer text={item.a} />

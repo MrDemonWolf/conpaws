@@ -6,6 +6,7 @@ import { MobileAction } from "@/components/mobile-action";
 import { Waitlist } from "@/components/waitlist";
 import { UPDATES_LABEL } from "@/content/changelog";
 import { LINEUP, STEPS } from "@/content/landing";
+import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import type { Messages } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import {
@@ -424,9 +425,11 @@ function OfflineScreen({
 export function Landing({
   locale,
   messages,
+  launch = LAUNCH,
 }: {
   locale: Locale;
   messages: Messages;
+  launch?: LaunchConfig;
 }) {
   const year = new Date().getFullYear();
 
@@ -486,7 +489,7 @@ export function Landing({
       <main id="main">
         {/* Keep the lanyard above section art, below all navigation controls. */}
         <section id="waitlist" className="relative pt-4 sm:pt-6">
-          <Waitlist messages={messages.waitlist} />
+          <Waitlist messages={messages.waitlist} launch={launch} />
         </section>
 
         {/* ---- a look inside ---- */}
@@ -541,14 +544,14 @@ export function Landing({
             </span>
           </div>
 
-          <div className="mt-8 overflow-hidden rounded-2xl border border-border">
+          <div className="landing-block mt-8 overflow-hidden rounded-2xl border border-border">
             {LINEUP.map((item, i) => {
               const copy = messages.lineup.items[i];
               if (!copy) return null;
               return (
                 <div
                   key={item.time}
-                  className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 bg-card/40 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
+                  className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
                     i > 0 ? "border-border border-t" : ""
                   }`}
                 >
@@ -590,7 +593,7 @@ export function Landing({
               return (
                 <div
                   key={step.n}
-                  className="group hover:-translate-y-1 rounded-2xl border border-border bg-card/40 p-6 transition hover:border-primary/60 hover:bg-card"
+                  className="landing-block group hover:-translate-y-1 rounded-2xl border border-border p-6 transition hover:border-primary/60 hover:bg-card"
                 >
                   <span className="font-bold text-[38px] text-transparent leading-none [-webkit-text-stroke:1.5px_rgb(15_172_237/0.55)] transition group-hover:text-primary group-hover:[-webkit-text-stroke:0px]">
                     {step.n}
@@ -622,7 +625,7 @@ export function Landing({
               answers, and a second hardcoded copy is how it stops matching. */}
           <JsonLd
             data={graph(
-              softwareApplicationNode(locale, messages),
+              softwareApplicationNode(locale, messages, launch),
               faqPageNode(messages),
             )}
           />

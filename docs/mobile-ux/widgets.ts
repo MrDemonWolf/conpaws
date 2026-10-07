@@ -4,32 +4,31 @@ type WidgetAppearance = "light" | "dark" | "tinted";
 type WidgetEvent = "photo" | "design" | "story";
 
 export const widgetScenarioLabels = {
-  now: "During panel · 2:18",
-  leave: "Leave now · 2:25",
-  upcoming: "Upcoming con · 15 days",
-  empty: "No planned panels",
-  noConvention: "No convention",
-  finished: "Plan finished · 5:00",
+  now: "Panel happening now · 2:18",
+  leave: "Your leave time · 2:25",
+  upcoming: "Con in 15 days",
+  empty: "No panels picked",
+  noConvention: "Choose a convention",
+  finished: "Today’s panels have ended · 5:00",
 } as const;
 
 export const widgetStatusCopy = {
   empty: {
-    title: "Your plan is empty",
-    body: "Add panels in ConPaws.",
-    action: "Open schedule",
-    detail: "Open your convention's schedule to add panels to your plan.",
+    title: "No panels picked",
+    body: "Choose panels in ConPaws.",
+    action: "Open Schedule",
+    detail: "Open your convention’s schedule to choose panels for your plan.",
   },
   noConvention: {
     title: "Open ConPaws",
     body: "Choose a convention to show here.",
     action: "Open ConPaws",
-    detail:
-      "Open ConPaws to check your saved conventions and choose a convention for this widget.",
+    detail: "Open ConPaws to choose which convention appears here.",
   },
   finished: {
-    title: "Nothing else planned",
-    body: "Your saved panels have ended.",
-    action: "Review plan",
+    title: "No more panels today",
+    body: "All the panels you picked have ended.",
+    action: "Review Plan",
     detail:
       "All three panels in this sample plan have ended. The convention continues through September 20.",
   },
@@ -166,19 +165,19 @@ export function mountWidgets(root: HTMLElement): void {
     const active = state === "now" || state === "leave";
     const sampleLabel =
       state === "noConvention"
-        ? "No convention saved · Sample state"
+        ? "No convention selected · Example"
         : state === "upcoming"
-          ? "Lakeside Fur Con · Demo date: Thu, Sep 3"
+          ? "Lakeside Fur Con · Example date: Thu, Sep 3"
           : `Lakeside Fur Con · Sat, Sep 19 · ${state === "leave" ? "2:25" : state === "finished" ? "5:00" : "2:18"} PM`;
     const stateNote =
       state === "upcoming"
-        ? "Sample convention dates: September 18–20. The countdown counts calendar days to September 18, not an opening time. Three panels are already picked."
+        ? "Example dates: September 18–20. The countdown is to the first day, not the time doors open. Three panels are already picked."
         : state === "noConvention"
-          ? "Sample condition: no convention saved. Missing widget data currently uses the same native fallback, so this mockup does not diagnose a sync failure."
+          ? "No convention is selected in this example. Open ConPaws to choose one to show here."
           : state === "empty"
-            ? "Sample condition: a convention is saved with no active panels in the widget snapshot. Cancelled, removed, or invalid picked panels are filtered out too. The snapshot does not reveal whether the full schedule has been published."
+            ? "A convention is selected, but no panels are shown here. This doesn’t tell us whether more panels are available in its full schedule."
             : state === "finished"
-              ? "Sample condition: every saved panel has ended, with no panel running and none still to come. The convention itself is still in progress."
+              ? "Every panel in this plan has ended. The convention itself is still in progress."
               : "";
     const smallExplain = active
       ? "Leave time stays prominent. Your room stays one line away."

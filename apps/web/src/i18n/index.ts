@@ -1,4 +1,4 @@
-import { LAUNCH } from "@/content/launch";
+import { LAUNCH, type SiteMode } from "@/content/launch";
 import { DEFAULT_LOCALE, type Locale } from "./config";
 import cs from "./messages/cs.json";
 import da from "./messages/da.json";
@@ -106,11 +106,14 @@ function deepMerge<T>(base: T, overlay: unknown): T {
 }
 
 /** Returns a fully-populated catalog for `locale`, English-filled. */
-export function getMessages(locale: Locale): Messages {
+export function getMessages(
+  locale: Locale,
+  mode: SiteMode = LAUNCH.mode,
+): Messages {
   const overlay = CATALOGS[locale];
   const messages =
     locale === DEFAULT_LOCALE ? en : overlay ? deepMerge(en, overlay) : en;
-  if (LAUNCH.mode !== "live") return messages;
+  if (mode !== "live") return messages;
   return {
     ...messages,
     meta: { ...messages.meta, description: messages.meta.descriptionShort },
