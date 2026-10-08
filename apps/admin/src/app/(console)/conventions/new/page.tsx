@@ -14,6 +14,8 @@ import {
 } from "../../../../lib/catalog";
 import { createConvention } from "../../actions";
 
+export const metadata = { title: "Add convention" };
+
 export default async function NewConventionPage({
   searchParams,
 }: {
@@ -21,6 +23,11 @@ export default async function NewConventionPage({
 }) {
   const params = await searchParams;
   const error = params.error;
+  const field = typeof params.field === "string" ? params.field : "";
+  const fieldMessage =
+    typeof params.message === "string" ? params.message : "Check this value.";
+  const fieldError = (name: string) =>
+    field === name ? fieldMessage : undefined;
   return (
     <>
       <PageHeading
@@ -62,6 +69,8 @@ export default async function NewConventionPage({
               </p>
               <Field
                 name="name"
+                error={fieldError("name")}
+                minLength={2}
                 label="Convention name"
                 placeholder="Example: Midwest FurFest"
                 required
@@ -70,12 +79,21 @@ export default async function NewConventionPage({
               />
               <Field
                 name="acronym"
+                error={fieldError("acronym")}
                 label="Short name"
                 placeholder="MFF"
                 maxLength={16}
               />
               <Field
                 name="slug"
+                error={
+                  fieldError("slug") ??
+                  (error === "slug"
+                    ? "That URL slug is already in use."
+                    : undefined)
+                }
+                minLength={2}
+                pattern="[a-z0-9]+(-[a-z0-9]+)*"
                 label="Public URL key"
                 placeholder="midwest-furfest"
                 hint="Lowercase letters, numbers and hyphens."
@@ -95,6 +113,7 @@ export default async function NewConventionPage({
               <Field name="endsOn" label="End date" type="date" required />
               <Field
                 name="timezone"
+                error={fieldError("timezone")}
                 label="IANA time zone"
                 placeholder="America/Chicago"
                 defaultValue="America/Chicago"
@@ -103,12 +122,15 @@ export default async function NewConventionPage({
               />
               <Field
                 name="venue"
+                error={fieldError("venue")}
                 label="Venue"
                 placeholder="Convention center"
                 maxLength={160}
               />
               <Field
                 name="city"
+                error={fieldError("city")}
+                minLength={1}
                 label="City"
                 placeholder="Rosemont"
                 required
@@ -116,12 +138,15 @@ export default async function NewConventionPage({
               />
               <Field
                 name="region"
+                error={fieldError("region")}
                 label="State / region"
                 placeholder="Illinois"
                 maxLength={80}
               />
               <Field
                 name="country"
+                error={fieldError("country")}
+                minLength={2}
                 label="Country"
                 placeholder="United States"
                 required
@@ -140,6 +165,8 @@ export default async function NewConventionPage({
               </p>
               <Field
                 name="officialUrl"
+                error={fieldError("officialUrl")}
+                pattern="https://.+"
                 label="Official organizer website"
                 type="url"
                 placeholder="https://example.org"
@@ -171,6 +198,7 @@ export default async function NewConventionPage({
               </SelectField>
               <Field
                 name="sourceVerifiedAt"
+                error={fieldError("sourceVerifiedAt")}
                 label="Organizer source checked"
                 type="date"
                 hint="Required before publishing."

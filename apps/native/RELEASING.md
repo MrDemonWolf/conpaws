@@ -317,10 +317,22 @@ Android Studio recreates that file on open, which is why the GUI path never hits
 this and the command line does. The failure is immediate and says `SDK location
 not found`.
 
-Sentry's Gradle step uploads source maps and needs `SENTRY_AUTH_TOKEN` from
-`apps/native/.env.production`. Source that file in the shell rather than passing
-the token on the command line. Without it the build fails at the very end, after
-about five minutes, on `createBundleReleaseJsAndAssets_SentryUpload`. Passing
+Sentry's Gradle steps upload JavaScript source maps, native symbols, and the
+R8/ProGuard mapping. Supply `SENTRY_AUTH_TOKEN` to the build from the
+gitignored `apps/native/.env.sentry-build-plugin` file:
+
+```sh
+read -s SENTRY_AUTH_TOKEN
+printf '\n'
+printf 'SENTRY_AUTH_TOKEN=%s\n' "$SENTRY_AUTH_TOKEN" > apps/native/.env.sentry-build-plugin
+unset SENTRY_AUTH_TOKEN
+```
+
+Keep the token out of command history and never commit this file. A release
+build must show the Sentry upload tasks succeeding; verify the app's latest
+release in Sentry has the ProGuard mapping under **ProGuard Mappings** and
+native debug files under **Debug Files**. A missing mapping leaves R8 stack
+traces unreadable. Passing
 `SENTRY_DISABLE_AUTO_UPLOAD=true` skips the upload, which is fine for a
 throwaway verification build and wrong for a release — a release with no source
 maps produces unreadable stack traces in Sentry.
@@ -354,6 +366,14 @@ properties were not picked up. Do not upload it.
 **Product > Archive**. Keep the archive; export the IPA from Organizer with
 **Distribute App > App Store Connect**. Save both under `apps/native/build/`
 alongside the AAB.
+
+Before opening Xcode, create `apps/native/.env.sentry-build-plugin` as shown
+above. The Sentry Xcode build phase reads `SENTRY_AUTH_TOKEN` from that file
+while Organizer archives the app; keep the file in place until the archive
+finishes. In the archive build log, confirm the Sentry debug-file and source-map
+upload steps succeeded. Then check Sentry's **Debug Files** and the release's
+**Source Maps** for the archive's artifacts before distributing it. If they are
+missing, do not ship the archive: rebuild after fixing the token or upload step.
 
 Record each artifact's filename and SHA-256:
 

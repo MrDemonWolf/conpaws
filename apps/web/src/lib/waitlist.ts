@@ -1,11 +1,15 @@
-import { and, asc, eq, isNull, lt } from "drizzle-orm";
+import { and, asc, eq, gte, isNull, lt, sql } from "drizzle-orm";
 
 import type { Db } from "../db";
 import { type WaitlistRow, waitlist } from "../db/schema";
-import { type ListmonkConfig, sendDoubleOptIn } from "./listmonk";
+import {
+  fetchListSubscribers,
+  type ListmonkConfig,
+  sendDoubleOptIn,
+} from "./listmonk";
 
 /**
- * How many times the reconciler retries one address before leaving it alone.
+ * Maximum number of sends attempted for one address before leaving it alone.
  * A permanently rejected address (listmonk blocklist, hard bounce) would
  * otherwise be retried hourly forever.
  */
@@ -37,6 +41,100 @@ export const RESEND_COOLDOWN_MS = 10 * 60 * 1000;
  */
 export const MAX_SIGNUPS_PER_IP = 5;
 export const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
+export const RECONCILE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+export const UNCONFIRMED_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Apply listmonk-owned state to local records; D1 remains the suppression log. */
+export async function syncSubscriptionStatuses(db: Db, config: ListmonkConfig) {
+  let updated = 0;
+  for (const [remoteStatus, status] of [
+    ["unsubscribed", "unsubscribed"],
+    ["confirmed", "confirmed"],
+  ] as const) {
+    const emails = await fetchListSubscribers(config, remoteStatus);
+    for (const email of emails) {
+      const values =
+        status === "unsubscribed"
+          ? {
+              status,
+              name: "",
+              confirmedAt: null,
+              ip: null,
+              ipBucket: null,
+              userAgent: null,
+              country: null,
+              referer: null,
+              utmSource: null,
+              utmMedium: null,
+              utmCampaign: null,
+            }
+          : {
+              status,
+              confirmedAt: sql`coalesce(${waitlist.confirmedAt}, ${Date.now()})`,
+            };
+      await db
+        .update(waitlist)
+        .set(values)
+        .where(and(eq(waitlist.email, email), isNull(waitlist.erasedAt)));
+      updated += 1;
+    }
+  }
+  await db
+    .delete(waitlist)
+    .where(
+      and(
+        eq(waitlist.status, "pending"),
+        isNull(waitlist.confirmedAt),
+        lt(waitlist.createdAt, new Date(Date.now() - UNCONFIRMED_RETENTION_MS)),
+      ),
+    );
+  return { updated };
+}
+
+/** IPv4 keeps its address; IPv6 shares an admission bucket per /64. */
+export function ipBucket(ip: string | null): string | null {
+  if (!ip) return null;
+  const ipv4 = ip.split(".");
+  if (
+    ipv4.length === 4 &&
+    ipv4.every((part) => /^\d{1,3}$/.test(part) && Number(part) <= 255)
+  ) {
+    return ipv4.map(Number).join(".");
+  }
+
+  let address = ip.toLowerCase();
+  const embedded = address.match(/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (embedded) {
+    const octets = [
+      Number(embedded[1] ?? -1),
+      Number(embedded[2] ?? -1),
+      Number(embedded[3] ?? -1),
+      Number(embedded[4] ?? -1),
+    ];
+    if (octets.some((part) => part > 255)) return ip;
+    address =
+      address.slice(0, embedded.index) +
+      `${(((octets[0] ?? 0) << 8) | (octets[1] ?? 0)).toString(16)}:${(((octets[2] ?? 0) << 8) | (octets[3] ?? 0)).toString(16)}`;
+  }
+
+  if ((address.match(/::/g) ?? []).length > 1) return ip;
+  const [leftText, rightText] = address.split("::");
+  const left = leftText ? leftText.split(":") : [];
+  const right = rightText ? rightText.split(":") : [];
+  const missing = 8 - left.length - right.length;
+  if (
+    (address.includes("::") ? missing < 1 : missing !== 0) ||
+    [...left, ...right].some((part) => !/^[\da-f]{1,4}$/.test(part))
+  ) {
+    return ip;
+  }
+  const groups = [...left, ...Array(Math.max(0, missing)).fill("0"), ...right];
+  if (groups.length !== 8) return ip;
+  return `${groups
+    .slice(0, 4)
+    .map((part) => Number.parseInt(part, 16).toString(16))
+    .join(":")}::/64`;
+}
 
 /** Whether this IP has room for another signup right now. */
 export function signupAllowedFromIp(
@@ -44,26 +142,6 @@ export function signupAllowedFromIp(
   limit: number = MAX_SIGNUPS_PER_IP,
 ): boolean {
   return recentCount < limit;
-}
-
-/**
- * Whether a failed send says "listmonk was unreachable" rather than "this
- * address is no good".
- *
- * The distinction decides whether the attempt counts against MAX_SYNC_ATTEMPTS.
- * It has to, because the counter is also the claim token and so is spent before
- * the send is attempted: without this, five consecutive hourly passes during a
- * single five-hour listmonk outage would exhaust every pending row's budget and
- * drop all of them out of `reconcile`'s selection permanently. The log would go
- * quiet at the same moment, because a row that is no longer selected is never
- * reported as failed.
- *
- * status 0 is this module's own "fetch threw" (network error or the timeout);
- * 5xx is listmonk up but broken. A 4xx is about the address and is allowed to
- * burn its attempts.
- */
-export function isTransientFailure(status: number): boolean {
-  return status === 0 || status >= 500;
 }
 
 /** Whether enough time has passed to send this address another confirmation. */
@@ -111,18 +189,12 @@ export async function syncRow(
     );
   }
 
-  // Refund the claim's attempt when the failure was not this address's fault,
-  // so an outage cannot quietly retire the backlog. Safe to do after the send
-  // has resolved: no other caller can be mid-send on this row, because the
-  // claim they would need is the counter being restored here.
+  // Never refund a claimed attempt. A finite attempt budget bounds retries.
   await settle(
     db
       .update(waitlist)
       .set({
         syncError: `${result.status}: ${result.detail}`,
-        ...(isTransientFailure(result.status)
-          ? { syncAttempts: Math.max(0, row.syncAttempts - 1) }
-          : {}),
       })
       .where(eq(waitlist.id, row.id)),
   );
@@ -182,7 +254,7 @@ export async function claimRow(
 }
 
 /**
- * Replays every signup listmonk has not accepted yet.
+ * Replays eligible signup rows listmonk has not accepted yet.
  *
  * This is not optional. `ctx.waitUntil` has no retry, so without this pass a
  * single listmonk hiccup silently loses a subscriber: D1 still holds a
@@ -206,9 +278,11 @@ export async function reconcile(
         isNull(waitlist.syncedAt),
         lt(waitlist.syncAttempts, MAX_SYNC_ATTEMPTS),
         eq(waitlist.status, "pending"),
+        isNull(waitlist.erasedAt),
+        gte(waitlist.createdAt, new Date(Date.now() - RECONCILE_MAX_AGE_MS)),
       ),
     )
-    .orderBy(asc(waitlist.createdAt))
+    .orderBy(asc(waitlist.syncAttemptedAt))
     .limit(RECONCILE_BATCH_SIZE);
 
   let synced = 0;

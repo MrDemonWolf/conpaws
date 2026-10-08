@@ -174,7 +174,11 @@ export default function HomeScreen() {
   });
 
   const archiveMutation = useMutation({
-    mutationFn: conventionsRepo.archive,
+    mutationFn: async (id: string) => {
+      const eventIds = await eventsRepo.getIdsByConventionId(id);
+      await conventionsRepo.archive(id);
+      await cancelConventionReminders(eventIds);
+    },
     onSuccess: async (_, id) => {
       const convention = conventions.find((item) => item.id === id);
       await queryClient.invalidateQueries({ queryKey: ["conventions"] });

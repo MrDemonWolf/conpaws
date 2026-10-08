@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "2025 óta",
     "languageLabel": "Nyelv",
     "back": "Vissza",
     "skipToContent": "Ugrás a tartalomhoz",
@@ -199,7 +198,8 @@
     "doneTitle": "Rajta vagy a listán.",
     "doneBody": "Küldtünk egy megerősítő linket a postaládádba. Kattints rá, és a helyed biztos — addig nem írunk újra, amíg nincs valami, amit érdemes megnyitni.",
     "closedNotice": "Éppen befejezzük a biztonságos regisztrációt és az e-mail-megerősítést. Egyelőre nem fogadunk címeket.",
-    "privacyLink": "Adatvédelem"
+    "privacyLink": "Adatvédelem",
+    "consentSummary": "E-mailben értesítünk a ConPaws indulásáról. Bármikor leiratkozhatsz."
   },
   "confirmed": {
     "title": "Rajta vagy a listán",

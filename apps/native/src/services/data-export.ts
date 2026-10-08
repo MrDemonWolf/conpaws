@@ -4,6 +4,7 @@ import * as Sharing from "expo-sharing";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention, ConventionEvent } from "@/db/schema";
+import { MAX_BACKUP_BYTES } from "@/lib/backup-limits";
 import { hapticSuccess } from "@/services/haptics";
 
 export interface ExportPayload {
@@ -69,7 +70,13 @@ export async function triggerExport(): Promise<void> {
   }
 
   const payload = await exportAllData();
-  const json = JSON.stringify(payload, null, 2);
+  const json = JSON.stringify(payload);
+  const bytes = new TextEncoder().encode(json).byteLength;
+  if (bytes > MAX_BACKUP_BYTES) {
+    throw new Error(
+      `Export is ${bytes} bytes; the maximum restorable backup is ${MAX_BACKUP_BYTES} bytes.`,
+    );
+  }
 
   sweepPreviousExports();
 

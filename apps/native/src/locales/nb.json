@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Velg hendelser fra Alle for å se hva som skjer nå og som neste.",
     "myScheduleSubtitle": "Åpne Alle og legg til hendelsene du ikke vil gå glipp av.",
     "overlapSummary": "Lagrede paneler som overlapper: {{count}}",
-    "overlapHelp": "Du kan beholde alle. Sett en avreisepåminnelse på det senere panelet, så rekker du å bytte rom.",
+    "overlapHelp": "Du kan beholde alle. Sett en påminnelse for det senere panelet, så rekker du å bytte rom.",
     "overlapLabel": "Overlapper et annet lagret panel",
     "runsAlongsideOne": "Pågår samtidig med 1 annen hendelse",
     "runsAlongsideMany": "Pågår samtidig med {{count}} andre hendelser",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Slå på påminnelser",
     "minutesBefore": "{{minutes}} min før",
     "atTime": "Når hendelsen starter",
-    "none": "Ingen avreisepåminnelse",
+    "none": "Ingen påminnelse",
     "hourBefore": "1 time før",
-    "setLeave": "Sett avreisepåminnelse",
-    "changeLeave": "Endre avreisepåminnelse",
+    "setLeave": "Sett påminnelse",
+    "changeLeave": "Endre påminnelse",
     "pickerTitle": "Når skal ConPaws minne deg på det?",
-    "pickerDescription": "Velg hvor tidlig du vil dra til {{event}}.",
-    "notificationTitle": "På tide å dra til {{event}}",
+    "pickerDescription": "Velg når du vil ha en påminnelse om {{event}}.",
+    "notificationTitle": "Påminnelse for {{event}}",
     "notificationBody": "Starter om {{minutes}} min",
     "notificationBodyWithRoom": "Starter om {{minutes}} min · {{room}}",
     "channelName": "Hendelsespåminnelser",
@@ -363,12 +364,17 @@
     "overflowMessage": "Denne enheten kan bare holde et begrenset antall ventende påminnelser, så så mange av dine venter: {{count}}. De nærmeste planlegges først.",
     "priming": {
       "title": "Få beskjed før panelene",
-      "message": "ConPaws kan minne deg på når det er på tide å dra til et panel. Telefonen ber om varslingstillatelse som neste steg.",
+      "message": "ConPaws kan minne deg på før et panel starter. Telefonen ber om varslingstillatelse som neste steg.",
       "continue": "Fortsett",
       "notNow": "Ikke nå"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Du er helt à jour",
+      "subtitle": "Alle lagrede programposter på {{name}} er avsluttet.",
+      "cta": "Vis konventet"
+    },
     "title": "Program",
     "empty": {
       "title": "Ingenting merket ennå",
@@ -502,7 +508,7 @@
       "enabled": "Tillatt — påminnelser kan komme frem",
       "disabled": "Av — påminnelser kommer ikke frem",
       "notRequested": "Ikke spurt om ennå",
-      "defaultLead": "Standard avreisepåminnelse",
+      "defaultLead": "Standardpåminnelse",
       "defaultLeadDescription": "Forhåndsvalgt når du setter en påminnelse på en ny hendelse.",
       "noDefault": "Ingen"
     },

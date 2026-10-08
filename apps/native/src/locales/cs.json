@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Vyberte události ve Všech a uvidíte, co probíhá teď a co bude potom.",
     "myScheduleSubtitle": "Otevřete Všechny a přidejte události, o které nechcete přijít.",
     "overlapSummary": "Uložené panely, které se překrývají: {{count}}",
-    "overlapHelp": "Můžete si nechat všechny. Nastavte na pozdějším panelu připomenutí odchodu, ať máte čas přejít do jiné místnosti.",
+    "overlapHelp": "Můžete si nechat všechny. Nastavte na pozdější panel připomenutí, ať máte čas přejít do jiné místnosti.",
     "overlapLabel": "Překrývá se s jiným uloženým panelem",
     "runsAlongsideOne": "Probíhá souběžně s 1 další událostí",
     "runsAlongsideMany": "Probíhá souběžně s {{count}} dalšími událostmi",
@@ -135,6 +135,10 @@
     },
     "nameTooLong": "Název může mít nejvýše {{max}} znaků.",
     "longSpan": "To je con na {{count}} dní. Zkontrolujte data ještě jednou.",
+    "longSpan_one": "To je con na {{count}} den. Zkontrolujte data ještě jednou.",
+    "longSpan_few": "To je con na {{count}} dny. Zkontrolujte data ještě jednou.",
+    "longSpan_many": "To je con na {{count}} dní. Zkontrolujte data ještě jednou.",
+    "longSpan_other": "To je con na {{count}} dne. Zkontrolujte data ještě jednou.",
     "updateError": "Změny se nepodařilo uložit.",
     "nameCounter": "{{count}} z {{max}}",
     "feedStatus": {
@@ -336,15 +340,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Zapnout připomenutí",
     "minutesBefore": "{{minutes}} min předem",
     "atTime": "V čase události",
-    "none": "Bez připomenutí odchodu",
+    "none": "Bez připomenutí",
     "hourBefore": "1 hodinu předem",
-    "setLeave": "Nastavit připomenutí odchodu",
-    "changeLeave": "Změnit připomenutí odchodu",
+    "setLeave": "Nastavit připomenutí",
+    "changeLeave": "Změnit připomenutí",
     "pickerTitle": "Kdy vám má ConPaws připomenout?",
-    "pickerDescription": "Vyberte, s jakým předstihem vyrazit na {{event}}.",
-    "notificationTitle": "Je čas vyrazit na {{event}}",
+    "pickerDescription": "Vyberte, kdy vám má ConPaws připomenout {{event}}.",
+    "notificationTitle": "Připomenutí: {{event}}",
     "notificationBody": "Začíná za {{minutes}} min",
     "notificationBodyWithRoom": "Začíná za {{minutes}} min · {{room}}",
     "channelName": "Připomenutí událostí",
@@ -363,12 +368,17 @@
     "overflowMessage": "Toto zařízení udrží jen omezený počet čekajících připomenutí, takže tolik vašich připomenutí čeká: {{count}}. Nejbližší se naplánují jako první.",
     "priming": {
       "title": "Dostávejte upozornění před panely",
-      "message": "ConPaws vám může připomenout, kdy je čas vyrazit na panel. Telefon si teď vyžádá oprávnění k oznámením.",
+      "message": "ConPaws vám může připomenout začátek panelu. Telefon si teď vyžádá oprávnění k oznámením.",
       "continue": "Pokračovat",
       "notNow": "Teď ne"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Máte vše hotovo",
+      "subtitle": "Všechny uložené události na {{name}} už skončily.",
+      "cta": "Zobrazit con"
+    },
     "title": "Program",
     "empty": {
       "title": "Zatím nic označeného",
@@ -476,6 +486,10 @@
       "website": "Web",
       "builtWith": "Postaveno na",
       "licenseDescription": "Balíčky a nástroje: {{count}}",
+      "licenseDescription_one": "{{count}} balíček a nástroj",
+      "licenseDescription_few": "{{count}} balíčky a nástroje",
+      "licenseDescription_many": "{{count}} balíčků a nástrojů",
+      "licenseDescription_other": "{{count}} balíčku a nástroje",
       "support": "Podpora",
       "helpCenter": "Centrum nápovědy",
       "email": "E-mail",
@@ -502,7 +516,7 @@
       "enabled": "Povoleno — připomenutí mohou chodit",
       "disabled": "Vypnuto — připomenutí chodit nebudou",
       "notRequested": "Zatím nevyžádáno",
-      "defaultLead": "Výchozí připomenutí odchodu",
+      "defaultLead": "Výchozí připomenutí",
       "defaultLeadDescription": "Předvybráno, když nastavujete připomenutí u nové události.",
       "noDefault": "Žádné"
     },

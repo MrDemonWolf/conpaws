@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Pilih acara daripada Semua untuk melihat apa yang berlangsung sekarang dan seterusnya.",
     "myScheduleSubtitle": "Buka Semua dan tambah acara yang anda tidak mahu terlepas.",
     "overlapSummary": "Panel tersimpan yang bertindih: {{count}}",
-    "overlapHelp": "Anda boleh simpan kesemuanya. Tetapkan peringatan bertolak pada panel yang kemudian supaya sempat bertukar bilik.",
+    "overlapHelp": "Anda boleh simpan kesemuanya. Tetapkan peringatan untuk panel yang kemudian supaya sempat bertukar bilik.",
     "overlapLabel": "Bertindih dengan panel tersimpan yang lain",
     "runsAlongsideOne": "Berlangsung serentak dengan 1 acara lain",
     "runsAlongsideMany": "Berlangsung serentak dengan {{count}} acara lain",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Hidupkan peringatan",
     "minutesBefore": "{{minutes}} minit sebelum",
     "atTime": "Pada waktu acara",
-    "none": "Tiada peringatan bertolak",
+    "none": "Tiada peringatan",
     "hourBefore": "1 jam sebelum",
-    "setLeave": "Tetapkan peringatan bertolak",
-    "changeLeave": "Tukar peringatan bertolak",
+    "setLeave": "Tetapkan peringatan",
+    "changeLeave": "Tukar peringatan",
     "pickerTitle": "Bila ConPaws patut ingatkan anda?",
-    "pickerDescription": "Pilih berapa awal untuk bertolak ke {{event}}.",
-    "notificationTitle": "Masa untuk bertolak ke {{event}}",
+    "pickerDescription": "Pilih masa untuk menerima peringatan tentang {{event}}.",
+    "notificationTitle": "Peringatan untuk {{event}}",
     "notificationBody": "Bermula dalam {{minutes}} minit",
     "notificationBodyWithRoom": "Bermula dalam {{minutes}} minit · {{room}}",
     "channelName": "Peringatan acara",
@@ -363,12 +364,17 @@
     "overflowMessage": "Peranti ini hanya boleh menyimpan bilangan peringatan tertunda yang terhad, jadi sebanyak ini peringatan anda sedang menunggu: {{count}}. Yang terdekat dijadualkan dahulu.",
     "priming": {
       "title": "Dapatkan makluman sebelum panel",
-      "message": "ConPaws boleh mengingatkan anda bila tiba masa untuk bertolak ke panel. Telefon anda akan meminta kebenaran pemberitahuan selepas ini.",
+      "message": "ConPaws boleh mengingatkan anda sebelum panel bermula. Telefon anda akan meminta kebenaran pemberitahuan selepas ini.",
       "continue": "Teruskan",
       "notNow": "Bukan sekarang"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Semua sudah selesai",
+      "subtitle": "Semua acara berbintang di {{name}} telah tamat.",
+      "cta": "Lihat konvensyen"
+    },
     "title": "Jadual",
     "empty": {
       "title": "Belum ada yang ditanda",
@@ -502,7 +508,7 @@
       "enabled": "Dibenarkan — peringatan boleh sampai",
       "disabled": "Dimatikan — peringatan tidak akan sampai",
       "notRequested": "Belum diminta",
-      "defaultLead": "Peringatan bertolak lalai",
+      "defaultLead": "Peringatan lalai",
       "defaultLeadDescription": "Dipilih terlebih dahulu apabila anda menetapkan peringatan pada acara baharu.",
       "noDefault": "Tiada"
     },

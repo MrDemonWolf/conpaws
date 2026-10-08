@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Vælg begivenheder under Alle for at se, hvad der sker nu og som det næste.",
     "myScheduleSubtitle": "Åbn Alle, og tilføj de begivenheder, du ikke vil gå glip af.",
     "overlapSummary": "Gemte paneler, der overlapper: {{count}}",
-    "overlapHelp": "Du kan beholde dem alle. Sæt en afgangspåmindelse på det senere panel, så du når at skifte lokale.",
+    "overlapHelp": "Du kan beholde dem alle. Sæt en påmindelse på det senere panel, så du når at skifte lokale.",
     "overlapLabel": "Overlapper et andet gemt panel",
     "runsAlongsideOne": "Foregår samtidig med 1 anden begivenhed",
     "runsAlongsideMany": "Foregår samtidig med {{count}} andre begivenheder",
@@ -336,20 +336,21 @@
     }
   },
   "reminders": {
+    "turnOn": "Slå på påmindelser",
     "minutesBefore": "{{minutes}} min. før",
     "atTime": "Ved begivenhedens start",
-    "none": "Ingen afgangspåmindelse",
+    "none": "Ingen påmindelse",
     "hourBefore": "1 time før",
-    "setLeave": "Indstil afgangspåmindelse",
-    "changeLeave": "Skift afgangspåmindelse",
+    "setLeave": "Indstil påmindelse",
+    "changeLeave": "Skift påmindelse",
     "pickerTitle": "Hvornår skal ConPaws minde dig om det?",
-    "pickerDescription": "Vælg, hvor tidligt du vil af sted til {{event}}.",
-    "notificationTitle": "Tid til at gå til {{event}}",
+    "pickerDescription": "Vælg, hvornår du vil have en påmindelse om {{event}}.",
+    "notificationTitle": "Påmindelse: {{event}}",
     "notificationBody": "Starter om {{minutes}} min.",
     "notificationBodyWithRoom": "Starter om {{minutes}} min. · {{room}}",
     "channelName": "Begivenhedspåmindelser",
-    "setAnnouncement": "Afgangspåmindelse indstillet for {{event}}.",
-    "clearedAnnouncement": "Afgangspåmindelse fjernet for {{event}}.",
+    "setAnnouncement": "Påmindelse indstillet for {{event}}.",
+    "clearedAnnouncement": "Påmindelse fjernet for {{event}}.",
     "errorTitle": "Påmindelsen blev ikke indstillet",
     "errorMessage": "ConPaws kunne ikke opdatere denne påmindelse. Prøv igen.",
     "permissionTitle": "Notifikationer er slået fra",
@@ -363,12 +364,17 @@
     "overflowMessage": "Denne enhed kan kun holde et begrænset antal ventende påmindelser, så så mange af dine venter: {{count}}. De nærmeste planlægges først.",
     "priming": {
       "title": "Få et praj før panelerne",
-      "message": "ConPaws kan minde dig om, hvornår det er tid til at gå til et panel. Din telefon beder om tilladelse til notifikationer som det næste.",
+      "message": "ConPaws kan minde dig om, når et panel starter. Din telefon beder om tilladelse til notifikationer som det næste.",
       "continue": "Fortsæt",
       "notNow": "Ikke nu"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Du er helt med",
+      "subtitle": "Alle gemte programpunkter på {{name}} er afsluttet.",
+      "cta": "Vis konventet"
+    },
     "title": "Program",
     "empty": {
       "title": "Intet markeret endnu",
@@ -502,7 +508,7 @@
       "enabled": "Tilladt — påmindelser kan leveres",
       "disabled": "Slået fra — påmindelser leveres ikke",
       "notRequested": "Ikke anmodet om endnu",
-      "defaultLead": "Standard-afgangspåmindelse",
+      "defaultLead": "Standardpåmindelse",
       "defaultLeadDescription": "Forvalgt, når du sætter en påmindelse på en ny begivenhed.",
       "noDefault": "Ingen"
     },

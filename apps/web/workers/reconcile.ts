@@ -3,7 +3,7 @@ import type { ReconcilerEnv } from "@conpaws/infra/alchemy.run";
 
 import { createDb } from "../src/db";
 import { readListmonkConfig } from "../src/lib/listmonk";
-import { reconcile } from "../src/lib/waitlist";
+import { reconcile, syncSubscriptionStatuses } from "../src/lib/waitlist";
 
 /**
  * Waitlist reconciler.
@@ -30,7 +30,15 @@ export default {
 
     let result: Awaited<ReturnType<typeof reconcile>>;
     try {
-      result = await reconcile(createDb(env.DB), config);
+      const db = createDb(env.DB);
+      try {
+        await syncSubscriptionStatuses(db, config);
+      } catch (error) {
+        // Status-query permissions or a listmonk outage must not stall the
+        // independent pending-confirmation replay.
+        console.error("waitlist reconciler: status sync failed", error);
+      }
+      result = await reconcile(db, config);
     } catch (error) {
       // Without this the whole run vanishes: a rejected scheduled handler logs
       // no line of its own, so a D1 outage on the initial select would look

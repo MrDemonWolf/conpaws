@@ -118,17 +118,37 @@ export function Surface({
 export function Field({
   label,
   hint,
+  error,
   className = "",
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  hint?: string;
+  error?: string;
+}) {
   const fallbackId = useId();
   const inputId = props.id ?? fallbackId;
+  const errorId = `${inputId}-error`;
   return (
     <label htmlFor={inputId} className={cn("block", className)}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
         {label}
       </span>
-      <Input {...props} id={inputId} />
+      <Input
+        {...props}
+        id={inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : props["aria-describedby"]}
+      />
+      {error ? (
+        <span
+          id={errorId}
+          role="alert"
+          className="mt-1.5 block text-sm font-medium text-rose-700"
+        >
+          {error}
+        </span>
+      ) : null}
       {hint ? (
         <span className="mt-1.5 block text-xs leading-5 text-slate-500">
           {hint}
@@ -164,17 +184,36 @@ export function SelectField({
 
 export function TextAreaField({
   label,
+  error,
   className = "",
   ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  error?: string;
+}) {
   const fallbackId = useId();
   const textareaId = props.id ?? fallbackId;
+  const errorId = `${textareaId}-error`;
   return (
     <label htmlFor={textareaId} className={cn("block", className)}>
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
         {label}
       </span>
-      <Textarea {...props} id={textareaId} />
+      <Textarea
+        {...props}
+        id={textareaId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : props["aria-describedby"]}
+      />
+      {error ? (
+        <span
+          id={errorId}
+          role="alert"
+          className="mt-1.5 block text-sm font-medium text-rose-700"
+        >
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -313,11 +352,12 @@ export function formatDate(value: string) {
 }
 
 export function formatMoment(value: number) {
-  return new Intl.DateTimeFormat("en-US", {
+  return `${new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(value);
+    timeZone: "UTC",
+  }).format(value)} UTC`;
 }

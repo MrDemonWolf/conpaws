@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Wähle unter Alle Events aus, um zu sehen, was jetzt und als Nächstes stattfindet.",
     "myScheduleSubtitle": "Öffne Alle und füge Events hinzu, die du nicht verpassen möchtest.",
     "overlapSummary": "Gespeicherte Panels mit Überschneidung: {{count}}",
-    "overlapHelp": "Du kannst alle behalten. Lege beim späteren Panel eine Aufbruchserinnerung fest, damit genug Zeit für den Raumwechsel bleibt.",
+    "overlapHelp": "Du kannst alle behalten. Lege für das spätere Panel eine Erinnerung fest, damit genug Zeit für den Raumwechsel bleibt.",
     "overlapLabel": "Überschneidet sich mit einem anderen gespeicherten Panel",
     "runsAlongsideOne": "Läuft zeitgleich mit 1 weiteren Event",
     "runsAlongsideMany": "Läuft zeitgleich mit {{count}} weiteren Events",
@@ -336,20 +336,21 @@
     }
   },
   "reminders": {
+    "turnOn": "Erinnerungen aktivieren",
     "minutesBefore": "{{minutes}} Min. vorher",
     "atTime": "Zur Eventzeit",
-    "none": "Keine Aufbruchserinnerung",
+    "none": "Keine Erinnerung",
     "hourBefore": "1 Stunde vorher",
-    "setLeave": "Aufbruchserinnerung festlegen",
-    "changeLeave": "Aufbruchserinnerung ändern",
+    "setLeave": "Erinnerung festlegen",
+    "changeLeave": "Erinnerung ändern",
     "pickerTitle": "Wann soll ConPaws dich erinnern?",
-    "pickerDescription": "Wähle, wie früh du zu {{event}} aufbrechen möchtest.",
-    "notificationTitle": "Zeit zum Aufbruch zu {{event}}",
+    "pickerDescription": "Wähle, wann du an {{event}} erinnert werden möchtest.",
+    "notificationTitle": "Erinnerung: {{event}}",
     "notificationBody": "Beginnt in {{minutes}} Min.",
     "notificationBodyWithRoom": "Beginnt in {{minutes}} Min. · {{room}}",
     "channelName": "Event-Erinnerungen",
-    "setAnnouncement": "Aufbruchserinnerung für {{event}} festgelegt.",
-    "clearedAnnouncement": "Aufbruchserinnerung für {{event}} gelöscht.",
+    "setAnnouncement": "Erinnerung für {{event}} festgelegt.",
+    "clearedAnnouncement": "Erinnerung für {{event}} gelöscht.",
     "errorTitle": "Erinnerung nicht festgelegt",
     "errorMessage": "ConPaws konnte diese Erinnerung nicht aktualisieren. Versuche es erneut.",
     "permissionTitle": "Mitteilungen sind aus",
@@ -363,12 +364,17 @@
     "overflowMessage": "Dieses Gerät hält nur eine begrenzte Zahl offener Erinnerungen, so viele von deinen warten: {{count}}. Die nächstgelegenen werden zuerst geplant.",
     "priming": {
       "title": "Rechtzeitig an Panels erinnert werden",
-      "message": "ConPaws kann dich erinnern, wenn es Zeit ist, zu einem Panel aufzubrechen. Dein Handy fragt als Nächstes nach der Benachrichtigungsberechtigung.",
+      "message": "ConPaws kann dich vor Beginn eines Panels erinnern. Dein Handy fragt als Nächstes nach der Benachrichtigungsberechtigung.",
       "continue": "Weiter",
       "notNow": "Jetzt nicht"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Du bist auf dem neuesten Stand",
+      "subtitle": "Alle gespeicherten Programmpunkte bei {{name}} sind vorbei.",
+      "cta": "Convention ansehen"
+    },
     "title": "Zeitplan",
     "empty": {
       "title": "Noch nichts markiert",
@@ -502,7 +508,7 @@
       "enabled": "Erlaubt – Erinnerungen können ankommen",
       "disabled": "Aus – Erinnerungen kommen nicht an",
       "notRequested": "Noch nicht angefragt",
-      "defaultLead": "Standard-Aufbruchserinnerung",
+      "defaultLead": "Standarderinnerung",
       "defaultLeadDescription": "Vorausgewählt, wenn du bei einem neuen Event eine Erinnerung setzt.",
       "noDefault": "Keine"
     },

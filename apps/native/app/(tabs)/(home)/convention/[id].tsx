@@ -81,6 +81,7 @@ import {
   shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 import { getNowAndNextEvents } from "@/lib/schedule-view";
+import { localizedTimeZoneName } from "@/lib/time-zone-name";
 import { hapticSuccess } from "@/services/haptics";
 
 interface DayGroup {
@@ -523,7 +524,9 @@ export default function ConventionDetailScreen() {
   const scheduleNotices = (
     <View className="pb-1">
       <Text variant="caption" className="px-4 pt-1 pb-2 text-muted-foreground">
-        {t("convention.timesShownIn", { timeZone: conventionTimeZone })}
+        {t("convention.timesShownIn", {
+          timeZone: localizedTimeZoneName(conventionTimeZone, locale),
+        })}
         {scheduleRefresh.checkedAt !== null
           ? ` · ${t("convention.scheduleUpdate.checkedAt", {
               time: formatEventTime(
@@ -834,7 +837,7 @@ export default function ConventionDetailScreen() {
                 subtitle={t("convention.noEventsSubtitle")}
                 dateRange={conventionDateRange}
                 timeZoneLabel={t("convention.timesShownIn", {
-                  timeZone: conventionTimeZone,
+                  timeZone: localizedTimeZoneName(conventionTimeZone, locale),
                 })}
                 importLabel={t("convention.importSchedule")}
                 onImport={openImportSchedule}

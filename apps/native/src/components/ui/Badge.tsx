@@ -103,11 +103,8 @@ export function Badge({
       )}
     >
       <Text
-        // Pill text does not scale past 1.4x: the row is already dense, and an
-        // age badge that wraps to three lines stops reading as a badge.
-        maxFontSizeMultiplier={1.4}
         className={cn(
-          "text-xs",
+          "text-footnote",
           strong ? "font-semibold" : "font-medium",
           styles.text,
         )}

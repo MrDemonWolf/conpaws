@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "Siden 2025",
     "languageLabel": "Språk",
     "back": "Tilbake",
     "skipToContent": "Gå til innhold",
@@ -199,7 +198,8 @@
     "doneTitle": "Du står på listen.",
     "doneBody": "Vi har sendt en bekreftelseslenke til innboksen din. Klikk på den, så er plassen din sikret — vi skriver ikke igjen før det er noe verdt å åpne.",
     "closedNotice": "Vi gjør ferdig sikker påmelding og e-postbekreftelse. Ingen adresser tas imot ennå.",
-    "privacyLink": "Personvern"
+    "privacyLink": "Personvern",
+    "consentSummary": "Vi sender deg en e-post om lanseringen av ConPaws. Du kan når som helst melde deg av."
   },
   "confirmed": {
     "title": "Du står på listen",

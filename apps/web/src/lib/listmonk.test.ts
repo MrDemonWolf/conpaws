@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   fetchConfirmedCount,
+  fetchListSubscribers,
   readListmonkConfig,
   sendDoubleOptIn,
 } from "./listmonk";
@@ -171,5 +172,39 @@ describe("fetchConfirmedCount", () => {
     );
 
     await expect(fetchConfirmedCount(CONFIG)).resolves.toBe(0);
+  });
+});
+
+describe("fetchListSubscribers", () => {
+  it("uses list status filters and paginates without SQL lookups", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        Response.json({
+          data: {
+            results: Array.from({ length: 100 }, (_, i) => ({
+              email: `p${i}@example.com`,
+            })),
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({ data: { results: [{ email: "last@example.com" }] } }),
+      );
+    const emails = await fetchListSubscribers(CONFIG, "unsubscribed");
+    expect(emails).toHaveLength(101);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    for (const [url] of fetchSpy.mock.calls) {
+      const parsed = new URL(String(url));
+      expect(parsed.pathname).toBe("/api/subscribers");
+      expect(parsed.searchParams.get("list_id")).toBe("3");
+      expect(parsed.searchParams.get("subscription_status")).toBe(
+        "unsubscribed",
+      );
+      expect(parsed.searchParams.has("query")).toBe(false);
+    }
+    expect(
+      new URL(String(fetchSpy.mock.calls[1]?.[0])).searchParams.get("page"),
+    ).toBe("2");
   });
 });

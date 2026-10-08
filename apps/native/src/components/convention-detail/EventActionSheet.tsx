@@ -4,6 +4,7 @@ import { Pressable, View } from "react-native";
 import { getEventIndicatorLabels } from "@/components/convention-detail/ConventionEventRow";
 import { Badge, Text } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
+import { ageBadgeFor } from "@/lib/age-badge";
 import {
   formatEventEndDateTime,
   scheduleFormatter,
@@ -46,6 +47,7 @@ export function EventSheetContent({
   const room = event.room ?? event.location;
   const locale = currentLocale();
   const { provenanceLabel, reminderLabel } = getEventIndicatorLabels(event, t);
+  const ageBadge = ageBadgeFor(event.ageRating);
   const scheduleAction = event.isInSchedule
     ? t("convention.removeFromSchedule")
     : t("convention.addToSchedule");
@@ -89,6 +91,19 @@ export function EventSheetContent({
           : ""}
         {room ? ` · ${room}` : ""}
       </Text>
+      {ageBadge || event.contentWarning ? (
+        <View className="flex-row flex-wrap items-center gap-1.5 px-4 pt-3">
+          {ageBadge ? (
+            <Badge variant={ageBadge.variant} label={t(ageBadge.key)} />
+          ) : null}
+          {event.contentWarning ? (
+            <Badge
+              variant="age-mature"
+              label={t("convention.contentWarning")}
+            />
+          ) : null}
+        </View>
+      ) : null}
       <View
         accessible
         accessibilityRole="text"

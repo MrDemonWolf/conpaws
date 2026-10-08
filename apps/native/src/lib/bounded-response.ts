@@ -17,6 +17,7 @@ export async function readResponseTextWithLimit(
 ): Promise<string> {
   const declared = Number(response.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) {
+    await response.body?.cancel();
     throw new ResponseTooLargeError(declared, maxBytes);
   }
 

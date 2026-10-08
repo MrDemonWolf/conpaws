@@ -1,4 +1,8 @@
-import { fromConventionTime, isValidTimeZone } from "./convention-time";
+import {
+  formatInConventionTime,
+  fromConventionTime,
+  isValidTimeZone,
+} from "./convention-time";
 import {
   type AgeRating,
   ageRatingFromText,
@@ -7,7 +11,7 @@ import {
   strictestRating,
 } from "./event-categories";
 import { detectFeedSource, type FeedSource } from "./feed-source";
-import { unfold } from "./ical-text";
+import { decodeHtmlEntities, unfold } from "./ical-text";
 
 export interface ParsedEvent {
   title: string;
@@ -28,6 +32,7 @@ export interface ParsedEvent {
   sourceUrl: string | null;
   isAgeRestricted: boolean;
   contentWarning: boolean;
+  isAllDay: boolean;
 }
 
 export interface CancelledEvent {
@@ -155,26 +160,6 @@ function unescapeText(text: string): string {
   );
 }
 
-/** Decode common HTML entities */
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&#(\d+);/g, (match, code: string) => {
-      // String.fromCharCode truncates to 16 bits, so an emoji entity such as
-      // &#128512; used to land as a Private Use Area character and the
-      // mangling was then baked into the stored row.
-      const point = Number.parseInt(code, 10);
-      if (!Number.isFinite(point) || point > 0x10ffff) return match;
-      if (point >= 0xd800 && point <= 0xdfff) return match;
-      return String.fromCodePoint(point);
-    });
-}
-
 /** Parse iCal datetime string to Date.
  * Handles: YYYYMMDDTHHMMSSZ (UTC), YYYYMMDDTHHMMSS (local), YYYYMMDD (all-day)
  */
@@ -194,17 +179,19 @@ function parseDateTime(value: string, timeZone: string | null): Date | null {
   if (localMatch) {
     if (!timeZone) return null;
     const [, y, mo, d, h, mi, s] = localMatch;
-    return fromConventionTime(
-      {
-        year: +y,
-        month: +mo,
-        day: +d,
-        hour: +h,
-        minute: +mi,
-        second: +s,
-      },
-      timeZone,
-    );
+    const parts = {
+      year: +y,
+      month: +mo,
+      day: +d,
+      hour: +h,
+      minute: +mi,
+      second: +s,
+    };
+    const date = fromConventionTime(parts, timeZone);
+    return formatInConventionTime(date, timeZone, "yyyy-MM-dd HH:mm:ss") ===
+      `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")} ${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}:${String(parts.second).padStart(2, "0")}`
+      ? date
+      : null;
   }
 
   // All-day: 20260612
@@ -545,10 +532,30 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
 
     if (!startTime) continue;
 
-    const endTime = parseDateTime(
+    const isAllDay = /^\d{8}$/.test(
+      (props.DTSTART ?? "").split(":").pop() ?? "",
+    );
+    const parsedEnd = parseDateTime(
       props.DTEND ?? "",
       timeZones.DTEND ?? startTimeZone,
     );
+    const duration = props.DURATION?.match(
+      /^P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/,
+    );
+    const durationMs = duration
+      ? ((Number(duration[1] ?? 0) * 7 + Number(duration[2] ?? 0)) * 86_400 +
+          Number(duration[3] ?? 0) * 3_600 +
+          Number(duration[4] ?? 0) * 60 +
+          Number(duration[5] ?? 0)) *
+        1_000
+      : 0;
+    const hasDuration = duration?.slice(1).some(Boolean) ?? false;
+    const endTime = isAllDay
+      ? null
+      : (parsedEnd ??
+        (props.DTEND === undefined && hasDuration
+          ? new Date(startTime.getTime() + durationMs)
+          : null));
 
     const rawLocation = props.LOCATION ?? null;
     let location: string | null = null;
@@ -604,6 +611,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       sourceUrl,
       isAgeRestricted,
       contentWarning,
+      isAllDay,
     });
   }
 

@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "Est. 2025",
     "languageLabel": "语言",
     "back": "返回",
     "skipToContent": "跳到主要内容",
@@ -166,7 +165,7 @@
     "button": "去排队 →"
   },
   "footer": {
-    "copyright": "© {year} ConPaws by",
+    "copyright": "© {year} ConPaws",
     "company": "MrDemonWolf, Inc.",
     "support": "支持",
     "privacy": "隐私",
@@ -192,7 +191,8 @@
     "doneTitle": "你已在名单中。",
     "doneBody": "我们已经把确认链接发到你的邮箱。点开它，名额就锁定了 —— 在有值得一看的消息之前，我们不会再发邮件给你。",
     "closedNotice": "我们正在完善安全注册和邮件确认功能。目前还不接受邮箱登记。",
-    "privacyLink": "隐私"
+    "privacyLink": "隐私",
+    "consentSummary": "ConPaws 发布时，我们会通过电子邮件通知您。您可以随时取消订阅。"
   },
   "confirmed": {
     "title": "你已在名单中",
