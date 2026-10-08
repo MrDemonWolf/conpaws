@@ -14,6 +14,26 @@ private struct ConPawsWatchEntry: TimelineEntry {
   /// this complication reads the same way the phone screen it mirrors does.
   var strings: ConPawsStrings { snapshot.strings }
 
+  var isStale: Bool {
+    !snapshot.conventions.isEmpty
+      && ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: date)
+  }
+
+  var staleAccessibilityHint: String {
+    guard isStale else { return "" }
+    strings.text(strings.staleA11yFormat, relativeUpdatedText)
+  }
+
+  var relativeUpdatedText: String {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.locale = snapshot.locale
+    formatter.unitsStyle = .short
+    return formatter.localizedString(
+      for: Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000),
+      relativeTo: date
+    )
+  }
+
   static var preview: ConPawsWatchEntry {
     let now = Date()
     let convention = ConPawsConventionSnapshot(
@@ -107,12 +127,18 @@ private struct ConPawsWatchProvider: TimelineProvider {
         )
       }
     }
+    if let staleBoundary = projection.staleBoundary,
+      !entries.contains(where: { $0.date == staleBoundary })
+    {
+      entries.append(ConPawsWatchEntry(date: staleBoundary, snapshot: snapshot, relevance: nil))
+    }
     if entries.count == 1 {
       entries.append(
         ConPawsWatchEntry(date: projection.nextRefresh, snapshot: snapshot, relevance: nil)
       )
     }
 
+    entries.sort { $0.date < $1.date }
     completion(Timeline(entries: entries, policy: .atEnd))
   }
 }
@@ -125,8 +151,9 @@ private struct ConPawsWatchEntryView: View {
   }
 
   var body: some View {
-    Group {
-      switch schedule.state {
+    VStack(alignment: .leading, spacing: 1) {
+      Group {
+        switch schedule.state {
       case let .comingUp(convention):
         ComingUpWidgetView(
           convention: convention,
@@ -141,31 +168,51 @@ private struct ConPawsWatchEntryView: View {
           now: entry.date,
           strings: entry.strings
         )
-      case let .next(event, convention):
+      case let .next(current, event, convention):
         NextWidgetView(
+          current: current,
           event: event,
           convention: convention,
           now: entry.date,
           strings: entry.strings
         )
       case let .current(event, convention):
+        let until = WatchFormat.time(
+          ConPawsScheduleResolver.effectiveEnd(of: event),
+          in: convention,
+          locale: entry.snapshot.locale
+        )
         VStack(alignment: .leading, spacing: 2) {
-          Text(entry.strings.now.uppercased()).font(.caption2).foregroundStyle(.secondary)
+          WatchEyebrow(title: "\(entry.strings.happeningNowCaps) · \(entry.strings.text(entry.strings.untilCapsFormat, until))")
           Text(event.title).font(.headline).lineLimit(2)
-          Text(convention.name).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+          Text(entry.strings.noLaterSavedEventsShort).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
         }
-      case let .blank(convention):
-        BlankWidgetView(convention: convention, strings: entry.strings)
+      case .finished:
+        StatusWidgetView(title: entry.strings.finishedComplication, detail: entry.strings.finishedTitle)
+      case .noPicks:
+        StatusWidgetView(title: entry.strings.noPicksComplication, detail: entry.strings.noPicksTitle)
+      case .noConvention:
+        StatusWidgetView(title: entry.strings.noConventionComplication, detail: entry.strings.openOnIphone)
+        }
+      }
+      if entry.isStale {
+        Text(entry.strings.text(entry.strings.lastUpdatedFormat, entry.relativeUpdatedText))
+          .font(.caption2)
+          .lineLimit(1)
+        Text("\(entry.strings.staleHintShort) · \(entry.strings.openOnIphone)")
+          .font(.caption2)
+          .lineLimit(1)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     .environment(\.locale, entry.snapshot.locale)
+    .accessibilityHint(Text(entry.staleAccessibilityHint))
   }
 }
 
 /// Mark + one line of context: the complication's shared first line, matching
-/// the iPhone Lock Screen rectangular grammar. The walk symbol takes the
-/// mark's place in the leave window -- the only other glyph these families use.
+/// the iPhone Lock Screen rectangular grammar. A reminder uses a bell in place
+/// of the brand mark.
 private struct WatchEyebrow: View {
   let title: String
   var symbol: String?
@@ -246,13 +293,16 @@ private struct LeaveWidgetView: View {
           timeZone: convention.timeZone,
           strings: strings
         ),
-        symbol: "figure.walk"
+        symbol: "bell"
       )
       .monospacedDigit()
 
-      Text(next.title)
-        .font(.headline)
-        .lineLimit(1)
+      if let current {
+        Text(current.title).font(.caption2).lineLimit(1)
+        Text("\(strings.upNextCaps) · \(next.title)").font(.headline).lineLimit(1)
+      } else {
+        Text(next.title).font(.headline).lineLimit(1)
+      }
 
       if let location = WidgetFormat.location(next) {
         Text("\(nextTime) · \(location)")
@@ -264,6 +314,9 @@ private struct LeaveWidgetView: View {
           .font(.caption2)
           .foregroundStyle(.secondary)
           .lineLimit(1)
+      }
+      if let reminder = WidgetFormat.reminderAt(next, in: convention, locale: locale, strings: strings) {
+        Text(reminder).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
       }
     }
     .accessibilityElement(children: .ignore)
@@ -287,21 +340,27 @@ private struct LeaveWidgetView: View {
       in: convention.timeZone,
       strings: strings
     )
+    let summary: String
     if let current {
-      return strings.text(
-        strings.leaveWithCurrentA11yFormat,
+      summary = strings.text(
+        strings.startsWithCurrentA11yFormat,
         countdown,
         current.title,
         next.title,
         nextTime
       )
+    } else {
+      summary = strings.text(strings.startsA11yFormat, countdown, next.title, nextTime)
     }
-    return strings.text(strings.leaveA11yFormat, countdown, next.title, nextTime)
+    let reminder = WidgetFormat.reminderAt(next, in: convention, locale: locale, strings: strings)
+      .map { ". \($0)" } ?? ""
+    return summary + reminder
   }
 }
 
 private struct NextWidgetView: View {
   @Environment(\.locale) private var locale
+  let current: ConPawsEventSnapshot?
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
   let now: Date
@@ -309,11 +368,14 @@ private struct NextWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      WatchEyebrow(title: convention.name)
-
-      Text(event.title)
-        .font(.headline)
-        .lineLimit(1)
+      if let current {
+        WatchEyebrow(title: strings.happeningNowCaps)
+        Text(current.title).font(.headline).lineLimit(1)
+        Text("\(strings.upNextCaps) · \(event.title)").font(.caption2).lineLimit(1)
+      } else {
+        WatchEyebrow(title: strings.upNextCaps)
+        Text(event.title).font(.headline).lineLimit(1)
+      }
 
       if let location = WidgetFormat.location(event) {
         Text("\(startTime) · \(location)")
@@ -325,6 +387,9 @@ private struct NextWidgetView: View {
           .font(.caption2)
           .foregroundStyle(.secondary)
           .lineLimit(1)
+      }
+      if let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings) {
+        Text(reminder).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
       }
     }
     .accessibilityElement(children: .ignore)
@@ -342,20 +407,23 @@ private struct NextWidgetView: View {
   }
 
   private var accessibilitySummary: String {
-    let summary = strings.text(strings.nextEventA11yFormat, event.title, startTime)
-    guard let location = WidgetFormat.location(event) else { return "\(summary)." }
-    return "\(summary), \(location)."
+    let next = strings.text(strings.nextEventA11yFormat, event.title, startTime)
+    let currentText = current.map { "\(strings.happeningNowCaps), \($0.title). " } ?? ""
+    let place = WidgetFormat.location(event).map { ", \($0)" } ?? ""
+    let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
+      .map { ". \($0)" } ?? ""
+    return "\(currentText)\(next)\(place)\(reminder)."
   }
 }
 
-private struct BlankWidgetView: View {
-  let convention: ConPawsConventionSnapshot?
-  let strings: ConPawsStrings
+private struct StatusWidgetView: View {
+  let title: String
+  let detail: String
 
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
-      WatchEyebrow(title: convention?.name ?? strings.syncFromPhone)
-      Text(strings.noUpcomingEvents)
+      WatchEyebrow(title: title)
+      Text(detail)
         .font(.caption)
         .foregroundStyle(.secondary)
         .lineLimit(2)
@@ -389,7 +457,7 @@ struct ConPawsWatchWidget: Widget {
     // resolves these against the watch's language, not the app's, so they need
     // resources rather than the shared string table.
     .configurationDisplayName("ConPaws Schedule")
-    .description("See your next event, leave reminder, or convention countdown.")
+    .description("See your next event, schedule reminder, or convention countdown.")
     .supportedFamilies([.accessoryRectangular])
   }
 }
@@ -398,104 +466,131 @@ private struct WidgetScheduleProjection {
   enum State {
     case comingUp(ConPawsConventionSnapshot)
     case leave(ConPawsEventSnapshot?, ConPawsEventSnapshot, ConPawsConventionSnapshot)
-    case next(ConPawsEventSnapshot, ConPawsConventionSnapshot)
+    case next(ConPawsEventSnapshot?, ConPawsEventSnapshot, ConPawsConventionSnapshot)
     case current(ConPawsEventSnapshot, ConPawsConventionSnapshot)
-    case blank(ConPawsConventionSnapshot?)
+    case finished(ConPawsConventionSnapshot)
+    case noPicks(ConPawsConventionSnapshot)
+    case noConvention
   }
 
   let now: Date
-  let convention: ConPawsConventionSnapshot?
-  let activeEvent: ConPawsEventSnapshot?
-  let activeEventEnd: Date?
-  let nextEvent: ConPawsEventSnapshot?
-  let leaveDate: Date?
+  let resolved: ConPawsScheduleState
+  let generatedAtMs: Double
+  let hasConventions: Bool
+
+  var convention: ConPawsConventionSnapshot? {
+    switch resolved {
+    case .noConvention: nil
+    case .countdown(let value), .finished(let value), .noPicks(let value): value
+    case .next(let value, _, _), .currentOnly(let value, _): value
+    }
+  }
+
+  var activeEvent: ConPawsEventSnapshot? {
+    switch resolved {
+    case .next(_, let current, _): current
+    case .currentOnly(_, let event): event
+    case .noConvention, .countdown, .finished, .noPicks: nil
+    }
+  }
+
+  var nextEvent: ConPawsEventSnapshot? {
+    if case .next(_, _, let upcoming) = resolved { return upcoming }
+    return nil
+  }
 
   var state: State {
-    guard let convention else { return .blank(nil) }
-    if now < convention.startDate { return .comingUp(convention) }
-    guard let nextEvent else {
-      return activeEvent.map { .current($0, convention) } ?? .blank(convention)
+    switch resolved {
+    case .noConvention:
+      .noConvention
+    case .countdown(let convention):
+      .comingUp(convention)
+    case .next(let convention, let current, let upcoming):
+      ConPawsScheduleResolver.isInReminderWindow(upcoming, now: now)
+        ? .leave(current, upcoming, convention)
+        : .next(current, upcoming, convention)
+    case .currentOnly(let convention, let event):
+      .current(event, convention)
+    case .finished(let convention):
+      .finished(convention)
+    case .noPicks(let convention):
+      .noPicks(convention)
     }
-    if let leaveDate, leaveDate <= now, now < nextEvent.startDate {
-      return .leave(activeEvent, nextEvent, convention)
-    }
-    return .next(nextEvent, convention)
   }
 
-  /// The convention's zone, so day wording matches where the event happens.
   var timeZone: TimeZone? { convention?.timeZone }
 
-  /// The date this widget is currently counting down to, if any.
-  ///
-  /// Only the two states that render a countdown report one. `next` shows a
-  /// clock time, so it has nothing that changes wording minute to minute.
   var countdownTarget: Date? {
     switch state {
-    case .comingUp(let convention): return convention.startDate
-    case .leave(_, let upcoming, _): return upcoming.startDate
-    case .next, .current, .blank: return nil
+    case .comingUp(let convention): convention.startDate
+    case .leave(_, let upcoming, _): upcoming.startDate
+    case .next, .current, .finished, .noPicks, .noConvention: nil
     }
   }
 
-  /// Whether the countdown on screen is the leave window's, which ticks in
-  /// minutes rather than on the hourly ladder.
   var isLeaveState: Bool {
     if case .leave = state { return true }
     return false
   }
 
-  var nextRefresh: Date {
-    guard let convention else { return now.addingTimeInterval(21_600) }
-
-    if now < convention.startDate {
-      let remaining = convention.startDate.timeIntervalSince(now)
-      let cadence = remaining >= 30 * 86_400 ? 86_400 : remaining >= 86_400 ? 3_600 : remaining
-      return max(now.addingTimeInterval(60), min(convention.startDate, now.addingTimeInterval(cadence)))
+  var staleBoundary: Date? {
+    guard hasConventions, !ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now) else {
+      return nil
     }
+    let date = Date(timeIntervalSince1970: generatedAtMs / 1_000)
+      .addingTimeInterval(ConPawsSnapshotAge.staleAfter)
+    return date > now ? date : nil
+  }
 
-    let candidates = [
-      leaveDate,
-      nextEvent?.startDate,
-      activeEventEnd,
-      convention.endDate,
-    ].compactMap { $0 }.filter { $0 > now.addingTimeInterval(1) }
-    return candidates.min() ?? now.addingTimeInterval(21_600)
+  var nextRefresh: Date {
+    var candidates: [Date] = []
+    switch state {
+    case .comingUp(let convention):
+      let remaining = convention.startDate.timeIntervalSince(now)
+      candidates.append(convention.startDate)
+      if remaining >= 30 * 86_400 {
+        var calendar = Calendar.autoupdatingCurrent
+        calendar.timeZone = convention.timeZone
+        if let midnight = calendar.nextDate(
+          after: now,
+          matching: DateComponents(hour: 0, minute: 0, second: 0),
+          matchingPolicy: .nextTime
+        ) {
+          candidates.append(midnight)
+        }
+      } else if remaining >= 86_400 {
+        candidates.append(now.addingTimeInterval(3_600))
+      }
+    case .leave(let current, let upcoming, let convention),
+      .next(let current, let upcoming, let convention):
+      candidates.append(upcoming.startDate)
+      candidates.append(convention.endDate)
+      if let current { candidates.append(ConPawsScheduleResolver.effectiveEnd(of: current)) }
+      if let minutes = upcoming.reminderMinutes, minutes > 0 {
+        candidates.append(upcoming.startDate.addingTimeInterval(-Double(minutes) * 60))
+      }
+    case .current(let event, let convention):
+      candidates.append(ConPawsScheduleResolver.effectiveEnd(of: event))
+      candidates.append(convention.endDate)
+    case .finished(let convention), .noPicks(let convention):
+      candidates.append(convention.endDate)
+    case .noConvention:
+      break
+    }
+    return candidates.filter { $0 > now.addingTimeInterval(1) }.min()
+      ?? now.addingTimeInterval(21_600)
   }
 
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
-    let selected = snapshot.conventions
-      .filter { $0.endDate >= now || $0.events.contains { $0.startDate >= now } }
-      .sorted { $0.startAtMs < $1.startAtMs }
-      .first
-    convention = selected
-
-    guard let selected else {
-      activeEvent = nil
-      activeEventEnd = nil
-      nextEvent = nil
-      leaveDate = nil
-      return
-    }
-
-    let events = selected.events.sorted { $0.startAtMs < $1.startAtMs }
-    let active = events.enumerated().compactMap { index, event -> (ConPawsEventSnapshot, Date)? in
-      guard event.startDate <= now else { return nil }
-      let nextStart = events.indices.contains(index + 1) ? events[index + 1].startDate : nil
-      let fallbackEnd = min(nextStart ?? .distantFuture, event.startDate.addingTimeInterval(3_600))
-      let end = event.endDate ?? fallbackEnd
-      return now < end ? (event, end) : nil
-    }.last
-    activeEvent = active?.0
-    activeEventEnd = active?.1
-
-    let next = events.first { $0.startDate > now }
-    nextEvent = next
-    if let next, let minutes = next.reminderMinutes {
-      leaveDate = next.startDate.addingTimeInterval(-Double(minutes) * 60)
-    } else {
-      leaveDate = nil
-    }
+    generatedAtMs = snapshot.generatedAtMs
+    hasConventions = !snapshot.conventions.isEmpty
+    resolved = ConPawsScheduleResolver.resolve(
+      snapshot: snapshot,
+      selectedConventionID: nil,
+      skipCountdown: false,
+      now: now
+    )
   }
 }
 
