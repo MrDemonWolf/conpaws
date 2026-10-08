@@ -26,7 +26,7 @@
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
     "@expo/material-symbols": "^0.1.1",
-    "@expo/ui": "~57.0.22",
+    "@expo/ui": "~58.0.12",
     "@formatjs/intl-datetimeformat": "^7.8.1",
     "@formatjs/intl-getcanonicallocales": "^3.2.12",
     "@formatjs/intl-locale": "^5.3.12",
