@@ -1,10 +1,9 @@
 /**
- * Build-number tooling for the local release path.
+ * Build-number tooling for local builds and the shared Native release workflow.
  *
- * ConPaws ships from local builds -- an Xcode Organizer archive and a Gradle
- * release bundle -- so nothing hands out an increasing store build number the
- * way EAS remote version counters would. `BUILD_NUMBER` in `app.config.ts` is
- * that counter, and both stores reject an upload that reuses or lowers it.
+ * `--ci` assigns 1000 + the release workflow run number; `--set` carries it
+ * into each build checkout. Local development still uses `--bump`. Both
+ * platforms read the constant in app.config.ts, never an EAS remote counter.
  *
  * Two failure modes have actually happened here, and this script exists for
  * them rather than for tidiness:
@@ -68,6 +67,33 @@ export function bumpBuildNumber(source) {
     next,
     source: source.replace(declaration, `const BUILD_NUMBER = ${next};`),
   };
+}
+
+export function setBuildNumber(source, value) {
+  const next = Number(value);
+  if (
+    !/^\d+$/.test(String(value)) ||
+    !Number.isSafeInteger(next) ||
+    next <= parseBuildNumber(source) ||
+    next > 9999
+  ) {
+    throw new Error("Build number must increase and be at most 9999.");
+  }
+  return source.replace(declaration, `const BUILD_NUMBER = ${next};`);
+}
+
+export function ciBuildNumber(runNumber, runAttempt) {
+  if (String(runAttempt) !== "1") {
+    throw new Error(
+      "Start a new Native release run instead of re-running an old build number.",
+    );
+  }
+  const number = Number(runNumber);
+  if (!/^\d+$/.test(String(runNumber)) || number < 1 || number > 8999) {
+    throw new Error("Native release run number must be between 1 and 8999.");
+  }
+  // ponytail: 8999 releases; change the numbering scheme before exhausting it.
+  return 1000 + number;
 }
 
 /** CFBundleVersion is the string on the line after its `<key>`. */
@@ -234,10 +260,22 @@ async function check() {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes("--bump")) await bump();
+  if (process.argv.includes("--ci") || process.argv.includes("--set")) {
+    const next = process.argv.includes("--ci")
+      ? ciBuildNumber(
+          process.env.GITHUB_RUN_NUMBER,
+          process.env.GITHUB_RUN_ATTEMPT,
+        )
+      : process.argv[process.argv.indexOf("--set") + 1];
+    const source = await readFile(configPath, "utf8");
+    await writeFile(configPath, setBuildNumber(source, next));
+    console.log(next);
+  } else if (process.argv.includes("--bump")) await bump();
   else if (process.argv.includes("--check")) await check();
   else {
-    console.error("Usage: node scripts/build-number.mjs --bump | --check");
+    console.error(
+      "Usage: node scripts/build-number.mjs --bump | --check | --set NUMBER | --ci",
+    );
     process.exitCode = 1;
   }
 }
