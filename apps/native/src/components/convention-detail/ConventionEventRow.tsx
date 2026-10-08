@@ -38,6 +38,14 @@ interface ConventionEventRowProps {
   overlapPosition?: ClusterPosition;
   overlapGroupSize?: number;
   overlapCount?: number;
+  accentColor?: string | null;
+  trailingAction?: {
+    label: string;
+    selected: boolean;
+    onPress: () => void;
+    testID?: string;
+  };
+  savedLabel?: string;
   onSelect: (event: ConventionEvent) => void;
   /** Day-band background from the section renderer. */
   className?: string;
@@ -60,6 +68,9 @@ export const ConventionEventRow = memo(function ConventionEventRow({
   overlapPosition,
   overlapGroupSize,
   overlapCount,
+  accentColor,
+  trailingAction,
+  savedLabel,
   onSelect,
   className,
 }: ConventionEventRowProps) {
@@ -92,6 +103,9 @@ export const ConventionEventRow = memo(function ConventionEventRow({
       overlapGroupSize={overlapGroupSize}
       overlapCount={overlapCount}
       contentWarning={event.contentWarning}
+      accentColor={accentColor}
+      trailingAction={trailingAction}
+      savedLabel={savedLabel}
       onPress={() => {
         hapticTap();
         onSelect(event);

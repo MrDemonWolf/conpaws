@@ -6,6 +6,7 @@ export {
 } from "./Banner";
 export { Button } from "./Button";
 export { Card } from "./Card";
+export { Chip } from "./Chip";
 export { EmptyState } from "./EmptyState";
 export { Input, usePlaceholderTextColor } from "./Input";
 export { PRESS_DIM, Row, TAP_TARGET } from "./Row";

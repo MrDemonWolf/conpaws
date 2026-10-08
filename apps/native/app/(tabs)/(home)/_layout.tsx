@@ -80,12 +80,25 @@ export default function HomeLayout() {
           // Both platforms get a real sheet here — unlike the forms above,
           // this screen has no keyboard, so the Android formSheet re-layout
           // problem that pushed the forms to full-screen modals cannot occur.
-          // fitToContents requires the content to have NATURAL height — a
-          // flex-1 wrapper makes the measurement come back screen-sized and
-          // the sheet opens tall with the content pinned to its bottom edge.
-          // EventSheetContent is deliberately unflexed for this reason.
+          // The sheet scrolls (the whole description is shown), so it takes
+          // fractional detents; fitToContents cannot measure a ScrollView.
           presentation: "formSheet",
-          sheetAllowedDetents: "fitToContents",
+          sheetAllowedDetents: [0.7, 1],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="convention/[id]/compare"
+        options={{
+          headerShown: false,
+          // A sheet on both platforms, like the event sheet: no keyboard, so
+          // the Android re-layout problem that pushed the forms to full-screen
+          // modals cannot occur. The cards scroll, so fractional detents
+          // rather than fitToContents.
+          presentation: "formSheet",
+          sheetAllowedDetents: [0.75, 1],
+          sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
         }}
       />
