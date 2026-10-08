@@ -51,6 +51,8 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@sentry/react-native"
       - dependency-name: "@react-native-async-storage/async-storage"
+      # NativeWind and react-native-css require a coordinated styling migration.
+      - dependency-name: "nativewind"
       # The Expo SDK is upgraded as a SET, via `expo install`, never one
       # package at a time. CI enforces this: `expo install --check` fails the
       # native job on any version the installed SDK does not expect, so a lone
@@ -64,6 +66,7 @@ updates:
       # pinned exactly by the SDK too.
       - dependency-name: expo
       - dependency-name: "expo-*"
+      - dependency-name: "@expo/*"
       - dependency-name: react-native
       - dependency-name: "react-native-*"
       - dependency-name: react
