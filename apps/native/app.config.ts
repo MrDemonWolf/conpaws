@@ -60,7 +60,7 @@ const getScheme = (): string => {
  * local uploads may only use a failed run's unused reserved number; see
  * RELEASING.md. Local development can still use `bun run ship:prep`.
  */
-const BUILD_NUMBER = 207;
+const BUILD_NUMBER = 208;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
