@@ -54,25 +54,11 @@ const getScheme = (): string => {
 };
 
 /**
- * Build number, bumped by hand at release time.
- *
- * This used to be derived from `git rev-list --count HEAD`, which drifted: the
- * count reached 208 while the shipped build was 203, because not every commit
- * produces a build. A number that looks authoritative and is wrong is worse than
- * one that has to be typed.
- *
- * EAS builds read this too -- eas.json sets `appVersionSource: "local"` with no
- * `autoIncrement`, so there is no remote counter to disagree with it. It matters
- * most for the local Xcode Organizer
- * archive and local Gradle bundle, which is how ConPaws has actually shipped so
- * far (203 and 204) even though RELEASING.md prescribes EAS; see its "Known
- * drift" section. Prebuild writes this into CFBundleVersion and versionCode, and
- * leaving it unset would stamp the archive with Expo's default of 1 and get the
- * upload rejected as a duplicate of a lower build.
- *
- * Do not edit it by hand. `bun run ship:prep` bumps it, regenerates the native
- * projects, and checks that they picked the new number up; see the "Local
- * builds" section of RELEASING.md. Commit it with the release.
+ * Local build number. Native release CI writes 1000 + its workflow run number
+ * into its temporary checkout before prebuild, shared across dev and main.
+ * Never commit CI numbers or enable an EAS remote counter. After CI activation,
+ * local uploads may only use a failed run's unused reserved number; see
+ * RELEASING.md. Local development can still use `bun run ship:prep`.
  */
 const BUILD_NUMBER = 207;
 

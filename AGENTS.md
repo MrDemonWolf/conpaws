@@ -34,7 +34,7 @@ bun check-types           # TypeScript type checking across packages
 bun run test              # Run the workspace Vitest suites — NOT `bun test`
 bun prebuild              # Generate native projects
 bun prebuild:clean        # Clean and regenerate native projects
-bun ship:prep             # Bump BUILD_NUMBER, prebuild, verify — before every store or device build
+bun ship:prep             # Local build prep; CI assigns store build numbers automatically
 bun run build-number:check # Confirm ios/ and android/ carry the current BUILD_NUMBER
 ```
 
@@ -114,7 +114,7 @@ conpaws/
 ### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **Releases are built locally, not on EAS** (decided 2026-08-27 — EAS Build is paid per build). Xcode Organizer archive for iOS, `./gradlew bundleRelease` for Android, manual upload to both stores. `bun run ship:prep` bumps `BUILD_NUMBER` in `app.config.ts`, prebuilds, and verifies the native projects picked the number up; that constant is the only build counter, on both platforms. Android signing comes from AGP's `android.injected.signing.*` properties, which override the `signingConfigs.debug` the generated `build.gradle` still names. They live in **`~/.keystores/conpaws-signing.properties`** (mode 0600, pointing at `~/.keystores/conpaws-upload.jks`) and are written into the generated `android/gradle.properties` by `plugins/withUploadSigning.js` at prebuild — project-scoped on purpose, since they used to be in `~/.gradle/gradle.properties` and signed every Android project on the machine. Missing file means a silent debug-signed build, so verify the signer before every Play upload. A CLI Gradle build also needs `ANDROID_HOME` (prebuild deletes `local.properties`) and `SENTRY_AUTH_TOKEN`. Full process: `apps/native/RELEASING.md`.
+- **Store automation uses GitHub Actions + Fastlane, not EAS.** `.github/workflows/release-native.yml` waits for successful push CI on the exact current `dev` or `main` commit. `dev` builds preview for internal-only TestFlight and Google Play internal testing; `main` builds production for App Store Connect and a Google Play production draft. Public rollout stays manual. Activation requires signing/upload secrets and `NATIVE_RELEASE_ENABLED=true`; until configured, keep using local builds. Public version changes are intentional edits to `app.config.ts`. CI assigns `1000 + Native release workflow run_number` to both platforms in its temporary checkout, records version/number/branch/SHA in Actions, and never commits the number. Do not rename/reset this workflow, use EAS remote counters, promote preview builds publicly, or independently allocate local store numbers after activation. For retries, start a new workflow run rather than re-run an old upload. Local signing remains scoped to `~/.keystores/conpaws-signing.properties`; the CI lane requires explicit upload signing. Preserve all Widget and Watch targets. Full setup and fallback: `apps/native/RELEASING.md`.
 - **eas.json** — kept but unused by the release path. EAS CLI 22.x, committed-tree guard, `appVersionSource: "local"` and no `autoIncrement`, so an EAS build would read the same `BUILD_NUMBER` rather than a stale remote counter. Its `preview-device` profile is the only easy route to an ad-hoc iOS build; running any profile costs money. Do not add auto-submit.
 - **metro.config.js** — `withNativeWind(config)`. No `input` argument is passed; NativeWind resolves `global.css` itself. Metro is also wrapped in `getSentryExpoConfig`.
 - iOS text-style tokens live in `src/global.css`; `cn()` in `src/lib/utils.ts` registers their custom sizes with tailwind-merge, or those classes can be dropped as conflicts.
@@ -125,7 +125,7 @@ conpaws/
 
 ### Environment Variables
 
-Local development and Alchemy deployment read app-specific environment files. Deployed Workers receive bindings and secrets through Alchemy. Never commit secret values. Store releases use local builds; EAS profiles are optional.
+Local development and Alchemy deployment read app-specific environment files. Deployed Workers receive bindings and secrets through Alchemy. Never commit secret values. Store automation reads GitHub secrets and variables; EAS profiles are optional.
 
 - `EXPO_PUBLIC_SERVER_URL` — reserved for the planned API; currently unused. There is no native environment schema in `packages/env`.
 - `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` — RevenueCat (optional; premium disabled without them)

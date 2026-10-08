@@ -2,7 +2,109 @@
 
 Use this page when a build is ready for real devices or the stores.
 
-## The short version
+## Push-to-store workflow
+
+Once activated, merge to `dev` for internal testing and to `main` for a
+production candidate. No version bump or release command is needed for each
+build. The `Native release` workflow waits for successful push CI on that exact
+commit, then builds both platforms with Fastlane on standard GitHub runners.
+
+| Branch | Variant | iOS | Android |
+| --- | --- | --- | --- |
+| `dev` | preview | Internal-only TestFlight upload | Internal testing release |
+| `main` | production | App Store Connect upload, available after processing | Production draft |
+
+Apple processing, internal tester access, app review, and public rollout are
+separate from a successful upload. TestFlight testers must be internal App
+Store Connect users with access to ConPaws. Never distribute preview externally
+or promote its Google Play artifact. Test production candidates on devices
+before releasing them from the stores.
+
+Keep the public version (`1.0.0`) in `app.config.ts` unchanged during testing.
+Change it intentionally before the next public version. One workflow counter
+supplies both branches and platforms: build number = `1000 + run_number`.
+Numbers are written only to the temporary CI checkout before prebuild.
+Actions summaries and downloadable artifacts contain version, build number,
+branch, variant and commit. Artifacts are retained for 14 days.
+
+To retry, use **Actions → Native release → Run workflow → dev/main**. It
+checks the branch's current commit has passing CI and allocates a new number.
+Do not use **Re-run jobs**, rename/delete this workflow, or create independent
+store counters. The integer scheme stops at 9999 (8999 release runs) to retain
+Apple's four-digit major build component; change the scheme before that limit.
+The shared concurrency group prevents overlapping uploads; GitHub may replace
+an older pending run with a newer one rather than queue every commit.
+
+### One-time activation
+
+The workflow is dormant until repository variable `NATIVE_RELEASE_ENABLED`
+is `true`. Configure all credentials first, then enable it and manually run
+`dev` to verify both platforms before merging production changes.
+
+GitHub repository **secrets**:
+
+| Name | Contents |
+| --- | --- |
+| `IOS_SIGNING_ZIP_BASE64` | Base64 ZIP containing `distribution.p12` and four App Store `.mobileprovision` profiles |
+| `IOS_CERTIFICATE_PASSWORD` | Password of the exported distribution certificate |
+| `ASC_KEY_ID`, `ASC_ISSUER_ID` | App Store Connect API key identifiers, with access to ConPaws uploads |
+| `ASC_KEY_BASE64` | Base64 contents of that API key's `.p8` file |
+| `ANDROID_KEYSTORE_BASE64` | Base64 of the existing ConPaws upload keystore; do not create a replacement |
+| `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | Existing upload keystore credentials |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` | Service account JSON with permission to upload ConPaws testing and production releases |
+| `SENTRY_AUTH_TOKEN` | Token for uploading this project's source maps |
+
+Repository **variables**: `EXPO_PUBLIC_SENTRY_DSN` and
+`NATIVE_RELEASE_ENABLED`. Use the same Sentry project as local store builds.
+Keep OTA variables unset until the update host is ready.
+
+The ZIP's four profiles must be App Store distribution profiles using the
+exported certificate and Apple team `HBB7T99U79`, for:
+
+- `com.mrdemonwolf.conpaws`
+- `com.mrdemonwolf.conpaws.widgets`
+- `com.mrdemonwolf.conpaws.watchkitapp`
+- `com.mrdemonwolf.conpaws.watchkitapp.widgets`
+
+Retain matching App Group entitlements and Watch relationships. The lane
+requires all four targets and applies each profile to its owning target,
+leaving CocoaPods targets alone. Profiles and certificates need renewal when
+they expire. Google Play's initial listing and first manual upload must already
+exist before automated uploads.
+
+Upload files without printing their contents, from this repository on macOS:
+
+```bash
+# Store exported signing files outside the repository.
+base64 -i /path/to/signing.zip | gh secret set IOS_SIGNING_ZIP_BASE64
+base64 -i /path/to/AuthKey.p8 | gh secret set ASC_KEY_BASE64
+base64 -i ~/.keystores/conpaws-upload.jks | gh secret set ANDROID_KEYSTORE_BASE64
+gh secret set GOOGLE_PLAY_SERVICE_ACCOUNT_JSON < /path/to/google-play.json
+# gh secret set NAME prompts for each remaining secret without echoing it.
+gh variable set EXPO_PUBLIC_SENTRY_DSN --body 'your existing public DSN'
+# Enable only after all secrets above are configured.
+gh variable set NATIVE_RELEASE_ENABLED --body true
+```
+
+The workflow must be merged into `main` so GitHub registers its `workflow_run`
+and manual triggers. Both branches need the version script and Fastlane files
+before activation. CI uses Bun 1.3.10, locked Fastlane gems, Java 17, and Xcode
+26.6 on `macos-26`. No EAS account, hosted build, or additional service is used.
+
+### OTA comes next
+
+Follow `infra/xprem/CONPAWS.md` after the first signed store builds pass.
+Store uploads and OTA publishing remain separate: this pipeline does not
+deploy xprem or enable updates on the client.
+
+## Local fallback checklist
+
+Before CI activation, the local procedure below remains usable. After
+activation, use it for diagnosis or an unused number reserved by a failed
+`Native release` run. Confirm that number was uploaded to neither store,
+then run `node scripts/build-number.mjs --set NUMBER`, `bunx expo prebuild`,
+and `bun run build-number:check` instead of bumping independently. Never
+upload a local build numbered from the old 200-series counter after CI uploads.
 
 1. Pull clean `main` and confirm `CI / Verify` is green for that exact commit.
 2. Keep the public version, such as `1.0.0`, unchanged while testing release candidates.
@@ -15,16 +117,16 @@ Use this page when a build is ready for real devices or the stores.
 
 Never guess which artifact was tested.
 
-## Builds are local, not EAS
+## Builds without EAS
 
-ConPaws ships from this Mac: an Xcode Organizer archive for iOS, a Gradle
-release bundle for Android. That is how `203` and `204` shipped, and as of
-2026-08-27 it is the decision rather than an accident — EAS Build capacity is
-paid per build, and nothing about this app needs a hosted builder.
+Builds `203` and `204` shipped from this Mac through Xcode and Gradle.
+GitHub Actions now provides the same native build tools once activated;
+local builds remain the fallback. Neither path uses EAS hosted capacity.
 
 What follows from that:
 
-- `BUILD_NUMBER` in `app.config.ts` is the only counter. `eas.json` now sets
+- `BUILD_NUMBER` in `app.config.ts` supplies the generated native projects.
+  CI replaces it only in its temporary checkout. `eas.json` sets
   `appVersionSource: "local"` with no `autoIncrement`, so even an EAS build
   would read that constant instead of handing out a number from a remote
   counter the stores have never seen.
@@ -32,10 +134,10 @@ What follows from that:
   profiles and the committed-tree guard, and it means an ad-hoc device build is
   one command away if that is ever worth paying for. Nothing in the release path
   runs it.
-- Signing material lives on this machine and nowhere else. See "One-time setup".
+- Local signing material lives outside the repo; CI copies are GitHub secrets.
+  See "One-time activation" and "One-time setup".
 
-The trade accepted here is that releases depend on one Mac and its keystore. A
-lost keystore cannot be regenerated; see the backup note below.
+Keep signing backups even after CI activation; see the backup note below.
 
 ## What each variant is for
 
