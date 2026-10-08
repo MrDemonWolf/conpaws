@@ -38,6 +38,12 @@ export default function GettingStartedScreen() {
         </FieldGroup.Section>
         <FieldGroup.Section>
           <ListItem
+            supportingText={t("settings.help.findDescription")}
+            onPress={() => router.push("/convention/find")}
+          >
+            {t("settings.help.find")}
+          </ListItem>
+          <ListItem
             supportingText={t("settings.help.importNowDescription")}
             onPress={() => router.push("/convention/new/import")}
           >

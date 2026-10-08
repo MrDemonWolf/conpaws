@@ -298,7 +298,7 @@
     "addConvention": "Legg til konvent",
     "empty": {
       "title": "Ingen konventer ennå",
-      "subtitle": "Opprett ett, eller importer et eksisterende program.",
+      "subtitle": "Finn konventet ditt for å begynne planleggingen, eller legg til et program fra en lenke eller fil.",
       "cta": "Opprett konvent"
     },
     "loadError": "Konventene kunne ikke lastes.",
@@ -336,7 +336,8 @@
       "success": "{{name}} er slettet.",
       "errorTitle": "Kunne ikke slette konventet",
       "errorMessage": "Ingenting ble slettet. Prøv igjen."
-    }
+    },
+    "find": "Finn konventet mitt"
   },
   "import": {
     "title": "Importer program",
@@ -456,10 +457,11 @@
     },
     "getStarted": {
       "title": "Klar for ditt neste konvent?",
-      "subtitle": "Importer et program nå, eller utforsk ConPaws først.",
+      "subtitle": "Finn konventet ditt, importer et program eller utforsk først.",
       "importSchedule": "Importer et program",
       "exploreFirst": "Utforsk først",
-      "localPrivacy": "Ingen konto kreves. Dataene dine lagres lokalt."
+      "localPrivacy": "Ingen konto kreves. Dataene dine lagres lokalt.",
+      "find": "Finn konventet mitt"
     }
   },
   "reminders": {
@@ -643,7 +645,73 @@
       "gettingStarted": "Kom i gang",
       "gettingStartedDescription": "Her finner du programmet til konventet ditt",
       "importNow": "Importer et program",
-      "importNowDescription": "Hent inn en Sched-lenke eller en .ics-fil."
+      "importNowDescription": "Hent inn en Sched-lenke eller en .ics-fil.",
+      "findDescription": "Velg et konvent fra ConPaws-katalogen og last ned programmet.",
+      "find": "Finn konventet mitt"
+    }
+  },
+  "catalog": {
+    "title": "Finn konventet mitt",
+    "searchPlaceholder": "Søk etter navn eller by",
+    "upcoming": "Kommende",
+    "past": "Tidligere utgaver",
+    "showPast": "Vis",
+    "hidePast": "Skjul",
+    "scheduleReady": "Program klart",
+    "scheduleNotYet": "Programmet finnes ikke i ConPaws ennå",
+    "notListed": {
+      "title": "Finner du ikke konventet?",
+      "body": "Importer et program fra en lenke eller fil, eller opprett et konvent og legg til paneler selv.",
+      "import": "Importer et program",
+      "create": "Opprett et konvent"
+    },
+    "empty": {
+      "title": "Ingen konventer er oppført",
+      "body": "Kom tilbake senere, eller legg til et program fra en lenke eller fil."
+    },
+    "searchEmpty": "Ingen konventer samsvarer",
+    "searchEmptyBody": "Prøv et annet navn eller en annen by.",
+    "offline": {
+      "title": "Koble til for å finne konventet ditt",
+      "body": "ConPaws trenger internettilkobling for å laste katalogen. Lagrede konventer fungerer fortsatt."
+    },
+    "unavailable": {
+      "title": "Katalogen er utilgjengelig",
+      "body": "ConPaws fikk ikke kontakt med katalogen. Prøv igjen om litt."
+    },
+    "retry": "Prøv igjen",
+    "sample": "Eksempelkatalog · ikke et ekte konvent",
+    "confirm": {
+      "dates": "Datoer",
+      "time": "Konventets tidssone",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} arrangementer · Klart for nedlasting",
+      "scheduleReady_other": "{{count}} arrangementer · Klart for nedlasting",
+      "scheduleNotYet": "Ikke i ConPaws ennå",
+      "source": "Kilde",
+      "sourceValue": "ConPaws-katalog · revisjon {{revision}}",
+      "download": "Last ned program",
+      "update": "Oppdater program",
+      "open": "Åpne program",
+      "downloaded": "Lastet ned · revisjon {{revision}}",
+      "downloading": "Laster ned…",
+      "keepOpen": "La ConPaws være åpen til nedlastingen er ferdig. Du kan bruke programmet uten internett når det er lagret.",
+      "unavailableHere": {
+        "title": "Programmet finnes ikke i ConPaws ennå",
+        "body": "Dette konventet er oppført, men programmet er ikke tilgjengelig her ennå. Legg til et program fra en lenke eller fil."
+      },
+      "failed": {
+        "title": "Nedlastingen ble ikke fullført",
+        "body": "Ingenting ble lagret. Prøv igjen."
+      },
+      "offline": {
+        "body": "Programmet er ikke lagret på telefonen ennå. Koble til internett og prøv igjen."
+      },
+      "notFound": {
+        "title": "Fant ikke konventet",
+        "body": "Det kan ha blitt avpublisert."
+      },
+      "successAnnouncement": "{{name}} er lastet ned. Velg ditt første panel."
     }
   }
 }

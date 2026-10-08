@@ -83,6 +83,7 @@ import {
   applyAppearancePreference,
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
+import { primeCatalogSourcePreference } from "@/lib/catalog/source-preference";
 import {
   DatabaseUnavailableScreen,
   ScreenErrorFallback,
@@ -196,6 +197,7 @@ async function runLaunchBootstrap(): Promise<boolean> {
 
   // Primes the cache the reminder picker reads synchronously.
   await getDefaultReminderMinutes().catch(() => null);
+  await primeCatalogSourcePreference().catch(() => undefined);
   // Same reason: the Settings switch and the schedule check both read this
   // synchronously, and a switch that flips a frame after it renders reads as
   // the app changing the setting by itself.

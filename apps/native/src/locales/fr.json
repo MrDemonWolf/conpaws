@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Trouver ma convention",
+    "searchPlaceholder": "Rechercher par nom ou ville",
+    "upcoming": "À venir",
+    "past": "Éditions passées",
+    "showPast": "Afficher",
+    "hidePast": "Masquer",
+    "scheduleReady": "Programme prêt",
+    "scheduleNotYet": "Programme pas encore dans ConPaws",
+    "notListed": {
+      "title": "Votre convention est absente ?",
+      "body": "Importez un programme depuis un lien ou un fichier, ou créez une convention et ajoutez vous-même les activités.",
+      "import": "Importer un programme",
+      "create": "Créer une convention"
+    },
+    "empty": {
+      "title": "Aucune convention dans le catalogue pour le moment",
+      "body": "Revenez bientôt ou ajoutez un programme depuis un lien ou un fichier."
+    },
+    "searchEmpty": "Aucune convention correspondante",
+    "searchEmptyBody": "Essayez un autre nom ou une autre ville.",
+    "offline": {
+      "title": "Connectez-vous pour trouver votre convention",
+      "body": "ConPaws a besoin d’une connexion Internet pour charger le catalogue. Vos conventions enregistrées restent disponibles."
+    },
+    "unavailable": {
+      "title": "Catalogue indisponible",
+      "body": "ConPaws n’a pas réussi à joindre le catalogue. Réessayez dans un instant."
+    },
+    "retry": "Réessayer",
+    "sample": "Catalogue d’exemple · pas une vraie convention",
+    "confirm": {
+      "dates": "Dates",
+      "time": "Fuseau horaire de la convention",
+      "schedule": "Programme",
+      "scheduleReady_one": "{{count}} activité · Prêt à télécharger",
+      "scheduleReady_other": "{{count}} activités · Prêtes à télécharger",
+      "scheduleNotYet": "Pas encore dans ConPaws",
+      "source": "Source",
+      "sourceValue": "Catalogue ConPaws · révision {{revision}}",
+      "download": "Télécharger le programme",
+      "update": "Mettre à jour le programme",
+      "open": "Ouvrir le programme",
+      "downloaded": "Téléchargé · révision {{revision}}",
+      "downloading": "Téléchargement…",
+      "keepOpen": "Gardez ConPaws ouvert jusqu’à la fin du téléchargement. Une fois enregistré, le programme sera disponible sans connexion Internet.",
+      "unavailableHere": {
+        "title": "Ce programme n’est pas encore dans ConPaws",
+        "body": "Cette convention est répertoriée, mais son programme n’est pas encore disponible ici. Ajoutez un programme depuis un lien ou un fichier."
+      },
+      "failed": {
+        "title": "Le téléchargement n’a pas abouti",
+        "body": "Rien n’a été enregistré. Réessayez."
+      },
+      "offline": {
+        "body": "Ce programme n’est pas encore enregistré sur votre téléphone. Connectez-vous à Internet, puis réessayez."
+      },
+      "notFound": {
+        "title": "Convention introuvable",
+        "body": "Elle a peut-être été retirée du catalogue."
+      },
+      "successAnnouncement": "{{name}} téléchargée. Choisissez votre première activité."
+    }
+  },
   "common": {
     "settings": "Paramètres",
     "add": "Ajouter",
@@ -294,11 +358,12 @@
     }
   },
   "home": {
+    "find": "Trouver ma convention",
     "title": "Conventions",
     "addConvention": "Ajouter une Convention",
     "empty": {
       "title": "Aucune convention pour l'instant",
-      "subtitle": "Créez une convention ou importez un programme existant.",
+      "subtitle": "Trouvez votre convention pour commencer à planifier ou ajoutez un programme depuis un lien ou un fichier.",
       "cta": "Créer une convention"
     },
     "loadError": "Impossible de charger les conventions.",
@@ -455,8 +520,9 @@
       "next": "Continuer"
     },
     "getStarted": {
+      "find": "Trouver ma convention",
       "title": "Prêt pour votre prochaine convention ?",
-      "subtitle": "Importez un programme maintenant ou explorez d’abord ConPaws.",
+      "subtitle": "Trouvez votre convention, importez un programme ou explorez d’abord ConPaws.",
       "importSchedule": "Importer un programme",
       "exploreFirst": "Explorer d’abord",
       "localPrivacy": "Aucun compte requis. Vos données restent en local."
@@ -643,7 +709,9 @@
       "gettingStarted": "Premiers pas",
       "gettingStartedDescription": "Où trouver le programme de votre convention",
       "importNow": "Importer un programme",
-      "importNowDescription": "Ajoutez un lien Sched ou un fichier .ics."
+      "importNowDescription": "Ajoutez un lien Sched ou un fichier .ics.",
+      "find": "Trouver ma convention",
+      "findDescription": "Choisissez une convention dans le catalogue ConPaws et téléchargez son programme."
     }
   }
 }

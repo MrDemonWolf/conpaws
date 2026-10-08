@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Find your convention",
+    "searchPlaceholder": "Search by name or city",
+    "upcoming": "Upcoming",
+    "past": "Past editions",
+    "showPast": "Show",
+    "hidePast": "Hide",
+    "scheduleReady": "Schedule ready",
+    "scheduleNotYet": "Schedule not in ConPaws yet",
+    "notListed": {
+      "title": "Con not listed?",
+      "body": "Import a schedule from a link or file, or create a convention and add panels yourself.",
+      "import": "Import a schedule",
+      "create": "Create a convention"
+    },
+    "empty": {
+      "title": "No conventions listed yet",
+      "body": "Check back soon, or add a schedule from a link or file."
+    },
+    "searchEmpty": "No matching conventions",
+    "searchEmptyBody": "Try a different name or city.",
+    "offline": {
+      "title": "Connect to find your convention",
+      "body": "ConPaws needs an internet connection to load the catalog. Your saved conventions still work."
+    },
+    "unavailable": {
+      "title": "Catalog unavailable",
+      "body": "ConPaws couldn't reach the catalog. Try again in a moment."
+    },
+    "retry": "Try again",
+    "sample": "Sample catalog · not a real convention",
+    "confirm": {
+      "dates": "Dates",
+      "time": "Convention time",
+      "schedule": "Schedule",
+      "scheduleReady_one": "{{count}} event · Ready to download",
+      "scheduleReady_other": "{{count}} events · Ready to download",
+      "scheduleNotYet": "Not in ConPaws yet",
+      "source": "Source",
+      "sourceValue": "ConPaws catalog · revision {{revision}}",
+      "download": "Download schedule",
+      "update": "Update schedule",
+      "open": "Open schedule",
+      "downloaded": "Downloaded · revision {{revision}}",
+      "downloading": "Downloading…",
+      "keepOpen": "Keep ConPaws open until the download finishes. You can use this schedule without an internet connection once it's saved.",
+      "unavailableHere": {
+        "title": "This schedule isn't in ConPaws yet",
+        "body": "This convention is listed, but its schedule isn't available here yet. Add a schedule from a link or file."
+      },
+      "failed": {
+        "title": "Download didn't finish",
+        "body": "Nothing was saved. Try again."
+      },
+      "offline": {
+        "body": "This schedule isn't saved on your phone yet. Connect to the internet, then try again."
+      },
+      "notFound": {
+        "title": "Convention not found",
+        "body": "It may have been unpublished."
+      },
+      "successAnnouncement": "{{name}} downloaded. Choose your first panel."
+    }
+  },
   "common": {
     "settings": "Settings",
     "add": "Add",
@@ -295,10 +359,11 @@
   },
   "home": {
     "title": "Conventions",
+    "find": "Find my convention",
     "addConvention": "Add Convention",
     "empty": {
       "title": "No conventions yet",
-      "subtitle": "Create one or import an existing schedule.",
+      "subtitle": "Find your convention to start planning, or add a schedule from a link or file.",
       "cta": "Create Convention"
     },
     "loadError": "Conventions could not be loaded.",
@@ -456,7 +521,8 @@
     },
     "getStarted": {
       "title": "Ready for your next con?",
-      "subtitle": "Import a schedule now, or explore ConPaws first.",
+      "subtitle": "Find your convention, import a schedule, or explore first.",
+      "find": "Find my convention",
       "importSchedule": "Import a schedule",
       "exploreFirst": "Explore first",
       "localPrivacy": "No account required. Your data stays local."
@@ -642,6 +708,8 @@
     "help": {
       "gettingStarted": "Getting started",
       "gettingStartedDescription": "Where to find your convention's schedule",
+      "find": "Find my convention",
+      "findDescription": "Pick a convention from the ConPaws catalog and download its schedule.",
       "importNow": "Import a schedule",
       "importNowDescription": "Bring in a Sched link or an .ics file."
     }

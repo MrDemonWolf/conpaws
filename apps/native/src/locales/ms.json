@@ -298,7 +298,7 @@
     "addConvention": "Tambah Konvensyen",
     "empty": {
       "title": "Belum ada konvensyen",
-      "subtitle": "Cipta satu atau import jadual sedia ada.",
+      "subtitle": "Cari konvensyen anda untuk mula merancang, atau tambah jadual daripada pautan atau fail.",
       "cta": "Cipta Konvensyen"
     },
     "loadError": "Konvensyen tidak dapat dimuatkan.",
@@ -336,7 +336,8 @@
       "success": "{{name}} dipadamkan.",
       "errorTitle": "Konvensyen Tidak Dapat Dipadamkan",
       "errorMessage": "Tiada apa-apa dipadamkan. Cuba lagi."
-    }
+    },
+    "find": "Cari konvensyen saya"
   },
   "import": {
     "title": "Import Jadual",
@@ -456,10 +457,11 @@
     },
     "getStarted": {
       "title": "Sedia untuk konvensyen seterusnya?",
-      "subtitle": "Import jadual sekarang, atau teroka ConPaws dahulu.",
+      "subtitle": "Cari konvensyen anda, import jadual, atau teroka ConPaws dahulu.",
       "importSchedule": "Import jadual",
       "exploreFirst": "Teroka dahulu",
-      "localPrivacy": "Tiada akaun diperlukan. Data anda kekal setempat."
+      "localPrivacy": "Tiada akaun diperlukan. Data anda kekal setempat.",
+      "find": "Cari konvensyen saya"
     }
   },
   "reminders": {
@@ -643,7 +645,73 @@
       "gettingStarted": "Mula di sini",
       "gettingStartedDescription": "Tempat mencari jadual konvensyen anda",
       "importNow": "Import jadual",
-      "importNowDescription": "Masukkan pautan Sched atau fail .ics."
+      "importNowDescription": "Masukkan pautan Sched atau fail .ics.",
+      "findDescription": "Pilih konvensyen daripada katalog ConPaws dan muat turun jadualnya.",
+      "find": "Cari konvensyen saya"
+    }
+  },
+  "catalog": {
+    "title": "Cari konvensyen saya",
+    "searchPlaceholder": "Cari mengikut nama atau bandar",
+    "upcoming": "Akan datang",
+    "past": "Edisi lalu",
+    "showPast": "Tunjukkan",
+    "hidePast": "Sembunyikan",
+    "scheduleReady": "Jadual tersedia",
+    "scheduleNotYet": "Jadual belum ada dalam ConPaws",
+    "notListed": {
+      "title": "Konvensyen tiada dalam senarai?",
+      "body": "Import jadual daripada pautan atau fail, atau cipta konvensyen dan tambah panel sendiri.",
+      "import": "Import jadual",
+      "create": "Cipta konvensyen"
+    },
+    "empty": {
+      "title": "Tiada konvensyen disenaraikan",
+      "body": "Semak lagi nanti atau tambah jadual daripada pautan atau fail."
+    },
+    "searchEmpty": "Tiada konvensyen sepadan",
+    "searchEmptyBody": "Cuba nama atau bandar lain.",
+    "offline": {
+      "title": "Sambung untuk mencari konvensyen",
+      "body": "ConPaws memerlukan sambungan internet untuk memuatkan katalog. Konvensyen tersimpan anda masih boleh digunakan."
+    },
+    "unavailable": {
+      "title": "Katalog tidak tersedia",
+      "body": "ConPaws tidak dapat menghubungi katalog. Cuba lagi sebentar nanti."
+    },
+    "retry": "Cuba lagi",
+    "sample": "Katalog sampel · bukan konvensyen sebenar",
+    "confirm": {
+      "dates": "Tarikh",
+      "time": "Waktu konvensyen",
+      "schedule": "Jadual",
+      "scheduleReady_one": "{{count}} acara · Sedia dimuat turun",
+      "scheduleReady_other": "{{count}} acara · Sedia dimuat turun",
+      "scheduleNotYet": "Belum ada dalam ConPaws",
+      "source": "Sumber",
+      "sourceValue": "Katalog ConPaws · semakan {{revision}}",
+      "download": "Muat turun jadual",
+      "update": "Kemas kini jadual",
+      "open": "Buka jadual",
+      "downloaded": "Dimuat turun · semakan {{revision}}",
+      "downloading": "Sedang memuat turun…",
+      "keepOpen": "Pastikan ConPaws terbuka sehingga muat turun selesai. Jadual boleh digunakan tanpa internet selepas disimpan.",
+      "unavailableHere": {
+        "title": "Jadual belum ada dalam ConPaws",
+        "body": "Konvensyen ini disenaraikan, tetapi jadualnya belum tersedia di sini. Tambah jadual daripada pautan atau fail."
+      },
+      "failed": {
+        "title": "Muat turun tidak selesai",
+        "body": "Tiada apa-apa disimpan. Cuba lagi."
+      },
+      "offline": {
+        "body": "Jadual ini belum disimpan pada telefon anda. Sambung ke internet, kemudian cuba lagi."
+      },
+      "notFound": {
+        "title": "Konvensyen tidak ditemui",
+        "body": "Mungkin telah dinyahterbitkan."
+      },
+      "successAnnouncement": "{{name}} dimuat turun. Pilih panel pertama anda."
     }
   }
 }

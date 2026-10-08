@@ -23,6 +23,8 @@ const convention: Convention = {
   location: null,
   archivedAt: null,
   icalUrl: null,
+  catalogSlug: null,
+  catalogRevision: null,
   status: "upcoming",
   createdAt: "2026-01-01",
   updatedAt: "2026-01-01",

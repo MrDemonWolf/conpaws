@@ -308,7 +308,7 @@
     "addConvention": "Dodaj Konwent",
     "empty": {
       "title": "Brak konwentów",
-      "subtitle": "Utwórz konwent lub zaimportuj istniejący harmonogram.",
+      "subtitle": "Znajdź swój konwent, aby zacząć planować, albo dodaj program z linku lub pliku.",
       "cta": "Utwórz konwent"
     },
     "loadError": "Nie udało się wczytać konwentów.",
@@ -346,7 +346,8 @@
       "success": "Usunięto {{name}}.",
       "errorTitle": "Nie udało się usunąć konwentu",
       "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
-    }
+    },
+    "find": "Znajdź mój konwent"
   },
   "import": {
     "title": "Importuj Harmonogram",
@@ -466,10 +467,11 @@
     },
     "getStarted": {
       "title": "Wszystko gotowe na kolejny konwent?",
-      "subtitle": "Zaimportuj harmonogram już teraz albo najpierw poznaj ConPaws.",
+      "subtitle": "Znajdź swój konwent, zaimportuj program albo najpierw rozejrzyj się w ConPaws.",
       "importSchedule": "Importuj harmonogram",
       "exploreFirst": "Najpierw poznaj aplikację",
-      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
+      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne.",
+      "find": "Znajdź mój konwent"
     }
   },
   "reminders": {
@@ -657,7 +659,75 @@
       "gettingStarted": "Pierwsze kroki",
       "gettingStartedDescription": "Gdzie znaleźć plan twojego konwentu",
       "importNow": "Importuj plan",
-      "importNowDescription": "Dodaj link Sched lub plik .ics."
+      "importNowDescription": "Dodaj link Sched lub plik .ics.",
+      "findDescription": "Wybierz konwent z katalogu ConPaws i pobierz jego program.",
+      "find": "Znajdź mój konwent"
+    }
+  },
+  "catalog": {
+    "title": "Znajdź mój konwent",
+    "searchPlaceholder": "Szukaj po nazwie lub mieście",
+    "upcoming": "Nadchodzące",
+    "past": "Poprzednie edycje",
+    "showPast": "Pokaż",
+    "hidePast": "Ukryj",
+    "scheduleReady": "Program jest gotowy",
+    "scheduleNotYet": "Programu nie ma jeszcze w ConPaws",
+    "notListed": {
+      "title": "Nie ma tu twojego konwentu?",
+      "body": "Zaimportuj program z linku lub pliku albo utwórz konwent i samodzielnie dodaj panele.",
+      "import": "Importuj program",
+      "create": "Utwórz konwent"
+    },
+    "empty": {
+      "title": "Brak konwentów na liście",
+      "body": "Wróć później lub dodaj program z linku albo pliku."
+    },
+    "searchEmpty": "Brak pasujących konwentów",
+    "searchEmptyBody": "Spróbuj wyszukać inną nazwę lub miasto.",
+    "offline": {
+      "title": "Połącz się, aby znaleźć konwent",
+      "body": "ConPaws potrzebuje internetu, aby wczytać katalog. Zapisane konwenty nadal działają."
+    },
+    "unavailable": {
+      "title": "Katalog jest niedostępny",
+      "body": "ConPaws nie może połączyć się z katalogiem. Spróbuj ponownie za chwilę."
+    },
+    "retry": "Spróbuj ponownie",
+    "sample": "Katalog przykładowy · to nie jest prawdziwy konwent",
+    "confirm": {
+      "dates": "Daty",
+      "time": "Strefa czasowa konwentu",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} wydarzenie · Gotowe do pobrania",
+      "scheduleReady_other": "{{count}} wydarzeń · Gotowe do pobrania",
+      "scheduleNotYet": "Jeszcze nie ma w ConPaws",
+      "source": "Źródło",
+      "sourceValue": "Katalog ConPaws · rewizja {{revision}}",
+      "download": "Pobierz program",
+      "update": "Zaktualizuj program",
+      "open": "Otwórz program",
+      "downloaded": "Pobrano · rewizja {{revision}}",
+      "downloading": "Pobieranie…",
+      "keepOpen": "Pozostaw ConPaws otwarte do zakończenia pobierania. Po zapisaniu możesz korzystać z programu bez internetu.",
+      "unavailableHere": {
+        "title": "Programu nie ma jeszcze w ConPaws",
+        "body": "Ten konwent jest na liście, ale jego program nie jest tu jeszcze dostępny. Dodaj program z linku lub pliku."
+      },
+      "failed": {
+        "title": "Pobieranie nie zostało ukończone",
+        "body": "Nic nie zapisano. Spróbuj ponownie."
+      },
+      "offline": {
+        "body": "Ten program nie jest jeszcze zapisany w telefonie. Połącz się z internetem i spróbuj ponownie."
+      },
+      "notFound": {
+        "title": "Nie znaleziono konwentu",
+        "body": "Mógł zostać wycofany z publikacji."
+      },
+      "successAnnouncement": "Pobrano {{name}}. Wybierz swój pierwszy panel.",
+      "scheduleReady_few": "{{count}} wydarzenia · Gotowe do pobrania",
+      "scheduleReady_many": "{{count}} wydarzeń · Gotowe do pobrania"
     }
   }
 }

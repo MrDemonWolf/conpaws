@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Convention finden",
+    "searchPlaceholder": "Nach Name oder Stadt suchen",
+    "upcoming": "Demnächst",
+    "past": "Vergangene Ausgaben",
+    "showPast": "Anzeigen",
+    "hidePast": "Ausblenden",
+    "scheduleReady": "Zeitplan bereit",
+    "scheduleNotYet": "Zeitplan noch nicht in ConPaws",
+    "notListed": {
+      "title": "Convention nicht dabei?",
+      "body": "Importiere einen Zeitplan über einen Link oder eine Datei oder erstelle eine Convention und füge Programmpunkte selbst hinzu.",
+      "import": "Zeitplan importieren",
+      "create": "Convention erstellen"
+    },
+    "empty": {
+      "title": "Noch keine Conventions im Katalog",
+      "body": "Schau bald wieder vorbei oder füge einen Zeitplan über einen Link oder eine Datei hinzu."
+    },
+    "searchEmpty": "Keine passenden Conventions",
+    "searchEmptyBody": "Versuche einen anderen Namen oder eine andere Stadt.",
+    "offline": {
+      "title": "Verbinde dich, um deine Convention zu finden",
+      "body": "ConPaws braucht eine Internetverbindung, um den Katalog zu laden. Deine gespeicherten Conventions funktionieren weiterhin."
+    },
+    "unavailable": {
+      "title": "Katalog nicht verfügbar",
+      "body": "ConPaws konnte den Katalog nicht erreichen. Versuche es gleich noch einmal."
+    },
+    "retry": "Erneut versuchen",
+    "sample": "Beispielkatalog · keine echte Convention",
+    "confirm": {
+      "dates": "Termine",
+      "time": "Zeitzone der Convention",
+      "schedule": "Zeitplan",
+      "scheduleReady_one": "{{count}} Programmpunkt · Bereit zum Download",
+      "scheduleReady_other": "{{count}} Programmpunkte · Bereit zum Download",
+      "scheduleNotYet": "Noch nicht in ConPaws",
+      "source": "Quelle",
+      "sourceValue": "ConPaws-Katalog · Revision {{revision}}",
+      "download": "Zeitplan herunterladen",
+      "update": "Zeitplan aktualisieren",
+      "open": "Zeitplan öffnen",
+      "downloaded": "Heruntergeladen · Revision {{revision}}",
+      "downloading": "Wird heruntergeladen…",
+      "keepOpen": "Lass ConPaws geöffnet, bis der Download abgeschlossen ist. Danach kannst du den gespeicherten Zeitplan ohne Internetverbindung nutzen.",
+      "unavailableHere": {
+        "title": "Dieser Zeitplan ist noch nicht in ConPaws",
+        "body": "Diese Convention ist gelistet, aber ihr Zeitplan ist hier noch nicht verfügbar. Füge einen Zeitplan über einen Link oder eine Datei hinzu."
+      },
+      "failed": {
+        "title": "Download nicht abgeschlossen",
+        "body": "Es wurde nichts gespeichert. Versuche es erneut."
+      },
+      "offline": {
+        "body": "Dieser Zeitplan ist noch nicht auf deinem Handy gespeichert. Stelle eine Internetverbindung her und versuche es erneut."
+      },
+      "notFound": {
+        "title": "Convention nicht gefunden",
+        "body": "Möglicherweise wurde sie aus dem Katalog entfernt."
+      },
+      "successAnnouncement": "{{name}} wurde heruntergeladen. Wähle deinen ersten Programmpunkt."
+    }
+  },
   "common": {
     "settings": "Einstellungen",
     "add": "Hinzufügen",
@@ -294,11 +358,12 @@
     }
   },
   "home": {
+    "find": "Meine Convention finden",
     "title": "Conventions",
     "addConvention": "Convention hinzufügen",
     "empty": {
       "title": "Noch keine Conventions",
-      "subtitle": "Erstelle eine Convention oder importiere einen vorhandenen Zeitplan.",
+      "subtitle": "Finde deine Convention und beginne mit der Planung oder füge einen Zeitplan über einen Link oder eine Datei hinzu.",
       "cta": "Convention erstellen"
     },
     "loadError": "Conventions konnten nicht geladen werden.",
@@ -455,8 +520,9 @@
       "next": "Weiter"
     },
     "getStarted": {
+      "find": "Meine Convention finden",
       "title": "Bereit für deine nächste Con?",
-      "subtitle": "Importiere jetzt einen Zeitplan oder sieh dich erst in ConPaws um.",
+      "subtitle": "Finde deine Convention, importiere einen Zeitplan oder sieh dich zuerst in ConPaws um.",
       "importSchedule": "Zeitplan importieren",
       "exploreFirst": "Erst ansehen",
       "localPrivacy": "Kein Konto nötig. Deine Daten bleiben lokal."
@@ -643,7 +709,9 @@
       "gettingStarted": "Erste Schritte",
       "gettingStartedDescription": "Wo du den Zeitplan deiner Convention findest",
       "importNow": "Zeitplan importieren",
-      "importNowDescription": "Einen Sched-Link oder eine .ics-Datei hinzufügen."
+      "importNowDescription": "Einen Sched-Link oder eine .ics-Datei hinzufügen.",
+      "find": "Meine Convention finden",
+      "findDescription": "Wähle eine Convention aus dem ConPaws-Katalog und lade ihren Zeitplan herunter."
     }
   }
 }

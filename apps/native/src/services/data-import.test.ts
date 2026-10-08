@@ -49,6 +49,8 @@ function conventionRow(overrides: Record<string, unknown> = {}) {
     location: null,
     archivedAt: null,
     icalUrl: "https://testcon.sched.com",
+    catalogSlug: null,
+    catalogRevision: null,
     status: "upcoming",
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
@@ -457,6 +459,20 @@ describe("convention row validation", () => {
     expect(planOne({ archivedAt: 0 }).result.reasons.malformed).toBe(1);
     expect(
       planOne({ archivedAt: "someday" }).result.reasons["invalid-date"],
+    ).toBe(1);
+  });
+
+  it("round-trips catalog identifiers and defaults them for older backups", () => {
+    expect(planOne({}).conventions[0]).toMatchObject({
+      catalogSlug: null,
+      catalogRevision: null,
+    });
+    expect(
+      planOne({ catalogSlug: "sample-con", catalogRevision: 7 }).conventions[0],
+    ).toMatchObject({ catalogSlug: "sample-con", catalogRevision: 7 });
+    expect(
+      planOne({ catalogSlug: "sample-con", catalogRevision: 0 }).result.reasons
+        .malformed,
     ).toBe(1);
   });
 

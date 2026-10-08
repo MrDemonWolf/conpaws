@@ -298,7 +298,7 @@
     "addConvention": "加入展會",
     "empty": {
       "title": "還沒有展會",
-      "subtitle": "建立一個展會，或匯入現有的行程表。",
+      "subtitle": "尋找展會以開始規劃，或透過連結或檔案新增行程。",
       "cta": "建立展會"
     },
     "loadError": "無法載入展會。",
@@ -336,7 +336,8 @@
       "success": "已刪除{{name}}。",
       "errorTitle": "無法刪除展會",
       "errorMessage": "沒有任何內容被刪除。請再試一次。"
-    }
+    },
+    "find": "尋找我的展會"
   },
   "import": {
     "title": "匯入行程表",
@@ -456,10 +457,11 @@
     },
     "getStarted": {
       "title": "準備好迎接下一場展會了嗎？",
-      "subtitle": "現在匯入行程表，或先四處看看 ConPaws。",
+      "subtitle": "尋找展會、匯入行程，或先探索 ConPaws。",
       "importSchedule": "匯入行程表",
       "exploreFirst": "先看看",
-      "localPrivacy": "不需要帳號。你的資料保存在本機。"
+      "localPrivacy": "不需要帳號。你的資料保存在本機。",
+      "find": "尋找我的展會"
     }
   },
   "reminders": {
@@ -643,7 +645,73 @@
       "gettingStarted": "開始使用",
       "gettingStartedDescription": "要去哪裡找展會的行程表",
       "importNow": "匯入行程表",
-      "importNowDescription": "加入 Sched 連結或 .ics 檔案。"
+      "importNowDescription": "加入 Sched 連結或 .ics 檔案。",
+      "findDescription": "從 ConPaws 目錄選擇展會並下載行程。",
+      "find": "尋找我的展會"
+    }
+  },
+  "catalog": {
+    "title": "尋找我的展會",
+    "searchPlaceholder": "依名稱或城市搜尋",
+    "upcoming": "即將舉辦",
+    "past": "過往展會",
+    "showPast": "顯示",
+    "hidePast": "隱藏",
+    "scheduleReady": "行程已就緒",
+    "scheduleNotYet": "ConPaws 尚未提供行程",
+    "notListed": {
+      "title": "找不到展會嗎？",
+      "body": "透過連結或檔案匯入行程，或建立展會並自行新增活動。",
+      "import": "匯入行程",
+      "create": "建立展會"
+    },
+    "empty": {
+      "title": "目前沒有展會",
+      "body": "請稍後再回來，或透過連結或檔案新增行程。"
+    },
+    "searchEmpty": "找不到符合的展會",
+    "searchEmptyBody": "試試其他名稱或城市。",
+    "offline": {
+      "title": "連線以尋找展會",
+      "body": "ConPaws 需要網際網路連線才能載入目錄。已儲存的展會仍可使用。"
+    },
+    "unavailable": {
+      "title": "目錄無法使用",
+      "body": "ConPaws 無法連線至目錄，請稍後再試。"
+    },
+    "retry": "重試",
+    "sample": "範例目錄 · 非真實展會",
+    "confirm": {
+      "dates": "日期",
+      "time": "展會時區",
+      "schedule": "行程",
+      "scheduleReady_one": "{{count}} 個活動 · 可下載",
+      "scheduleReady_other": "{{count}} 個活動 · 可下載",
+      "scheduleNotYet": "ConPaws 尚未提供",
+      "source": "來源",
+      "sourceValue": "ConPaws 目錄 · 修訂版 {{revision}}",
+      "download": "下載行程",
+      "update": "更新行程",
+      "open": "開啟行程",
+      "downloaded": "已下載 · 修訂版 {{revision}}",
+      "downloading": "下載中…",
+      "keepOpen": "請保持 ConPaws 開啟，直到下載完成。儲存後即可離線使用行程。",
+      "unavailableHere": {
+        "title": "ConPaws 尚未提供行程",
+        "body": "此展會已列出，但目前尚無行程。請透過連結或檔案新增行程。"
+      },
+      "failed": {
+        "title": "下載未完成",
+        "body": "沒有儲存任何內容，請重試。"
+      },
+      "offline": {
+        "body": "行程尚未儲存到手機。請連線至網際網路後再試一次。"
+      },
+      "notFound": {
+        "title": "找不到展會",
+        "body": "可能已取消發布。"
+      },
+      "successAnnouncement": "已下載 {{name}}。請選擇你的第一個活動。"
     }
   }
 }

@@ -1,9 +1,13 @@
+import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
 import {
   type ImportResult,
   runScheduleImport,
 } from "@/hooks/useImportSchedule";
+import { sessionsToImport } from "@/lib/catalog/adapter";
+import { catalogScheduleUrl } from "@/lib/catalog/client";
+import { resolveCatalogSource } from "@/lib/catalog/source-preference";
 import { reportError } from "@/lib/error-reporting";
 import { parseIcsPreferringFeedTimeZone } from "@/lib/import-policy";
 import {
@@ -84,7 +88,8 @@ export async function refreshConventionSchedule(
 ): Promise<ScheduleRefreshResult> {
   const { force = false, now = Date.now(), signal } = options;
 
-  if (!convention.icalUrl) return { status: "skipped" };
+  if (!convention.catalogSlug && !convention.icalUrl)
+    return { status: "skipped" };
   // An ended or archived convention's feed is not news, and a convention the
   // user filed away should not be reaching the network.
   if (convention.status === "ended" || convention.archivedAt !== null) {
@@ -107,6 +112,66 @@ export async function refreshConventionSchedule(
   }
 
   try {
+    if (convention.catalogSlug) {
+      const schedule = await resolveCatalogSource(__DEV__).schedule(
+        convention.catalogSlug,
+        signal,
+      );
+      if (schedule.revision <= (convention.catalogRevision ?? 0)) {
+        await setScheduleCheckedAt(convention.id, now);
+        return { status: "unchanged", checkedAt: now };
+      }
+      const { parsedEvents, sourceSnapshot } = sessionsToImport(schedule, {
+        scheduleUrl: catalogScheduleUrl(convention.catalogSlug),
+      });
+      const stored = await eventsRepo.getByConventionId(convention.id);
+      const outcome = summarizeScheduleChanges(
+        stored,
+        parsedEvents.map((event) => ({
+          sourceUid: event.sourceUid,
+          startTime: event.startTime.toISOString(),
+          endTime: event.endTime?.toISOString() ?? null,
+          room: event.room,
+          location: event.location,
+          isInSchedule: false,
+          feedStatus: null,
+        })),
+        sourceSnapshot.cancelledOccurrences.map((event) => event.sourceUid),
+      );
+      if (
+        schedule.status === "not-released" ||
+        outcome.status === "untrusted"
+      ) {
+        await setScheduleCheckedAt(convention.id, now);
+        return { status: "untrusted", checkedAt: now };
+      }
+
+      const result = await runScheduleImport({
+        parsedEvents,
+        conventionId: convention.id,
+        sourceSnapshot,
+      });
+      await conventionsRepo.update(convention.id, {
+        catalogRevision: schedule.revision,
+        timeZone: schedule.timezone,
+      });
+      await setScheduleCheckedAt(convention.id, now);
+      await publishWidgetSnapshot().catch(() => false);
+      await deps.refreshCaches(convention.id);
+      return {
+        status: "applied",
+        checkedAt: now,
+        summary: {
+          moved: outcome.status === "changed" ? outcome.summary.moved : 0,
+          gone: outcome.status === "changed" ? outcome.summary.gone : 0,
+          savedMoved:
+            outcome.status === "changed" ? outcome.summary.savedMoved : 0,
+          savedGone: result.tombstoned,
+        },
+      };
+    }
+
+    if (!convention.icalUrl) return { status: "skipped" };
     const fetched = await fetchScheduleIcs(convention.icalUrl, { signal });
     const parsed = parseIcsPreferringFeedTimeZone(
       fetched.icsContent,

@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Löydä conisi",
+    "searchPlaceholder": "Hae nimellä tai kaupungilla",
+    "upcoming": "Tulevat",
+    "past": "Aiemmat vuodet",
+    "showPast": "Näytä",
+    "hidePast": "Piilota",
+    "scheduleReady": "Ohjelma valmis",
+    "scheduleNotYet": "Ohjelma ei ole vielä ConPawsissa",
+    "notListed": {
+      "title": "Eikö conisi ole listalla?",
+      "body": "Tuo ohjelma linkistä tai tiedostosta tai luo con ja lisää paneelit itse.",
+      "import": "Tuo ohjelma",
+      "create": "Luo con"
+    },
+    "empty": {
+      "title": "Katalogissa ei ole vielä coneja",
+      "body": "Palaa pian tai lisää ohjelma linkistä tai tiedostosta."
+    },
+    "searchEmpty": "Ei vastaavia coneja",
+    "searchEmptyBody": "Kokeile toista nimeä tai kaupunkia.",
+    "offline": {
+      "title": "Yhdistä löytääksesi conisi",
+      "body": "ConPaws tarvitsee internetyhteyden katalogin lataamiseen. Tallennetut conit toimivat edelleen."
+    },
+    "unavailable": {
+      "title": "Katalogi ei ole käytettävissä",
+      "body": "ConPaws ei saanut yhteyttä katalogiin. Yritä hetken kuluttua uudelleen."
+    },
+    "retry": "Yritä uudelleen",
+    "sample": "Esimerkkikatalogi · ei oikea con",
+    "confirm": {
+      "dates": "Päivämäärät",
+      "time": "Conin aikavyöhyke",
+      "schedule": "Ohjelma",
+      "scheduleReady_one": "{{count}} tapahtuma · Valmis ladattavaksi",
+      "scheduleReady_other": "{{count}} tapahtumaa · Valmis ladattavaksi",
+      "scheduleNotYet": "Ei vielä ConPawsissa",
+      "source": "Lähde",
+      "sourceValue": "ConPaws-katalogi · versio {{revision}}",
+      "download": "Lataa ohjelma",
+      "update": "Päivitä ohjelma",
+      "open": "Avaa ohjelma",
+      "downloaded": "Ladattu · versio {{revision}}",
+      "downloading": "Ladataan…",
+      "keepOpen": "Pidä ConPaws avoinna, kunnes lataus on valmis. Tallennettua ohjelmaa voi käyttää ilman internetyhteyttä.",
+      "unavailableHere": {
+        "title": "Tätä ohjelmaa ei vielä ole ConPawsissa",
+        "body": "Con on listattu, mutta sen ohjelma ei ole vielä täällä saatavilla. Lisää ohjelma linkistä tai tiedostosta."
+      },
+      "failed": {
+        "title": "Lataus ei valmistunut",
+        "body": "Mitään ei tallennettu. Yritä uudelleen."
+      },
+      "offline": {
+        "body": "Ohjelmaa ei ole vielä tallennettu puhelimeesi. Yhdistä internetiin ja yritä uudelleen."
+      },
+      "notFound": {
+        "title": "Conia ei löytynyt",
+        "body": "Se on ehkä poistettu katalogista."
+      },
+      "successAnnouncement": "{{name}} ladattu. Valitse ensimmäinen paneelisi."
+    }
+  },
   "common": {
     "settings": "Asetukset",
     "add": "Lisää",
@@ -294,11 +358,12 @@
     }
   },
   "home": {
+    "find": "Löydä conini",
     "title": "Conit",
     "addConvention": "Lisää coni",
     "empty": {
       "title": "Ei vielä coneja",
-      "subtitle": "Luo coni tai tuo valmis ohjelma.",
+      "subtitle": "Löydä conisi ja aloita suunnittelu tai lisää ohjelma linkistä tai tiedostosta.",
       "cta": "Luo coni"
     },
     "loadError": "Coneja ei voitu ladata.",
@@ -455,8 +520,9 @@
       "next": "Jatka"
     },
     "getStarted": {
+      "find": "Löydä conini",
       "title": "Valmiina seuraavaan coniin?",
-      "subtitle": "Tuo ohjelma nyt tai tutustu ensin ConPawsiin.",
+      "subtitle": "Löydä conisi, tuo ohjelma tai tutustu ensin.",
       "importSchedule": "Tuo ohjelma",
       "exploreFirst": "Tutustu ensin",
       "localPrivacy": "Tiliä ei tarvita. Tietosi pysyvät paikallisina."
@@ -643,7 +709,9 @@
       "gettingStarted": "Näin pääset alkuun",
       "gettingStartedDescription": "Mistä löydät conisi ohjelman",
       "importNow": "Tuo ohjelma",
-      "importNowDescription": "Lisää Sched-linkki tai .ics-tiedosto."
+      "importNowDescription": "Lisää Sched-linkki tai .ics-tiedosto.",
+      "find": "Löydä conini",
+      "findDescription": "Valitse con ConPaws-katalogista ja lataa sen ohjelma."
     }
   }
 }
