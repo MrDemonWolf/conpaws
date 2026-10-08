@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
-import { Document, rootMetadata, rootViewport } from "@/components/document";
+import { Document, rootViewport } from "@/components/document";
 import { SiteModePage } from "@/components/site-mode-page";
 import { LAUNCH } from "@/content/launch";
 import { getMessages } from "@/i18n";
 import { DEFAULT_LOCALE } from "@/i18n/config";
+import { rootMetadata } from "@/lib/root-metadata";
 
 /**
  * Root layout for the English routes: `/`, `/confirmed`, and the legal and

@@ -2,6 +2,7 @@ import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import { type Messages, parseInline } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import { localeHref, publishedLocales } from "@/i18n/routing";
+import { OG_IMAGE_PATH } from "@/lib/root-metadata";
 import { absoluteUrl } from "@/lib/site";
 
 /**
@@ -91,7 +92,7 @@ export function softwareApplicationNode(
     applicationCategory: "TravelApplication",
     operatingSystem: "iOS, Android",
     inLanguage: locale,
-    image: absoluteUrl("/og.png"),
+    image: absoluteUrl(OG_IMAGE_PATH),
     ...(launch.mode === "live" && hasStoreLinks
       ? { downloadUrl: [launch.appStoreUrl, launch.googlePlayUrl] }
       : {}),

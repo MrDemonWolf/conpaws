@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
-import { Document, rootMetadata, rootViewport } from "@/components/document";
+import { Document, rootViewport } from "@/components/document";
 import { notFoundMetadata } from "@/components/not-found-page";
 import { SiteModePage } from "@/components/site-mode-page";
 import { LAUNCH } from "@/content/launch";
 import { getMessages } from "@/i18n";
 import { isLocale } from "@/i18n/config";
+import { rootMetadata } from "@/lib/root-metadata";
 
 /**
  * Root layout for every translated landing page.
