@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-
 import { Landing } from "@/components/landing";
 import { LAUNCH, launchForPreview } from "@/content/launch";
 import { getMessages } from "@/i18n";
@@ -10,6 +9,7 @@ import {
   localeHref,
   prefixedLocales,
 } from "@/i18n/routing";
+import { rootMetadata } from "@/lib/root-metadata";
 
 /**
  * Landing page for every locale except the default.
@@ -54,9 +54,14 @@ export async function generateMetadata({
       canonical: localeHref(locale),
       languages: languageAlternates(),
     },
+    // A page's `openGraph` replaces the layout's wholesale rather than merging
+    // into it, so spread the shared card or this route drops its image, type and
+    // site name — `/ja` once shipped with no `og:image` at all.
     openGraph: {
+      ...rootMetadata.openGraph,
       title: messages.meta.title,
       description: messages.meta.description,
+      url: localeHref(locale),
       locale,
     },
     ...(preview ? { robots: { index: false, follow: false } } : {}),
