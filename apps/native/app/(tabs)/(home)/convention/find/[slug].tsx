@@ -73,7 +73,8 @@ export default function FindConventionDetailScreen() {
   const edition = catalogQuery.data?.find((item) => item.slug === slug);
   const conventionQuery = useQuery({
     queryKey: ["conventionByCatalogSlug", slug],
-    queryFn: () => conventionsRepo.getByCatalogSlug(slug),
+    // React Query rejects `undefined` as data; null means "not downloaded".
+    queryFn: async () => (await conventionsRepo.getByCatalogSlug(slug)) ?? null,
     enabled: slug.length > 0,
   });
   const downloaded = conventionQuery.data;
