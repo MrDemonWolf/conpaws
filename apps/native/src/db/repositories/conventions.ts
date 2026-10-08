@@ -18,6 +18,16 @@ export async function getById(id: string): Promise<Convention | undefined> {
   return results[0];
 }
 
+export async function getByCatalogSlug(
+  slug: string,
+): Promise<Convention | undefined> {
+  const results = await db
+    .select()
+    .from(conventions)
+    .where(eq(conventions.catalogSlug, slug));
+  return results[0];
+}
+
 export async function create(
   data: Omit<NewConvention, "id" | "createdAt" | "updatedAt">,
 ): Promise<Convention> {

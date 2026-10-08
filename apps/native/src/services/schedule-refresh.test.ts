@@ -5,6 +5,8 @@ const {
   fetchScheduleIcs,
   parseIcs,
   getByConventionId,
+  catalogSchedule,
+  updateConvention,
   runScheduleImport,
   publishWidgetSnapshot,
   storage,
@@ -12,6 +14,8 @@ const {
   fetchScheduleIcs: vi.fn(),
   parseIcs: vi.fn(),
   getByConventionId: vi.fn(),
+  catalogSchedule: vi.fn(),
+  updateConvention: vi.fn(),
   runScheduleImport: vi.fn(),
   publishWidgetSnapshot: vi.fn(),
   storage: {
@@ -31,6 +35,14 @@ vi.mock("@/lib/sched-extractor", async (importOriginal) => ({
 }));
 vi.mock("@/lib/ical-parser", () => ({ parseIcs }));
 vi.mock("@/db/repositories/events", () => ({ getByConventionId }));
+vi.mock("@/db/repositories/conventions", () => ({ update: updateConvention }));
+vi.mock("@/lib/catalog/source-preference", () => ({
+  resolveCatalogSource: () => ({
+    kind: "http",
+    list: vi.fn(),
+    schedule: catalogSchedule,
+  }),
+}));
 vi.mock("@/hooks/useImportSchedule", () => ({ runScheduleImport }));
 vi.mock("@/services/widget-snapshot", () => ({ publishWidgetSnapshot }));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
@@ -50,6 +62,8 @@ function convention(overrides: Partial<Convention> = {}): Convention {
     location: null,
     archivedAt: null,
     icalUrl: "https://examplecon.org/?ical=1",
+    catalogSlug: null,
+    catalogRevision: null,
     status: "active",
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
@@ -96,6 +110,7 @@ function parsedFeed(overrides: Record<string, unknown> = {}) {
 const deps = { refreshCaches: vi.fn().mockResolvedValue(undefined) };
 
 beforeEach(() => {
+  vi.stubGlobal("__DEV__", true);
   vi.clearAllMocks();
   storage.getScheduleAutoCheck.mockResolvedValue(true);
   storage.getScheduleCheckedAt.mockResolvedValue(null);
@@ -115,6 +130,26 @@ beforeEach(() => {
     remindersCleared: 0,
     remindersPaused: 0,
   });
+  catalogSchedule.mockResolvedValue({
+    version: 1,
+    conventionId: "catalog-con",
+    slug: "sample-con",
+    revision: 4,
+    timezone: "America/Chicago",
+    status: "complete",
+    sessions: [
+      {
+        id: "panel-1",
+        title: "Panel",
+        description: "",
+        room: "Room A",
+        startsAt: "2026-09-03T15:00",
+        endsAt: "2026-09-03T16:00",
+        status: "scheduled",
+      },
+    ],
+  });
+  updateConvention.mockResolvedValue(undefined);
 });
 
 describe("refreshConventionSchedule gates", () => {
@@ -188,6 +223,73 @@ describe("refreshConventionSchedule gates", () => {
 });
 
 describe("refreshConventionSchedule outcomes", () => {
+  it("returns unchanged when the catalog revision has not advanced", async () => {
+    const result = await refreshConventionSchedule(
+      convention({
+        icalUrl: null,
+        catalogSlug: "sample-con",
+        catalogRevision: 4,
+      }),
+      deps,
+      { now: NOW },
+    );
+
+    expect(result).toEqual({ status: "unchanged", checkedAt: NOW });
+    expect(catalogSchedule).toHaveBeenCalledWith("sample-con", undefined);
+    expect(runScheduleImport).not.toHaveBeenCalled();
+    expect(updateConvention).not.toHaveBeenCalled();
+  });
+
+  it("applies a newer catalog revision and updates the saved revision", async () => {
+    catalogSchedule.mockResolvedValueOnce({
+      version: 1,
+      conventionId: "catalog-con",
+      slug: "sample-con",
+      revision: 5,
+      timezone: "America/Chicago",
+      status: "complete",
+      sessions: [
+        {
+          id: "panel-1",
+          title: "Panel",
+          description: "",
+          room: "Room B",
+          startsAt: "2026-09-03T16:00",
+          endsAt: "2026-09-03T17:00",
+          status: "scheduled",
+        },
+      ],
+    });
+
+    const result = await refreshConventionSchedule(
+      convention({
+        icalUrl: null,
+        catalogSlug: "sample-con",
+        catalogRevision: 4,
+      }),
+      deps,
+      { now: NOW },
+    );
+
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+    });
+    expect(runScheduleImport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conventionId: "con-1",
+        sourceSnapshot: expect.objectContaining({ authoritative: true }),
+      }),
+    );
+    expect(updateConvention).toHaveBeenCalledWith("con-1", {
+      catalogRevision: 5,
+      timeZone: "America/Chicago",
+    });
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
+    expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
   it("reports an unchanged feed and stamps the check", async () => {
     const result = await refreshConventionSchedule(convention(), deps, {
       now: NOW,

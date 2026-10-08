@@ -171,7 +171,7 @@
     "addConvention": "Lägg till Konvent",
     "empty": {
       "title": "Inga konvent ännu",
-      "subtitle": "Skapa ett konvent eller importera ett befintligt schema.",
+      "subtitle": "Hitta ditt konvent för att börja planera eller lägg till ett schema från en länk eller fil.",
       "cta": "Skapa konvent"
     },
     "loadError": "Det gick inte att läsa in konvent.",
@@ -209,7 +209,8 @@
       "success": "{{name}} har tagits bort.",
       "errorTitle": "Det gick inte att ta bort konventet",
       "errorMessage": "Inget togs bort. Försök igen."
-    }
+    },
+    "find": "Hitta mitt konvent"
   },
   "import": {
     "title": "Importera Schema",
@@ -329,10 +330,11 @@
     },
     "getStarted": {
       "title": "Redo för nästa konvent?",
-      "subtitle": "Importera ett schema nu eller utforska ConPaws först.",
+      "subtitle": "Hitta ditt konvent, importera ett schema eller utforska ConPaws först.",
       "importSchedule": "Importera ett schema",
       "exploreFirst": "Utforska först",
-      "localPrivacy": "Inget konto krävs. Dina data lagras lokalt."
+      "localPrivacy": "Inget konto krävs. Dina data lagras lokalt.",
+      "find": "Hitta mitt konvent"
     }
   },
   "reminders": {
@@ -516,7 +518,73 @@
       "gettingStarted": "Kom igång",
       "gettingStartedDescription": "Var du hittar konventets schema",
       "importNow": "Importera ett schema",
-      "importNowDescription": "Lägg till en Sched-länk eller en .ics-fil."
+      "importNowDescription": "Lägg till en Sched-länk eller en .ics-fil.",
+      "findDescription": "Välj ett konvent i ConPaws-katalogen och hämta dess schema.",
+      "find": "Hitta mitt konvent"
+    }
+  },
+  "catalog": {
+    "title": "Hitta ditt konvent",
+    "searchPlaceholder": "Sök efter namn eller stad",
+    "upcoming": "Kommande",
+    "past": "Tidigare upplagor",
+    "showPast": "Visa",
+    "hidePast": "Dölj",
+    "scheduleReady": "Schemat är klart",
+    "scheduleNotYet": "Schemat finns inte i ConPaws än",
+    "notListed": {
+      "title": "Hittar du inte konventet?",
+      "body": "Importera ett schema från en länk eller fil, eller skapa ett konvent och lägg till programpunkter själv.",
+      "import": "Importera ett schema",
+      "create": "Skapa ett konvent"
+    },
+    "empty": {
+      "title": "Inga konvent finns i listan",
+      "body": "Titta in igen senare eller lägg till ett schema från en länk eller fil."
+    },
+    "searchEmpty": "Inga konvent matchar",
+    "searchEmptyBody": "Prova ett annat namn eller en annan stad.",
+    "offline": {
+      "title": "Anslut för att hitta ditt konvent",
+      "body": "ConPaws behöver internet för att läsa in katalogen. Dina sparade konvent fungerar fortfarande."
+    },
+    "unavailable": {
+      "title": "Katalogen är inte tillgänglig",
+      "body": "ConPaws kunde inte nå katalogen. Försök igen om en stund."
+    },
+    "retry": "Försök igen",
+    "sample": "Exempelkatalog · inte ett verkligt konvent",
+    "confirm": {
+      "dates": "Datum",
+      "time": "Konventets tidszon",
+      "schedule": "Schema",
+      "scheduleReady_one": "{{count}} evenemang · Klart att hämta",
+      "scheduleReady_other": "{{count}} evenemang · Klart att hämta",
+      "scheduleNotYet": "Finns inte i ConPaws än",
+      "source": "Källa",
+      "sourceValue": "ConPaws-katalog · version {{revision}}",
+      "download": "Hämta schema",
+      "update": "Uppdatera schema",
+      "open": "Öppna schema",
+      "downloaded": "Hämtat · version {{revision}}",
+      "downloading": "Hämtar…",
+      "keepOpen": "Låt ConPaws vara öppet tills hämtningen är klar. När schemat har sparats fungerar det utan internet.",
+      "unavailableHere": {
+        "title": "Schemat finns inte i ConPaws än",
+        "body": "Konventet finns i listan, men schemat är inte tillgängligt här än. Lägg till ett schema från en länk eller fil."
+      },
+      "failed": {
+        "title": "Hämtningen slutfördes inte",
+        "body": "Inget sparades. Försök igen."
+      },
+      "offline": {
+        "body": "Schemat är inte sparat på telefonen än. Anslut till internet och försök igen."
+      },
+      "notFound": {
+        "title": "Konventet hittades inte",
+        "body": "Det kan ha tagits bort från publiceringen."
+      },
+      "successAnnouncement": "{{name}} har hämtats. Välj din första programpunkt."
     }
   }
 }

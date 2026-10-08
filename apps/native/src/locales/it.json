@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Trova la tua convention",
+    "searchPlaceholder": "Cerca per nome o città",
+    "upcoming": "In arrivo",
+    "past": "Edizioni passate",
+    "showPast": "Mostra",
+    "hidePast": "Nascondi",
+    "scheduleReady": "Programma pronto",
+    "scheduleNotYet": "Programma non ancora su ConPaws",
+    "notListed": {
+      "title": "La tua convention non è nell’elenco?",
+      "body": "Importa un programma da un link o da un file, oppure crea una convention e aggiungi i panel manualmente.",
+      "import": "Importa un programma",
+      "create": "Crea una convention"
+    },
+    "empty": {
+      "title": "Nessuna convention nel catalogo per ora",
+      "body": "Torna a trovarci o aggiungi un programma da un link o da un file."
+    },
+    "searchEmpty": "Nessuna convention corrispondente",
+    "searchEmptyBody": "Prova un altro nome o un’altra città.",
+    "offline": {
+      "title": "Connettiti per trovare la tua convention",
+      "body": "ConPaws ha bisogno di una connessione Internet per caricare il catalogo. Le convention salvate continuano a funzionare."
+    },
+    "unavailable": {
+      "title": "Catalogo non disponibile",
+      "body": "ConPaws non è riuscito a raggiungere il catalogo. Riprova tra poco."
+    },
+    "retry": "Riprova",
+    "sample": "Catalogo di esempio · non è una convention reale",
+    "confirm": {
+      "dates": "Date",
+      "time": "Fuso orario della convention",
+      "schedule": "Programma",
+      "scheduleReady_one": "{{count}} evento · Pronto da scaricare",
+      "scheduleReady_other": "{{count}} eventi · Pronti da scaricare",
+      "scheduleNotYet": "Non ancora su ConPaws",
+      "source": "Fonte",
+      "sourceValue": "Catalogo ConPaws · revisione {{revision}}",
+      "download": "Scarica il programma",
+      "update": "Aggiorna il programma",
+      "open": "Apri il programma",
+      "downloaded": "Scaricato · revisione {{revision}}",
+      "downloading": "Download…",
+      "keepOpen": "Tieni ConPaws aperto fino al termine del download. Dopo averlo salvato, potrai usare il programma senza Internet.",
+      "unavailableHere": {
+        "title": "Questo programma non è ancora su ConPaws",
+        "body": "La convention è nell’elenco, ma il suo programma non è ancora disponibile qui. Aggiungi un programma da un link o da un file."
+      },
+      "failed": {
+        "title": "Download non completato",
+        "body": "Non è stato salvato nulla. Riprova."
+      },
+      "offline": {
+        "body": "Questo programma non è ancora salvato sul telefono. Connettiti a Internet e riprova."
+      },
+      "notFound": {
+        "title": "Convention non trovata",
+        "body": "Potrebbe essere stata rimossa dal catalogo."
+      },
+      "successAnnouncement": "{{name}} scaricata. Scegli il tuo primo panel."
+    }
+  },
   "common": {
     "settings": "Impostazioni",
     "add": "Aggiungi",
@@ -167,11 +231,12 @@
     }
   },
   "home": {
+    "find": "Trova la mia convention",
     "title": "Convention",
     "addConvention": "Aggiungi convention",
     "empty": {
       "title": "Ancora nessuna convention",
-      "subtitle": "Creane una o importa un programma esistente.",
+      "subtitle": "Trova la tua convention per iniziare a pianificare o aggiungi un programma da un link o da un file.",
       "cta": "Crea convention"
     },
     "loadError": "Non è stato possibile caricare le convention.",
@@ -328,8 +393,9 @@
       "next": "Continua"
     },
     "getStarted": {
+      "find": "Trova la mia convention",
       "title": "Pronto per la tua prossima convention?",
-      "subtitle": "Importa subito un programma oppure esplora prima ConPaws.",
+      "subtitle": "Trova la tua convention, importa un programma o esplora ConPaws.",
       "importSchedule": "Importa un programma",
       "exploreFirst": "Esplora prima",
       "localPrivacy": "Nessun account richiesto. I tuoi dati restano in locale."
@@ -516,7 +582,9 @@
       "gettingStarted": "Primi passi",
       "gettingStartedDescription": "Dove trovare il programma della tua convention",
       "importNow": "Importa un programma",
-      "importNowDescription": "Aggiungi un link Sched o un file .ics."
+      "importNowDescription": "Aggiungi un link Sched o un file .ics.",
+      "find": "Trova la mia convention",
+      "findDescription": "Scegli una convention dal catalogo ConPaws e scarica il suo programma."
     }
   }
 }

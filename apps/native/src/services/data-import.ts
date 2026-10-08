@@ -241,7 +241,22 @@ export function validateConventionRow(
 
   const location = optionalString(row, "location");
   const icalUrl = optionalString(row, "icalUrl");
-  if (location === undefined || icalUrl === undefined) {
+  const catalogSlug = optionalString(row, "catalogSlug");
+  const rawCatalogRevision = ownString(row, "catalogRevision");
+  const catalogRevision =
+    rawCatalogRevision === undefined || rawCatalogRevision === null
+      ? null
+      : typeof rawCatalogRevision === "number" &&
+          Number.isInteger(rawCatalogRevision) &&
+          rawCatalogRevision > 0
+        ? rawCatalogRevision
+        : undefined;
+  if (
+    location === undefined ||
+    icalUrl === undefined ||
+    catalogSlug === undefined ||
+    catalogRevision === undefined
+  ) {
     return { reason: "malformed" };
   }
 
@@ -273,6 +288,8 @@ export function validateConventionRow(
       location,
       archivedAt,
       icalUrl,
+      catalogSlug,
+      catalogRevision,
       createdAt: timestampOrNow(row, "createdAt", now),
       updatedAt: timestampOrNow(row, "updatedAt", now),
     },

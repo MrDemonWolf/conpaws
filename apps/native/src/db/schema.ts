@@ -10,6 +10,8 @@ export const conventions = sqliteTable("conventions", {
   location: text("location"),
   archivedAt: text("archived_at"),
   icalUrl: text("ical_url"),
+  catalogSlug: text("catalog_slug"),
+  catalogRevision: integer("catalog_revision"),
   status: text("status", { enum: ["upcoming", "active", "ended"] })
     .notNull()
     .default("upcoming"),

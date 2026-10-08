@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Encuentra tu convención",
+    "searchPlaceholder": "Buscar por nombre o ciudad",
+    "upcoming": "Próximas",
+    "past": "Ediciones anteriores",
+    "showPast": "Mostrar",
+    "hidePast": "Ocultar",
+    "scheduleReady": "Agenda lista",
+    "scheduleNotYet": "La agenda aún no está en ConPaws",
+    "notListed": {
+      "title": "¿No aparece tu convención?",
+      "body": "Importa una agenda desde un enlace o archivo, o crea una convención y añade paneles por tu cuenta.",
+      "import": "Importar una agenda",
+      "create": "Crear una convención"
+    },
+    "empty": {
+      "title": "Aún no hay convenciones en el catálogo",
+      "body": "Vuelve pronto o añade una agenda desde un enlace o archivo."
+    },
+    "searchEmpty": "No hay convenciones coincidentes",
+    "searchEmptyBody": "Prueba con otro nombre o ciudad.",
+    "offline": {
+      "title": "Conéctate para encontrar tu convención",
+      "body": "ConPaws necesita internet para cargar el catálogo. Tus convenciones guardadas siguen funcionando."
+    },
+    "unavailable": {
+      "title": "Catálogo no disponible",
+      "body": "ConPaws no pudo conectar con el catálogo. Inténtalo de nuevo dentro de un momento."
+    },
+    "retry": "Intentar de nuevo",
+    "sample": "Catálogo de muestra · no es una convención real",
+    "confirm": {
+      "dates": "Fechas",
+      "time": "Zona horaria de la convención",
+      "schedule": "Agenda",
+      "scheduleReady_one": "{{count}} evento · Lista para descargar",
+      "scheduleReady_other": "{{count}} eventos · Listos para descargar",
+      "scheduleNotYet": "Aún no está en ConPaws",
+      "source": "Fuente",
+      "sourceValue": "Catálogo de ConPaws · revisión {{revision}}",
+      "download": "Descargar agenda",
+      "update": "Actualizar agenda",
+      "open": "Abrir agenda",
+      "downloaded": "Descargada · revisión {{revision}}",
+      "downloading": "Descargando…",
+      "keepOpen": "Mantén ConPaws abierto hasta que termine la descarga. Cuando se guarde, podrás usar la agenda sin internet.",
+      "unavailableHere": {
+        "title": "Esta agenda aún no está en ConPaws",
+        "body": "La convención aparece en la lista, pero su agenda aún no está disponible aquí. Añade una agenda desde un enlace o archivo."
+      },
+      "failed": {
+        "title": "La descarga no ha terminado",
+        "body": "No se ha guardado nada. Inténtalo de nuevo."
+      },
+      "offline": {
+        "body": "Esta agenda aún no está guardada en tu teléfono. Conéctate a internet y vuelve a intentarlo."
+      },
+      "notFound": {
+        "title": "No se ha encontrado la convención",
+        "body": "Puede que se haya retirado del catálogo."
+      },
+      "successAnnouncement": "Se ha descargado {{name}}. Elige tu primer panel."
+    }
+  },
   "common": {
     "settings": "Ajustes",
     "add": "Añadir",
@@ -167,11 +231,12 @@
     }
   },
   "home": {
+    "find": "Encuentra mi convención",
     "title": "Convenciones",
     "addConvention": "Añadir Convención",
     "empty": {
       "title": "Sin convenciones aún",
-      "subtitle": "Crea una convención o importa un horario existente.",
+      "subtitle": "Encuentra tu convención para empezar a planificar o añade una agenda desde un enlace o archivo.",
       "cta": "Crear convención"
     },
     "loadError": "No se pudieron cargar las convenciones.",
@@ -328,8 +393,9 @@
       "next": "Continuar"
     },
     "getStarted": {
+      "find": "Encuentra mi convención",
       "title": "¿Todo listo para tu próxima convención?",
-      "subtitle": "Importa una agenda ahora o explora ConPaws primero.",
+      "subtitle": "Encuentra tu convención, importa una agenda o explora primero.",
       "importSchedule": "Importar una agenda",
       "exploreFirst": "Explorar primero",
       "localPrivacy": "No necesitas una cuenta. Tus datos se guardan localmente."
@@ -516,7 +582,9 @@
       "gettingStarted": "Primeros pasos",
       "gettingStartedDescription": "Dónde encontrar el programa de tu convención",
       "importNow": "Importar un programa",
-      "importNowDescription": "Añade un enlace de Sched o un archivo .ics."
+      "importNowDescription": "Añade un enlace de Sched o un archivo .ics.",
+      "find": "Encuentra mi convención",
+      "findDescription": "Elige una convención del catálogo de ConPaws y descarga su agenda."
     }
   }
 }

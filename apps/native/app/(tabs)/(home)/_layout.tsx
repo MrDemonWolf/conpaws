@@ -40,6 +40,14 @@ export default function HomeLayout() {
       />
       <Stack.Screen name="convention/[id]" options={{ title: "Convention" }} />
       <Stack.Screen
+        name="convention/find"
+        options={{ title: t("catalog.title") }}
+      />
+      <Stack.Screen
+        name="convention/find/[slug]"
+        options={{ headerLargeTitleEnabled: false }}
+      />
+      <Stack.Screen
         name="convention/create"
         options={{
           title: t("convention.new"),

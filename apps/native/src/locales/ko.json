@@ -171,7 +171,7 @@
     "addConvention": "컨벤션 추가",
     "empty": {
       "title": "아직 컨벤션이 없어요",
-      "subtitle": "새로 만들거나 기존 일정표를 가져오세요.",
+      "subtitle": "컨벤션을 찾아 계획을 시작하거나 링크나 파일에서 일정을 추가하세요.",
       "cta": "컨벤션 만들기"
     },
     "loadError": "컨벤션을 불러오지 못했어요.",
@@ -209,7 +209,8 @@
       "success": "{{name}}을(를) 삭제했어요.",
       "errorTitle": "컨벤션을 삭제하지 못했어요",
       "errorMessage": "아무것도 삭제되지 않았어요. 다시 시도해 주세요."
-    }
+    },
+    "find": "내 컨벤션 찾기"
   },
   "import": {
     "title": "일정표 가져오기",
@@ -329,10 +330,11 @@
     },
     "getStarted": {
       "title": "다음 컨벤션 갈 준비 되셨나요?",
-      "subtitle": "지금 일정표를 가져오거나, 먼저 ConPaws를 둘러보세요.",
+      "subtitle": "컨벤션을 찾고 일정을 가져오거나 먼저 둘러보세요.",
       "importSchedule": "일정표 가져오기",
       "exploreFirst": "먼저 둘러보기",
-      "localPrivacy": "계정이 필요 없어요. 데이터는 기기에 저장됩니다."
+      "localPrivacy": "계정이 필요 없어요. 데이터는 기기에 저장됩니다.",
+      "find": "내 컨벤션 찾기"
     }
   },
   "reminders": {
@@ -516,7 +518,73 @@
       "gettingStarted": "시작하기",
       "gettingStartedDescription": "컨벤션 일정표를 찾는 방법",
       "importNow": "일정표 가져오기",
-      "importNowDescription": "Sched 링크나 .ics 파일을 추가하세요."
+      "importNowDescription": "Sched 링크나 .ics 파일을 추가하세요.",
+      "findDescription": "ConPaws 카탈로그에서 컨벤션을 선택하고 일정을 다운로드하세요.",
+      "find": "내 컨벤션 찾기"
+    }
+  },
+  "catalog": {
+    "title": "내 컨벤션 찾기",
+    "searchPlaceholder": "이름 또는 도시로 검색",
+    "upcoming": "예정",
+    "past": "지난 회차",
+    "showPast": "표시",
+    "hidePast": "숨기기",
+    "scheduleReady": "일정표 준비됨",
+    "scheduleNotYet": "아직 ConPaws에 일정표가 없습니다",
+    "notListed": {
+      "title": "컨벤션이 목록에 없나요?",
+      "body": "링크나 파일에서 일정표를 가져오거나 컨벤션을 만들고 직접 패널을 추가하세요.",
+      "import": "일정표 가져오기",
+      "create": "컨벤션 만들기"
+    },
+    "empty": {
+      "title": "등록된 컨벤션이 없습니다",
+      "body": "나중에 다시 확인하거나 링크나 파일에서 일정표를 추가하세요."
+    },
+    "searchEmpty": "일치하는 컨벤션이 없습니다",
+    "searchEmptyBody": "다른 이름이나 도시를 검색해 보세요.",
+    "offline": {
+      "title": "컨벤션을 찾으려면 연결하세요",
+      "body": "카탈로그를 불러오려면 인터넷 연결이 필요합니다. 저장한 컨벤션은 계속 사용할 수 있습니다."
+    },
+    "unavailable": {
+      "title": "카탈로그를 사용할 수 없음",
+      "body": "카탈로그에 연결할 수 없습니다. 잠시 후 다시 시도하세요."
+    },
+    "retry": "다시 시도",
+    "sample": "샘플 카탈로그 · 실제 컨벤션 아님",
+    "confirm": {
+      "dates": "날짜",
+      "time": "컨벤션 시간대",
+      "schedule": "일정표",
+      "scheduleReady_one": "{{count}}개 이벤트 · 다운로드 준비됨",
+      "scheduleReady_other": "{{count}}개 이벤트 · 다운로드 준비됨",
+      "scheduleNotYet": "아직 ConPaws에 없음",
+      "source": "출처",
+      "sourceValue": "ConPaws 카탈로그 · 리비전 {{revision}}",
+      "download": "일정표 다운로드",
+      "update": "일정표 업데이트",
+      "open": "일정표 열기",
+      "downloaded": "다운로드됨 · 리비전 {{revision}}",
+      "downloading": "다운로드 중…",
+      "keepOpen": "다운로드가 끝날 때까지 ConPaws를 열어 두세요. 저장한 일정표는 인터넷 없이 사용할 수 있습니다.",
+      "unavailableHere": {
+        "title": "아직 ConPaws에 일정표가 없습니다",
+        "body": "이 컨벤션은 등록되어 있지만 일정표는 아직 여기서 제공되지 않습니다. 링크나 파일에서 일정표를 추가하세요."
+      },
+      "failed": {
+        "title": "다운로드를 완료하지 못함",
+        "body": "저장된 항목이 없습니다. 다시 시도하세요."
+      },
+      "offline": {
+        "body": "이 일정표는 아직 휴대폰에 저장되지 않았습니다. 인터넷에 연결한 뒤 다시 시도하세요."
+      },
+      "notFound": {
+        "title": "컨벤션을 찾을 수 없음",
+        "body": "목록에서 제외되었을 수 있습니다."
+      },
+      "successAnnouncement": "{{name}} 다운로드 완료. 첫 번째 패널을 선택하세요."
     }
   }
 }

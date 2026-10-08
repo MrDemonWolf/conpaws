@@ -34,10 +34,13 @@ describe("locale catalogs", () => {
       readFileSync(path.join(dir, `${locale}.json`), "utf8"),
     ) as Json;
     const keys = flatten(catalog);
-    const keysWithoutLocalePluralForms = keys.filter(
-      (key) => !/_zero|_one|_two|_few|_many|_other$/.test(key),
+    const withoutLocalePluralForms = (catalogKeys: string[]) =>
+      catalogKeys.filter(
+        (key) => !/_zero|_one|_two|_few|_many|_other$/.test(key),
+      );
+    expect(withoutLocalePluralForms(keys).sort()).toEqual(
+      withoutLocalePluralForms(enKeys).sort(),
     );
-    expect(keysWithoutLocalePluralForms.sort()).toEqual([...enKeys].sort());
   });
 });
 
@@ -85,8 +88,14 @@ describe("catalog and code agree", () => {
   const DYNAMIC = /`([a-zA-Z][a-zA-Z0-9_.]*\.)\$\{/g;
   const dynamicPrefixes = [...source.matchAll(DYNAMIC)].map((m) => m[1]);
 
-  const covered = (key: string) =>
-    mentioned.has(key) || dynamicPrefixes.some((p) => key.startsWith(p));
+  const covered = (key: string) => {
+    const pluralBase = key.replace(/_(zero|one|two|few|many|other)$/, "");
+    return (
+      mentioned.has(key) ||
+      (pluralBase !== key && mentioned.has(pluralBase)) ||
+      dynamicPrefixes.some((p) => key.startsWith(p))
+    );
+  };
 
   it("has no key the code never asks for", () => {
     expect(enKeys.filter((k) => !covered(k))).toEqual([]);

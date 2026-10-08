@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Find dit konvent",
+    "searchPlaceholder": "Søg efter navn eller by",
+    "upcoming": "Kommende",
+    "past": "Tidligere udgaver",
+    "showPast": "Vis",
+    "hidePast": "Skjul",
+    "scheduleReady": "Program klar",
+    "scheduleNotYet": "Programmet er ikke i ConPaws endnu",
+    "notListed": {
+      "title": "Står dit konvent ikke på listen?",
+      "body": "Importér et program via et link eller en fil, eller opret et konvent og tilføj selv programpunkter.",
+      "import": "Importér et program",
+      "create": "Opret et konvent"
+    },
+    "empty": {
+      "title": "Ingen konventer i kataloget endnu",
+      "body": "Kom snart igen, eller tilføj et program via et link eller en fil."
+    },
+    "searchEmpty": "Ingen konventer matcher",
+    "searchEmptyBody": "Prøv et andet navn eller en anden by.",
+    "offline": {
+      "title": "Opret forbindelse for at finde dit konvent",
+      "body": "ConPaws skal bruge internet for at indlæse kataloget. Dine gemte konventer virker stadig."
+    },
+    "unavailable": {
+      "title": "Kataloget er ikke tilgængeligt",
+      "body": "ConPaws kunne ikke få forbindelse til kataloget. Prøv igen om lidt."
+    },
+    "retry": "Prøv igen",
+    "sample": "Eksempelkatalog · ikke et rigtigt konvent",
+    "confirm": {
+      "dates": "Datoer",
+      "time": "Konventets tidszone",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} begivenhed · Klar til download",
+      "scheduleReady_other": "{{count}} begivenheder · Klar til download",
+      "scheduleNotYet": "Ikke i ConPaws endnu",
+      "source": "Kilde",
+      "sourceValue": "ConPaws-katalog · revision {{revision}}",
+      "download": "Download program",
+      "update": "Opdatér program",
+      "open": "Åbn program",
+      "downloaded": "Downloadet · revision {{revision}}",
+      "downloading": "Downloader…",
+      "keepOpen": "Hold ConPaws åben, indtil download er færdig. Du kan bruge programmet uden internet, når det er gemt.",
+      "unavailableHere": {
+        "title": "Programmet er ikke i ConPaws endnu",
+        "body": "Konventet er på listen, men programmet er ikke tilgængeligt her endnu. Tilføj et program via et link eller en fil."
+      },
+      "failed": {
+        "title": "Download blev ikke færdig",
+        "body": "Intet blev gemt. Prøv igen."
+      },
+      "offline": {
+        "body": "Programmet er ikke gemt på din telefon endnu. Opret forbindelse til internettet, og prøv igen."
+      },
+      "notFound": {
+        "title": "Konvent ikke fundet",
+        "body": "Det kan være blevet fjernet fra kataloget."
+      },
+      "successAnnouncement": "{{name}} er downloadet. Vælg dit første programpunkt."
+    }
+  },
   "common": {
     "settings": "Indstillinger",
     "add": "Tilføj",
@@ -167,11 +231,12 @@
     }
   },
   "home": {
+    "find": "Find mit konvent",
     "title": "Konventer",
     "addConvention": "Tilføj konvent",
     "empty": {
       "title": "Ingen konventer endnu",
-      "subtitle": "Opret et, eller importér et eksisterende program.",
+      "subtitle": "Find dit konvent for at begynde planlægningen, eller tilføj et program via et link eller en fil.",
       "cta": "Opret konvent"
     },
     "loadError": "Konventerne kunne ikke indlæses.",
@@ -328,8 +393,9 @@
       "next": "Fortsæt"
     },
     "getStarted": {
+      "find": "Find mit konvent",
       "title": "Klar til dit næste konvent?",
-      "subtitle": "Importér et program nu, eller udforsk ConPaws først.",
+      "subtitle": "Find dit konvent, importér et program, eller udforsk først.",
       "importSchedule": "Importér et program",
       "exploreFirst": "Udforsk først",
       "localPrivacy": "Ingen konto påkrævet. Dine data bliver lokale."
@@ -516,7 +582,9 @@
       "gettingStarted": "Kom godt i gang",
       "gettingStartedDescription": "Her finder du dit konvents program",
       "importNow": "Importér et program",
-      "importNowDescription": "Hent et Sched-link eller en .ics-fil ind."
+      "importNowDescription": "Hent et Sched-link eller en .ics-fil ind.",
+      "find": "Find mit konvent",
+      "findDescription": "Vælg et konvent i ConPaws-kataloget, og download programmet."
     }
   }
 }

@@ -1,4 +1,4 @@
-import { FieldGroup, Host, Button as NativeButton } from "@expo/ui";
+import { FieldGroup, Host, Button as NativeButton, Switch } from "@expo/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Application from "expo-application";
 import Constants from "expo-constants";
@@ -14,6 +14,10 @@ import {
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import {
+  getCachedCatalogSourcePreference,
+  setCatalogSourcePreference,
+} from "@/lib/catalog/source-preference";
 import {
   type ConventionPreviewState,
   developerToolsEnabled,
@@ -46,6 +50,9 @@ export default function DebugScreen() {
   >(null);
   const [notificationPermission, setNotificationPermission] =
     useState<PermissionStatus>("undetermined");
+  const [useSampleCatalog, setUseSampleCatalog] = useState(
+    () => getCachedCatalogSourcePreference() === "fixture",
+  );
   const presentationLock = useRef(0);
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
@@ -190,6 +197,18 @@ export default function DebugScreen() {
           <ListItem supportingText={`${version} (${buildNumber})`}>
             {variantName} app version
           </ListItem>
+        </FieldGroup.Section>
+
+        <FieldGroup.Section title="Catalog">
+          <Switch
+            label="Use sample catalog"
+            value={useSampleCatalog}
+            onValueChange={(enabled) => {
+              setUseSampleCatalog(enabled);
+              void setCatalogSourcePreference(enabled ? "fixture" : "http");
+            }}
+            testID="debug-catalog-source"
+          />
         </FieldGroup.Section>
 
         <FieldGroup.Section title="Haptics">

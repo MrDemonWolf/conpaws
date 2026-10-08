@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Találd meg a rendezvényed",
+    "searchPlaceholder": "Keresés név vagy város szerint",
+    "upcoming": "Közelgő",
+    "past": "Korábbi évek",
+    "showPast": "Megjelenítés",
+    "hidePast": "Elrejtés",
+    "scheduleReady": "A program letölthető",
+    "scheduleNotYet": "A program még nincs a ConPawsban",
+    "notListed": {
+      "title": "Nem találod a rendezvényt?",
+      "body": "Importálj programot egy hivatkozásból vagy fájlból, vagy hozz létre rendezvényt, és add hozzá a paneleket.",
+      "import": "Program importálása",
+      "create": "Rendezvény létrehozása"
+    },
+    "empty": {
+      "title": "Még nincsenek rendezvények a katalógusban",
+      "body": "Nézz vissza később, vagy adj hozzá programot hivatkozásból vagy fájlból."
+    },
+    "searchEmpty": "Nincs találat",
+    "searchEmptyBody": "Próbálj másik nevet vagy várost.",
+    "offline": {
+      "title": "Kapcsolódj a rendezvény kereséséhez",
+      "body": "A katalógus betöltéséhez a ConPawsnak internetkapcsolat kell. A mentett rendezvényeid továbbra is működnek."
+    },
+    "unavailable": {
+      "title": "A katalógus nem érhető el",
+      "body": "A ConPaws nem érte el a katalógust. Próbáld újra egy kis idő múlva."
+    },
+    "retry": "Újra",
+    "sample": "Példakatalógus · nem valódi rendezvény",
+    "confirm": {
+      "dates": "Dátumok",
+      "time": "Rendezvény időzónája",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} esemény · Letölthető",
+      "scheduleReady_other": "{{count}} esemény · Letölthető",
+      "scheduleNotYet": "Még nincs a ConPawsban",
+      "source": "Forrás",
+      "sourceValue": "ConPaws-katalógus · {{revision}}. verzió",
+      "download": "Program letöltése",
+      "update": "Program frissítése",
+      "open": "Program megnyitása",
+      "downloaded": "Letöltve · {{revision}}. verzió",
+      "downloading": "Letöltés…",
+      "keepOpen": "A letöltés végéig tartsd nyitva a ConPawst. A mentett programot internetkapcsolat nélkül is használhatod.",
+      "unavailableHere": {
+        "title": "Ez a program még nincs a ConPawsban",
+        "body": "A rendezvény szerepel a listán, de a programja itt még nem érhető el. Adj hozzá programot hivatkozásból vagy fájlból."
+      },
+      "failed": {
+        "title": "A letöltés nem fejeződött be",
+        "body": "Semmi sem lett mentve. Próbáld újra."
+      },
+      "offline": {
+        "body": "Ez a program még nincs elmentve a telefonodra. Kapcsolódj az internethez, majd próbáld újra."
+      },
+      "notFound": {
+        "title": "A rendezvény nem található",
+        "body": "Lehet, hogy eltávolították a katalógusból."
+      },
+      "successAnnouncement": "{{name}} letöltve. Válaszd ki az első panelt."
+    }
+  },
   "common": {
     "settings": "Beállítások",
     "add": "Hozzáadás",
@@ -167,11 +231,12 @@
     }
   },
   "home": {
+    "find": "Rendezvény keresése",
     "title": "Conok",
     "addConvention": "Con hozzáadása",
     "empty": {
       "title": "Még nincsenek conok",
-      "subtitle": "Hozz létre egyet, vagy importálj egy meglévő programot.",
+      "subtitle": "Találd meg a rendezvényed a tervezéshez, vagy adj hozzá programot hivatkozásból vagy fájlból.",
       "cta": "Con létrehozása"
     },
     "loadError": "A conokat nem sikerült betölteni.",
@@ -328,8 +393,9 @@
       "next": "Tovább"
     },
     "getStarted": {
+      "find": "Rendezvény keresése",
       "title": "Készen állsz a következő conra?",
-      "subtitle": "Importálj most egy programot, vagy előbb nézz körül a ConPawsban.",
+      "subtitle": "Találd meg a rendezvényed, importálj programot, vagy előbb nézz körül.",
       "importSchedule": "Program importálása",
       "exploreFirst": "Előbb körülnézek",
       "localPrivacy": "Nem kell fiók. Az adataid helyben maradnak."
@@ -516,7 +582,9 @@
       "gettingStarted": "Első lépések",
       "gettingStartedDescription": "Hol találod a conod programját",
       "importNow": "Program importálása",
-      "importNowDescription": "Adj meg egy Sched-linket vagy egy .ics-fájlt."
+      "importNowDescription": "Adj meg egy Sched-linket vagy egy .ics-fájlt.",
+      "find": "Rendezvény keresése",
+      "findDescription": "Válassz rendezvényt a ConPaws katalógusából, és töltsd le a programját."
     }
   }
 }

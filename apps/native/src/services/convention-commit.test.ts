@@ -48,6 +48,8 @@ function conventionRow(id = "conv_1"): Convention {
     location: draft.location ?? null,
     archivedAt: null,
     icalUrl: null,
+    catalogSlug: null,
+    catalogRevision: null,
     status: "upcoming",
     createdAt: "2026-08-01T00:00:00.000Z",
     updatedAt: "2026-08-01T00:00:00.000Z",

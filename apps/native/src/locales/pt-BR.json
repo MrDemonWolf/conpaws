@@ -171,7 +171,7 @@
     "addConvention": "Adicionar Convenção",
     "empty": {
       "title": "Nenhuma convenção ainda",
-      "subtitle": "Crie uma convenção ou importe uma programação existente.",
+      "subtitle": "Encontre sua convenção para começar a planejar ou adicione uma programação por link ou arquivo.",
       "cta": "Criar convenção"
     },
     "loadError": "Não foi possível carregar as convenções.",
@@ -209,7 +209,8 @@
       "success": "{{name}} foi excluída.",
       "errorTitle": "Não foi possível excluir a convenção",
       "errorMessage": "Nada foi excluído. Tente novamente."
-    }
+    },
+    "find": "Encontre sua convenção"
   },
   "import": {
     "title": "Importar Programação",
@@ -329,10 +330,11 @@
     },
     "getStarted": {
       "title": "Tudo pronto para o próximo evento?",
-      "subtitle": "Importe uma programação agora ou explore o ConPaws primeiro.",
+      "subtitle": "Encontre sua convenção, importe uma programação ou explore o ConPaws primeiro.",
       "importSchedule": "Importar uma programação",
       "exploreFirst": "Explorar primeiro",
-      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente."
+      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente.",
+      "find": "Encontre sua convenção"
     }
   },
   "reminders": {
@@ -516,7 +518,73 @@
       "gettingStarted": "Primeiros passos",
       "gettingStartedDescription": "Onde encontrar a agenda da sua convenção",
       "importNow": "Importar uma agenda",
-      "importNowDescription": "Adicione um link do Sched ou um arquivo .ics."
+      "importNowDescription": "Adicione um link do Sched ou um arquivo .ics.",
+      "findDescription": "Escolha uma convenção do catálogo ConPaws e baixe sua programação.",
+      "find": "Encontre sua convenção"
+    }
+  },
+  "catalog": {
+    "title": "Encontre sua convenção",
+    "searchPlaceholder": "Busque por nome ou cidade",
+    "upcoming": "Próximas",
+    "past": "Edições anteriores",
+    "showPast": "Mostrar",
+    "hidePast": "Ocultar",
+    "scheduleReady": "Programação pronta",
+    "scheduleNotYet": "Programação ainda não está no ConPaws",
+    "notListed": {
+      "title": "Não encontrou a convenção?",
+      "body": "Importe uma programação por link ou arquivo, ou crie uma convenção e adicione os painéis manualmente.",
+      "import": "Importar programação",
+      "create": "Criar convenção"
+    },
+    "empty": {
+      "title": "Nenhuma convenção listada",
+      "body": "Volte em breve ou adicione uma programação por link ou arquivo."
+    },
+    "searchEmpty": "Nenhuma convenção encontrada",
+    "searchEmptyBody": "Tente outro nome ou cidade.",
+    "offline": {
+      "title": "Conecte-se para encontrar sua convenção",
+      "body": "O ConPaws precisa de internet para carregar o catálogo. Suas convenções salvas continuam funcionando."
+    },
+    "unavailable": {
+      "title": "Catálogo indisponível",
+      "body": "O ConPaws não conseguiu acessar o catálogo. Tente novamente em instantes."
+    },
+    "retry": "Tentar novamente",
+    "sample": "Catálogo de exemplo · não é uma convenção real",
+    "confirm": {
+      "dates": "Datas",
+      "time": "Fuso horário da convenção",
+      "schedule": "Programação",
+      "scheduleReady_one": "{{count}} evento · Pronto para baixar",
+      "scheduleReady_other": "{{count}} eventos · Pronto para baixar",
+      "scheduleNotYet": "Ainda não está no ConPaws",
+      "source": "Fonte",
+      "sourceValue": "Catálogo ConPaws · revisão {{revision}}",
+      "download": "Baixar programação",
+      "update": "Atualizar programação",
+      "open": "Abrir programação",
+      "downloaded": "Baixada · revisão {{revision}}",
+      "downloading": "Baixando…",
+      "keepOpen": "Mantenha o ConPaws aberto até o fim do download. Depois de salvar, você pode usar a programação sem internet.",
+      "unavailableHere": {
+        "title": "Programação ainda não está no ConPaws",
+        "body": "Esta convenção está na lista, mas a programação ainda não está disponível aqui. Adicione uma programação por link ou arquivo."
+      },
+      "failed": {
+        "title": "O download não foi concluído",
+        "body": "Nada foi salvo. Tente novamente."
+      },
+      "offline": {
+        "body": "Esta programação ainda não está salva no seu celular. Conecte-se à internet e tente novamente."
+      },
+      "notFound": {
+        "title": "Convenção não encontrada",
+        "body": "Ela pode ter sido removida da publicação."
+      },
+      "successAnnouncement": "{{name}} foi baixada. Escolha seu primeiro painel."
     }
   }
 }

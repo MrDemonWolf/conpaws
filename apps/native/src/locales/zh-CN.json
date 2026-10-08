@@ -171,7 +171,7 @@
     "addConvention": "添加展会",
     "empty": {
       "title": "还没有展会",
-      "subtitle": "创建一个展会，或导入现有的日程。",
+      "subtitle": "查找展会以开始规划，或通过链接或文件添加日程。",
       "cta": "创建展会"
     },
     "loadError": "无法加载展会。",
@@ -209,7 +209,8 @@
       "success": "已删除{{name}}。",
       "errorTitle": "无法删除展会",
       "errorMessage": "没有任何内容被删除。请重试。"
-    }
+    },
+    "find": "查找我的展会"
   },
   "import": {
     "title": "导入日程",
@@ -329,10 +330,11 @@
     },
     "getStarted": {
       "title": "准备好迎接下一场展会了吗？",
-      "subtitle": "现在导入一份日程，或先四处看看。",
+      "subtitle": "查找展会、导入日程，或先探索 ConPaws。",
       "importSchedule": "导入日程",
       "exploreFirst": "先看看",
-      "localPrivacy": "无需账号。你的数据保存在本地。"
+      "localPrivacy": "无需账号。你的数据保存在本地。",
+      "find": "查找我的展会"
     }
   },
   "reminders": {
@@ -516,7 +518,73 @@
       "gettingStarted": "开始使用",
       "gettingStartedDescription": "去哪里找展会的日程",
       "importNow": "导入日程",
-      "importNowDescription": "添加 Sched 链接或 .ics 文件。"
+      "importNowDescription": "添加 Sched 链接或 .ics 文件。",
+      "findDescription": "从 ConPaws 目录中选择展会并下载日程。",
+      "find": "查找我的展会"
+    }
+  },
+  "catalog": {
+    "title": "查找我的展会",
+    "searchPlaceholder": "按名称或城市搜索",
+    "upcoming": "即将举办",
+    "past": "往届展会",
+    "showPast": "显示",
+    "hidePast": "隐藏",
+    "scheduleReady": "日程已就绪",
+    "scheduleNotYet": "ConPaws 中暂时没有日程",
+    "notListed": {
+      "title": "没找到展会？",
+      "body": "通过链接或文件导入日程，也可以创建展会并自行添加活动。",
+      "import": "导入日程",
+      "create": "创建展会"
+    },
+    "empty": {
+      "title": "暂无展会列表",
+      "body": "请稍后再来，或通过链接或文件添加日程。"
+    },
+    "searchEmpty": "没有匹配的展会",
+    "searchEmptyBody": "试试其他名称或城市。",
+    "offline": {
+      "title": "连接网络以查找展会",
+      "body": "ConPaws 需要互联网连接来加载目录。已保存的展会仍可使用。"
+    },
+    "unavailable": {
+      "title": "目录暂不可用",
+      "body": "ConPaws 无法连接目录，请稍后重试。"
+    },
+    "retry": "重试",
+    "sample": "示例目录 · 非真实展会",
+    "confirm": {
+      "dates": "日期",
+      "time": "展会时区",
+      "schedule": "日程",
+      "scheduleReady_one": "{{count}} 个活动 · 可下载",
+      "scheduleReady_other": "{{count}} 个活动 · 可下载",
+      "scheduleNotYet": "ConPaws 中暂无",
+      "source": "来源",
+      "sourceValue": "ConPaws 目录 · 修订版 {{revision}}",
+      "download": "下载日程",
+      "update": "更新日程",
+      "open": "打开日程",
+      "downloaded": "已下载 · 修订版 {{revision}}",
+      "downloading": "正在下载…",
+      "keepOpen": "请保持 ConPaws 打开，直到下载完成。保存后即可离线使用日程。",
+      "unavailableHere": {
+        "title": "ConPaws 中暂时没有日程",
+        "body": "此展会已列出，但这里暂时没有日程。请通过链接或文件添加日程。"
+      },
+      "failed": {
+        "title": "下载未完成",
+        "body": "没有保存任何内容，请重试。"
+      },
+      "offline": {
+        "body": "日程尚未保存到手机。请连接互联网后重试。"
+      },
+      "notFound": {
+        "title": "未找到展会",
+        "body": "它可能已取消发布。"
+      },
+      "successAnnouncement": "已下载 {{name}}。请选择你的第一个活动。"
     }
   }
 }

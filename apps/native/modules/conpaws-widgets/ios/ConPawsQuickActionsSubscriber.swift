@@ -11,6 +11,13 @@ public final class ConPawsQuickActionsSubscriber: ExpoAppDelegateSubscriber {
   ) -> Bool {
     application.shortcutItems = [
       shortcut(type: "schedule", title: title(for: "schedule"), icon: .favorite),
+      UIApplicationShortcutItem(
+        type: "com.mrdemonwolf.conpaws.find",
+        localizedTitle: title(for: "find"),
+        localizedSubtitle: nil,
+        icon: UIApplicationShortcutIcon(systemImageName: "magnifyingglass"),
+        userInfo: nil
+      ),
       shortcut(type: "create", title: title(for: "create"), icon: .add),
       shortcut(type: "import", title: title(for: "import"), icon: .capturePhoto),
     ]
@@ -63,6 +70,7 @@ public final class ConPawsQuickActionsSubscriber: ExpoAppDelegateSubscriber {
   private func route(for type: String) -> String? {
     switch type.split(separator: ".").last {
     case "schedule": "/schedule"
+    case "find": "/convention/find"
     case "create": "/convention/create"
     case "import": "/convention/new/import"
     default: nil
@@ -72,14 +80,14 @@ public final class ConPawsQuickActionsSubscriber: ExpoAppDelegateSubscriber {
   private func title(for action: String) -> String {
     let language = Locale.current.language.languageCode?.identifier ?? "en"
     let titles: [String: [String: String]] = [
-      "en": ["schedule": "My Schedule", "create": "Add Convention", "import": "Import Schedule"],
-      "de": ["schedule": "Mein Zeitplan", "create": "Convention hinzufügen", "import": "Zeitplan importieren"],
-      "es": ["schedule": "Mi horario", "create": "Añadir convención", "import": "Importar horario"],
-      "fr": ["schedule": "Mon programme", "create": "Ajouter une convention", "import": "Importer un programme"],
-      "nl": ["schedule": "Mijn programma", "create": "Conventie toevoegen", "import": "Programma importeren"],
-      "pl": ["schedule": "Mój harmonogram", "create": "Dodaj konwent", "import": "Importuj harmonogram"],
-      "pt": ["schedule": "Minha programação", "create": "Adicionar convenção", "import": "Importar programação"],
-      "sv": ["schedule": "Mitt schema", "create": "Lägg till konvent", "import": "Importera schema"],
+      "en": ["schedule": "My Schedule", "find": "Find my convention", "create": "Add Convention", "import": "Import Schedule"],
+      "de": ["schedule": "Mein Zeitplan", "find": "Meine Convention finden", "create": "Convention hinzufügen", "import": "Zeitplan importieren"],
+      "es": ["schedule": "Mi horario", "find": "Encontrar mi convención", "create": "Añadir convención", "import": "Importar horario"],
+      "fr": ["schedule": "Mon programme", "find": "Trouver ma convention", "create": "Ajouter une convention", "import": "Importer un programme"],
+      "nl": ["schedule": "Mijn programma", "find": "Mijn conventie vinden", "create": "Conventie toevoegen", "import": "Programma importeren"],
+      "pl": ["schedule": "Mój harmonogram", "find": "Znajdź mój konwent", "create": "Dodaj konwent", "import": "Importuj harmonogram"],
+      "pt": ["schedule": "Minha programação", "find": "Encontrar minha convenção", "create": "Adicionar convenção", "import": "Importar programação"],
+      "sv": ["schedule": "Mitt schema", "find": "Hitta mitt konvent", "create": "Lägg till konvent", "import": "Importera schema"],
     ]
     return titles[language]?[action] ?? titles["en"]?[action] ?? action
   }

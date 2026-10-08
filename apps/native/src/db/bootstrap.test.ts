@@ -38,7 +38,7 @@ describe("database bootstrap", () => {
     const version = database.prepare("PRAGMA user_version").get();
 
     expect(eventCount).toEqual({ count: 0 });
-    expect(version).toEqual({ user_version: 6 });
+    expect(version).toEqual({ user_version: 7 });
     database.close();
   });
 
@@ -103,7 +103,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 6,
+      user_version: 7,
     });
     expect(
       database
@@ -130,7 +130,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 6,
+      user_version: 7,
     });
     expect(
       database
@@ -168,7 +168,7 @@ describe("database bootstrap", () => {
       initializeDatabase(migrationAdapter(database));
 
       expect(database.prepare("PRAGMA user_version").get()).toEqual({
-        user_version: 6,
+        user_version: 7,
       });
       expect(
         database
@@ -178,6 +178,35 @@ describe("database bootstrap", () => {
       database.close();
     },
   );
+
+  it("repairs an interrupted v7 catalog-column migration", () => {
+    const database = new DatabaseSync(":memory:");
+    database.exec(MIGRATION_1_SQL);
+    database.exec(`
+      ALTER TABLE conventions ADD COLUMN time_zone TEXT;
+      ALTER TABLE conventions ADD COLUMN location TEXT;
+      ALTER TABLE convention_events ADD COLUMN age_rating TEXT;
+      ALTER TABLE conventions ADD COLUMN archived_at TEXT;
+      ALTER TABLE convention_events ADD COLUMN feed_status TEXT;
+      ALTER TABLE conventions ADD COLUMN catalog_slug TEXT;
+      PRAGMA user_version = 6;
+      INSERT INTO conventions (id, name, start_date, end_date)
+      VALUES ('catalog-con', 'Catalog Con', '2026-01-01', '2026-01-02');
+    `);
+
+    initializeDatabase(migrationAdapter(database));
+    initializeDatabase(migrationAdapter(database));
+
+    expect(database.prepare("PRAGMA user_version").get()).toEqual({
+      user_version: 7,
+    });
+    expect(
+      database
+        .prepare("SELECT catalog_slug, catalog_revision FROM conventions")
+        .get(),
+    ).toEqual({ catalog_slug: null, catalog_revision: null });
+    database.close();
+  });
 
   it("keeps every migration past the initial schema additive-only", async () => {
     // The no-data-loss guarantee rests on migrations never rewriting or

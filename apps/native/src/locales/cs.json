@@ -1,4 +1,70 @@
 {
+  "catalog": {
+    "title": "Najít svůj con",
+    "searchPlaceholder": "Hledat podle názvu nebo města",
+    "upcoming": "Nadcházející",
+    "past": "Minulé ročníky",
+    "showPast": "Zobrazit",
+    "hidePast": "Skrýt",
+    "scheduleReady": "Program připraven",
+    "scheduleNotYet": "Program zatím v ConPaws není",
+    "notListed": {
+      "title": "Con tu není?",
+      "body": "Importuj program z odkazu nebo souboru, nebo vytvoř con a přidej panely ručně.",
+      "import": "Importovat program",
+      "create": "Vytvořit con"
+    },
+    "empty": {
+      "title": "V katalogu zatím nejsou žádné cony",
+      "body": "Brzy se vrať nebo přidej program odkazem či souborem."
+    },
+    "searchEmpty": "Žádné odpovídající cony",
+    "searchEmptyBody": "Zkus jiné jméno nebo město.",
+    "offline": {
+      "title": "Připoj se a najdi svůj con",
+      "body": "ConPaws potřebuje připojení k internetu, aby načetl katalog. Uložené cony dál fungují."
+    },
+    "unavailable": {
+      "title": "Katalog není dostupný",
+      "body": "ConPaws se ke katalogu nepodařilo připojit. Zkus to za chvíli znovu."
+    },
+    "retry": "Zkusit znovu",
+    "sample": "Ukázkový katalog · nejde o skutečný con",
+    "confirm": {
+      "dates": "Termíny",
+      "time": "Čas conu",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} událost · Připraveno ke stažení",
+      "scheduleReady_other": "{{count}} událostí · Připraveno ke stažení",
+      "scheduleNotYet": "Zatím není v ConPaws",
+      "source": "Zdroj",
+      "sourceValue": "Katalog ConPaws · revize {{revision}}",
+      "download": "Stáhnout program",
+      "update": "Aktualizovat program",
+      "open": "Otevřít program",
+      "downloaded": "Staženo · revize {{revision}}",
+      "downloading": "Stahování…",
+      "keepOpen": "Nech ConPaws otevřené, dokud se stahování nedokončí. Po uložení můžeš program používat i bez připojení k internetu.",
+      "unavailableHere": {
+        "title": "Tento program zatím není v ConPaws",
+        "body": "Tento con je v seznamu, ale jeho program tu zatím není. Přidej program odkazem nebo souborem."
+      },
+      "failed": {
+        "title": "Stahování se nedokončilo",
+        "body": "Nic se neuložilo. Zkus to znovu."
+      },
+      "offline": {
+        "body": "Tento program ještě není uložený v telefonu. Připoj se k internetu a zkus to znovu."
+      },
+      "notFound": {
+        "title": "Con nebyl nalezen",
+        "body": "Možná byl odebrán z katalogu."
+      },
+      "successAnnouncement": "{{name}} stažen. Vyber si první panel.",
+      "scheduleReady_few": "{{count}} události · Připraveno ke stažení",
+      "scheduleReady_many": "{{count}} událostí · Připraveno ke stažení"
+    }
+  },
   "common": {
     "settings": "Nastavení",
     "add": "Přidat",
@@ -171,11 +237,12 @@
     }
   },
   "home": {
+    "find": "Najít můj con",
     "title": "Cony",
     "addConvention": "Přidat con",
     "empty": {
       "title": "Zatím žádné cony",
-      "subtitle": "Vytvořte nový, nebo importujte existující program.",
+      "subtitle": "Najdi svůj con a začni plánovat, nebo přidej program z odkazu či souboru.",
       "cta": "Vytvořit con"
     },
     "loadError": "Cony se nepodařilo načíst.",
@@ -332,8 +399,9 @@
       "next": "Pokračovat"
     },
     "getStarted": {
+      "find": "Najít můj con",
       "title": "Připraveni na další con?",
-      "subtitle": "Importujte program hned, nebo si ConPaws nejdřív prohlédněte.",
+      "subtitle": "Najdi svůj con, importuj program nebo si nejdřív prohlédni ConPaws.",
       "importSchedule": "Importovat program",
       "exploreFirst": "Nejdřív prozkoumat",
       "localPrivacy": "Účet není potřeba. Vaše data zůstávají v zařízení."
@@ -524,7 +592,9 @@
       "gettingStarted": "Začínáme",
       "gettingStartedDescription": "Kde najít program vašeho conu",
       "importNow": "Importovat program",
-      "importNowDescription": "Vložte odkaz Sched nebo soubor .ics."
+      "importNowDescription": "Vložte odkaz Sched nebo soubor .ics.",
+      "find": "Najít můj con",
+      "findDescription": "Vyber con z katalogu ConPaws a stáhni jeho program."
     }
   }
 }

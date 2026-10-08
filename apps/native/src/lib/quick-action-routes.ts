@@ -14,6 +14,7 @@ import type { Href } from "expo-router";
  */
 const QUICK_ACTION_ROUTES: Record<string, Href> = {
   "/schedule": "/schedule",
+  "/convention/find": "/convention/find",
   "/convention/create": "/convention/create",
   // `new` is the sentinel the import screen reads for "no convention yet", so
   // this is a real route rather than a lookup that happens to miss.

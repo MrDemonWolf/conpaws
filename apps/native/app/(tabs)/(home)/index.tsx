@@ -17,7 +17,7 @@ import {
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
-import { ConventionListSkeleton, EmptyState } from "@/components/ui";
+import { Button, ConventionListSkeleton, EmptyState } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
@@ -70,6 +70,8 @@ interface ConventionEmptyStateProps {
   subtitle: string;
   createLabel: string;
   importLabel: string;
+  findLabel: string;
+  onFind: () => void;
   onCreate: () => void;
   onImport: () => void;
 }
@@ -79,25 +81,29 @@ function ConventionEmptyState({
   subtitle,
   createLabel,
   importLabel,
+  findLabel,
+  onFind,
   onCreate,
   onImport,
 }: ConventionEmptyStateProps) {
   return (
-    // Import is primary: it is the path that produces a populated schedule.
-    // Create used to be primary and led straight to a second empty state —
-    // and the last onboarding screen already promotes Import, so the two
-    // surfaces now agree about what a new user should do first.
-    <EmptyState
-      icon={EMPTY_ICON}
-      title={title}
-      subtitle={subtitle}
-      ctaLabel={importLabel}
-      onCta={onImport}
-      secondaryCtaLabel={createLabel}
-      onSecondaryCta={onCreate}
-      secondaryCtaVariant="outlined"
-      actionsInline
-    />
+    <View className="flex-1 items-center justify-center gap-1">
+      <EmptyState
+        icon={EMPTY_ICON}
+        title={title}
+        subtitle={subtitle}
+        ctaLabel={findLabel}
+        onCta={onFind}
+        secondaryCtaLabel={importLabel}
+        onSecondaryCta={onImport}
+        secondaryCtaVariant="outlined"
+        actionsInline
+        className="w-full flex-none"
+      />
+      <Button variant="ghost" onPress={onCreate} className="w-full">
+        {createLabel}
+      </Button>
+    </View>
   );
 }
 
@@ -215,6 +221,11 @@ export default function HomeScreen() {
   function handleImportConvention() {
     if (!tryAcquirePresentationLock(presentationLock)) return;
     router.push("/convention/new/import");
+  }
+
+  function handleFindConvention() {
+    if (!tryAcquirePresentationLock(presentationLock)) return;
+    router.push("/convention/find");
   }
 
   function handleCreateConvention() {
@@ -352,6 +363,8 @@ export default function HomeScreen() {
           title={t("home.empty.title")}
           subtitle={t("home.empty.subtitle")}
           createLabel={t("home.empty.cta")}
+          findLabel={t("home.find")}
+          onFind={handleFindConvention}
           onCreate={handleCreateConvention}
           importLabel={t("convention.importSchedule")}
           onImport={handleImportConvention}
@@ -412,6 +425,9 @@ export default function HomeScreen() {
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("home.addConvention")}
           >
+            <Stack.Toolbar.MenuAction onPress={handleFindConvention}>
+              {t("home.find")}
+            </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
               icon={
                 process.env.EXPO_OS === "ios"
