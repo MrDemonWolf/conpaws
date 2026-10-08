@@ -30,11 +30,16 @@ enum ConPawsScheduleResolver {
       let activeOrUpcoming = snapshot.conventions.filter {
         $0.endAtMs >= nowMs || $0.events.contains { $0.startAtMs >= nowMs }
       }
-      // A convention with saved panels outranks one without. Two active
-      // conventions on the same dates used to resolve to whichever came
-      // first, and an empty one then hid the plan behind "No panels picked".
-      let withPicks = activeOrUpcoming.filter { !$0.events.isEmpty }
-      convention = (withPicks.isEmpty ? activeOrUpcoming : withPicks)
+      // Among conventions already underway, one with saved panels outranks
+      // one without: two active conventions on the same dates used to
+      // resolve to whichever came first, and an empty one then hid the plan
+      // behind "No panels picked". Only conventions that have started take
+      // part, so a far-off convention with one saved panel never displaces
+      // the convention the user is at today.
+      let underwayWithPicks = activeOrUpcoming.filter {
+        $0.startAtMs <= nowMs && !$0.events.isEmpty
+      }
+      convention = (underwayWithPicks.isEmpty ? activeOrUpcoming : underwayWithPicks)
         .min { $0.startAtMs < $1.startAtMs }
         ?? snapshot.conventions.max { $0.endAtMs < $1.endAtMs }
     }

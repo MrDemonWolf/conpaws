@@ -69,7 +69,7 @@ function buildEdition(
     region: "Sample District",
     country: "Sample Country",
     startsOn,
-    // The preview programme runs four days, Tuesday to Friday.
+    // The preview programme spans four days.
     endsOn: addDays(startsOn, 3),
     timezone: TIME_ZONE,
     venue: "Sample Convention Hall",

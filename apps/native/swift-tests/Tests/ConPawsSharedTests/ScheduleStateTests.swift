@@ -130,6 +130,24 @@ struct ScheduleStateTests {
     } else { #expect(Bool(false)) }
   }
 
+  @Test func futureConventionWithPicksDoesNotDisplaceTheOneUnderway() {
+    let underway = convention([], id: "underway")
+    let later = convention(
+      [event("later-panel", from: now.addingTimeInterval(61 * 86_400))],
+      startsAt: now.addingTimeInterval(60 * 86_400),
+      id: "later",
+      endsAt: now.addingTimeInterval(63 * 86_400)
+    )
+    let result = ConPawsScheduleResolver.resolve(
+      snapshot: snapshot([underway, later]),
+      selectedConventionID: nil,
+      skipCountdown: false,
+      now: now
+    )
+    if case .noPicks(let selected) = result { #expect(selected.id == "underway") }
+    else { #expect(Bool(false)) }
+  }
+
   private func resolve(_ events: [ConPawsEventSnapshot]) -> ConPawsScheduleState {
     let saved = convention(events)
     return ConPawsScheduleResolver.resolve(

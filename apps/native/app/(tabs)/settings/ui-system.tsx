@@ -551,7 +551,6 @@ export default function UiSystemScreen() {
                   }}
                   room="Grand Ballroom"
                   venue="Sample Convention Hall"
-                  reminderLabel="Reminder · 15 min before"
                   next={{
                     kicker: "Next · 4:15 PM",
                     title: "Late-night art jam",
@@ -573,7 +572,7 @@ export default function UiSystemScreen() {
                   summary="Bring a sketchbook. Supplies are provided."
                   inPlan={false}
                   inPlanLabel="In your plan"
-                  selected
+                  selected={false}
                   overlapNote="30 min overlaps your current choice"
                   accessibilityLabel="Late-night art jam, 4:15 PM to 5:00 PM, Studio B"
                   onSelect={() => undefined}
