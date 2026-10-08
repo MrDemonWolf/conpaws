@@ -4,6 +4,19 @@ Updated October 2, 2026. **Recommendation: ship a curated convention catalog, an
 
 The latest visual review and clickable setup/publishing/glance concepts are in `index.html` → **Review & setup**. Run the existing local preview; opening the HTML directly does not run its TypeScript modules. All new sample conventions, feed checks, revisions, events, counts, and dates are fictional. The admin demo does not publish anything.
 
+## Implementation status (October 8, 2026)
+
+The native implementation of this exploration landed on `feat/mobile-ux-redesign`. What is real now:
+
+- **Convention screen** (`app/(tabs)/(home)/convention/[id].tsx`): one `SectionList` with a native segmented control for **Browse / My plan / Now**. Browse has the day strip with counts, hour chips, the "N options" summary, accent-barred rows, a "Drop in anytime" section and the no-seat footnote. My plan is the time-column agenda with gap rows and an overlap banner that opens the compare sheet. Now is the hero card (happening now / up next, until / starts at, next hop, reminder) plus "Other options this hour".
+- **Sheets**: the event sheet (kicker, facts, reminder row, provenance, add/remove) and the compare sheet (`convention/[id]/compare.tsx`, radio cards, "Keep only this panel" / "Switch to this panel" / "Keep both in my plan") are formSheet routes whose root is the ScrollView, which react-native-screens requires.
+- **Find my convention** (`convention/find.tsx`, `convention/find/[slug].tsx`): reads the public catalog on conpaws.com, downloads an edition into the local database with `catalog_slug`/`catalog_revision` (schema 7), updates in place on a repeat download, and falls back to import/create. A fixture catalog behind Settings → Debug Tools → "Use sample catalog" drives simulator checks; production answered `503 catalog_unavailable` on October 8, so the unavailable state is what the Find screen shows against the live site until an edition is published.
+- **One saved state** stayed the rule: no Interested/Going, no attendance times, no Live Activities. Copy says "starts at" / "until" / "reminder N min before", never "leave at".
+- **Widgets and Watch**: copy and glance states only (up next · time, happening now · until, reminder at, plan last updated here, no later events). The shared resolver lives in `targets/_shared/ConPawsScheduleState.swift` with Swift Testing coverage in `swift-tests`.
+- **22 locales** carry every new key; `src/locales/locales.test.ts` enforces parity and that each English key is used.
+
+Verified on the iPhone 17e simulator (iOS 27): the three views, both sheets, the pooled Schedule tab, the catalog flow end to end with the sample catalog, dark mode, and the largest accessibility text size on a cold start. One platform limit found on the way: when the text size changes while the app is open, React Native Fabric re-measures only `Text` nodes whose props changed, so prop-stable captions stay clipped until they re-render; a relaunch renders correctly.
+
 ## October review: what changed and what is real
 
 Review snapshot: HEAD `9f10ae3`; recent commit scope after `8c853a5`, plus the current uncommitted changes. This is a targeted review of changed code and the setup, import, schedule, reminder, Watch/widget paths they touch. It is not a line-by-line audit of the entire repository or a fresh production deployment check.

@@ -112,6 +112,24 @@ struct ScheduleStateTests {
     #expect(isNoConvention(result))
   }
 
+  @Test func emptyConventionOnTheSameDatesDoesNotOutrankSavedPanels() {
+    let empty = convention([], id: "empty")
+    let planned = convention(
+      [event("upcoming", from: now.addingTimeInterval(900), until: now.addingTimeInterval(1_800))],
+      id: "planned"
+    )
+    let result = ConPawsScheduleResolver.resolve(
+      snapshot: snapshot([empty, planned]),
+      selectedConventionID: nil,
+      skipCountdown: true,
+      now: now
+    )
+    if case .next(let selected, _, let upcoming) = result {
+      #expect(selected.id == "planned")
+      #expect(upcoming.id == "upcoming")
+    } else { #expect(Bool(false)) }
+  }
+
   private func resolve(_ events: [ConPawsEventSnapshot]) -> ConPawsScheduleState {
     let saved = convention(events)
     return ConPawsScheduleResolver.resolve(
