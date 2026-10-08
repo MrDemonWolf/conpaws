@@ -2,7 +2,7 @@ name: mrdemonwolf-xprem
 
 services:
   xprem:
-    image: ghcr.io/mercuretechnologies/xprem:v3.1.1@sha256:dcfa04bf2acaec20461c5af17419e3b184f4a53b86930ab7b0f75aa23f4b02c4
+    image: ghcr.io/mercuretechnologies/xprem:v3.2.5@sha256:c05b8c661577f0404cf0a598d6c5b1d1a7f301a61a6ec389cb549e51c43e7c4c
     restart: unless-stopped
     depends_on:
       redis:
