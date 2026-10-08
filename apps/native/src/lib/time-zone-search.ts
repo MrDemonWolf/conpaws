@@ -136,7 +136,8 @@ function timeZoneOffset(id: string): string | null {
       .find((candidate) => candidate.type === "timeZoneName");
     // A zero-offset zone formats as a bare "GMT", which says nothing next to
     // a city name and is dropped.
-    offset = part && part.value !== "GMT" ? part.value : null;
+    offset =
+      part && !/^GMT(?:[+-]0(?::00)?)?$/.test(part.value) ? part.value : null;
   } catch {
     // An id this runtime does not know. The city alone still identifies it.
     offset = null;

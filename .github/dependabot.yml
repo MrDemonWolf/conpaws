@@ -12,6 +12,11 @@ updates:
     directory: /infra/xprem
     schedule:
       interval: monthly
+    ignore:
+      # Upgrade the shared control plane through its migration runbook.
+      - dependency-name: "ghcr.io/mercuretechnologies/xprem"
+      - dependency-name: redis
+        update-types: ["version-update:semver-major"]
 
   # `bun`, not `npm`. This repo installs with bun and CI runs
   # `bun install --frozen-lockfile`, so an updater that edits package.json
@@ -37,9 +42,12 @@ updates:
       # Prerelease Site page. Next 16.3 + OpenNext has an unbounded prefetch
       # loop (opennextjs-cloudflare#1334), and these two move together.
       - dependency-name: next
-        update-types: ["version-update:semver-major"]
       - dependency-name: "@opennextjs/cloudflare"
+      - dependency-name: "lightningcss"
+      - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "@sentry/react-native"
+      - dependency-name: "@react-native-async-storage/async-storage"
       # The Expo SDK is upgraded as a SET, via `expo install`, never one
       # package at a time. CI enforces this: `expo install --check` fails the
       # native job on any version the installed SDK does not expect, so a lone
