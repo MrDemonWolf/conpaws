@@ -101,7 +101,8 @@ deploy xprem or enable updates on the client.
 
 Before CI activation, the local procedure below remains usable. After
 activation, use it for diagnosis or an unused number reserved by a failed
-`Native release` run. Confirm that number was uploaded to neither store,
+`Native release` run. Confirm that number was uploaded to neither store and
+is greater than every build already uploaded to either store,
 then run `node scripts/build-number.mjs --set NUMBER`, `bunx expo prebuild`,
 and `bun run build-number:check` instead of bumping independently. Never
 upload a local build numbered from the old 200-series counter after CI uploads.
