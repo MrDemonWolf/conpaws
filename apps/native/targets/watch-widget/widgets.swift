@@ -21,7 +21,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
 
   var staleAccessibilityHint: String {
     guard isStale else { return "" }
-    strings.text(strings.staleA11yFormat, relativeUpdatedText)
+    return strings.text(strings.staleA11yFormat, relativeUpdatedText)
   }
 
   var relativeUpdatedText: String {
@@ -177,7 +177,7 @@ private struct ConPawsWatchEntryView: View {
           strings: entry.strings
         )
       case let .current(event, convention):
-        let until = WatchFormat.time(
+        let until = WidgetFormat.time(
           ConPawsScheduleResolver.effectiveEnd(of: event),
           in: convention,
           locale: entry.snapshot.locale
@@ -605,6 +605,18 @@ private enum WidgetFormat {
     formatter.timeZone = convention.timeZone
     formatter.timeStyle = .short
     return formatter.string(from: date)
+  }
+
+  /// "Reminder at 2:35 PM · 10 min before", from the offset the user chose.
+  static func reminderAt(
+    _ event: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale,
+    strings: ConPawsStrings
+  ) -> String? {
+    guard let minutes = event.reminderMinutes, minutes >= 0 else { return nil }
+    let reminderDate = event.startDate.addingTimeInterval(-Double(minutes) * 60)
+    return strings.reminderAt(time(reminderDate, in: convention, locale: locale), minutes: minutes)
   }
 
   static func nextEventTime(

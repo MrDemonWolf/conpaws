@@ -494,16 +494,17 @@ private struct SavedScheduleLabel: View {
   }
 
   var body: some View {
+    // Modifiers go on the stack: an `if` is not a view to modify.
     if let updatedText {
       VStack(alignment: .leading, spacing: 1) {
         Text(strings.text(strings.lastUpdatedFormat, updatedText))
         Text("\(strings.staleHintShort) · \(strings.openOnIphone)")
       }
+      .font(.caption2)
+      .foregroundStyle(.secondary)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(strings.text(strings.staleA11yFormat, updatedText))
     }
-    .font(.caption2)
-    .foregroundStyle(.secondary)
   }
 }
 
