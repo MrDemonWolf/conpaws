@@ -1,7 +1,5 @@
 import { LEGAL_LAST_UPDATED } from "@/lib/constants";
 
-// LEGAL REVIEW REQUIRED before merge (review 2026-10 phase 2)
-
 export const metadata = {
   // In PUBLIC_ROUTES and the sitemap, so it needs to say which URL is the
   // real one -- otherwise a preview host or a query string is free to become
@@ -138,7 +136,7 @@ Cloudflare hosts this website, stores waitlist records, and runs the bot check o
 | Amazon SES | Delivers waitlist confirmation and launch emails | [aws.amazon.com/privacy](https://aws.amazon.com/privacy/) |
 | Sched | Optional public-calendar download you request | [sched.com/privacy](https://sched.com/privacy/) |
 | Sentry | Production crash and diagnostic processing, only when configured | [sentry.io/privacy](https://sentry.io/privacy/) |
-| Listmonk VPS provider | Hosts our self-managed mailing system; **TODO: owner to name VPS provider** | Provider privacy notice to be added after identification |
+| Oracle Cloud Infrastructure (Oracle America, Inc.) | Hosts the virtual private server that runs our self-managed mailing system (listmonk) | [Oracle Privacy Policy](https://www.oracle.com/legal/privacy/) |
 | Apple Sign-In | Planned authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
 | Google Sign-In | Planned authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
 | RevenueCat | Planned subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
@@ -148,7 +146,7 @@ Cloudflare hosts this website, stores waitlist records, and runs the bot check o
 
 ## International Transfers
 
-Our controller is in the United States, and waitlist records are stored in Cloudflare D1 in the United States. Waitlist email delivery is handled by Amazon SES in us-east-1 (United States). Sentry processes app diagnostics in the United States. Listmonk runs on a VPS; its hosting provider and hosting location still need to be confirmed by us (**TODO: owner to identify the provider and location**). These services may process information in the United States or other countries where they or their subprocessors operate. Before relying on a transfer mechanism, we will identify the applicable adequacy decision or safeguards, such as Standard Contractual Clauses, in the relevant provider terms. Contact us for details of safeguards applicable to a specific transfer (GDPR Articles 44–49).
+Our controller is in the United States, and waitlist records are stored in Cloudflare D1 in the United States. Waitlist email delivery is handled by Amazon SES in us-east-1 (United States). Sentry processes app diagnostics in the United States. Listmonk runs on a virtual private server we operate on Oracle Cloud Infrastructure in the United States. These services may process information in the United States or other countries where they or their subprocessors operate. Before relying on a transfer mechanism, we will identify the applicable adequacy decision or safeguards, such as Standard Contractual Clauses, in the relevant provider terms. Contact us for details of safeguards applicable to a specific transfer (GDPR Articles 44–49).
 
 ## 5. Data Sharing
 
