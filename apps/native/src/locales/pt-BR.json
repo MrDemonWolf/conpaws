@@ -278,6 +278,8 @@
       "about": "Sobre este painel",
       "durationMinutesOne": "{{count}} minuto",
       "durationMinutesMany": "{{count}} minutos",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
       "noReminder": "Sem lembrete",
       "overlapsPlan": "Sobrepõe seu plano",
       "overlapWith": "{{minutes}} min com {{title}}",

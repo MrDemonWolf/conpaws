@@ -278,6 +278,8 @@
       "about": "Over dit panel",
       "durationMinutesOne": "{{count}} minuut",
       "durationMinutesMany": "{{count}} minuten",
+      "durationHours": "{{hours}} u",
+      "durationHoursMinutes": "{{hours}} u {{minutes}} min",
       "noReminder": "Geen herinnering",
       "overlapsPlan": "Overlapt met je plan",
       "overlapWith": "{{minutes}} min met {{title}}",

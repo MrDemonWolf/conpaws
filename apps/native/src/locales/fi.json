@@ -342,6 +342,8 @@
       "about": "Tietoa paneelista",
       "durationMinutesOne": "{{count}} minuutti",
       "durationMinutesMany": "{{count}} minuuttia",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
       "noReminder": "Ei muistutusta",
       "overlapsPlan": "Päällekkäin suunnitelmasi kanssa",
       "overlapWith": "{{minutes}} min paneelin {{title}} kanssa",

@@ -354,6 +354,8 @@
       "about": "O tomto panelu",
       "durationMinutesOne": "{{count}} minuta",
       "durationMinutesMany": "{{count}} minut",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
       "durationMinutesMany_few": "{{count}} minuty",
       "noReminder": "Bez připomenutí",
       "overlapsPlan": "Překrývá se s tvým plánem",

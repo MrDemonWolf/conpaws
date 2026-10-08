@@ -278,6 +278,8 @@
       "about": "关于这场活动",
       "durationMinutesOne": "{{count}} 分钟",
       "durationMinutesMany": "{{count}} 分钟",
+      "durationHours": "{{hours}} 小时",
+      "durationHoursMinutes": "{{hours}} 小时 {{minutes}} 分钟",
       "noReminder": "没有提醒",
       "overlapsPlan": "与你的计划重叠",
       "overlapWith": "与{{title}}重叠 {{minutes}} 分钟",

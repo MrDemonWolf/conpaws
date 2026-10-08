@@ -278,6 +278,8 @@
       "about": "Om den här panelen",
       "durationMinutesOne": "{{count}} minut",
       "durationMinutesMany": "{{count}} minuter",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
       "noReminder": "Ingen påminnelse",
       "overlapsPlan": "Överlappar din plan",
       "overlapWith": "{{minutes}} min med {{title}}",

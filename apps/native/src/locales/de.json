@@ -342,6 +342,8 @@
       "about": "Über dieses Panel",
       "durationMinutesOne": "{{count}} Minute",
       "durationMinutesMany": "{{count}} Minuten",
+      "durationHours": "{{hours}} Std.",
+      "durationHoursMinutes": "{{hours}} Std. {{minutes}} Min.",
       "noReminder": "Keine Erinnerung",
       "overlapsPlan": "Überschneidet sich mit deinem Plan",
       "overlapWith": "{{minutes}} Min. mit {{title}}",

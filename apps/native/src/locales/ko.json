@@ -278,6 +278,8 @@
       "about": "이 패널 소개",
       "durationMinutesOne": "{{count}}분",
       "durationMinutesMany": "{{count}}분",
+      "durationHours": "{{hours}}시간",
+      "durationHoursMinutes": "{{hours}}시간 {{minutes}}분",
       "noReminder": "알림 없음",
       "overlapsPlan": "내 일정과 겹쳐요",
       "overlapWith": "{{title}}와(과) {{minutes}}분",

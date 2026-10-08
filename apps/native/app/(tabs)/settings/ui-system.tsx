@@ -19,6 +19,18 @@ import { useTheme } from "expo-router/react-navigation";
 import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
+// See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
+import { AgendaRow } from "@/components/schedule/AgendaRow";
+import { BrowseSummaryHeader } from "@/components/schedule/BrowseSummaryHeader";
+import { CompareCard } from "@/components/schedule/CompareCard";
+import { DayStrip, type DayStripDay } from "@/components/schedule/DayStrip";
+import { DropInRow } from "@/components/schedule/DropInRow";
+import { NowHeroCard } from "@/components/schedule/NowHeroCard";
+import {
+  TimeChipRow,
+  type TimeChipSlot,
+} from "@/components/schedule/TimeChipRow";
 import {
   Badge,
   type BadgeVariant,
@@ -32,7 +44,6 @@ import {
   ScheduleSkeleton,
   Text,
 } from "@/components/ui";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
@@ -40,6 +51,7 @@ import {
   getAppearancePreference,
   subscribeAppearancePreference,
 } from "@/lib/appearance-storage";
+import { categoryAccentColor } from "@/lib/category-color";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 
 const CHEVRON_ICON = Icon.select({
@@ -77,9 +89,53 @@ type SheetPreview =
   | "empty"
   | "fields"
   | "form"
+  | "hero"
+  | "schedule"
   | "skeleton"
   | "surfaces"
   | null;
+
+// Sample data for the schedule previews. Fictional, like every fixture here.
+const GALLERY_DAYS: readonly DayStripDay[] = [
+  {
+    key: "wed",
+    weekday: "Wed",
+    dayNumber: "7",
+    count: 67,
+    accessibilityLabel: "Wednesday, October 7, 67 panels",
+  },
+  {
+    key: "thu",
+    weekday: "Thu",
+    dayNumber: "8",
+    count: 58,
+    accessibilityLabel: "Thursday, October 8, 58 panels",
+  },
+  {
+    key: "fri",
+    weekday: "Fri",
+    dayNumber: "9",
+    count: 39,
+    accessibilityLabel: "Friday, October 9, 39 panels",
+  },
+];
+const GALLERY_SLOTS: readonly TimeChipSlot[] = [
+  {
+    startMs: 1,
+    label: "2 PM",
+    accessibilityLabel: "Panels between 2 PM and 3 PM",
+  },
+  {
+    startMs: 2,
+    label: "3 PM",
+    accessibilityLabel: "Panels between 3 PM and 4 PM",
+  },
+  {
+    startMs: 3,
+    label: "4 PM",
+    accessibilityLabel: "Panels between 4 PM and 5 PM",
+  },
+];
 
 function NavigationIndicator() {
   return <Icon name={CHEVRON_ICON} size={15} />;
@@ -96,6 +152,8 @@ export default function UiSystemScreen() {
   const { fontScale, width } = useWindowDimensions();
   const [switchValue, setSwitchValue] = useState(true);
   const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);
+  const [galleryDay, setGalleryDay] = useState("thu");
+  const [gallerySlot, setGallerySlot] = useState<number | null>(null);
   const enabled = developerToolsEnabled(
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
@@ -206,6 +264,22 @@ export default function UiSystemScreen() {
             onPress={() => setSheetPreview("surfaces")}
           >
             Cards and rows
+          </ListItem>
+          <ListItem
+            leading={<Icon name={SKELETON_ICON} size={22} />}
+            supportingText="Day strip, time chips, agenda rows, gaps and drop-ins"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("schedule")}
+          >
+            Schedule rows
+          </ListItem>
+          <ListItem
+            leading={<Icon name={SKELETON_ICON} size={22} />}
+            supportingText="The Now hero and a compare card"
+            trailing={<NavigationIndicator />}
+            onPress={() => setSheetPreview("hero")}
+          >
+            Now and compare
           </ListItem>
         </FieldGroup.Section>
 
@@ -390,6 +464,120 @@ export default function UiSystemScreen() {
                     <Text variant="body">Grouped row, last</Text>
                   </ListRow>
                 </View>
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "schedule" ? (
+            <RNHostView matchContents>
+              <View
+                className="gap-3 bg-background py-4"
+                style={{ width: sheetContentWidth }}
+              >
+                <DayStrip
+                  monthLabel="October 2026"
+                  days={GALLERY_DAYS}
+                  selectedKey={galleryDay}
+                  allKey="all"
+                  allLabel="All"
+                  allCount={3}
+                  allAccessibilityLabel="All days, 3 days"
+                  onSelect={setGalleryDay}
+                />
+                <TimeChipRow
+                  slots={GALLERY_SLOTS}
+                  selectedStartMs={gallerySlot}
+                  allTimesLabel="All times"
+                  onSelect={setGallerySlot}
+                />
+                <BrowseSummaryHeader
+                  heading="Thu · all times"
+                  countLabel="12 options"
+                  totalLabel="58 total"
+                  hint={{ text: "Pick what catches your eye. Decide later." }}
+                />
+                <AgendaRow
+                  title="Fursuit parade lineup"
+                  startClock="2:30"
+                  dayPeriod="PM"
+                  untilLabel="Until 3:30 PM"
+                  room="Grand Ballroom"
+                  accentColor={categoryAccentColor(
+                    "Fursuiting",
+                    systemAppearance,
+                  )}
+                  status="now"
+                  statusLabel="Now"
+                  reminderLabel="15 min before"
+                  onPress={() => undefined}
+                />
+                <AgendaGapRow
+                  gap={{ kind: "free", minutes: 45, hint: "short" }}
+                  label="45 min free · Time to get there"
+                />
+                <AgendaRow
+                  title="Late-night art jam"
+                  startClock="4:15"
+                  dayPeriod="PM"
+                  untilLabel="Until 5:00 PM"
+                  room="Studio B"
+                  accentColor={categoryAccentColor("Art", systemAppearance)}
+                  status="upcoming"
+                  hasConflict
+                  conflictLabel="Overlaps your plan"
+                  ageBadge={{ variant: "age-adult", label: "18+ Adult" }}
+                  onPress={() => undefined}
+                />
+                <DropInRow
+                  title="Artist alley"
+                  summary="Thu · 10:00 AM to 6:00 PM · Expo Hall"
+                  accessibilityLabel="Artist alley, Thu · 10:00 AM to 6:00 PM · Expo Hall"
+                  onPress={() => undefined}
+                />
+              </View>
+            </RNHostView>
+          ) : sheetPreview === "hero" ? (
+            <RNHostView matchContents>
+              <View
+                className="gap-3 bg-background py-4"
+                style={{ width: sheetContentWidth }}
+              >
+                <NowHeroCard
+                  eyebrow="Happening now"
+                  title="Fursuit parade lineup"
+                  timeLine="2:30 PM to 3:30 PM"
+                  callout={{
+                    label: "Until",
+                    value: "3:30 PM",
+                    sub: "42 min left",
+                  }}
+                  room="Grand Ballroom"
+                  venue="Sample Convention Hall"
+                  reminderLabel="Reminder · 15 min before"
+                  next={{
+                    kicker: "Next · 4:15 PM",
+                    title: "Late-night art jam",
+                    meta: "Studio B · 45 min between",
+                    onPress: () => undefined,
+                    accessibilityLabel: "Next: Late-night art jam",
+                  }}
+                  primaryLabel="Set a reminder"
+                  onPrimary={() => undefined}
+                  onOpen={() => undefined}
+                  openAccessibilityLabel="Open Fursuit parade lineup"
+                />
+                <CompareCard
+                  title="Late-night art jam"
+                  category="Art"
+                  accentColor={categoryAccentColor("Art", systemAppearance)}
+                  timeRange="4:15 PM to 5:00 PM"
+                  room="Studio B"
+                  summary="Bring a sketchbook. Supplies are provided."
+                  inPlan={false}
+                  inPlanLabel="In your plan"
+                  selected
+                  overlapNote="30 min overlaps your current choice"
+                  accessibilityLabel="Late-night art jam, 4:15 PM to 5:00 PM, Studio B"
+                  onSelect={() => undefined}
+                />
               </View>
             </RNHostView>
           ) : sheetPreview === "fields" ? (

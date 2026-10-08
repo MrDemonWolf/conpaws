@@ -278,6 +278,8 @@
       "about": "このパネルについて",
       "durationMinutesOne": "{{count}}分",
       "durationMinutesMany": "{{count}}分",
+      "durationHours": "{{hours}}時間",
+      "durationHoursMinutes": "{{hours}}時間{{minutes}}分",
       "noReminder": "リマインダーなし",
       "overlapsPlan": "プランと重なっています",
       "overlapWith": "{{title}}と{{minutes}}分",

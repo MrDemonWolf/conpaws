@@ -290,6 +290,8 @@
       "about": "Про цю панель",
       "durationMinutesOne": "{{count}} хвилина",
       "durationMinutesMany": "{{count}} хвилин",
+      "durationHours": "{{hours}} год",
+      "durationHoursMinutes": "{{hours}} год {{minutes}} хв",
       "durationMinutesMany_one": "{{count}} хвилина",
       "durationMinutesMany_few": "{{count}} хвилини",
       "noReminder": "Без нагадування",

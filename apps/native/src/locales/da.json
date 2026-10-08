@@ -342,6 +342,8 @@
       "about": "Om dette panel",
       "durationMinutesOne": "{{count}} minut",
       "durationMinutesMany": "{{count}} minutter",
+      "durationHours": "{{hours}} t",
+      "durationHoursMinutes": "{{hours}} t {{minutes}} min",
       "noReminder": "Ingen påmindelse",
       "overlapsPlan": "Overlapper din plan",
       "overlapWith": "{{minutes}} min med {{title}}",

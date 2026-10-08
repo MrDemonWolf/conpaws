@@ -114,7 +114,7 @@ describe("startup reminder reconciliation", () => {
       expect.objectContaining({
         identifier: "reminder-event-1",
         content: expect.objectContaining({
-          title: "Time to leave for Opening",
+          title: "Reminder for Opening",
           body: "Starts in 15 min · Main Stage",
         }),
       }),

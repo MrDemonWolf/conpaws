@@ -287,6 +287,8 @@
       "about": "O tym panelu",
       "durationMinutesOne": "{{count}} minuta",
       "durationMinutesMany": "{{count}} minut",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
       "durationMinutesMany_few": "{{count}} minuty",
       "noReminder": "Brak przypomnienia",
       "overlapsPlan": "Nakłada się na Twój plan",

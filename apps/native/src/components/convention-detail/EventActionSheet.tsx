@@ -67,6 +67,22 @@ export function EventSheetContent({
   const ageBadge = ageBadgeFor(event.ageRating);
   const accent = categoryAccentColor(event.category, scheme);
   const duration = eventDurationMinutes(event.startTime, event.endTime);
+  // "45 minutes", "1 h 30 min", "6 h": a six-hour drop-in is not "360 minutes".
+  function formatDuration(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    if (hours === 0) {
+      return t(
+        minutes === 1
+          ? "convention.panel.durationMinutesOne"
+          : "convention.panel.durationMinutesMany",
+        { count: minutes },
+      );
+    }
+    return rest === 0
+      ? t("convention.panel.durationHours", { hours })
+      : t("convention.panel.durationHoursMinutes", { hours, minutes: rest });
+  }
   const feedStatusLabel = event.feedStatus
     ? t(
         event.feedStatus === "cancelled"
@@ -110,14 +126,7 @@ export function EventSheetContent({
           ),
         })
       : null,
-    duration !== null
-      ? t(
-          duration === 1
-            ? "convention.panel.durationMinutesOne"
-            : "convention.panel.durationMinutesMany",
-          { count: duration },
-        )
-      : null,
+    duration !== null ? formatDuration(duration) : null,
   ]
     .filter(Boolean)
     .join(" · ");

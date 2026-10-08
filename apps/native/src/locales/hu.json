@@ -342,6 +342,8 @@
       "about": "Erről a panelről",
       "durationMinutesOne": "{{count}} perc",
       "durationMinutesMany": "{{count}} perc",
+      "durationHours": "{{hours}} óra",
+      "durationHoursMinutes": "{{hours}} óra {{minutes}} perc",
       "noReminder": "Nincs emlékeztető",
       "overlapsPlan": "Átfedésben van a terveddel",
       "overlapWith": "{{minutes}} perc ezzel: {{title}}",

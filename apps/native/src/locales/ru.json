@@ -290,6 +290,8 @@
       "about": "Об этой панели",
       "durationMinutesOne": "{{count}} минута",
       "durationMinutesMany": "{{count}} минут",
+      "durationHours": "{{hours}} ч",
+      "durationHoursMinutes": "{{hours}} ч {{minutes}} мин",
       "durationMinutesMany_one": "{{count}} минута",
       "durationMinutesMany_few": "{{count}} минуты",
       "noReminder": "Без напоминания",

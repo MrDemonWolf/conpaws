@@ -278,6 +278,8 @@
       "about": "Tentang panel ini",
       "durationMinutesOne": "{{count}} minit",
       "durationMinutesMany": "{{count}} minit",
+      "durationHours": "{{hours}} j",
+      "durationHoursMinutes": "{{hours}} j {{minutes}} min",
       "noReminder": "Tiada peringatan",
       "overlapsPlan": "Bertindih dengan pelan anda",
       "overlapWith": "{{minutes}} min dengan {{title}}",

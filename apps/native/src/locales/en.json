@@ -88,9 +88,9 @@
   },
   "convention": {
     "new": "New Convention",
-    "create": "Create Convention",
+    "create": "Create convention",
     "edit": "Edit Convention",
-    "import": "Import Schedule",
+    "import": "Import schedule",
     "detail": "Convention Details",
     "loadingTitle": "Loading convention",
     "loadErrorSubtitle": "The convention or its events could not be loaded.",
@@ -98,7 +98,7 @@
     "filterEvents": "Filter events",
     "scheduleActions": "Schedule actions",
     "categories": "Categories",
-    "allCategories": "All Categories",
+    "allCategories": "All categories",
     "timesShownIn": "Times shown in {{timeZone}}",
     "noEvents": "No panels added yet",
     "noEventsSubtitle": "Add a schedule from a link or file, or add panels yourself.",
@@ -107,7 +107,7 @@
     "runsAlongsideMany": "Runs at the same time as {{count}} other events",
     "sameTimeGroup": "{{count}} events at the same time",
     "addEvent": "Add Event",
-    "importSchedule": "Import Schedule",
+    "importSchedule": "Import schedule",
     "startDate": "Start Date",
     "endDate": "End Date",
     "timeZone": "Time Zone",
@@ -342,6 +342,8 @@
       "about": "About this panel",
       "durationMinutesOne": "{{count}} minute",
       "durationMinutesMany": "{{count}} minutes",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
       "noReminder": "No reminder",
       "overlapsPlan": "Overlaps your plan",
       "overlapWith": "{{minutes}} min with {{title}}",
@@ -360,11 +362,11 @@
   "home": {
     "title": "Conventions",
     "find": "Find my convention",
-    "addConvention": "Add Convention",
+    "addConvention": "Add convention",
     "empty": {
       "title": "No conventions yet",
       "subtitle": "Find your convention to start planning, or add a schedule from a link or file.",
-      "cta": "Create Convention"
+      "cta": "Create convention"
     },
     "loadError": "Conventions could not be loaded.",
     "dateRange": "{{start}} to {{end}}",
@@ -390,9 +392,9 @@
       "errorMessage": "The convention could not be restored. Try again."
     },
     "moreActions": "More actions for {{name}}",
-    "sortBy": "Sort By",
+    "sortBy": "Sort by",
     "sort": {
-      "upcoming": "Upcoming First",
+      "upcoming": "Upcoming first",
       "name": "Name"
     },
     "delete": {
@@ -548,7 +550,7 @@
     "permissionTitle": "Notifications are off",
     "permissionMessage": "ConPaws needs notification permission to remind you when to leave. Turn it on in Settings and set the reminder again.",
     "openSettings": "Open Settings",
-    "turnOn": "Turn On Reminders",
+    "turnOn": "Turn on reminders",
     "tooLateTitle": "Event starts too soon",
     "tooLateMessage": "This event starts sooner than that reminder. Pick a shorter lead time or a later event.",
     "pausedTitle": "Reminders are paused",
@@ -573,7 +575,7 @@
     "caughtUp": {
       "title": "You're all caught up",
       "subtitle": "All your saved panels at {{name}} have ended.",
-      "cta": "View Convention"
+      "cta": "View convention"
     },
     "loadError": "We couldn't show your schedule",
     "conventionEmpty": {
