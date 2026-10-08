@@ -45,7 +45,7 @@
     "playwright-core": "^1.63.0",
     "tailwindcss": "^4.1.18",
     "typescript": "~6.0.3",
-    "vitest": "^3.2.4",
+    "vitest": "^5.0.3",
     "wrangler": "4.147.0"
   }
 }
