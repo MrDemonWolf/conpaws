@@ -36,8 +36,8 @@
     "categories": "Kategori",
     "allCategories": "Semua kategori",
     "timesShownIn": "Waktu dipaparkan dalam {{timeZone}}",
-    "noEvents": "Belum ada acara",
-    "noEventsSubtitle": "Import jadual atau tambah acara secara manual.",
+    "noEvents": "Belum ada panel ditambah",
+    "noEventsSubtitle": "Tambah program daripada pautan atau fail, atau tambah panel sendiri.",
     "overlapLabel": "Bertindih dengan panel tersimpan yang lain",
     "runsAlongsideOne": "Berlangsung serentak dengan 1 acara lain",
     "runsAlongsideMany": "Berlangsung serentak dengan {{count}} acara lain",
@@ -65,22 +65,22 @@
     "createError": "Konvensyen tidak dapat dicipta. Cuba lagi.",
     "notFound": "Konvensyen tidak ditemui.",
     "goBack": "Kembali",
-    "addToSchedule": "Tambah ke Jadual Saya",
-    "removeFromSchedule": "Alih keluar dari Jadual Saya",
-    "scheduleActionHint": "Mengemas kini acara ini dalam Jadual Saya.",
+    "addToSchedule": "Tambah ke pelan saya",
+    "removeFromSchedule": "Keluarkan daripada pelan saya",
+    "scheduleActionHint": "Mengemas kini panel ini dalam pelan anda.",
     "scheduleHint": {
-      "body": "Ketik acara untuk menambahkannya ke Jadual Saya. Acara yang ditanda akan muncul dalam tab Jadual.",
+      "body": "Ketik panel untuk menambahnya ke pelan anda. Panel yang disimpan muncul dalam tab Pelan.",
       "dismiss": "Tutup petua"
     },
-    "scheduleAddedAnnouncement": "{{event}} ditambahkan ke Jadual Saya.",
-    "scheduleRemovedAnnouncement": "{{event}} dialih keluar dari Jadual Saya.",
+    "scheduleAddedAnnouncement": "{{event}} ditambah ke pelan anda.",
+    "scheduleRemovedAnnouncement": "{{event}} dikeluarkan daripada pelan anda.",
     "scheduleUpdateErrorTitle": "Jadual Tidak Dikemas Kini",
     "scheduleUpdateErrorMessage": "Acara tidak dapat diubah. Jadual anda kekal seperti sedia ada.",
     "closeEventDetails": "Tutup butiran acara",
     "timeRangeTo": "hingga {{time}}",
     "eventTimeRange": "{{start}} hingga {{end}}",
-    "inMySchedule": "Dalam Jadual Saya",
-    "notInMySchedule": "Tiada dalam Jadual Saya",
+    "inMySchedule": "Dalam pelan anda",
+    "notInMySchedule": "Tiada dalam pelan anda",
     "reminderSet": "Peringatan ditetapkan",
     "eventSource": {
       "imported": "Diimport",
@@ -137,8 +137,151 @@
       "dismiss": "Tutup notis ini",
       "checkNow": "Semak perubahan",
       "checking": "Menyemak…",
-      "checkFailedTitle": "Jadual tidak dapat disemak",
-      "checkFailedMessage": "Pautan jadual konvensyen tidak menjawab. Jadual anda tidak berubah."
+      "checkFailedTitle": "Tidak dapat menyemak perubahan",
+      "checkFailedMessage": "Program yang anda simpan masih ada. Cuba lagi sebentar nanti."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Pelan saya",
+      "now": "Sekarang",
+      "accessibility": "Paparan program"
+    },
+    "browse": {
+      "allDays": "Semua",
+      "allDaysAccessibility": "Semua hari, {{count}} hari",
+      "dayAccessibility": "{{day}}, {{count}} panel",
+      "allTimes": "Semua masa",
+      "slotAccessibility": "Panel antara {{start}} dan {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · semua hari",
+      "headingDay": "{{day}} · semua masa",
+      "headingAllDays": "Semua panel",
+      "total": "{{count}} kesemuanya",
+      "hint": "Pilih yang menarik perhatian anda. Putuskan kemudian.",
+      "filterActive": "Penapis: {{category}}",
+      "clearFilters": "Kosongkan penapis",
+      "noMatches": {
+        "title": "Tiada panel sepadan dengan pilihan ini",
+        "body": "Cuba masa lain atau kosongkan penapis untuk melihat lebih banyak program."
+      },
+      "noneThisDay": {
+        "title": "Belum ada apa-apa pada hari ini",
+        "body": "Program tiada panel pada hari ini. Cuba hari lain."
+      },
+      "allDaysCta": "Tunjukkan semua hari",
+      "dropIn": {
+        "title": "Singgah bila-bila masa",
+        "subtitle": "Tiada masa tetap"
+      },
+      "noSeat": "Menyimpan panel tidak menempah tempat duduk.",
+      "optionsOne": "{{count}} pilihan",
+      "optionsMany": "{{count}} pilihan",
+      "daysOne": "{{count}} hari",
+      "daysMany": "{{count}} hari"
+    },
+    "savedLabel": "Disimpan",
+    "saveAction": "Simpan {{title}} ke pelan saya",
+    "unsaveAction": "Keluarkan {{title}} daripada pelan saya",
+    "plan": {
+      "until": "Hingga {{time}}",
+      "gap": {
+        "free": "{{minutes}} min lapang · Masa untuk bergerak",
+        "freeHours": "{{hours}} j lapang · Masa untuk berehat",
+        "freeHoursMinutes": "{{hours}} j {{minutes}} min lapang · Masa untuk berehat",
+        "backToBack": "Berturut-turut · Semak bilik seterusnya",
+        "overlap": "Bertindih {{minutes}} min · Pilih yang sesuai"
+      },
+      "status": {
+        "now": "Sekarang",
+        "endedToday": "Awal hari ini",
+        "ended": "Tamat"
+      },
+      "overlap": {
+        "title": "Ada panel yang bertindih",
+        "body": "Simpan kedua-duanya, atau pilih yang anda mahu.",
+        "cta": "Semak pertindihan"
+      },
+      "empty": {
+        "title": "Hari anda lapang",
+        "body": "Belum ada apa-apa disimpan untuk hari ini.",
+        "cta": "Lihat panel"
+      },
+      "emptyConvention": {
+        "title": "Belum ada yang disimpan",
+        "body": "Lihat program dan pilih panel yang anda mahu hadiri. Anda boleh tambah lebih daripada satu."
+      },
+      "updated": {
+        "title": "Pelan dikemas kini",
+        "body": "Pelan anda berubah. Masa panel kekal sama."
+      },
+      "savedCountOne": "{{count}} disimpan",
+      "savedCountMany": "{{count}} disimpan"
+    },
+    "now": {
+      "happeningNow": "Sedang berlangsung",
+      "upNext": "Seterusnya",
+      "until": "Hingga",
+      "startsAt": "Bermula pada",
+      "unknownEnd": "Masa tamat tidak diterbitkan",
+      "reminder": "Peringatan: {{label}}",
+      "next": "Seterusnya · {{time}}",
+      "nextAccessibility": "Seterusnya: {{title}}",
+      "otherOptions": "Pilihan lain pada jam ini",
+      "openPanel": "Buka panel",
+      "setReminder": "Tetapkan peringatan",
+      "openAccessibility": "Buka {{title}}",
+      "nothingPicked": {
+        "title": "Panel seterusnya belum dipilih",
+        "body": "Lihat program dan pilih panel yang anda mahu hadiri.",
+        "cta": "Lihat program"
+      },
+      "finished": {
+        "title": "Itulah pelan anda untuk hari ini",
+        "body": "Anda sudah sampai ke penghujung pilihan hari ini. Mungkin masih ada panel lain untuk dihadiri.",
+        "nextDay": "Seterusnya: {{title}} pada {{day}}, {{time}}."
+      },
+      "nothingToday": {
+        "title": "Tiada rancangan hari ini"
+      },
+      "allEnded": {
+        "title": "Semua panel yang anda simpan sudah tamat",
+        "body": "Lihat program untuk melihat apa lagi yang ada."
+      },
+      "minutesLeftOne": "{{count}} min lagi",
+      "minutesLeftMany": "{{count}} min lagi",
+      "minutesUntilOne": "Bermula dalam {{count}} min",
+      "minutesUntilMany": "Bermula dalam {{count}} min",
+      "alsoNowOne": "Turut disimpan sekarang: {{count}} lagi",
+      "alsoNowMany": "Turut disimpan sekarang: {{count}} lagi"
+    },
+    "status": {
+      "checking": "Menyemak kemas kini…"
+    },
+    "compare": {
+      "title": "Beri ruang untuk kegemaran.",
+      "subtitle": "Panel ini berkongsi sebahagian masa yang sama. Yang mana paling kena dengan anda?",
+      "inPlan": "Dalam pelan anda",
+      "overlapsChoice": "{{minutes}} min bertindih dengan pilihan semasa anda",
+      "switchTo": "Tukar ke panel ini",
+      "addToPlan": "Tambah ke pelan saya",
+      "keepOnly": "Simpan panel ini sahaja",
+      "keepPlan": "Kekalkan pelan ini",
+      "keepBoth": "Simpan kedua-duanya dalam pelan saya",
+      "othersStay": "Panel lain yang anda simpan kekal disimpan.",
+      "updatedAnnouncement": "{{event}} ditambah ke pelan anda. Dikeluarkan: {{count}}.",
+      "possibilitiesOne": "{{count}} kemungkinan",
+      "possibilitiesMany": "{{count}} kemungkinan",
+      "replacesOne": "Menggantikan {{titles}}. Panel yang dikeluarkan kekal dalam program; anda boleh simpan semula bila-bila masa.",
+      "replacesMany": "Menggantikan {{count}} panel yang disimpan. Panel yang dikeluarkan kekal dalam program; anda boleh simpan semula bila-bila masa."
+    },
+    "panel": {
+      "about": "Tentang panel ini",
+      "durationMinutesOne": "{{count}} minit",
+      "durationMinutesMany": "{{count}} minit",
+      "noReminder": "Tiada peringatan",
+      "overlapsPlan": "Bertindih dengan pelan anda",
+      "overlapWith": "{{minutes}} min dengan {{title}}",
+      "compareBeforeAdding": "Bandingkan sebelum menambah"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Semua sudah selesai",
-      "subtitle": "Semua acara berbintang di {{name}} telah tamat.",
+      "subtitle": "Semua panel yang anda simpan di {{name}} sudah tamat.",
       "cta": "Lihat konvensyen"
     },
     "title": "Jadual",
     "empty": {
-      "title": "Belum ada yang ditanda",
-      "subtitle": "Ketik acara dalam konvensyen untuk menambahkannya ke Jadual Saya — ia akan muncul di sini.",
+      "title": "Belum ada panel dipilih",
+      "subtitle": "Lihat program konvensyen dan pilih panel yang anda mahu hadiri. Ia akan muncul di sini.",
       "cta": "Buka konvensyen saya"
     },
     "timesShownInConventionTime": "Waktu dipaparkan dalam waktu tempatan setiap konvensyen.",
-    "loadError": "Jadual anda tidak dapat dimuatkan.",
+    "loadError": "Kami tidak dapat memaparkan pelan anda",
     "conventionEmpty": {
       "title": "Belum ada yang disimpan untuk {{name}}",
-      "subtitle": "Tambah acara daripada jadual konvensyen dan ia akan muncul di sini.",
-      "cta": "Buka Konvensyen"
+      "subtitle": "Lihat program dan pilih panel yang anda mahu hadiri.",
+      "cta": "Lihat program"
     }
   },
   "settings": {

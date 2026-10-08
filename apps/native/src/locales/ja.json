@@ -36,8 +36,8 @@
     "categories": "カテゴリ",
     "allCategories": "すべてのカテゴリ",
     "timesShownIn": "時刻は{{timeZone}}で表示されます",
-    "noEvents": "イベントはまだありません",
-    "noEventsSubtitle": "スケジュールを読み込むか、イベントを手動で追加してください。",
+    "noEvents": "まだパネルがありません",
+    "noEventsSubtitle": "リンクやファイルからプログラムを追加するか、パネルを自分で追加してください。",
     "overlapLabel": "他の保存済みパネルと時間が重なっています",
     "runsAlongsideOne": "他1件のイベントと同時進行",
     "runsAlongsideMany": "他{{count}}件のイベントと同時進行",
@@ -65,22 +65,22 @@
     "createError": "コンベンションを作成できませんでした。もう一度お試しください。",
     "notFound": "コンベンションが見つかりません。",
     "goBack": "戻る",
-    "addToSchedule": "マイスケジュールに追加",
-    "removeFromSchedule": "マイスケジュールから削除",
-    "scheduleActionHint": "マイスケジュール内のこのイベントを更新します。",
+    "addToSchedule": "マイプランに追加",
+    "removeFromSchedule": "マイプランから外す",
+    "scheduleActionHint": "このパネルのマイプランでの状態を更新します。",
     "scheduleHint": {
-      "body": "イベントをタップするとマイスケジュールに追加されます。追加したイベントは「スケジュール」タブに表示されます。",
+      "body": "パネルをタップしてマイプランに追加。保存したパネルは「プラン」タブに表示されます。",
       "dismiss": "ヒントを閉じる"
     },
-    "scheduleAddedAnnouncement": "{{event}}をマイスケジュールに追加しました。",
-    "scheduleRemovedAnnouncement": "{{event}}をマイスケジュールから削除しました。",
+    "scheduleAddedAnnouncement": "{{event}}をプランに追加しました。",
+    "scheduleRemovedAnnouncement": "{{event}}をプランから外しました。",
     "scheduleUpdateErrorTitle": "スケジュールを更新できませんでした",
     "scheduleUpdateErrorMessage": "イベントを変更できませんでした。スケジュールは元のままです。",
     "closeEventDetails": "イベントの詳細を閉じる",
     "timeRangeTo": "〜{{time}}",
     "eventTimeRange": "{{start}}〜{{end}}",
-    "inMySchedule": "マイスケジュールに追加済み",
-    "notInMySchedule": "マイスケジュール未追加",
+    "inMySchedule": "プランに入っています",
+    "notInMySchedule": "プランに入っていません",
     "reminderSet": "リマインダー設定済み",
     "eventSource": {
       "imported": "読み込み",
@@ -137,8 +137,151 @@
       "dismiss": "このお知らせを閉じる",
       "checkNow": "変更を確認",
       "checking": "確認中…",
-      "checkFailedTitle": "スケジュールを確認できませんでした",
-      "checkFailedMessage": "コンベンションのスケジュールリンクから応答がありません。あなたの予定はそのままです。"
+      "checkFailedTitle": "変更を確認できませんでした",
+      "checkFailedMessage": "保存したプログラムはそのままです。少ししてからもう一度お試しください。"
+    },
+    "views": {
+      "all": "プログラム",
+      "mine": "マイプラン",
+      "now": "今",
+      "accessibility": "プログラム表示"
+    },
+    "browse": {
+      "allDays": "全日",
+      "allDaysAccessibility": "全日、{{count}}日",
+      "dayAccessibility": "{{day}}、{{count}}件のパネル",
+      "allTimes": "すべての時間",
+      "slotAccessibility": "{{start}}から{{end}}のパネル",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · 全日",
+      "headingDay": "{{day}} · すべての時間",
+      "headingAllDays": "すべてのパネル",
+      "total": "全{{count}}件",
+      "hint": "気になるものを選んで、決めるのは後でOK。",
+      "filterActive": "フィルター: {{category}}",
+      "clearFilters": "フィルターを解除",
+      "noMatches": {
+        "title": "この条件に合うパネルはありません",
+        "body": "別の時間を試すか、フィルターを解除してプログラム全体を見てみましょう。"
+      },
+      "noneThisDay": {
+        "title": "この日はまだ何もありません",
+        "body": "この日のプログラムにパネルはありません。別の日を試してください。"
+      },
+      "allDaysCta": "全日を表示",
+      "dropIn": {
+        "title": "いつでも立ち寄れる",
+        "subtitle": "時間の決まっていない企画"
+      },
+      "noSeat": "パネルを保存しても席は確保されません。",
+      "optionsOne": "{{count}}件の候補",
+      "optionsMany": "{{count}}件の候補",
+      "daysOne": "{{count}}日",
+      "daysMany": "{{count}}日"
+    },
+    "savedLabel": "保存済み",
+    "saveAction": "{{title}}をマイプランに保存",
+    "unsaveAction": "{{title}}をマイプランから外す",
+    "plan": {
+      "until": "{{time}}まで",
+      "gap": {
+        "free": "{{minutes}}分の空き · 移動の時間",
+        "freeHours": "{{hours}}時間の空き · ひと休みできます",
+        "freeHoursMinutes": "{{hours}}時間{{minutes}}分の空き · ひと休みできます",
+        "backToBack": "連続 · 次の会場を確認",
+        "overlap": "{{minutes}}分重複 · 合う方を選んで"
+      },
+      "status": {
+        "now": "開催中",
+        "endedToday": "本日終了",
+        "ended": "終了"
+      },
+      "overlap": {
+        "title": "重なっているパネルがあります",
+        "body": "両方残すか、行きたい方を選んでください。",
+        "cta": "重複を確認"
+      },
+      "empty": {
+        "title": "この日は予定なし",
+        "body": "この日に保存したパネルはまだありません。",
+        "cta": "パネルを探す"
+      },
+      "emptyConvention": {
+        "title": "まだ何も保存していません",
+        "body": "プログラムを見て、行きたいパネルを選びましょう。複数選べます。"
+      },
+      "updated": {
+        "title": "プランを更新しました",
+        "body": "プランが変わりました。パネルの時間はそのままです。"
+      },
+      "savedCountOne": "{{count}}件保存",
+      "savedCountMany": "{{count}}件保存"
+    },
+    "now": {
+      "happeningNow": "開催中",
+      "upNext": "次",
+      "until": "終了",
+      "startsAt": "開始",
+      "unknownEnd": "終了時刻は未公開",
+      "reminder": "リマインダー: {{label}}",
+      "next": "次 · {{time}}",
+      "nextAccessibility": "次: {{title}}",
+      "otherOptions": "この時間の他の候補",
+      "openPanel": "パネルを開く",
+      "setReminder": "リマインダーを設定",
+      "openAccessibility": "{{title}}を開く",
+      "nothingPicked": {
+        "title": "次のパネルはまだ選んでいません",
+        "body": "プログラムを見て、行きたいパネルを選びましょう。",
+        "cta": "プログラムを見る"
+      },
+      "finished": {
+        "title": "今日のプランはここまで",
+        "body": "今日選んだパネルはすべて終わりました。ほかにも気になるパネルがあるかもしれません。",
+        "nextDay": "次: {{day}} {{time}}の{{title}}。"
+      },
+      "nothingToday": {
+        "title": "今日の予定はありません"
+      },
+      "allEnded": {
+        "title": "保存したパネルはすべて終了しました",
+        "body": "プログラムを見て、ほかの企画を探しましょう。"
+      },
+      "minutesLeftOne": "残り{{count}}分",
+      "minutesLeftMany": "残り{{count}}分",
+      "minutesUntilOne": "{{count}}分後に開始",
+      "minutesUntilMany": "{{count}}分後に開始",
+      "alsoNowOne": "今開催中の保存済みパネル: ほか{{count}}件",
+      "alsoNowMany": "今開催中の保存済みパネル: ほか{{count}}件"
+    },
+    "status": {
+      "checking": "更新を確認中…"
+    },
+    "compare": {
+      "title": "お気に入りの席をあけよう。",
+      "subtitle": "これらのパネルは時間が一部重なっています。いちばん自分らしいのはどれ？",
+      "inPlan": "プランに入っています",
+      "overlapsChoice": "現在の選択と{{minutes}}分重複",
+      "switchTo": "このパネルに切り替える",
+      "addToPlan": "マイプランに追加",
+      "keepOnly": "このパネルだけ残す",
+      "keepPlan": "このプランのまま",
+      "keepBoth": "両方ともマイプランに残す",
+      "othersStay": "ほかの保存済みパネルはそのままです。",
+      "updatedAnnouncement": "{{event}}をプランに追加しました。外したもの: {{count}}件。",
+      "possibilitiesOne": "{{count}}件の候補",
+      "possibilitiesMany": "{{count}}件の候補",
+      "replacesOne": "{{titles}}と入れ替えます。外したパネルはプログラムに残るので、いつでも保存し直せます。",
+      "replacesMany": "保存済みの{{count}}件と入れ替えます。外したパネルはプログラムに残るので、いつでも保存し直せます。"
+    },
+    "panel": {
+      "about": "このパネルについて",
+      "durationMinutesOne": "{{count}}分",
+      "durationMinutesMany": "{{count}}分",
+      "noReminder": "リマインダーなし",
+      "overlapsPlan": "プランと重なっています",
+      "overlapWith": "{{title}}と{{minutes}}分",
+      "compareBeforeAdding": "追加する前に比較"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "予定はすべて終了しました",
-      "subtitle": "{{name}}の保存したイベントはすべて終了しました。",
+      "subtitle": "{{name}}で保存したパネルはすべて終了しました。",
       "cta": "コンベンションを見る"
     },
     "title": "スケジュール",
     "empty": {
-      "title": "まだ何も登録されていません",
-      "subtitle": "コンベンション内のイベントをタップしてマイスケジュールに追加すると、ここに表示されます。",
-      "cta": "コンベンションを開く"
+      "title": "まだパネルを選んでいません",
+      "subtitle": "コンベンションのプログラムを見て、行きたいパネルを選びましょう。ここに表示されます。",
+      "cta": "マイコンベンションを開く"
     },
     "timesShownInConventionTime": "時刻は各コンベンションの現地時間で表示されます。",
-    "loadError": "スケジュールを読み込めませんでした。",
+    "loadError": "プランを表示できませんでした",
     "conventionEmpty": {
-      "title": "{{name}}にはまだ何も保存されていません",
-      "subtitle": "コンベンションのスケジュールからイベントを追加すると、ここに表示されます。",
-      "cta": "コンベンションを開く"
+      "title": "{{name}}の保存はまだありません",
+      "subtitle": "プログラムを見て、行きたいパネルを選びましょう。",
+      "cta": "プログラムを見る"
     }
   },
   "settings": {

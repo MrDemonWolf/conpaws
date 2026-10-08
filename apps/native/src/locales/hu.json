@@ -36,8 +36,8 @@
     "categories": "Kategóriák",
     "allCategories": "Összes kategória",
     "timesShownIn": "Az időpontok időzónája: {{timeZone}}",
-    "noEvents": "Még nincsenek események",
-    "noEventsSubtitle": "Importálj egy programot, vagy adj hozzá eseményeket kézzel.",
+    "noEvents": "Még nincs hozzáadva panel",
+    "noEventsSubtitle": "Adj hozzá programot linkből vagy fájlból, vagy vedd fel a paneleket magad.",
     "overlapLabel": "Átfed egy másik mentett panelt",
     "runsAlongsideOne": "Egy időben zajlik 1 másik eseménnyel",
     "runsAlongsideMany": "Egy időben zajlik {{count}} másik eseménnyel",
@@ -65,22 +65,22 @@
     "createError": "A cont nem sikerült létrehozni. Próbáld újra.",
     "notFound": "A con nem található.",
     "goBack": "Vissza",
-    "addToSchedule": "Hozzáadás a Saját programhoz",
-    "removeFromSchedule": "Eltávolítás a Saját programból",
-    "scheduleActionHint": "Frissíti ezt az eseményt a Saját programban.",
+    "addToSchedule": "Hozzáadás a tervemhez",
+    "removeFromSchedule": "Eltávolítás a tervemből",
+    "scheduleActionHint": "Frissíti ezt a panelt a tervedben.",
     "scheduleHint": {
-      "body": "Koppints egy eseményre, hogy hozzáadd a Saját programhoz. A megjelölt események a Program lapon jelennek meg.",
+      "body": "Koppints egy panelre, hogy hozzáadd a tervedhez. A mentett panelek a Terv fülön jelennek meg.",
       "dismiss": "Tipp bezárása"
     },
-    "scheduleAddedAnnouncement": "{{event}} hozzáadva a Saját programhoz.",
-    "scheduleRemovedAnnouncement": "{{event}} eltávolítva a Saját programból.",
+    "scheduleAddedAnnouncement": "{{event}} hozzáadva a tervedhez.",
+    "scheduleRemovedAnnouncement": "{{event}} eltávolítva a tervedből.",
     "scheduleUpdateErrorTitle": "A program nem frissült",
     "scheduleUpdateErrorMessage": "Az eseményt nem sikerült módosítani. A programod változatlan maradt.",
     "closeEventDetails": "Eseményadatok bezárása",
     "timeRangeTo": "eddig: {{time}}",
     "eventTimeRange": "{{start}} – {{end}}",
-    "inMySchedule": "A Saját programban",
-    "notInMySchedule": "Nincs a Saját programban",
+    "inMySchedule": "A tervedben",
+    "notInMySchedule": "Nincs a tervedben",
     "reminderSet": "Emlékeztető beállítva",
     "eventSource": {
       "imported": "Importált",
@@ -137,8 +137,151 @@
       "dismiss": "Értesítés bezárása",
       "checkNow": "Változások keresése",
       "checking": "Ellenőrzés…",
-      "checkFailedTitle": "Nem sikerült ellenőrizni a programot",
-      "checkFailedMessage": "A rendezvény programlinkje nem válaszolt. A programod változatlan."
+      "checkFailedTitle": "Nem sikerült ellenőrizni a változásokat",
+      "checkFailedMessage": "A mentett programod még itt van. Próbáld újra egy kicsit később."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Tervem",
+      "now": "Most",
+      "accessibility": "Programnézet"
+    },
+    "browse": {
+      "allDays": "Mind",
+      "allDaysAccessibility": "Minden nap, {{count}} nap",
+      "dayAccessibility": "{{day}}, {{count}} panel",
+      "allTimes": "Minden időpont",
+      "slotAccessibility": "Panelek {{start}} és {{end}} között",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · minden nap",
+      "headingDay": "{{day}} · minden időpont",
+      "headingAllDays": "Minden panel",
+      "total": "összesen {{count}}",
+      "hint": "Válaszd, ami megtetszik. Dönts később.",
+      "filterActive": "Szűrő: {{category}}",
+      "clearFilters": "Szűrők törlése",
+      "noMatches": {
+        "title": "Egy panel sem felel meg ezeknek a választásoknak",
+        "body": "Próbálj másik időpontot, vagy töröld a szűrőket, hogy többet láss a programból."
+      },
+      "noneThisDay": {
+        "title": "Ezen a napon még nincs semmi",
+        "body": "A programban nincs panel ezen a napon. Próbálj másik napot."
+      },
+      "allDaysCta": "Minden nap mutatása",
+      "dropIn": {
+        "title": "Ugorj be bármikor",
+        "subtitle": "Nincs kötött időpont"
+      },
+      "noSeat": "Egy panel mentése nem foglal helyet.",
+      "optionsOne": "{{count}} lehetőség",
+      "optionsMany": "{{count}} lehetőség",
+      "daysOne": "{{count}} nap",
+      "daysMany": "{{count}} nap"
+    },
+    "savedLabel": "Mentve",
+    "saveAction": "{{title}} mentése a tervembe",
+    "unsaveAction": "{{title}} eltávolítása a tervemből",
+    "plan": {
+      "until": "{{time}}-ig",
+      "gap": {
+        "free": "{{minutes}} perc szabad · Idő odaérni",
+        "freeHours": "{{hours}} óra szabad · Idő egy kis pihenőre",
+        "freeHoursMinutes": "{{hours}} óra {{minutes}} perc szabad · Idő egy kis pihenőre",
+        "backToBack": "Egymás után · Nézd meg a következő termet",
+        "overlap": "{{minutes}} perc átfedés · Válaszd, ami jó neked"
+      },
+      "status": {
+        "now": "Most",
+        "endedToday": "Ma korábban",
+        "ended": "Véget ért"
+      },
+      "overlap": {
+        "title": "Néhány panel átfedésben van",
+        "body": "Tartsd meg mindkettőt, vagy válaszd ki, amelyiket szeretnéd.",
+        "cta": "Átfedés áttekintése"
+      },
+      "empty": {
+        "title": "Szabad a napod",
+        "body": "Erre a napra még nincs mentve semmi.",
+        "cta": "Panelek böngészése"
+      },
+      "emptyConvention": {
+        "title": "Még nincs mentve semmi",
+        "body": "Böngészd a programot, és válaszd ki a paneleket, amikre el szeretnél jutni. Többet is hozzáadhatsz."
+      },
+      "updated": {
+        "title": "Terv frissítve",
+        "body": "A terved megváltozott. A panelek időpontjai nem változtak."
+      },
+      "savedCountOne": "{{count}} mentve",
+      "savedCountMany": "{{count}} mentve"
+    },
+    "now": {
+      "happeningNow": "Most zajlik",
+      "upNext": "Következik",
+      "until": "Eddig",
+      "startsAt": "Kezdés",
+      "unknownEnd": "A befejezés ideje nincs megadva",
+      "reminder": "Emlékeztető: {{label}}",
+      "next": "Következő · {{time}}",
+      "nextAccessibility": "Következő: {{title}}",
+      "otherOptions": "Más lehetőségek ebben az órában",
+      "openPanel": "Panel megnyitása",
+      "setReminder": "Emlékeztető beállítása",
+      "openAccessibility": "{{title}} megnyitása",
+      "nothingPicked": {
+        "title": "Még nincs kiválasztva következő panel",
+        "body": "Böngészd a programot, és válaszd ki a paneleket, amikre el szeretnél jutni.",
+        "cta": "Program böngészése"
+      },
+      "finished": {
+        "title": "Ez volt a mai terved",
+        "body": "A mai választásaid végére értél. Lehet, hogy még vannak más panelek is.",
+        "nextDay": "Következő: {{title}}, {{day}} {{time}}."
+      },
+      "nothingToday": {
+        "title": "Mára nincs semmi tervezve"
+      },
+      "allEnded": {
+        "title": "Minden mentett paneled véget ért",
+        "body": "Böngészd a programot, hogy lásd, mi van még."
+      },
+      "minutesLeftOne": "{{count}} perc van hátra",
+      "minutesLeftMany": "{{count}} perc van hátra",
+      "minutesUntilOne": "{{count}} perc múlva kezdődik",
+      "minutesUntilMany": "{{count}} perc múlva kezdődik",
+      "alsoNowOne": "Szintén mentve most: {{count}} további",
+      "alsoNowMany": "Szintén mentve most: {{count}} további"
+    },
+    "status": {
+      "checking": "Frissítések keresése…"
+    },
+    "compare": {
+      "title": "Csinálj helyet egy kedvencnek.",
+      "subtitle": "Ezek a panelek részben egy időben vannak. Melyik áll hozzád közelebb?",
+      "inPlan": "A tervedben",
+      "overlapsChoice": "{{minutes}} perc átfedés a jelenlegi választásoddal",
+      "switchTo": "Váltás erre a panelre",
+      "addToPlan": "Hozzáadás a tervemhez",
+      "keepOnly": "Csak ezt a panelt tartom meg",
+      "keepPlan": "Ezt a tervet tartom meg",
+      "keepBoth": "Mindkettő marad a tervemben",
+      "othersStay": "A többi mentett paneled mentve marad.",
+      "updatedAnnouncement": "{{event}} hozzáadva a tervedhez. Eltávolítva: {{count}}.",
+      "possibilitiesOne": "{{count}} lehetőség",
+      "possibilitiesMany": "{{count}} lehetőség",
+      "replacesOne": "Lecseréli ezt: {{titles}}. Az eltávolított panelek a programban maradnak; bármikor újra mentheted őket.",
+      "replacesMany": "Lecserél {{count}} mentett panelt. Az eltávolított panelek a programban maradnak; bármikor újra mentheted őket."
+    },
+    "panel": {
+      "about": "Erről a panelről",
+      "durationMinutesOne": "{{count}} perc",
+      "durationMinutesMany": "{{count}} perc",
+      "noReminder": "Nincs emlékeztető",
+      "overlapsPlan": "Átfedésben van a terveddel",
+      "overlapWith": "{{minutes}} perc ezzel: {{title}}",
+      "compareBeforeAdding": "Összehasonlítás hozzáadás előtt"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Minden programon túl vagy",
-      "subtitle": "{{name}} minden mentett programja véget ért.",
+      "subtitle": "Minden mentett paneled itt véget ért: {{name}}.",
       "cta": "Rendezvény megtekintése"
     },
     "title": "Program",
     "empty": {
-      "title": "Még nincs semmi megjelölve",
-      "subtitle": "Koppints egy eseményre egy conon belül, hogy hozzáadd a Saját programhoz — itt fog megjelenni.",
+      "title": "Még nincs kiválasztott panel",
+      "subtitle": "Böngészd egy con programját, és válaszd ki a paneleket, amikre el szeretnél jutni. Itt fognak megjelenni.",
       "cta": "Conjaim megnyitása"
     },
     "timesShownInConventionTime": "Az időpontok az egyes conok helyi ideje szerint jelennek meg.",
-    "loadError": "A programodat nem sikerült betölteni.",
+    "loadError": "Nem sikerült megjeleníteni a tervedet",
     "conventionEmpty": {
-      "title": "Ehhez még nincs semmi mentve: {{name}}",
-      "subtitle": "Adj hozzá eseményeket a con programjából, és itt fognak megjelenni.",
-      "cta": "Con megnyitása"
+      "title": "Még nincs mentve semmi ehhez: {{name}}",
+      "subtitle": "Böngészd a programot, és válaszd ki a paneleket, amikre el szeretnél jutni.",
+      "cta": "Program böngészése"
     }
   },
   "settings": {

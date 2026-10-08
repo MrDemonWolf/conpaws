@@ -36,8 +36,8 @@
     "categories": "Categorieën",
     "allCategories": "Alle categorieën",
     "timesShownIn": "Tijden worden weergegeven in {{timeZone}}",
-    "noEvents": "Nog geen evenementen",
-    "noEventsSubtitle": "Importeer een rooster of voeg evenementen handmatig toe.",
+    "noEvents": "Nog geen panels toegevoegd",
+    "noEventsSubtitle": "Voeg een programma toe via een link of bestand, of maak zelf panels aan.",
     "overlapLabel": "Overlapt met een ander opgeslagen panel",
     "runsAlongsideOne": "Vindt tegelijk plaats met 1 ander evenement",
     "runsAlongsideMany": "Vindt tegelijk plaats met {{count}} andere evenementen",
@@ -65,22 +65,22 @@
     "createError": "De conventie kon niet worden gemaakt. Probeer het opnieuw.",
     "notFound": "Conventie niet gevonden.",
     "goBack": "Ga terug",
-    "addToSchedule": "Toevoegen aan Mijn programma",
-    "removeFromSchedule": "Verwijderen uit Mijn programma",
-    "scheduleActionHint": "Werkt dit evenement bij in Mijn programma.",
+    "addToSchedule": "Aan mijn plan toevoegen",
+    "removeFromSchedule": "Uit mijn plan verwijderen",
+    "scheduleActionHint": "Werkt dit panel in je plan bij.",
     "scheduleHint": {
-      "body": "Tik op een evenement om het aan Mijn schema toe te voegen. Gemarkeerde evenementen verschijnen in het Schema-tabblad.",
+      "body": "Tik op een panel om het aan je plan toe te voegen. Bewaarde panels verschijnen op het tabblad Plan.",
       "dismiss": "Tip verbergen"
     },
-    "scheduleAddedAnnouncement": "{{event}} is toegevoegd aan Mijn programma.",
-    "scheduleRemovedAnnouncement": "{{event}} is verwijderd uit Mijn programma.",
+    "scheduleAddedAnnouncement": "{{event}} toegevoegd aan je plan.",
+    "scheduleRemovedAnnouncement": "{{event}} verwijderd uit je plan.",
     "scheduleUpdateErrorTitle": "Programma niet bijgewerkt",
     "scheduleUpdateErrorMessage": "Het evenement kon niet worden gewijzigd. Je programma is niet aangepast.",
     "closeEventDetails": "Evenementdetails sluiten",
     "timeRangeTo": "tot {{time}}",
     "eventTimeRange": "{{start}} tot {{end}}",
-    "inMySchedule": "In Mijn programma",
-    "notInMySchedule": "Niet in Mijn programma",
+    "inMySchedule": "In je plan",
+    "notInMySchedule": "Niet in je plan",
     "reminderSet": "Herinnering ingesteld",
     "eventSource": {
       "imported": "Geïmporteerd",
@@ -137,8 +137,151 @@
       "dismiss": "Deze melding sluiten",
       "checkNow": "Op wijzigingen controleren",
       "checking": "Bezig met controleren…",
-      "checkFailedTitle": "Programma kon niet worden gecontroleerd",
-      "checkFailedMessage": "De programmalink van de conventie gaf geen antwoord. Je programma is ongewijzigd."
+      "checkFailedTitle": "Kon niet op wijzigingen controleren",
+      "checkFailedMessage": "Je bewaarde programma is er nog. Probeer het zo nog eens."
+    },
+    "views": {
+      "all": "Programma",
+      "mine": "Mijn plan",
+      "now": "Nu",
+      "accessibility": "Programmaweergave"
+    },
+    "browse": {
+      "allDays": "Alle",
+      "allDaysAccessibility": "Alle dagen, {{count}} dagen",
+      "dayAccessibility": "{{day}}, {{count}} panels",
+      "allTimes": "Alle tijden",
+      "slotAccessibility": "Panels tussen {{start}} en {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · alle dagen",
+      "headingDay": "{{day}} · alle tijden",
+      "headingAllDays": "Alle panels",
+      "total": "{{count}} in totaal",
+      "hint": "Kies wat je aanspreekt. Beslis later.",
+      "filterActive": "Filter: {{category}}",
+      "clearFilters": "Filters wissen",
+      "noMatches": {
+        "title": "Geen panels passen bij deze keuzes",
+        "body": "Probeer een andere tijd of wis de filters om meer van het programma te zien."
+      },
+      "noneThisDay": {
+        "title": "Nog niets op deze dag",
+        "body": "Het programma heeft geen panels op deze dag. Probeer een andere dag."
+      },
+      "allDaysCta": "Alle dagen tonen",
+      "dropIn": {
+        "title": "Loop wanneer je wilt binnen",
+        "subtitle": "Geen vaste tijd"
+      },
+      "noSeat": "Een panel bewaren reserveert geen plek.",
+      "optionsOne": "{{count}} optie",
+      "optionsMany": "{{count}} opties",
+      "daysOne": "{{count}} dag",
+      "daysMany": "{{count}} dagen"
+    },
+    "savedLabel": "Bewaard",
+    "saveAction": "{{title}} in mijn plan bewaren",
+    "unsaveAction": "{{title}} uit mijn plan verwijderen",
+    "plan": {
+      "until": "Tot {{time}}",
+      "gap": {
+        "free": "{{minutes}} min vrij · Tijd om er te komen",
+        "freeHours": "{{hours}} u vrij · Tijd om even te ademen",
+        "freeHoursMinutes": "{{hours}} u {{minutes}} min vrij · Tijd om even te ademen",
+        "backToBack": "Direct na elkaar · Check je volgende zaal",
+        "overlap": "{{minutes}} min overlap · Kies wat werkt"
+      },
+      "status": {
+        "now": "Nu",
+        "endedToday": "Eerder vandaag",
+        "ended": "Afgelopen"
+      },
+      "overlap": {
+        "title": "Sommige panels overlappen",
+        "body": "Houd ze allebei, of kies degene die je wilt.",
+        "cta": "Overlap bekijken"
+      },
+      "empty": {
+        "title": "Je dag is vrij",
+        "body": "Er is nog niets bewaard voor deze dag.",
+        "cta": "Panels bekijken"
+      },
+      "emptyConvention": {
+        "title": "Nog niets bewaard",
+        "body": "Bekijk het programma en kies de panels die je wilt meemaken. Je kunt er meer dan één toevoegen."
+      },
+      "updated": {
+        "title": "Plan bijgewerkt",
+        "body": "Je plan is veranderd. De paneltijden blijven gelijk."
+      },
+      "savedCountOne": "{{count}} bewaard",
+      "savedCountMany": "{{count}} bewaard"
+    },
+    "now": {
+      "happeningNow": "Nu bezig",
+      "upNext": "Hierna",
+      "until": "Tot",
+      "startsAt": "Begint om",
+      "unknownEnd": "Eindtijd niet gepubliceerd",
+      "reminder": "Herinnering: {{label}}",
+      "next": "Hierna · {{time}}",
+      "nextAccessibility": "Hierna: {{title}}",
+      "otherOptions": "Andere opties dit uur",
+      "openPanel": "Panel openen",
+      "setReminder": "Herinnering instellen",
+      "openAccessibility": "{{title}} openen",
+      "nothingPicked": {
+        "title": "Nog geen volgend panel gekozen",
+        "body": "Bekijk het programma en kies de panels die je wilt meemaken.",
+        "cta": "Programma bekijken"
+      },
+      "finished": {
+        "title": "Dat was je plan voor vandaag",
+        "body": "Je bent aan het einde van je keuzes voor vandaag. Misschien zijn er nog andere panels te zien.",
+        "nextDay": "Hierna: {{title}} op {{day}} om {{time}}."
+      },
+      "nothingToday": {
+        "title": "Niets gepland vandaag"
+      },
+      "allEnded": {
+        "title": "Al je bewaarde panels zijn afgelopen",
+        "body": "Bekijk het programma om te zien wat er nog meer is."
+      },
+      "minutesLeftOne": "Nog {{count}} min",
+      "minutesLeftMany": "Nog {{count}} min",
+      "minutesUntilOne": "Begint over {{count}} min",
+      "minutesUntilMany": "Begint over {{count}} min",
+      "alsoNowOne": "Ook nu bewaard: {{count}} meer",
+      "alsoNowMany": "Ook nu bewaard: {{count}} meer"
+    },
+    "status": {
+      "checking": "Zoeken naar updates…"
+    },
+    "compare": {
+      "title": "Maak ruimte voor een favoriet.",
+      "subtitle": "Deze panels vallen deels samen. Welke past het beste bij jou?",
+      "inPlan": "In je plan",
+      "overlapsChoice": "{{minutes}} min overlap met je huidige keuze",
+      "switchTo": "Wissel naar dit panel",
+      "addToPlan": "Aan mijn plan toevoegen",
+      "keepOnly": "Alleen dit panel houden",
+      "keepPlan": "Dit plan houden",
+      "keepBoth": "Allebei in mijn plan houden",
+      "othersStay": "Je andere bewaarde panels blijven bewaard.",
+      "updatedAnnouncement": "{{event}} toegevoegd aan je plan. Verwijderd: {{count}}.",
+      "possibilitiesOne": "{{count}} mogelijkheid",
+      "possibilitiesMany": "{{count}} mogelijkheden",
+      "replacesOne": "Vervangt {{titles}}. Verwijderde panels blijven in het programma; je kunt ze altijd opnieuw bewaren.",
+      "replacesMany": "Vervangt {{count}} bewaarde panels. Verwijderde panels blijven in het programma; je kunt ze altijd opnieuw bewaren."
+    },
+    "panel": {
+      "about": "Over dit panel",
+      "durationMinutesOne": "{{count}} minuut",
+      "durationMinutesMany": "{{count}} minuten",
+      "noReminder": "Geen herinnering",
+      "overlapsPlan": "Overlapt met je plan",
+      "overlapWith": "{{minutes}} min met {{title}}",
+      "compareBeforeAdding": "Vergelijk voor je toevoegt"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Je bent helemaal bij",
-      "subtitle": "Alle opgeslagen evenementen van {{name}} zijn afgelopen.",
+      "subtitle": "Al je bewaarde panels op {{name}} zijn afgelopen.",
       "cta": "Conventie bekijken"
     },
     "title": "Programma",
     "empty": {
-      "title": "Nog niets met een ster",
-      "subtitle": "Tik op een evenement in een conventie om het aan Mijn schema toe te voegen – het verschijnt hier.",
-      "cta": "Mijn conventies openen"
+      "title": "Nog geen panels gekozen",
+      "subtitle": "Bekijk het programma van een con en kies de panels die je wilt meemaken. Ze verschijnen hier.",
+      "cta": "Mijn cons openen"
     },
     "timesShownInConventionTime": "Tijden staan in de lokale tijd van elke conventie.",
-    "loadError": "Je programma kon niet worden geladen.",
+    "loadError": "We konden je plan niet tonen",
     "conventionEmpty": {
-      "title": "Nog niets opgeslagen voor {{name}}",
-      "subtitle": "Voeg evenementen toe vanuit het conventieschema en ze verschijnen hier.",
-      "cta": "Conventie openen"
+      "title": "Nog niets bewaard voor {{name}}",
+      "subtitle": "Bekijk het programma en kies de panels die je wilt meemaken.",
+      "cta": "Programma bekijken"
     }
   },
   "settings": {

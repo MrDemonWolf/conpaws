@@ -36,8 +36,8 @@
     "categories": "Kategoriat",
     "allCategories": "Kaikki kategoriat",
     "timesShownIn": "Ajat näytetään aikavyöhykkeellä {{timeZone}}",
-    "noEvents": "Ei vielä tapahtumia",
-    "noEventsSubtitle": "Tuo ohjelma tai lisää tapahtumia käsin.",
+    "noEvents": "Paneeleja ei ole vielä lisätty",
+    "noEventsSubtitle": "Lisää ohjelma linkistä tai tiedostosta tai lisää paneeleja itse.",
     "overlapLabel": "Menee päällekkäin toisen tallennetun paneelin kanssa",
     "runsAlongsideOne": "Käynnissä samaan aikaan 1 muun tapahtuman kanssa",
     "runsAlongsideMany": "Käynnissä samaan aikaan {{count}} muun tapahtuman kanssa",
@@ -65,22 +65,22 @@
     "createError": "Conia ei voitu luoda. Yritä uudelleen.",
     "notFound": "Conia ei löytynyt.",
     "goBack": "Palaa takaisin",
-    "addToSchedule": "Lisää omaan ohjelmaan",
-    "removeFromSchedule": "Poista omasta ohjelmasta",
-    "scheduleActionHint": "Päivittää tämän tapahtuman omassa ohjelmassa.",
+    "addToSchedule": "Lisää suunnitelmaani",
+    "removeFromSchedule": "Poista suunnitelmastani",
+    "scheduleActionHint": "Päivittää tämän paneelin suunnitelmassasi.",
     "scheduleHint": {
-      "body": "Lisää tapahtuma omaan ohjelmaan napauttamalla sitä. Merkityt tapahtumat näkyvät Ohjelma-välilehdellä.",
+      "body": "Napauta paneelia lisätäksesi sen suunnitelmaasi. Tallennetut paneelit näkyvät Suunnitelma-välilehdellä.",
       "dismiss": "Sulje vinkki"
     },
-    "scheduleAddedAnnouncement": "{{event}} lisättiin omaan ohjelmaan.",
-    "scheduleRemovedAnnouncement": "{{event}} poistettiin omasta ohjelmasta.",
+    "scheduleAddedAnnouncement": "{{event}} lisätty suunnitelmaasi.",
+    "scheduleRemovedAnnouncement": "{{event}} poistettu suunnitelmastasi.",
     "scheduleUpdateErrorTitle": "Ohjelmaa ei päivitetty",
     "scheduleUpdateErrorMessage": "Tapahtumaa ei voitu muuttaa. Ohjelmasi säilyi ennallaan.",
     "closeEventDetails": "Sulje tapahtuman tiedot",
     "timeRangeTo": "– {{time}}",
     "eventTimeRange": "{{start}} – {{end}}",
-    "inMySchedule": "Omassa ohjelmassa",
-    "notInMySchedule": "Ei omassa ohjelmassa",
+    "inMySchedule": "Suunnitelmassasi",
+    "notInMySchedule": "Ei suunnitelmassasi",
     "reminderSet": "Muistutus asetettu",
     "eventSource": {
       "imported": "Tuotu",
@@ -137,8 +137,151 @@
       "dismiss": "Sulje tämä ilmoitus",
       "checkNow": "Tarkista muutokset",
       "checking": "Tarkistetaan…",
-      "checkFailedTitle": "Ohjelmaa ei voitu tarkistaa",
-      "checkFailedMessage": "Tapahtuman ohjelmalinkki ei vastannut. Aikataulusi on ennallaan."
+      "checkFailedTitle": "Muutoksia ei voitu tarkistaa",
+      "checkFailedMessage": "Tallennettu ohjelmasi on yhä tallessa. Yritä hetken päästä uudelleen."
+    },
+    "views": {
+      "all": "Ohjelma",
+      "mine": "Oma suunnitelma",
+      "now": "Nyt",
+      "accessibility": "Ohjelmanäkymä"
+    },
+    "browse": {
+      "allDays": "Kaikki",
+      "allDaysAccessibility": "Kaikki päivät, {{count}} päivää",
+      "dayAccessibility": "{{day}}, {{count}} paneelia",
+      "allTimes": "Kaikki ajat",
+      "slotAccessibility": "Paneelit välillä {{start}}–{{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · kaikki päivät",
+      "headingDay": "{{day}} · kaikki ajat",
+      "headingAllDays": "Kaikki paneelit",
+      "total": "yhteensä {{count}}",
+      "hint": "Valitse, mikä kiinnostaa. Päätä myöhemmin.",
+      "filterActive": "Suodatin: {{category}}",
+      "clearFilters": "Tyhjennä suodattimet",
+      "noMatches": {
+        "title": "Mikään paneeli ei vastaa valintoja",
+        "body": "Kokeile toista aikaa tai tyhjennä suodattimet nähdäksesi enemmän ohjelmasta."
+      },
+      "noneThisDay": {
+        "title": "Tälle päivälle ei ole vielä mitään",
+        "body": "Ohjelmassa ei ole paneeleja tänä päivänä. Kokeile toista päivää."
+      },
+      "allDaysCta": "Näytä kaikki päivät",
+      "dropIn": {
+        "title": "Piipahda milloin vain",
+        "subtitle": "Ei kiinteää aikaa"
+      },
+      "noSeat": "Paneelin tallentaminen ei varaa paikkaa.",
+      "optionsOne": "{{count}} vaihtoehto",
+      "optionsMany": "{{count}} vaihtoehtoa",
+      "daysOne": "{{count}} päivä",
+      "daysMany": "{{count}} päivää"
+    },
+    "savedLabel": "Tallennettu",
+    "saveAction": "Tallenna {{title}} suunnitelmaani",
+    "unsaveAction": "Poista {{title}} suunnitelmastani",
+    "plan": {
+      "until": "Klo {{time}} asti",
+      "gap": {
+        "free": "{{minutes}} min vapaata · Aikaa siirtyä",
+        "freeHours": "{{hours}} h vapaata · Aikaa hengähtää",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min vapaata · Aikaa hengähtää",
+        "backToBack": "Peräkkäin · Tarkista seuraava sali",
+        "overlap": "{{minutes}} min päällekkäin · Valitse, mikä sopii"
+      },
+      "status": {
+        "now": "Nyt",
+        "endedToday": "Aiemmin tänään",
+        "ended": "Päättynyt"
+      },
+      "overlap": {
+        "title": "Jotkin paneelit menevät päällekkäin",
+        "body": "Pidä molemmat tai valitse haluamasi.",
+        "cta": "Tarkista päällekkäisyys"
+      },
+      "empty": {
+        "title": "Päiväsi on vapaa",
+        "body": "Tälle päivälle ei ole vielä tallennettu mitään.",
+        "cta": "Selaa paneeleja"
+      },
+      "emptyConvention": {
+        "title": "Ei vielä tallennuksia",
+        "body": "Selaa ohjelmaa ja valitse paneelit, joihin haluat ehtiä. Voit lisätä useamman."
+      },
+      "updated": {
+        "title": "Suunnitelma päivitetty",
+        "body": "Suunnitelmasi muuttui. Paneelien ajat pysyvät ennallaan."
+      },
+      "savedCountOne": "{{count}} tallennettu",
+      "savedCountMany": "{{count}} tallennettu"
+    },
+    "now": {
+      "happeningNow": "Käynnissä nyt",
+      "upNext": "Seuraavaksi",
+      "until": "Päättyy",
+      "startsAt": "Alkaa",
+      "unknownEnd": "Päättymisaikaa ei ole julkaistu",
+      "reminder": "Muistutus: {{label}}",
+      "next": "Seuraava · {{time}}",
+      "nextAccessibility": "Seuraava: {{title}}",
+      "otherOptions": "Muita vaihtoehtoja tällä tunnilla",
+      "openPanel": "Avaa paneeli",
+      "setReminder": "Aseta muistutus",
+      "openAccessibility": "Avaa {{title}}",
+      "nothingPicked": {
+        "title": "Seuraavaa paneelia ei ole vielä valittu",
+        "body": "Selaa ohjelmaa ja valitse paneelit, joihin haluat ehtiä.",
+        "cta": "Selaa ohjelmaa"
+      },
+      "finished": {
+        "title": "Siinä oli tämän päivän suunnitelmasi",
+        "body": "Tämän päivän valintasi ovat ohi. Ohjelmassa voi silti olla muita paneeleja.",
+        "nextDay": "Seuraavaksi: {{title}} {{day}} klo {{time}}."
+      },
+      "nothingToday": {
+        "title": "Tälle päivälle ei ole suunnitelmia"
+      },
+      "allEnded": {
+        "title": "Kaikki tallentamasi paneelit ovat päättyneet",
+        "body": "Selaa ohjelmaa nähdäksesi, mitä muuta on tarjolla."
+      },
+      "minutesLeftOne": "{{count}} min jäljellä",
+      "minutesLeftMany": "{{count}} min jäljellä",
+      "minutesUntilOne": "Alkaa {{count}} min kuluttua",
+      "minutesUntilMany": "Alkaa {{count}} min kuluttua",
+      "alsoNowOne": "Myös tallennettu juuri nyt: {{count}} muu",
+      "alsoNowMany": "Myös tallennettu juuri nyt: {{count}} muuta"
+    },
+    "status": {
+      "checking": "Etsitään päivityksiä…"
+    },
+    "compare": {
+      "title": "Tee tilaa suosikille.",
+      "subtitle": "Nämä paneelit ovat osittain samaan aikaan. Mikä tuntuu eniten omaltasi?",
+      "inPlan": "Suunnitelmassasi",
+      "overlapsChoice": "{{minutes}} min päällekkäin nykyisen valintasi kanssa",
+      "switchTo": "Vaihda tähän paneeliin",
+      "addToPlan": "Lisää suunnitelmaani",
+      "keepOnly": "Pidä vain tämä paneeli",
+      "keepPlan": "Pidä tämä suunnitelma",
+      "keepBoth": "Pidä molemmat suunnitelmassani",
+      "othersStay": "Muut tallentamasi paneelit pysyvät tallennettuina.",
+      "updatedAnnouncement": "{{event}} lisätty suunnitelmaasi. Poistettu: {{count}}.",
+      "possibilitiesOne": "{{count}} vaihtoehto",
+      "possibilitiesMany": "{{count}} vaihtoehtoa",
+      "replacesOne": "Korvaa paneelin {{titles}}. Poistetut paneelit pysyvät ohjelmassa; voit tallentaa ne uudelleen milloin tahansa.",
+      "replacesMany": "Korvaa {{count}} tallennettua paneelia. Poistetut paneelit pysyvät ohjelmassa; voit tallentaa ne uudelleen milloin tahansa."
+    },
+    "panel": {
+      "about": "Tietoa paneelista",
+      "durationMinutesOne": "{{count}} minuutti",
+      "durationMinutesMany": "{{count}} minuuttia",
+      "noReminder": "Ei muistutusta",
+      "overlapsPlan": "Päällekkäin suunnitelmasi kanssa",
+      "overlapWith": "{{minutes}} min paneelin {{title}} kanssa",
+      "compareBeforeAdding": "Vertaa ennen lisäämistä"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Olet ajan tasalla",
-      "subtitle": "Kaikki tapahtuman {{name}} tallennetut ohjelmat ovat päättyneet.",
+      "subtitle": "Kaikki tallentamasi paneelit tapahtumassa {{name}} ovat päättyneet.",
       "cta": "Näytä tapahtuma"
     },
     "title": "Ohjelma",
     "empty": {
-      "title": "Et ole vielä merkinnyt mitään",
-      "subtitle": "Napauta tapahtumaa conin sisällä lisätäksesi sen omaan ohjelmaan — se ilmestyy tänne.",
+      "title": "Paneeleja ei ole vielä valittu",
+      "subtitle": "Selaa conin ohjelmaa ja valitse paneelit, joihin haluat ehtiä. Ne näkyvät täällä.",
       "cta": "Avaa omat conit"
     },
     "timesShownInConventionTime": "Ajat näytetään kunkin conin paikallisessa ajassa.",
-    "loadError": "Ohjelmaasi ei voitu ladata.",
+    "loadError": "Suunnitelmaasi ei voitu näyttää",
     "conventionEmpty": {
-      "title": "Conille {{name}} ei ole vielä tallennettu mitään",
-      "subtitle": "Lisää tapahtumia conin ohjelmasta, niin ne ilmestyvät tänne.",
-      "cta": "Avaa coni"
+      "title": "Tapahtumaan {{name}} ei ole vielä tallennettu mitään",
+      "subtitle": "Selaa ohjelmaa ja valitse paneelit, joihin haluat ehtiä.",
+      "cta": "Selaa ohjelmaa"
     }
   },
   "settings": {

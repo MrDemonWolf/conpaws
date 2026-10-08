@@ -36,8 +36,8 @@
     "categories": "Kategorier",
     "allCategories": "Alla kategorier",
     "timesShownIn": "Tider visas i {{timeZone}}",
-    "noEvents": "Inga evenemang ännu",
-    "noEventsSubtitle": "Importera ett schema eller lägg till evenemang manuellt.",
+    "noEvents": "Inga paneler tillagda än",
+    "noEventsSubtitle": "Lägg till ett program från en länk eller fil, eller lägg till paneler själv.",
     "overlapLabel": "Överlappar en annan sparad panel",
     "runsAlongsideOne": "Pågår samtidigt som 1 annat evenemang",
     "runsAlongsideMany": "Pågår samtidigt som {{count}} andra evenemang",
@@ -65,22 +65,22 @@
     "createError": "Konventet kunde inte skapas. Försök igen.",
     "notFound": "Konventet hittades inte.",
     "goBack": "Gå tillbaka",
-    "addToSchedule": "Lägg till i Mitt schema",
-    "removeFromSchedule": "Ta bort från Mitt schema",
-    "scheduleActionHint": "Uppdaterar detta evenemang i Mitt schema.",
+    "addToSchedule": "Lägg till i min plan",
+    "removeFromSchedule": "Ta bort från min plan",
+    "scheduleActionHint": "Uppdaterar den här panelen i din plan.",
     "scheduleHint": {
-      "body": "Tryck på ett evenemang för att lägga till det i Mitt schema. Markerade evenemang visas i fliken Schema.",
+      "body": "Tryck på en panel för att lägga till den i din plan. Sparade paneler visas under fliken Plan.",
       "dismiss": "Dölj tips"
     },
-    "scheduleAddedAnnouncement": "{{event}} har lagts till i Mitt schema.",
-    "scheduleRemovedAnnouncement": "{{event}} har tagits bort från Mitt schema.",
+    "scheduleAddedAnnouncement": "{{event}} tillagd i din plan.",
+    "scheduleRemovedAnnouncement": "{{event}} borttagen från din plan.",
     "scheduleUpdateErrorTitle": "Schemat uppdaterades inte",
     "scheduleUpdateErrorMessage": "Evenemanget kunde inte ändras. Ditt schema lämnades oförändrat.",
     "closeEventDetails": "Stäng evenemangsdetaljer",
     "timeRangeTo": "till {{time}}",
     "eventTimeRange": "{{start}} till {{end}}",
-    "inMySchedule": "I Mitt schema",
-    "notInMySchedule": "Inte i Mitt schema",
+    "inMySchedule": "I din plan",
+    "notInMySchedule": "Inte i din plan",
     "reminderSet": "Påminnelse inställd",
     "eventSource": {
       "imported": "Importerat",
@@ -137,8 +137,151 @@
       "dismiss": "Stäng det här meddelandet",
       "checkNow": "Sök efter ändringar",
       "checking": "Kontrollerar…",
-      "checkFailedTitle": "Kunde inte kontrollera programmet",
-      "checkFailedMessage": "Konventets programlänk svarade inte. Ditt schema är oförändrat."
+      "checkFailedTitle": "Kunde inte söka efter ändringar",
+      "checkFailedMessage": "Ditt sparade program finns kvar. Försök igen om en stund."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Min plan",
+      "now": "Nu",
+      "accessibility": "Programvy"
+    },
+    "browse": {
+      "allDays": "Alla",
+      "allDaysAccessibility": "Alla dagar, {{count}} dagar",
+      "dayAccessibility": "{{day}}, {{count}} paneler",
+      "allTimes": "Alla tider",
+      "slotAccessibility": "Paneler mellan {{start}} och {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · alla dagar",
+      "headingDay": "{{day}} · alla tider",
+      "headingAllDays": "Alla paneler",
+      "total": "{{count}} totalt",
+      "hint": "Välj det som lockar. Bestäm dig senare.",
+      "filterActive": "Filter: {{category}}",
+      "clearFilters": "Rensa filter",
+      "noMatches": {
+        "title": "Inga paneler matchar de här valen",
+        "body": "Prova en annan tid eller rensa filtren för att se mer av programmet."
+      },
+      "noneThisDay": {
+        "title": "Inget den här dagen än",
+        "body": "Programmet har inga paneler den här dagen. Prova en annan dag."
+      },
+      "allDaysCta": "Visa alla dagar",
+      "dropIn": {
+        "title": "Titta in när som helst",
+        "subtitle": "Ingen fast tid"
+      },
+      "noSeat": "Att spara en panel reserverar ingen plats.",
+      "optionsOne": "{{count}} alternativ",
+      "optionsMany": "{{count}} alternativ",
+      "daysOne": "{{count}} dag",
+      "daysMany": "{{count}} dagar"
+    },
+    "savedLabel": "Sparad",
+    "saveAction": "Spara {{title}} i min plan",
+    "unsaveAction": "Ta bort {{title}} från min plan",
+    "plan": {
+      "until": "Till {{time}}",
+      "gap": {
+        "free": "{{minutes}} min ledigt · Tid att ta sig dit",
+        "freeHours": "{{hours}} h ledigt · Tid att andas",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min ledigt · Tid att andas",
+        "backToBack": "Direkt efter varandra · Kolla nästa rum",
+        "overlap": "{{minutes}} min överlapp · Välj det som passar"
+      },
+      "status": {
+        "now": "Nu",
+        "endedToday": "Tidigare i dag",
+        "ended": "Avslutad"
+      },
+      "overlap": {
+        "title": "Vissa paneler överlappar",
+        "body": "Behåll båda eller välj den du vill ha.",
+        "cta": "Granska överlapp"
+      },
+      "empty": {
+        "title": "Din dag är fri",
+        "body": "Inget är sparat för den här dagen än.",
+        "cta": "Bläddra bland paneler"
+      },
+      "emptyConvention": {
+        "title": "Inget sparat än",
+        "body": "Bläddra i programmet och välj panelerna du vill hinna med. Du kan lägga till fler än en."
+      },
+      "updated": {
+        "title": "Planen uppdaterad",
+        "body": "Din plan har ändrats. Panelernas tider är desamma."
+      },
+      "savedCountOne": "{{count}} sparad",
+      "savedCountMany": "{{count}} sparade"
+    },
+    "now": {
+      "happeningNow": "Pågår nu",
+      "upNext": "Härnäst",
+      "until": "Till",
+      "startsAt": "Börjar kl.",
+      "unknownEnd": "Sluttid inte angiven",
+      "reminder": "Påminnelse: {{label}}",
+      "next": "Nästa · {{time}}",
+      "nextAccessibility": "Nästa: {{title}}",
+      "otherOptions": "Andra alternativ den här timmen",
+      "openPanel": "Öppna panel",
+      "setReminder": "Ställ in en påminnelse",
+      "openAccessibility": "Öppna {{title}}",
+      "nothingPicked": {
+        "title": "Ingen nästa panel vald än",
+        "body": "Bläddra i programmet och välj panelerna du vill hinna med.",
+        "cta": "Bläddra i programmet"
+      },
+      "finished": {
+        "title": "Det var din plan för i dag",
+        "body": "Du har nått slutet av dagens val. Det kan fortfarande finnas andra paneler att hinna med.",
+        "nextDay": "Härnäst: {{title}} {{day}} kl. {{time}}."
+      },
+      "nothingToday": {
+        "title": "Inget planerat i dag"
+      },
+      "allEnded": {
+        "title": "Alla dina sparade paneler är slut",
+        "body": "Bläddra i programmet för att se vad mer som pågår."
+      },
+      "minutesLeftOne": "{{count}} min kvar",
+      "minutesLeftMany": "{{count}} min kvar",
+      "minutesUntilOne": "Börjar om {{count}} min",
+      "minutesUntilMany": "Börjar om {{count}} min",
+      "alsoNowOne": "Även sparad just nu: {{count}} till",
+      "alsoNowMany": "Även sparade just nu: {{count}} till"
+    },
+    "status": {
+      "checking": "Söker efter uppdateringar …"
+    },
+    "compare": {
+      "title": "Gör plats för en favorit.",
+      "subtitle": "De här panelerna pågår delvis samtidigt. Vilken känns mest som du?",
+      "inPlan": "I din plan",
+      "overlapsChoice": "{{minutes}} min överlappar ditt nuvarande val",
+      "switchTo": "Byt till den här panelen",
+      "addToPlan": "Lägg till i min plan",
+      "keepOnly": "Behåll bara den här panelen",
+      "keepPlan": "Behåll den här planen",
+      "keepBoth": "Behåll båda i min plan",
+      "othersStay": "Dina andra sparade paneler förblir sparade.",
+      "updatedAnnouncement": "{{event}} tillagd i din plan. Borttagna: {{count}}.",
+      "possibilitiesOne": "{{count}} möjlighet",
+      "possibilitiesMany": "{{count}} möjligheter",
+      "replacesOne": "Ersätter {{titles}}. Borttagna paneler finns kvar i programmet; du kan spara dem igen när som helst.",
+      "replacesMany": "Ersätter {{count}} sparade paneler. Borttagna paneler finns kvar i programmet; du kan spara dem igen när som helst."
+    },
+    "panel": {
+      "about": "Om den här panelen",
+      "durationMinutesOne": "{{count}} minut",
+      "durationMinutesMany": "{{count}} minuter",
+      "noReminder": "Ingen påminnelse",
+      "overlapsPlan": "Överlappar din plan",
+      "overlapWith": "{{minutes}} min med {{title}}",
+      "compareBeforeAdding": "Jämför innan du lägger till"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Du är helt i fas",
-      "subtitle": "Alla sparade programpunkter på {{name}} har avslutats.",
+      "subtitle": "Alla dina sparade paneler på {{name}} är slut.",
       "cta": "Visa konventet"
     },
     "title": "Schema",
     "empty": {
-      "title": "Inget stjärnmärkt än",
-      "subtitle": "Tryck på ett evenemang i ett konvent för att lägga till det i Mitt schema – det hamnar här.",
+      "title": "Inga paneler valda än",
+      "subtitle": "Bläddra i ett konvents program och välj panelerna du vill hinna med. De dyker upp här.",
       "cta": "Öppna mina konvent"
     },
     "timesShownInConventionTime": "Tiderna visas i varje konvents lokala tid.",
-    "loadError": "Ditt schema kunde inte läsas in.",
+    "loadError": "Vi kunde inte visa din plan",
     "conventionEmpty": {
       "title": "Inget sparat för {{name}} än",
-      "subtitle": "Lägg till evenemang från konventets schema så visas de här.",
-      "cta": "Öppna konventet"
+      "subtitle": "Bläddra i programmet och välj panelerna du vill hinna med.",
+      "cta": "Bläddra i programmet"
     }
   },
   "settings": {

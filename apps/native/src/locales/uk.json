@@ -13,7 +13,7 @@
     "loading": "Завантаження...",
     "error": "Щось пішло не так",
     "openLinkError": "Не вдалося відкрити це посилання",
-    "retry": "Спробувати ще раз",
+    "retry": "Повторити",
     "learnMore": "Докладніше",
     "version": "Версія {{version}}",
     "advanced": "Додатково",
@@ -36,8 +36,8 @@
     "categories": "Категорії",
     "allCategories": "Усі категорії",
     "timesShownIn": "Час показано в поясі {{timeZone}}",
-    "noEvents": "Подій поки немає",
-    "noEventsSubtitle": "Імпортуйте розклад або додайте події вручну.",
+    "noEvents": "Панелей поки немає",
+    "noEventsSubtitle": "Додайте програму за посиланням або з файлу чи створіть панелі самі.",
     "overlapLabel": "Перетинається з іншою збереженою панеллю",
     "runsAlongsideOne": "Відбувається одночасно з 1 іншою подією",
     "runsAlongsideMany": "Відбувається одночасно з іншими подіями: {{count}}",
@@ -65,22 +65,22 @@
     "createError": "Не вдалося створити конвент. Спробуйте ще раз.",
     "notFound": "Конвент не знайдено.",
     "goBack": "Повернутися",
-    "addToSchedule": "Додати до Мого розкладу",
-    "removeFromSchedule": "Прибрати з Мого розкладу",
-    "scheduleActionHint": "Оновлює цю подію в Моєму розкладі.",
+    "addToSchedule": "Додати до мого плану",
+    "removeFromSchedule": "Прибрати з мого плану",
+    "scheduleActionHint": "Оновлює цю панель у вашому плані.",
     "scheduleHint": {
-      "body": "Торкніться події, щоб додати її до Мого розкладу. Позначені події з'являються на вкладці «Розклад».",
+      "body": "Торкніться панелі, щоб додати її до плану. Збережені панелі з’являться на вкладці «План».",
       "dismiss": "Закрити підказку"
     },
-    "scheduleAddedAnnouncement": "{{event}} додано до Мого розкладу.",
-    "scheduleRemovedAnnouncement": "{{event}} прибрано з Мого розкладу.",
+    "scheduleAddedAnnouncement": "«{{event}}» додано до вашого плану.",
+    "scheduleRemovedAnnouncement": "«{{event}}» прибрано з вашого плану.",
     "scheduleUpdateErrorTitle": "Розклад не оновлено",
     "scheduleUpdateErrorMessage": "Не вдалося змінити подію. Ваш розклад залишився без змін.",
     "closeEventDetails": "Закрити деталі події",
     "timeRangeTo": "до {{time}}",
     "eventTimeRange": "{{start}} – {{end}}",
-    "inMySchedule": "У Моєму розкладі",
-    "notInMySchedule": "Немає в Моєму розкладі",
+    "inMySchedule": "У вашому плані",
+    "notInMySchedule": "Не у вашому плані",
     "reminderSet": "Нагадування встановлено",
     "eventSource": {
       "imported": "Імпортовано",
@@ -141,8 +141,161 @@
       "dismiss": "Закрити це сповіщення",
       "checkNow": "Перевірити зміни",
       "checking": "Перевірка…",
-      "checkFailedTitle": "Не вдалося перевірити розклад",
-      "checkFailedMessage": "Посилання на розклад конвенту не відповіло. Ваш розклад не змінився."
+      "checkFailedTitle": "Не вдалося перевірити зміни",
+      "checkFailedMessage": "Збережена програма на місці. Спробуйте ще раз трохи згодом."
+    },
+    "views": {
+      "all": "Програма",
+      "mine": "Мій план",
+      "now": "Зараз",
+      "accessibility": "Вигляд програми"
+    },
+    "browse": {
+      "allDays": "Усі",
+      "allDaysAccessibility": "Усі дні, днів: {{count}}",
+      "dayAccessibility": "{{day}}, панелей: {{count}}",
+      "allTimes": "Увесь час",
+      "slotAccessibility": "Панелі з {{start}} до {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · усі дні",
+      "headingDay": "{{day}} · увесь час",
+      "headingAllDays": "Усі панелі",
+      "total": "усього {{count}}",
+      "hint": "Обирайте все, що зацікавило. Вирішите пізніше.",
+      "filterActive": "Фільтр: {{category}}",
+      "clearFilters": "Скинути фільтри",
+      "noMatches": {
+        "title": "Під ці умови не підходить жодна панель",
+        "body": "Спробуйте інший час або скиньте фільтри, щоб побачити більше програми."
+      },
+      "noneThisDay": {
+        "title": "Цього дня поки нічого немає",
+        "body": "У програмі немає панелей цього дня. Спробуйте інший день."
+      },
+      "allDaysCta": "Показати всі дні",
+      "dropIn": {
+        "title": "Заходьте будь-коли",
+        "subtitle": "Без фіксованого часу"
+      },
+      "noSeat": "Збереження панелі не бронює місце.",
+      "optionsOne": "{{count}} варіант",
+      "optionsMany": "{{count}} варіантів",
+      "optionsMany_one": "{{count}} варіант",
+      "optionsMany_few": "{{count}} варіанти",
+      "daysOne": "{{count}} день",
+      "daysMany": "{{count}} днів",
+      "daysMany_one": "{{count}} день",
+      "daysMany_few": "{{count}} дні"
+    },
+    "savedLabel": "Збережено",
+    "saveAction": "Зберегти «{{title}}» у мій план",
+    "unsaveAction": "Прибрати «{{title}}» з мого плану",
+    "plan": {
+      "until": "До {{time}}",
+      "gap": {
+        "free": "{{minutes}} хв вільно · Час дійти",
+        "freeHours": "{{hours}} год вільно · Час перепочити",
+        "freeHoursMinutes": "{{hours}} год {{minutes}} хв вільно · Час перепочити",
+        "backToBack": "Поспіль · Перевірте наступну залу",
+        "overlap": "Перетин {{minutes}} хв · Оберіть, що підходить"
+      },
+      "status": {
+        "now": "Зараз",
+        "endedToday": "Сьогодні раніше",
+        "ended": "Завершено"
+      },
+      "overlap": {
+        "title": "Деякі панелі перетинаються",
+        "body": "Залиште обидві або виберіть ту, що потрібна.",
+        "cta": "Переглянути перетин"
+      },
+      "empty": {
+        "title": "День вільний",
+        "body": "На цей день поки нічого не збережено.",
+        "cta": "Переглянути панелі"
+      },
+      "emptyConvention": {
+        "title": "Поки нічого не збережено",
+        "body": "Перегляньте програму й оберіть панелі, які хочете відвідати. Можна обрати кілька."
+      },
+      "updated": {
+        "title": "План оновлено",
+        "body": "Ваш план змінився. Час панелей залишився тим самим."
+      },
+      "savedCountOne": "{{count}} збережена",
+      "savedCountMany": "{{count}} збережено",
+      "savedCountMany_one": "{{count}} збережена",
+      "savedCountMany_few": "{{count}} збережені"
+    },
+    "now": {
+      "happeningNow": "Триває зараз",
+      "upNext": "Далі",
+      "until": "До",
+      "startsAt": "Початок о",
+      "unknownEnd": "Час завершення не вказано",
+      "reminder": "Нагадування: {{label}}",
+      "next": "Далі · {{time}}",
+      "nextAccessibility": "Далі: {{title}}",
+      "otherOptions": "Інші варіанти цієї години",
+      "openPanel": "Відкрити панель",
+      "setReminder": "Поставити нагадування",
+      "openAccessibility": "Відкрити «{{title}}»",
+      "nothingPicked": {
+        "title": "Наступну панель ще не обрано",
+        "body": "Перегляньте програму й оберіть панелі, які хочете відвідати.",
+        "cta": "Переглянути програму"
+      },
+      "finished": {
+        "title": "Це був ваш план на сьогодні",
+        "body": "Сьогоднішні обрані панелі завершилися. Можливо, є й інші, які варто побачити.",
+        "nextDay": "Далі: {{title}}, {{day}} о {{time}}."
+      },
+      "nothingToday": {
+        "title": "На сьогодні нічого не заплановано"
+      },
+      "allEnded": {
+        "title": "Усі збережені панелі завершилися",
+        "body": "Перегляньте програму, щоб дізнатися, що ще відбувається."
+      },
+      "minutesLeftOne": "Залишилася {{count}} хв",
+      "minutesLeftMany": "Залишилося {{count}} хв",
+      "minutesUntilOne": "Почнеться за {{count}} хв",
+      "minutesUntilMany": "Почнеться за {{count}} хв",
+      "alsoNowOne": "Зараз також триває: ще {{count}}",
+      "alsoNowMany": "Зараз також тривають: ще {{count}}"
+    },
+    "status": {
+      "checking": "Перевіряємо оновлення…"
+    },
+    "compare": {
+      "title": "Звільніть місце для улюбленої панелі.",
+      "subtitle": "Ці панелі частково збігаються в часі. Яка вам ближча?",
+      "inPlan": "У вашому плані",
+      "overlapsChoice": "{{minutes}} хв перетинаються з поточним вибором",
+      "switchTo": "Перейти на цю панель",
+      "addToPlan": "Додати до мого плану",
+      "keepOnly": "Залишити лише цю панель",
+      "keepPlan": "Залишити цей план",
+      "keepBoth": "Залишити обидві в моєму плані",
+      "othersStay": "Решта збережених панелей залишаються.",
+      "updatedAnnouncement": "«{{event}}» додано до вашого плану. Прибрано: {{count}}.",
+      "possibilitiesOne": "{{count}} варіант",
+      "possibilitiesMany": "{{count}} варіантів",
+      "possibilitiesMany_one": "{{count}} варіант",
+      "possibilitiesMany_few": "{{count}} варіанти",
+      "replacesOne": "Замінить «{{titles}}». Прибрані панелі залишаються в програмі; їх можна зберегти знову будь-коли.",
+      "replacesMany": "Замінить збережених панелей: {{count}}. Прибрані панелі залишаються в програмі; їх можна зберегти знову будь-коли."
+    },
+    "panel": {
+      "about": "Про цю панель",
+      "durationMinutesOne": "{{count}} хвилина",
+      "durationMinutesMany": "{{count}} хвилин",
+      "durationMinutesMany_one": "{{count}} хвилина",
+      "durationMinutesMany_few": "{{count}} хвилини",
+      "noReminder": "Без нагадування",
+      "overlapsPlan": "Перетинається з вашим планом",
+      "overlapWith": "{{minutes}} хв із «{{title}}»",
+      "compareBeforeAdding": "Порівняти перед додаванням"
     }
   },
   "errors": {
@@ -360,21 +513,21 @@
   "schedule": {
     "caughtUp": {
       "title": "На сьогодні все",
-      "subtitle": "Усі збережені події на конвенті {{name}} завершилися.",
+      "subtitle": "Усі збережені панелі на {{name}} завершилися.",
       "cta": "Відкрити конвент"
     },
     "title": "Розклад",
     "empty": {
-      "title": "Поки нічого не позначено",
-      "subtitle": "Торкніться події всередині конвенту, щоб додати її до Мого розкладу — вона з'явиться тут.",
+      "title": "Панелі ще не обрано",
+      "subtitle": "Перегляньте програму конвенту й оберіть панелі, які хочете відвідати. Вони з’являться тут.",
       "cta": "Відкрити мої конвенти"
     },
     "timesShownInConventionTime": "Час показано за місцевим часом кожного конвенту.",
-    "loadError": "Не вдалося завантажити ваш розклад.",
+    "loadError": "Не вдалося показати ваш план",
     "conventionEmpty": {
       "title": "Для {{name}} поки нічого не збережено",
-      "subtitle": "Додайте події з розкладу конвенту — і вони з'являться тут.",
-      "cta": "Відкрити конвент"
+      "subtitle": "Перегляньте програму й оберіть панелі, які хочете відвідати.",
+      "cta": "Переглянути програму"
     }
   },
   "settings": {

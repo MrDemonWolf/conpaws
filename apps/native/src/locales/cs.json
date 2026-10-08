@@ -36,8 +36,8 @@
     "categories": "Kategorie",
     "allCategories": "Všechny kategorie",
     "timesShownIn": "Časy se zobrazují v pásmu {{timeZone}}",
-    "noEvents": "Zatím žádné události",
-    "noEventsSubtitle": "Importujte program, nebo přidejte události ručně.",
+    "noEvents": "Zatím nebyly přidány žádné panely",
+    "noEventsSubtitle": "Přidej program z odkazu nebo souboru, nebo panely vytvoř sám.",
     "overlapLabel": "Překrývá se s jiným uloženým panelem",
     "runsAlongsideOne": "Probíhá souběžně s 1 další událostí",
     "runsAlongsideMany": "Probíhá souběžně s {{count}} dalšími událostmi",
@@ -65,22 +65,22 @@
     "createError": "Con se nepodařilo vytvořit. Zkuste to znovu.",
     "notFound": "Con nebyl nalezen.",
     "goBack": "Zpět",
-    "addToSchedule": "Přidat do Mého programu",
-    "removeFromSchedule": "Odebrat z Mého programu",
-    "scheduleActionHint": "Aktualizuje tuto událost v Mém programu.",
+    "addToSchedule": "Přidat do mého plánu",
+    "removeFromSchedule": "Odebrat z mého plánu",
+    "scheduleActionHint": "Aktualizuje tento panel ve tvém plánu.",
     "scheduleHint": {
-      "body": "Klepnutím na událost ji přidáte do Mého programu. Označené události se zobrazí na kartě Program.",
+      "body": "Klepni na panel a přidej ho do svého plánu. Uložené panely se zobrazí na kartě Plán.",
       "dismiss": "Zavřít nápovědu"
     },
-    "scheduleAddedAnnouncement": "{{event}} byla přidána do Mého programu.",
-    "scheduleRemovedAnnouncement": "{{event}} byla odebrána z Mého programu.",
+    "scheduleAddedAnnouncement": "{{event}} přidán do tvého plánu.",
+    "scheduleRemovedAnnouncement": "{{event}} odebrán z tvého plánu.",
     "scheduleUpdateErrorTitle": "Program nebyl aktualizován",
     "scheduleUpdateErrorMessage": "Událost se nepodařilo změnit. Váš program zůstal beze změny.",
     "closeEventDetails": "Zavřít podrobnosti události",
     "timeRangeTo": "do {{time}}",
     "eventTimeRange": "{{start}} až {{end}}",
-    "inMySchedule": "V Mém programu",
-    "notInMySchedule": "Není v Mém programu",
+    "inMySchedule": "V tvém plánu",
+    "notInMySchedule": "Není v tvém plánu",
     "reminderSet": "Připomenutí nastaveno",
     "eventSource": {
       "imported": "Importováno",
@@ -141,8 +141,158 @@
       "dismiss": "Zavřít toto oznámení",
       "checkNow": "Zkontrolovat změny",
       "checking": "Kontroluji…",
-      "checkFailedTitle": "Program se nepodařilo zkontrolovat",
-      "checkFailedMessage": "Odkaz na program konventu neodpověděl. Tvůj program zůstává beze změny."
+      "checkFailedTitle": "Změny se nepodařilo zkontrolovat",
+      "checkFailedMessage": "Tvůj uložený program je stále tady. Zkus to za chvíli znovu."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Můj plán",
+      "now": "Teď",
+      "accessibility": "Zobrazení programu"
+    },
+    "browse": {
+      "allDays": "Vše",
+      "allDaysAccessibility": "Všechny dny, {{count}} dní",
+      "dayAccessibility": "{{day}}, {{count}} panelů",
+      "allTimes": "Všechny časy",
+      "slotAccessibility": "Panely mezi {{start}} a {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · všechny dny",
+      "headingDay": "{{day}} · všechny časy",
+      "headingAllDays": "Všechny panely",
+      "total": "celkem {{count}}",
+      "hint": "Vyber, co tě zaujme. Rozhodneš se později.",
+      "filterActive": "Filtr: {{category}}",
+      "clearFilters": "Zrušit filtry",
+      "noMatches": {
+        "title": "Tomuto výběru neodpovídají žádné panely",
+        "body": "Zkus jiný čas nebo zruš filtry, abys viděl víc z programu."
+      },
+      "noneThisDay": {
+        "title": "V tento den zatím nic není",
+        "body": "Program v tento den nemá žádné panely. Zkus jiný den."
+      },
+      "allDaysCta": "Zobrazit všechny dny",
+      "dropIn": {
+        "title": "Zastav se kdykoli",
+        "subtitle": "Bez pevného času"
+      },
+      "noSeat": "Uložení panelu nerezervuje místo.",
+      "optionsOne": "{{count}} možnost",
+      "optionsMany": "{{count}} možností",
+      "optionsMany_few": "{{count}} možnosti",
+      "daysOne": "{{count}} den",
+      "daysMany": "{{count}} dní",
+      "daysMany_few": "{{count}} dny"
+    },
+    "savedLabel": "Uloženo",
+    "saveAction": "Uložit {{title}} do mého plánu",
+    "unsaveAction": "Odebrat {{title}} z mého plánu",
+    "plan": {
+      "until": "Do {{time}}",
+      "gap": {
+        "free": "{{minutes}} min volno · Čas na přesun",
+        "freeHours": "{{hours}} h volno · Čas si vydechnout",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min volno · Čas si vydechnout",
+        "backToBack": "Hned po sobě · Zkontroluj svou další místnost",
+        "overlap": "Překryv {{minutes}} min · Vyber, co ti vyhovuje"
+      },
+      "status": {
+        "now": "Teď",
+        "endedToday": "Dnes dříve",
+        "ended": "Skončilo"
+      },
+      "overlap": {
+        "title": "Některé panely se překrývají",
+        "body": "Nech si oba, nebo vyber ten, který chceš.",
+        "cta": "Zkontrolovat překryv"
+      },
+      "empty": {
+        "title": "Máš volný den",
+        "body": "Na tento den zatím nic uloženého nemáš.",
+        "cta": "Procházet panely"
+      },
+      "emptyConvention": {
+        "title": "Zatím nic uloženého",
+        "body": "Projdi si program a vyber panely, které chceš stihnout. Můžeš přidat víc než jeden."
+      },
+      "updated": {
+        "title": "Plán aktualizován",
+        "body": "Tvůj plán se změnil. Časy panelů zůstávají stejné."
+      },
+      "savedCountOne": "{{count}} uložený",
+      "savedCountMany": "{{count}} uložených",
+      "savedCountMany_few": "{{count}} uložené"
+    },
+    "now": {
+      "happeningNow": "Právě probíhá",
+      "upNext": "Následuje",
+      "until": "Do",
+      "startsAt": "Začíná v",
+      "unknownEnd": "Čas konce není zveřejněn",
+      "reminder": "Připomenutí: {{label}}",
+      "next": "Další · {{time}}",
+      "nextAccessibility": "Další: {{title}}",
+      "otherOptions": "Další možnosti v této hodině",
+      "openPanel": "Otevřít panel",
+      "setReminder": "Nastavit připomenutí",
+      "openAccessibility": "Otevřít {{title}}",
+      "nothingPicked": {
+        "title": "Zatím nemáš vybraný další panel",
+        "body": "Projdi si program a vyber panely, které chceš stihnout.",
+        "cta": "Procházet program"
+      },
+      "finished": {
+        "title": "To byl tvůj plán na dnešek",
+        "body": "Dnešní výběr jsi dokončil. Možná jsou ještě další panely, které stojí za to.",
+        "nextDay": "Další: {{title}} {{day}} v {{time}}."
+      },
+      "nothingToday": {
+        "title": "Na dnešek nic naplánováno"
+      },
+      "allEnded": {
+        "title": "Všechny tvoje uložené panely skončily",
+        "body": "Projdi si program a podívej se, co ještě běží."
+      },
+      "minutesLeftOne": "Zbývá {{count}} min",
+      "minutesLeftMany": "Zbývá {{count}} min",
+      "minutesUntilOne": "Začíná za {{count}} min",
+      "minutesUntilMany": "Začíná za {{count}} min",
+      "alsoNowOne": "Právě teď také uloženo: {{count}} další",
+      "alsoNowMany": "Právě teď také uloženo: {{count}} dalších",
+      "alsoNowMany_few": "Právě teď také uloženo: {{count}} další"
+    },
+    "status": {
+      "checking": "Hledám aktualizace…"
+    },
+    "compare": {
+      "title": "Udělej místo oblíbenému panelu.",
+      "subtitle": "Tyto panely se částečně časově překrývají. Který je víc tvůj?",
+      "inPlan": "V tvém plánu",
+      "overlapsChoice": "{{minutes}} min se překrývá s tvou současnou volbou",
+      "switchTo": "Přejít na tento panel",
+      "addToPlan": "Přidat do mého plánu",
+      "keepOnly": "Nechat si jen tento panel",
+      "keepPlan": "Ponechat tento plán",
+      "keepBoth": "Nechat si oba v plánu",
+      "othersStay": "Tvoje ostatní uložené panely zůstávají uložené.",
+      "updatedAnnouncement": "{{event}} přidán do tvého plánu. Odebráno: {{count}}.",
+      "possibilitiesOne": "{{count}} možnost",
+      "possibilitiesMany": "{{count}} možností",
+      "possibilitiesMany_few": "{{count}} možnosti",
+      "replacesOne": "Nahradí {{titles}}. Odebrané panely zůstávají v programu; kdykoli si je můžeš uložit znovu.",
+      "replacesMany": "Nahradí {{count}} uložených panelů. Odebrané panely zůstávají v programu; kdykoli si je můžeš uložit znovu.",
+      "replacesMany_few": "Nahradí {{count}} uložené panely. Odebrané panely zůstávají v programu; kdykoli si je můžeš uložit znovu."
+    },
+    "panel": {
+      "about": "O tomto panelu",
+      "durationMinutesOne": "{{count}} minuta",
+      "durationMinutesMany": "{{count}} minut",
+      "durationMinutesMany_few": "{{count}} minuty",
+      "noReminder": "Bez připomenutí",
+      "overlapsPlan": "Překrývá se s tvým plánem",
+      "overlapWith": "{{minutes}} min s {{title}}",
+      "compareBeforeAdding": "Porovnat před přidáním"
     }
   },
   "errors": {
@@ -360,21 +510,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Máte vše hotovo",
-      "subtitle": "Všechny uložené události na {{name}} už skončily.",
+      "subtitle": "Všechny tvoje uložené panely na {{name}} skončily.",
       "cta": "Zobrazit con"
     },
     "title": "Program",
     "empty": {
-      "title": "Zatím nic označeného",
-      "subtitle": "Klepněte na událost uvnitř conu a přidejte ji do Mého programu — objeví se tady.",
+      "title": "Zatím nemáš vybrané žádné panely",
+      "subtitle": "Projdi si program conu a vyber panely, které chceš stihnout. Zobrazí se tady.",
       "cta": "Otevřít moje cony"
     },
     "timesShownInConventionTime": "Časy se zobrazují v místním čase každého conu.",
-    "loadError": "Váš program se nepodařilo načíst.",
+    "loadError": "Tvůj plán se nepodařilo zobrazit",
     "conventionEmpty": {
       "title": "Pro {{name}} zatím nic uloženého",
-      "subtitle": "Přidejte události z programu conu a objeví se tady.",
-      "cta": "Otevřít con"
+      "subtitle": "Projdi si program a vyber panely, které chceš stihnout.",
+      "cta": "Procházet program"
     }
   },
   "settings": {

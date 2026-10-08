@@ -36,8 +36,8 @@
     "categories": "Categorías",
     "allCategories": "Todas las categorías",
     "timesShownIn": "Las horas se muestran en {{timeZone}}",
-    "noEvents": "Sin eventos aún",
-    "noEventsSubtitle": "Importa un horario o añade eventos manualmente.",
+    "noEvents": "Todavía no se han añadido paneles",
+    "noEventsSubtitle": "Añade un programa desde un enlace o un archivo, o crea paneles tú mismo.",
     "overlapLabel": "Se solapa con otro panel guardado",
     "runsAlongsideOne": "Coincide en horario con 1 evento más",
     "runsAlongsideMany": "Coincide en horario con {{count}} eventos más",
@@ -65,22 +65,22 @@
     "createError": "No se pudo crear la convención. Inténtalo de nuevo.",
     "notFound": "No se encontró la convención.",
     "goBack": "Volver",
-    "addToSchedule": "Añadir a Mi horario",
-    "removeFromSchedule": "Quitar de Mi horario",
-    "scheduleActionHint": "Actualiza este evento en Mi horario.",
+    "addToSchedule": "Añadir a mi plan",
+    "removeFromSchedule": "Quitar de mi plan",
+    "scheduleActionHint": "Actualiza este panel en tu plan.",
     "scheduleHint": {
-      "body": "Toca un evento para añadirlo a Mi horario. Los eventos marcados aparecen en la pestaña Horario.",
+      "body": "Toca un panel para añadirlo a tu plan. Los paneles guardados aparecen en la pestaña Plan.",
       "dismiss": "Descartar aviso"
     },
-    "scheduleAddedAnnouncement": "{{event}} se añadió a Mi horario.",
-    "scheduleRemovedAnnouncement": "{{event}} se quitó de Mi horario.",
+    "scheduleAddedAnnouncement": "{{event}} añadido a tu plan.",
+    "scheduleRemovedAnnouncement": "{{event}} quitado de tu plan.",
     "scheduleUpdateErrorTitle": "Horario no actualizado",
     "scheduleUpdateErrorMessage": "No se pudo cambiar el evento. Tu horario no se modificó.",
     "closeEventDetails": "Cerrar detalles del evento",
     "timeRangeTo": "a {{time}}",
     "eventTimeRange": "{{start}} a {{end}}",
-    "inMySchedule": "En Mi horario",
-    "notInMySchedule": "No está en Mi horario",
+    "inMySchedule": "En tu plan",
+    "notInMySchedule": "No está en tu plan",
     "reminderSet": "Aviso configurado",
     "eventSource": {
       "imported": "Importado",
@@ -137,8 +137,151 @@
       "dismiss": "Descartar este aviso",
       "checkNow": "Buscar cambios",
       "checking": "Comprobando…",
-      "checkFailedTitle": "No se ha podido comprobar el programa",
-      "checkFailedMessage": "El enlace del programa de la convención no ha respondido. Tu agenda sigue igual."
+      "checkFailedTitle": "No se han podido comprobar los cambios",
+      "checkFailedMessage": "Tu programa guardado sigue aquí. Inténtalo de nuevo en un momento."
+    },
+    "views": {
+      "all": "Programa",
+      "mine": "Mi plan",
+      "now": "Ahora",
+      "accessibility": "Vista del programa"
+    },
+    "browse": {
+      "allDays": "Todos",
+      "allDaysAccessibility": "Todos los días, {{count}} días",
+      "dayAccessibility": "{{day}}, {{count}} paneles",
+      "allTimes": "Todas las horas",
+      "slotAccessibility": "Paneles entre las {{start}} y las {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · todos los días",
+      "headingDay": "{{day}} · todas las horas",
+      "headingAllDays": "Todos los paneles",
+      "total": "{{count}} en total",
+      "hint": "Elige lo que te llame la atención. Decide después.",
+      "filterActive": "Filtro: {{category}}",
+      "clearFilters": "Quitar filtros",
+      "noMatches": {
+        "title": "Ningún panel coincide con esta selección",
+        "body": "Prueba otra hora o quita los filtros para ver más del programa."
+      },
+      "noneThisDay": {
+        "title": "Todavía no hay nada este día",
+        "body": "El programa no tiene paneles este día. Prueba otro día."
+      },
+      "allDaysCta": "Mostrar todos los días",
+      "dropIn": {
+        "title": "Pásate cuando quieras",
+        "subtitle": "Sin hora fija"
+      },
+      "noSeat": "Guardar un panel no reserva asiento.",
+      "optionsOne": "{{count}} opción",
+      "optionsMany": "{{count}} opciones",
+      "daysOne": "{{count}} día",
+      "daysMany": "{{count}} días"
+    },
+    "savedLabel": "Guardado",
+    "saveAction": "Guardar {{title}} en mi plan",
+    "unsaveAction": "Quitar {{title}} de mi plan",
+    "plan": {
+      "until": "Hasta las {{time}}",
+      "gap": {
+        "free": "{{minutes}} min libres · Tiempo para llegar",
+        "freeHours": "{{hours}} h libres · Tómate un respiro",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min libres · Tómate un respiro",
+        "backToBack": "Seguidos · Comprueba tu próxima sala",
+        "overlap": "{{minutes}} min de solapamiento · Elige lo que te encaje"
+      },
+      "status": {
+        "now": "Ahora",
+        "endedToday": "Antes hoy",
+        "ended": "Terminado"
+      },
+      "overlap": {
+        "title": "Algunos paneles se solapan",
+        "body": "Quédate con los dos o elige el que quieras.",
+        "cta": "Revisar solapamiento"
+      },
+      "empty": {
+        "title": "Tienes el día libre",
+        "body": "Todavía no hay nada guardado para este día.",
+        "cta": "Explorar paneles"
+      },
+      "emptyConvention": {
+        "title": "Todavía no hay nada guardado",
+        "body": "Explora el programa y elige los paneles a los que quieres ir. Puedes añadir más de uno."
+      },
+      "updated": {
+        "title": "Plan actualizado",
+        "body": "Tu plan ha cambiado. Los horarios de los paneles siguen igual."
+      },
+      "savedCountOne": "{{count}} guardado",
+      "savedCountMany": "{{count}} guardados"
+    },
+    "now": {
+      "happeningNow": "Ahora mismo",
+      "upNext": "A continuación",
+      "until": "Hasta",
+      "startsAt": "Empieza a las",
+      "unknownEnd": "Hora de fin no publicada",
+      "reminder": "Recordatorio: {{label}}",
+      "next": "Siguiente · {{time}}",
+      "nextAccessibility": "Siguiente: {{title}}",
+      "otherOptions": "Otras opciones esta hora",
+      "openPanel": "Abrir panel",
+      "setReminder": "Poner un recordatorio",
+      "openAccessibility": "Abrir {{title}}",
+      "nothingPicked": {
+        "title": "Aún no has elegido el siguiente panel",
+        "body": "Explora el programa y elige los paneles a los que quieres ir.",
+        "cta": "Explorar el programa"
+      },
+      "finished": {
+        "title": "Ese era tu plan de hoy",
+        "body": "Has llegado al final de tus elecciones de hoy. Puede que aún queden otros paneles por ver.",
+        "nextDay": "Siguiente: {{title}} el {{day}} a las {{time}}."
+      },
+      "nothingToday": {
+        "title": "Nada planeado para hoy"
+      },
+      "allEnded": {
+        "title": "Todos tus paneles guardados han terminado",
+        "body": "Explora el programa para ver qué más hay."
+      },
+      "minutesLeftOne": "Queda {{count}} min",
+      "minutesLeftMany": "Quedan {{count}} min",
+      "minutesUntilOne": "Empieza en {{count}} min",
+      "minutesUntilMany": "Empieza en {{count}} min",
+      "alsoNowOne": "También guardado ahora: {{count}} más",
+      "alsoNowMany": "También guardados ahora: {{count}} más"
+    },
+    "status": {
+      "checking": "Buscando novedades…"
+    },
+    "compare": {
+      "title": "Haz sitio a un favorito.",
+      "subtitle": "Estos paneles coinciden en parte. ¿Cuál va más contigo?",
+      "inPlan": "En tu plan",
+      "overlapsChoice": "{{minutes}} min se solapan con tu elección actual",
+      "switchTo": "Cambiar a este panel",
+      "addToPlan": "Añadir a mi plan",
+      "keepOnly": "Quedarme solo con este panel",
+      "keepPlan": "Mantener este plan",
+      "keepBoth": "Mantener los dos en mi plan",
+      "othersStay": "Tus otros paneles guardados siguen guardados.",
+      "updatedAnnouncement": "{{event}} añadido a tu plan. Quitados: {{count}}.",
+      "possibilitiesOne": "{{count}} posibilidad",
+      "possibilitiesMany": "{{count}} posibilidades",
+      "replacesOne": "Sustituye a {{titles}}. Los paneles quitados siguen en el programa; puedes volver a guardarlos cuando quieras.",
+      "replacesMany": "Sustituye a {{count}} paneles guardados. Los paneles quitados siguen en el programa; puedes volver a guardarlos cuando quieras."
+    },
+    "panel": {
+      "about": "Sobre este panel",
+      "durationMinutesOne": "{{count}} minuto",
+      "durationMinutesMany": "{{count}} minutos",
+      "noReminder": "Sin recordatorio",
+      "overlapsPlan": "Se solapa con tu plan",
+      "overlapWith": "{{minutes}} min con {{title}}",
+      "compareBeforeAdding": "Comparar antes de añadir"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Ya has terminado por ahora",
-      "subtitle": "Todos los eventos guardados de {{name}} han terminado.",
+      "subtitle": "Todos tus paneles guardados en {{name}} han terminado.",
       "cta": "Ver convención"
     },
     "title": "Horario",
     "empty": {
-      "title": "Aún no hay nada destacado",
-      "subtitle": "Toca un evento dentro de una convención para añadirlo a Mi horario: aparecerá aquí.",
+      "title": "Todavía no has elegido paneles",
+      "subtitle": "Explora el programa de una convención y elige los paneles a los que quieres ir. Aparecerán aquí.",
       "cta": "Abrir mis convenciones"
     },
     "timesShownInConventionTime": "Las horas se muestran en la hora local de cada convención.",
-    "loadError": "No se pudo cargar tu horario.",
+    "loadError": "No hemos podido mostrar tu plan",
     "conventionEmpty": {
-      "title": "Aún no hay nada guardado para {{name}}",
-      "subtitle": "Añade eventos desde el programa de la convención y aparecerán aquí.",
-      "cta": "Abrir convención"
+      "title": "Todavía no hay nada guardado para {{name}}",
+      "subtitle": "Explora el programa y elige los paneles a los que quieres ir.",
+      "cta": "Explorar el programa"
     }
   },
   "settings": {

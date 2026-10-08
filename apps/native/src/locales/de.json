@@ -36,8 +36,8 @@
     "categories": "Kategorien",
     "allCategories": "Alle Kategorien",
     "timesShownIn": "Zeiten werden in {{timeZone}} angezeigt",
-    "noEvents": "Noch keine Events",
-    "noEventsSubtitle": "Importiere einen Zeitplan oder füge Events manuell hinzu.",
+    "noEvents": "Noch keine Panels hinzugefügt",
+    "noEventsSubtitle": "Füg ein Programm über einen Link oder eine Datei hinzu oder leg Panels selbst an.",
     "overlapLabel": "Überschneidet sich mit einem anderen gespeicherten Panel",
     "runsAlongsideOne": "Läuft zeitgleich mit 1 weiteren Event",
     "runsAlongsideMany": "Läuft zeitgleich mit {{count}} weiteren Events",
@@ -65,22 +65,22 @@
     "createError": "Die Convention konnte nicht erstellt werden. Versuche es erneut.",
     "notFound": "Convention nicht gefunden.",
     "goBack": "Zurück",
-    "addToSchedule": "Zu Mein Zeitplan hinzufügen",
-    "removeFromSchedule": "Aus Mein Zeitplan entfernen",
-    "scheduleActionHint": "Aktualisiert dieses Event in Mein Zeitplan.",
+    "addToSchedule": "Zu meinem Plan hinzufügen",
+    "removeFromSchedule": "Aus meinem Plan entfernen",
+    "scheduleActionHint": "Aktualisiert dieses Panel in deinem Plan.",
     "scheduleHint": {
-      "body": "Tippe auf ein Event, um es zu Mein Zeitplan hinzuzufügen. Markierte Events erscheinen im Zeitplan-Tab.",
+      "body": "Tipp auf ein Panel, um es in deinen Plan aufzunehmen. Gespeicherte Panels erscheinen im Tab „Plan“.",
       "dismiss": "Hinweis ausblenden"
     },
-    "scheduleAddedAnnouncement": "{{event}} wurde zu Mein Zeitplan hinzugefügt.",
-    "scheduleRemovedAnnouncement": "{{event}} wurde aus Mein Zeitplan entfernt.",
+    "scheduleAddedAnnouncement": "{{event}} zu deinem Plan hinzugefügt.",
+    "scheduleRemovedAnnouncement": "{{event}} aus deinem Plan entfernt.",
     "scheduleUpdateErrorTitle": "Zeitplan nicht aktualisiert",
     "scheduleUpdateErrorMessage": "Das Event konnte nicht geändert werden. Dein Zeitplan blieb unverändert.",
     "closeEventDetails": "Eventdetails schließen",
     "timeRangeTo": "bis {{time}}",
     "eventTimeRange": "{{start}} bis {{end}}",
-    "inMySchedule": "In Mein Zeitplan",
-    "notInMySchedule": "Nicht in Mein Zeitplan",
+    "inMySchedule": "In deinem Plan",
+    "notInMySchedule": "Nicht in deinem Plan",
     "reminderSet": "Erinnerung festgelegt",
     "eventSource": {
       "imported": "Importiert",
@@ -137,8 +137,151 @@
       "dismiss": "Diesen Hinweis schließen",
       "checkNow": "Nach Änderungen suchen",
       "checking": "Wird geprüft…",
-      "checkFailedTitle": "Programm konnte nicht geprüft werden",
-      "checkFailedMessage": "Der Programm-Link der Convention hat nicht geantwortet. Dein Zeitplan ist unverändert."
+      "checkFailedTitle": "Änderungen konnten nicht geprüft werden",
+      "checkFailedMessage": "Dein gespeichertes Programm ist noch da. Versuch es gleich noch einmal."
+    },
+    "views": {
+      "all": "Programm",
+      "mine": "Mein Plan",
+      "now": "Jetzt",
+      "accessibility": "Programmansicht"
+    },
+    "browse": {
+      "allDays": "Alle",
+      "allDaysAccessibility": "Alle Tage, {{count}} Tage",
+      "dayAccessibility": "{{day}}, {{count}} Panels",
+      "allTimes": "Alle Zeiten",
+      "slotAccessibility": "Panels zwischen {{start}} und {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · alle Tage",
+      "headingDay": "{{day}} · alle Zeiten",
+      "headingAllDays": "Alle Panels",
+      "total": "{{count}} gesamt",
+      "hint": "Wähl, was dich anspricht. Entscheide später.",
+      "filterActive": "Filter: {{category}}",
+      "clearFilters": "Filter löschen",
+      "noMatches": {
+        "title": "Keine Panels passen zu dieser Auswahl",
+        "body": "Probier eine andere Uhrzeit oder lösch die Filter, um mehr vom Programm zu sehen."
+      },
+      "noneThisDay": {
+        "title": "An diesem Tag ist noch nichts",
+        "body": "Das Programm hat an diesem Tag keine Panels. Probier einen anderen Tag."
+      },
+      "allDaysCta": "Alle Tage anzeigen",
+      "dropIn": {
+        "title": "Jederzeit vorbeischauen",
+        "subtitle": "Keine feste Uhrzeit"
+      },
+      "noSeat": "Ein gespeichertes Panel reserviert keinen Platz.",
+      "optionsOne": "{{count}} Option",
+      "optionsMany": "{{count}} Optionen",
+      "daysOne": "{{count}} Tag",
+      "daysMany": "{{count}} Tage"
+    },
+    "savedLabel": "Gespeichert",
+    "saveAction": "{{title}} in meinen Plan aufnehmen",
+    "unsaveAction": "{{title}} aus meinem Plan entfernen",
+    "plan": {
+      "until": "Bis {{time}}",
+      "gap": {
+        "free": "{{minutes}} Min. frei · Zeit zum Hinkommen",
+        "freeHours": "{{hours}} Std. frei · Zeit zum Durchatmen",
+        "freeHoursMinutes": "{{hours}} Std. {{minutes}} Min. frei · Zeit zum Durchatmen",
+        "backToBack": "Direkt nacheinander · Prüf deinen nächsten Raum",
+        "overlap": "{{minutes}} Min. Überschneidung · Entscheide, was passt"
+      },
+      "status": {
+        "now": "Jetzt",
+        "endedToday": "Heute früher",
+        "ended": "Beendet"
+      },
+      "overlap": {
+        "title": "Einige Panels überschneiden sich",
+        "body": "Behalte beide oder wähl das, was du willst.",
+        "cta": "Überschneidung prüfen"
+      },
+      "empty": {
+        "title": "Dein Tag ist frei",
+        "body": "Für diesen Tag ist noch nichts gespeichert.",
+        "cta": "Panels durchstöbern"
+      },
+      "emptyConvention": {
+        "title": "Noch nichts gespeichert",
+        "body": "Stöber im Programm und wähl die Panels, die du sehen willst. Du kannst mehrere auswählen."
+      },
+      "updated": {
+        "title": "Plan aktualisiert",
+        "body": "Dein Plan hat sich geändert. Die Panelzeiten bleiben gleich."
+      },
+      "savedCountOne": "{{count}} gespeichert",
+      "savedCountMany": "{{count}} gespeichert"
+    },
+    "now": {
+      "happeningNow": "Läuft gerade",
+      "upNext": "Als Nächstes",
+      "until": "Bis",
+      "startsAt": "Beginnt um",
+      "unknownEnd": "Endzeit nicht veröffentlicht",
+      "reminder": "Erinnerung: {{label}}",
+      "next": "Danach · {{time}}",
+      "nextAccessibility": "Danach: {{title}}",
+      "otherOptions": "Weitere Optionen in dieser Stunde",
+      "openPanel": "Panel öffnen",
+      "setReminder": "Erinnerung einrichten",
+      "openAccessibility": "{{title}} öffnen",
+      "nothingPicked": {
+        "title": "Noch kein nächstes Panel ausgewählt",
+        "body": "Stöber im Programm und wähl die Panels, die du sehen willst.",
+        "cta": "Programm durchstöbern"
+      },
+      "finished": {
+        "title": "Das war dein Plan für heute",
+        "body": "Du hast das Ende deiner heutigen Auswahl erreicht. Vielleicht gibt es noch andere Panels zu entdecken.",
+        "nextDay": "Als Nächstes: {{title}} am {{day}} um {{time}}."
+      },
+      "nothingToday": {
+        "title": "Heute nichts geplant"
+      },
+      "allEnded": {
+        "title": "Alle gespeicherten Panels sind vorbei",
+        "body": "Stöber im Programm, um zu sehen, was sonst noch läuft."
+      },
+      "minutesLeftOne": "Noch {{count}} Min.",
+      "minutesLeftMany": "Noch {{count}} Min.",
+      "minutesUntilOne": "Beginnt in {{count}} Min.",
+      "minutesUntilMany": "Beginnt in {{count}} Min.",
+      "alsoNowOne": "Läuft ebenfalls gerade: {{count}} weiteres",
+      "alsoNowMany": "Läuft ebenfalls gerade: {{count}} weitere"
+    },
+    "status": {
+      "checking": "Suche nach Updates …"
+    },
+    "compare": {
+      "title": "Mach Platz für einen Favoriten.",
+      "subtitle": "Diese Panels überschneiden sich zeitlich. Welches passt am besten zu dir?",
+      "inPlan": "In deinem Plan",
+      "overlapsChoice": "{{minutes}} Min. Überschneidung mit deiner aktuellen Wahl",
+      "switchTo": "Zu diesem Panel wechseln",
+      "addToPlan": "Zu meinem Plan hinzufügen",
+      "keepOnly": "Nur dieses Panel behalten",
+      "keepPlan": "Diesen Plan behalten",
+      "keepBoth": "Beide in meinem Plan behalten",
+      "othersStay": "Deine anderen gespeicherten Panels bleiben gespeichert.",
+      "updatedAnnouncement": "{{event}} zu deinem Plan hinzugefügt. Entfernt: {{count}}.",
+      "possibilitiesOne": "{{count}} Möglichkeit",
+      "possibilitiesMany": "{{count}} Möglichkeiten",
+      "replacesOne": "Ersetzt {{titles}}. Entfernte Panels bleiben im Programm; du kannst sie jederzeit wieder speichern.",
+      "replacesMany": "Ersetzt {{count}} gespeicherte Panels. Entfernte Panels bleiben im Programm; du kannst sie jederzeit wieder speichern."
+    },
+    "panel": {
+      "about": "Über dieses Panel",
+      "durationMinutesOne": "{{count}} Minute",
+      "durationMinutesMany": "{{count}} Minuten",
+      "noReminder": "Keine Erinnerung",
+      "overlapsPlan": "Überschneidet sich mit deinem Plan",
+      "overlapWith": "{{minutes}} Min. mit {{title}}",
+      "compareBeforeAdding": "Vor dem Hinzufügen vergleichen"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Du bist auf dem neuesten Stand",
-      "subtitle": "Alle gespeicherten Programmpunkte bei {{name}} sind vorbei.",
+      "subtitle": "Alle deine gespeicherten Panels bei {{name}} sind vorbei.",
       "cta": "Convention ansehen"
     },
     "title": "Zeitplan",
     "empty": {
-      "title": "Noch nichts markiert",
-      "subtitle": "Tippe in einer Convention auf ein Event, um es zu Mein Zeitplan hinzuzufügen – es erscheint hier.",
+      "title": "Noch keine Panels ausgewählt",
+      "subtitle": "Stöber im Programm einer Convention und wähl die Panels, die du sehen willst. Sie erscheinen dann hier.",
       "cta": "Meine Conventions öffnen"
     },
     "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
-    "loadError": "Dein Zeitplan konnte nicht geladen werden.",
+    "loadError": "Dein Plan konnte nicht angezeigt werden",
     "conventionEmpty": {
-      "title": "Noch nichts für {{name}} gespeichert",
-      "subtitle": "Füge Events aus dem Convention-Zeitplan hinzu und sie erscheinen hier.",
-      "cta": "Convention öffnen"
+      "title": "Für {{name}} ist noch nichts gespeichert",
+      "subtitle": "Stöber im Programm und wähl die Panels, die du sehen willst.",
+      "cta": "Programm durchstöbern"
     }
   },
   "settings": {

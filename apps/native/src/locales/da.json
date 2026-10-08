@@ -36,8 +36,8 @@
     "categories": "Kategorier",
     "allCategories": "Alle kategorier",
     "timesShownIn": "Tider vises i {{timeZone}}",
-    "noEvents": "Ingen begivenheder endnu",
-    "noEventsSubtitle": "Importér et program, eller tilføj begivenheder manuelt.",
+    "noEvents": "Ingen paneler tilføjet endnu",
+    "noEventsSubtitle": "Tilføj et program fra et link eller en fil, eller opret selv paneler.",
     "overlapLabel": "Overlapper et andet gemt panel",
     "runsAlongsideOne": "Foregår samtidig med 1 anden begivenhed",
     "runsAlongsideMany": "Foregår samtidig med {{count}} andre begivenheder",
@@ -65,22 +65,22 @@
     "createError": "Konventet kunne ikke oprettes. Prøv igen.",
     "notFound": "Konventet blev ikke fundet.",
     "goBack": "Gå tilbage",
-    "addToSchedule": "Tilføj til Mit program",
-    "removeFromSchedule": "Fjern fra Mit program",
-    "scheduleActionHint": "Opdaterer denne begivenhed i Mit program.",
+    "addToSchedule": "Føj til min plan",
+    "removeFromSchedule": "Fjern fra min plan",
+    "scheduleActionHint": "Opdaterer dette panel i din plan.",
     "scheduleHint": {
-      "body": "Tryk på en begivenhed for at tilføje den til Mit program. Markerede begivenheder vises i fanen Program.",
+      "body": "Tryk på et panel for at føje det til din plan. Gemte paneler vises under fanen Plan.",
       "dismiss": "Luk tip"
     },
-    "scheduleAddedAnnouncement": "{{event}} er føjet til Mit program.",
-    "scheduleRemovedAnnouncement": "{{event}} er fjernet fra Mit program.",
+    "scheduleAddedAnnouncement": "{{event}} føjet til din plan.",
+    "scheduleRemovedAnnouncement": "{{event}} fjernet fra din plan.",
     "scheduleUpdateErrorTitle": "Programmet blev ikke opdateret",
     "scheduleUpdateErrorMessage": "Begivenheden kunne ikke ændres. Dit program er uændret.",
     "closeEventDetails": "Luk begivenhedsdetaljer",
     "timeRangeTo": "til {{time}}",
     "eventTimeRange": "{{start}} til {{end}}",
-    "inMySchedule": "I Mit program",
-    "notInMySchedule": "Ikke i Mit program",
+    "inMySchedule": "I din plan",
+    "notInMySchedule": "Ikke i din plan",
     "reminderSet": "Påmindelse indstillet",
     "eventSource": {
       "imported": "Importeret",
@@ -137,8 +137,151 @@
       "dismiss": "Luk denne besked",
       "checkNow": "Søg efter ændringer",
       "checking": "Tjekker…",
-      "checkFailedTitle": "Kunne ikke tjekke programmet",
-      "checkFailedMessage": "Stævnets programlink svarede ikke. Dit program er uændret."
+      "checkFailedTitle": "Kunne ikke tjekke for ændringer",
+      "checkFailedMessage": "Dit gemte program er her stadig. Prøv igen om lidt."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Min plan",
+      "now": "Nu",
+      "accessibility": "Programvisning"
+    },
+    "browse": {
+      "allDays": "Alle",
+      "allDaysAccessibility": "Alle dage, {{count}} dage",
+      "dayAccessibility": "{{day}}, {{count}} paneler",
+      "allTimes": "Alle tidspunkter",
+      "slotAccessibility": "Paneler mellem {{start}} og {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · alle dage",
+      "headingDay": "{{day}} · alle tidspunkter",
+      "headingAllDays": "Alle paneler",
+      "total": "{{count}} i alt",
+      "hint": "Vælg det, der fanger dig. Beslut dig senere.",
+      "filterActive": "Filter: {{category}}",
+      "clearFilters": "Ryd filtre",
+      "noMatches": {
+        "title": "Ingen paneler matcher disse valg",
+        "body": "Prøv et andet tidspunkt, eller ryd filtrene for at se mere af programmet."
+      },
+      "noneThisDay": {
+        "title": "Intet på denne dag endnu",
+        "body": "Programmet har ingen paneler denne dag. Prøv en anden dag."
+      },
+      "allDaysCta": "Vis alle dage",
+      "dropIn": {
+        "title": "Kig forbi når som helst",
+        "subtitle": "Ingen fast tid"
+      },
+      "noSeat": "At gemme et panel reserverer ikke en plads.",
+      "optionsOne": "{{count}} mulighed",
+      "optionsMany": "{{count}} muligheder",
+      "daysOne": "{{count}} dag",
+      "daysMany": "{{count}} dage"
+    },
+    "savedLabel": "Gemt",
+    "saveAction": "Gem {{title}} i min plan",
+    "unsaveAction": "Fjern {{title}} fra min plan",
+    "plan": {
+      "until": "Indtil {{time}}",
+      "gap": {
+        "free": "{{minutes}} min fri · Tid til at nå frem",
+        "freeHours": "{{hours}} t fri · Tid til en pause",
+        "freeHoursMinutes": "{{hours}} t {{minutes}} min fri · Tid til en pause",
+        "backToBack": "Lige efter hinanden · Tjek dit næste lokale",
+        "overlap": "{{minutes}} min overlap · Vælg det, der passer"
+      },
+      "status": {
+        "now": "Nu",
+        "endedToday": "Tidligere i dag",
+        "ended": "Slut"
+      },
+      "overlap": {
+        "title": "Nogle paneler overlapper",
+        "body": "Behold begge, eller vælg det, du vil.",
+        "cta": "Se overlap"
+      },
+      "empty": {
+        "title": "Din dag er åben",
+        "body": "Der er ikke gemt noget til denne dag endnu.",
+        "cta": "Gennemse paneler"
+      },
+      "emptyConvention": {
+        "title": "Intet gemt endnu",
+        "body": "Gennemse programmet, og vælg de paneler, du vil nå. Du kan tilføje mere end ét."
+      },
+      "updated": {
+        "title": "Plan opdateret",
+        "body": "Din plan er ændret. Panelernes tider er de samme."
+      },
+      "savedCountOne": "{{count}} gemt",
+      "savedCountMany": "{{count}} gemt"
+    },
+    "now": {
+      "happeningNow": "Sker nu",
+      "upNext": "Næste",
+      "until": "Indtil",
+      "startsAt": "Starter kl.",
+      "unknownEnd": "Sluttid ikke oplyst",
+      "reminder": "Påmindelse: {{label}}",
+      "next": "Næste · {{time}}",
+      "nextAccessibility": "Næste: {{title}}",
+      "otherOptions": "Andre muligheder denne time",
+      "openPanel": "Åbn panel",
+      "setReminder": "Sæt en påmindelse",
+      "openAccessibility": "Åbn {{title}}",
+      "nothingPicked": {
+        "title": "Intet næste panel valgt endnu",
+        "body": "Gennemse programmet, og vælg de paneler, du vil nå.",
+        "cta": "Gennemse programmet"
+      },
+      "finished": {
+        "title": "Det var din plan for i dag",
+        "body": "Du er nået til enden af dagens valg. Der er måske stadig andre paneler at nå.",
+        "nextDay": "Næste: {{title}} {{day}} kl. {{time}}."
+      },
+      "nothingToday": {
+        "title": "Intet planlagt i dag"
+      },
+      "allEnded": {
+        "title": "Alle dine gemte paneler er slut",
+        "body": "Gennemse programmet for at se, hvad der ellers sker."
+      },
+      "minutesLeftOne": "{{count}} min tilbage",
+      "minutesLeftMany": "{{count}} min tilbage",
+      "minutesUntilOne": "Starter om {{count}} min",
+      "minutesUntilMany": "Starter om {{count}} min",
+      "alsoNowOne": "Også gemt lige nu: {{count}} mere",
+      "alsoNowMany": "Også gemt lige nu: {{count}} mere"
+    },
+    "status": {
+      "checking": "Søger efter opdateringer …"
+    },
+    "compare": {
+      "title": "Gør plads til en favorit.",
+      "subtitle": "Disse paneler ligger delvist samtidig. Hvilket passer bedst til dig?",
+      "inPlan": "I din plan",
+      "overlapsChoice": "{{minutes}} min overlapper dit nuværende valg",
+      "switchTo": "Skift til dette panel",
+      "addToPlan": "Føj til min plan",
+      "keepOnly": "Behold kun dette panel",
+      "keepPlan": "Behold denne plan",
+      "keepBoth": "Behold begge i min plan",
+      "othersStay": "Dine andre gemte paneler forbliver gemt.",
+      "updatedAnnouncement": "{{event}} føjet til din plan. Fjernet: {{count}}.",
+      "possibilitiesOne": "{{count}} mulighed",
+      "possibilitiesMany": "{{count}} muligheder",
+      "replacesOne": "Erstatter {{titles}}. Fjernede paneler bliver i programmet; du kan gemme dem igen når som helst.",
+      "replacesMany": "Erstatter {{count}} gemte paneler. Fjernede paneler bliver i programmet; du kan gemme dem igen når som helst."
+    },
+    "panel": {
+      "about": "Om dette panel",
+      "durationMinutesOne": "{{count}} minut",
+      "durationMinutesMany": "{{count}} minutter",
+      "noReminder": "Ingen påmindelse",
+      "overlapsPlan": "Overlapper din plan",
+      "overlapWith": "{{minutes}} min med {{title}}",
+      "compareBeforeAdding": "Sammenlign før du tilføjer"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Du er helt med",
-      "subtitle": "Alle gemte programpunkter på {{name}} er afsluttet.",
+      "subtitle": "Alle dine gemte paneler på {{name}} er slut.",
       "cta": "Vis konventet"
     },
     "title": "Program",
     "empty": {
-      "title": "Intet markeret endnu",
-      "subtitle": "Tryk på en begivenhed i et konvent for at tilføje den til Mit program — så lander den her.",
-      "cta": "Åbn mine konventer"
+      "title": "Ingen paneler valgt endnu",
+      "subtitle": "Gennemse en cons program, og vælg de paneler, du vil nå. De dukker op her.",
+      "cta": "Åbn mine cons"
     },
     "timesShownInConventionTime": "Tider vises i hvert konvents lokale tid.",
-    "loadError": "Dit program kunne ikke indlæses.",
+    "loadError": "Vi kunne ikke vise din plan",
     "conventionEmpty": {
       "title": "Intet gemt for {{name}} endnu",
-      "subtitle": "Tilføj begivenheder fra konventets program, så vises de her.",
-      "cta": "Åbn konvent"
+      "subtitle": "Gennemse programmet, og vælg de paneler, du vil nå.",
+      "cta": "Gennemse programmet"
     }
   },
   "settings": {

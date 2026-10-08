@@ -36,8 +36,8 @@
     "categories": "Categorias",
     "allCategories": "Todas as categorias",
     "timesShownIn": "As horas são apresentadas em {{timeZone}}",
-    "noEvents": "Ainda sem eventos",
-    "noEventsSubtitle": "Importe um programa ou adicione eventos manualmente.",
+    "noEvents": "Nenhum painel adicionado ainda",
+    "noEventsSubtitle": "Adiciona uma programação por ligação ou ficheiro, ou cria painéis tu mesmo.",
     "overlapLabel": "Sobrepõe-se a outro painel guardado",
     "runsAlongsideOne": "Decorre ao mesmo tempo que 1 outro evento",
     "runsAlongsideMany": "Decorre ao mesmo tempo que {{count}} outros eventos",
@@ -65,22 +65,22 @@
     "createError": "Não foi possível criar a convenção. Tente novamente.",
     "notFound": "Convenção não encontrada.",
     "goBack": "Voltar",
-    "addToSchedule": "Adicionar à Minha Agenda",
-    "removeFromSchedule": "Remover da Minha Agenda",
-    "scheduleActionHint": "Atualiza este evento na Minha Agenda.",
+    "addToSchedule": "Adicionar ao meu plano",
+    "removeFromSchedule": "Remover do meu plano",
+    "scheduleActionHint": "Atualiza este painel no teu plano.",
     "scheduleHint": {
-      "body": "Toque num evento para o adicionar à Minha Agenda. Os eventos marcados aparecem no separador Agenda.",
+      "body": "Toca num painel para o adicionares ao teu plano. Os painéis guardados aparecem no separador Plano.",
       "dismiss": "Dispensar dica"
     },
-    "scheduleAddedAnnouncement": "{{event}} foi adicionado à Minha Agenda.",
-    "scheduleRemovedAnnouncement": "{{event}} foi removido da Minha Agenda.",
+    "scheduleAddedAnnouncement": "{{event}} adicionado ao teu plano.",
+    "scheduleRemovedAnnouncement": "{{event}} removido do teu plano.",
     "scheduleUpdateErrorTitle": "Agenda não atualizada",
     "scheduleUpdateErrorMessage": "Não foi possível alterar o evento. A sua agenda não foi modificada.",
     "closeEventDetails": "Fechar os detalhes do evento",
     "timeRangeTo": "até {{time}}",
     "eventTimeRange": "{{start}} até {{end}}",
-    "inMySchedule": "Na Minha Agenda",
-    "notInMySchedule": "Fora da Minha Agenda",
+    "inMySchedule": "No teu plano",
+    "notInMySchedule": "Fora do teu plano",
     "reminderSet": "Lembrete definido",
     "eventSource": {
       "imported": "Importado",
@@ -137,8 +137,151 @@
       "dismiss": "Dispensar este aviso",
       "checkNow": "Procurar alterações",
       "checking": "A verificar…",
-      "checkFailedTitle": "Não foi possível verificar o programa",
-      "checkFailedMessage": "O link do programa da convenção não respondeu. O teu programa mantém-se igual."
+      "checkFailedTitle": "Não foi possível verificar as mudanças",
+      "checkFailedMessage": "A tua programação guardada continua aqui. Tenta de novo dentro de momentos."
+    },
+    "views": {
+      "all": "Programação",
+      "mine": "Meu plano",
+      "now": "Agora",
+      "accessibility": "Visualização da programação"
+    },
+    "browse": {
+      "allDays": "Todos",
+      "allDaysAccessibility": "Todos os dias, {{count}} dias",
+      "dayAccessibility": "{{day}}, {{count}} painéis",
+      "allTimes": "Todos os horários",
+      "slotAccessibility": "Painéis entre {{start}} e {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · todos os dias",
+      "headingDay": "{{day}} · todos os horários",
+      "headingAllDays": "Todos os painéis",
+      "total": "{{count}} no total",
+      "hint": "Escolhe o que te chamar a atenção. Decides depois.",
+      "filterActive": "Filtro: {{category}}",
+      "clearFilters": "Limpar filtros",
+      "noMatches": {
+        "title": "Nenhum painel combina com essas escolhas",
+        "body": "Experimenta outro horário ou limpa os filtros para veres mais da programação."
+      },
+      "noneThisDay": {
+        "title": "Nada neste dia por enquanto",
+        "body": "A programação não tem painéis neste dia. Experimenta outro dia."
+      },
+      "allDaysCta": "Mostrar todos os dias",
+      "dropIn": {
+        "title": "Passa quando quiseres",
+        "subtitle": "Sem horário fixo"
+      },
+      "noSeat": "Guardar um painel não reserva lugar.",
+      "optionsOne": "{{count}} opção",
+      "optionsMany": "{{count}} opções",
+      "daysOne": "{{count}} dia",
+      "daysMany": "{{count}} dias"
+    },
+    "savedLabel": "Guardado",
+    "saveAction": "Guardar {{title}} no meu plano",
+    "unsaveAction": "Remover {{title}} do meu plano",
+    "plan": {
+      "until": "Até {{time}}",
+      "gap": {
+        "free": "{{minutes}} min livres · Tempo para chegar",
+        "freeHours": "{{hours}} h livres · Tempo para respirar",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min livres · Tempo para respirar",
+        "backToBack": "Seguidos · Confirma a tua próxima sala",
+        "overlap": "{{minutes}} min de sobreposição · Escolhe o que te convém"
+      },
+      "status": {
+        "now": "Agora",
+        "endedToday": "Mais cedo hoje",
+        "ended": "Encerrado"
+      },
+      "overlap": {
+        "title": "Alguns painéis se sobrepõem",
+        "body": "Mantém os dois ou escolhe o que preferes.",
+        "cta": "Revisar sobreposição"
+      },
+      "empty": {
+        "title": "Seu dia está livre",
+        "body": "Ainda não há nada guardado para este dia.",
+        "cta": "Explorar painéis"
+      },
+      "emptyConvention": {
+        "title": "Ainda nada guardado",
+        "body": "Explora a programação e escolhe os painéis que queres acompanhar. Podes adicionar mais do que um."
+      },
+      "updated": {
+        "title": "Plano atualizado",
+        "body": "O teu plano mudou. Os horários dos painéis mantêm-se."
+      },
+      "savedCountOne": "{{count}} guardado",
+      "savedCountMany": "{{count}} guardados"
+    },
+    "now": {
+      "happeningNow": "A decorrer agora",
+      "upNext": "A seguir",
+      "until": "Até",
+      "startsAt": "Começa às",
+      "unknownEnd": "Horário de término não divulgado",
+      "reminder": "Lembrete: {{label}}",
+      "next": "Próximo · {{time}}",
+      "nextAccessibility": "Próximo: {{title}}",
+      "otherOptions": "Outras opções nesta hora",
+      "openPanel": "Abrir painel",
+      "setReminder": "Definir um lembrete",
+      "openAccessibility": "Abrir {{title}}",
+      "nothingPicked": {
+        "title": "Nenhum próximo painel escolhido ainda",
+        "body": "Explora a programação e escolhe os painéis que queres acompanhar.",
+        "cta": "Explorar a programação"
+      },
+      "finished": {
+        "title": "Foi este o teu plano de hoje",
+        "body": "Chegaste ao fim das tuas escolhas de hoje. Ainda pode haver outros painéis para acompanhar.",
+        "nextDay": "A seguir: {{title}}, {{day}} às {{time}}."
+      },
+      "nothingToday": {
+        "title": "Nada planeado para hoje"
+      },
+      "allEnded": {
+        "title": "Todos os teus painéis guardados terminaram",
+        "body": "Explora a programação para veres o que mais há."
+      },
+      "minutesLeftOne": "Falta {{count}} min",
+      "minutesLeftMany": "Faltam {{count}} min",
+      "minutesUntilOne": "Começa em {{count}} min",
+      "minutesUntilMany": "Começa em {{count}} min",
+      "alsoNowOne": "Também guardado agora: mais {{count}}",
+      "alsoNowMany": "Também guardados agora: mais {{count}}"
+    },
+    "status": {
+      "checking": "A verificar atualizações…"
+    },
+    "compare": {
+      "title": "Abre espaço para um favorito.",
+      "subtitle": "Estes painéis decorrem em parte ao mesmo tempo. Qual tem mais a ver contigo?",
+      "inPlan": "No teu plano",
+      "overlapsChoice": "{{minutes}} min sobrepõem-se à tua escolha atual",
+      "switchTo": "Trocar para este painel",
+      "addToPlan": "Adicionar ao meu plano",
+      "keepOnly": "Manter só este painel",
+      "keepPlan": "Manter este plano",
+      "keepBoth": "Manter os dois no meu plano",
+      "othersStay": "Os teus outros painéis guardados continuam guardados.",
+      "updatedAnnouncement": "{{event}} adicionado ao teu plano. Removidos: {{count}}.",
+      "possibilitiesOne": "{{count}} possibilidade",
+      "possibilitiesMany": "{{count}} possibilidades",
+      "replacesOne": "Substitui {{titles}}. Os painéis removidos continuam na programação; podes voltar a guardá-los quando quiseres.",
+      "replacesMany": "Substitui {{count}} painéis guardados. Os painéis removidos continuam na programação; podes voltar a guardá-los quando quiseres."
+    },
+    "panel": {
+      "about": "Sobre este painel",
+      "durationMinutesOne": "{{count}} minuto",
+      "durationMinutesMany": "{{count}} minutos",
+      "noReminder": "Sem lembrete",
+      "overlapsPlan": "Sobrepõe-se ao teu plano",
+      "overlapWith": "{{minutes}} min com {{title}}",
+      "compareBeforeAdding": "Comparar antes de adicionar"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "Tudo em dia",
-      "subtitle": "Todos os eventos guardados de {{name}} já terminaram.",
+      "subtitle": "Todos os teus painéis guardados na {{name}} terminaram.",
       "cta": "Ver convenção"
     },
     "title": "Agenda",
     "empty": {
-      "title": "Ainda nada marcado",
-      "subtitle": "Toque num evento dentro de uma convenção para o adicionar à Minha Agenda — ele aparece aqui.",
+      "title": "Nenhum painel escolhido ainda",
+      "subtitle": "Explora a programação de uma convenção e escolhe os painéis que queres acompanhar. Vão aparecer aqui.",
       "cta": "Abrir as minhas convenções"
     },
     "timesShownInConventionTime": "As horas são apresentadas no fuso local de cada convenção.",
-    "loadError": "Não foi possível carregar a sua agenda.",
+    "loadError": "Não conseguimos mostrar o teu plano",
     "conventionEmpty": {
       "title": "Ainda nada guardado para {{name}}",
-      "subtitle": "Adicione eventos do programa da convenção e eles aparecerão aqui.",
-      "cta": "Abrir convenção"
+      "subtitle": "Explora a programação e escolhe os painéis que queres acompanhar.",
+      "cta": "Explorar a programação"
     }
   },
   "settings": {

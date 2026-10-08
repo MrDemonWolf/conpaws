@@ -36,8 +36,8 @@
     "categories": "카테고리",
     "allCategories": "전체 카테고리",
     "timesShownIn": "시간은 {{timeZone}} 기준으로 표시됩니다",
-    "noEvents": "아직 이벤트가 없어요",
-    "noEventsSubtitle": "일정표를 가져오거나 이벤트를 직접 추가해 보세요.",
+    "noEvents": "아직 추가된 패널이 없어요",
+    "noEventsSubtitle": "링크나 파일로 프로그램을 추가하거나 패널을 직접 추가하세요.",
     "overlapLabel": "저장된 다른 패널과 시간이 겹칩니다",
     "runsAlongsideOne": "다른 이벤트 1개와 동시에 진행됩니다",
     "runsAlongsideMany": "다른 이벤트 {{count}}개와 동시에 진행됩니다",
@@ -67,13 +67,13 @@
     "goBack": "돌아가기",
     "addToSchedule": "내 일정에 추가",
     "removeFromSchedule": "내 일정에서 제거",
-    "scheduleActionHint": "내 일정에서 이 이벤트를 업데이트합니다.",
+    "scheduleActionHint": "내 일정에서 이 패널을 업데이트해요.",
     "scheduleHint": {
-      "body": "이벤트를 탭하면 내 일정에 추가돼요. 추가한 이벤트는 일정 탭에 표시됩니다.",
+      "body": "패널을 탭해 내 일정에 추가하세요. 저장한 패널은 일정 탭에 표시돼요.",
       "dismiss": "안내 닫기"
     },
-    "scheduleAddedAnnouncement": "{{event}}이(가) 내 일정에 추가되었어요.",
-    "scheduleRemovedAnnouncement": "{{event}}이(가) 내 일정에서 제거되었어요.",
+    "scheduleAddedAnnouncement": "{{event}}을(를) 일정에 추가했어요.",
+    "scheduleRemovedAnnouncement": "{{event}}을(를) 일정에서 제거했어요.",
     "scheduleUpdateErrorTitle": "일정이 업데이트되지 않았어요",
     "scheduleUpdateErrorMessage": "이벤트를 변경하지 못했어요. 일정은 그대로 유지됩니다.",
     "closeEventDetails": "이벤트 상세 정보 닫기",
@@ -137,8 +137,151 @@
       "dismiss": "이 알림 닫기",
       "checkNow": "변경 확인",
       "checking": "확인 중…",
-      "checkFailedTitle": "일정을 확인할 수 없음",
-      "checkFailedMessage": "컨벤션 일정 링크가 응답하지 않았습니다. 내 일정은 그대로입니다."
+      "checkFailedTitle": "변경 사항을 확인하지 못했어요",
+      "checkFailedMessage": "저장한 프로그램은 그대로 있어요. 잠시 후 다시 시도하세요."
+    },
+    "views": {
+      "all": "프로그램",
+      "mine": "내 일정",
+      "now": "지금",
+      "accessibility": "프로그램 보기"
+    },
+    "browse": {
+      "allDays": "전체",
+      "allDaysAccessibility": "전체 날짜, {{count}}일",
+      "dayAccessibility": "{{day}}, 패널 {{count}}개",
+      "allTimes": "모든 시간",
+      "slotAccessibility": "{{start}}부터 {{end}} 사이의 패널",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · 전체 날짜",
+      "headingDay": "{{day}} · 모든 시간",
+      "headingAllDays": "모든 패널",
+      "total": "총 {{count}}개",
+      "hint": "끌리는 걸 골라 두세요. 결정은 나중에 해도 돼요.",
+      "filterActive": "필터: {{category}}",
+      "clearFilters": "필터 지우기",
+      "noMatches": {
+        "title": "이 조건에 맞는 패널이 없어요",
+        "body": "다른 시간을 선택하거나 필터를 지우고 프로그램을 더 살펴보세요."
+      },
+      "noneThisDay": {
+        "title": "이 날에는 아직 아무것도 없어요",
+        "body": "이 날의 프로그램에 패널이 없어요. 다른 날을 선택해 보세요."
+      },
+      "allDaysCta": "전체 날짜 보기",
+      "dropIn": {
+        "title": "언제든 들르기",
+        "subtitle": "정해진 시간이 없어요"
+      },
+      "noSeat": "패널을 저장해도 자리가 예약되지는 않아요.",
+      "optionsOne": "선택지 {{count}}개",
+      "optionsMany": "선택지 {{count}}개",
+      "daysOne": "{{count}}일",
+      "daysMany": "{{count}}일"
+    },
+    "savedLabel": "저장됨",
+    "saveAction": "{{title}}을(를) 내 일정에 저장",
+    "unsaveAction": "{{title}}을(를) 내 일정에서 제거",
+    "plan": {
+      "until": "{{time}}까지",
+      "gap": {
+        "free": "{{minutes}}분 여유 · 이동할 시간",
+        "freeHours": "{{hours}}시간 여유 · 잠시 쉬어 가세요",
+        "freeHoursMinutes": "{{hours}}시간 {{minutes}}분 여유 · 잠시 쉬어 가세요",
+        "backToBack": "바로 이어짐 · 다음 장소를 확인하세요",
+        "overlap": "{{minutes}}분 겹침 · 맞는 쪽을 고르세요"
+      },
+      "status": {
+        "now": "지금",
+        "endedToday": "오늘 종료됨",
+        "ended": "종료됨"
+      },
+      "overlap": {
+        "title": "겹치는 패널이 있어요",
+        "body": "둘 다 두거나 원하는 하나를 고르세요.",
+        "cta": "겹침 확인"
+      },
+      "empty": {
+        "title": "이 날은 비어 있어요",
+        "body": "이 날에 저장한 패널이 아직 없어요.",
+        "cta": "패널 둘러보기"
+      },
+      "emptyConvention": {
+        "title": "아직 저장한 패널이 없어요",
+        "body": "프로그램을 둘러보고 참여하고 싶은 패널을 고르세요. 여러 개 추가할 수 있어요."
+      },
+      "updated": {
+        "title": "일정이 업데이트됐어요",
+        "body": "일정이 바뀌었어요. 패널 시간은 그대로예요."
+      },
+      "savedCountOne": "{{count}}개 저장됨",
+      "savedCountMany": "{{count}}개 저장됨"
+    },
+    "now": {
+      "happeningNow": "지금 진행 중",
+      "upNext": "다음",
+      "until": "종료",
+      "startsAt": "시작",
+      "unknownEnd": "종료 시간이 공개되지 않았어요",
+      "reminder": "알림: {{label}}",
+      "next": "다음 · {{time}}",
+      "nextAccessibility": "다음: {{title}}",
+      "otherOptions": "이 시간대의 다른 선택지",
+      "openPanel": "패널 열기",
+      "setReminder": "알림 설정",
+      "openAccessibility": "{{title}} 열기",
+      "nothingPicked": {
+        "title": "다음 패널을 아직 고르지 않았어요",
+        "body": "프로그램을 둘러보고 참여하고 싶은 패널을 고르세요.",
+        "cta": "프로그램 둘러보기"
+      },
+      "finished": {
+        "title": "오늘 일정은 여기까지예요",
+        "body": "오늘 고른 패널이 모두 끝났어요. 아직 다른 패널이 남아 있을 수도 있어요.",
+        "nextDay": "다음: {{day}} {{time}} {{title}}."
+      },
+      "nothingToday": {
+        "title": "오늘은 계획이 없어요"
+      },
+      "allEnded": {
+        "title": "저장한 패널이 모두 끝났어요",
+        "body": "프로그램을 둘러보고 다른 패널을 찾아보세요."
+      },
+      "minutesLeftOne": "{{count}}분 남음",
+      "minutesLeftMany": "{{count}}분 남음",
+      "minutesUntilOne": "{{count}}분 후 시작",
+      "minutesUntilMany": "{{count}}분 후 시작",
+      "alsoNowOne": "지금 진행 중인 저장 패널: {{count}}개 더",
+      "alsoNowMany": "지금 진행 중인 저장 패널: {{count}}개 더"
+    },
+    "status": {
+      "checking": "업데이트 확인 중…"
+    },
+    "compare": {
+      "title": "좋아하는 패널에 자리를 내주세요.",
+      "subtitle": "이 패널들은 시간이 일부 겹쳐요. 어느 쪽이 더 끌리나요?",
+      "inPlan": "내 일정에 있음",
+      "overlapsChoice": "현재 선택과 {{minutes}}분 겹침",
+      "switchTo": "이 패널로 바꾸기",
+      "addToPlan": "내 일정에 추가",
+      "keepOnly": "이 패널만 남기기",
+      "keepPlan": "이 일정 유지",
+      "keepBoth": "둘 다 내 일정에 두기",
+      "othersStay": "다른 저장 패널은 그대로 유지돼요.",
+      "updatedAnnouncement": "{{event}}을(를) 일정에 추가했어요. 제거: {{count}}개.",
+      "possibilitiesOne": "선택지 {{count}}개",
+      "possibilitiesMany": "선택지 {{count}}개",
+      "replacesOne": "{{titles}}을(를) 대신해요. 제거된 패널은 프로그램에 남아 있으니 언제든 다시 저장할 수 있어요.",
+      "replacesMany": "저장된 패널 {{count}}개를 대신해요. 제거된 패널은 프로그램에 남아 있으니 언제든 다시 저장할 수 있어요."
+    },
+    "panel": {
+      "about": "이 패널 소개",
+      "durationMinutesOne": "{{count}}분",
+      "durationMinutesMany": "{{count}}분",
+      "noReminder": "알림 없음",
+      "overlapsPlan": "내 일정과 겹쳐요",
+      "overlapWith": "{{title}}와(과) {{minutes}}분",
+      "compareBeforeAdding": "추가하기 전에 비교"
     }
   },
   "errors": {
@@ -356,21 +499,21 @@
   "schedule": {
     "caughtUp": {
       "title": "모든 일정을 마쳤어요",
-      "subtitle": "{{name}}에서 저장한 일정이 모두 끝났어요.",
+      "subtitle": "{{name}}에서 저장한 패널이 모두 끝났어요.",
       "cta": "컨벤션 보기"
     },
     "title": "일정",
     "empty": {
-      "title": "아직 담은 이벤트가 없어요",
-      "subtitle": "컨벤션에서 이벤트를 탭해 내 일정에 추가하면 여기에 표시돼요.",
+      "title": "아직 고른 패널이 없어요",
+      "subtitle": "컨벤션 프로그램을 둘러보고 참여하고 싶은 패널을 고르세요. 여기에 표시돼요.",
       "cta": "내 컨벤션 열기"
     },
     "timesShownInConventionTime": "시간은 각 컨벤션의 현지 시간으로 표시됩니다.",
-    "loadError": "일정을 불러오지 못했어요.",
+    "loadError": "일정을 표시하지 못했어요",
     "conventionEmpty": {
-      "title": "{{name}}에 저장된 이벤트가 아직 없어요",
-      "subtitle": "컨벤션 일정표에서 이벤트를 추가하면 여기에 표시돼요.",
-      "cta": "컨벤션 열기"
+      "title": "{{name}}에 저장한 패널이 아직 없어요",
+      "subtitle": "프로그램을 둘러보고 참여하고 싶은 패널을 고르세요.",
+      "cta": "프로그램 둘러보기"
     }
   },
   "settings": {
