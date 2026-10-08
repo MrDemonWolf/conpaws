@@ -47,9 +47,9 @@ const sizeStyles: Record<ButtonSize, string> = {
 };
 
 const textSizeStyles: Record<ButtonSize, string> = {
-  sm: "text-sm",
-  md: "text-base",
-  lg: "text-lg",
+  sm: "text-footnote",
+  md: "text-subheadline",
+  lg: "text-body",
 };
 
 export function Button({

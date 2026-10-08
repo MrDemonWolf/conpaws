@@ -45,6 +45,7 @@ export const waitlist = sqliteTable(
     consentCopy: text("consent_copy").notNull(),
 
     ip: text("ip"),
+    ipBucket: text("ip_bucket"),
     userAgent: text("user_agent"),
     country: text("country"),
     referer: text("referer"),
@@ -56,6 +57,9 @@ export const waitlist = sqliteTable(
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
     confirmedAt: integer("confirmed_at", { mode: "timestamp_ms" }),
+
+    /** Suppression tombstone: prevents erased addresses being re-created or replayed. */
+    erasedAt: integer("erased_at", { mode: "timestamp_ms" }),
 
     /** NULL means listmonk has not accepted this subscriber yet. The cron replays these. */
     syncedAt: integer("synced_at", { mode: "timestamp_ms" }),
@@ -74,20 +78,23 @@ export const waitlist = sqliteTable(
   (table) => [
     uniqueIndex("waitlist_email_unique").on(table.email),
     index("waitlist_status_idx").on(table.status),
-    // Shaped to the reconciler's query in lib/waitlist.ts: filter on status +
-    // synced_at + sync_attempts, then order by created_at. D1 bills scanned
-    // rows, so the whole predicate wants one index rather than three.
+    // Shaped to the reconciler's status, synced_at, attempt and age filters.
     index("waitlist_retry_idx").on(
       table.status,
       table.syncedAt,
       table.syncAttempts,
       table.createdAt,
     ),
-    // Shaped to the per-IP signup cap in the route: filter on ip, then on a
+    // Shaped to the per-IP signup cap in the route: filter on ip_bucket, then on a
     // created_at window. Without it that count scans the table, and D1 bills
     // scanned rows -- an abuse guard that gets more expensive the more it is
     // exercised is the wrong shape.
-    index("waitlist_ip_recent_idx").on(table.ip, table.createdAt),
+    index("waitlist_ip_bucket_recent_idx").on(table.ipBucket, table.createdAt),
+    index("waitlist_pending_retention_idx").on(
+      table.status,
+      table.confirmedAt,
+      table.createdAt,
+    ),
   ],
 );
 

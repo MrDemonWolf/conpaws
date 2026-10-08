@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Valitse tapahtumia Kaikki-näkymästä nähdäksesi, mitä on nyt ja seuraavaksi.",
     "myScheduleSubtitle": "Avaa Kaikki ja lisää tapahtumat, joita et halua missata.",
     "overlapSummary": "Päällekkäisiä tallennettuja paneeleja: {{count}}",
-    "overlapHelp": "Voit pitää ne kaikki. Aseta lähtömuistutus myöhemmälle paneelille, niin ehdit vaihtaa salia.",
+    "overlapHelp": "Voit pitää ne kaikki. Aseta myöhemmälle paneelille muistutus, niin ehdit vaihtaa salia.",
     "overlapLabel": "Menee päällekkäin toisen tallennetun paneelin kanssa",
     "runsAlongsideOne": "Käynnissä samaan aikaan 1 muun tapahtuman kanssa",
     "runsAlongsideMany": "Käynnissä samaan aikaan {{count}} muun tapahtuman kanssa",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Ota muistutukset käyttöön",
     "minutesBefore": "{{minutes}} min ennen",
     "atTime": "Tapahtuman alkaessa",
-    "none": "Ei lähtömuistutusta",
+    "none": "Ei muistutusta",
     "hourBefore": "1 tunti ennen",
-    "setLeave": "Aseta lähtömuistutus",
-    "changeLeave": "Muuta lähtömuistutusta",
+    "setLeave": "Aseta muistutus",
+    "changeLeave": "Muuta muistutusta",
     "pickerTitle": "Milloin ConPawsin pitäisi muistuttaa?",
-    "pickerDescription": "Valitse, kuinka aikaisin lähdet kohteeseen {{event}}.",
-    "notificationTitle": "Aika lähteä: {{event}}",
+    "pickerDescription": "Valitse, milloin haluat muistutuksen tapahtumasta {{event}}.",
+    "notificationTitle": "Muistutus: {{event}}",
     "notificationBody": "Alkaa {{minutes}} minuutin päästä",
     "notificationBodyWithRoom": "Alkaa {{minutes}} minuutin päästä · {{room}}",
     "channelName": "Tapahtumamuistutukset",
@@ -363,12 +364,17 @@
     "overflowMessage": "Tämä laite voi pitää vain rajallisen määrän odottavia muistutuksia, joten näin moni muistutuksistasi odottaa: {{count}}. Lähimmät ajastetaan ensin.",
     "priming": {
       "title": "Saa vinkki ennen paneeleja",
-      "message": "ConPaws voi muistuttaa, milloin on aika lähteä paneeliin. Puhelin pyytää seuraavaksi ilmoituslupaa.",
+      "message": "ConPaws voi muistuttaa ennen paneelin alkua. Puhelin pyytää seuraavaksi ilmoituslupaa.",
       "continue": "Jatka",
       "notNow": "Ei nyt"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Olet ajan tasalla",
+      "subtitle": "Kaikki tapahtuman {{name}} tallennetut ohjelmat ovat päättyneet.",
+      "cta": "Näytä tapahtuma"
+    },
     "title": "Ohjelma",
     "empty": {
       "title": "Et ole vielä merkinnyt mitään",
@@ -502,7 +508,7 @@
       "enabled": "Sallittu — muistutukset voivat saapua",
       "disabled": "Pois päältä — muistutukset eivät saavu",
       "notRequested": "Ei vielä pyydetty",
-      "defaultLead": "Oletuslähtömuistutus",
+      "defaultLead": "Oletusmuistutus",
       "defaultLeadDescription": "Esivalittu, kun asetat muistutuksen uudelle tapahtumalle.",
       "noDefault": "Ei mitään"
     },

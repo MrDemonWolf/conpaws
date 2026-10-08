@@ -8,6 +8,11 @@ updates:
       github-actions:
         patterns: ["*"]
 
+  - package-ecosystem: docker-compose
+    directory: /infra/xprem
+    schedule:
+      interval: monthly
+
   # `bun`, not `npm`. This repo installs with bun and CI runs
   # `bun install --frozen-lockfile`, so an updater that edits package.json
   # without touching bun.lock produces a PR that cannot pass: it fails at

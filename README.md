@@ -128,15 +128,18 @@ All scripts run from the repo root and fan out through Turborepo:
   per app variant
 - `bun android` / `bun ios` - Run on emulator/simulator
 - `bun native:web` - Run the Expo app's web target
-- `bun build` - Build all applications and packages
+- `bun run build` - Build all applications and packages through Turborepo
 - `bun lint` - Run Biome (`biome check .`)
 - `bun lint:fix` - Run Biome with `--write`
 - `bun format` - Format with Biome
 - `bun check-types` - TypeScript type checking across all packages
 - `bun run test` - Run the Vitest suites across the workspace
 - `bun prebuild` / `bun prebuild:clean` - Generate native projects
+- `bun run ship:prep` - Bump the native build number, prebuild, and verify
+- `bun run build-number:check` - Check native project build numbers
 - `bun run deploy` / `bun run destroy` - Apply or tear down the Alchemy
   stack
+- `bun run deploy:admin` - Apply the admin catalog migrations and deployment
 - `bun run infra:dev` - Run the Alchemy stack in development
 - `bun run db:generate` - Generate Drizzle migrations for the web D1
   database

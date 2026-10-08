@@ -131,9 +131,8 @@ export function BadgeCard({ name }: { name: string }) {
             their top ends always sit above the viewport edge — a strap that
             visibly ends mid-air reads as a rendering bug (and did, on mobile).
             The container height is what tunes how much lanyard shows. */}
-        {/* pointer-events-none: the straps are 560px tall and deliberately run
-            up past the top of the hero, over the nav. They are decoration, so
-            they must not sit in front of anything and swallow its clicks. */}
+        {/* pointer-events-none keeps the decorative straps from intercepting
+            pointer input. At md–lg the nav row also has an opaque backdrop. */}
         {/* z-10 lifts the straps and clip above the card below. The card
             wrapper opens its own stacking context via `perspective`, so
             without this the clip can never overlap the badge and the lanyard

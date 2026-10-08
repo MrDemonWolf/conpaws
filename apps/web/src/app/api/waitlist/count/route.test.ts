@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getCloudflareContext = vi.hoisted(() => vi.fn());
 vi.mock("@opennextjs/cloudflare", () => ({ getCloudflareContext }));
+let cacheMatch: ReturnType<typeof vi.fn>;
+let cachePut: ReturnType<typeof vi.fn>;
 
 import { GET } from "./route";
 
@@ -27,11 +29,25 @@ function listResponse(confirmed: unknown) {
 }
 
 beforeEach(() => {
+  const entries = new Map<string, Response>();
+  cacheMatch = vi.fn(async (request: Request) =>
+    entries.get(request.url)?.clone(),
+  );
+  cachePut = vi.fn(async (request: Request, response: Response) => {
+    entries.set(request.url, response.clone());
+  });
+  vi.stubGlobal("caches", {
+    default: {
+      match: cacheMatch,
+      put: cachePut,
+    },
+  });
   getCloudflareContext.mockReturnValue({ env: ENV });
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   getCloudflareContext.mockReset();
 });
 
@@ -50,9 +66,17 @@ describe("GET /api/waitlist/count", () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ count: 42 });
-    expect(response.headers.get("cache-control")).toBe(
-      "public, max-age=60, s-maxage=300",
-    );
+    expect(response.headers.get("cache-control")).toBe("public, max-age=300");
+    expect(cachePut).toHaveBeenCalledTimes(1);
+  });
+
+  it("serves a cached count without calling listmonk", async () => {
+    const cached = Response.json({ count: 19 });
+    cacheMatch.mockResolvedValueOnce(cached);
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    await expect((await get()).json()).resolves.toEqual({ count: 19 });
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it("passes a real zero through", async () => {

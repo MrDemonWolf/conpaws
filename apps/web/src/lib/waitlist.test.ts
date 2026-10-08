@@ -2,13 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Db } from "../db";
 import {
-  isTransientFailure,
+  ipBucket,
   MAX_SYNC_ATTEMPTS,
   RECONCILE_BATCH_SIZE,
+  RECONCILE_MAX_AGE_MS,
   RESEND_COOLDOWN_MS,
   reconcile,
   resendAllowed,
   syncRow,
+  syncSubscriptionStatuses,
+  UNCONFIRMED_RETENTION_MS,
 } from "./waitlist";
 
 const CONFIG = {
@@ -23,6 +26,7 @@ type PendingRow = {
   email: string;
   name: string;
   syncAttempts: number;
+  erasedAt?: Date | null;
 };
 
 /**
@@ -34,6 +38,7 @@ function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
   const updates: Array<Record<string, unknown>> = [];
   let limit = 0;
   let selectWhere: unknown;
+  let orderByValue: unknown;
 
   const db = {
     update: () => ({
@@ -60,12 +65,17 @@ function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
         where: (condition: unknown) => {
           selectWhere = condition;
           return {
-            orderBy: () => ({
-              limit: (value: number) => {
-                limit = value;
-                return Promise.resolve(pending.slice(0, value));
-              },
-            }),
+            orderBy: (value: unknown) => {
+              orderByValue = value;
+              return {
+                limit: (value: number) => {
+                  limit = value;
+                  return Promise.resolve(
+                    pending.filter((row) => !row.erasedAt).slice(0, value),
+                  );
+                },
+              };
+            },
           };
         },
       }),
@@ -77,6 +87,7 @@ function fakeDb(pending: PendingRow[] = [], claimSucceeds = true) {
     updates,
     limitUsed: () => limit,
     selectWhereUsed: () => selectWhere,
+    orderByUsed: () => orderByValue,
   };
 }
 
@@ -144,7 +155,7 @@ describe("syncRow", () => {
     expect(updates[0]?.syncError).toBeNull();
   });
 
-  it("records the failure and increments the attempt count", async () => {
+  it("records an address-level failure without changing the claimed count", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("nope", { status: 429 }),
     );
@@ -167,7 +178,7 @@ describe("syncRow", () => {
     expect(updates[0]).not.toHaveProperty("syncAttempts");
   });
 
-  it("refunds the attempt when listmonk is unreachable", async () => {
+  it("does not refund a claimed attempt when listmonk is unreachable", async () => {
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("boom"));
     const { db, updates } = fakeDb();
 
@@ -180,14 +191,10 @@ describe("syncRow", () => {
       }),
     ).resolves.toBe(false);
 
-    // Without the refund, five hourly passes during one outage would push every
-    // pending row past MAX_SYNC_ATTEMPTS and drop it from the reconciler's
-    // selection for good -- silently, because an unselected row is never
-    // counted as failed.
-    expect(updates[0]).toMatchObject({ syncAttempts: 2 });
+    expect(updates[0]).not.toHaveProperty("syncAttempts");
   });
 
-  it("refunds the attempt when listmonk answers 5xx", async () => {
+  it("does not refund a claimed attempt when listmonk answers 5xx", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("down", { status: 503 }),
     );
@@ -202,37 +209,8 @@ describe("syncRow", () => {
       }),
     ).resolves.toBe(false);
 
-    expect(updates[0]).toMatchObject({
-      syncAttempts: 0,
-      syncError: "503: down",
-    });
-  });
-
-  it("never refunds below zero", async () => {
-    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("boom"));
-    const { db, updates } = fakeDb();
-
-    await syncRow(db, CONFIG, {
-      id: "a",
-      email: "person@example.com",
-      name: "",
-      syncAttempts: 0,
-    });
-
-    expect(updates[0]).toMatchObject({ syncAttempts: 0 });
-  });
-});
-
-describe("isTransientFailure", () => {
-  it("treats a thrown fetch and 5xx as transient", () => {
-    expect(isTransientFailure(0)).toBe(true);
-    expect(isTransientFailure(500)).toBe(true);
-    expect(isTransientFailure(503)).toBe(true);
-  });
-
-  it("treats address-level rejections as permanent", () => {
-    expect(isTransientFailure(400)).toBe(false);
-    expect(isTransientFailure(429)).toBe(false);
+    expect(updates[0]).toMatchObject({ syncError: "503: down" });
+    expect(updates[0]).not.toHaveProperty("syncAttempts");
   });
 });
 
@@ -310,6 +288,104 @@ describe("reconcile", () => {
     const { columns, values } = describePredicate(selectWhereUsed());
     expect(columns).toEqual(expect.arrayContaining(["synced_at", "status"]));
     expect(values).toContain("pending");
+  });
+
+  it("excludes erased rows from replay even if their state is stale", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { db, selectWhereUsed } = fakeDb([
+      {
+        id: "erased",
+        email: "erased@example.com",
+        name: "",
+        syncAttempts: 0,
+        erasedAt: new Date(),
+      },
+    ]);
+    await expect(reconcile(db, CONFIG)).resolves.toMatchObject({
+      attempted: 0,
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(describePredicate(selectWhereUsed()).columns).toContain("erased_at");
+  });
+
+  it("syncs unsubscribe and confirmation states, anonymises, and purges after 30 days", async () => {
+    const writes: Array<Record<string, unknown>> = [];
+    const deletes: unknown[] = [];
+    const db = {
+      update: () => ({
+        set: (value: Record<string, unknown>) => ({
+          where: async () => {
+            writes.push(value);
+          },
+        }),
+      }),
+      delete: () => ({
+        where: async (value: unknown) => {
+          deletes.push(value);
+        },
+      }),
+    } as unknown as Db;
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        Response.json({ data: { results: [{ email: "left@example.com" }] } }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          data: { results: [{ email: "confirmed@example.com" }] },
+        }),
+      );
+    await expect(syncSubscriptionStatuses(db, CONFIG)).resolves.toEqual({
+      updated: 2,
+    });
+    expect(writes[0]).toMatchObject({
+      status: "unsubscribed",
+      name: "",
+      confirmedAt: null,
+      ip: null,
+      ipBucket: null,
+      userAgent: null,
+      country: null,
+      referer: null,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+    });
+    expect(writes[1]).toMatchObject({ status: "confirmed" });
+    expect(writes[1]).toHaveProperty("confirmedAt");
+    expect(deletes).toHaveLength(1);
+    const purge = describePredicate(deletes[0]);
+    expect(purge.values).toContain("pending");
+    expect(purge.columns).toContain("created_at");
+    expect(
+      purge.values.some(
+        (value) =>
+          value instanceof Date &&
+          value.getTime() <= Date.now() - UNCONFIRMED_RETENTION_MS,
+      ),
+    ).toBe(true);
+    expect(UNCONFIRMED_RETENTION_MS).toBe(30 * 24 * 60 * 60 * 1000);
+  });
+
+  it("orders by oldest sync attempt and excludes rows older than seven days", async () => {
+    const { db, selectWhereUsed, orderByUsed } = fakeDb([]);
+    await reconcile(db, CONFIG);
+
+    expect(describePredicate(orderByUsed()).columns).toContain(
+      "sync_attempted_at",
+    );
+    const { columns, values } = describePredicate(selectWhereUsed());
+    expect(columns).toContain("created_at");
+    expect(values.some((value) => value instanceof Date)).toBe(true);
+    expect(RECONCILE_MAX_AGE_MS).toBe(7 * 24 * 60 * 60 * 1000);
+  });
+});
+
+describe("ipBucket", () => {
+  it("keeps IPv4 addresses and groups IPv6 addresses by /64", () => {
+    expect(ipBucket("203.0.113.7")).toBe("203.0.113.7");
+    expect(ipBucket("2001:db8:abcd:12::1")).toBe("2001:db8:abcd:12::/64");
+    expect(ipBucket("2001:db8:abcd:12:ffff::1")).toBe("2001:db8:abcd:12::/64");
+    expect(ipBucket(null)).toBeNull();
   });
 });
 

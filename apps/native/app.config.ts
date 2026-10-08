@@ -325,8 +325,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       : [
           [
             "@sentry/react-native/expo",
-            { organization: "mrdemonwolf", project: "conpaws" },
-          ] as [string, Record<string, string>],
+            {
+              organization: "mrdemonwolf",
+              project: "conpaws",
+              experimental_android: {
+                enableAndroidGradlePlugin: true,
+                autoUploadProguardMapping: true,
+                uploadNativeSymbols: true,
+                includeNativeSources: true,
+              },
+            },
+          ] as [string, Record<string, unknown>],
         ]),
   ],
   experiments: {

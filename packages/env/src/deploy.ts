@@ -45,6 +45,20 @@ const required = (name: string) => {
 };
 
 export const deployEnvSchema = z.object({
+  /**
+   * Cloudflare credentials consumed by Alchemy's provider. Optional: a local
+   * deploy may authenticate through an Alchemy/Wrangler login profile instead.
+   * deploy-web.yml always passes both, and Alchemy fails loudly without auth.
+   */
+  CLOUDFLARE_API_TOKEN: z.string().min(1).optional(),
+  CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
+  NEXT_PUBLIC_SITE_URL: z
+    .url("NEXT_PUBLIC_SITE_URL must be an absolute URL")
+    .refine((value) => {
+      const hostname = new URL(value).hostname;
+      return hostname !== "localhost" && hostname !== "127.0.0.1";
+    }, "NEXT_PUBLIC_SITE_URL must not use localhost or 127.0.0.1"),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: required("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
   /** Existing admin-owned D1 ID; omit until the admin stack is deployed. */
   CATALOG_DATABASE_ID: z.preprocess(
     (value) => (value === "" ? undefined : value),
@@ -57,6 +71,10 @@ export const deployEnvSchema = z.object({
 
   /** Server half of the Turnstile pair. The site key is a build-time client var. */
   TURNSTILE_SECRET_KEY: required("TURNSTILE_SECRET_KEY"),
+  /** Shared with the public build so the form and POST gate change together. */
+  WAITLIST_ACCEPTING_SIGNUPS: z.enum(["true", "false"], {
+    message: "WAITLIST_ACCEPTING_SIGNUPS must be true or false",
+  }),
 
   /**
    * listmonk. All four are required together: a partial set is precisely the

@@ -1,6 +1,8 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
+process.env.TZ ??= "America/Chicago";
+
 /**
  * Vitest previously ran here with no config at all, which worked only because
  * every test happened to import by relative path. The app's own code uses the

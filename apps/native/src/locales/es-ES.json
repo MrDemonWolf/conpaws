@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Elige eventos en Todos para ver qué está pasando ahora y después.",
     "myScheduleSubtitle": "Abre Todos y añade los eventos que no quieres perderte.",
     "overlapSummary": "Paneles guardados que se solapan: {{count}}",
-    "overlapHelp": "Puedes conservarlos todos. Configura un aviso de salida en el panel posterior para tener tiempo de cambiar de sala.",
+    "overlapHelp": "Puedes conservarlos todos. Configura un aviso para el panel posterior y tendrás tiempo de cambiar de sala.",
     "overlapLabel": "Se solapa con otro panel guardado",
     "runsAlongsideOne": "Coincide en horario con 1 evento más",
     "runsAlongsideMany": "Coincide en horario con {{count}} eventos más",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Activar recordatorios",
     "minutesBefore": "{{minutes}} min antes",
     "atTime": "A la hora del evento",
-    "none": "Sin aviso de salida",
+    "none": "Sin aviso",
     "hourBefore": "1 hora antes",
-    "setLeave": "Configurar aviso de salida",
-    "changeLeave": "Cambiar aviso de salida",
+    "setLeave": "Configurar aviso",
+    "changeLeave": "Cambiar aviso",
     "pickerTitle": "¿Cuándo debe avisarte ConPaws?",
-    "pickerDescription": "Elige con cuánta antelación salir hacia {{event}}.",
-    "notificationTitle": "Hora de salir hacia {{event}}",
+    "pickerDescription": "Elige cuándo recibir un aviso sobre {{event}}.",
+    "notificationTitle": "Aviso para {{event}}",
     "notificationBody": "Empieza en {{minutes}} min",
     "notificationBodyWithRoom": "Empieza en {{minutes}} min · {{room}}",
     "channelName": "Recordatorios de eventos",
@@ -363,12 +364,17 @@
     "overflowMessage": "Este dispositivo admite un número limitado de recordatorios pendientes, así que hay esta cantidad en espera: {{count}}. Se programan primero los más cercanos.",
     "priming": {
       "title": "Recibe avisos antes de los paneles",
-      "message": "ConPaws puede avisarte cuando sea hora de salir hacia un panel. Tu móvil pedirá permiso de notificaciones a continuación.",
+      "message": "ConPaws puede avisarte antes de que empiece un panel. Tu móvil pedirá permiso de notificaciones a continuación.",
       "continue": "Continuar",
       "notNow": "Ahora no"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Ya has terminado por ahora",
+      "subtitle": "Todos los eventos guardados de {{name}} han terminado.",
+      "cta": "Ver convención"
+    },
     "title": "Horario",
     "empty": {
       "title": "Aún no hay nada destacado",
@@ -502,7 +508,7 @@
       "enabled": "Permitido: los recordatorios pueden llegar",
       "disabled": "Desactivado: los recordatorios no llegarán",
       "notRequested": "Aún no solicitado",
-      "defaultLead": "Recordatorio de salida predeterminado",
+      "defaultLead": "Aviso predeterminado",
       "defaultLeadDescription": "Preseleccionado al poner un recordatorio en un evento nuevo.",
       "noDefault": "Ninguno"
     },

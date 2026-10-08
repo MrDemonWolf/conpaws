@@ -16,6 +16,13 @@ export interface PersonalScheduleDay<T extends PersonalScheduleEntry> {
   data: T[];
 }
 
+export function hasEndedStarredEvents(
+  entries: readonly PersonalScheduleEntry[],
+  days: readonly PersonalScheduleDay<PersonalScheduleEntry>[],
+): boolean {
+  return entries.length > 0 && days.length === 0;
+}
+
 // Same fallback the per-convention schedule uses: imported and hand-added
 // events may have no end time, and dropping them the moment they start would
 // make an event vanish while the user is standing in it.

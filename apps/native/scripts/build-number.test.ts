@@ -5,6 +5,7 @@ import {
   bumpBuildNumber,
   describeDrift,
   describeVariantRisk,
+  missingSigningProperties,
   parseBuildNumber,
   parseGradleVersionCode,
   parseInfoPlistBuildNumber,
@@ -38,6 +39,24 @@ describe("parseBuildNumber", () => {
       "utf8",
     );
     expect(parseBuildNumber(source)).toBeGreaterThanOrEqual(205);
+  });
+});
+
+describe("missingSigningProperties", () => {
+  const keys = [
+    "android.injected.signing.store.file",
+    "android.injected.signing.store.password",
+    "android.injected.signing.key.alias",
+    "android.injected.signing.key.password",
+  ];
+
+  it("requires all four properties by key presence without reading values", () => {
+    expect(
+      missingSigningProperties(`${keys[0]}=secret-path\n${keys[1]}=x\n`),
+    ).toEqual(keys.slice(2));
+    expect(
+      missingSigningProperties(keys.map((key) => `${key}=\n`).join("\n")),
+    ).toEqual([]);
   });
 });
 

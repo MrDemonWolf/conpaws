@@ -3,6 +3,7 @@ import { Linking } from "react-native";
 
 import { Banner } from "@/components/ui";
 import type { ReminderNotice } from "@/lib/reminder-notice";
+import { requestNotificationPermission } from "@/services/notifications";
 
 /**
  * The "reminders are paused / waiting" banner, shared between the convention
@@ -23,21 +24,35 @@ export function ReminderNoticeBanner({
   if (notice === "none") return null;
 
   const isPermission = notice === "permission";
+  const needsPrompt = notice === "requestPermission";
 
   return (
     <Banner
       title={t(
-        isPermission ? "reminders.pausedTitle" : "reminders.overflowTitle",
+        isPermission || needsPrompt
+          ? "reminders.pausedTitle"
+          : "reminders.overflowTitle",
       )}
       body={t(
-        isPermission ? "reminders.pausedMessage" : "reminders.overflowMessage",
+        isPermission || needsPrompt
+          ? isPermission
+            ? "reminders.pausedMessage"
+            : "reminders.priming.message"
+          : "reminders.overflowMessage",
         { count: overflow },
       )}
-      actionLabel={isPermission ? t("reminders.openSettings") : undefined}
-      onAction={
+      actionLabel={
         isPermission
+          ? t("reminders.openSettings")
+          : needsPrompt
+            ? t("reminders.turnOn")
+            : undefined
+      }
+      onAction={
+        isPermission || needsPrompt
           ? () => {
-              void Linking.openSettings();
+              if (needsPrompt) void requestNotificationPermission();
+              else void Linking.openSettings();
             }
           : undefined
       }

@@ -9,6 +9,7 @@ import NotificationsIcon from "@expo/material-symbols/notifications.xml";
 import PaletteIcon from "@expo/material-symbols/palette.xml";
 import ShareIcon from "@expo/material-symbols/share.xml";
 import { Icon } from "@expo/ui";
+import { useWindowDimensions } from "react-native";
 
 import type {
   SettingsIconName,
@@ -49,7 +50,8 @@ const GLYPHS: Record<SettingsIconName, Parameters<typeof Icon>[0]["name"]> = {
 };
 
 export function SettingsLeadingIcon({ name }: SettingsLeadingIconProps) {
+  const { fontScale } = useWindowDimensions();
   // No colour prop: a ListItem slot supplies Compose's content colour, which
   // is why these follow the theme while a bare Host's Icon does not.
-  return <Icon name={GLYPHS[name]} size={21} />;
+  return <Icon name={GLYPHS[name]} size={21 * fontScale} />;
 }

@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Kies evenementen bij Alles om te zien wat er nu en hierna gebeurt.",
     "myScheduleSubtitle": "Open Alles en voeg evenementen toe die je niet wilt missen.",
     "overlapSummary": "Opgeslagen panels met overlap: {{count}}",
-    "overlapHelp": "Je kunt ze allemaal bewaren. Stel bij het latere panel een vertrekherinnering in voor genoeg tijd tussen zalen.",
+    "overlapHelp": "Je kunt ze allemaal bewaren. Stel bij het latere panel een herinnering in voor genoeg tijd tussen zalen.",
     "overlapLabel": "Overlapt met een ander opgeslagen panel",
     "runsAlongsideOne": "Vindt tegelijk plaats met 1 ander evenement",
     "runsAlongsideMany": "Vindt tegelijk plaats met {{count}} andere evenementen",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Herinneringen inschakelen",
     "minutesBefore": "{{minutes}} min van tevoren",
     "atTime": "Op het tijdstip van het evenement",
-    "none": "Geen vertrekherinnering",
+    "none": "Geen herinnering",
     "hourBefore": "1 uur van tevoren",
-    "setLeave": "Vertrekherinnering instellen",
-    "changeLeave": "Vertrekherinnering wijzigen",
+    "setLeave": "Herinnering instellen",
+    "changeLeave": "Herinnering wijzigen",
     "pickerTitle": "Wanneer moet ConPaws je herinneren?",
-    "pickerDescription": "Kies hoe vroeg je naar {{event}} wilt vertrekken.",
-    "notificationTitle": "Tijd om naar {{event}} te gaan",
+    "pickerDescription": "Kies wanneer je een herinnering over {{event}} wilt krijgen.",
+    "notificationTitle": "Herinnering voor {{event}}",
     "notificationBody": "Begint over {{minutes}} min",
     "notificationBodyWithRoom": "Begint over {{minutes}} min · {{room}}",
     "channelName": "Evenementherinneringen",
@@ -363,12 +364,17 @@
     "overflowMessage": "Dit apparaat bewaart maar een beperkt aantal openstaande herinneringen, zoveel van die van jou wachten nog: {{count}}. De eerstvolgende worden als eerste ingepland.",
     "priming": {
       "title": "Krijg een seintje vóór panels",
-      "message": "ConPaws kan je eraan herinneren wanneer het tijd is om naar een panel te vertrekken. Je telefoon vraagt hierna om meldingstoestemming.",
+      "message": "ConPaws kan je vóór het begin van een panel herinneren. Je telefoon vraagt hierna om meldingstoestemming.",
       "continue": "Doorgaan",
       "notNow": "Niet nu"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Je bent helemaal bij",
+      "subtitle": "Alle opgeslagen evenementen van {{name}} zijn afgelopen.",
+      "cta": "Conventie bekijken"
+    },
     "title": "Programma",
     "empty": {
       "title": "Nog niets met een ster",
@@ -502,7 +508,7 @@
       "enabled": "Toegestaan – herinneringen kunnen aankomen",
       "disabled": "Uit – herinneringen komen niet aan",
       "notRequested": "Nog niet gevraagd",
-      "defaultLead": "Standaard vertrekherinnering",
+      "defaultLead": "Standaardherinnering",
       "defaultLeadDescription": "Vooraf geselecteerd wanneer je een herinnering op een nieuw evenement zet.",
       "noDefault": "Geen"
     },

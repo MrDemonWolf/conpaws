@@ -99,3 +99,22 @@ describe("convention time", () => {
     expect([...conflicts].sort()).toEqual(["late-start", "long-panel"]);
   });
 });
+
+describe("overnight schedule conflicts", () => {
+  it("finds overlaps before entries are grouped by calendar day", () => {
+    expect(
+      overlappingEventIds([
+        {
+          id: "overnight",
+          startTime: "2026-09-03T23:30:00Z",
+          endTime: "2026-09-04T00:30:00Z",
+        },
+        {
+          id: "after-midnight",
+          startTime: "2026-09-04T00:15:00Z",
+          endTime: "2026-09-04T01:00:00Z",
+        },
+      ]),
+    ).toEqual(new Set(["overnight", "after-midnight"]));
+  });
+});

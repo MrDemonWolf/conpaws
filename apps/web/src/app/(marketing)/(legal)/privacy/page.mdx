@@ -46,7 +46,7 @@ The list is double opt-in: nothing is sent to you beyond the confirmation email 
 
 Before you submit the form we also run [Cloudflare Turnstile](https://www.cloudflare.com/application-services/products/turnstile/), a bot check that replaces a CAPTCHA. Cloudflare processes the challenge under its own privacy policy; it does not track you across sites.
 
-You can leave the list at any time through the unsubscribe link in any email we send, or by emailing [legal@conpaws.com](mailto:legal@conpaws.com) to request deletion. Deletion removes both the mailing-system entry and the D1 record.
+You can leave the list at any time through the unsubscribe link in any email we send, or email [legal@conpaws.com](mailto:legal@conpaws.com) to exercise your privacy rights. When listmonk reports an unsubscribe, our next status sync marks the D1 record unsubscribed and removes its optional name, IP, browser, referrer, country, and campaign details. We keep the email and exact consent wording as suppression evidence so the address is not re-added accidentally. We do not delete listmonk subscriber records through this sync.
 
 ### Beta Testing (TestFlight and Google Play testing)
 
@@ -63,7 +63,8 @@ If you join a ConPaws beta:
 When you use ConPaws without creating an account:
 
 - Your conventions, events, reminders, choices, and settings are stored locally on your device and are not sent to us.
-- A production build may send crash and diagnostic reports to Sentry when crash reporting is configured. The app disables Sentry's default collection of personally identifiable information. We use these reports only to find and fix app problems.
+- A production build may send crash, performance, and other diagnostic reports to Sentry when crash reporting is configured. Reports include an installation identifier so reports from one installation can be grouped; Sentry's default collection of personally identifiable information is disabled. We use these reports only to find and fix app problems.
+- When you enter a convention location, the app may send that location text to Apple's geocoding service on Apple platforms or Google's geocoding service on Android to infer its time zone. This is a platform service; ConPaws does not receive the geocoding result unless you save the convention in the app, where it stays on your device.
 - If you choose **Import from Sched**, your device requests the public calendar directly from Sched. Sched receives ordinary network request information under its [privacy policy](https://sched.com/privacy/); ConPaws does not send Sched your saved schedule choices or reminders.
 - No behavioral analytics, tracking, advertising cookies, or device fingerprinting.
 
@@ -103,6 +104,17 @@ We use data only for these purposes:
 - **ConPaws+ features:** Sync your convention data to the cloud, share your schedule publicly
 - **Subscription management:** Verify your ConPaws+ subscription status
 
+### Legal bases (GDPR Article 6)
+
+| Purpose | Data | Legal basis |
+|---------|------|-------------|
+| Waitlist signup, confirmation, and launch email | Email, optional name, consent wording, signup time | Consent (Article 6(1)(a)); you can withdraw it by unsubscribing |
+| Prevent abuse and protect the waitlist | Signup IP and limited request metadata | Legitimate interests (Article 6(1)(f)): keeping the public signup available and preventing automated or abusive submissions |
+| Diagnose app crashes and performance issues | Diagnostic reports and installation identifier, when Sentry is configured | Legitimate interests (Article 6(1)(f)): maintaining and improving app reliability |
+| Provide locally stored app features | Convention and schedule data on your device | Necessary to provide the features you choose to use (Article 6(1)(b), where applicable); this data is not sent to us |
+
+We do not rely on consent for processing that is necessary to prevent abuse or diagnose app problems. You may object to processing based on legitimate interests (Article 21); we will stop unless we demonstrate compelling legitimate grounds or need the data for legal claims.
+
 We do **not** use your data for:
 
 - Advertising or ad targeting
@@ -119,15 +131,22 @@ Cloudflare hosts this website, stores waitlist records, and runs the bot check o
 | Cloudflare Workers | Website hosting | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
 | Cloudflare D1 | Waitlist storage (US-hosted database) | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
 | Cloudflare Turnstile | Bot check on the signup form | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
+| Apple geocoding | Resolves a convention location when you save it on Apple platforms | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
+| Google geocoding | Resolves a convention location when you save it on Android | [policies.google.com/privacy](https://policies.google.com/privacy) |
 | Amazon SES | Delivers waitlist confirmation and launch emails | [aws.amazon.com/privacy](https://aws.amazon.com/privacy/) |
 | Sched | Optional public-calendar download you request | [sched.com/privacy](https://sched.com/privacy/) |
 | Sentry | Production crash and diagnostic processing, only when configured | [sentry.io/privacy](https://sentry.io/privacy/) |
+| Oracle Cloud Infrastructure (Oracle America, Inc.) | Hosts the virtual private server that runs our self-managed mailing system (listmonk) | [Oracle Privacy Policy](https://www.oracle.com/legal/privacy/) |
 | Apple Sign-In | Planned authentication | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
 | Google Sign-In | Planned authentication | [policies.google.com/privacy](https://policies.google.com/privacy) |
 | RevenueCat | Planned subscription management | [revenuecat.com/privacy](https://www.revenuecat.com/privacy/) |
 | Cloudflare R2 | Planned avatar file storage | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
 
 **Note:** Our mailing system (listmonk) is not in this table because it is not a third party — we host and operate it ourselves. Amazon SES appears because it is the outside service that actually delivers the mail.
+
+## International Transfers
+
+Our controller is in the United States, and waitlist records are stored in Cloudflare D1 in the United States. Waitlist email delivery is handled by Amazon SES in us-east-1 (United States). Sentry processes app diagnostics in the United States. Listmonk runs on a virtual private server we operate on Oracle Cloud Infrastructure in the United States. These services may process information in the United States or other countries where they or their subprocessors operate. Before relying on a transfer mechanism, we will identify the applicable adequacy decision or safeguards, such as Standard Contractual Clauses, in the relevant provider terms. Contact us for details of safeguards applicable to a specific transfer (GDPR Articles 44–49).
 
 ## 5. Data Sharing
 
@@ -154,7 +173,8 @@ We do **not** sell, rent, or trade your personal information. Ever.
 | Scenario | What Happens |
 |----------|-------------|
 | **Free (no account)** | Your schedules, reminders, and settings stay on your device. When crash reporting is configured, diagnostics are kept only as long as needed to identify and prevent app problems, subject to the Sentry project's configured retention. |
-| **Waitlist signup** | Kept until launch or until you unsubscribe — whichever comes first. Unconfirmed signups are kept as evidence of the request until you ask us to delete them. |
+| **Unconfirmed waitlist signup** | Deleted from D1 30 days after signup. We do not delete listmonk subscribers through the reconciler; their separate cleanup is pending a permission decision. |
+| **Confirmed waitlist signup** | Kept until launch or until you unsubscribe, whichever comes first. On unsubscribe, D1 status and consent evidence remain, while IP, browser, referrer, country, and campaign details are anonymised at the next hourly status sync. |
 | **Account exists** | Profile data kept until you delete your account. |
 | **ConPaws+ cancelled** | Cloud data retained for 30 days, then permanently deleted. Local data stays on your device. |
 | **Account deleted** | All cloud data (profile, conventions, events, avatar) permanently deleted immediately. |
@@ -168,6 +188,11 @@ Over any data we hold about you — today, that means a waitlist record if you h
 - **Delete** your data — Ask us to delete it; self-service account deletion is planned
 - **Export** your data — Download your cloud data once account sync is available
 - **Withdraw consent** — Use the unsubscribe link in any email we send, or email us; for future accounts, sign out or delete the account at any time
+- **Object** to processing based on legitimate interests or for direct marketing (GDPR Article 21)
+- **Restrict** processing in the circumstances set out in GDPR Article 18
+- **Complain** to your local supervisory authority if you believe we have handled your data unlawfully (GDPR Article 77)
+
+Contact [legal@conpaws.com](mailto:legal@conpaws.com) to exercise these rights. We will respond within one month, subject to permitted extensions.
 
 These rights apply to all users, regardless of location. We comply with:
 

@@ -21,7 +21,7 @@
     "prebuild:clean": "expo prebuild --clean",
     "build-number:bump": "node scripts/build-number.mjs --bump",
     "build-number:check": "node scripts/build-number.mjs --check",
-    "ship:prep": "node scripts/build-number.mjs --bump && expo prebuild && node scripts/build-number.mjs --check"
+    "ship:prep": "bun run licenses:check && node scripts/build-number.mjs --bump && expo prebuild && node scripts/build-number.mjs --check"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

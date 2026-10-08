@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Escolha eventos em Todos para ver o que está acontecendo agora e a seguir.",
     "myScheduleSubtitle": "Abra Todos e adicione os eventos que você não quer perder.",
     "overlapSummary": "Painéis salvos com horários sobrepostos: {{count}}",
-    "overlapHelp": "Você pode manter todos. Defina um lembrete de saída no painel seguinte para ter tempo de trocar de sala.",
+    "overlapHelp": "Você pode manter todos. Defina um lembrete para o painel seguinte e tenha tempo de trocar de sala.",
     "overlapLabel": "Sobrepõe outro painel salvo",
     "runsAlongsideOne": "Acontece ao mesmo tempo que 1 outro evento",
     "runsAlongsideMany": "Acontece ao mesmo tempo que {{count}} outros eventos",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Ativar lembretes",
     "minutesBefore": "{{minutes}} min antes",
     "atTime": "No horário do evento",
-    "none": "Sem lembrete de saída",
+    "none": "Sem lembrete",
     "hourBefore": "1 hora antes",
-    "setLeave": "Definir lembrete de saída",
-    "changeLeave": "Alterar lembrete de saída",
+    "setLeave": "Definir lembrete",
+    "changeLeave": "Alterar lembrete",
     "pickerTitle": "Quando o ConPaws deve avisar você?",
-    "pickerDescription": "Escolha com quanta antecedência sair para {{event}}.",
-    "notificationTitle": "Hora de sair para {{event}}",
+    "pickerDescription": "Escolha quando receber um lembrete sobre {{event}}.",
+    "notificationTitle": "Lembrete para {{event}}",
     "notificationBody": "Começa em {{minutes}} min",
     "notificationBodyWithRoom": "Começa em {{minutes}} min · {{room}}",
     "channelName": "Lembretes de eventos",
@@ -363,12 +364,17 @@
     "overflowMessage": "Este aparelho guarda um número limitado de lembretes pendentes, então esta quantidade dos seus está esperando: {{count}}. Os mais próximos são agendados primeiro.",
     "priming": {
       "title": "Receba avisos antes dos painéis",
-      "message": "O ConPaws pode lembrar você quando for hora de sair para um painel. Seu telefone pedirá permissão de notificações em seguida.",
+      "message": "O ConPaws pode lembrar você antes do início de um painel. Seu telefone pedirá permissão de notificações em seguida.",
       "continue": "Continuar",
       "notNow": "Agora não"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Tudo em dia",
+      "subtitle": "Todos os eventos salvos de {{name}} já terminaram.",
+      "cta": "Ver convenção"
+    },
     "title": "Programação",
     "empty": {
       "title": "Nada marcado ainda",
@@ -502,7 +508,7 @@
       "enabled": "Permitido — lembretes podem chegar",
       "disabled": "Desativado — lembretes não chegarão",
       "notRequested": "Ainda não solicitado",
-      "defaultLead": "Lembrete de saída padrão",
+      "defaultLead": "Lembrete padrão",
       "defaultLeadDescription": "Pré-selecionado ao definir um lembrete em um evento novo.",
       "noDefault": "Nenhum"
     },

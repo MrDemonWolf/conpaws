@@ -79,6 +79,16 @@ describe("buildIcsFromEcpEvents", () => {
     );
   });
 
+  it.each(["&#1114112;", "&#55357;"])(
+    "preserves invalid Unicode entity %s",
+    (entity) => {
+      const result = parseIcs(
+        buildIcsFromEcpEvents([event({ title: `A ${entity} B` })]),
+      );
+      expect(result.events[0]?.title).toBe(`A ${entity} B`);
+    },
+  );
+
   it("strips markup out of descriptions", () => {
     const ics = buildIcsFromEcpEvents([
       event({ description: "<p>Dust off your <b>dancing paws</b></p>" }),

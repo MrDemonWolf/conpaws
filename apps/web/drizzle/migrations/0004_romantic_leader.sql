@@ -1,0 +1,1 @@
+CREATE INDEX `waitlist_pending_retention_idx` ON `waitlist` (`status`,`confirmed_at`,`created_at`);

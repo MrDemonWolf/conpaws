@@ -23,11 +23,6 @@ declare global {
 // listmonk double opt-in, the resend cooldown, and the hourly reconciler are all
 // live and verified against production.
 //
-// Setting this to false is still the kill switch if signups need to stop — the
-// route keeps working, so it closes the form without touching the API or losing
-// the addresses already collected.
-const WAITLIST_ACCEPTING_SIGNUPS = true;
-
 const INPUT_CLASS =
   "w-full min-h-12 rounded-xl border border-input bg-card/70 px-4 py-3 text-base outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/20";
 
@@ -51,7 +46,8 @@ export function Waitlist({
   // visitor can do anything about, on every attempt. Treat it as the form being
   // shut, which is what it actually is.
   const acceptingSignups =
-    WAITLIST_ACCEPTING_SIGNUPS && Boolean(turnstileSiteKey);
+    env.NEXT_PUBLIC_WAITLIST_ACCEPTING_SIGNUPS === "true" &&
+    Boolean(turnstileSiteKey);
 
   const [name, setName] = useState("");
   const doneRef = useRef<HTMLDivElement>(null);
@@ -91,7 +87,7 @@ export function Waitlist({
         body: JSON.stringify({
           email,
           name: name.trim(),
-          honeypot,
+          favoriteSeason: honeypot,
           elapsedMs: Date.now() - mountedAt.current,
           turnstileToken,
           utmSource: params.get("utm_source") ?? undefined,
@@ -270,12 +266,16 @@ export function Waitlist({
               aria-hidden="true"
               className="-left-[9999px] absolute h-0 w-0 overflow-hidden"
             >
-              <label htmlFor={hpId}>{messages.honeypotLabel}</label>
+              <label htmlFor={hpId}>Favorite season</label>
               <input
                 id={hpId}
-                name="company"
+                name="favoriteSeason"
+                type="text"
                 tabIndex={-1}
                 autoComplete="off"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-form-type="other"
                 value={honeypot}
                 onChange={(e) => setHoneypot(e.target.value)}
               />
@@ -291,6 +291,7 @@ export function Waitlist({
                   className="cf-turnstile mt-5"
                   data-sitekey={turnstileSiteKey}
                   data-theme="auto"
+                  data-action="waitlist"
                 />
               </>
             ) : null}
@@ -333,6 +334,9 @@ export function Waitlist({
               ) : (
                 messages.closedNotice
               )}{" "}
+              {acceptingSignups ? (
+                <span>{messages.consentSummary} </span>
+              ) : null}
               <a href="/privacy" className="text-primary hover:underline">
                 {messages.privacyLink}
               </a>
@@ -340,8 +344,8 @@ export function Waitlist({
           </form>
         )}
       </div>
-      {/* On desktop the lanyard rises above the nav; the language menu has
-          its own higher layer while open. */}
+      {/* The lanyard sits behind the nav stacking layer; the language menu
+          raises the header further while open. */}
       <div className="relative z-badge hidden md:col-start-2 md:row-span-2 md:row-start-1 md:block md:pt-2">
         {launch.mode === "live" ? (
           <div className="rounded-3xl border border-primary/20 bg-card/40 p-8 text-center">

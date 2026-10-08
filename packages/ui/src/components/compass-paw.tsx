@@ -1,4 +1,9 @@
-/** The official ConPaws compass-and-paw mark, traced from the app icon. */
+/**
+ * The official ConPaws compass-and-paw mark, traced from the app icon.
+ * Regenerate from apps/native/assets/images/ConPaws.icon/Assets/logo.png:
+ * potrace -s -o compass-paw.svg logo.pbm, then optimize with svgo.
+ * Keep the shared path data aligned with apps/web/src/app/icon.svg.
+ */
 export function CompassPaw({ className }: { className?: string }) {
   return (
     <svg

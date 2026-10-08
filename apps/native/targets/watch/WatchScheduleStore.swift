@@ -64,7 +64,13 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   private func save(_ json: String) {
     guard
       let data = json.data(using: .utf8),
-      let candidate = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
+      var candidate = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
+      Self.isValidEnvelope(candidate)
+    else {
+      return
+    }
+    candidate = candidate.filteringInvalidRecords()
+    guard
       Self.isValid(candidate)
     else {
       return
@@ -88,41 +94,31 @@ final class WatchScheduleStore: NSObject, ObservableObject {
       return
     }
 
+    guard
+      let filteredData = try? JSONEncoder().encode(candidate),
+      let filteredJSON = String(data: filteredData, encoding: .utf8)
+    else { return }
+
     DispatchQueue.main.async { [weak self] in
       self?.snapshot = candidate
+      _ = ConPawsSnapshotStore.save(json: filteredJSON)
       WidgetCenter.shared.reloadTimelines(ofKind: ConPawsWidgetKind.watchComplication)
     }
   }
 
-  private static func isValid(_ snapshot: ConPawsSnapshot) -> Bool {
+  private static func isValidEnvelope(_ snapshot: ConPawsSnapshot) -> Bool {
     guard
       ConPawsSnapshotStore.supportedSchemaVersions.contains(snapshot.schemaVersion),
       snapshot.generatedAtMs.isFinite,
       snapshot.generatedAtMs >= 0,
-      snapshot.generatedAtMs <= Date().timeIntervalSince1970 * 1_000 + Self.futureToleranceMs,
-      Set(snapshot.conventions.map(\.id)).count == snapshot.conventions.count
+      snapshot.generatedAtMs <= Date().timeIntervalSince1970 * 1_000 + Self.futureToleranceMs
     else {
       return false
     }
-
-    return snapshot.conventions.allSatisfy { convention in
-      let eventIDs = convention.events.map(\.id)
-      return !convention.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        && !convention.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        && convention.startAtMs.isFinite
-        && convention.endAtMs.isFinite
-        && convention.endAtMs >= convention.startAtMs
-        && TimeZone(identifier: convention.timeZoneIdentifier) != nil
-        && Set(eventIDs).count == eventIDs.count
-        && convention.events.allSatisfy { event in
-          !event.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && !event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && event.startAtMs.isFinite
-            && (event.endAtMs.map { $0.isFinite && $0 >= event.startAtMs } ?? true)
-            && (event.reminderMinutes.map { $0 >= 0 } ?? true)
-        }
-    }
+    return true
   }
+
+  private static func isValid(_ snapshot: ConPawsSnapshot) -> Bool { isValidEnvelope(snapshot) }
 }
 
 extension WatchScheduleStore: WCSessionDelegate {

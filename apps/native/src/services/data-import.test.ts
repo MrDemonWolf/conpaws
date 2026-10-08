@@ -6,6 +6,7 @@ const documentPicker = vi.hoisted(() => ({
 
 /** Stands in for the one `File(uri).text()` call `pickBackupFile` makes. */
 const readFileText = vi.hoisted(() => vi.fn(async (_uri: string) => ""));
+const deleteCachedFile = vi.hoisted(() => vi.fn());
 const fileSizes = vi.hoisted(() => new Map<string, number | null>());
 
 vi.mock("@/db", () => ({ db: {} }));
@@ -18,6 +19,9 @@ vi.mock("expo-file-system", () => ({
     }
     text() {
       return readFileText(this.uri);
+    }
+    delete() {
+      deleteCachedFile(this.uri);
     }
   },
 }));
@@ -515,6 +519,7 @@ describe("picking a backup file", () => {
   beforeEach(() => {
     documentPicker.getDocumentAsync.mockReset();
     readFileText.mockReset();
+    deleteCachedFile.mockReset();
     fileSizes.clear();
   });
 
@@ -541,6 +546,7 @@ describe("picking a backup file", () => {
     });
     // The whole point of the size gate is that the read never happens.
     expect(readFileText).not.toHaveBeenCalled();
+    expect(deleteCachedFile).toHaveBeenCalledWith("file:///huge.json");
   });
 
   it("uses the actual file size when picker metadata is absent", async () => {
@@ -575,6 +581,7 @@ describe("picking a backup file", () => {
       ok: true,
       conventionCount: 1,
     });
+    expect(deleteCachedFile).toHaveBeenCalledWith("file:///backup.json");
   });
 
   it("reports a file it cannot read rather than throwing", async () => {
@@ -585,6 +592,7 @@ describe("picking a backup file", () => {
       ok: false,
       code: "unreadable",
     });
+    expect(deleteCachedFile).toHaveBeenCalledWith("file:///backup.json");
   });
 
   it("reports a picker that fails outright, and a pick with no asset", async () => {

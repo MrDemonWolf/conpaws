@@ -4,6 +4,7 @@ import {
   ResponseTooLargeError,
   readResponseTextWithLimit,
 } from "./bounded-response";
+import { decodeHtmlEntities } from "./ical-text";
 
 /**
  * Works around The Events Calendar's truncated iCal export.
@@ -189,15 +190,25 @@ function escapeText(value: string): string {
  * Continuation lines carry the leading space the spec requires, which itself
  * costs one of the 75.
  */
+const UTF8_ENCODER = new TextEncoder();
+function utf8Length(value: string): number {
+  let bytes = 0;
+  for (const char of value) {
+    const point = char.codePointAt(0) ?? 0;
+    bytes += point <= 0x7f ? 1 : point <= 0x7ff ? 2 : point <= 0xffff ? 3 : 4;
+  }
+  return bytes;
+}
+
 function foldLine(line: string): string {
-  if (new TextEncoder().encode(line).length <= 75) return line;
+  if (utf8Length(line) <= 75) return line;
 
   const parts: string[] = [];
   let current = "";
   let bytes = 0;
 
   for (const char of line) {
-    const size = new TextEncoder().encode(char).length;
+    const size = utf8Length(char);
     const limit = parts.length === 0 ? 75 : 74;
     if (bytes + size > limit) {
       parts.push(current);
@@ -238,19 +249,12 @@ function toIcsUtc(value: string | undefined): string | null {
  */
 function htmlToText(raw: string | undefined): string {
   if (!raw) return "";
-  return raw
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/(p|div|li|h[1-6])\s*>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;| /g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;|&apos;|&#8217;/g, "'")
-    .replace(/&#8211;/g, "–")
-    .replace(/&#8212;/g, "—")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+  return decodeHtmlEntities(
+    raw
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|div|li|h[1-6])\s*>/gi, "\n\n")
+      .replace(/<[^>]+>/g, ""),
+  )
     .replace(/[ \t]+/g, " ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
@@ -279,12 +283,11 @@ export function buildIcsFromEcpEvents(
   const zone = events.find((event) => event.timezone)?.timezone;
 
   const lines: string[] = [];
-  const encoder = new TextEncoder();
   let bytes = 0;
   const push = (...rawLines: string[]) => {
     for (const rawLine of rawLines) {
       const line = foldLine(rawLine);
-      bytes += encoder.encode(line).byteLength + 2;
+      bytes += UTF8_ENCODER.encode(line).byteLength + 2;
       if (bytes > MAX_ICS_BYTES) {
         throw new ResponseTooLargeError(bytes, MAX_ICS_BYTES);
       }

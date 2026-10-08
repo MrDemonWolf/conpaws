@@ -5,6 +5,13 @@ import { publishedLocales } from "@/i18n/routing";
 /** localStorage key holding the locale this browser should be served. */
 export const LOCALE_STORAGE_KEY = "conpaws.locale";
 
+export function storedLocaleTarget(
+  stored: string | null,
+  available: readonly string[],
+): string | null {
+  return stored && available.includes(stored) ? stored : null;
+}
+
 /**
  * Language auto-detection, and the behaviour the language menu needs.
  *
@@ -24,10 +31,9 @@ export const LOCALE_STORAGE_KEY = "conpaws.locale";
  *   - **Only on `/`.** Any other path is either an explicit locale someone
  *     typed or followed, or an English-only page (`/privacy`, `/terms`). A URL
  *     a visitor chose is never second-guessed.
- *   - **Only once.** The decision is written to localStorage immediately,
- *     including when the answer is "stay in English", so this runs on a
- *     browser's first visit and never again. Choosing from the menu overwrites
- *     it, which is what makes the override stick.
+ *   - **Respect a saved choice.** Returning to `/` reapplies the stored locale;
+ *     browser-language negotiation runs only when there is no valid choice.
+ *     Choosing from the menu overwrites the stored value.
  *   - **`replace`, not `assign`.** Otherwise Back lands on `/`, which
  *     redirects again, and the button is dead.
  *   - **Never while offline.** The service worker has `/` cached but not
@@ -59,11 +65,15 @@ export function LocaleDetect() {
   const script = `(function(){
 var A=${JSON.stringify(publishedLocales())},D=${JSON.stringify(DEFAULT_LOCALE)},K=${JSON.stringify(LOCALE_STORAGE_KEY)};
 var pick=${pickLocale.toString()};
+var target=${storedLocaleTarget.toString()};
 function read(){try{return localStorage.getItem(K)}catch(e){return "?"}}
 function write(v){try{localStorage.setItem(K,v)}catch(e){}}
 var seg=location.pathname.split("/")[1];
 if(seg&&A.indexOf(seg)>=0)document.documentElement.lang=seg;
-if(location.pathname==="/"&&read()===null&&navigator.onLine!==false){
+if(location.pathname==="/"&&navigator.onLine!==false){
+var stored=read();
+var saved=target(stored,A);
+if(saved){if(saved!==D)location.replace("/"+saved+location.search+location.hash);return}
 var L=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||""];
 var best=pick(L,A);
 write(best||D);

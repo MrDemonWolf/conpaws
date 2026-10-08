@@ -5,7 +5,7 @@ import {
   runScheduleImport,
 } from "@/hooks/useImportSchedule";
 import { reportError } from "@/lib/error-reporting";
-import { parseIcs } from "@/lib/ical-parser";
+import { parseIcsPreferringFeedTimeZone } from "@/lib/import-policy";
 import {
   fetchScheduleIcs,
   ScheduleFetchCancelledError,
@@ -108,9 +108,10 @@ export async function refreshConventionSchedule(
 
   try {
     const fetched = await fetchScheduleIcs(convention.icalUrl, { signal });
-    const parsed = parseIcs(fetched.icsContent, {
-      timeZone: convention.timeZone ?? undefined,
-    });
+    const parsed = parseIcsPreferringFeedTimeZone(
+      fetched.icsContent,
+      convention.timeZone ?? undefined,
+    );
 
     // A feed with no zone of its own needs one supplied. Guessing would shift
     // every event and report the whole schedule as moved.
@@ -126,6 +127,7 @@ export async function refreshConventionSchedule(
         room: event.room,
         location: event.location,
         isInSchedule: false,
+        feedStatus: null,
       })),
       parsed.cancelledSourceUids,
     );

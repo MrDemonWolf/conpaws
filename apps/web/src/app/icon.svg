@@ -20,7 +20,8 @@
     rasterisers that ignore stylesheets — librsvg, which generates favicon.ico
     from this same file — still get brand colour instead of defaulting to black.
 
-    Regenerate with: potrace + svgo, see the logo note in compass-paw.tsx.
+    Regenerate with: potrace + svgo, see the doc comment in
+    packages/ui/src/components/compass-paw.tsx.
   -->
   <style>
     .f { fill: #0b86c4 }

@@ -32,6 +32,10 @@ const appDirectory = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const configPath = path.join(appDirectory, "app.config.ts");
 const infoPlistPath = path.join(appDirectory, "ios/ConPaws/Info.plist");
 const gradlePath = path.join(appDirectory, "android/app/build.gradle");
+const gradlePropertiesPath = path.join(
+  appDirectory,
+  "android/gradle.properties",
+);
 
 /**
  * Anchored on the declaration, not on the digits. Comments in `app.config.ts`
@@ -39,6 +43,12 @@ const gradlePath = path.join(appDirectory, "android/app/build.gradle");
  * pattern rewrites that history instead of the constant.
  */
 const declaration = /^const BUILD_NUMBER = (\d+);$/m;
+const signingKeys = [
+  "android.injected.signing.store.file",
+  "android.injected.signing.store.password",
+  "android.injected.signing.key.alias",
+  "android.injected.signing.key.password",
+];
 
 export function parseBuildNumber(source) {
   const match = source.match(declaration);
@@ -119,6 +129,16 @@ export function parseGradleVersionCode(text) {
   return match ? Number(match[1]) : null;
 }
 
+export function missingSigningProperties(text) {
+  const present = new Set(
+    text
+      .split(/\r?\n/)
+      .map((line) => line.match(/^\s*([^#!\s][^=]*?)\s*=/)?.[1]?.trim())
+      .filter(Boolean),
+  );
+  return signingKeys.filter((key) => !present.has(key));
+}
+
 /**
  * Absent native output is not a failure. A fresh clone has no `ios/` or
  * `android/` directory, and reporting that as a stale build number would train
@@ -154,9 +174,10 @@ async function bump() {
 
 async function check() {
   const expected = parseBuildNumber(await readFile(configPath, "utf8"));
-  const [plist, gradle] = await Promise.all([
+  const [plist, gradle, gradleProperties] = await Promise.all([
     readIfPresent(infoPlistPath),
     readIfPresent(gradlePath),
+    readIfPresent(gradlePropertiesPath),
   ]);
   const variantProblems = describeVariantRisk(
     plist === null ? null : parseInfoPlistVariant(plist),
@@ -185,6 +206,22 @@ async function check() {
       value: gradle === null ? null : parseGradleVersionCode(gradle),
     },
   ]);
+
+  const requireSigning =
+    (process.env.APP_VARIANT ?? "production") === "production" &&
+    process.env.CI === undefined;
+  const missingSigning = requireSigning
+    ? missingSigningProperties(gradleProperties ?? "")
+    : [];
+
+  if (missingSigning.length > 0) {
+    console.error(
+      "Android upload signing properties are missing from android/gradle.properties.",
+    );
+    for (const key of missingSigning) console.error(`  ${key}`);
+    process.exitCode = 1;
+    return;
+  }
 
   if (drift.length > 0) {
     console.error("Native projects are stale. Run `expo prebuild` first.\n");
