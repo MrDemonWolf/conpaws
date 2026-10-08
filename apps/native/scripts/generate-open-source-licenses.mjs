@@ -84,6 +84,12 @@ while (pendingDirectories.length > 0) {
   );
   visitedDirectories.add(packageDirectory);
 
+  // Platform-specific prebuilt binaries (`@sentry/cli-darwin`,
+  // `lightningcss-darwin-arm64`, ...) are build tooling, not app code, and
+  // only the host platform's copy is installed. Including them made the
+  // manifest differ between a Mac and Linux CI, so `--check` always failed.
+  if (metadata.os || metadata.cpu) continue;
+
   const fileNames = await readdir(packageDirectory);
   const noticeFiles = fileNames
     .filter((name) => /^(licen[cs]e|copying|copyright|notice)/i.test(name))
