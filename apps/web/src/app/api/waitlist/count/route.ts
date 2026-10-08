@@ -35,8 +35,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const cache = (caches as CacheStorage & { default: Cache }).default;
-  const cached = await cache.match(request);
+  const cache = edgeCache();
+  const cached = await cache?.match(request).catch(() => undefined);
   if (cached) return cached;
 
   let env: CloudflareEnv;
@@ -61,8 +61,22 @@ export async function GET(request: Request) {
       },
     },
   );
-  await cache.put(request, response.clone());
+  await cache?.put(request, response.clone()).catch(() => undefined);
   return response;
+}
+
+/**
+ * The Workers edge cache, when there is one. Best effort: the count is
+ * decorative, so a missing or failing cache (local previews, OpenNext route
+ * contexts without `caches.default`) must never turn into a 500.
+ */
+function edgeCache(): Cache | undefined {
+  try {
+    return (globalThis as { caches?: CacheStorage & { default?: Cache } })
+      .caches?.default;
+  } catch {
+    return undefined;
+  }
 }
 
 /** Cached briefly, so an outage does not pin the page to a stale answer. */

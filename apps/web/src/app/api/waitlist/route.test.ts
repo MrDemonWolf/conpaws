@@ -182,13 +182,29 @@ describe("POST /api/waitlist", () => {
     await expect(response.json()).resolves.toEqual({ error: "closed" });
   });
 
-  it("rejects control characters and unsupported name characters", async () => {
-    for (const name of ["\nPaws", "Paws 2", "🐾"]) {
+  it("rejects control characters and link-like name text", async () => {
+    for (const name of ["\nPaws", "claim-prize.example/xyz", "🐾"]) {
       const response = await POST(
         request({ email: "person@example.com", name, elapsedMs: 3_000 }),
       );
       expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toEqual({
+        error:
+          "Names can use letters, numbers, spaces, apostrophes and hyphens.",
+      });
     }
+  });
+
+  it("accepts names with numbers, such as fursona names", async () => {
+    const response = await POST(
+      request({
+        email: "person@example.com",
+        name: "Kodiak 2",
+        elapsedMs: 3_000,
+      }),
+    );
+    // No Worker bindings in this test, so a valid body reaches the 503.
+    expect(response.status).toBe(503);
   });
 
   it("does not claim success or log PII before persistence is available", async () => {

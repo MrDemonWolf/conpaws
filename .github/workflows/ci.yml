@@ -66,15 +66,9 @@ jobs:
             exit 1
           fi
 
-      - name: Check admin D1 migrations match the schema
-        working-directory: apps/admin
-        run: |
-          bun run db:generate
-          if [[ -n "$(git status --porcelain drizzle/migrations)" ]]; then
-            git status --short drizzle/migrations
-            echo "::error title=Migration drift::src/db/schema.ts changed without a matching migration. Run 'bun run db:generate' in apps/admin and commit the result."
-            exit 1
-          fi
+      # No admin drift check: apps/admin/drizzle/migrations are hand-written
+      # SQL without drizzle-kit snapshot metadata, so `db:generate` always
+      # emits a full baseline there. Admin migrations are reviewed by hand.
 
   web:
     name: Build and smoke-test Cloudflare Workers

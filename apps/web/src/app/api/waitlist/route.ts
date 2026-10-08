@@ -45,7 +45,7 @@ const Body = z.object({
     .max(60)
     .refine((value) => !/\p{Cc}/u.test(value))
     .trim()
-    .regex(/^[\p{L}\p{M} '’-]*$/u)
+    .regex(/^[\p{L}\p{M}\p{N} '’-]*$/u)
     .optional()
     .default(""),
   favoriteSeason: z.string().max(200).optional().default(""),
@@ -145,9 +145,18 @@ export async function POST(request: Request) {
   let parsed: z.infer<typeof Body>;
   try {
     parsed = Body.parse(JSON.parse(raw));
-  } catch {
+  } catch (error) {
+    // Name the field that failed: a rejected name used to come back as
+    // "That email doesn't look right", which sent people to fix the wrong box.
+    const nameFailed =
+      error instanceof z.ZodError &&
+      error.issues.some((issue) => issue.path[0] === "name");
     return Response.json(
-      { error: "That email doesn't look right." },
+      {
+        error: nameFailed
+          ? "Names can use letters, numbers, spaces, apostrophes and hyphens."
+          : "That email doesn't look right.",
+      },
       { status: 400 },
     );
   }
