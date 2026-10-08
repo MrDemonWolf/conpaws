@@ -44,6 +44,9 @@ updates:
       - dependency-name: next
       - dependency-name: "@opennextjs/cloudflare"
       - dependency-name: "lightningcss"
+      # Expo SDK 57 requires TypeScript 6; Next also needs its compiler API.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@sentry/react-native"
