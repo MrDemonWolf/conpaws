@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Välj evenemang under Alla för att se vad som händer nu och härnäst.",
     "myScheduleSubtitle": "Öppna Alla och lägg till de evenemang du inte vill missa.",
     "overlapSummary": "Sparade paneler med överlappning: {{count}}",
-    "overlapHelp": "Du kan behålla alla. Ställ in en avgångspåminnelse för den senare panelen så att du hinner byta rum.",
+    "overlapHelp": "Du kan behålla alla. Ställ in en påminnelse för den senare panelen så att du hinner byta rum.",
     "overlapLabel": "Överlappar en annan sparad panel",
     "runsAlongsideOne": "Pågår samtidigt som 1 annat evenemang",
     "runsAlongsideMany": "Pågår samtidigt som {{count}} andra evenemang",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Aktivera påminnelser",
     "minutesBefore": "{{minutes}} min innan",
     "atTime": "Vid evenemangstid",
-    "none": "Ingen avgångspåminnelse",
+    "none": "Ingen påminnelse",
     "hourBefore": "1 timme innan",
-    "setLeave": "Ställ in avgångspåminnelse",
-    "changeLeave": "Ändra avgångspåminnelse",
+    "setLeave": "Ställ in påminnelse",
+    "changeLeave": "Ändra påminnelse",
     "pickerTitle": "När ska ConPaws påminna dig?",
-    "pickerDescription": "Välj hur tidigt du vill gå till {{event}}.",
-    "notificationTitle": "Dags att gå till {{event}}",
+    "pickerDescription": "Välj när du vill bli påmind om {{event}}.",
+    "notificationTitle": "Påminnelse för {{event}}",
     "notificationBody": "Börjar om {{minutes}} min",
     "notificationBodyWithRoom": "Börjar om {{minutes}} min · {{room}}",
     "channelName": "Evenemangspåminnelser",
@@ -363,12 +364,17 @@
     "overflowMessage": "Enheten håller bara ett begränsat antal väntande påminnelser, så här många av dina väntar: {{count}}. De närmaste schemaläggs först.",
     "priming": {
       "title": "Få en påminnelse före paneler",
-      "message": "ConPaws kan påminna dig när det är dags att gå till en panel. Din telefon frågar härnäst om aviseringstillstånd.",
+      "message": "ConPaws kan påminna dig innan en panel börjar. Din telefon frågar härnäst om aviseringstillstånd.",
       "continue": "Fortsätt",
       "notNow": "Inte nu"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Du är helt i fas",
+      "subtitle": "Alla sparade programpunkter på {{name}} har avslutats.",
+      "cta": "Visa konventet"
+    },
     "title": "Schema",
     "empty": {
       "title": "Inget stjärnmärkt än",
@@ -502,7 +508,7 @@
       "enabled": "Tillåtet – påminnelser kan komma",
       "disabled": "Av – påminnelser kommer inte fram",
       "notRequested": "Inte begärt än",
-      "defaultLead": "Standardpåminnelse för avfärd",
+      "defaultLead": "Standardpåminnelse",
       "defaultLeadDescription": "Förvald när du sätter en påminnelse på ett nytt evenemang.",
       "noDefault": "Ingen"
     },

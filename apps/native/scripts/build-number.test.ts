@@ -3,13 +3,31 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   bumpBuildNumber,
+  ciBuildNumber,
   describeDrift,
   describeVariantRisk,
+  missingSigningProperties,
   parseBuildNumber,
   parseGradleVersionCode,
   parseInfoPlistBuildNumber,
   parseInfoPlistVariant,
+  setBuildNumber,
 } from "./build-number.mjs";
+
+it("assigns CI numbers without touching the public version or reusing a rerun", () => {
+  const source = 'const BUILD_NUMBER = 207;\nconst version = "1.0.0";';
+  expect(ciBuildNumber("1", "1")).toBe(1001);
+  expect(ciBuildNumber("2", "1")).toBe(1002);
+  expect(ciBuildNumber("8999", "1")).toBe(9999);
+  expect(setBuildNumber(source, 1001)).toBe(source.replace("207", "1001"));
+  for (const value of ["0", "abc", "1.5", "9000"]) {
+    expect(() => ciBuildNumber(value, "1")).toThrow();
+  }
+  expect(() => ciBuildNumber("1", "2")).toThrow(/new Native release/);
+  for (const value of [207, 206, 10000, "abc", "1.5", undefined]) {
+    expect(() => setBuildNumber(source, value)).toThrow();
+  }
+});
 
 describe("parseBuildNumber", () => {
   it("reads the declaration", () => {
@@ -38,6 +56,24 @@ describe("parseBuildNumber", () => {
       "utf8",
     );
     expect(parseBuildNumber(source)).toBeGreaterThanOrEqual(205);
+  });
+});
+
+describe("missingSigningProperties", () => {
+  const keys = [
+    "android.injected.signing.store.file",
+    "android.injected.signing.store.password",
+    "android.injected.signing.key.alias",
+    "android.injected.signing.key.password",
+  ];
+
+  it("requires all four properties by key presence without reading values", () => {
+    expect(
+      missingSigningProperties(`${keys[0]}=secret-path\n${keys[1]}=x\n`),
+    ).toEqual(keys.slice(2));
+    expect(
+      missingSigningProperties(keys.map((key) => `${key}=\n`).join("\n")),
+    ).toEqual([]);
   });
 });
 

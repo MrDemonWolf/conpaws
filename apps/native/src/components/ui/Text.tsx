@@ -9,12 +9,12 @@ interface TextProps extends RNTextProps {
 }
 
 const variantStyles: Record<TextVariant, string> = {
-  h1: "text-3xl font-bold text-foreground",
-  h2: "text-2xl font-bold text-foreground",
-  h3: "text-xl font-semibold text-foreground",
-  body: "text-base text-foreground",
-  caption: "text-sm text-muted-foreground",
-  label: "text-sm font-medium text-foreground",
+  h1: "text-largeTitle font-bold text-foreground",
+  h2: "text-title1 font-bold text-foreground",
+  h3: "text-title2 font-semibold text-foreground",
+  body: "text-body text-foreground",
+  caption: "text-footnote text-muted-foreground",
+  label: "text-subheadline font-medium text-foreground",
 };
 
 const dynamicTypeRamps: Record<

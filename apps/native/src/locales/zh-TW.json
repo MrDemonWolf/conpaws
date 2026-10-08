@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "在「全部」中選擇活動，就能看到現在與接下來的安排。",
     "myScheduleSubtitle": "打開「全部」，把不想錯過的活動加進來。",
     "overlapSummary": "時間重疊的已儲存活動：{{count}}",
-    "overlapHelp": "可以全部保留。替較晚的活動設定出發提醒，就能保留換場地的時間。",
+    "overlapHelp": "可以全部保留。替較晚的活動設定提醒，就能保留換場地的時間。",
     "overlapLabel": "與另一個已儲存的活動時間重疊",
     "runsAlongsideOne": "與另外 1 場活動同時進行",
     "runsAlongsideMany": "與另外 {{count}} 場活動同時進行",
@@ -336,20 +336,21 @@
     }
   },
   "reminders": {
+    "turnOn": "開啟提醒",
     "minutesBefore": "提前 {{minutes}} 分鐘",
     "atTime": "活動開始時",
-    "none": "沒有出發提醒",
+    "none": "沒有提醒",
     "hourBefore": "提前 1 小時",
-    "setLeave": "設定出發提醒",
-    "changeLeave": "變更出發提醒",
+    "setLeave": "設定提醒",
+    "changeLeave": "變更提醒",
     "pickerTitle": "希望 ConPaws 何時提醒你？",
-    "pickerDescription": "選擇要提前多久出發前往{{event}}。",
-    "notificationTitle": "該出發前往{{event}}了",
+    "pickerDescription": "選擇何時接收關於{{event}}的提醒。",
+    "notificationTitle": "{{event}}提醒",
     "notificationBody": "{{minutes}} 分鐘後開始",
     "notificationBodyWithRoom": "{{minutes}} 分鐘後開始 · {{room}}",
     "channelName": "活動提醒",
-    "setAnnouncement": "已為{{event}}設定出發提醒。",
-    "clearedAnnouncement": "已清除{{event}}的出發提醒。",
+    "setAnnouncement": "已為{{event}}設定提醒。",
+    "clearedAnnouncement": "已清除{{event}}的提醒。",
     "errorTitle": "未設定提醒",
     "errorMessage": "ConPaws 無法更新這個提醒。請再試一次。",
     "permissionTitle": "通知已關閉",
@@ -363,12 +364,17 @@
     "overflowMessage": "這部裝置可保留的待送提醒數量有限，目前有 {{count}} 個提醒在等待。距離最近的會優先排程。",
     "priming": {
       "title": "在活動開始前收到提示",
-      "message": "ConPaws 可以在該出發前往活動時提醒你。接下來手機會請求通知權限。",
+      "message": "ConPaws 可以在活動開始前提醒你。接下來手機會請求通知權限。",
       "continue": "繼續",
       "notNow": "暫時不要"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "今天的行程已完成",
+      "subtitle": "{{name}}中已收藏的活動都已結束。",
+      "cta": "查看展會"
+    },
     "title": "行程",
     "empty": {
       "title": "還沒有加入任何活動",
@@ -502,7 +508,7 @@
       "enabled": "已允許——提醒可以送達",
       "disabled": "已關閉——提醒不會送達",
       "notRequested": "尚未請求",
-      "defaultLead": "預設出發提醒",
+      "defaultLead": "預設提醒",
       "defaultLeadDescription": "為新活動設定提醒時的預選值。",
       "noDefault": "無"
     },

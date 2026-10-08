@@ -1,11 +1,22 @@
 import type { NewConvention, NewConventionEvent } from "@/db/schema";
+import { fromConventionTime } from "../lib/convention-time";
 import { ageRatingFromCategory } from "../lib/event-categories";
 
 export const PREVIEW_CONVENTION_ID = "conpaws-preview-con";
 export const BLANK_PREVIEW_CONVENTION_ID = "conpaws-blank-preview-con";
 
-const BASE_TIME = Date.parse("2026-09-03T00:00:00-04:00");
 const FIXTURE_TIME = "2026-08-19T12:00:00.000Z";
+
+function dayOffset(now: Date, offset: number): string {
+  const date = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + offset,
+    ),
+  );
+  return date.toISOString().slice(0, 10);
+}
 
 // Timing, duration, venue concurrency, and audience mix model the public IFC
 // 2026 schedule. Names, descriptions, rooms, and identifiers are synthetic.
@@ -265,8 +276,12 @@ const FORMATS = [
 
 const AUDIENCES = ["All Ages", "Teen 13+", "Mature 17+", "Adults 18+"] as const;
 
-function isoAt(minutes: number): string {
-  return new Date(BASE_TIME + minutes * 60_000).toISOString();
+function isoAt(minutes: number, start: string): string {
+  const [year, month, day] = start.split("-").map(Number);
+  return new Date(
+    fromConventionTime({ year, month, day }, "America/New_York").getTime() +
+      minutes * 60_000,
+  ).toISOString();
 }
 
 export interface PreviewConventionFixture {
@@ -274,12 +289,16 @@ export interface PreviewConventionFixture {
   events: NewConventionEvent[];
 }
 
-export function buildConPawsPreviewFixture(): PreviewConventionFixture {
+export function buildConPawsPreviewFixture(
+  now = new Date(),
+): PreviewConventionFixture {
+  const startDate = dayOffset(now, -1);
+  const endDate = dayOffset(now, 2);
   const convention: NewConvention = {
     id: PREVIEW_CONVENTION_ID,
     name: "ConPaws Preview Con",
-    startDate: "2026-09-03",
-    endDate: "2026-09-06",
+    startDate,
+    endDate,
     timeZone: "America/New_York",
     icalUrl: null,
     status: "upcoming",
@@ -299,8 +318,8 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
         conventionId: PREVIEW_CONVENTION_ID,
         title: `${topic} ${format}`,
         description: `A synthetic ${category.toLowerCase()} session for previewing schedules, filters, conflicts, reminders, and offline behavior.`,
-        startTime: isoAt(startMinutes),
-        endTime: isoAt(startMinutes + durationMinutes),
+        startTime: isoAt(startMinutes, startDate),
+        endTime: isoAt(startMinutes + durationMinutes, startDate),
         location: "ConPaws Convention Center",
         room: ROOMS[roomIndex],
         category,
@@ -323,13 +342,15 @@ export function buildConPawsPreviewFixture(): PreviewConventionFixture {
   return { convention, events };
 }
 
-export function buildBlankPreviewFixture(): PreviewConventionFixture {
+export function buildBlankPreviewFixture(
+  now = new Date(),
+): PreviewConventionFixture {
   return {
     convention: {
       id: BLANK_PREVIEW_CONVENTION_ID,
       name: "Blank Preview Con",
-      startDate: "2026-09-03",
-      endDate: "2026-09-06",
+      startDate: dayOffset(now, -1),
+      endDate: dayOffset(now, 2),
       timeZone: "America/New_York",
       icalUrl: null,
       status: "upcoming",

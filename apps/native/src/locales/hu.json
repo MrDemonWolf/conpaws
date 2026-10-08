@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Válassz eseményeket az Összesből, és látni fogod, mi zajlik most és mi jön ezután.",
     "myScheduleSubtitle": "Nyisd meg az Összeset, és add hozzá az eseményeket, amikről nem akarsz lemaradni.",
     "overlapSummary": "Egymást átfedő mentett panelek: {{count}}",
-    "overlapHelp": "Mindet megtarthatod. Állíts be indulási emlékeztetőt a későbbi panelre, hogy legyen időd termet váltani.",
+    "overlapHelp": "Mindet megtarthatod. Állíts be emlékeztetőt a későbbi panelhez, hogy legyen időd termet váltani.",
     "overlapLabel": "Átfed egy másik mentett panelt",
     "runsAlongsideOne": "Egy időben zajlik 1 másik eseménnyel",
     "runsAlongsideMany": "Egy időben zajlik {{count}} másik eseménnyel",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Emlékeztetők bekapcsolása",
     "minutesBefore": "{{minutes}} perccel előtte",
     "atTime": "Az esemény kezdetekor",
-    "none": "Nincs indulási emlékeztető",
+    "none": "Nincs emlékeztető",
     "hourBefore": "1 órával előtte",
-    "setLeave": "Indulási emlékeztető beállítása",
-    "changeLeave": "Indulási emlékeztető módosítása",
+    "setLeave": "Emlékeztető beállítása",
+    "changeLeave": "Emlékeztető módosítása",
     "pickerTitle": "Mikor emlékeztessen a ConPaws?",
-    "pickerDescription": "Válaszd ki, mennyivel korábban indulnál ide: {{event}}.",
-    "notificationTitle": "Ideje elindulni ide: {{event}}",
+    "pickerDescription": "Válaszd ki, mikor kérsz emlékeztetőt erről: {{event}}.",
+    "notificationTitle": "Emlékeztető: {{event}}",
     "notificationBody": "{{minutes}} perc múlva kezdődik",
     "notificationBodyWithRoom": "{{minutes}} perc múlva kezdődik · {{room}}",
     "channelName": "Eseményemlékeztetők",
@@ -363,12 +364,17 @@
     "overflowMessage": "Ez az eszköz csak korlátozott számú függő emlékeztetőt tud tárolni, így ennyi emlékeztetőd várakozik: {{count}}. A legközelebbiek kerülnek először ütemezésre.",
     "priming": {
       "title": "Kapj jelzést a panelek előtt",
-      "message": "A ConPaws emlékeztethet, amikor ideje elindulni egy panelre. A telefonod ezután értesítési engedélyt fog kérni.",
+      "message": "A ConPaws emlékeztethet a panel kezdete előtt. A telefonod ezután értesítési engedélyt fog kérni.",
       "continue": "Tovább",
       "notNow": "Most nem"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Minden programon túl vagy",
+      "subtitle": "{{name}} minden mentett programja véget ért.",
+      "cta": "Rendezvény megtekintése"
+    },
     "title": "Program",
     "empty": {
       "title": "Még nincs semmi megjelölve",
@@ -502,7 +508,7 @@
       "enabled": "Engedélyezve — az emlékeztetők megérkezhetnek",
       "disabled": "Kikapcsolva — az emlékeztetők nem érkeznek meg",
       "notRequested": "Még nem lett kérve",
-      "defaultLead": "Alapértelmezett indulási emlékeztető",
+      "defaultLead": "Alapértelmezett emlékeztető",
       "defaultLeadDescription": "Előre kiválasztva, amikor új eseményre állítasz be emlékeztetőt.",
       "noDefault": "Nincs"
     },

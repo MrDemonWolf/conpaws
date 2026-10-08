@@ -144,11 +144,21 @@ export async function runScheduleImport({
       ),
     );
     const importedUids = new Set(mapped.map((event) => event.sourceUid));
+    const allDayUids = new Set(
+      parsedEvents
+        .filter((event) => event.isAllDay)
+        .map((event) => event.sourceUid),
+    );
     const importedEvents = (
       await eventsRepo.getByConventionId(conventionId)
     ).filter((event) => event.sourceUid && importedUids.has(event.sourceUid));
-
-    reminders = await rearmImportedReminders(importedEvents);
+    const allDayRows = importedEvents.filter(
+      (event) => event.sourceUid && allDayUids.has(event.sourceUid),
+    );
+    await Promise.all(allDayRows.map((event) => cancelEventReminder(event.id)));
+    reminders = await rearmImportedReminders(
+      importedEvents.filter((event) => !allDayRows.includes(event)),
+    );
   } catch (error) {
     // SQLite already committed. Every reminder keeps its saved choice, so the
     // next launch's reconciliation re-files whatever is missing.

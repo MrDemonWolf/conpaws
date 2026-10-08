@@ -16,21 +16,21 @@
   },
   "dependencies": {
     "@conpaws/ui": "workspace:*",
-    "drizzle-orm": "^0.45.2",
-    "jose": "^6.2.9",
+    "drizzle-orm": "^0.45.3",
+    "jose": "^6.2.12",
     "next": "16.2.12",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "zod": "^4.1.13"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250505.0",
+    "@cloudflare/workers-types": "^5.20261005.1",
     "@opennextjs/cloudflare": "1.20.2",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^20",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
-    "drizzle-kit": "^0.31.10",
+    "drizzle-kit": "^0.31.11",
     "tailwindcss": "^4.1.18",
     "typescript": "~6.0.3",
     "vitest": "^3.2.7"

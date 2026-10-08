@@ -59,7 +59,11 @@ describe("locale parity", () => {
       ).sort();
 
       const missing = reference.filter((k) => !keys.includes(k));
-      const extra = keys.filter((k) => !reference.includes(k));
+      const extra = keys.filter(
+        (k) =>
+          !reference.includes(k) &&
+          !/_zero|_one|_two|_few|_many|_other$/.test(k),
+      );
       expect({ missing, extra }).toEqual({ missing: [], extra: [] });
     },
   );

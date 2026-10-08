@@ -1,10 +1,9 @@
 /**
- * Build-number tooling for the local release path.
+ * Build-number tooling for local builds and the shared Native release workflow.
  *
- * ConPaws ships from local builds -- an Xcode Organizer archive and a Gradle
- * release bundle -- so nothing hands out an increasing store build number the
- * way EAS remote version counters would. `BUILD_NUMBER` in `app.config.ts` is
- * that counter, and both stores reject an upload that reuses or lowers it.
+ * `--ci` assigns 1000 + the release workflow run number; `--set` carries it
+ * into each build checkout. Local development still uses `--bump`. Both
+ * platforms read the constant in app.config.ts, never an EAS remote counter.
  *
  * Two failure modes have actually happened here, and this script exists for
  * them rather than for tidiness:
@@ -32,6 +31,10 @@ const appDirectory = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const configPath = path.join(appDirectory, "app.config.ts");
 const infoPlistPath = path.join(appDirectory, "ios/ConPaws/Info.plist");
 const gradlePath = path.join(appDirectory, "android/app/build.gradle");
+const gradlePropertiesPath = path.join(
+  appDirectory,
+  "android/gradle.properties",
+);
 
 /**
  * Anchored on the declaration, not on the digits. Comments in `app.config.ts`
@@ -39,6 +42,12 @@ const gradlePath = path.join(appDirectory, "android/app/build.gradle");
  * pattern rewrites that history instead of the constant.
  */
 const declaration = /^const BUILD_NUMBER = (\d+);$/m;
+const signingKeys = [
+  "android.injected.signing.store.file",
+  "android.injected.signing.store.password",
+  "android.injected.signing.key.alias",
+  "android.injected.signing.key.password",
+];
 
 export function parseBuildNumber(source) {
   const match = source.match(declaration);
@@ -58,6 +67,33 @@ export function bumpBuildNumber(source) {
     next,
     source: source.replace(declaration, `const BUILD_NUMBER = ${next};`),
   };
+}
+
+export function setBuildNumber(source, value) {
+  const next = Number(value);
+  if (
+    !/^\d+$/.test(String(value)) ||
+    !Number.isSafeInteger(next) ||
+    next <= parseBuildNumber(source) ||
+    next > 9999
+  ) {
+    throw new Error("Build number must increase and be at most 9999.");
+  }
+  return source.replace(declaration, `const BUILD_NUMBER = ${next};`);
+}
+
+export function ciBuildNumber(runNumber, runAttempt) {
+  if (String(runAttempt) !== "1") {
+    throw new Error(
+      "Start a new Native release run instead of re-running an old build number.",
+    );
+  }
+  const number = Number(runNumber);
+  if (!/^\d+$/.test(String(runNumber)) || number < 1 || number > 8999) {
+    throw new Error("Native release run number must be between 1 and 8999.");
+  }
+  // ponytail: 8999 releases; change the numbering scheme before exhausting it.
+  return 1000 + number;
 }
 
 /** CFBundleVersion is the string on the line after its `<key>`. */
@@ -119,6 +155,16 @@ export function parseGradleVersionCode(text) {
   return match ? Number(match[1]) : null;
 }
 
+export function missingSigningProperties(text) {
+  const present = new Set(
+    text
+      .split(/\r?\n/)
+      .map((line) => line.match(/^\s*([^#!\s][^=]*?)\s*=/)?.[1]?.trim())
+      .filter(Boolean),
+  );
+  return signingKeys.filter((key) => !present.has(key));
+}
+
 /**
  * Absent native output is not a failure. A fresh clone has no `ios/` or
  * `android/` directory, and reporting that as a stale build number would train
@@ -154,9 +200,10 @@ async function bump() {
 
 async function check() {
   const expected = parseBuildNumber(await readFile(configPath, "utf8"));
-  const [plist, gradle] = await Promise.all([
+  const [plist, gradle, gradleProperties] = await Promise.all([
     readIfPresent(infoPlistPath),
     readIfPresent(gradlePath),
+    readIfPresent(gradlePropertiesPath),
   ]);
   const variantProblems = describeVariantRisk(
     plist === null ? null : parseInfoPlistVariant(plist),
@@ -186,6 +233,22 @@ async function check() {
     },
   ]);
 
+  const requireSigning =
+    (process.env.APP_VARIANT ?? "production") === "production" &&
+    process.env.CI === undefined;
+  const missingSigning = requireSigning
+    ? missingSigningProperties(gradleProperties ?? "")
+    : [];
+
+  if (missingSigning.length > 0) {
+    console.error(
+      "Android upload signing properties are missing from android/gradle.properties.",
+    );
+    for (const key of missingSigning) console.error(`  ${key}`);
+    process.exitCode = 1;
+    return;
+  }
+
   if (drift.length > 0) {
     console.error("Native projects are stale. Run `expo prebuild` first.\n");
     for (const line of drift) console.error(`  ${line}`);
@@ -197,10 +260,22 @@ async function check() {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes("--bump")) await bump();
+  if (process.argv.includes("--ci") || process.argv.includes("--set")) {
+    const next = process.argv.includes("--ci")
+      ? ciBuildNumber(
+          process.env.GITHUB_RUN_NUMBER,
+          process.env.GITHUB_RUN_ATTEMPT,
+        )
+      : process.argv[process.argv.indexOf("--set") + 1];
+    const source = await readFile(configPath, "utf8");
+    await writeFile(configPath, setBuildNumber(source, next));
+    console.log(next);
+  } else if (process.argv.includes("--bump")) await bump();
   else if (process.argv.includes("--check")) await check();
   else {
-    console.error("Usage: node scripts/build-number.mjs --bump | --check");
+    console.error(
+      "Usage: node scripts/build-number.mjs --bump | --check | --set NUMBER | --ci",
+    );
     process.exitCode = 1;
   }
 }

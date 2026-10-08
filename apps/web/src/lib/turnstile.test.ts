@@ -4,6 +4,7 @@ import { verifyTurnstile } from "./turnstile";
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe("verifyTurnstile", () => {
@@ -16,12 +17,61 @@ describe("verifyTurnstile", () => {
 
   it("accepts a token Cloudflare reports as successful", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({ success: true }),
+      Response.json({
+        success: true,
+        hostname: "conpaws.com",
+        action: "waitlist",
+      }),
     );
 
     await expect(
       verifyTurnstile("secret", "token", "203.0.113.7"),
     ).resolves.toBe(true);
+  });
+
+  it("rejects a successful token for another hostname or action", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        Response.json({
+          success: true,
+          hostname: "evil.example",
+          action: "waitlist",
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          success: true,
+          hostname: "conpaws.com",
+          action: "login",
+        }),
+      );
+
+    await expect(verifyTurnstile("secret", "token", null)).resolves.toBe(false);
+    await expect(verifyTurnstile("secret", "token", null)).resolves.toBe(false);
+  });
+
+  it("allows localhost only outside production", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        success: true,
+        hostname: "localhost",
+        action: "waitlist",
+      }),
+    );
+    await expect(verifyTurnstile("secret", "token", null)).resolves.toBe(true);
+  });
+
+  it("rejects localhost in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        success: true,
+        hostname: "localhost",
+        action: "waitlist",
+      }),
+    );
+    await expect(verifyTurnstile("secret", "token", null)).resolves.toBe(false);
   });
 
   it("rejects a token Cloudflare reports as failed", async () => {

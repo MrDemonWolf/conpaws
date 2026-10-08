@@ -62,7 +62,7 @@ export function LanguageSwitcher({
           {active.nativeName}
         </span>
         <span aria-hidden="true" className="hidden max-[23rem]:inline">
-          {active.code.slice(0, 2).toUpperCase()}
+          {active.code.toUpperCase()}
         </span>
         <span
           aria-hidden="true"

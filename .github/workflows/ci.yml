@@ -46,6 +46,22 @@ jobs:
       - name: Test
         run: bun run test
 
+      - name: Set up release tooling
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: apps/native
+
+      - name: Check store release guards without credentials
+        working-directory: apps/native
+        run: bundle exec ruby fastlane/check.rb
+
+      - name: Test native under Pacific/Auckland
+        env:
+          TZ: Pacific/Auckland
+        run: bun run --filter @conpaws/native test
+
       # A schema edit without a regenerated migration passes lint, types, tests
       # and the Worker smoke test, and only surfaces at deploy -- where
       # alchemy.run.ts warns that D1 drift is not recoverable by rolling the
@@ -60,6 +76,10 @@ jobs:
             echo "::error title=Migration drift::src/db/schema.ts changed without a matching migration. Run 'bun run db:generate' in apps/web and commit the result."
             exit 1
           fi
+
+      # No admin drift check: apps/admin/drizzle/migrations are hand-written
+      # SQL without drizzle-kit snapshot metadata, so `db:generate` always
+      # emits a full baseline there. Admin migrations are reviewed by hand.
 
   web:
     name: Build and smoke-test Cloudflare Workers
@@ -169,6 +189,11 @@ jobs:
 
           bun scripts/e2e.ts http://127.0.0.1:8787
 
+          # Rendered check: no locale page may scroll sideways at 320 or 375px
+          # (e2e.ts only sees HTML; a long Norwegian hero word slipped past it).
+          bunx playwright-core install --with-deps chromium-headless-shell
+          bun scripts/overflow.ts http://127.0.0.1:8787
+
 
   infrastructure:
     name: Validate deployment descriptors
@@ -234,6 +259,10 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Check generated native license manifest
+        run: bun run licenses:check
+        working-directory: apps/native
 
       - name: Check Expo package compatibility
         run: bunx expo install --check

@@ -26,7 +26,7 @@ describe("resolveReminderNotice", () => {
     ).toBe("none");
   });
 
-  it("reports paused reminders when permission is not granted", () => {
+  it("distinguishes a first prompt from denied permission", () => {
     expect(
       resolveReminderNotice({
         permission: "denied",
@@ -40,10 +40,10 @@ describe("resolveReminderNotice", () => {
         reminderCount: 2,
         overflow: 0,
       }),
-    ).toBe("permission");
+    ).toBe("requestPermission");
   });
 
-  it("prefers the permission notice over the ceiling", () => {
+  it("prefers denied permission over the ceiling", () => {
     expect(
       resolveReminderNotice({
         permission: "denied",

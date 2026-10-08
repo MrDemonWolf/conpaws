@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "「すべて」からイベントを選ぶと、現在と次の予定が表示されます。",
     "myScheduleSubtitle": "「すべて」を開いて、見逃したくないイベントを追加しましょう。",
     "overlapSummary": "時間が重なっている保存済みパネル：{{count}}",
-    "overlapHelp": "すべて残しておけます。あとのパネルに出発リマインダーを設定すると、部屋の移動時間を確保できます。",
+    "overlapHelp": "すべて残しておけます。あとのパネルにリマインダーを設定すると、部屋の移動時間を確保できます。",
     "overlapLabel": "他の保存済みパネルと時間が重なっています",
     "runsAlongsideOne": "他1件のイベントと同時進行",
     "runsAlongsideMany": "他{{count}}件のイベントと同時進行",
@@ -336,20 +336,21 @@
     }
   },
   "reminders": {
+    "turnOn": "リマインダーをオンにする",
     "minutesBefore": "{{minutes}}分前",
     "atTime": "イベントの開始時刻",
-    "none": "出発リマインダーなし",
+    "none": "リマインダーなし",
     "hourBefore": "1時間前",
-    "setLeave": "出発リマインダーを設定",
-    "changeLeave": "出発リマインダーを変更",
+    "setLeave": "リマインダーを設定",
+    "changeLeave": "リマインダーを変更",
     "pickerTitle": "いつ通知しますか？",
-    "pickerDescription": "{{event}}に向けて、どれくらい前に出発するか選んでください。",
-    "notificationTitle": "{{event}}への出発時間です",
+    "pickerDescription": "{{event}}のリマインダーを受け取るタイミングを選んでください。",
+    "notificationTitle": "{{event}}のリマインダー",
     "notificationBody": "{{minutes}}分後に開始",
     "notificationBodyWithRoom": "{{minutes}}分後に開始 · {{room}}",
     "channelName": "イベントリマインダー",
-    "setAnnouncement": "{{event}}の出発リマインダーを設定しました。",
-    "clearedAnnouncement": "{{event}}の出発リマインダーを解除しました。",
+    "setAnnouncement": "{{event}}のリマインダーを設定しました。",
+    "clearedAnnouncement": "{{event}}のリマインダーを解除しました。",
     "errorTitle": "リマインダーを設定できませんでした",
     "errorMessage": "ConPawsはこのリマインダーを更新できませんでした。もう一度お試しください。",
     "permissionTitle": "通知がオフになっています",
@@ -363,12 +364,17 @@
     "overflowMessage": "このデバイスで保持できる保留中のリマインダー数には上限があるため、{{count}}件が待機中です。開始が近いものから順に予約されます。",
     "priming": {
       "title": "パネルの前にお知らせを受け取る",
-      "message": "ConPawsはパネルへの出発時刻をお知らせできます。この後、通知の許可を求めるダイアログが表示されます。",
+      "message": "ConPawsはパネル開始前にお知らせできます。この後、通知の許可を求めるダイアログが表示されます。",
       "continue": "続ける",
       "notNow": "今はしない"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "予定はすべて終了しました",
+      "subtitle": "{{name}}の保存したイベントはすべて終了しました。",
+      "cta": "コンベンションを見る"
+    },
     "title": "スケジュール",
     "empty": {
       "title": "まだ何も登録されていません",
@@ -502,7 +508,7 @@
       "enabled": "許可済み — リマインダーが届きます",
       "disabled": "オフ — リマインダーは届きません",
       "notRequested": "まだ許可を求めていません",
-      "defaultLead": "デフォルトの出発リマインダー",
+      "defaultLead": "デフォルトのリマインダー",
       "defaultLeadDescription": "新しいイベントにリマインダーを設定するとき、あらかじめ選択されます。",
       "noDefault": "なし"
     },

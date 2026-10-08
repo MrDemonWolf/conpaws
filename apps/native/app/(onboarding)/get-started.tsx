@@ -52,7 +52,7 @@ export default function GetStartedScreen() {
               </Text>
               <Text
                 variant="body"
-                className="text-center leading-6 text-muted-foreground"
+                className="text-center text-muted-foreground"
               >
                 {t("onboarding.getStarted.subtitle")}
               </Text>
@@ -70,10 +70,7 @@ export default function GetStartedScreen() {
               >
                 <ShieldCheck size={22} color={iconColor} />
               </View>
-              <Text
-                variant="caption"
-                className="flex-1 leading-5 text-muted-foreground"
-              >
+              <Text variant="caption" className="flex-1 text-muted-foreground">
                 {t("onboarding.getStarted.localPrivacy")}
               </Text>
             </Card>

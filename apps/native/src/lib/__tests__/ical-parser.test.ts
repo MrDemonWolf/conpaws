@@ -537,7 +537,25 @@ END:VCALENDAR`;
     expect(result.events).toHaveLength(1);
     const ev = result.events[0];
     expect(ev.startTime.toISOString()).toBe("2026-06-12T00:00:00.000Z");
+    expect(ev.isAllDay).toBe(true);
+    expect(ev.endTime).toBeNull();
   });
+  it("rejects a nonexistent local time in a DST gap", () => {
+    const result = parseIcs(
+      `BEGIN:VCALENDAR\nX-WR-TIMEZONE:America/Chicago\nBEGIN:VEVENT\nDTSTART:20260308T023000\nSUMMARY:Missing time\nUID:gap\nEND:VEVENT\nEND:VCALENDAR`,
+    );
+    expect(result.events).toHaveLength(0);
+  });
+
+  it("uses DURATION when DTEND is absent", () => {
+    const result = parseIcs(
+      `BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART:20260612T160000Z\nDURATION:PT90M\nSUMMARY:Long panel\nUID:duration\nEND:VEVENT\nEND:VCALENDAR`,
+    );
+    expect(result.events[0]?.endTime?.toISOString()).toBe(
+      "2026-06-12T17:30:00.000Z",
+    );
+  });
+
   it("keeps an astral-plane numeric entity intact", () => {
     const ics = `BEGIN:VCALENDAR
 VERSION:2.0

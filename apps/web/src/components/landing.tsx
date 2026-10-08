@@ -84,8 +84,11 @@ function PhoneFrame({
   className?: string;
 }) {
   return (
-    <figure className={`w-[248px] shrink-0 ${className}`}>
-      <div className="rounded-[36px] border border-border bg-gradient-to-b from-slate-700/60 to-slate-900/80 p-[7px] shadow-[0_40px_80px_-30px_rgb(0_0_0/0.8),inset_0_1px_0_rgb(255_255_255/0.08)]">
+    <figure aria-label={label} className={`w-[248px] shrink-0 ${className}`}>
+      <div
+        aria-hidden="true"
+        className="rounded-[36px] border border-border bg-gradient-to-b from-slate-700/60 to-slate-900/80 p-[7px] shadow-[0_40px_80px_-30px_rgb(0_0_0/0.8),inset_0_1px_0_rgb(255_255_255/0.08)]"
+      >
         {/*
           A real capture is 1320x2868, so the frame is held at that ratio
           rather than a round pixel height. A fixed height quietly crops or
@@ -95,7 +98,10 @@ function PhoneFrame({
           {children}
         </div>
       </div>
-      <figcaption className="mt-4 text-center font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+      <figcaption
+        aria-hidden="true"
+        className="mt-4 text-center font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]"
+      >
         {label}
       </figcaption>
     </figure>
@@ -104,6 +110,7 @@ function PhoneFrame({
 
 function MiniEvent({
   time,
+  locale,
   title,
   room,
   con,
@@ -111,6 +118,7 @@ function MiniEvent({
   flag,
 }: {
   time: string;
+  locale: Locale;
   title: string;
   room: string;
   /** Which convention the row belongs to — only shown in the Schedule tab. */
@@ -126,7 +134,11 @@ function MiniEvent({
     >
       <div className="flex items-center justify-between">
         <span className="font-tech text-[10px] text-primary tracking-[0.08em]">
-          {time}
+          {new Intl.DateTimeFormat(locale, {
+            hour: "numeric",
+            minute: "2-digit",
+            timeZone: "UTC",
+          }).format(new Date(`1970-01-01T${time}:00Z`))}
         </span>
         <span aria-hidden="true" className="text-[11px] leading-none">
           {starred ? "★" : "☆"}
@@ -163,7 +175,7 @@ function TabBar({
   ] as const;
 
   return (
-    <div className="mt-auto flex items-center justify-around border-border border-t pt-2.5">
+    <div className="mt-auto flex items-center justify-around border-border border-t px-1 pt-2.5">
       {tabs.map(([key, label]) => (
         <span
           key={key}
@@ -180,7 +192,7 @@ function TabBar({
 
 function ScreenChrome({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-full flex-col px-3 pt-9 pb-3 text-foreground">
+    <div className="flex h-full flex-col px-3 pt-9 pb-4 text-foreground">
       {children}
     </div>
   );
@@ -191,7 +203,13 @@ function ScreenChrome({ children }: { children: React.ReactNode }) {
  * by day. Rows name their convention only when more than one is in play,
  * which is exactly what the app does.
  */
-function ScheduleScreen({ messages }: { messages: Messages }) {
+function ScheduleScreen({
+  messages,
+  locale,
+}: {
+  messages: Messages;
+  locale: Locale;
+}) {
   const m = messages.mock;
   return (
     <ScreenChrome>
@@ -207,6 +225,7 @@ function ScheduleScreen({ messages }: { messages: Messages }) {
       <div className="mt-2 flex flex-col gap-2">
         <MiniEvent
           time="10:00"
+          locale={locale}
           title={m.events.fursuitParade}
           con={SAMPLE_CON_SHORT}
           room={m.rooms.mainHall}
@@ -214,6 +233,7 @@ function ScheduleScreen({ messages }: { messages: Messages }) {
         />
         <MiniEvent
           time="13:00"
+          locale={locale}
           title={m.events.dealersDen}
           con={SAMPLE_CON_SHORT}
           room={m.rooms.hallB}
@@ -221,6 +241,7 @@ function ScheduleScreen({ messages }: { messages: Messages }) {
         />
         <MiniEvent
           time="20:00"
+          locale={locale}
           title={m.events.djNight}
           con={SAMPLE_CON_SHORT}
           room={m.rooms.ballroom}
@@ -234,6 +255,7 @@ function ScheduleScreen({ messages }: { messages: Messages }) {
       <div className="mt-2 flex flex-col gap-2">
         <MiniEvent
           time="11:00"
+          locale={locale}
           title={m.events.closingCeremonies}
           con={SAMPLE_CON_SHORT}
           room={m.rooms.mainHall}
@@ -249,7 +271,13 @@ function ScheduleScreen({ messages }: { messages: Messages }) {
  * Tapping an event opens an action sheet over the schedule. The app has no
  * event detail screen, deliberately — stars and reminders live in one place.
  */
-function EventSheetScreen({ messages }: { messages: Messages }) {
+function EventSheetScreen({
+  messages,
+  locale,
+}: {
+  messages: Messages;
+  locale: Locale;
+}) {
   const m = messages.mock;
   return (
     <div className="relative h-full">
@@ -263,17 +291,20 @@ function EventSheetScreen({ messages }: { messages: Messages }) {
         <div className="mt-3 flex flex-col gap-2">
           <MiniEvent
             time="10:00"
+            locale={locale}
             title={m.events.fursuitParade}
             room={m.rooms.mainHall}
             starred
           />
           <MiniEvent
             time="11:30"
+            locale={locale}
             title={m.events.drawingForBeginners}
             room={m.rooms.panel2}
           />
           <MiniEvent
             time="13:00"
+            locale={locale}
             title={m.events.dealersDen}
             room={m.rooms.hallB}
             starred
@@ -289,7 +320,13 @@ function EventSheetScreen({ messages }: { messages: Messages }) {
           {m.events.fursuitParade}
         </p>
         <p className="mt-1 px-3 text-[10px] text-muted-foreground">
-          {m.sheet.when}
+          {m.sheet.when.replace(/\b(\d{1,2}:\d{2})\b/g, (time) =>
+            new Intl.DateTimeFormat(locale, {
+              hour: "numeric",
+              minute: "2-digit",
+              timeZone: "UTC",
+            }).format(new Date(`1970-01-01T${time}:00Z`)),
+          )}
         </p>
         <div className="mt-2.5 flex flex-wrap gap-1.5 px-3">
           <span className="rounded-[5px] border border-primary/40 bg-primary/10 px-1.5 py-px font-tech text-[8px] text-primary uppercase tracking-[0.1em]">
@@ -326,7 +363,13 @@ function EventSheetScreen({ messages }: { messages: Messages }) {
  * network state to report — the offline claim belongs in the copy around the
  * phone, not in invented chrome pretending to be a screen the app can render.
  */
-function OfflineScreen({ messages }: { messages: Messages }) {
+function OfflineScreen({
+  messages,
+  locale,
+}: {
+  messages: Messages;
+  locale: Locale;
+}) {
   const m = messages.mock;
   return (
     <ScreenChrome>
@@ -343,20 +386,31 @@ function OfflineScreen({ messages }: { messages: Messages }) {
       <div className="mt-2 flex flex-col gap-2">
         <MiniEvent
           time="13:00"
+          locale={locale}
           title={m.events.dealersDen}
           room={m.rooms.hallB}
           starred
         />
       </div>
-      <p className="mt-4 font-bold text-[12px] tracking-tight">{m.nextAt}</p>
+      <p className="mt-4 font-bold text-[12px] tracking-tight">
+        {m.nextAt.replace(/\b(\d{1,2}:\d{2})\b/g, (time) =>
+          new Intl.DateTimeFormat(locale, {
+            hour: "numeric",
+            minute: "2-digit",
+            timeZone: "UTC",
+          }).format(new Date(`1970-01-01T${time}:00Z`)),
+        )}
+      </p>
       <div className="mt-2 flex flex-col gap-2">
         <MiniEvent
           time="14:30"
+          locale={locale}
           title={m.events.writingFurryFiction}
           room={m.rooms.panel1}
         />
         <MiniEvent
           time="14:30"
+          locale={locale}
           title={m.events.fursuitRepairClinic}
           room={m.rooms.panel3}
         />
@@ -407,7 +461,7 @@ export function Landing({
               ConPaws
             </b>
           </span>
-          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5 sm:gap-x-2 lg:order-2 lg:flex-1 lg:justify-center lg:gap-x-1">
+          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5 rounded-lg bg-background px-1 sm:gap-x-2 lg:order-2 lg:flex-1 lg:justify-center lg:gap-x-1">
             {[
               ["#inside", messages.inside.eyebrow],
               ["#features", messages.lineup.title],
@@ -417,7 +471,7 @@ export function Landing({
               <a
                 key={href}
                 href={href}
-                className="inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-2.5 text-[13px] text-muted-foreground transition hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:px-3 sm:text-sm"
+                className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-2.5 text-[13px] text-muted-foreground transition hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:px-3 sm:text-sm"
               >
                 {label}
               </a>
@@ -458,19 +512,19 @@ export function Landing({
               label={messages.inside.frameSchedule}
               className="snap-start md:translate-y-8 md:rotate-[-4deg]"
             >
-              <ScheduleScreen messages={messages} />
+              <ScheduleScreen messages={messages} locale={locale} />
             </PhoneFrame>
             <PhoneFrame
               label={messages.inside.frameEvent}
               className="snap-start z-10"
             >
-              <EventSheetScreen messages={messages} />
+              <EventSheetScreen messages={messages} locale={locale} />
             </PhoneFrame>
             <PhoneFrame
               label={messages.inside.frameOffline}
               className="snap-start md:translate-y-8 md:rotate-[4deg]"
             >
-              <OfflineScreen messages={messages} />
+              <OfflineScreen messages={messages} locale={locale} />
             </PhoneFrame>
           </section>
         </section>

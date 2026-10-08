@@ -1,5 +1,11 @@
 import { router } from "expo-router";
-import { CalendarPlus, Cloud, ShieldCheck } from "lucide-react-native";
+import {
+  CalendarPlus,
+  CloudOff,
+  type LucideIcon,
+  ShieldCheck,
+  Star,
+} from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { EventItem } from "@/components/EventItem";
@@ -13,9 +19,36 @@ import { formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import { markOnboardingComplete } from "@/lib/onboarding-storage";
 import { themeTokens } from "@/lib/theme-tokens";
+import { cn } from "@/lib/utils";
 
 const previewFixture = buildConPawsPreviewFixture();
 const previewEvents = previewFixture.events.slice(0, 2);
+
+function FeatureRow({
+  Icon,
+  title,
+  description,
+  color,
+  className,
+}: {
+  Icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
+  className?: string;
+}) {
+  return (
+    <View className={cn("flex-row items-start gap-3", className)}>
+      <Icon size={20} color={color} />
+      <View className="flex-1 gap-0.5">
+        <Text variant="label">{title}</Text>
+        <Text variant="caption" className="text-muted-foreground">
+          {description}
+        </Text>
+      </View>
+    </View>
+  );
+}
 
 function formatTime(value: string | null | undefined, locale: string): string {
   if (!value) return "";
@@ -65,7 +98,7 @@ export default function FeaturesScreen() {
               </Text>
               <Text
                 variant="caption"
-                className="max-w-sm text-center leading-5 text-muted-foreground"
+                className="max-w-sm text-center text-muted-foreground"
               >
                 {t("onboarding.features.subtitle")}
               </Text>
@@ -89,54 +122,35 @@ export default function FeaturesScreen() {
                   className="bg-card"
                 />
               ))}
-              <View className="flex-row items-center gap-2 border-border border-t px-4 py-3">
-                <ShieldCheck size={17} color={iconColor} />
-                <View className="flex-1">
-                  <Text variant="caption" className="font-semibold">
-                    {t("onboarding.features.offline.title")}
-                  </Text>
-                  <Text variant="caption" className="text-muted-foreground">
-                    {t("onboarding.features.offline.description")}
-                  </Text>
-                </View>
-              </View>
+              <FeatureRow
+                Icon={ShieldCheck}
+                color={iconColor}
+                title={t("onboarding.features.offline.title")}
+                description={t("onboarding.features.offline.description")}
+                className="border-border border-t px-4 py-3"
+              />
             </View>
-            {/* These two strings shipped translated in all eight locales and
+            {/* These strings shipped translated in all 22 locales and
                 were rendered nowhere — the only in-app explanation of what
                 "import" means. */}
-            <View className="flex-row items-center justify-center gap-2">
-              <CalendarPlus size={17} color={iconColor} />
-              <View>
-                <Text variant="label">
-                  {t("onboarding.features.import.title")}
-                </Text>
-                <Text variant="caption" className="text-muted-foreground">
-                  {t("onboarding.features.import.description")}
-                </Text>
-              </View>
-            </View>
-            <View className="items-center gap-1">
-              <Text variant="label" className="text-center">
-                {t("onboarding.features.plan.title")}
-              </Text>
-              <Text variant="caption" className="text-center leading-5">
-                {t("onboarding.features.plan.description")}
-              </Text>
-            </View>
-            <View className="items-center gap-1">
-              <View className="flex-row items-center justify-center gap-2">
-                <Cloud size={16} color={iconColor} />
-                <Text variant="caption" className="font-semibold text-primary">
-                  {t("onboarding.features.plus.title")}
-                </Text>
-              </View>
-              <Text
-                variant="caption"
-                className="max-w-sm text-center text-muted-foreground"
-              >
-                {t("onboarding.features.plus.description")}
-              </Text>
-            </View>
+            <FeatureRow
+              Icon={CalendarPlus}
+              color={iconColor}
+              title={t("onboarding.features.import.title")}
+              description={t("onboarding.features.import.description")}
+            />
+            <FeatureRow
+              Icon={Star}
+              color={iconColor}
+              title={t("onboarding.features.plan.title")}
+              description={t("onboarding.features.plan.description")}
+            />
+            <FeatureRow
+              Icon={CloudOff}
+              color={iconColor}
+              title={t("onboarding.features.plus.title")}
+              description={t("onboarding.features.plus.description")}
+            />
           </View>
         </View>
       </ScrollView>

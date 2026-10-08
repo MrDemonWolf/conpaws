@@ -148,6 +148,12 @@ private struct ConPawsWatchEntryView: View {
           now: entry.date,
           strings: entry.strings
         )
+      case let .current(event, convention):
+        VStack(alignment: .leading, spacing: 2) {
+          Text(entry.strings.now.uppercased()).font(.caption2).foregroundStyle(.secondary)
+          Text(event.title).font(.headline).lineLimit(2)
+          Text(convention.name).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+        }
       case let .blank(convention):
         BlankWidgetView(convention: convention, strings: entry.strings)
       }
@@ -393,6 +399,7 @@ private struct WidgetScheduleProjection {
     case comingUp(ConPawsConventionSnapshot)
     case leave(ConPawsEventSnapshot?, ConPawsEventSnapshot, ConPawsConventionSnapshot)
     case next(ConPawsEventSnapshot, ConPawsConventionSnapshot)
+    case current(ConPawsEventSnapshot, ConPawsConventionSnapshot)
     case blank(ConPawsConventionSnapshot?)
   }
 
@@ -406,7 +413,9 @@ private struct WidgetScheduleProjection {
   var state: State {
     guard let convention else { return .blank(nil) }
     if now < convention.startDate { return .comingUp(convention) }
-    guard let nextEvent else { return .blank(convention) }
+    guard let nextEvent else {
+      return activeEvent.map { .current($0, convention) } ?? .blank(convention)
+    }
     if let leaveDate, leaveDate <= now, now < nextEvent.startDate {
       return .leave(activeEvent, nextEvent, convention)
     }
@@ -424,7 +433,7 @@ private struct WidgetScheduleProjection {
     switch state {
     case .comingUp(let convention): return convention.startDate
     case .leave(_, let upcoming, _): return upcoming.startDate
-    case .next, .blank: return nil
+    case .next, .current, .blank: return nil
     }
   }
 

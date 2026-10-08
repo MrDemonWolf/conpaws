@@ -97,7 +97,8 @@ function eventSnapshot(
     id: event.id,
     title: event.title,
     startAtMs,
-    endAtMs: Number.isFinite(parsedEnd) ? parsedEnd : null,
+    endAtMs:
+      Number.isFinite(parsedEnd) && parsedEnd >= startAtMs ? parsedEnd : null,
     location: event.location,
     room: event.room,
     reminderMinutes: event.reminderMinutes,
@@ -123,11 +124,13 @@ export function buildWidgetSnapshot(
       ? convention.timeZone
       : fallbackTimeZone;
     const startAtMs = fromConventionTime(start, timeZoneIdentifier).getTime();
-    const endAtMs = fromConventionTime(
+    const parsedEndAtMs = fromConventionTime(
       { ...end, day: end.day + 1 },
       timeZoneIdentifier,
     ).getTime();
-    if (!Number.isFinite(startAtMs) || !Number.isFinite(endAtMs)) return [];
+    if (!Number.isFinite(startAtMs) || !Number.isFinite(parsedEndAtMs))
+      return [];
+    const endAtMs = Math.max(startAtMs, parsedEndAtMs);
 
     let formatter = formatterCache.get(timeZoneIdentifier);
     if (!formatter) {
@@ -139,7 +142,7 @@ export function buildWidgetSnapshot(
     }
     const startLabel = formatter.format(new Date(startAtMs));
     const endLabel = formatter.format(
-      fromConventionTime(end, timeZoneIdentifier),
+      new Date(Math.max(startAtMs, parsedEndAtMs - 1)),
     );
     const events = (eventsByConvention.get(convention.id) ?? [])
       .map((event) => eventSnapshot(event, localeIdentifier))

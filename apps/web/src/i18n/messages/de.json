@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "Seit 2025",
     "languageLabel": "Sprache",
     "back": "Zurück",
     "skipToContent": "Zum Inhalt springen",
@@ -199,7 +198,8 @@
     "doneTitle": "Du stehst auf der Liste.",
     "doneBody": "Wir haben dir einen Bestätigungslink geschickt. Klick ihn an und dein Platz ist sicher — wir schreiben dir erst wieder, wenn es etwas zu öffnen gibt.",
     "closedNotice": "Wir stellen gerade die sichere Anmeldung und die E-Mail-Bestätigung fertig. Es werden noch keine Adressen angenommen.",
-    "privacyLink": "Datenschutz"
+    "privacyLink": "Datenschutz",
+    "consentSummary": "Wir informieren dich per E-Mail über den Start von ConPaws. Du kannst dich jederzeit abmelden."
   },
   "confirmed": {
     "title": "Du stehst auf der Liste",

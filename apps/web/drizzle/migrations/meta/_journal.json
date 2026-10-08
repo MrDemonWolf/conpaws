@@ -15,6 +15,27 @@
       "when": 1788136885499,
       "tag": "0001_waitlist_ip_recent_idx",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791385203171,
+      "tag": "0002_rich_ser_duncan",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791385971133,
+      "tag": "0003_rapid_slyde",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791386346857,
+      "tag": "0004_romantic_leader",
+      "breakpoints": true
     }
   ]
 }

@@ -11,7 +11,12 @@ import { type Href, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, Linking } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  useWindowDimensions,
+} from "react-native";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
@@ -61,6 +66,7 @@ function ExternalIndicator() {
 }
 
 export default function SettingsScreen() {
+  const { fontScale } = useWindowDimensions();
   const { t } = useTranslation();
 
   // One place that catches the two rejections these links actually produce: a
@@ -117,8 +123,11 @@ export default function SettingsScreen() {
 
   function handleExport() {
     exportData(undefined, {
-      onError: () =>
-        Alert.alert(t("common.error"), t("settings.data.exportError")),
+      onError: (error) =>
+        Alert.alert(
+          t("common.error"),
+          error.message || t("settings.data.exportError"),
+        ),
     });
   }
 
@@ -283,19 +292,21 @@ export default function SettingsScreen() {
               anyway. */}
           <ListItem
             supportingText={
-              process.env.EXPO_OS === "ios"
-                ? t("settings.notifications.defaultLeadDescription")
-                : reminderDefaultLabel(defaultLead, t)
+              fontScale >= 1.6
+                ? reminderDefaultLabel(defaultLead, t)
+                : process.env.EXPO_OS === "ios"
+                  ? t("settings.notifications.defaultLeadDescription")
+                  : reminderDefaultLabel(defaultLead, t)
             }
             trailing={
-              process.env.EXPO_OS === "ios" ? (
+              fontScale >= 1.6 ? undefined : process.env.EXPO_OS === "ios" ? (
                 defaultLeadPicker
               ) : (
                 <NavigationIndicator />
               )
             }
             onPress={
-              process.env.EXPO_OS === "ios"
+              process.env.EXPO_OS === "ios" && fontScale < 1.6
                 ? undefined
                 : () => router.push("/settings/reminder-default" as Href)
             }

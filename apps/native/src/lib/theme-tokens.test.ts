@@ -54,3 +54,22 @@ describe.each(["light", "dark"] as const)("%s theme tokens", (scheme) => {
     }
   });
 });
+
+describe("iOS text style tokens", () => {
+  it.each([
+    ["footnote", 13, "1.385"],
+    ["subheadline", 15, "1.333"],
+    ["body", 17, "1.294"],
+    ["title2", 22, "1.273"],
+    ["title1", 28, "1.214"],
+    ["largeTitle", 34, "1.206"],
+  ])(
+    "defines %s with the iOS base size and line height",
+    (name, size, lineHeight) => {
+      expect(css).toMatch(new RegExp(`--text-${name}: ${size}px;`));
+      expect(css).toMatch(
+        new RegExp(`--text-${name}--line-height: ${lineHeight};`),
+      );
+    },
+  );
+});

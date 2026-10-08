@@ -44,6 +44,16 @@ h3 {
   letter-spacing: -0.02em;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
 /* Decoration stays behind controls. Page shells isolate these layers from
  * provider overlays; local component layers remain inside their own context.
  * Plain @theme also exposes the grain token to the pseudo-element below. */

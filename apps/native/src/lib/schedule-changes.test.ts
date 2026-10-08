@@ -117,6 +117,29 @@ describe("summarizeScheduleChanges", () => {
     });
   });
 
+  it("does not recount stored tombstones as gone and reports a reappearance as moved", () => {
+    const gone = occurrence({ sourceUid: "gone", feedStatus: "removed" });
+    const reappeared = occurrence({
+      sourceUid: "back",
+      feedStatus: "cancelled",
+      isInSchedule: true,
+    });
+    const filler = feedOf(10, 100);
+    expect(summarizeScheduleChanges([gone, ...filler], filler, [])).toEqual({
+      status: "unchanged",
+    });
+    expect(
+      summarizeScheduleChanges(
+        [reappeared, ...filler],
+        [occurrence({ sourceUid: "back" }), ...filler],
+        [],
+      ),
+    ).toEqual({
+      status: "changed",
+      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+    });
+  });
+
   it("stays silent on an empty feed rather than reporting a wipe", () => {
     const outcome = summarizeScheduleChanges(feedOf(20), [], []);
 

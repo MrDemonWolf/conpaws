@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Scegli gli eventi da Tutti per vedere cosa succede ora e a seguire.",
     "myScheduleSubtitle": "Apri Tutti e aggiungi gli eventi che non vuoi perderti.",
     "overlapSummary": "Panel salvati che si sovrappongono: {{count}}",
-    "overlapHelp": "Puoi tenerli tutti. Imposta un promemoria di partenza sul panel successivo per avere il tempo di cambiare sala.",
+    "overlapHelp": "Puoi tenerli tutti. Imposta un promemoria per il panel successivo per avere il tempo di cambiare sala.",
     "overlapLabel": "Si sovrappone a un altro panel salvato",
     "runsAlongsideOne": "Si svolge in contemporanea con 1 altro evento",
     "runsAlongsideMany": "Si svolge in contemporanea con {{count}} altri eventi",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Attiva i promemoria",
     "minutesBefore": "{{minutes}} min prima",
     "atTime": "All'ora dell'evento",
-    "none": "Nessun promemoria di partenza",
+    "none": "Nessun promemoria",
     "hourBefore": "1 ora prima",
-    "setLeave": "Imposta promemoria di partenza",
-    "changeLeave": "Cambia promemoria di partenza",
+    "setLeave": "Imposta promemoria",
+    "changeLeave": "Cambia promemoria",
     "pickerTitle": "Quando vuoi che ConPaws ti avvisi?",
-    "pickerDescription": "Scegli con quanto anticipo partire per {{event}}.",
-    "notificationTitle": "È ora di partire per {{event}}",
+    "pickerDescription": "Scegli quando ricevere un promemoria per {{event}}.",
+    "notificationTitle": "Promemoria per {{event}}",
     "notificationBody": "Inizia tra {{minutes}} min",
     "notificationBodyWithRoom": "Inizia tra {{minutes}} min · {{room}}",
     "channelName": "Promemoria eventi",
@@ -363,12 +364,17 @@
     "overflowMessage": "Questo dispositivo può tenere in coda un numero limitato di promemoria, quindi questi tuoi promemoria sono in attesa: {{count}}. I più vicini vengono programmati per primi.",
     "priming": {
       "title": "Ricevi un avviso prima dei panel",
-      "message": "ConPaws può avvisarti quando è ora di partire per un panel. Il telefono ti chiederà il permesso per le notifiche subito dopo.",
+      "message": "ConPaws può avvisarti prima che inizi un panel. Il telefono ti chiederà il permesso per le notifiche subito dopo.",
       "continue": "Continua",
       "notNow": "Non ora"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Hai visto tutto",
+      "subtitle": "Tutti gli eventi salvati di {{name}} sono terminati.",
+      "cta": "Vedi la convention"
+    },
     "title": "Programma",
     "empty": {
       "title": "Ancora niente di salvato",
@@ -502,7 +508,7 @@
       "enabled": "Consentito: i promemoria possono arrivare",
       "disabled": "Disattivato: i promemoria non arriveranno",
       "notRequested": "Non ancora richiesto",
-      "defaultLead": "Promemoria di partenza predefinito",
+      "defaultLead": "Promemoria predefinito",
       "defaultLeadDescription": "Preselezionato quando imposti un promemoria su un nuovo evento.",
       "noDefault": "Nessuno"
     },

@@ -9,6 +9,7 @@ import {
 } from "@conpaws/ui/components/table";
 import { Icon } from "../../../components/icons";
 import {
+  Banner,
   Button,
   EmptyState,
   formatDate,
@@ -17,8 +18,11 @@ import {
   StatusPill,
   Surface,
 } from "../../../components/ui";
+import { adminErrorMessage } from "../../../lib/admin-error-message";
 import { requireAdmin } from "../../../lib/auth";
 import { getConventions } from "../../../lib/queries";
+
+export const metadata = { title: "Conventions" };
 
 export default async function ConventionsPage({
   searchParams,
@@ -39,6 +43,9 @@ export default async function ConventionsPage({
   const items = await getConventions({ query, status });
   return (
     <>
+      {typeof params.error === "string" && adminErrorMessage(params.error) ? (
+        <Banner tone="error">{adminErrorMessage(params.error)}</Banner>
+      ) : null}
       <PageHeading
         eyebrow="Catalog"
         title="Conventions"

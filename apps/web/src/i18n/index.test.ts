@@ -116,6 +116,25 @@ describe("catalog parity", () => {
     expect(locales.length).toBeGreaterThan(0);
   });
 
+  it("has removed the unused nav.established key from every catalog", () => {
+    expect(flatten(en)).not.toContain("nav.established");
+    for (const locale of locales) {
+      const catalog = JSON.parse(
+        readFileSync(path.join(dir, `${locale}.json`), "utf8"),
+      );
+      expect(flatten(catalog)).not.toContain("nav.established");
+    }
+  });
+
+  it("uses word-order-neutral copyright copy in CJK catalogs", () => {
+    for (const locale of ["ja", "ko", "zh-CN", "zh-TW"]) {
+      const catalog = JSON.parse(
+        readFileSync(path.join(dir, `${locale}.json`), "utf8"),
+      );
+      expect(catalog.footer.copyright).toBe("© {year} ConPaws");
+    }
+  });
+
   it.each(locales)("%s has the same keys and array lengths as en", (locale) => {
     const catalog = JSON.parse(
       readFileSync(path.join(dir, `${locale}.json`), "utf8"),

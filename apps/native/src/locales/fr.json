@@ -52,7 +52,7 @@
     "myScheduleNowNextSubtitle": "Sélectionnez des événements dans Tout pour voir ce qui se passe maintenant et ensuite.",
     "myScheduleSubtitle": "Ouvrez Tout et ajoutez les événements à ne pas manquer.",
     "overlapSummary": "Panels enregistrés en chevauchement : {{count}}",
-    "overlapHelp": "Vous pouvez tous les garder. Ajoutez un rappel de départ au panel suivant pour prévoir le trajet entre les salles.",
+    "overlapHelp": "Vous pouvez tous les garder. Ajoutez un rappel pour le panel suivant afin de prévoir le trajet entre les salles.",
     "overlapLabel": "Chevauche un autre panel enregistré",
     "runsAlongsideOne": "Se déroule en même temps qu'un autre événement",
     "runsAlongsideMany": "Se déroule en même temps que {{count}} autres événements",
@@ -336,15 +336,16 @@
     }
   },
   "reminders": {
+    "turnOn": "Activer les rappels",
     "minutesBefore": "{{minutes}} min avant",
     "atTime": "À l'heure de l'événement",
-    "none": "Aucun rappel de départ",
+    "none": "Aucun rappel",
     "hourBefore": "1 heure avant",
-    "setLeave": "Définir un rappel de départ",
-    "changeLeave": "Modifier le rappel de départ",
+    "setLeave": "Définir un rappel",
+    "changeLeave": "Modifier le rappel",
     "pickerTitle": "Quand ConPaws doit-il vous prévenir ?",
-    "pickerDescription": "Choisissez quand partir pour {{event}}.",
-    "notificationTitle": "Il est temps de partir pour {{event}}",
+    "pickerDescription": "Choisissez quand recevoir un rappel pour {{event}}.",
+    "notificationTitle": "Rappel pour {{event}}",
     "notificationBody": "Commence dans {{minutes}} min",
     "notificationBodyWithRoom": "Commence dans {{minutes}} min · {{room}}",
     "channelName": "Rappels d'événements",
@@ -363,12 +364,17 @@
     "overflowMessage": "Cet appareil ne conserve qu'un nombre limité de rappels en attente, en voici le nombre : {{count}}. Les plus proches sont programmés en premier.",
     "priming": {
       "title": "Soyez prévenu avant les panels",
-      "message": "ConPaws peut vous rappeler quand il est temps de partir pour un panel. Votre téléphone demandera ensuite l'autorisation de notifications.",
+      "message": "ConPaws peut vous rappeler avant le début d'un panel. Votre téléphone demandera ensuite l'autorisation de notifications.",
       "continue": "Continuer",
       "notNow": "Pas maintenant"
     }
   },
   "schedule": {
+    "caughtUp": {
+      "title": "Vous êtes à jour",
+      "subtitle": "Tous les événements enregistrés de {{name}} sont terminés.",
+      "cta": "Voir la convention"
+    },
     "title": "Programme",
     "empty": {
       "title": "Rien en favori pour l'instant",
@@ -502,7 +508,7 @@
       "enabled": "Autorisées — les rappels peuvent arriver",
       "disabled": "Désactivées — les rappels n'arriveront pas",
       "notRequested": "Pas encore demandée",
-      "defaultLead": "Rappel de départ par défaut",
+      "defaultLead": "Rappel par défaut",
       "defaultLeadDescription": "Présélectionné quand vous créez un rappel sur un nouvel événement.",
       "noDefault": "Aucun"
     },

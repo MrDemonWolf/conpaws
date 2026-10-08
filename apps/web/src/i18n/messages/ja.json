@@ -7,7 +7,6 @@
     "ogImageAlt": "ConPaws"
   },
   "nav": {
-    "established": "Est. 2025",
     "languageLabel": "言語",
     "back": "戻る",
     "skipToContent": "本文へスキップ",
@@ -173,7 +172,7 @@
     "button": "列に並ぶ →"
   },
   "footer": {
-    "copyright": "© {year} ConPaws by",
+    "copyright": "© {year} ConPaws",
     "company": "MrDemonWolf, Inc.",
     "support": "サポート",
     "privacy": "プライバシー",
@@ -199,7 +198,8 @@
     "doneTitle": "登録が完了しました。",
     "doneBody": "確認リンクをメールでお送りしました。リンクを開けば登録は確定です。次にご連絡するのは、お知らせする価値のあることができたときだけです。",
     "closedNotice": "安全な登録とメール確認の準備を進めています。まだメールアドレスの受付は行っていません。",
-    "privacyLink": "プライバシー"
+    "privacyLink": "プライバシー",
+    "consentSummary": "ConPawsの公開についてメールでお知らせします。配信はいつでも停止できます。"
   },
   "confirmed": {
     "title": "登録が完了しました",

@@ -1,3 +1,4 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { z } from "zod";
 
 const availability = z.enum([
@@ -51,6 +52,14 @@ export interface PublishedCatalogDatabase {
   };
 }
 
+/** Keep the writable D1 handle inside this read-query module. */
+async function requirePublicCatalogDatabase() {
+  const { env } = await getCloudflareContext({ async: true });
+  if (!env.CATALOG_DB)
+    throw new Error("Public catalog binding is unavailable.");
+  return env.CATALOG_DB;
+}
+
 export function parsePublicSnapshot(json: string): PublicConvention {
   let value: unknown;
   try {
@@ -99,12 +108,20 @@ export async function getPublishedSnapshot(
            ON c.id = r.convention_id
           AND c.published_revision = r.revision
         WHERE c.status = 'published'
-          AND json_extract(r.snapshot_json, '$.slug') = ?
+          AND c.published_slug = ?
         LIMIT 1`,
     )
     .bind(slug)
     .first<{ snapshot_json: string }>();
   return result ? parsePublicSnapshot(result.snapshot_json) : null;
+}
+
+export async function listPublicPublishedSnapshots() {
+  return listPublishedSnapshots(await requirePublicCatalogDatabase());
+}
+
+export async function getPublicPublishedSnapshot(slug: string) {
+  return getPublishedSnapshot(await requirePublicCatalogDatabase(), slug);
 }
 
 export function catalogResponseHeaders() {
