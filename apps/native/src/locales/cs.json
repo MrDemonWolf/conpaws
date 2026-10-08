@@ -169,7 +169,7 @@
       "roomPlaceholder": "Volitelné",
       "roomAccessibility": "Místnost události, volitelné",
       "timeZoneHelp": "Datum a časy používají pásmo {{timeZone}}. Čas konce je ve stejný den.",
-      "savedAnnouncement": "{{event}} byla uložena a přidána do Mého programu.",
+      "savedAnnouncement": "{{event}} přidán do tvého plánu.",
       "errors": {
         "title": "Název je povinný.",
         "startTimeZone": "Takový čas začátku v časovém pásmu conu neexistuje.",
@@ -514,7 +514,7 @@
       "title": "Naplánujte si celý con",
       "subtitle": "Všechno, co potřebujete, když to Wi-Fi na místě vzdá.",
       "demo": {
-        "saved": "Můj program"
+        "saved": "Můj plán"
       },
       "import": {
         "title": "Importujte jakýkoli program",
@@ -522,7 +522,7 @@
       },
       "plan": {
         "title": "Nezmeškejte žádný panel",
-        "description": "Sestavte si Můj program, sledujte Teď a potom a odhalte překryvy."
+        "description": "Sestavte si plán, sledujte, co se děje právě teď a co bude následovat, a odhalte časové překryvy."
       },
       "offline": {
         "title": "Soukromé a offline",

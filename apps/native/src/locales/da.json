@@ -167,7 +167,7 @@
       "roomPlaceholder": "Valgfrit",
       "roomAccessibility": "Begivenhedens lokale, valgfrit",
       "timeZoneHelp": "Dato og tider bruger {{timeZone}}. Sluttidspunktet er på samme dato.",
-      "savedAnnouncement": "{{event}} er gemt og føjet til Mit program.",
+      "savedAnnouncement": "{{event}} føjet til din plan.",
       "errors": {
         "title": "Titel er påkrævet.",
         "startTimeZone": "Det starttidspunkt findes ikke i konventets tidszone.",
@@ -501,7 +501,7 @@
       "title": "Planlæg hele konventet",
       "subtitle": "Alt, hvad du skal bruge, når stedets wi-fi giver op.",
       "demo": {
-        "saved": "Mit program"
+        "saved": "Min plan"
       },
       "import": {
         "title": "Importér ethvert program",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Gå aldrig glip af et panel",
-        "description": "Byg Mit program, se Nu og næste, og fang overlap."
+        "description": "Lav din plan, se hvad der sker nu og bagefter, og opdag overlap."
       },
       "offline": {
         "title": "Privat og offline",

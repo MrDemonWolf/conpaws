@@ -103,7 +103,7 @@
       "roomPlaceholder": "Opcjonalnie",
       "roomAccessibility": "Sala wydarzenia, opcjonalna",
       "timeZoneHelp": "Data i godziny używają strefy {{timeZone}}. Czas zakończenia przypada tego samego dnia.",
-      "savedAnnouncement": "Zapisano {{event}} i dodano do Mojego harmonogramu.",
+      "savedAnnouncement": "{{event}} dodano do Twojego planu.",
       "errors": {
         "title": "Tytuł jest wymagany.",
         "startTimeZone": "Ten czas rozpoczęcia nie istnieje w strefie czasowej konwentu.",
@@ -447,7 +447,7 @@
       "title": "Zaplanuj cały konwent",
       "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
       "demo": {
-        "saved": "Mój harmonogram"
+        "saved": "Mój plan"
       },
       "import": {
         "title": "Importuj dowolny harmonogram",
@@ -455,7 +455,7 @@
       },
       "plan": {
         "title": "Nie przegap żadnego panelu",
-        "description": "Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje."
+        "description": "Ułóż swój plan, sprawdzaj, co dzieje się teraz i co będzie dalej, oraz wychwytuj kolizje."
       },
       "offline": {
         "title": "Prywatnie i offline",

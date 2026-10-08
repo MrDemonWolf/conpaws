@@ -103,7 +103,7 @@
       "roomPlaceholder": "任意",
       "roomAccessibility": "イベントの部屋、任意",
       "timeZoneHelp": "日付と時刻には{{timeZone}}が使われます。終了時刻は同じ日付内です。",
-      "savedAnnouncement": "{{event}}を保存し、マイスケジュールに追加しました。",
+      "savedAnnouncement": "{{event}}をプランに追加しました。",
       "errors": {
         "title": "タイトルは必須です。",
         "startTimeZone": "その開始時刻はコンベンションのタイムゾーンには存在しません。",
@@ -437,7 +437,7 @@
       "title": "コンベンションをまるごと計画",
       "subtitle": "会場のWi-Fiが使えなくなっても、必要なものはすべて手元に。",
       "demo": {
-        "saved": "マイスケジュール"
+        "saved": "マイプラン"
       },
       "import": {
         "title": "どんなスケジュールも読み込める",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "パネルを見逃さない",
-        "description": "マイスケジュールを組み、「現在と次」を確認し、時間の重なりに気づけます。"
+        "description": "マイプランを作成し、今何が行われていて次に何があるかを確認して、時間の重なりを見つけられます。"
       },
       "offline": {
         "title": "プライベートかつオフライン",

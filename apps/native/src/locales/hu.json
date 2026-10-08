@@ -167,7 +167,7 @@
       "roomPlaceholder": "Nem kötelező",
       "roomAccessibility": "Az esemény terme, nem kötelező",
       "timeZoneHelp": "A dátum és az időpontok időzónája: {{timeZone}}. A befejezési idő ugyanarra a napra esik.",
-      "savedAnnouncement": "{{event}} elmentve és hozzáadva a Saját programhoz.",
+      "savedAnnouncement": "{{event}} hozzáadva a tervedhez.",
       "errors": {
         "title": "A cím megadása kötelező.",
         "startTimeZone": "Ez a kezdési idő nem létezik a con időzónájában.",
@@ -501,7 +501,7 @@
       "title": "Tervezd meg az egész cont",
       "subtitle": "Minden, amire szükséged van, amikor a helyszíni Wi-Fi feladja.",
       "demo": {
-        "saved": "Saját program"
+        "saved": "Tervem"
       },
       "import": {
         "title": "Importálj bármilyen programot",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Ne maradj le egyetlen panelről sem",
-        "description": "Építsd fel a Saját programot, nézd a Most és következőt, és szúrd ki az átfedéseket."
+        "description": "Állítsd össze a tervedet, nézd meg, mi történik most és mi következik, és szúrd ki az átfedéseket."
       },
       "offline": {
         "title": "Privát és offline",

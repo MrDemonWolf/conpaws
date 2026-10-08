@@ -167,7 +167,7 @@
       "roomPlaceholder": "Optional",
       "roomAccessibility": "Eventraum, optional",
       "timeZoneHelp": "Datum und Zeiten verwenden {{timeZone}}. Die Endzeit liegt am selben Datum.",
-      "savedAnnouncement": "{{event}} wurde gespeichert und zu Mein Zeitplan hinzugefügt.",
+      "savedAnnouncement": "{{event}} zu deinem Plan hinzugefügt.",
       "errors": {
         "title": "Ein Titel ist erforderlich.",
         "startTimeZone": "Diese Startzeit existiert in der Zeitzone der Convention nicht.",
@@ -501,7 +501,7 @@
       "title": "Plane die ganze Con",
       "subtitle": "Alles, was du brauchst, wenn das WLAN vor Ort versagt.",
       "demo": {
-        "saved": "Mein Zeitplan"
+        "saved": "Mein Plan"
       },
       "import": {
         "title": "Jeden Zeitplan importieren",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Verpasse kein Panel",
-        "description": "Erstelle deinen Zeitplan, sieh, was jetzt und als Nächstes läuft, und erkenne Überschneidungen."
+        "description": "Erstelle deinen Plan, sieh, was gerade und als Nächstes läuft, und erkenne Überschneidungen."
       },
       "offline": {
         "title": "Privat und offline",

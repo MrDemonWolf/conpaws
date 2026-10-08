@@ -167,7 +167,7 @@
       "roomPlaceholder": "Facoltativo",
       "roomAccessibility": "Sala dell'evento, facoltativa",
       "timeZoneHelp": "La data e gli orari usano {{timeZone}}. L'ora di fine è nella stessa data.",
-      "savedAnnouncement": "{{event}} salvato e aggiunto al mio programma.",
+      "savedAnnouncement": "{{event}} aggiunto al tuo piano.",
       "errors": {
         "title": "Il titolo è obbligatorio.",
         "startTimeZone": "Quest'ora di inizio non esiste nel fuso orario della convention.",
@@ -501,7 +501,7 @@
       "title": "Pianifica tutta la convention",
       "subtitle": "Tutto ciò che ti serve quando il Wi-Fi della sede si arrende.",
       "demo": {
-        "saved": "Il mio programma"
+        "saved": "Il mio piano"
       },
       "import": {
         "title": "Importa qualsiasi programma",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Non perderti nessun panel",
-        "description": "Costruisci il tuo programma, guarda cosa c'è ora e a seguire e scopri le sovrapposizioni."
+        "description": "Crea il tuo piano, guarda cosa succede ora e dopo e individua le sovrapposizioni."
       },
       "offline": {
         "title": "Privato e offline",

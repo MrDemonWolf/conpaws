@@ -103,7 +103,7 @@
       "roomPlaceholder": "Optioneel",
       "roomAccessibility": "Evenementzaal, optioneel",
       "timeZoneHelp": "Datum en tijden gebruiken {{timeZone}}. De eindtijd valt op dezelfde datum.",
-      "savedAnnouncement": "{{event}} is opgeslagen en toegevoegd aan Mijn programma.",
+      "savedAnnouncement": "{{event}} toegevoegd aan je plan.",
       "errors": {
         "title": "Een titel is verplicht.",
         "startTimeZone": "Die starttijd bestaat niet in de tijdzone van de conventie.",
@@ -437,7 +437,7 @@
       "title": "Plan je hele con",
       "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
       "demo": {
-        "saved": "Mijn planning"
+        "saved": "Mijn plan"
       },
       "import": {
         "title": "Importeer elk programma",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "Mis nooit een panel",
-        "description": "Maak je planning, zie wat er nu en hierna komt en ontdek overlap."
+        "description": "Stel je plan samen, zie wat er nu en hierna gebeurt en ontdek overlap."
       },
       "offline": {
         "title": "Privé en offline",

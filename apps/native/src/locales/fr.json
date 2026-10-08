@@ -167,7 +167,7 @@
       "roomPlaceholder": "Facultatif",
       "roomAccessibility": "Salle de l'événement, facultative",
       "timeZoneHelp": "La date et les heures utilisent {{timeZone}}. L'heure de fin est à la même date.",
-      "savedAnnouncement": "{{event}} a été enregistré et ajouté à Mon programme.",
+      "savedAnnouncement": "{{event}} ajouté à ton plan.",
       "errors": {
         "title": "Le titre est obligatoire.",
         "startTimeZone": "Cette heure de début n'existe pas dans le fuseau horaire de la convention.",
@@ -501,7 +501,7 @@
       "title": "Planifiez toute la convention",
       "subtitle": "Tout ce qu’il vous faut quand le Wi-Fi du lieu abandonne.",
       "demo": {
-        "saved": "Mon programme"
+        "saved": "Mon plan"
       },
       "import": {
         "title": "Importez n’importe quel programme",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Ne manquez aucun panel",
-        "description": "Créez votre programme, voyez ce qui se passe maintenant et ensuite, et repérez les chevauchements."
+        "description": "Créez votre plan, voyez ce qui se passe maintenant et ensuite, et repérez les chevauchements."
       },
       "offline": {
         "title": "Privé et hors ligne",

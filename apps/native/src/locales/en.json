@@ -167,7 +167,7 @@
       "roomPlaceholder": "Optional",
       "roomAccessibility": "Event room, optional",
       "timeZoneHelp": "Date and times use {{timeZone}}. End time is on the same date.",
-      "savedAnnouncement": "{{event}} saved and added to My Schedule.",
+      "savedAnnouncement": "{{event}} added to your plan.",
       "errors": {
         "title": "Title is required.",
         "startTimeZone": "That start time does not exist in the convention time zone.",
@@ -501,7 +501,7 @@
       "title": "Plan the whole con",
       "subtitle": "Everything you need when the venue Wi-Fi gives up.",
       "demo": {
-        "saved": "My Schedule"
+        "saved": "My plan"
       },
       "import": {
         "title": "Import any schedule",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Never miss a panel",
-        "description": "Build My Schedule, see Now & Next, and catch overlaps."
+        "description": "Build your plan, see what is happening now and next, and catch overlaps."
       },
       "offline": {
         "title": "Private and offline",

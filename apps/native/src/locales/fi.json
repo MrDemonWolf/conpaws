@@ -167,7 +167,7 @@
       "roomPlaceholder": "Valinnainen",
       "roomAccessibility": "Tapahtuman sali, valinnainen",
       "timeZoneHelp": "Päivämäärä ja ajat käyttävät aikavyöhykettä {{timeZone}}. Päättymisaika on samana päivänä.",
-      "savedAnnouncement": "{{event}} tallennettiin ja lisättiin omaan ohjelmaan.",
+      "savedAnnouncement": "{{event}} lisätty suunnitelmaasi.",
       "errors": {
         "title": "Otsikko on pakollinen.",
         "startTimeZone": "Tuota alkamisaikaa ei ole conin aikavyöhykkeellä.",
@@ -501,7 +501,7 @@
       "title": "Suunnittele koko coni",
       "subtitle": "Kaikki mitä tarvitset, kun tapahtumapaikan wifi luovuttaa.",
       "demo": {
-        "saved": "Oma ohjelma"
+        "saved": "Oma suunnitelma"
       },
       "import": {
         "title": "Tuo mikä tahansa ohjelma",
@@ -509,7 +509,7 @@
       },
       "plan": {
         "title": "Älä missaa yhtään paneelia",
-        "description": "Kokoa oma ohjelma, katso mitä on nyt ja seuraavaksi, ja huomaa päällekkäisyydet."
+        "description": "Kokoa suunnitelmasi, katso mitä tapahtuu nyt ja seuraavaksi, ja huomaa päällekkäisyydet."
       },
       "offline": {
         "title": "Yksityinen ja offline",

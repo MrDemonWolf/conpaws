@@ -103,7 +103,7 @@
       "roomPlaceholder": "選填",
       "roomAccessibility": "活動場地，選填",
       "timeZoneHelp": "日期與時間使用{{timeZone}}。結束時間須在同一天內。",
-      "savedAnnouncement": "已儲存{{event}}並加入我的行程。",
+      "savedAnnouncement": "{{event}}已加入你的計畫。",
       "errors": {
         "title": "標題為必填。",
         "startTimeZone": "這個開始時間在展會時區中不存在。",
@@ -437,7 +437,7 @@
       "title": "規劃整場展會",
       "subtitle": "當會場 Wi-Fi 罷工時，你需要的一切都在。",
       "demo": {
-        "saved": "我的行程"
+        "saved": "我的計畫"
       },
       "import": {
         "title": "匯入任何行程表",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "不錯過任何活動",
-        "description": "安排我的行程、查看現在與接下來的活動，並及早發現時間衝突。"
+        "description": "安排你的計畫、查看現在正在進行和接下來的活動，並及早發現時間衝突。"
       },
       "offline": {
         "title": "私密且離線",

@@ -103,7 +103,7 @@
       "roomPlaceholder": "Valfritt",
       "roomAccessibility": "Evenemangsrum, valfritt",
       "timeZoneHelp": "Datum och tider använder {{timeZone}}. Sluttiden är på samma datum.",
-      "savedAnnouncement": "{{event}} har sparats och lagts till i Mitt schema.",
+      "savedAnnouncement": "{{event}} tillagd i din plan.",
       "errors": {
         "title": "En titel krävs.",
         "startTimeZone": "Den starttiden finns inte i konventets tidszon.",
@@ -437,7 +437,7 @@
       "title": "Planera hela konventet",
       "subtitle": "Allt du behöver när lokalens wifi ger upp.",
       "demo": {
-        "saved": "Mitt schema"
+        "saved": "Min plan"
       },
       "import": {
         "title": "Importera vilket schema som helst",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "Missa aldrig en panel",
-        "description": "Skapa ditt schema, se vad som händer nu och härnäst och upptäck krockar."
+        "description": "Skapa din plan, se vad som händer nu och härnäst och upptäck krockar."
       },
       "offline": {
         "title": "Privat och offline",

@@ -103,7 +103,7 @@
       "roomPlaceholder": "可选",
       "roomAccessibility": "活动房间，可选",
       "timeZoneHelp": "日期和时间使用{{timeZone}}。结束时间在同一天内。",
-      "savedAnnouncement": "已保存{{event}}并添加到我的日程。",
+      "savedAnnouncement": "{{event}}已加入你的计划。",
       "errors": {
         "title": "标题为必填项。",
         "startTimeZone": "该开始时间在展会时区中不存在。",
@@ -437,7 +437,7 @@
       "title": "规划整个展会",
       "subtitle": "会场 Wi-Fi 罢工时，你需要的一切都在。",
       "demo": {
-        "saved": "我的日程"
+        "saved": "我的计划"
       },
       "import": {
         "title": "导入任何日程",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "不错过任何活动",
-        "description": "编排我的日程，查看现在和接下来的安排，及时发现时间冲突。"
+        "description": "制定你的计划，查看正在进行和接下来的活动，及时发现时间冲突。"
       },
       "offline": {
         "title": "私密且离线",

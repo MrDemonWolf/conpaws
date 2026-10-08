@@ -103,7 +103,7 @@
       "roomPlaceholder": "선택",
       "roomAccessibility": "이벤트 장소, 선택",
       "timeZoneHelp": "날짜와 시간은 {{timeZone}} 기준이에요. 종료 시간은 같은 날짜 안이어야 해요.",
-      "savedAnnouncement": "{{event}}이(가) 저장되어 내 일정에 추가되었어요.",
+      "savedAnnouncement": "{{event}}을(를) 일정에 추가했어요.",
       "errors": {
         "title": "제목은 필수예요.",
         "startTimeZone": "그 시작 시간은 컨벤션 시간대에 존재하지 않아요.",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "패널을 놓치지 마세요",
-        "description": "내 일정을 만들고, 지금과 다음을 확인하고, 겹치는 시간을 찾아내세요."
+        "description": "내 일정을 짜고, 지금 진행 중인 행사와 다음 행사를 확인하고, 겹치는 시간을 찾아내세요."
       },
       "offline": {
         "title": "프라이빗하고 오프라인",

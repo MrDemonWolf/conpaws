@@ -103,7 +103,7 @@
       "roomPlaceholder": "Opcional",
       "roomAccessibility": "Sala do evento, opcional",
       "timeZoneHelp": "A data e as horas usam {{timeZone}}. A hora de fim é na mesma data.",
-      "savedAnnouncement": "{{event}} foi guardado e adicionado à Minha Agenda.",
+      "savedAnnouncement": "{{event}} adicionado ao teu plano.",
       "errors": {
         "title": "O título é obrigatório.",
         "startTimeZone": "Essa hora de início não existe no fuso horário da convenção.",
@@ -437,7 +437,7 @@
       "title": "Planeie a convenção inteira",
       "subtitle": "Tudo o que precisa quando o Wi-Fi do recinto falha.",
       "demo": {
-        "saved": "A Minha Agenda"
+        "saved": "Meu plano"
       },
       "import": {
         "title": "Importe qualquer programa",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "Não perca nenhum painel",
-        "description": "Monte a sua agenda, veja o que acontece agora e a seguir e detete sobreposições."
+        "description": "Crie o seu plano, veja o que está a acontecer agora e o que vem a seguir e detete sobreposições."
       },
       "offline": {
         "title": "Privado e offline",

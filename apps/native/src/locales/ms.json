@@ -103,7 +103,7 @@
       "roomPlaceholder": "Pilihan",
       "roomAccessibility": "Bilik acara, pilihan",
       "timeZoneHelp": "Tarikh dan waktu menggunakan {{timeZone}}. Waktu tamat adalah pada tarikh yang sama.",
-      "savedAnnouncement": "{{event}} disimpan dan ditambahkan ke Jadual Saya.",
+      "savedAnnouncement": "{{event}} ditambah ke pelan anda.",
       "errors": {
         "title": "Tajuk diperlukan.",
         "startTimeZone": "Waktu mula itu tidak wujud dalam zon waktu konvensyen.",
@@ -437,7 +437,7 @@
       "title": "Rancang keseluruhan konvensyen",
       "subtitle": "Semua yang anda perlukan apabila Wi-Fi tempat acara tumbang.",
       "demo": {
-        "saved": "Jadual Saya"
+        "saved": "Pelan saya"
       },
       "import": {
         "title": "Import sebarang jadual",
@@ -445,7 +445,7 @@
       },
       "plan": {
         "title": "Jangan terlepas sebarang panel",
-        "description": "Bina Jadual Saya, lihat Sekarang & Seterusnya, dan kesan pertindihan."
+        "description": "Bina pelan anda, lihat perkara yang sedang berlaku sekarang dan seterusnya, dan kesan pertindihan."
       },
       "offline": {
         "title": "Peribadi dan luar talian",
