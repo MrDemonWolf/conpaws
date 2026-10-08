@@ -15,5 +15,6 @@ export {
   ConventionListSkeleton,
   FormSkeleton,
   ScheduleSkeleton,
+  SkeletonUnderHeader,
 } from "./Skeleton";
 export { Text } from "./Text";

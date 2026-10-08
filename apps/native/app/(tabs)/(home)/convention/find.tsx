@@ -9,6 +9,7 @@ import {
   ConventionListSkeleton,
   EmptyState,
   Row,
+  SkeletonUnderHeader,
   Text,
 } from "@/components/ui";
 import { catalogEditionSummary } from "@/lib/catalog/adapter";
@@ -150,7 +151,9 @@ export default function FindConventionScreen() {
         onCancelButtonPress={() => setSearch("")}
       />
       {query.isLoading ? (
-        <ConventionListSkeleton />
+        <SkeletonUnderHeader>
+          <ConventionListSkeleton />
+        </SkeletonUnderHeader>
       ) : query.isError && !query.data ? (
         <ScrollView
           className="flex-1"

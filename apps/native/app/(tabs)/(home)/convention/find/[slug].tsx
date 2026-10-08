@@ -13,6 +13,7 @@ import {
   Button,
   Card,
   ConventionListSkeleton,
+  SkeletonUnderHeader,
   Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
@@ -231,7 +232,9 @@ export default function FindConventionDetailScreen() {
         }}
       />
       {catalogQuery.isLoading || conventionQuery.isLoading ? (
-        <ConventionListSkeleton />
+        <SkeletonUnderHeader>
+          <ConventionListSkeleton />
+        </SkeletonUnderHeader>
       ) : (
         <ScrollView
           className="flex-1"

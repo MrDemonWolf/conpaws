@@ -1,12 +1,28 @@
 export const MAX_ICS_BYTES = 8 * 1024 * 1024;
 
+/**
+ * The spec's `AbortSignal#throwIfAborted`, by hand. React Native's AbortSignal
+ * is the `abort-controller` polyfill, which Expo's runtime extends with the
+ * `timeout` and `any` statics only: on a device the method does not exist
+ * and `signal.reason` is usually undefined, so calling it there is a
+ * TypeError that reads like an ordinary fetch failure. Node has the method,
+ * which is why the tests never noticed.
+ */
+export function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (!signal?.aborted) return;
+  if (signal.reason !== undefined) throw signal.reason;
+  const error = new Error("The operation was aborted.");
+  error.name = "AbortError";
+  throw error;
+}
+
 export async function fetchStreaming(
   input: string,
   init?: { signal?: AbortSignal; headers?: Record<string, string> },
 ): Promise<Response> {
-  init?.signal?.throwIfAborted();
+  throwIfAborted(init?.signal);
   const { fetch } = await import("expo/fetch");
-  init?.signal?.throwIfAborted();
+  throwIfAborted(init?.signal);
   return fetch(input, init);
 }
 

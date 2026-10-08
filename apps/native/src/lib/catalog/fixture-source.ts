@@ -1,5 +1,6 @@
 import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
 import { formatInConventionTime } from "@/lib/convention-time";
+import { ScheduleFetchCancelledError } from "@/lib/sched-extractor";
 import { CatalogNotFoundError } from "./client";
 import type { CatalogSource } from "./source";
 import type { CatalogEdition, CatalogSchedule, CatalogSession } from "./types";
@@ -68,7 +69,8 @@ function buildEdition(
     region: "Sample District",
     country: "Sample Country",
     startsOn,
-    endsOn: addDays(startsOn, 2),
+    // The preview programme runs four days, Tuesday to Friday.
+    endsOn: addDays(startsOn, 3),
     timezone: TIME_ZONE,
     venue: "Sample Convention Hall",
     availability: "unknown",
@@ -113,11 +115,11 @@ export function buildFixtureCatalog(now = new Date()): CatalogEdition[] {
 export const fixtureCatalogSource: CatalogSource = {
   kind: "fixture",
   async list(signal) {
-    signal?.throwIfAborted();
+    if (signal?.aborted) throw new ScheduleFetchCancelledError();
     return buildFixtureCatalog();
   },
   async schedule(slug, signal): Promise<CatalogSchedule> {
-    signal?.throwIfAborted();
+    if (signal?.aborted) throw new ScheduleFetchCancelledError();
     const edition = buildFixtureCatalog().find((item) => item.slug === slug);
     if (!edition) throw new CatalogNotFoundError();
     return {

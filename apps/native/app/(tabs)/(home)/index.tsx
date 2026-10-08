@@ -2,6 +2,7 @@ import AddIcon from "@expo/material-symbols/add.xml";
 import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
 import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
+import SearchIcon from "@expo/material-symbols/search.xml";
 import SortIcon from "@expo/material-symbols/sort.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
@@ -17,7 +18,12 @@ import {
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
-import { Button, ConventionListSkeleton, EmptyState } from "@/components/ui";
+import {
+  Button,
+  ConventionListSkeleton,
+  EmptyState,
+  SkeletonUnderHeader,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
@@ -328,7 +334,9 @@ export default function HomeScreen() {
   const content =
     isLoading || (isError && isFetching) ? (
       showLoading ? (
-        <ConventionListSkeleton />
+        <SkeletonUnderHeader>
+          <ConventionListSkeleton />
+        </SkeletonUnderHeader>
       ) : (
         <View className="flex-1 bg-background" />
       )
@@ -425,7 +433,12 @@ export default function HomeScreen() {
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("home.addConvention")}
           >
-            <Stack.Toolbar.MenuAction onPress={handleFindConvention}>
+            <Stack.Toolbar.MenuAction
+              icon={
+                process.env.EXPO_OS === "ios" ? "magnifyingglass" : SearchIcon
+              }
+              onPress={handleFindConvention}
+            >
               {t("home.find")}
             </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
