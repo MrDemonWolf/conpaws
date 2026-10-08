@@ -123,11 +123,10 @@ enum ConPawsCountdown {
     return strings.compactMinutes(minutes)
   }
 
-  /// The same countdown phrased as an instruction: "Leave in 18 min".
+  /// The same countdown phrased as "Starts in 18 min".
   ///
-  /// Above an hour it falls back to the inline leave phrasing ("Leave in
-  /// 2 hours"), because gluing `leaveIn` onto a label that already carries
-  /// its own "In" reads twice.
+  /// Above an hour it uses the inline starts-in phrasing, because gluing the
+  /// lead onto a label that already carries its own "In" reads twice.
   static func leaveLead(
     from: Date,
     to: Date,
@@ -136,18 +135,17 @@ enum ConPawsCountdown {
   ) -> String {
     guard let minutes = leaveMinutes(from: from, to: to) else {
       return strings.text(
-        strings.inlineLeaveFormat,
+        strings.inlineStartsFormat,
         strings.midSentenceCountdown(
           label(from: from, to: to, timeZone: timeZone, strings: strings)
         )
       )
     }
-    return "\(strings.leaveIn) \(strings.compactMinutes(minutes))"
+    return "\(strings.startsIn) \(strings.compactMinutes(minutes))"
   }
 
   /// Whole minutes remaining, or nil once the wait is an hour or more and the
-  /// shared ladder takes over. Never below 1: a "0 min" instruction to leave
-  /// reads as already too late, which "Now" handles instead.
+  /// shared ladder takes over. Never below 1 so the countdown does not show 0.
   static func leaveMinutes(from: Date, to: Date) -> Int? {
     let remaining = to.timeIntervalSince(from)
     guard remaining < 3_600 else { return nil }
