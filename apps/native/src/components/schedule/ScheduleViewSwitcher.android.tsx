@@ -8,11 +8,11 @@ import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
 import { useWindowDimensions, View } from "react-native";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
-import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcher";
 import {
   SCHEDULE_VIEWS,
   type ScheduleViewSwitcherProps,
 } from "./ScheduleViewSwitcher.types";
+import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcherStacked";
 
 /** Material's segmented buttons also run out of room at large font scales. */
 const STACK_AT_FONT_SCALE = 1.6;

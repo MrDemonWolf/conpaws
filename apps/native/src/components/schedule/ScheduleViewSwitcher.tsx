@@ -1,64 +1,11 @@
-import { Pressable, View } from "react-native";
-import { PRESS_DIM, Text } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import {
-  SCHEDULE_VIEWS,
-  type ScheduleViewSwitcherProps,
-} from "./ScheduleViewSwitcher.types";
+import type { ScheduleViewSwitcherProps } from "./ScheduleViewSwitcher.types";
+import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcherStacked";
 
 /**
- * The fallback switcher: three stacked rows acting as tabs.
- *
- * It is the whole control on platforms without a native segmented control
- * (web, tests), and the large-text form on iOS and Android, where a native
- * segmented control truncates three labels to a few letters each at the
- * accessibility sizes. The `.ios.tsx` and `.android.tsx` siblings render the
- * platform control at ordinary sizes and import this for the large ones.
+ * Platforms without a native segmented control (web, tests) get the stacked
+ * rows. iOS and Android resolve their own `.ios.tsx` / `.android.tsx` files,
+ * which only fall back to the stacked form at the accessibility text sizes.
  */
-export function ScheduleViewSwitcherStacked({
-  view,
-  onChange,
-  labels,
-  accessibilityLabel,
-}: ScheduleViewSwitcherProps) {
-  return (
-    <View
-      accessibilityRole="tablist"
-      accessibilityLabel={accessibilityLabel}
-      className="mx-4 overflow-hidden rounded-xl border border-border"
-      style={{ borderCurve: "continuous" }}
-    >
-      {SCHEDULE_VIEWS.map((candidate, index) => {
-        const selected = candidate === view;
-        return (
-          <Pressable
-            key={candidate}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
-            onPress={() => onChange(candidate)}
-            className={cn(
-              "min-h-12 justify-center px-4",
-              index > 0 && "border-border border-t",
-              selected ? "bg-primary" : "bg-card",
-              PRESS_DIM,
-            )}
-          >
-            <Text
-              variant="label"
-              className={cn(
-                "text-center",
-                selected ? "text-primary-foreground" : "text-foreground",
-              )}
-            >
-              {labels[candidate]}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
   return <ScheduleViewSwitcherStacked {...props} />;
 }

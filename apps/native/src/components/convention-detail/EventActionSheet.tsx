@@ -77,14 +77,12 @@ export function EventSheetContent({
 
   if (mode === "reminder") {
     return (
-      <View testID="convention-reminder-picker" className="flex-1 bg-card">
-        <ReminderPickerContent
-          event={event}
-          onClose={onClose}
-          onBack={() => setMode("actions")}
-          onSelect={onSelectReminder}
-        />
-      </View>
+      <ReminderPickerContent
+        event={event}
+        onClose={onClose}
+        onBack={() => setMode("actions")}
+        onSelect={onSelectReminder}
+      />
     );
   }
 
@@ -124,157 +122,142 @@ export function EventSheetContent({
     .filter(Boolean)
     .join(" · ");
 
-  return (
-    <View testID="convention-event-actions" className="flex-1 bg-card">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 12 }}
-      >
-        <View className="gap-3 px-4">
-          <View className="flex-row flex-wrap items-center gap-2">
-            {event.category ? (
-              <Text
-                variant="caption"
-                className="font-semibold uppercase tracking-wide"
-                style={accent ? { color: accent } : undefined}
-              >
-                {event.category}
-              </Text>
-            ) : null}
-            {ageBadge ? (
-              <Badge
-                variant={ageBadge.variant}
-                emphasis="strong"
-                label={t(ageBadge.key)}
-              />
-            ) : null}
-            {event.contentWarning ? (
-              <Badge
-                variant="age-mature"
-                emphasis="strong"
-                label={t("convention.contentWarning")}
-              />
-            ) : null}
-            {feedStatusLabel ? (
-              <Badge
-                variant="ended"
-                emphasis="strong"
-                label={feedStatusLabel}
-              />
-            ) : null}
-          </View>
-          <Text variant="h2" accessibilityRole="header" selectable>
-            {event.title}
-          </Text>
+  const overlapBody = conflicts
+    .map((conflict) =>
+      t("convention.panel.overlapWith", {
+        minutes: conflict.minutes,
+        title: conflict.title,
+      }),
+    )
+    .join("; ");
 
-          <View className="gap-3 pt-1">
+  // The ScrollView is the sheet's root on purpose: react-native-screens sizes
+  // a form sheet's first-child ScrollView to the sheet, and nothing else. A
+  // wrapper view with a sibling footer left the body unlaid-out. The actions
+  // therefore sit inside the scroll content, above the long description, so
+  // they are in the first viewport without a sticky footer.
+  return (
+    <ScrollView
+      testID="convention-event-actions"
+      className="flex-1 bg-card"
+      contentContainerStyle={{ paddingTop: 20, paddingBottom: 32 }}
+    >
+      <View className="gap-3 px-4">
+        <View className="flex-row flex-wrap items-center gap-2">
+          {event.category ? (
+            <Text
+              variant="caption"
+              className="font-semibold uppercase tracking-wide"
+              style={accent ? { color: accent } : undefined}
+            >
+              {event.category}
+            </Text>
+          ) : null}
+          {ageBadge ? (
+            <Badge
+              variant={ageBadge.variant}
+              emphasis="strong"
+              label={t(ageBadge.key)}
+            />
+          ) : null}
+          {event.contentWarning ? (
+            <Badge
+              variant="age-mature"
+              emphasis="strong"
+              label={t("convention.contentWarning")}
+            />
+          ) : null}
+          {feedStatusLabel ? (
+            <Badge variant="ended" emphasis="strong" label={feedStatusLabel} />
+          ) : null}
+        </View>
+        <Text variant="h2" accessibilityRole="header" selectable>
+          {event.title}
+        </Text>
+
+        <View className="gap-3 pt-1">
+          <View className="flex-row gap-3">
+            <Calendar size={20} color={tokens.mutedForeground} />
+            <View className="flex-1">
+              <Text variant="label" selectable>
+                {dateLine}
+              </Text>
+              {timeLine ? (
+                <Text variant="caption" selectable>
+                  {timeLine}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+          {room ? (
             <View className="flex-row gap-3">
-              <Calendar size={20} color={tokens.mutedForeground} />
+              <MapPin size={20} color={tokens.mutedForeground} />
               <View className="flex-1">
                 <Text variant="label" selectable>
-                  {dateLine}
+                  {room}
                 </Text>
-                {timeLine ? (
+                {venue ? (
                   <Text variant="caption" selectable>
-                    {timeLine}
+                    {venue}
                   </Text>
                 ) : null}
               </View>
             </View>
-            {room ? (
-              <View className="flex-row gap-3">
-                <MapPin size={20} color={tokens.mutedForeground} />
-                <View className="flex-1">
-                  <Text variant="label" selectable>
-                    {room}
-                  </Text>
-                  {venue ? (
-                    <Text variant="caption" selectable>
-                      {venue}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            ) : null}
-            <Pressable
-              onPress={() => setMode("reminder")}
-              accessibilityRole="button"
-              accessibilityLabel={
-                event.reminderMinutes !== null
-                  ? t("reminders.changeLeave")
-                  : t("reminders.setLeave")
-              }
-              accessibilityHint={t("reminders.pickerDescription", {
-                event: event.title,
-              })}
-              className={`flex-row items-center gap-3 ${PRESS_DIM}`}
-            >
-              <Bell size={20} color={tokens.mutedForeground} />
-              <View className="flex-1">
-                <Text variant="label">
-                  {reminderLabel ?? t("convention.panel.noReminder")}
-                </Text>
-                <Text variant="caption" className="text-primary">
-                  {event.reminderMinutes !== null
-                    ? t("reminders.changeLeave")
-                    : t("reminders.setLeave")}
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-
-          <View
-            accessible
-            accessibilityRole="text"
-            accessibilityLabel={provenanceLabel}
-            className="flex-row"
+          ) : null}
+          <Pressable
+            onPress={() => setMode("reminder")}
+            accessibilityRole="button"
+            accessibilityLabel={
+              event.reminderMinutes !== null
+                ? t("reminders.changeLeave")
+                : t("reminders.setLeave")
+            }
+            accessibilityHint={t("reminders.pickerDescription", {
+              event: event.title,
+            })}
+            className={`flex-row items-center gap-3 ${PRESS_DIM}`}
           >
-            <Badge variant="neutral" label={provenanceLabel} />
-          </View>
-
-          {event.description?.trim() ? (
-            <View className="gap-1 pt-2">
-              <Text variant="h3">{t("convention.panel.about")}</Text>
-              <Text variant="body" selectable>
-                {event.description.trim()}
+            <Bell size={20} color={tokens.mutedForeground} />
+            <View className="flex-1">
+              <Text variant="label">
+                {reminderLabel ?? t("convention.panel.noReminder")}
+              </Text>
+              <Text variant="caption" className="text-primary">
+                {event.reminderMinutes !== null
+                  ? t("reminders.changeLeave")
+                  : t("reminders.setLeave")}
               </Text>
             </View>
-          ) : null}
+          </Pressable>
         </View>
 
-        {conflicts.length > 0 && !event.isInSchedule ? (
-          <Banner
-            className="mt-4"
-            title={t("convention.panel.overlapsPlan")}
-            body={conflicts
-              .map((conflict) =>
-                t("convention.panel.overlapWith", {
-                  minutes: conflict.minutes,
-                  title: conflict.title,
-                }),
-              )
-              .join("; ")}
-          />
-        ) : null}
-        {event.isInSchedule && conflicts.length > 0 ? (
-          <Banner
-            className="mt-4"
-            title={t("convention.plan.overlap.title")}
-            body={conflicts
-              .map((conflict) =>
-                t("convention.panel.overlapWith", {
-                  minutes: conflict.minutes,
-                  title: conflict.title,
-                }),
-              )
-              .join("; ")}
-            actionLabel={t("convention.plan.overlap.cta")}
-            onAction={() => onCompare(event)}
-          />
-        ) : null}
-      </ScrollView>
+        <View
+          accessible
+          accessibilityRole="text"
+          accessibilityLabel={provenanceLabel}
+          className="flex-row"
+        >
+          <Badge variant="neutral" label={provenanceLabel} />
+        </View>
+      </View>
 
-      <View className="gap-2 border-border border-t px-4 pt-3 pb-6">
+      {conflicts.length > 0 ? (
+        <Banner
+          className="mt-4"
+          title={
+            event.isInSchedule
+              ? t("convention.plan.overlap.title")
+              : t("convention.panel.overlapsPlan")
+          }
+          body={overlapBody}
+          actionLabel={
+            event.isInSchedule ? t("convention.plan.overlap.cta") : undefined
+          }
+          onAction={event.isInSchedule ? () => onCompare(event) : undefined}
+        />
+      ) : null}
+
+      <View className="gap-2 px-4 pt-4">
         <Button
           variant={event.isInSchedule ? "outline" : "default"}
           onPress={() => {
@@ -304,7 +287,16 @@ export function EventSheetContent({
           </Text>
         </Pressable>
       </View>
-    </View>
+
+      {event.description?.trim() ? (
+        <View className="gap-1 px-4 pt-4">
+          <Text variant="h3">{t("convention.panel.about")}</Text>
+          <Text variant="body" selectable>
+            {event.description.trim()}
+          </Text>
+        </View>
+      ) : null}
+    </ScrollView>
   );
 }
 
@@ -339,7 +331,11 @@ function ReminderPickerContent({
       : getCachedDefaultReminderMinutes();
 
   return (
-    <ScrollView contentContainerStyle={{ paddingTop: 16, paddingBottom: 32 }}>
+    <ScrollView
+      testID="convention-reminder-picker"
+      className="flex-1 bg-card"
+      contentContainerStyle={{ paddingTop: 16, paddingBottom: 32 }}
+    >
       <Text variant="label" className="px-4 pb-3" accessibilityRole="header">
         {t("reminders.pickerTitle")}
       </Text>

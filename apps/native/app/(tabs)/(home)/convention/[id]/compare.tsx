@@ -126,8 +126,15 @@ export default function CompareSheetRoute() {
     );
   }
 
+  // The ScrollView is the sheet's root: react-native-screens sizes a form
+  // sheet's first-child ScrollView to the sheet and nothing else, so the
+  // header, the cards and the decision all live in the scroll content.
   return (
-    <View className="flex-1 bg-background">
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ paddingBottom: 32, gap: 12 }}
+      accessibilityRole="radiogroup"
+    >
       <SheetHeader
         kicker={t(
           set.cards.length === 1
@@ -140,63 +147,52 @@ export default function CompareSheetRoute() {
         closeLabel={t("convention.closeEventDetails")}
         onClose={() => router.back()}
       />
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingVertical: 8, gap: 12 }}
-        accessibilityRole="radiogroup"
-      >
-        {set.cards.map((card) => {
-          const timeRange = card.endTime
-            ? t("convention.eventTimeRange", {
-                start: formatEventTime(
-                  card.startTime,
-                  timeZone,
-                  locale,
-                  hour12,
-                ),
-                end: formatEventEndTime(
-                  card.startTime,
-                  card.endTime,
-                  timeZone,
-                  locale,
-                  hour12,
-                ),
-              })
-            : formatEventTime(card.startTime, timeZone, locale, hour12);
-          const overlap =
-            card.id !== selected.id ? overlapMinutesBetween(selected, card) : 0;
-          const room = card.room ?? card.location ?? undefined;
-          return (
-            <CompareCard
-              key={card.id}
-              title={card.title}
-              category={card.category ?? undefined}
-              accentColor={categoryAccentColor(card.category, colorScheme)}
-              timeRange={timeRange}
-              room={room}
-              summary={card.description?.trim() || undefined}
-              inPlan={card.isInSchedule}
-              inPlanLabel={t("convention.compare.inPlan")}
-              selected={card.id === selected.id}
-              overlapNote={
-                overlap > 0
-                  ? t("convention.compare.overlapsChoice", { minutes: overlap })
-                  : undefined
-              }
-              accessibilityLabel={[
-                card.title,
-                timeRange,
-                room,
-                card.isInSchedule ? t("convention.compare.inPlan") : null,
-              ]
-                .filter(Boolean)
-                .join(", ")}
-              onSelect={() => setSelectedId(card.id)}
-            />
-          );
-        })}
-      </ScrollView>
-      <View className="gap-2 border-border border-t px-4 pt-3 pb-6">
+      {set.cards.map((card) => {
+        const timeRange = card.endTime
+          ? t("convention.eventTimeRange", {
+              start: formatEventTime(card.startTime, timeZone, locale, hour12),
+              end: formatEventEndTime(
+                card.startTime,
+                card.endTime,
+                timeZone,
+                locale,
+                hour12,
+              ),
+            })
+          : formatEventTime(card.startTime, timeZone, locale, hour12);
+        const overlap =
+          card.id !== selected.id ? overlapMinutesBetween(selected, card) : 0;
+        const room = card.room ?? card.location ?? undefined;
+        return (
+          <CompareCard
+            key={card.id}
+            title={card.title}
+            category={card.category ?? undefined}
+            accentColor={categoryAccentColor(card.category, colorScheme)}
+            timeRange={timeRange}
+            room={room}
+            summary={card.description?.trim() || undefined}
+            inPlan={card.isInSchedule}
+            inPlanLabel={t("convention.compare.inPlan")}
+            selected={card.id === selected.id}
+            overlapNote={
+              overlap > 0
+                ? t("convention.compare.overlapsChoice", { minutes: overlap })
+                : undefined
+            }
+            accessibilityLabel={[
+              card.title,
+              timeRange,
+              room,
+              card.isInSchedule ? t("convention.compare.inPlan") : null,
+            ]
+              .filter(Boolean)
+              .join(", ")}
+            onSelect={() => setSelectedId(card.id)}
+          />
+        );
+      })}
+      <View className="gap-2 border-border border-t px-4 pt-3">
         <Text variant="caption" className="text-center">
           {footerNote}
         </Text>
@@ -218,6 +214,6 @@ export default function CompareSheetRoute() {
           </Button>
         ) : null}
       </View>
-    </View>
+    </ScrollView>
   );
 }

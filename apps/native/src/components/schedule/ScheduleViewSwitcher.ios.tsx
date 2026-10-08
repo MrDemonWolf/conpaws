@@ -7,12 +7,12 @@ import {
 import { useWindowDimensions, View } from "react-native";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
-import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcher";
 import {
   SCHEDULE_VIEWS,
   type ScheduleView,
   type ScheduleViewSwitcherProps,
 } from "./ScheduleViewSwitcher.types";
+import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcherStacked";
 
 /** Past this scale UISegmentedControl shows a few letters per segment. */
 const STACK_AT_FONT_SCALE = 1.6;
