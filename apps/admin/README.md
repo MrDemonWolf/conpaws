@@ -84,7 +84,9 @@ Deploying creates or updates Cloudflare resources. Local development and the nor
 
 Deploy and migrate the admin stack before enabling the public catalog binding.
 Set the existing catalog D1 UUID as the `CATALOG_DATABASE_ID` repository variable
-(or local Alchemy environment value), then deploy the website. The website binds
-that database by ID and does not create, migrate or delete it. Leaving the value
-unset keeps catalog endpoints unavailable while the existing website and waitlist
+(or local Alchemy environment value), then run the main stack deploy (`bun run
+deploy`, or the Deploy web workflow). The `conpaws-api` Worker in `apps/api` binds
+that database by ID as `CATALOG_DB` and does not create, migrate or delete it; the
+website has no catalog binding. Leaving the value unset makes the API's `/v1`
+catalog routes answer 503 while the website, the waitlist and the API's `/health`
 continue to work.

@@ -71,9 +71,7 @@ export class CatalogUnavailableError extends Error {
 }
 
 /** Keep the writable D1 handle inside this read-query module. */
-export function requireCatalogDatabase(
-  env: Bindings,
-): PublishedCatalogDatabase {
+function requireCatalogDatabase(env: Bindings): PublishedCatalogDatabase {
   if (!env.CATALOG_DB) throw new CatalogUnavailableError();
   return env.CATALOG_DB;
 }
@@ -132,4 +130,17 @@ export async function getPublishedSnapshot(
     .bind(slug)
     .first<{ snapshot_json: string }>();
   return result ? parsePublicSnapshot(result.snapshot_json) : null;
+}
+
+/**
+ * The two reads the API exposes. Handlers get these and nothing else: the
+ * raw handle never leaves this module, so no other file can run its own SQL
+ * against the writable binding.
+ */
+export function listPublicPublishedSnapshots(env: Bindings) {
+  return listPublishedSnapshots(requireCatalogDatabase(env));
+}
+
+export function getPublicPublishedSnapshot(env: Bindings, slug: string) {
+  return getPublishedSnapshot(requireCatalogDatabase(env), slug);
 }

@@ -12,7 +12,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev -F @conpaws/web -F @conpaws/admin -F @conpaws/native",
+    "dev:api": "turbo -F @conpaws/api dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
     "lint": "biome check .",

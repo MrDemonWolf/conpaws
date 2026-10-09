@@ -2,9 +2,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Bindings } from "./bindings";
 import {
-  getPublishedSnapshot,
-  listPublishedSnapshots,
-  requireCatalogDatabase,
+  getPublicPublishedSnapshot,
+  listPublicPublishedSnapshots,
 } from "./catalog";
 
 /**
@@ -16,6 +15,8 @@ import {
  * already says what this is.
  */
 
+// s-maxage is honoured by Workers Cache (enabled on the Worker in
+// alchemy.run.ts and wrangler.jsonc); max-age=0 keeps clients revalidating.
 const CATALOG_HEADERS = {
   "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=120",
   "X-Content-Type-Options": "nosniff",
@@ -56,9 +57,7 @@ export function createApp() {
 
   app.get("/v1/conventions", async (c) => {
     try {
-      const conventions = await listPublishedSnapshots(
-        requireCatalogDatabase(c.env),
-      );
+      const conventions = await listPublicPublishedSnapshots(c.env);
       return catalogJson({ version: 1, conventions });
     } catch {
       return catalogError(503);
@@ -67,8 +66,8 @@ export function createApp() {
 
   app.get("/v1/conventions/:slug", async (c) => {
     try {
-      const convention = await getPublishedSnapshot(
-        requireCatalogDatabase(c.env),
+      const convention = await getPublicPublishedSnapshot(
+        c.env,
         c.req.param("slug"),
       );
       if (!convention) return catalogError(404);
@@ -80,8 +79,8 @@ export function createApp() {
 
   app.get("/v1/conventions/:slug/schedule", async (c) => {
     try {
-      const convention = await getPublishedSnapshot(
-        requireCatalogDatabase(c.env),
+      const convention = await getPublicPublishedSnapshot(
+        c.env,
         c.req.param("slug"),
       );
       if (!convention) return catalogError(404);

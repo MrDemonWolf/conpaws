@@ -11,7 +11,7 @@ Routes are versioned under `/v1` with no `/api` prefix:
 - `GET /v1/conventions/{slug}` — one published edition
 - `GET /v1/conventions/{slug}/schedule` — its sessions and schedule status
 
-Responses are edge-cached for 30 seconds and readable from any origin. Every
+Responses are edge-cached for 30 seconds through Workers Cache and readable from any origin. Every
 route reads only the snapshot selected by the convention's current published
 revision; drafts and staff-only fields never leave the admin database.
 
@@ -19,7 +19,7 @@ revision; drafts and staff-only fields never leave the admin database.
 
 ```sh
 bun run --filter @conpaws/admin db:migrate:local   # once, creates the local catalog
-bun run --filter @conpaws/api dev                   # http://127.0.0.1:8790
+bun dev:api                                          # http://127.0.0.1:8790
 ```
 
 The dev server shares the admin app's local D1 state, so editions published in

@@ -294,10 +294,21 @@ export const api = await Worker("api", {
   compatibilityDate: COMPATIBILITY_DATE,
   observability: OBSERVABILITY,
   limits: API_LIMITS,
+  // Workers Cache: Cloudflare checks its edge cache before invoking the Worker
+  // and honours the handlers' Cache-Control. Without it a Worker-generated
+  // response is never stored anywhere, so the catalog's 30-second s-maxage
+  // would be decoration and every client would run the D1 query itself.
+  cache: true,
   // Same two-step cutover as the site: the Worker exists before the domain
-  // points at it.
+  // points at it. Until then it is served on conpaws-api.<subdomain>.workers.dev
+  // so the deploy workflow can probe it; the moment API_ROUTES_ENABLED flips,
+  // workers.dev goes dark and only api.conpaws.com answers. This is deliberately
+  // not the site's WORKERS_DEV_ENABLED: that switch was turned off at the site's
+  // cutover to stop serving an indexable copy, and the API must not need it
+  // back on to be reachable.
   domains: env.API_ROUTES_ENABLED ? ["api.conpaws.com"] : undefined,
-  url: env.WORKERS_DEV_ENABLED,
+  url: !env.API_ROUTES_ENABLED,
+  previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     ...catalogBinding,
     CDN_BUCKET: cdn,

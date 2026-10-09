@@ -203,6 +203,7 @@ service is deployed or enabled in a store binary.
 ```
 conpaws/
 ├── apps/
+│   ├── api/         # Public API Worker (Hono) at api.conpaws.com; catalog now, tRPC/auth later
 │   ├── native/      # Expo React Native app (routes in app/, not src/app)
 │   │   ├── targets/ # Widget, Watch app, and Watch complication (Swift)
 │   │   └── modules/ # Local Expo module bridging the App Group and Watch
@@ -223,7 +224,8 @@ conpaws/
 The layout follows [Better-T Stack](https://www.better-t-stack.dev/docs/project-structure).
 See [workspace ownership and development](docs/repository-layout.md) and
 [agent instructions](AGENTS.md). App-specific schemas and migrations stay in
-those apps; an `apps/server` workspace is reserved for future native cloud features.
+those apps; native cloud features (tRPC, Better-Auth, sync) land in `apps/api`, and
+there is no separate `apps/server`.
 
 ## License
 

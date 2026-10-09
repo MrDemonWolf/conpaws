@@ -34,7 +34,11 @@
     }
   ],
 
-  // Mirrors packages/infra/alchemy.run.ts; inert in local dev.
+  // Mirrors packages/infra/alchemy.run.ts. Workers Cache is what makes the
+  // catalog's s-maxage real on Cloudflare's network; limits are inert locally.
+  "cache": {
+    "enabled": true
+  },
   "limits": {
     "cpu_ms": 200
   },

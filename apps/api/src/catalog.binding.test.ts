@@ -23,7 +23,9 @@ async function sourceFiles(directory: string): Promise<string[]> {
 describe("catalog binding boundary", () => {
   it("keeps CATALOG_DB access in catalog.ts and the binding types only", async () => {
     const files = await sourceFiles(sourceDirectory);
-    // Tests hand the binding in as a fake; production code must not reach it.
+    // Tests hand the binding in as a fake; production code must not reach it,
+    // nor borrow the raw handle: the only exports are the two published reads.
+    const forbidden = ["CATALOG_DB", "requireCatalogDatabase", ".prepare("];
     const allowed = ["catalog.ts", "bindings.ts"];
     const violations = (
       await Promise.all(
@@ -33,9 +35,12 @@ describe("catalog binding boundary", () => {
               !allowed.includes(path.basename(file)) &&
               !file.endsWith(".test.ts"),
           )
-          .map(async (file) =>
-            (await readFile(file, "utf8")).includes("CATALOG_DB") ? file : null,
-          ),
+          .map(async (file) => {
+            const source = await readFile(file, "utf8");
+            return forbidden.some((token) => source.includes(token))
+              ? file
+              : null;
+          }),
       )
     ).filter((file): file is string => file !== null);
 

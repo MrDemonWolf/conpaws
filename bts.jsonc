@@ -10,10 +10,10 @@
 // This file is safe to delete
 //
 // NOTE: the values below record what was scaffolded, not the target stack.
-// The planned backend (apps/server, not yet scaffolded) is:
-//   backend: hono, runtime: workers, database: d1, orm: drizzle,
-//   api: trpc, auth: better-auth, server-deploy: wrangler
-// Update these fields when the backend is scaffolded. See docs/repository-layout.md.
+// The backend is apps/api, hand-written rather than scaffolded by this tool:
+//   backend: hono, runtime: workers, database: d1, orm: drizzle (planned),
+//   api: trpc (planned), auth: better-auth (planned), server-deploy: alchemy
+// See docs/repository-layout.md.
 
 {
   "$schema": "https://r2.better-t-stack.dev/schema.json",
