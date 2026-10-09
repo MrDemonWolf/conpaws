@@ -107,6 +107,10 @@ export const deployEnvSchema = z.object({
 
   /** Whether conpaws.com and www point at this Worker. */
   ROUTES_ENABLED: flag,
+  /** Whether api.conpaws.com points at the API Worker. */
+  API_ROUTES_ENABLED: flag,
+  /** Whether cdn.conpaws.com serves the R2 bucket. */
+  CDN_ROUTES_ENABLED: flag,
   /** Whether a stable `*.workers.dev` URL is served. Off by default: it is an indexable copy of the site. */
   WORKERS_DEV_ENABLED: flag,
   /** Whether per-version preview subdomains are served. */

@@ -1,6 +1,6 @@
 import { readDeployEnv } from "@conpaws/env/deploy";
 import alchemy from "alchemy";
-import { D1Database, Nextjs, Worker } from "alchemy/cloudflare";
+import { D1Database, Nextjs, R2Bucket, Worker } from "alchemy/cloudflare";
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
 
@@ -97,10 +97,12 @@ const db = await D1Database("database", {
 });
 
 /**
- * Public API binding to the admin-owned catalog database. D1 grants this
- * Worker write access; public handlers enforce the read-only boundary in code.
- * The admin stack owns creation, migrations and deletion. This stack binds its
- * existing ID only, after the admin stack has been deployed and migrated.
+ * The API Worker's binding to the admin-owned catalog database. D1 grants
+ * write access; apps/api/src/catalog.ts enforces the read-only boundary in
+ * code and a test keeps the binding out of every other module. The admin
+ * stack owns creation, migrations and deletion. This stack binds the existing
+ * ID only, after the admin stack has been deployed and migrated; until then
+ * the catalog routes answer 503 rather than the Worker failing to deploy.
  */
 const catalogBinding: Record<string, D1Database> = env.CATALOG_DATABASE_ID
   ? {
@@ -170,6 +172,9 @@ const OBSERVABILITY = {
  */
 const WEB_LIMITS = { cpu_ms: 500 } as const;
 const RECONCILER_LIMITS = { cpu_ms: 5_000 } as const;
+// The API is JSON over one D1 query per request; 200ms leaves room for a cold
+// isolate and still bounds a runaway at a tiny fraction of the default.
+const API_LIMITS = { cpu_ms: 200 } as const;
 
 /**
  * The ESP is self-hosted listmonk at lists.mrdemonwolf.com, sending via SES.
@@ -238,7 +243,6 @@ export const web = await Nextjs("web", {
   previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     DB: db,
-    ...catalogBinding,
     TURNSTILE_SECRET_KEY: alchemy.secret(env.TURNSTILE_SECRET_KEY),
     ...waitlistSecrets,
   },
@@ -246,6 +250,57 @@ export const web = await Nextjs("web", {
     env: {
       PORT: "3001",
     },
+  },
+});
+
+/**
+ * Public assets on cdn.conpaws.com.
+ *
+ * Nothing writes here yet. The bucket exists now so the API Worker has it
+ * bound and the custom domain is attached under the same route switch
+ * discipline as the site: deploy with CDN_ROUTES_ENABLED off first, then flip
+ * the repository variable once the bucket and DNS look right. The r2.dev
+ * development subdomain stays off; the only public surface is the custom
+ * domain.
+ */
+export const cdn = await R2Bucket("cdn", {
+  name: "conpaws-cdn",
+  adopt: true,
+  devDomain: false,
+  domains: env.CDN_ROUTES_ENABLED ? ["cdn.conpaws.com"] : undefined,
+  // Read-only from any origin: the bucket serves public images and files.
+  cors: [
+    {
+      allowed: { origins: ["*"], methods: ["GET", "HEAD"] },
+      maxAgeSeconds: 86_400,
+    },
+  ],
+});
+
+/**
+ * The public API, served at api.conpaws.com by its own Worker.
+ *
+ * Split from the site on purpose: the Next.js Worker stays a marketing and
+ * waitlist surface, while this Hono Worker carries the catalog today and the
+ * planned tRPC + Better-Auth backend later, with its own limits, domain and
+ * rollback. Routes live under /v1 with no /api prefix.
+ */
+export const api = await Worker("api", {
+  name: "conpaws-api",
+  adopt: true,
+  cwd: "../../apps/api",
+  entrypoint: "src/index.ts",
+  compatibility: "node",
+  compatibilityDate: COMPATIBILITY_DATE,
+  observability: OBSERVABILITY,
+  limits: API_LIMITS,
+  // Same two-step cutover as the site: the Worker exists before the domain
+  // points at it.
+  domains: env.API_ROUTES_ENABLED ? ["api.conpaws.com"] : undefined,
+  url: env.WORKERS_DEV_ENABLED,
+  bindings: {
+    ...catalogBinding,
+    CDN_BUCKET: cdn,
   },
 });
 
@@ -285,8 +340,11 @@ export const reconciler = await Worker("reconciler", {
  */
 export type WebEnv = typeof web.Env;
 export type ReconcilerEnv = typeof reconciler.Env;
+export type ApiEnv = typeof api.Env;
 
 console.log(`Web         -> ${web.url}`);
+console.log(`API         -> ${api.url ?? api.name}`);
+console.log(`CDN bucket  -> ${cdn.name}`);
 console.log(`Reconciler  -> ${reconciler.name}`);
 
 await app.finalize();

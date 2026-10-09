@@ -1,5 +1,15 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { z } from "zod";
+import type { Bindings } from "./bindings";
+
+/**
+ * Read-only access to the published catalog.
+ *
+ * This is the only module that may touch `CATALOG_DB`. The binding has write
+ * access (D1 has no row-level security), so the read-only boundary is the
+ * code in this file: snapshot reads keyed on the convention's current
+ * published revision, and nothing else. `catalog.binding.test.ts` fails the
+ * build if the binding name shows up anywhere else under src/.
+ */
 
 const availability = z.enum([
   "unknown",
@@ -12,7 +22,7 @@ const availability = z.enum([
 const scheduleStatus = z.enum(["not-released", "partial", "complete"]);
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
-/** Strict public shape. Unknown/private fields are stripped before responses. */
+/** Strict public shape. Unknown and private fields are stripped before responses. */
 export const publicConventionSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
@@ -43,6 +53,7 @@ export const publicConventionSchema = z.object({
 
 export type PublicConvention = z.infer<typeof publicConventionSchema>;
 
+/** The slice of D1 the read queries use, so tests can hand in a fake. */
 export interface PublishedCatalogDatabase {
   prepare(query: string): {
     bind(value: string): {
@@ -52,11 +63,18 @@ export interface PublishedCatalogDatabase {
   };
 }
 
+export class CatalogUnavailableError extends Error {
+  constructor(message = "Public catalog binding is unavailable.") {
+    super(message);
+    this.name = "CatalogUnavailableError";
+  }
+}
+
 /** Keep the writable D1 handle inside this read-query module. */
-async function requirePublicCatalogDatabase() {
-  const { env } = await getCloudflareContext({ async: true });
-  if (!env.CATALOG_DB)
-    throw new Error("Public catalog binding is unavailable.");
+export function requireCatalogDatabase(
+  env: Bindings,
+): PublishedCatalogDatabase {
+  if (!env.CATALOG_DB) throw new CatalogUnavailableError();
   return env.CATALOG_DB;
 }
 
@@ -114,34 +132,4 @@ export async function getPublishedSnapshot(
     .bind(slug)
     .first<{ snapshot_json: string }>();
   return result ? parsePublicSnapshot(result.snapshot_json) : null;
-}
-
-export async function listPublicPublishedSnapshots() {
-  return listPublishedSnapshots(await requirePublicCatalogDatabase());
-}
-
-export async function getPublicPublishedSnapshot(slug: string) {
-  return getPublishedSnapshot(await requirePublicCatalogDatabase(), slug);
-}
-
-export function catalogResponseHeaders() {
-  return {
-    "Cache-Control":
-      "public, max-age=0, s-maxage=30, stale-while-revalidate=120",
-    "Content-Type": "application/json; charset=utf-8",
-    "X-Content-Type-Options": "nosniff",
-  };
-}
-
-export function catalogErrorResponse(status = 503) {
-  return Response.json(
-    { error: status === 404 ? "not_found" : "catalog_unavailable" },
-    {
-      status,
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-      },
-    },
-  );
 }

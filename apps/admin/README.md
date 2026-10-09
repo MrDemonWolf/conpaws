@@ -33,15 +33,15 @@ Staff curate convention details and sessions by hand. A publish requires a recen
 
 Changing a draft leaves the attendee copy untouched. Restoring history copies a prior snapshot into the draft and publishes it as a new revision; existing revisions cannot be edited or removed.
 
-The public `apps/web` Worker serves read-only JSON on `conpaws.com`:
+The public `apps/api` Worker serves read-only JSON on `api.conpaws.com`:
 
-- `GET /api/v1/conventions` lists current published editions.
-- `GET /api/v1/conventions/{slug}` returns one published edition.
-- `GET /api/v1/conventions/{slug}/schedule` returns its sessions and schedule status.
+- `GET /v1/conventions` lists current published editions.
+- `GET /v1/conventions/{slug}` returns one published edition.
+- `GET /v1/conventions/{slug}/schedule` returns its sessions and schedule status.
 
 Each route reads only the snapshot selected by the convention’s current published revision. Drafts, source links, source-check dates, staff identities, and audit records are excluded. Responses may be cached at the edge for 30 seconds. The waitlist database remains separate.
 
-The native app does not download this catalog yet. Offline schedule access, organizer-feed imports, Watch and widget updates, and push or local alerts still need their own implementation and device testing. Cancellations reach attendees only after staff publish a new revision.
+The native app downloads this catalog through Find my convention and keeps the edition's slug and revision so a later check can update it in place. Cancellations reach attendees only after staff publish a new revision.
 
 ## Mobile host experience and PWA direction
 

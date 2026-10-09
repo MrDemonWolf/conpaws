@@ -194,6 +194,70 @@ jobs:
           bunx playwright-core install --with-deps chromium-headless-shell
           bun scripts/overflow.ts http://127.0.0.1:8787
 
+      # The API Worker is plain Hono on workerd, so wrangler dev is the real
+      # runtime. Without a migrated catalog the list route must fail closed as
+      # a 503 JSON body, and the old /api prefix the website used to serve
+      # must be gone: the native app only ever talks to /v1 on api.conpaws.com.
+      - name: Smoke-test API Worker
+        working-directory: apps/api
+        run: |
+          api_log="${RUNNER_TEMP}/api-dev.log"
+          api_pid=""
+
+          cleanup() {
+            if [[ -n "$api_pid" ]]; then
+              kill "$api_pid" 2>/dev/null || true
+            fi
+          }
+          trap cleanup EXIT
+
+          bunx wrangler dev --ip 127.0.0.1 --port 8790 --persist-to "${RUNNER_TEMP}/api-state" >"$api_log" 2>&1 &
+          api_pid=$!
+
+          ready=false
+          for _ in {1..60}; do
+            if curl --silent --fail http://127.0.0.1:8790/health >/dev/null; then
+              ready=true
+              break
+            fi
+            if ! kill -0 "$api_pid" 2>/dev/null; then
+              cat "$api_log"
+              exit 1
+            fi
+            sleep 1
+          done
+
+          if [[ "$ready" != "true" ]]; then
+            cat "$api_log"
+            echo "::error title=API smoke test failed::Local API Worker did not become ready."
+            exit 1
+          fi
+
+          curl --silent --show-error --fail http://127.0.0.1:8790/health |
+            jq --exit-status '.status == "ok"' >/dev/null
+
+          list_status="$(
+            curl --silent --show-error \
+              --output "${RUNNER_TEMP}/api-list.json" \
+              --write-out "%{http_code}" \
+              http://127.0.0.1:8790/v1/conventions
+          )"
+          if [[ "$list_status" != "503" ]] ||
+            ! jq --exit-status '.error == "catalog_unavailable"' "${RUNNER_TEMP}/api-list.json" >/dev/null; then
+            cat "${RUNNER_TEMP}/api-list.json"
+            echo "::error title=API fail-closed check failed::Expected a 503 catalog_unavailable body without a catalog, received $list_status."
+            exit 1
+          fi
+
+          old_prefix_status="$(
+            curl --silent --show-error --output /dev/null --write-out "%{http_code}" \
+              http://127.0.0.1:8790/api/v1/conventions
+          )"
+          if [[ "$old_prefix_status" != "404" ]]; then
+            echo "::error title=API prefix check failed::/api/v1 must not exist on the API Worker, received $old_prefix_status."
+            exit 1
+          fi
+
 
   infrastructure:
     name: Validate deployment descriptors

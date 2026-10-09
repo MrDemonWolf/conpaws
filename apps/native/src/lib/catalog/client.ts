@@ -33,7 +33,7 @@ export class CatalogNotFoundError extends Error {
 }
 
 export function catalogScheduleUrl(slug: string): string {
-  return `${catalogBaseUrl()}/api/v1/conventions/${encodeURIComponent(slug)}/schedule`;
+  return `${catalogBaseUrl()}/v1/conventions/${encodeURIComponent(slug)}/schedule`;
 }
 
 async function fetchCatalogJson<T>(
@@ -114,7 +114,7 @@ export async function fetchCatalogList(
   options: { signal?: AbortSignal } = {},
 ): Promise<CatalogEdition[]> {
   const response = await fetchCatalogJson(
-    `${catalogBaseUrl()}/api/v1/conventions`,
+    `${catalogBaseUrl()}/v1/conventions`,
     isCatalogListResponse,
     options.signal,
   );

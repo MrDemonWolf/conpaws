@@ -57,11 +57,6 @@
       "database_id": "local",
       "migrations_dir": "drizzle/migrations",
       "migrations_table": "drizzle_migrations"
-    },
-    {
-      "binding": "CATALOG_DB",
-      "database_name": "conpaws-admin-preview-local-v2",
-      "database_id": "conpaws-admin-preview-local-v2"
     }
   ],
 

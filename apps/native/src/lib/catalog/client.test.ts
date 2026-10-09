@@ -59,7 +59,7 @@ describe("catalog HTTP client", () => {
 
     await expect(fetchCatalogList()).resolves.toEqual([edition]);
     expect(fetchStreaming).toHaveBeenCalledWith(
-      "https://conpaws.com/api/v1/conventions",
+      "https://api.conpaws.com/v1/conventions",
       expect.objectContaining({ headers: { Accept: "application/json" } }),
     );
   });
@@ -79,7 +79,7 @@ describe("catalog HTTP client", () => {
 
     await fetchCatalogSchedule("sample/con");
     expect(catalogScheduleUrl("sample/con")).toBe(
-      "https://conpaws.com/api/v1/conventions/sample%2Fcon/schedule",
+      "https://api.conpaws.com/v1/conventions/sample%2Fcon/schedule",
     );
     expect(fetchStreaming.mock.calls[0][0]).toBe(
       catalogScheduleUrl("sample/con"),

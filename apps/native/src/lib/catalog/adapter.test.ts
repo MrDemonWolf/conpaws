@@ -36,14 +36,14 @@ describe("catalog schedule adapter", () => {
       { ...baseEdition, sessions: [session] },
       {
         scheduleUrl:
-          "https://conpaws.com/api/v1/conventions/sample-con/schedule",
+          "https://api.conpaws.com/v1/conventions/sample-con/schedule",
       },
     );
 
     expect(result.parsedEvents[0]).toMatchObject({
       title: "Opening panel",
       sourceUid: "stable-panel-id",
-      sourceUrl: "https://conpaws.com/api/v1/conventions/sample-con/schedule",
+      sourceUrl: "https://api.conpaws.com/v1/conventions/sample-con/schedule",
       startTime: new Date("2026-10-20T14:00:00.000Z"),
       endTime: new Date("2026-10-20T15:00:00.000Z"),
     });

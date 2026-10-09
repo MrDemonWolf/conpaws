@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-const sourceDirectory = fileURLToPath(new URL("..", import.meta.url));
+const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 async function sourceFiles(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -12,7 +12,7 @@ async function sourceFiles(directory: string): Promise<string[]> {
       const entryPath = path.join(directory, entry.name);
       return entry.isDirectory()
         ? sourceFiles(entryPath)
-        : entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")
+        : entry.name.endsWith(".ts")
           ? [entryPath]
           : [];
     }),
@@ -20,17 +20,18 @@ async function sourceFiles(directory: string): Promise<string[]> {
   return nested.flat();
 }
 
-describe("public catalog binding boundary", () => {
-  it("keeps CATALOG_DB access in public-catalog.ts only", async () => {
+describe("catalog binding boundary", () => {
+  it("keeps CATALOG_DB access in catalog.ts and the binding types only", async () => {
     const files = await sourceFiles(sourceDirectory);
+    // Tests hand the binding in as a fake; production code must not reach it.
+    const allowed = ["catalog.ts", "bindings.ts"];
     const violations = (
       await Promise.all(
         files
           .filter(
             (file) =>
-              !["public-catalog.ts", "public-catalog.binding.test.ts"].includes(
-                path.basename(file),
-              ),
+              !allowed.includes(path.basename(file)) &&
+              !file.endsWith(".test.ts"),
           )
           .map(async (file) =>
             (await readFile(file, "utf8")).includes("CATALOG_DB") ? file : null,
