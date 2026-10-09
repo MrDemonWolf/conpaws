@@ -549,7 +549,7 @@
     "errorTitle": "No se configuró el aviso",
     "errorMessage": "ConPaws no pudo actualizar este recordatorio. Inténtalo de nuevo.",
     "permissionTitle": "Las notificaciones están desactivadas",
-    "permissionMessage": "ConPaws necesita permiso de notificaciones para avisarte cuándo salir. Actívalo en Configuración y vuelve a configurar el recordatorio.",
+    "permissionMessage": "ConPaws necesita permiso para enviar notificaciones y recordarte antes de que empiece un panel. Actívalas en Configuración y vuelve a configurar el recordatorio.",
     "openSettings": "Abrir Configuración",
     "tooLateTitle": "El evento empieza demasiado pronto",
     "tooLateMessage": "Este evento empieza antes de lo que permite ese recordatorio. Elige menos anticipación o un evento posterior.",

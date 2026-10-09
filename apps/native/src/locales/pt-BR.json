@@ -485,7 +485,7 @@
     "errorTitle": "Lembrete não definido",
     "errorMessage": "O ConPaws não conseguiu atualizar este lembrete. Tente novamente.",
     "permissionTitle": "As notificações estão desativadas",
-    "permissionMessage": "O ConPaws precisa de notificações para avisar quando sair. Ative em Configurações e defina o lembrete novamente.",
+    "permissionMessage": "O ConPaws precisa de permissão para enviar notificações e lembrar você antes de um painel começar. Ative as notificações em Configurações e defina o lembrete novamente.",
     "openSettings": "Abrir Configurações",
     "tooLateTitle": "O evento começa cedo demais",
     "tooLateMessage": "Este evento começa antes do que esse lembrete permite. Escolha uma antecedência menor ou um evento mais tarde.",

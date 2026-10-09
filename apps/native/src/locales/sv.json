@@ -485,7 +485,7 @@
     "errorTitle": "Påminnelsen ställdes inte in",
     "errorMessage": "ConPaws kunde inte uppdatera den här påminnelsen. Försök igen.",
     "permissionTitle": "Notiser är avstängda",
-    "permissionMessage": "ConPaws behöver notiser för att påminna dig om när du ska gå. Aktivera dem i Inställningar och ställ in påminnelsen igen.",
+    "permissionMessage": "ConPaws behöver tillåtelse att skicka notiser för att påminna dig innan en panel börjar. Slå på notiser i Inställningar och ställ in påminnelsen igen.",
     "openSettings": "Öppna Inställningar",
     "tooLateTitle": "Evenemanget börjar för snart",
     "tooLateMessage": "Det här evenemanget börjar tidigare än vad påminnelsen tillåter. Välj kortare framförhållning eller ett senare evenemang.",

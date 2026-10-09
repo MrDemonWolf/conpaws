@@ -549,7 +549,7 @@
     "errorTitle": "Promemoria non impostato",
     "errorMessage": "ConPaws non è riuscito ad aggiornare questo promemoria. Riprova.",
     "permissionTitle": "Le notifiche sono disattivate",
-    "permissionMessage": "ConPaws ha bisogno del permesso per le notifiche per avvisarti quando partire. Attivalo nelle Impostazioni e imposta di nuovo il promemoria.",
+    "permissionMessage": "ConPaws ha bisogno dell’autorizzazione per inviare notifiche e ricordarti prima che inizi un panel. Attiva le notifiche nelle Impostazioni e imposta di nuovo il promemoria.",
     "openSettings": "Apri Impostazioni",
     "tooLateTitle": "L'evento inizia troppo presto",
     "tooLateMessage": "Questo evento inizia prima di quanto consenta quel promemoria. Scegli un anticipo più breve o un evento più tardi.",

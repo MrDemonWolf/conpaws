@@ -485,7 +485,7 @@
     "errorTitle": "Herinnering niet ingesteld",
     "errorMessage": "ConPaws kon deze herinnering niet bijwerken. Probeer het opnieuw.",
     "permissionTitle": "Meldingen staan uit",
-    "permissionMessage": "ConPaws heeft meldingen nodig om je te herinneren wanneer je moet vertrekken. Zet ze aan bij Instellingen en stel de herinnering opnieuw in.",
+    "permissionMessage": "ConPaws heeft toestemming nodig om meldingen te sturen, zodat je een herinnering krijgt voordat een panel begint. Zet meldingen aan in Instellingen en stel de herinnering opnieuw in.",
     "openSettings": "Instellingen openen",
     "tooLateTitle": "Evenement begint te snel",
     "tooLateMessage": "Dit evenement begint eerder dan die herinnering toelaat. Kies een kortere vooraankondiging of een later evenement.",

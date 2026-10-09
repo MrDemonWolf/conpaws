@@ -549,7 +549,7 @@
     "errorTitle": "Påmindelsen blev ikke indstillet",
     "errorMessage": "ConPaws kunne ikke opdatere denne påmindelse. Prøv igen.",
     "permissionTitle": "Notifikationer er slået fra",
-    "permissionMessage": "ConPaws skal have tilladelse til notifikationer for at minde dig om, hvornår du skal af sted. Slå det til i Indstillinger, og indstil påmindelsen igen.",
+    "permissionMessage": "ConPaws skal have tilladelse til at sende notifikationer for at minde dig om det, før et panel begynder. Slå notifikationer til i Indstillinger, og indstil påmindelsen igen.",
     "openSettings": "Åbn Indstillinger",
     "tooLateTitle": "Begivenheden starter for tidligt",
     "tooLateMessage": "Denne begivenhed starter tidligere, end den påmindelse tillader. Vælg et kortere varsel eller en senere begivenhed.",

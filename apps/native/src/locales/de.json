@@ -549,7 +549,7 @@
     "errorTitle": "Erinnerung nicht festgelegt",
     "errorMessage": "ConPaws konnte diese Erinnerung nicht aktualisieren. Versuche es erneut.",
     "permissionTitle": "Mitteilungen sind aus",
-    "permissionMessage": "ConPaws braucht die Erlaubnis für Mitteilungen, um dich ans Aufbrechen zu erinnern. Aktiviere sie in den Einstellungen und lege die Erinnerung erneut fest.",
+    "permissionMessage": "ConPaws benötigt die Berechtigung für Mitteilungen, um dich vor Beginn eines Panels daran zu erinnern. Aktiviere Mitteilungen in den Einstellungen und richte die Erinnerung erneut ein.",
     "openSettings": "Einstellungen öffnen",
     "tooLateTitle": "Event beginnt zu bald",
     "tooLateMessage": "Dieses Event beginnt früher, als diese Erinnerung erlaubt. Wähle eine kürzere Vorlaufzeit oder ein späteres Event.",

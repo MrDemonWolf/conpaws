@@ -495,7 +495,7 @@
     "errorTitle": "Nie ustawiono przypomnienia",
     "errorMessage": "ConPaws nie mógł zaktualizować tego przypomnienia. Spróbuj ponownie.",
     "permissionTitle": "Powiadomienia są wyłączone",
-    "permissionMessage": "ConPaws potrzebuje powiadomień, aby przypomnieć Ci o wyjściu. Włącz je w Ustawieniach i ustaw przypomnienie ponownie.",
+    "permissionMessage": "ConPaws potrzebuje uprawnień do wysyłania powiadomień, aby przypomnieć Ci przed rozpoczęciem panelu. Włącz powiadomienia w Ustawieniach i ustaw przypomnienie ponownie.",
     "openSettings": "Otwórz Ustawienia",
     "tooLateTitle": "Wydarzenie zaczyna się zbyt szybko",
     "tooLateMessage": "To wydarzenie zaczyna się wcześniej, niż pozwala to przypomnienie. Wybierz krótszy czas wyprzedzenia albo późniejsze wydarzenie.",

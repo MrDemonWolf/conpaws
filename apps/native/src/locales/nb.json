@@ -485,7 +485,7 @@
     "errorTitle": "Påminnelsen ble ikke satt",
     "errorMessage": "ConPaws kunne ikke oppdatere denne påminnelsen. Prøv igjen.",
     "permissionTitle": "Varslinger er slått av",
-    "permissionMessage": "ConPaws trenger varslingstillatelse for å minne deg på når du bør dra. Slå det på i Innstillinger, og sett påminnelsen på nytt.",
+    "permissionMessage": "ConPaws trenger tillatelse til å sende varsler for å minne deg på det før et panel starter. Slå på varsler i Innstillinger, og angi påminnelsen på nytt.",
     "openSettings": "Åpne Innstillinger",
     "tooLateTitle": "Hendelsen starter for snart",
     "tooLateMessage": "Denne hendelsen starter tidligere enn den påminnelsen tillater. Velg kortere varslingstid eller en senere hendelse.",

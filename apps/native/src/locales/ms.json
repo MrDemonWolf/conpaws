@@ -485,7 +485,7 @@
     "errorTitle": "Peringatan Tidak Ditetapkan",
     "errorMessage": "ConPaws tidak dapat mengemas kini peringatan ini. Cuba lagi.",
     "permissionTitle": "Pemberitahuan dimatikan",
-    "permissionMessage": "ConPaws memerlukan kebenaran pemberitahuan untuk mengingatkan anda bila perlu bertolak. Hidupkannya dalam Tetapan dan tetapkan semula peringatan.",
+    "permissionMessage": "ConPaws memerlukan kebenaran untuk menghantar pemberitahuan supaya dapat mengingatkan anda sebelum panel bermula. Hidupkan pemberitahuan dalam Tetapan dan tetapkan semula peringatan itu.",
     "openSettings": "Buka Tetapan",
     "tooLateTitle": "Acara bermula terlalu awal",
     "tooLateMessage": "Acara ini bermula lebih awal daripada peringatan itu. Pilih masa yang lebih singkat atau acara yang lebih lewat.",

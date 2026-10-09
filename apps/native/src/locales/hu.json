@@ -549,7 +549,7 @@
     "errorTitle": "Az emlékeztető nem lett beállítva",
     "errorMessage": "A ConPaws nem tudta frissíteni ezt az emlékeztetőt. Próbáld újra.",
     "permissionTitle": "Az értesítések ki vannak kapcsolva",
-    "permissionMessage": "A ConPawsnak értesítési engedélyre van szüksége, hogy szólhasson, mikor indulj. Kapcsold be a Beállításokban, és állítsd be újra az emlékeztetőt.",
+    "permissionMessage": "A ConPawsnak értesítési engedélyre van szüksége, hogy emlékeztessen a panel kezdete előtt. Kapcsold be az értesítéseket a Beállításokban, majd állítsd be újra az emlékeztetőt.",
     "openSettings": "Beállítások megnyitása",
     "tooLateTitle": "Az esemény túl hamar kezdődik",
     "tooLateMessage": "Ez az esemény hamarabb kezdődik, mint amit ez az emlékeztető engedne. Válassz rövidebb előreszólást vagy későbbi eseményt.",

@@ -549,7 +549,7 @@
     "errorTitle": "Rappel non défini",
     "errorMessage": "ConPaws n'a pas pu mettre à jour ce rappel. Réessayez.",
     "permissionTitle": "Les notifications sont désactivées",
-    "permissionMessage": "ConPaws a besoin des notifications pour vous rappeler quand partir. Activez-les dans Paramètres, puis réglez de nouveau le rappel.",
+    "permissionMessage": "ConPaws a besoin de l’autorisation d’envoyer des notifications pour vous rappeler avant le début d’une table ronde. Activez les notifications dans Réglages, puis configurez de nouveau le rappel.",
     "openSettings": "Ouvrir Paramètres",
     "tooLateTitle": "L'événement commence trop tôt",
     "tooLateMessage": "Cet événement commence plus tôt que ce rappel ne le permet. Choisissez un délai plus court ou un événement plus tardif.",

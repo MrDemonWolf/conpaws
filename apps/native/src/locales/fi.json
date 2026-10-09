@@ -549,7 +549,7 @@
     "errorTitle": "Muistutusta ei asetettu",
     "errorMessage": "ConPaws ei voinut päivittää tätä muistutusta. Yritä uudelleen.",
     "permissionTitle": "Ilmoitukset ovat pois päältä",
-    "permissionMessage": "ConPaws tarvitsee ilmoitusluvan muistuttaakseen, milloin kannattaa lähteä. Ota ilmoitukset käyttöön Asetuksissa ja aseta muistutus uudelleen.",
+    "permissionMessage": "ConPaws tarvitsee luvan ilmoitusten lähettämiseen, jotta se voi muistuttaa sinua ennen paneelin alkua. Ota ilmoitukset käyttöön Asetuksissa ja aseta muistutus uudelleen.",
     "openSettings": "Avaa Asetukset",
     "tooLateTitle": "Tapahtuma alkaa liian pian",
     "tooLateMessage": "Tämä tapahtuma alkaa aiemmin kuin tuo muistutus sallii. Valitse lyhyempi ennakkoaika tai myöhäisempi tapahtuma.",

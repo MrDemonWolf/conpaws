@@ -562,7 +562,7 @@
     "errorTitle": "Připomenutí nebylo nastaveno",
     "errorMessage": "ConPaws nedokázal toto připomenutí aktualizovat. Zkuste to znovu.",
     "permissionTitle": "Oznámení jsou vypnutá",
-    "permissionMessage": "Aby vám ConPaws mohl připomenout, kdy vyrazit, potřebuje oprávnění k oznámením. Zapněte je v Nastavení a nastavte připomenutí znovu.",
+    "permissionMessage": "ConPaws potřebuje oprávnění k oznámením, aby vám mohl připomenout začátek panelu. Zapněte oznámení v Nastavení a nastavte připomenutí znovu.",
     "openSettings": "Otevřít Nastavení",
     "tooLateTitle": "Událost začíná příliš brzy",
     "tooLateMessage": "Tato událost začíná dřív, než tohle připomenutí dovoluje. Vyberte kratší předstih, nebo pozdější událost.",

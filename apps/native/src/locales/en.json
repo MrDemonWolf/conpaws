@@ -548,7 +548,7 @@
     "errorTitle": "Reminder Not Set",
     "errorMessage": "ConPaws could not update this reminder. Try again.",
     "permissionTitle": "Notifications are off",
-    "permissionMessage": "ConPaws needs notification permission to remind you when to leave. Turn it on in Settings and set the reminder again.",
+    "permissionMessage": "ConPaws needs notification permission to remind you before a panel starts. Turn it on in Settings and set the reminder again.",
     "openSettings": "Open Settings",
     "turnOn": "Turn on reminders",
     "tooLateTitle": "Event starts too soon",

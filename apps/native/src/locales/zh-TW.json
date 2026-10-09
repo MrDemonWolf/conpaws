@@ -485,7 +485,7 @@
     "errorTitle": "未設定提醒",
     "errorMessage": "ConPaws 無法更新這個提醒。請再試一次。",
     "permissionTitle": "通知已關閉",
-    "permissionMessage": "ConPaws 需要通知權限才能提醒你出發。請在「設定」中開啟，然後重新設定提醒。",
+    "permissionMessage": "ConPaws 需要通知權限，才能在座談會開始前提醒你。請在「設定」中開啟通知，然後重新設定提醒。",
     "openSettings": "開啟設定",
     "tooLateTitle": "活動太快開始了",
     "tooLateMessage": "這個活動的開始時間早於這個提醒的提前量。請選擇較短的提前時間，或選一個較晚的活動。",
