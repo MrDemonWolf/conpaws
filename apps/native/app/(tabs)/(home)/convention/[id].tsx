@@ -1,4 +1,5 @@
 import AddIcon from "@expo/material-symbols/add.xml";
+import EditIcon from "@expo/material-symbols/edit.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
 import RefreshIcon from "@expo/material-symbols/refresh.xml";
@@ -1335,6 +1336,9 @@ export default function ConventionDetailScreen() {
       ) : null}
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
+          // Android's toolbar only renders image buttons; without this the
+          // Edit action silently disappears there while iOS keeps the text.
+          icon={process.env.EXPO_OS === "ios" ? undefined : EditIcon}
           onPress={() => {
             if (!tryAcquirePresentationLock(presentationLock)) return;
             router.push(`/convention/${convention.id}/edit`);
