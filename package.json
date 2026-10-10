@@ -23,6 +23,7 @@
     "dev:native": "turbo -F @conpaws/native dev",
     "dev:admin": "turbo -F @conpaws/admin dev",
     "dev:web": "turbo -F @conpaws/web dev",
+    "admin:invite": "bun apps/admin/scripts/invite.mjs",
     "start": "turbo -F @conpaws/native start",
     "start:preview": "turbo -F @conpaws/native start:preview",
     "start:prod": "turbo -F @conpaws/native start:prod",

@@ -54,14 +54,15 @@ Use the pinned Node and Bun versions for parity with CI.
 ## Deployment boundaries
 
 `bun run deploy` manages everything: the website, the API Worker, the catalog
-and waitlist databases, the CDN bucket, the waitlist reconciler and, once
-Zero Trust is enabled, the Access-protected admin console. Wrangler
-configurations contain local placeholder database IDs; production resources
-are owned by Alchemy.
+and waitlist databases, the CDN bucket, the waitlist reconciler and the admin
+console. Staff sign in to the console with one-time email codes; the first
+owner is invited with `bun run admin:invite`. Wrangler configurations contain
+local placeholder database IDs; production resources are owned by Alchemy.
 
-The current admin roles grant catalog-wide access. Organization isolation,
-convention-scoped host invitations and installable PWA support are future work.
-Keep the console restricted to trusted internal editors until those gates exist.
+The current admin roles grant catalog-wide access, and an invite adds someone
+to that whole-catalog team. Organization isolation, convention-scoped host
+access and passkeys are future work. Keep the console restricted to trusted
+internal editors until those gates exist.
 
 Never move migration histories or regenerate native projects merely to tidy
 the tree. Back up custom targets before a clean native prebuild.

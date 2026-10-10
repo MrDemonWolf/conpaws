@@ -1,5 +1,6 @@
 import { and, asc, count, desc, eq, like, or } from "drizzle-orm";
 import {
+  adminInvites,
   adminMembers,
   auditLog,
   type Convention,
@@ -118,6 +119,13 @@ export async function getMembers() {
     .select()
     .from(adminMembers)
     .orderBy(asc(adminMembers.role), asc(adminMembers.email));
+}
+
+export async function getInvites() {
+  return (await getCatalogDb())
+    .select()
+    .from(adminInvites)
+    .orderBy(desc(adminInvites.createdAt));
 }
 
 export async function getRecentActivity() {

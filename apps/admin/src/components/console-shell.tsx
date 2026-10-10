@@ -3,6 +3,7 @@
 import { CompassPaw } from "@conpaws/ui/components/compass-paw";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut, signOutEverywhere } from "../app/sign-in/actions";
 import type { AdminSession } from "../lib/auth";
 import { Icon } from "./icons";
 import { InstallAppButton, PwaRuntime } from "./pwa-client";
@@ -73,27 +74,54 @@ export function ConsoleShell({
 
           <InstallAppButton />
 
-          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-            <span
-              role="img"
-              aria-label={`Signed in as ${session.email}, ${session.role}`}
-              title={session.email}
-              className="grid size-8 place-items-center rounded-full bg-sky-100 font-display text-xs font-bold text-[#091533]"
+          <details className="relative ml-auto shrink-0">
+            <summary
+              aria-label={`Account: ${session.email}, ${session.role}`}
+              className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl px-1.5 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 sm:gap-3 [&::-webkit-details-marker]:hidden"
             >
-              {session.email.slice(0, 1).toUpperCase()}
-            </span>
-            <span className="hidden min-w-0 lg:block">
-              <span className="block max-w-40 truncate text-xs font-semibold text-slate-800">
-                {session.email}
+              <span
+                aria-hidden="true"
+                className="grid size-8 place-items-center rounded-full bg-sky-100 font-display text-xs font-bold text-[#091533]"
+              >
+                {session.email.slice(0, 1).toUpperCase()}
               </span>
-              <span className="mt-0.5 block text-[10px] capitalize text-slate-500">
+              <span className="hidden min-w-0 text-left lg:block">
+                <span className="block max-w-40 truncate text-xs font-semibold text-slate-800">
+                  {session.email}
+                </span>
+                <span className="mt-0.5 block text-[10px] capitalize text-slate-500">
+                  {session.role}
+                </span>
+              </span>
+              <span className="hidden text-xs font-semibold capitalize text-slate-600 sm:block lg:hidden">
                 {session.role}
               </span>
-            </span>
-            <span className="hidden text-xs font-semibold capitalize text-slate-600 sm:block lg:hidden">
-              {session.role}
-            </span>
-          </div>
+            </summary>
+            <div className="absolute right-0 z-30 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+              <p className="break-all px-3 pt-2 text-sm font-semibold text-[#091533]">
+                {session.email}
+              </p>
+              <p className="px-3 pb-2 text-xs capitalize text-slate-500">
+                {session.role}
+              </p>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="flex min-h-11 w-full items-center rounded-lg px-3 text-left text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:bg-slate-100 focus-visible:outline-none"
+                >
+                  Sign out
+                </button>
+              </form>
+              <form action={signOutEverywhere}>
+                <button
+                  type="submit"
+                  className="flex min-h-11 w-full items-center rounded-lg px-3 text-left text-sm text-slate-600 hover:bg-slate-100 focus-visible:bg-slate-100 focus-visible:outline-none"
+                >
+                  Sign out on all devices
+                </button>
+              </form>
+            </div>
+          </details>
         </div>
       </header>
 

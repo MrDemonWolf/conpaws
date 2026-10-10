@@ -138,8 +138,9 @@ All scripts run from the repo root and fan out through Turborepo:
 - `bun run ship:prep` - Bump the native build number, prebuild, and verify
 - `bun run build-number:check` - Check native project build numbers
 - `bun run deploy` / `bun run destroy` - Apply or tear down the Alchemy
-  stack: site, API, catalog, CDN, reconciler and, once Zero Trust is on,
-  the admin console
+  stack: site, API, catalog, CDN, reconciler and admin console
+- `bun run admin:invite -- you@example.com` - Invite someone to the admin
+  console; this is how the first owner gets in
 - `bun run infra:dev` - Run the Alchemy stack in development
 - `bun run db:generate` - Generate Drizzle migrations for the web D1
   database
@@ -209,7 +210,7 @@ conpaws/
 │   │   └── modules/ # Local Expo module bridging the App Group and Watch
 │   ├── web/         # Next.js site on Cloudflare Workers via OpenNext
 │   │   └── workers/ # Hourly waitlist reconciler (a separate Worker)
-│   └── admin/       # Private catalog console; separate Access-protected Worker
+│   └── admin/       # Private catalog console; own Worker, email-code sign-in
 ├── packages/
 │   ├── config/      # Shared tsconfig base
 │   ├── env/         # Zod environment schemas

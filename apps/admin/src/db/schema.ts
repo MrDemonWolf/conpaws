@@ -17,6 +17,55 @@ export const adminMembers = sqliteTable("admin_members", {
   createdBy: text("created_by"),
 });
 
+/** Lets someone who is not yet a member receive a sign-in code. */
+export const adminInvites = sqliteTable("admin_invites", {
+  email: text("email").primaryKey(),
+  role: text("role", { enum: ["owner", "editor"] }).notNull(),
+  invitedBy: text("invited_by").notNull(),
+  createdAt: integer("created_at").notNull(),
+  expiresAt: integer("expires_at").notNull(),
+});
+
+/** One row per emailed code; only an HMAC of the code is stored. */
+export const adminSignInCodes = sqliteTable(
+  "admin_sign_in_codes",
+  {
+    id: text("id").primaryKey(),
+    attemptId: text("attempt_id").notNull(),
+    email: text("email").notNull(),
+    codeHash: text("code_hash").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    createdAt: integer("created_at").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+    consumedAt: integer("consumed_at"),
+  },
+  (table) => [
+    index("admin_sign_in_codes_attempt_idx").on(
+      table.attemptId,
+      table.createdAt,
+    ),
+    index("admin_sign_in_codes_email_idx").on(table.email, table.createdAt),
+  ],
+);
+
+/** A signed-in browser, keyed by the SHA-256 of its cookie token. */
+export const adminSessions = sqliteTable(
+  "admin_sessions",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    email: text("email")
+      .notNull()
+      .references(() => adminMembers.email, { onDelete: "cascade" }),
+    createdAt: integer("created_at").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+    verifiedAt: integer("verified_at").notNull(),
+  },
+  (table) => [
+    index("admin_sessions_email_idx").on(table.email),
+    index("admin_sessions_expiry_idx").on(table.expiresAt),
+  ],
+);
+
 export const conventions = sqliteTable(
   "conventions",
   {
@@ -136,7 +185,10 @@ export const auditLog = sqliteTable(
 );
 
 export const catalogSchema = {
+  adminInvites,
   adminMembers,
+  adminSessions,
+  adminSignInCodes,
   auditLog,
   conventionRevisions,
   conventions,
@@ -144,6 +196,7 @@ export const catalogSchema = {
 };
 
 export type AdminMember = typeof adminMembers.$inferSelect;
+export type AdminInvite = typeof adminInvites.$inferSelect;
 export type Convention = typeof conventions.$inferSelect;
 export type ScheduleEvent = typeof scheduleEvents.$inferSelect;
 export type ConventionRevision = typeof conventionRevisions.$inferSelect;

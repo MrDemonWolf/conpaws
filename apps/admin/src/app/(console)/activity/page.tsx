@@ -17,7 +17,7 @@ export default async function ActivityPage() {
       <PageHeading
         eyebrow="Accountability"
         title="Activity history"
-        description="A durable record of catalog edits, publications and admin role changes."
+        description="A durable record of catalog edits, publications, sign-ins, invites and role changes."
       />
       <Surface className="overflow-hidden">
         {entries.length === 0 ? (
@@ -48,7 +48,8 @@ export default async function ActivityPage() {
                 <div className="flex items-center gap-2 text-xs text-slate-600 sm:justify-end">
                   <StatusPill
                     status={
-                      entry.resourceType === "admin_member"
+                      entry.resourceType === "admin_member" ||
+                      entry.resourceType === "admin_invite"
                         ? "owner"
                         : entry.action === "convention.published" ||
                             entry.action === "convention.restored"

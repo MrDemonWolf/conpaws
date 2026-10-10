@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { inviteEmail, sendAdminEmail } from "../../lib/admin-email";
+import { auditStatement } from "../../lib/audit";
 import { requireAdmin } from "../../lib/auth";
 import {
   conventionInputSchema,
@@ -12,8 +14,10 @@ import {
   scheduleEventInputSchema,
   todayInTimezone,
 } from "../../lib/catalog";
-import { getCatalogDatabase } from "../../lib/db";
+import { getAdminBindings, getCatalogDatabase } from "../../lib/db";
+import { adminPublicUrl } from "../../lib/public-url";
 import { buildPublicSnapshot, getConventionWorkspace } from "../../lib/queries";
+import { SIGN_IN_POLICY } from "../../lib/sign-in";
 
 function conventionValues(formData: FormData) {
   return conventionInputSchema.safeParse({
@@ -43,31 +47,6 @@ function eventValues(formData: FormData) {
     endsAt: formString(formData, "endsAt"),
     status: formString(formData, "status") || "scheduled",
   });
-}
-
-function auditStatement(
-  database: D1Database,
-  input: {
-    actor: string;
-    action: string;
-    resourceType: string;
-    resourceId: string;
-    summary: string;
-  },
-) {
-  return database
-    .prepare(
-      `INSERT INTO audit_log (id, actor_email, action, resource_type, resource_id, summary)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-    )
-    .bind(
-      crypto.randomUUID(),
-      input.actor,
-      input.action,
-      input.resourceType,
-      input.resourceId,
-      input.summary,
-    );
 }
 
 function nextTimestamp(expected: number) {
@@ -814,41 +793,156 @@ export async function restoreRevision(formData: FormData) {
   redirect(`/conventions/${id}?restored=${nextRevision}`);
 }
 
-export async function grantAdminRole(formData: FormData) {
-  const actor = await requireAdmin("owner");
+/** Emails an invite. Returns whether Email Service accepted it. */
+async function sendInvite(input: {
+  email: string;
+  role: "owner" | "editor";
+  invitedBy: string;
+  expiresAt: number;
+}) {
+  const env = await getAdminBindings();
+  const base = await adminPublicUrl();
+  return sendAdminEmail(
+    env,
+    inviteEmail({
+      to: input.email,
+      role: input.role,
+      invitedBy: input.invitedBy,
+      expiresAt: input.expiresAt,
+      signInUrl: base
+        ? `${base}/sign-in?email=${encodeURIComponent(input.email)}`
+        : null,
+    }),
+  );
+}
+
+/**
+ * Invites someone by email. They become a member the first time they sign in
+ * with a code, with the role chosen here. Inviting an address again renews
+ * the invite and updates its role. Members are managed in the list instead,
+ * so an invite can never re-enable a disabled account.
+ */
+export async function inviteAdmin(formData: FormData) {
+  const actor = await requireAdmin("owner", { confirmAt: "/team" });
   const parsed = memberInputSchema.safeParse({
     email: formString(formData, "email"),
     role: formString(formData, "role"),
   });
   if (!parsed.success) redirect("/team?error=invalid");
-  if (parsed.data.email === actor.email && parsed.data.role !== "owner") {
-    redirect("/team?error=self");
-  }
+  const { email, role } = parsed.data;
+
+  const database = await getCatalogDatabase();
+  const now = Date.now();
+  const expiresAt = now + SIGN_IN_POLICY.inviteLifetimeMs;
+  const [saved] = await database.batch([
+    database
+      .prepare(
+        `INSERT INTO admin_invites (email, role, invited_by, created_at, expires_at)
+         SELECT ?1, ?2, ?3, ?4, ?5
+         WHERE NOT EXISTS (SELECT 1 FROM admin_members WHERE email = ?1)
+         ON CONFLICT(email) DO UPDATE SET
+           role = excluded.role,
+           invited_by = excluded.invited_by,
+           created_at = excluded.created_at,
+           expires_at = excluded.expires_at`,
+      )
+      .bind(email, role, actor.email, now, expiresAt),
+    database
+      .prepare(
+        `INSERT INTO audit_log (id, actor_email, action, resource_type, resource_id, summary)
+         SELECT ?1, ?2, 'admin.invited', 'admin_invite', ?3, ?4 WHERE changes() = 1`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        actor.email,
+        email,
+        `Invited ${email} as ${role}`,
+      ),
+  ]);
+  if (saved?.meta.changes !== 1) redirect("/team?error=member");
+
+  const sent = await sendInvite({
+    email,
+    role,
+    invitedBy: actor.email,
+    expiresAt,
+  });
+  revalidatePath("/team");
+  redirect(sent ? "/team?saved=invite" : "/team?saved=invite-unsent");
+}
+
+/** Renews an invite for another seven days and emails it again. */
+export async function resendAdminInvite(formData: FormData) {
+  const actor = await requireAdmin("owner", { confirmAt: "/team" });
+  const email = formString(formData, "email").toLowerCase();
+  if (!email) redirect("/team?error=invalid");
+
+  const database = await getCatalogDatabase();
+  const now = Date.now();
+  const expiresAt = now + SIGN_IN_POLICY.inviteLifetimeMs;
+  const invite = await database
+    .prepare(
+      `UPDATE admin_invites
+       SET invited_by = ?2, created_at = ?3, expires_at = ?4
+       WHERE email = ?1
+       RETURNING role`,
+    )
+    .bind(email, actor.email, now, expiresAt)
+    .first<{ role: "owner" | "editor" }>();
+  if (!invite) redirect("/team?error=invite-missing");
+  await auditStatement(database, {
+    actor: actor.email,
+    action: "admin.invite-resent",
+    resourceType: "admin_invite",
+    resourceId: email,
+    summary: `Sent ${email} a new invite`,
+  }).run();
+
+  const sent = await sendInvite({
+    email,
+    role: invite.role,
+    invitedBy: actor.email,
+    expiresAt,
+  });
+  revalidatePath("/team");
+  redirect(sent ? "/team?saved=invite" : "/team?saved=invite-unsent");
+}
+
+/** Withdraws an invite. Any code already sent for it stops working too. */
+export async function revokeAdminInvite(formData: FormData) {
+  const actor = await requireAdmin("owner", { confirmAt: "/team" });
+  const email = formString(formData, "email").toLowerCase();
+  if (!email) redirect("/team?error=invalid");
 
   const database = await getCatalogDatabase();
   const now = Date.now();
   await database.batch([
+    database.prepare("DELETE FROM admin_invites WHERE email = ?1").bind(email),
     database
       .prepare(
-        `INSERT INTO admin_members (email, role, status, created_at, created_by)
-         VALUES (?, ?, 'active', ?, ?)
-         ON CONFLICT(email) DO UPDATE SET role = excluded.role, status = 'active'`,
+        `INSERT INTO audit_log (id, actor_email, action, resource_type, resource_id, summary)
+         SELECT ?1, ?2, 'admin.invite-revoked', 'admin_invite', ?3, ?4 WHERE changes() = 1`,
       )
-      .bind(parsed.data.email, parsed.data.role, now, actor.email),
-    auditStatement(database, {
-      actor: actor.email,
-      action: "admin.role-granted",
-      resourceType: "admin_member",
-      resourceId: parsed.data.email,
-      summary: `Granted ${parsed.data.role} role to ${parsed.data.email}`,
-    }),
+      .bind(
+        crypto.randomUUID(),
+        actor.email,
+        email,
+        `Withdrew the invite for ${email}`,
+      ),
+    database
+      .prepare(
+        `UPDATE admin_sign_in_codes SET consumed_at = ?1
+         WHERE email = ?2 AND consumed_at IS NULL
+           AND NOT EXISTS (SELECT 1 FROM admin_members WHERE email = ?2)`,
+      )
+      .bind(now, email),
   ]);
   revalidatePath("/team");
-  redirect("/team?saved=member");
+  redirect("/team?saved=revoked");
 }
 
 export async function updateAdminRole(formData: FormData) {
-  const actor = await requireAdmin("owner");
+  const actor = await requireAdmin("owner", { confirmAt: "/team" });
   const email = formString(formData, "email").toLowerCase();
   const role = formString(formData, "role");
   const status = formString(formData, "status");
@@ -889,6 +983,15 @@ export async function updateAdminRole(formData: FormData) {
         email,
         `Set ${email} to ${status} ${role}`,
       ),
+    // Turning someone off signs them out everywhere at once, rather than
+    // leaving a session that is refused on each request.
+    database
+      .prepare(
+        `DELETE FROM admin_sessions
+         WHERE email = ?1
+           AND EXISTS (SELECT 1 FROM admin_members WHERE email = ?1 AND status = 'disabled')`,
+      )
+      .bind(email),
   ]);
   if (result[0]?.meta.changes !== 1) redirect("/team?error=last-owner");
   revalidatePath("/team");

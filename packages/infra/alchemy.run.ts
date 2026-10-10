@@ -1,14 +1,14 @@
 import { readDeployEnv } from "@conpaws/env/deploy";
 import alchemy from "alchemy";
 import {
-  AccessApplication,
-  AccessPolicy,
-  createCloudflareApi,
   D1Database,
+  EmailSender,
   Nextjs,
   R2Bucket,
+  RateLimit,
   Worker,
 } from "alchemy/cloudflare";
+import { RandomString } from "alchemy/random";
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
 
@@ -355,138 +355,65 @@ export const reconciler = await Worker("reconciler", {
 /**
  * The admin console at admin.conpaws.com.
  *
- * Nothing to configure. It deploys as soon as the account can protect it:
- * Cloudflare Zero Trust enabled (free; it creates the team domain the login
- * page lives on) and a deploy token with Access: Apps and Policies Edit,
- * Access: Organizations, Identity Providers, and Groups Read, and Account
- * Settings Read. Until then this section is skipped and everything else still
- * deploys.
+ * Nothing to configure, and no Cloudflare Access in front of it: staff sign
+ * in with a one-time code emailed to them. Only people already on the team,
+ * or holding an unexpired invite, are ever sent a code. Nobody can claim an
+ * empty console by visiting it first; the first owner is invited from a
+ * laptop with `bun run admin:invite -- you@example.com`, which writes the
+ * invite with the operator's own Cloudflare credentials. After that, owners
+ * invite people from the Team screen. See apps/admin/README.md.
  *
- * Who gets in: the members of this Cloudflare account. Their emails become
- * the Access allow policy, so Access admits nobody else, and they are the
- * only people the app lets claim an ownerless catalog: the first of them to
- * sign in becomes the owner, once. The owner then gives other account members
- * roles on the Team screen. The policy is rebuilt from the member list on
- * every deploy, so manage Cloudflare account membership, not the policy.
+ * The key that protects stored sign-in codes is generated here on the first
+ * deploy and kept in Alchemy state, encrypted with ALCHEMY_PASSWORD, so there
+ * is no secret to copy anywhere. Session cookies do not depend on it.
  *
- * The Access application exists before the Worker attaches the domain, so
- * admin.conpaws.com never serves unprotected, and the app still verifies the
- * Access JWT itself and fails closed without one. This section runs last on
- * purpose: if it fails, everything public has already deployed.
+ * Mail goes out through Cloudflare Email Service, which needs conpaws.com
+ * onboarded for sending once in the dashboard (Compute, Email Service, Email
+ * Sending, Onboard Domain). Until then the console deploys and loads, but
+ * codes do not arrive and the Worker logs a sender error such as
+ * E_SENDER_DOMAIN_NOT_AVAILABLE.
+ *
+ * This section runs last on purpose: if it fails, everything public has
+ * already deployed.
  */
-type AdminAccess =
-  | { status: "ready"; teamDomain: string; memberEmails: string[] }
-  | { status: "skipped"; reason: string };
+const ADMIN_ORIGIN = "https://admin.conpaws.com";
+const ADMIN_EMAIL_FROM = "admin@conpaws.com";
+const adminAuthSecret = await RandomString("admin-auth-secret", {
+  length: 32,
+});
 
-async function readAdminAccess(): Promise<AdminAccess> {
-  const cloudflare = await createCloudflareApi();
-  const account = `/accounts/${cloudflare.accountId}`;
-
-  const organization = await cloudflare.get(`${account}/access/organizations`);
-  if (organization.status === 401 || organization.status === 403) {
-    return {
-      status: "skipped",
-      reason: "the deploy token has no Cloudflare Access permissions yet",
-    };
-  }
-  const organizationBody = (await organization.json().catch(() => null)) as {
-    result?: { auth_domain?: string } | null;
-  } | null;
-  const teamDomain = organizationBody?.result?.auth_domain?.trim();
-  if (organization.status === 404 || (organization.ok && !teamDomain)) {
-    return {
-      status: "skipped",
-      reason: "Cloudflare Zero Trust is not enabled on this account",
-    };
-  }
-  if (!organization.ok || !teamDomain) {
-    throw new Error(
-      `Could not read the Zero Trust organization (HTTP ${organization.status}). ` +
-        "The admin console was not changed; deploy again.",
-    );
-  }
-
-  const memberEmails = new Set<string>();
-  const perPage = 50;
-  for (let page = 1; page <= 20; page += 1) {
-    const response = await cloudflare.get(
-      `${account}/members?per_page=${perPage}&page=${page}`,
-    );
-    if (!response.ok) {
-      throw new Error(
-        `Could not list the Cloudflare account's members (HTTP ${response.status}). ` +
-          "Give the deploy token Account Settings Read. The admin console was not changed.",
-      );
-    }
-    const body = (await response.json()) as {
-      result?: Array<{ status?: string; user?: { email?: string } }>;
-    };
-    const members = body.result ?? [];
-    for (const member of members) {
-      const email = member.user?.email?.trim().toLowerCase();
-      if (member.status === "accepted" && email) memberEmails.add(email);
-    }
-    if (members.length < perPage) break;
-  }
-  if (memberEmails.size === 0) {
-    throw new Error(
-      "The Cloudflare account lists no accepted members to let into the admin " +
-        "console. The admin console was not changed.",
-    );
-  }
-  return {
-    status: "ready",
-    teamDomain,
-    memberEmails: [...memberEmails].sort(),
-  };
-}
-
-async function deployAdmin(teamDomain: string, memberEmails: string[]) {
-  const accountMembers = await AccessPolicy("admin-account-members", {
-    name: "ConPaws admin: Cloudflare account members",
-    decision: "allow",
-    include: memberEmails.map((email) => ({ email: { email } })),
-    adopt: true,
-  });
-  const access = await AccessApplication("admin-access", {
-    type: "self_hosted",
-    name: "ConPaws admin",
-    domain: "admin.conpaws.com",
-    policies: [accountMembers],
-    sessionDuration: "24h",
-    appLauncherVisible: false,
-    adopt: true,
-  });
-  return Nextjs("admin", {
-    name: "conpaws-admin",
-    adopt: true,
-    cwd: "../../apps/admin",
-    build: "bun run build:cloudflare",
-    compatibilityDate: COMPATIBILITY_DATE,
-    observability: OBSERVABILITY,
-    limits: ADMIN_LIMITS,
-    domains: ["admin.conpaws.com"],
-    url: false,
-    previewSubdomains: false,
-    bindings: {
-      CATALOG_DB: catalog,
-      ADMIN_RUNTIME_ENV: "production",
-      // Who may claim an ownerless catalog: the same people Access admits.
-      ADMIN_BOOTSTRAP_EMAILS: memberEmails.join(","),
-      CF_ACCESS_TEAM_DOMAIN: teamDomain,
-      CF_ACCESS_AUD: access.aud,
-    },
-    dev: {
-      env: { PORT: "3003" },
-    },
-  });
-}
-
-const adminAccess = await readAdminAccess();
-export const admin =
-  adminAccess.status === "ready"
-    ? await deployAdmin(adminAccess.teamDomain, adminAccess.memberEmails)
-    : undefined;
+export const admin = await Nextjs("admin", {
+  name: "conpaws-admin",
+  adopt: true,
+  cwd: "../../apps/admin",
+  build: "bun run build:cloudflare",
+  compatibilityDate: COMPATIBILITY_DATE,
+  observability: OBSERVABILITY,
+  limits: ADMIN_LIMITS,
+  domains: ["admin.conpaws.com"],
+  url: false,
+  previewSubdomains: false,
+  bindings: {
+    CATALOG_DB: catalog,
+    // Never `local`: that value turns on development shortcuts.
+    ADMIN_RUNTIME_ENV: "production",
+    ADMIN_PUBLIC_URL: ADMIN_ORIGIN,
+    ADMIN_EMAIL_FROM,
+    ADMIN_AUTH_SECRET: adminAuthSecret.value,
+    // Sends only from the one address the console uses.
+    ADMIN_EMAIL: EmailSender({ allowedSenderAddresses: [ADMIN_EMAIL_FROM] }),
+    // A coarse per-network brake on code requests and code checks. The real
+    // limits are per address, in the database: a minute between codes, five
+    // an hour, ten a day, and five tries per code.
+    ADMIN_SIGN_IN_LIMITER: RateLimit({
+      namespace_id: 2610,
+      simple: { limit: 10, period: 60 },
+    }),
+  },
+  dev: {
+    env: { PORT: "3003" },
+  },
+});
 
 /**
  * Binding types, consumed by apps/web/cloudflare-env.d.ts and
@@ -496,24 +423,13 @@ export const admin =
 export type WebEnv = typeof web.Env;
 export type ReconcilerEnv = typeof reconciler.Env;
 export type ApiEnv = typeof api.Env;
+export type AdminEnv = typeof admin.Env;
 
 console.log(`Web         -> ${web.url}`);
 console.log(`API         -> ${api.name} (api.conpaws.com)`);
 console.log(`CDN bucket  -> ${cdn.name} (cdn.conpaws.com)`);
 console.log(`Catalog D1  -> ${catalog.name}`);
 console.log(`Reconciler  -> ${reconciler.name}`);
-if (adminAccess.status === "ready" && admin) {
-  console.log(
-    `Admin       -> ${admin.name} (admin.conpaws.com, ${adminAccess.memberEmails.length} account member(s) allowed)`,
-  );
-} else if (adminAccess.status === "skipped") {
-  // Never print member emails: deploy logs on this public repository are public.
-  const message = `Admin console not deployed: ${adminAccess.reason}. See apps/admin/README.md.`;
-  console.log(
-    process.env.GITHUB_ACTIONS
-      ? `::notice title=Admin console skipped::${message}`
-      : `Admin       -> ${message}`,
-  );
-}
+console.log(`Admin       -> ${admin.name} (admin.conpaws.com)`);
 
 await app.finalize();

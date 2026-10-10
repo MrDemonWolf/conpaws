@@ -2,9 +2,11 @@
 
 interface CloudflareEnv {
   CATALOG_DB?: D1Database;
-  ADMIN_BOOTSTRAP_EMAILS?: string;
-  ADMIN_DEV_EMAIL?: string;
   ADMIN_RUNTIME_ENV?: "local" | "production";
-  CF_ACCESS_TEAM_DOMAIN?: string;
-  CF_ACCESS_AUD?: string;
+  ADMIN_DEV_EMAIL?: string;
+  ADMIN_AUTH_SECRET?: string;
+  ADMIN_PUBLIC_URL?: string;
+  ADMIN_EMAIL_FROM?: string;
+  ADMIN_EMAIL?: SendEmail;
+  ADMIN_SIGN_IN_LIMITER?: RateLimit;
 }

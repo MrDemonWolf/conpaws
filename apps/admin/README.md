@@ -4,12 +4,14 @@ This private catalog editor lives at `admin.conpaws.com`. It is a separate Next.
 
 ## Run it locally
 
-1. Copy `.dev.vars.example` to `.dev.vars`; keep the local test email there.
+1. Copy `.dev.vars.example` to `.dev.vars`.
 2. Apply the schema: `bun run --filter @conpaws/admin db:migrate:local`.
 3. Load the preview fixture: `bun run --filter @conpaws/admin db:seed:local`.
 4. Start the app with `bun run dev:admin`, or run the built Worker with `bun run --filter @conpaws/admin preview`.
 
-The local identity bypass works only when the ignored `.dev.vars` file sets `ADMIN_RUNTIME_ENV=local`. The production Alchemy stack always sets `ADMIN_RUNTIME_ENV=production` and never binds `ADMIN_DEV_EMAIL`.
+With `ADMIN_DEV_EMAIL` set, you skip sign-in and act as that address; on a local catalog with no owner yet, it becomes the owner. Remove it to try the real sign-in: invite yourself with `bun run admin:invite -- you@example.com --local`, open `/sign-in`, and read the code from the dev server log. Local email is never delivered.
+
+Both shortcuts need `ADMIN_RUNTIME_ENV=local`, which only the ignored `.dev.vars` file sets. The production deploy always binds `ADMIN_RUNTIME_ENV=production` and never binds `ADMIN_DEV_EMAIL`.
 
 ## Preview data
 
@@ -19,13 +21,31 @@ The preview begins as an unpublished draft. Registration is unconfirmed, and no 
 
 Production migrations leave the catalog empty. Add real editions only after checking their dates, location, and schedule against an organizer source.
 
-## Access and owner setup
+## Signing in and the team
 
-Nothing to configure. The deploy lets in exactly the members of the Cloudflare account: their emails become the Cloudflare Access allow policy for all of `admin.conpaws.com`, and the app verifies the `Cf-Access-Jwt-Assertion` signature, issuer, audience, and expiry before checking each email against `admin_members`. Both checks are required.
+There is no password and no Cloudflare Access in front of the console. Staff sign in with an 8-digit code sent to their email:
 
-**The first account member to sign in becomes the owner.** That happens once, while the catalog has no owner; nobody can claim it again later, even if the owner is disabled or removed. Someone outside the account never gets past Access, and even if they did, the app would not let them claim ownership. The owner then gives other account members owner or editor roles on the Team screen.
+1. Enter an email address on `/sign-in`.
+2. If that address is on the team, or has an unexpired invite, ConPaws emails a code. The page looks the same for every address, so it cannot be used to find out who is on the team.
+3. Enter the code in the same browser. It expires after 10 minutes and allows 5 tries.
 
-To add staff, add them to the Cloudflare account; the next deploy lets them through Access. Editing the Access policy in the dashboard does not stick, because every deploy rebuilds it from the member list. Admin pages send `noindex`, and `robots.txt` blocks crawlers.
+A session lasts 7 days. The account menu has **Sign out** and **Sign out on all devices**.
+
+**Owners invite people on the Team screen.** An invite emails a sign-in link and lasts 7 days. The person becomes a member, with the role chosen in the invite, the first time they enter a code. The link only fills in their address, so it is safe to copy into a chat. Pending invites can be resent or withdrawn.
+
+Inviting, changing roles and turning access off need a code entered in the last two hours. If yours is older, the Team screen asks you to confirm with a fresh code first. Turning someone's access off signs them out everywhere at once. An invite never re-enables an account that was turned off.
+
+**The first owner is invited from your own machine**, because nobody can claim an empty console by visiting it first:
+
+```bash
+bun run admin:invite -- you@example.com
+```
+
+The command writes the invite to the production catalog with your Wrangler login, or with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The role defaults to owner; pass `--role editor` otherwise. It refuses to run in CI, because the repository's logs are public. Use the same command if every owner loses access.
+
+**Limits:** one code per address per minute, five an hour and ten a day. A coarse per-network limit also sits in front of both forms. Codes are stored only as an HMAC bound to the browser that asked for them, and sessions only as a SHA-256 of the cookie token. Sign-ins, invites and role changes appear on the Activity screen. Admin pages send `noindex`, and `robots.txt` blocks crawlers.
+
+Passkeys are the planned next step, before any outside host is invited.
 
 ## Publishing and attendee API
 
@@ -75,11 +95,9 @@ The admin console deploys with the rest of the stack: `bun run deploy` locally, 
 
 The catalog database is created by the same deploy, empty, with these migrations applied, and bound to both this console and the public API at api.conpaws.com. Nothing needs its ID. Until staff publish an edition, the API answers an empty list.
 
-The console turns on by itself once the account can protect it. Two one-time steps in Cloudflare make that happen:
+The deploy also generates the key that protects stored sign-in codes and keeps it in Alchemy state, so there is no secret to set. Two one-time steps finish the setup:
 
-1. Enable Zero Trust on the account. It is free and creates the team domain the login page lives on.
-2. Give the deploy API token **Access: Apps and Policies Edit**, **Access: Organizations, Identity Providers, and Groups Read**, and **Account Settings Read**.
-
-On the next deploy Alchemy reads the team domain and the account's members, creates the members-only Access policy and a self-hosted Access application for all of `admin.conpaws.com`, then deploys the `conpaws-admin` Worker with that application's audience tag and attaches the domain. Until both steps are done the deploy skips the console with a notice and everything else still ships. Deploy logs never print member emails, because this repository is public.
+1. **Turn on email sending for conpaws.com.** In the Cloudflare dashboard, go to Compute, then Email Service, then Email Sending, and choose Onboard Domain for `conpaws.com`. Cloudflare adds the SPF, DKIM, DMARC and bounce records itself. Codes come from `admin@conpaws.com`. Until this is done the console loads, but codes do not arrive and the Worker logs a sender error such as `E_SENDER_DOMAIN_NOT_AVAILABLE` or `E_SENDER_NOT_VERIFIED`.
+2. **Invite the first owner** with `bun run admin:invite -- you@example.com`, then sign in at https://admin.conpaws.com/sign-in.
 
 Do not invite outside hosts until organization isolation exists; today every role sees the whole catalog.

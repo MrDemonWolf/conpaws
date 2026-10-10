@@ -12,12 +12,12 @@
     "preview": "bun run build:cloudflare && opennextjs-cloudflare preview --ip 127.0.0.1 --port 8788 --persist-to .wrangler/state",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply CATALOG_DB --local --persist-to .wrangler/state",
-    "db:seed:local": "bun scripts/seed-local.mjs"
+    "db:seed:local": "bun scripts/seed-local.mjs",
+    "invite": "bun scripts/invite.mjs"
   },
   "dependencies": {
     "@conpaws/ui": "workspace:*",
     "drizzle-orm": "^0.45.4",
-    "jose": "^6.2.12",
     "next": "16.2.12",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
