@@ -68,6 +68,23 @@ async function getIdentityEmail(
   }
 }
 
+/**
+ * Who may claim an ownerless catalog. In production that is a member of the
+ * Cloudflare account: the deploy binds their emails here and makes them the
+ * only people Cloudflare Access lets through, so a stranger who finds
+ * admin.conpaws.com first cannot take it over. Locally it is the dev identity.
+ */
+function canClaimOwnership(env: AdminBindings, email: string) {
+  if (env.ADMIN_RUNTIME_ENV === "local") {
+    return env.ADMIN_DEV_EMAIL?.trim().toLowerCase() === email;
+  }
+  return (env.ADMIN_BOOTSTRAP_EMAILS ?? "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(email);
+}
+
 export async function getAdminGate(): Promise<AdminGate> {
   let env: AdminBindings;
   try {
@@ -81,12 +98,13 @@ export async function getAdminGate(): Promise<AdminGate> {
   const email = await getIdentityEmail(requestHeaders);
   if (!email) return { status: "identity-required" };
 
-  const ownerEmail = env.ADMIN_OWNER_EMAIL?.trim().toLowerCase();
   const database = await getCatalogDatabase();
 
-  // The first authenticated owner email is created exactly once. Later
-  // logins cannot reclaim ownership if a member is disabled or removed.
-  if (ownerEmail && email === ownerEmail) {
+  // First login wins: while the catalog has no owner, the first person to
+  // sign in who may claim it becomes the owner, exactly once. Once an owner
+  // exists nobody can claim it again, even if that owner is later disabled
+  // or removed.
+  if (canClaimOwnership(env, email)) {
     await database
       .prepare(
         `INSERT OR IGNORE INTO admin_members (email, role, status, created_at)

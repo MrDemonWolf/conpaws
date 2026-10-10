@@ -4,7 +4,8 @@ import { catalogSchema } from "../db/schema";
 
 export interface AdminBindings {
   CATALOG_DB?: D1Database;
-  ADMIN_OWNER_EMAIL?: string;
+  /** Comma-separated emails allowed to claim an ownerless catalog. */
+  ADMIN_BOOTSTRAP_EMAILS?: string;
   ADMIN_DEV_EMAIL?: string;
   ADMIN_RUNTIME_ENV?: "local" | "production";
   CF_ACCESS_TEAM_DOMAIN?: string;

@@ -55,7 +55,7 @@ Use the pinned Node and Bun versions for parity with CI.
 
 `bun run deploy` manages everything: the website, the API Worker, the catalog
 and waitlist databases, the CDN bucket, the waitlist reconciler and, once
-`ADMIN_OWNER_EMAIL` is set, the Access-protected admin console. Wrangler
+Zero Trust is enabled, the Access-protected admin console. Wrangler
 configurations contain local placeholder database IDs; production resources
 are owned by Alchemy.
 

@@ -1,6 +1,6 @@
 # ConPaws Admin
 
-This private catalog editor will live at `admin.conpaws.com`. It is a separate Next.js app with its own D1 database and Alchemy deploy command. It shares the repository’s Tailwind styles, UI components, fonts, and workspace tooling.
+This private catalog editor lives at `admin.conpaws.com`. It is a separate Next.js app and Worker that deploys with the rest of the stack and shares the catalog database with the public API. It shares the repository’s Tailwind styles, UI components, fonts, and workspace tooling.
 
 ## Run it locally
 
@@ -21,11 +21,11 @@ Production migrations leave the catalog empty. Add real editions only after chec
 
 ## Access and owner setup
 
-Cloudflare Access must protect all of `admin.conpaws.com` and allow only the owner and approved staff. The app also verifies the `Cf-Access-Jwt-Assertion` signature, issuer, audience, and expiry, then checks each email against `admin_members`. Both checks are required.
+Nothing to configure. The deploy lets in exactly the members of the Cloudflare account: their emails become the Cloudflare Access allow policy for all of `admin.conpaws.com`, and the app verifies the `Cf-Access-Jwt-Assertion` signature, issuer, audience, and expiry before checking each email against `admin_members`. Both checks are required.
 
-Set `ADMIN_OWNER_EMAIL`, `CF_ACCESS_TEAM_DOMAIN`, and `CF_ACCESS_AUD` in the protected deployment environment. On first login, the configured owner email is added only if the database has no owner yet. Owners can then add other owners or editors. Before assigning an app role, add that person to the Cloudflare Access allow policy. The Team screen manages app roles; it does not send invitations or change Access policy.
+**The first account member to sign in becomes the owner.** That happens once, while the catalog has no owner; nobody can claim it again later, even if the owner is disabled or removed. Someone outside the account never gets past Access, and even if they did, the app would not let them claim ownership. The owner then gives other account members owner or editor roles on the Team screen.
 
-Keep `ADMIN_ROUTES_ENABLED` off until the Access application and allow policy are ready. The production domain route is disabled by default. Admin pages send `noindex`, and `robots.txt` blocks crawlers.
+To add staff, add them to the Cloudflare account; the next deploy lets them through Access. Editing the Access policy in the dashboard does not stick, because every deploy rebuilds it from the member list. Admin pages send `noindex`, and `robots.txt` blocks crawlers.
 
 ## Publishing and attendee API
 
@@ -71,16 +71,15 @@ Policy and implementation references, checked October 4, 2026:
 
 ## Production release
 
-The admin console deploys with the rest of the stack: `bun run deploy` locally, or the `Deploy web` workflow after CI passes on `main`. There is no separate admin program or workflow.
+The admin console deploys with the rest of the stack: `bun run deploy` locally, or the `Deploy web` workflow after CI passes on `main`. There is no separate admin program, workflow, or setting.
 
 The catalog database is created by the same deploy, empty, with these migrations applied, and bound to both this console and the public API at api.conpaws.com. Nothing needs its ID. Until staff publish an edition, the API answers an empty list.
 
-The console itself turns on when the `ADMIN_OWNER_EMAIL` secret is set. On that deploy Alchemy:
+The console turns on by itself once the account can protect it. Two one-time steps in Cloudflare make that happen:
 
-1. reads the account's Cloudflare Zero Trust team domain,
-2. creates an owner-only Access allow policy and a self-hosted Access application for all of `admin.conpaws.com`,
-3. deploys the `conpaws-admin` Worker with that application's audience tag and attaches `admin.conpaws.com`.
+1. Enable Zero Trust on the account. It is free and creates the team domain the login page lives on.
+2. Give the deploy API token **Access: Apps and Policies Edit**, **Access: Organizations, Identity Providers, and Groups Read**, and **Account Settings Read**.
 
-Access therefore protects the hostname before it serves anything, and the app still verifies the Access JWT on every request and fails closed without one. Two one-time prerequisites only an account owner can do: enable Zero Trust on the Cloudflare account (free; it creates the team domain the login page lives on), and give the deploy API token **Access: Apps and Policies Edit** and **Access: Organizations Read**. Without them the deploy stops at the admin step with an explanation; the site, API, CDN and reconciler have already deployed by then.
+On the next deploy Alchemy reads the team domain and the account's members, creates the members-only Access policy and a self-hosted Access application for all of `admin.conpaws.com`, then deploys the `conpaws-admin` Worker with that application's audience tag and attaches the domain. Until both steps are done the deploy skips the console with a notice and everything else still ships. Deploy logs never print member emails, because this repository is public.
 
-The Access policy admits only the owner email. Approve staff by adding their email to the policy and inviting them as editors in the console; do not invite outside hosts until organization isolation exists.
+Do not invite outside hosts until organization isolation exists; today every role sees the whole catalog.

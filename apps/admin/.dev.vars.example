@@ -1,4 +1,5 @@
 # Local development only. Copy this to .dev.vars (ignored by git).
-ADMIN_OWNER_EMAIL=owner@local.conpaws.test
+# The dev identity signs in automatically and, on an ownerless local catalog,
+# becomes the owner the first time it loads a page.
 ADMIN_DEV_EMAIL=owner@local.conpaws.test
 ADMIN_RUNTIME_ENV=local

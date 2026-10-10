@@ -59,19 +59,6 @@ export const deployEnvSchema = z.object({
       return hostname !== "localhost" && hostname !== "127.0.0.1";
     }, "NEXT_PUBLIC_SITE_URL must not use localhost or 127.0.0.1"),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: required("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
-  /**
-   * The admin console's owner. Setting it deploys the admin Worker at
-   * admin.conpaws.com together with the Cloudflare Access application and
-   * owner-only policy that protect it; unset, no admin Worker exists.
-   */
-  ADMIN_OWNER_EMAIL: z.preprocess(
-    (value) => (typeof value === "string" ? value.trim() || undefined : value),
-    z
-      .email("ADMIN_OWNER_EMAIL must be a valid email address")
-      .transform((value) => value.toLowerCase())
-      .optional(),
-  ),
-  /** Encrypts `alchemy.secret(...)` values at rest. Serializing fails without it. */
   ALCHEMY_PASSWORD: required("ALCHEMY_PASSWORD"),
   /** Auth for the shared account-wide `alchemy-state` store worker. */
   ALCHEMY_STATE_TOKEN: required("ALCHEMY_STATE_TOKEN"),

@@ -5,9 +5,10 @@ name: Deploy web
 # The apply step is Alchemy (packages/infra/alchemy.run.ts). It provisions the
 # waitlist and catalog D1 databases and the cdn.conpaws.com R2 bucket, binds
 # the listmonk and Turnstile secrets, applies migrations, and uploads the site,
-# API (api.conpaws.com) and reconciler Workers in one operation. Once the
-# ADMIN_OWNER_EMAIL secret is set it also creates the Cloudflare Access app and
-# deploys the admin console at admin.conpaws.com behind it.
+# API (api.conpaws.com) and reconciler Workers in one operation. Once Zero
+# Trust is enabled and the token has Access permissions it also creates the
+# Cloudflare Access app and deploys the admin console at admin.conpaws.com
+# behind it; until then that step is skipped with a notice.
 #
 # Alchemy applies the whole stack in one step; deploys have no canary or
 # automatic rollback. Roll back by dispatching this workflow with the last good
@@ -117,8 +118,6 @@ jobs:
           LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
           LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
           LISTMONK_LIST_ID: ${{ vars.LISTMONK_LIST_ID }}
-          # Optional. Set it to deploy the Access-protected admin console.
-          ADMIN_OWNER_EMAIL: ${{ secrets.ADMIN_OWNER_EMAIL }}
         # Runs the Alchemy program directly under Node via tsx, matching every
         # other MrDemonWolf Alchemy project. Not `bun`: Bun segfaults executing
         # an Alchemy program. Not the `alchemy` CLI: the program owns its own

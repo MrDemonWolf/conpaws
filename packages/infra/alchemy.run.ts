@@ -355,84 +355,138 @@ export const reconciler = await Worker("reconciler", {
 /**
  * The admin console at admin.conpaws.com.
  *
- * It deploys once ADMIN_OWNER_EMAIL is set, and never without the Cloudflare
- * Access application that guards it: the owner-only allow policy and the
- * Access application are created first, and the Worker receives that
- * application's audience tag directly, so there is no Access setup to do by
- * hand and no AUD to copy. Access sits in front of every request; the app
- * then verifies the Access JWT itself and fails closed without one, and its
- * own member table decides who is an owner or editor.
+ * Nothing to configure. It deploys as soon as the account can protect it:
+ * Cloudflare Zero Trust enabled (free; it creates the team domain the login
+ * page lives on) and a deploy token with Access: Apps and Policies Edit,
+ * Access: Organizations, Identity Providers, and Groups Read, and Account
+ * Settings Read. Until then this section is skipped and everything else still
+ * deploys.
  *
- * Requires Cloudflare Zero Trust to be enabled on the account (free; it
- * creates the team domain the login page lives on) and an API token with
- * Access: Apps and Policies Edit plus Access: Organizations Read.
+ * Who gets in: the members of this Cloudflare account. Their emails become
+ * the Access allow policy, so Access admits nobody else, and they are the
+ * only people the app lets claim an ownerless catalog: the first of them to
+ * sign in becomes the owner, once. The owner then gives other account members
+ * roles on the Team screen. The policy is rebuilt from the member list on
+ * every deploy, so manage Cloudflare account membership, not the policy.
  *
- * It sits after the site, API and reconciler on purpose: if Access cannot be
- * created, everything public has already deployed.
+ * The Access application exists before the Worker attaches the domain, so
+ * admin.conpaws.com never serves unprotected, and the app still verifies the
+ * Access JWT itself and fails closed without one. This section runs last on
+ * purpose: if it fails, everything public has already deployed.
  */
-async function readAccessTeamDomain(): Promise<string> {
+type AdminAccess =
+  | { status: "ready"; teamDomain: string; memberEmails: string[] }
+  | { status: "skipped"; reason: string };
+
+async function readAdminAccess(): Promise<AdminAccess> {
   const cloudflare = await createCloudflareApi();
-  const response = await cloudflare.get(
-    `/accounts/${cloudflare.accountId}/access/organizations`,
-  );
-  const body = (await response.json().catch(() => null)) as {
-    result?: { auth_domain?: string };
+  const account = `/accounts/${cloudflare.accountId}`;
+
+  const organization = await cloudflare.get(`${account}/access/organizations`);
+  if (organization.status === 401 || organization.status === 403) {
+    return {
+      status: "skipped",
+      reason: "the deploy token has no Cloudflare Access permissions yet",
+    };
+  }
+  const organizationBody = (await organization.json().catch(() => null)) as {
+    result?: { auth_domain?: string } | null;
   } | null;
-  const teamDomain = body?.result?.auth_domain?.trim();
-  if (!response.ok || !teamDomain) {
+  const teamDomain = organizationBody?.result?.auth_domain?.trim();
+  if (organization.status === 404 || (organization.ok && !teamDomain)) {
+    return {
+      status: "skipped",
+      reason: "Cloudflare Zero Trust is not enabled on this account",
+    };
+  }
+  if (!organization.ok || !teamDomain) {
     throw new Error(
-      "ADMIN_OWNER_EMAIL is set but the admin console cannot be protected: " +
-        "Cloudflare Zero Trust is not enabled on this account, or the API token " +
-        "lacks Access: Organizations Read. Enable Zero Trust in the dashboard " +
-        "(it creates the team domain), grant the token Access permissions, and " +
-        "deploy again. Nothing for the admin console was created.",
+      `Could not read the Zero Trust organization (HTTP ${organization.status}). ` +
+        "The admin console was not changed; deploy again.",
     );
   }
-  return teamDomain;
+
+  const memberEmails = new Set<string>();
+  const perPage = 50;
+  for (let page = 1; page <= 20; page += 1) {
+    const response = await cloudflare.get(
+      `${account}/members?per_page=${perPage}&page=${page}`,
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Could not list the Cloudflare account's members (HTTP ${response.status}). ` +
+          "Give the deploy token Account Settings Read. The admin console was not changed.",
+      );
+    }
+    const body = (await response.json()) as {
+      result?: Array<{ status?: string; user?: { email?: string } }>;
+    };
+    const members = body.result ?? [];
+    for (const member of members) {
+      const email = member.user?.email?.trim().toLowerCase();
+      if (member.status === "accepted" && email) memberEmails.add(email);
+    }
+    if (members.length < perPage) break;
+  }
+  if (memberEmails.size === 0) {
+    throw new Error(
+      "The Cloudflare account lists no accepted members to let into the admin " +
+        "console. The admin console was not changed.",
+    );
+  }
+  return {
+    status: "ready",
+    teamDomain,
+    memberEmails: [...memberEmails].sort(),
+  };
 }
 
-export const admin = env.ADMIN_OWNER_EMAIL
-  ? await (async (ownerEmail: string) => {
-      const teamDomain = await readAccessTeamDomain();
-      const ownerPolicy = await AccessPolicy("admin-owner-policy", {
-        name: "ConPaws admin owner",
-        decision: "allow",
-        include: [{ email: { email: ownerEmail } }],
-        adopt: true,
-      });
-      const access = await AccessApplication("admin-access", {
-        type: "self_hosted",
-        name: "ConPaws admin",
-        domain: "admin.conpaws.com",
-        policies: [ownerPolicy],
-        sessionDuration: "24h",
-        appLauncherVisible: false,
-        adopt: true,
-      });
-      return Nextjs("admin", {
-        name: "conpaws-admin",
-        adopt: true,
-        cwd: "../../apps/admin",
-        build: "bun run build:cloudflare",
-        compatibilityDate: COMPATIBILITY_DATE,
-        observability: OBSERVABILITY,
-        limits: ADMIN_LIMITS,
-        domains: ["admin.conpaws.com"],
-        url: false,
-        previewSubdomains: false,
-        bindings: {
-          CATALOG_DB: catalog,
-          ADMIN_RUNTIME_ENV: "production",
-          ADMIN_OWNER_EMAIL: ownerEmail,
-          CF_ACCESS_TEAM_DOMAIN: teamDomain,
-          CF_ACCESS_AUD: access.aud,
-        },
-        dev: {
-          env: { PORT: "3003" },
-        },
-      });
-    })(env.ADMIN_OWNER_EMAIL)
-  : undefined;
+async function deployAdmin(teamDomain: string, memberEmails: string[]) {
+  const accountMembers = await AccessPolicy("admin-account-members", {
+    name: "ConPaws admin: Cloudflare account members",
+    decision: "allow",
+    include: memberEmails.map((email) => ({ email: { email } })),
+    adopt: true,
+  });
+  const access = await AccessApplication("admin-access", {
+    type: "self_hosted",
+    name: "ConPaws admin",
+    domain: "admin.conpaws.com",
+    policies: [accountMembers],
+    sessionDuration: "24h",
+    appLauncherVisible: false,
+    adopt: true,
+  });
+  return Nextjs("admin", {
+    name: "conpaws-admin",
+    adopt: true,
+    cwd: "../../apps/admin",
+    build: "bun run build:cloudflare",
+    compatibilityDate: COMPATIBILITY_DATE,
+    observability: OBSERVABILITY,
+    limits: ADMIN_LIMITS,
+    domains: ["admin.conpaws.com"],
+    url: false,
+    previewSubdomains: false,
+    bindings: {
+      CATALOG_DB: catalog,
+      ADMIN_RUNTIME_ENV: "production",
+      // Who may claim an ownerless catalog: the same people Access admits.
+      ADMIN_BOOTSTRAP_EMAILS: memberEmails.join(","),
+      CF_ACCESS_TEAM_DOMAIN: teamDomain,
+      CF_ACCESS_AUD: access.aud,
+    },
+    dev: {
+      env: { PORT: "3003" },
+    },
+  });
+}
+
+const adminAccess = await readAdminAccess();
+export const admin =
+  adminAccess.status === "ready"
+    ? await deployAdmin(adminAccess.teamDomain, adminAccess.memberEmails)
+    : undefined;
 
 /**
  * Binding types, consumed by apps/web/cloudflare-env.d.ts and
@@ -448,10 +502,18 @@ console.log(`API         -> ${api.name} (api.conpaws.com)`);
 console.log(`CDN bucket  -> ${cdn.name} (cdn.conpaws.com)`);
 console.log(`Catalog D1  -> ${catalog.name}`);
 console.log(`Reconciler  -> ${reconciler.name}`);
-console.log(
-  admin
-    ? `Admin       -> ${admin.name} (admin.conpaws.com, Access protected)`
-    : "Admin       -> skipped: set ADMIN_OWNER_EMAIL to deploy it",
-);
+if (adminAccess.status === "ready" && admin) {
+  console.log(
+    `Admin       -> ${admin.name} (admin.conpaws.com, ${adminAccess.memberEmails.length} account member(s) allowed)`,
+  );
+} else if (adminAccess.status === "skipped") {
+  // Never print member emails: deploy logs on this public repository are public.
+  const message = `Admin console not deployed: ${adminAccess.reason}. See apps/admin/README.md.`;
+  console.log(
+    process.env.GITHUB_ACTIONS
+      ? `::notice title=Admin console skipped::${message}`
+      : `Admin       -> ${message}`,
+  );
+}
 
 await app.finalize();
