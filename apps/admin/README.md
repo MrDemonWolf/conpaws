@@ -71,22 +71,16 @@ Policy and implementation references, checked October 4, 2026:
 
 ## Production release
 
-Admin has a separate Alchemy program and D1 database. The `Deploy admin` GitHub Actions workflow deploys the exact commit after CI passes on `main`; the normal website deploy remains independent. It uses the GitHub Actions `admin-production` environment. Set the repository variable `ADMIN_PRODUCTION_DEPLOY_ENABLED=true` to enable deployments, and restrict the environment to `main`.
+The admin console deploys with the rest of the stack: `bun run deploy` locally, or the `Deploy web` workflow after CI passes on `main`. There is no separate admin program or workflow.
 
-Add these values to `admin-production` before enabling the workflow:
+The catalog database is created by the same deploy, empty, with these migrations applied, and bound to both this console and the public API at api.conpaws.com. Nothing needs its ID. Until staff publish an edition, the API answers an empty list.
 
-- **Secrets:** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `ALCHEMY_STATE_TOKEN`, `ALCHEMY_PASSWORD`, and `ADMIN_OWNER_EMAIL`.
-- **Variables:** `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `ADMIN_ROUTES_ENABLED`, and `ADMIN_ACCESS_READY`.
+The console itself turns on when the `ADMIN_OWNER_EMAIL` secret is set. On that deploy Alchemy:
 
-Keep `ADMIN_ROUTES_ENABLED=false` while preparing the Worker and D1 database. Before setting it to `true`, configure a Cloudflare Access application for all of `admin.conpaws.com`, allow only the owner and approved staff, and set `ADMIN_ACCESS_READY=true`. The workflow refuses to attach the production domain unless that readiness flag is set. Alchemy then attaches `admin.conpaws.com` as a Worker custom domain and Cloudflare provisions its DNS record and certificate. For a local deploy, use `packages/infra/.env` and `bun run deploy:admin` instead.
+1. reads the account's Cloudflare Zero Trust team domain,
+2. creates an owner-only Access allow policy and a self-hosted Access application for all of `admin.conpaws.com`,
+3. deploys the `conpaws-admin` Worker with that application's audience tag and attaches `admin.conpaws.com`.
 
-Deploying creates or updates Cloudflare resources. Local development and the normal website deploy do not run this command.
+Access therefore protects the hostname before it serves anything, and the app still verifies the Access JWT on every request and fails closed without one. Two one-time prerequisites only an account owner can do: enable Zero Trust on the Cloudflare account (free; it creates the team domain the login page lives on), and give the deploy API token **Access: Apps and Policies Edit** and **Access: Organizations Read**. Without them the deploy stops at the admin step with an explanation; the site, API, CDN and reconciler have already deployed by then.
 
-Deploy and migrate the admin stack before enabling the public catalog binding.
-Set the existing catalog D1 UUID as the `CATALOG_DATABASE_ID` repository variable
-(or local Alchemy environment value), then run the main stack deploy (`bun run
-deploy`, or the Deploy web workflow). The `conpaws-api` Worker in `apps/api` binds
-that database by ID as `CATALOG_DB` and does not create, migrate or delete it; the
-website has no catalog binding. Leaving the value unset makes the API's `/v1`
-catalog routes answer 503 while the website, the waitlist and the API's `/health`
-continue to work.
+The Access policy admits only the owner email. Approve staff by adding their email to the policy and inviting them as editors in the console; do not invite outside hosts until organization isolation exists.

@@ -10,7 +10,6 @@
     "check-types": "tsc --noEmit",
     "dev": "alchemy dev",
     "deploy": "tsx alchemy.run.ts",
-    "deploy:admin": "tsx alchemy.admin.run.ts",
     "destroy": "tsx alchemy.run.ts --destroy"
   },
   "dependencies": {

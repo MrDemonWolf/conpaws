@@ -53,10 +53,11 @@ Use the pinned Node and Bun versions for parity with CI.
 
 ## Deployment boundaries
 
-`bun run deploy` manages the public website, the API Worker, the CDN bucket and the waitlist reconciler.
-`bun run deploy:admin` separately provisions the private catalog Worker.
-Wrangler configurations contain local placeholder database IDs; production
-resources are owned by Alchemy. A PR does not deploy the admin application.
+`bun run deploy` manages everything: the website, the API Worker, the catalog
+and waitlist databases, the CDN bucket, the waitlist reconciler and, once
+`ADMIN_OWNER_EMAIL` is set, the Access-protected admin console. Wrangler
+configurations contain local placeholder database IDs; production resources
+are owned by Alchemy.
 
 The current admin roles grant catalog-wide access. Organization isolation,
 convention-scoped host invitations and installable PWA support are future work.

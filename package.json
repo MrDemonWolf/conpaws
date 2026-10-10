@@ -34,7 +34,6 @@
     "build-number:check": "bun run --filter @conpaws/native build-number:check",
     "type-check": "turbo -F @conpaws/native type-check",
     "deploy": "bun run --filter @conpaws/infra deploy",
-    "deploy:admin": "bun run --filter @conpaws/infra deploy:admin",
     "destroy": "bun run --filter @conpaws/infra destroy",
     "infra:dev": "bun run --filter @conpaws/infra dev",
     "db:generate": "bun run --filter @conpaws/web db:generate",

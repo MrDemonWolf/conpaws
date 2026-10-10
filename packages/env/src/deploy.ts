@@ -59,10 +59,17 @@ export const deployEnvSchema = z.object({
       return hostname !== "localhost" && hostname !== "127.0.0.1";
     }, "NEXT_PUBLIC_SITE_URL must not use localhost or 127.0.0.1"),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: required("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
-  /** Existing admin-owned D1 ID; omit until the admin stack is deployed. */
-  CATALOG_DATABASE_ID: z.preprocess(
-    (value) => (value === "" ? undefined : value),
-    z.string().uuid().optional(),
+  /**
+   * The admin console's owner. Setting it deploys the admin Worker at
+   * admin.conpaws.com together with the Cloudflare Access application and
+   * owner-only policy that protect it; unset, no admin Worker exists.
+   */
+  ADMIN_OWNER_EMAIL: z.preprocess(
+    (value) => (typeof value === "string" ? value.trim() || undefined : value),
+    z
+      .email("ADMIN_OWNER_EMAIL must be a valid email address")
+      .transform((value) => value.toLowerCase())
+      .optional(),
   ),
   /** Encrypts `alchemy.secret(...)` values at rest. Serializing fails without it. */
   ALCHEMY_PASSWORD: required("ALCHEMY_PASSWORD"),
@@ -107,10 +114,6 @@ export const deployEnvSchema = z.object({
 
   /** Whether conpaws.com and www point at this Worker. */
   ROUTES_ENABLED: flag,
-  /** Whether api.conpaws.com points at the API Worker. */
-  API_ROUTES_ENABLED: flag,
-  /** Whether cdn.conpaws.com serves the R2 bucket. */
-  CDN_ROUTES_ENABLED: flag,
   /** Whether a stable `*.workers.dev` URL is served. Off by default: it is an indexable copy of the site. */
   WORKERS_DEV_ENABLED: flag,
   /** Whether per-version preview subdomains are served. */

@@ -3,9 +3,11 @@ name: Deploy web
 # Production deploy for conpaws.com.
 #
 # The apply step is Alchemy (packages/infra/alchemy.run.ts). It provisions the
-# D1 database and the cdn.conpaws.com R2 bucket, binds the listmonk and
-# Turnstile secrets, applies migrations, and uploads the site, API and
-# reconciler Workers in one operation.
+# waitlist and catalog D1 databases and the cdn.conpaws.com R2 bucket, binds
+# the listmonk and Turnstile secrets, applies migrations, and uploads the site,
+# API (api.conpaws.com) and reconciler Workers in one operation. Once the
+# ADMIN_OWNER_EMAIL secret is set it also creates the Cloudflare Access app and
+# deploys the admin console at admin.conpaws.com behind it.
 #
 # Alchemy applies the whole stack in one step; deploys have no canary or
 # automatic rollback. Roll back by dispatching this workflow with the last good
@@ -50,11 +52,8 @@ jobs:
     env:
       RELEASE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.sha || github.event.workflow_run.head_sha }}
       ROUTES_ENABLED: ${{ vars.PRODUCTION_ROUTES_ENABLED }}
-      API_ROUTES_ENABLED: ${{ vars.API_ROUTES_ENABLED }}
-      CDN_ROUTES_ENABLED: ${{ vars.CDN_ROUTES_ENABLED }}
       WORKERS_DEV_ENABLED: ${{ vars.WORKERS_DEV_ENABLED }}
       PREVIEW_URLS_ENABLED: ${{ vars.PREVIEW_URLS_ENABLED }}
-      CATALOG_DATABASE_ID: ${{ vars.CATALOG_DATABASE_ID }}
     steps:
       - name: Check out verified commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -118,6 +117,8 @@ jobs:
           LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
           LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
           LISTMONK_LIST_ID: ${{ vars.LISTMONK_LIST_ID }}
+          # Optional. Set it to deploy the Access-protected admin console.
+          ADMIN_OWNER_EMAIL: ${{ secrets.ADMIN_OWNER_EMAIL }}
         # Runs the Alchemy program directly under Node via tsx, matching every
         # other MrDemonWolf Alchemy project. Not `bun`: Bun segfaults executing
         # an Alchemy program. Not the `alchemy` CLI: the program owns its own
@@ -182,16 +183,14 @@ jobs:
             echo "::warning title=Live release unconfirmed::$HEALTH_ORIGIN reported '${live:-no response}', expected $RELEASE_SHA. The deploy itself succeeded; check $HEALTH_ORIGIN/api/health and the footer hash."
           fi
 
-      # Same shape as the site probe above, for the API Worker: report-only,
-      # custom domain once API_ROUTES_ENABLED is on, workers.dev before that.
+      # Same shape as the site probe above, for the API Worker: report-only.
+      # A brand-new custom domain can take a minute to issue its certificate,
+      # so the very first deploy may warn here once.
       - name: Report API health
         if: steps.stale.outputs.skip != 'true'
         continue-on-error: true
         env:
-          API_ORIGIN: >-
-            ${{ vars.API_ROUTES_ENABLED == 'true'
-            && 'https://api.conpaws.com'
-            || 'https://conpaws-api.mrdemonwolf.workers.dev' }}
+          API_ORIGIN: https://api.conpaws.com
         run: |
           status=""
           for _ in {1..6}; do
@@ -202,7 +201,7 @@ jobs:
           if [[ "$status" == "ok" ]]; then
             echo "::notice title=API live::$API_ORIGIN/health answered ok"
           else
-            echo "::warning title=API unconfirmed::$API_ORIGIN/health reported '${status:-no response}'. The deploy itself succeeded; check the Worker and the API_ROUTES_ENABLED variable."
+            echo "::warning title=API unconfirmed::$API_ORIGIN/health reported '${status:-no response}'. The deploy itself succeeded; check the conpaws-api Worker and its custom domain."
           fi
 
       - name: Compare live security headers

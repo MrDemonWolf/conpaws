@@ -29,7 +29,8 @@ it with `EXPO_PUBLIC_CONPAWS_API_URL=http://127.0.0.1:8790` (iOS simulator) or
 
 ## Deployment
 
-`packages/infra/alchemy.run.ts` owns production: the `conpaws-api` Worker, its
-binding to the admin-owned catalog database, the `conpaws-cdn` R2 bucket on
-cdn.conpaws.com, and the api.conpaws.com route. `wrangler.jsonc` here is for
-local development only and must never carry a real database ID.
+`packages/infra/alchemy.run.ts` owns production: the `conpaws-api` Worker on
+api.conpaws.com, the catalog database it reads (created empty on first deploy,
+so `/v1/conventions` answers an empty list until staff publish), and the
+`conpaws-cdn` R2 bucket on cdn.conpaws.com. `wrangler.jsonc` here is for local
+development only and must never carry a real database ID.

@@ -1,6 +1,14 @@
 import { readDeployEnv } from "@conpaws/env/deploy";
 import alchemy from "alchemy";
-import { D1Database, Nextjs, R2Bucket, Worker } from "alchemy/cloudflare";
+import {
+  AccessApplication,
+  AccessPolicy,
+  createCloudflareApi,
+  D1Database,
+  Nextjs,
+  R2Bucket,
+  Worker,
+} from "alchemy/cloudflare";
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
 
@@ -97,24 +105,27 @@ const db = await D1Database("database", {
 });
 
 /**
- * The API Worker's binding to the admin-owned catalog database. D1 grants
- * write access; apps/api/src/catalog.ts enforces the read-only boundary in
- * code and a test keeps the binding out of every other module. The admin
- * stack owns creation, migrations and deletion. This stack binds the existing
- * ID only, after the admin stack has been deployed and migrated; until then
- * the catalog routes answer 503 rather than the Worker failing to deploy.
+ * The convention catalog: editions staff curate in the admin console and the
+ * API publishes read-only.
+ *
+ * Declared here, in the same program as both Workers that use it, so Alchemy
+ * creates it (empty) on the first deploy, applies the admin migrations, and
+ * wires its ID into each binding itself. There is no ID to copy by hand. The
+ * database starts with no published editions, so the API answers an empty
+ * list until staff publish the first one.
+ *
+ * D1 grants every bound Worker write access. apps/api/src/catalog.ts is the
+ * API's read-only boundary and a test keeps the binding out of every other
+ * module; the admin console is the only writer.
  */
-const catalogBinding: Record<string, D1Database> = env.CATALOG_DATABASE_ID
-  ? {
-      CATALOG_DB: {
-        type: "d1" as const,
-        name: "conpaws-admin-catalog-db",
-        id: env.CATALOG_DATABASE_ID,
-        jurisdiction: "default",
-        dev: { id: "conpaws-admin-preview-local-v2", remote: false },
-      },
-    }
-  : {};
+const catalog = await D1Database("catalog-database", {
+  name: "conpaws-admin-catalog-db",
+  adopt: true,
+  migrationsDir: "../../apps/admin/drizzle/migrations",
+  // Same bookkeeping table as the waitlist database and the admin app's
+  // local wrangler config, so a laptop and production agree on what ran.
+  migrationsTable: "drizzle_migrations",
+});
 
 /**
  * Observability is billed per event, and one event is a single log line or a
@@ -175,6 +186,9 @@ const RECONCILER_LIMITS = { cpu_ms: 5_000 } as const;
 // The API is JSON over one D1 query per request; 200ms leaves room for a cold
 // isolate and still bounds a runaway at a tiny fraction of the default.
 const API_LIMITS = { cpu_ms: 200 } as const;
+// The admin console is an OpenNext render like the site, so it gets the same
+// ceiling for the same reasons.
+const ADMIN_LIMITS = { cpu_ms: 500 } as const;
 
 /**
  * The ESP is self-hosted listmonk at lists.mrdemonwolf.com, sending via SES.
@@ -254,20 +268,20 @@ export const web = await Nextjs("web", {
 });
 
 /**
- * Public assets on cdn.conpaws.com.
+ * Public content on cdn.conpaws.com: convention artwork and other files that
+ * are not part of a site build.
  *
- * Nothing writes here yet. The bucket exists now so the API Worker has it
- * bound and the custom domain is attached under the same route switch
- * discipline as the site: deploy with CDN_ROUTES_ENABLED off first, then flip
- * the repository variable once the bucket and DNS look right. The r2.dev
- * development subdomain stays off; the only public surface is the custom
- * domain.
+ * Nothing writes here yet. The bucket is bound to the API Worker so uploads
+ * can land without an infrastructure change. The r2.dev development subdomain
+ * stays off; the only public surface is the custom domain. The website's own
+ * build output does not belong here: Workers static assets already serve it
+ * from the edge, versioned with each deploy and rolled back with it.
  */
 export const cdn = await R2Bucket("cdn", {
   name: "conpaws-cdn",
   adopt: true,
   devDomain: false,
-  domains: env.CDN_ROUTES_ENABLED ? ["cdn.conpaws.com"] : undefined,
+  domains: ["cdn.conpaws.com"],
   // Read-only from any origin: the bucket serves public images and files.
   cors: [
     {
@@ -299,18 +313,12 @@ export const api = await Worker("api", {
   // response is never stored anywhere, so the catalog's 30-second s-maxage
   // would be decoration and every client would run the D1 query itself.
   cache: true,
-  // Same two-step cutover as the site: the Worker exists before the domain
-  // points at it. Until then it is served on conpaws-api.<subdomain>.workers.dev
-  // so the deploy workflow can probe it; the moment API_ROUTES_ENABLED flips,
-  // workers.dev goes dark and only api.conpaws.com answers. This is deliberately
-  // not the site's WORKERS_DEV_ENABLED: that switch was turned off at the site's
-  // cutover to stop serving an indexable copy, and the API must not need it
-  // back on to be reachable.
-  domains: env.API_ROUTES_ENABLED ? ["api.conpaws.com"] : undefined,
-  url: !env.API_ROUTES_ENABLED,
+  domains: ["api.conpaws.com"],
+  // The custom domain is the only public surface.
+  url: false,
   previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
-    ...catalogBinding,
+    CATALOG_DB: catalog,
     CDN_BUCKET: cdn,
   },
 });
@@ -345,6 +353,88 @@ export const reconciler = await Worker("reconciler", {
 });
 
 /**
+ * The admin console at admin.conpaws.com.
+ *
+ * It deploys once ADMIN_OWNER_EMAIL is set, and never without the Cloudflare
+ * Access application that guards it: the owner-only allow policy and the
+ * Access application are created first, and the Worker receives that
+ * application's audience tag directly, so there is no Access setup to do by
+ * hand and no AUD to copy. Access sits in front of every request; the app
+ * then verifies the Access JWT itself and fails closed without one, and its
+ * own member table decides who is an owner or editor.
+ *
+ * Requires Cloudflare Zero Trust to be enabled on the account (free; it
+ * creates the team domain the login page lives on) and an API token with
+ * Access: Apps and Policies Edit plus Access: Organizations Read.
+ *
+ * It sits after the site, API and reconciler on purpose: if Access cannot be
+ * created, everything public has already deployed.
+ */
+async function readAccessTeamDomain(): Promise<string> {
+  const cloudflare = await createCloudflareApi();
+  const response = await cloudflare.get(
+    `/accounts/${cloudflare.accountId}/access/organizations`,
+  );
+  const body = (await response.json().catch(() => null)) as {
+    result?: { auth_domain?: string };
+  } | null;
+  const teamDomain = body?.result?.auth_domain?.trim();
+  if (!response.ok || !teamDomain) {
+    throw new Error(
+      "ADMIN_OWNER_EMAIL is set but the admin console cannot be protected: " +
+        "Cloudflare Zero Trust is not enabled on this account, or the API token " +
+        "lacks Access: Organizations Read. Enable Zero Trust in the dashboard " +
+        "(it creates the team domain), grant the token Access permissions, and " +
+        "deploy again. Nothing for the admin console was created.",
+    );
+  }
+  return teamDomain;
+}
+
+export const admin = env.ADMIN_OWNER_EMAIL
+  ? await (async (ownerEmail: string) => {
+      const teamDomain = await readAccessTeamDomain();
+      const ownerPolicy = await AccessPolicy("admin-owner-policy", {
+        name: "ConPaws admin owner",
+        decision: "allow",
+        include: [{ email: { email: ownerEmail } }],
+        adopt: true,
+      });
+      const access = await AccessApplication("admin-access", {
+        type: "self_hosted",
+        name: "ConPaws admin",
+        domain: "admin.conpaws.com",
+        policies: [ownerPolicy],
+        sessionDuration: "24h",
+        appLauncherVisible: false,
+        adopt: true,
+      });
+      return Nextjs("admin", {
+        name: "conpaws-admin",
+        adopt: true,
+        cwd: "../../apps/admin",
+        build: "bun run build:cloudflare",
+        compatibilityDate: COMPATIBILITY_DATE,
+        observability: OBSERVABILITY,
+        limits: ADMIN_LIMITS,
+        domains: ["admin.conpaws.com"],
+        url: false,
+        previewSubdomains: false,
+        bindings: {
+          CATALOG_DB: catalog,
+          ADMIN_RUNTIME_ENV: "production",
+          ADMIN_OWNER_EMAIL: ownerEmail,
+          CF_ACCESS_TEAM_DOMAIN: teamDomain,
+          CF_ACCESS_AUD: access.aud,
+        },
+        dev: {
+          env: { PORT: "3003" },
+        },
+      });
+    })(env.ADMIN_OWNER_EMAIL)
+  : undefined;
+
+/**
  * Binding types, consumed by apps/web/cloudflare-env.d.ts and
  * apps/web/workers/reconcile.ts. Renaming a binding above is then a type error
  * at the call site rather than a runtime `undefined` in production.
@@ -354,8 +444,14 @@ export type ReconcilerEnv = typeof reconciler.Env;
 export type ApiEnv = typeof api.Env;
 
 console.log(`Web         -> ${web.url}`);
-console.log(`API         -> ${api.url ?? api.name}`);
-console.log(`CDN bucket  -> ${cdn.name}`);
+console.log(`API         -> ${api.name} (api.conpaws.com)`);
+console.log(`CDN bucket  -> ${cdn.name} (cdn.conpaws.com)`);
+console.log(`Catalog D1  -> ${catalog.name}`);
 console.log(`Reconciler  -> ${reconciler.name}`);
+console.log(
+  admin
+    ? `Admin       -> ${admin.name} (admin.conpaws.com, Access protected)`
+    : "Admin       -> skipped: set ADMIN_OWNER_EMAIL to deploy it",
+);
 
 await app.finalize();
