@@ -28,6 +28,7 @@ vi.mock("@opennextjs/cloudflare", () => ({
 }));
 
 import { getAdminGate } from "../../lib/auth";
+import { startSession } from "../../lib/sign-in";
 import {
   requestSignInCode,
   signOut,
@@ -132,6 +133,43 @@ describe("asking for a code", () => {
     expect(catalog.rows("SELECT * FROM admin_sign_in_codes")).toEqual([]);
   });
 
+  it("keeps the way back to the Team page when confirming fails", async () => {
+    addMember(catalog, "owner@example.com", "owner");
+    limit.mockResolvedValue({ success: false });
+    await expect(
+      askForCode("owner@example.com", { next: "/team" }),
+    ).resolves.toBe("/sign-in?error=rate&next=%2Fteam");
+    await expect(
+      askForCode("owner@example.com", { next: "/team", resend: "1" }),
+    ).resolves.toBe("/sign-in/code?error=rate");
+  });
+
+  it("still sends an owner's confirm code when strangers used up the address", async () => {
+    addMember(catalog, "owner@example.com", "owner");
+    const token = await startSession({
+      database: catalog.database,
+      email: "owner@example.com",
+      now: Date.now() - 3 * 60 * 60 * 1000,
+    });
+    // Fifty requests from fifty other networks use up the address for today.
+    for (let index = 0; index < 50; index += 1) {
+      state.jar.clear();
+      state.headers.set("cf-connecting-ip", `198.51.100.${index}`);
+      await askForCode("owner@example.com");
+    }
+    const sentToStrangers = send.mock.calls.length;
+    state.jar.clear();
+    state.headers.set("cf-connecting-ip", "203.0.113.7");
+    await askForCode("owner@example.com");
+    expect(send.mock.calls.length).toBe(sentToStrangers);
+
+    // Signed in as the owner, the confirm request goes through.
+    state.jar.clear();
+    state.jar.set(SESSION, token ?? "");
+    await askForCode("owner@example.com", { next: "/team" });
+    expect(send.mock.calls.length).toBe(sentToStrangers + 1);
+  });
+
   it("fails closed in production without the code key", async () => {
     setup({ ADMIN_AUTH_SECRET: undefined });
     await expect(askForCode("member@example.com")).resolves.toBe(
@@ -191,7 +229,15 @@ describe("entering the code", () => {
       redirectOf(() => verifySignInCode(form({ code: lastCode() }))),
     ).resolves.toBe("/conventions?status=draft");
 
-    for (const next of ["//evil.example", "https://evil.example", "/\\evil"]) {
+    for (const next of [
+      "//evil.example",
+      "https://evil.example",
+      "/\\evil",
+      "/.//evil.example",
+      "/..//evil.example",
+      "/a/..//evil.example",
+      "/%2e//evil.example",
+    ]) {
       setup();
       addMember(catalog, "member@example.com");
       await askForCode("member@example.com", { next });
@@ -217,6 +263,25 @@ describe("entering the code", () => {
     });
   });
 
+  it("answers a stranger's attempt exactly like a member's wrong code", async () => {
+    addMember(catalog, "member@example.com");
+    const outcomes = [];
+    for (const email of ["member@example.com", "nobody@example.com"]) {
+      state.jar.clear();
+      await askForCode(email);
+      const tries = [];
+      for (let index = 0; index < 6; index += 1) {
+        tries.push(
+          await redirectOf(() => verifySignInCode(form({ code: "0000-0000" }))),
+        );
+      }
+      outcomes.push(tries);
+    }
+    // Wrong, used up, or never sent: every try reads the same.
+    expect(outcomes[0]).toEqual(Array(6).fill("/sign-in/code?error=code"));
+    expect(outcomes[1]).toEqual(outcomes[0]);
+  });
+
   it("explains a wrong code and keeps the attempt", async () => {
     addMember(catalog, "member@example.com");
     await askForCode("member@example.com");
@@ -225,7 +290,7 @@ describe("entering the code", () => {
     );
     await expect(
       redirectOf(() => verifySignInCode(form({ code: wrong }))),
-    ).resolves.toBe("/sign-in/code?error=wrong");
+    ).resolves.toBe("/sign-in/code?error=code");
     await expect(
       redirectOf(() => verifySignInCode(form({ code: "12" }))),
     ).resolves.toBe("/sign-in/code?error=format");
@@ -304,6 +369,32 @@ describe("signing out", () => {
     await expect(getAdminGate()).resolves.toEqual({
       status: "identity-required",
     });
+  });
+
+  it("says so when the session could not be ended on the server", async () => {
+    addMember(catalog, "member@example.com");
+    await signIn("member@example.com");
+    catalog.sqlite.exec("DROP TABLE admin_sessions");
+    await expect(redirectOf(() => signOut())).resolves.toBe(
+      "/sign-in?error=sign-out",
+    );
+    expect(state.jar.has(SESSION)).toBe(false);
+  });
+
+  it("never claims other devices were signed out when that failed", async () => {
+    addMember(catalog, "member@example.com");
+    await signIn("member@example.com");
+    catalog.sqlite.exec("DROP TABLE admin_sessions");
+    await expect(redirectOf(() => signOutEverywhere())).resolves.toBe(
+      "/sign-in?error=sign-out-all",
+    );
+    expect(state.jar.has(SESSION)).toBe(false);
+
+    // Without a live session there is nothing to prove, so only this browser.
+    setup();
+    await expect(redirectOf(() => signOutEverywhere())).resolves.toBe(
+      "/sign-in?signed-out=1",
+    );
   });
 
   it("ends every session for the address", async () => {

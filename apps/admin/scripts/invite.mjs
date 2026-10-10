@@ -23,7 +23,9 @@ development catalog instead of production; add --persist-to DIR if your local
 Worker keeps its state somewhere other than apps/admin/.wrangler/state.
 
 Production uses your Wrangler login (bunx wrangler login) or the
-CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID environment variables.`;
+CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID environment variables. If your
+login covers more than one Cloudflare account, set CLOUDFLARE_ACCOUNT_ID too:
+this command cannot show Wrangler's account picker.`;
 
 if (process.env.CI || process.env.GITHUB_ACTIONS) {
   console.error(
@@ -58,8 +60,36 @@ const result = spawnSync(
   ["wrangler", "d1", "execute", ...target, "--command", sql, "--json"],
   { cwd: adminDir, encoding: "utf8", stdio: ["inherit", "pipe", "inherit"] },
 );
+/**
+ * With --json, Wrangler reports failures as JSON on stdout, not stderr, so
+ * read the reason from there instead of swallowing it.
+ */
+function wranglerError(output) {
+  try {
+    const parsed = JSON.parse(output.slice(output.indexOf("{")));
+    if (typeof parsed?.error?.text === "string") return parsed.error.text;
+  } catch {
+    // Not JSON: fall through to the raw output.
+  }
+  return output.trim();
+}
+
 if (result.status !== 0) {
+  const reason = wranglerError(result.stdout ?? "");
   console.error("Wrangler could not write the invite. Nothing was changed.");
+  if (reason) console.error(`\n${reason}`);
+  if (/no such table/i.test(reason)) {
+    console.error(
+      parsed.local
+        ? "\nApply the local migrations first: bun run --filter @conpaws/admin db:migrate:local"
+        : "\nThe catalog database has no admin tables yet. Deploy first with bun run deploy.",
+    );
+  }
+  if (/more than one account/i.test(reason)) {
+    console.error(
+      "\nSet CLOUDFLARE_ACCOUNT_ID to the ConPaws account and run this again.",
+    );
+  }
   process.exit(result.status ?? 1);
 }
 

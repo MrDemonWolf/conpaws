@@ -3,6 +3,7 @@
 import { CompassPaw } from "@conpaws/ui/components/compass-paw";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { signOut, signOutEverywhere } from "../app/sign-in/actions";
 import type { AdminSession } from "../lib/auth";
 import { Icon } from "./icons";
@@ -36,6 +37,34 @@ function NavItem({ href, label, icon }: (typeof links)[number]) {
   );
 }
 
+/**
+ * Closes the account menu on Escape or a click outside it. The menu is a
+ * plain <details>, which does neither by itself.
+ */
+function useDismissableMenu() {
+  const menu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const close = (event: KeyboardEvent | PointerEvent) => {
+      const element = menu.current;
+      if (!element?.open) return;
+      if (event instanceof KeyboardEvent) {
+        if (event.key !== "Escape") return;
+        element.open = false;
+        element.querySelector("summary")?.focus();
+      } else if (!element.contains(event.target as Node)) {
+        element.open = false;
+      }
+    };
+    document.addEventListener("keydown", close);
+    document.addEventListener("pointerdown", close);
+    return () => {
+      document.removeEventListener("keydown", close);
+      document.removeEventListener("pointerdown", close);
+    };
+  }, []);
+  return menu;
+}
+
 export function ConsoleShell({
   session,
   children,
@@ -43,6 +72,8 @@ export function ConsoleShell({
   session: AdminSession;
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const menu = useDismissableMenu();
   return (
     <div className="min-h-screen bg-[#f5f7fb]">
       <header className="admin-header sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 backdrop-blur">
@@ -74,7 +105,12 @@ export function ConsoleShell({
 
           <InstallAppButton />
 
-          <details className="relative ml-auto shrink-0">
+          <details
+            // A new page starts with the menu closed.
+            key={pathname}
+            ref={menu}
+            className="relative ml-auto shrink-0"
+          >
             <summary
               aria-label={`Account: ${session.email}, ${session.role}`}
               className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl px-1.5 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 sm:gap-3 [&::-webkit-details-marker]:hidden"

@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
 import { AuthScreen } from "../../components/auth-screen";
 import { ConsoleShell } from "../../components/console-shell";
+import { SignInRedirect } from "../../components/sign-in-redirect";
 import { Button } from "../../components/ui";
 import { getAdminGate } from "../../lib/auth";
 import { signOut } from "../sign-in/actions";
@@ -21,7 +21,8 @@ export default async function ConsoleLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const gate = await getAdminGate();
-  if (gate.status === "identity-required") redirect("/sign-in");
+  // The page itself is never rendered for a signed-out visitor.
+  if (gate.status === "identity-required") return <SignInRedirect />;
   if (gate.status === "unavailable") {
     return (
       <AuthScreen

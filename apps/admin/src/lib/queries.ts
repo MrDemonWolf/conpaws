@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, like, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, ne, or } from "drizzle-orm";
 import {
   adminInvites,
   adminMembers,
@@ -29,7 +29,13 @@ export async function getDashboardData() {
         .select({ total: count() })
         .from(adminMembers)
         .where(eq(adminMembers.status, "active")),
-      db.select().from(auditLog).orderBy(desc(auditLog.createdAt)).limit(6),
+      // Overview lists changes; sign-ins stay on the Activity screen.
+      db
+        .select()
+        .from(auditLog)
+        .where(ne(auditLog.action, "admin.signed-in"))
+        .orderBy(desc(auditLog.createdAt))
+        .limit(6),
       db
         .select()
         .from(conventions)

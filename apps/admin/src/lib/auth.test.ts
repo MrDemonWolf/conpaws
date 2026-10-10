@@ -54,6 +54,7 @@ async function signedIn(
     email,
     now: Date.now() - verifiedAgoMs,
   });
+  if (!token) throw new Error("expected a session");
   state.jar.set(SESSION, token);
   return token;
 }

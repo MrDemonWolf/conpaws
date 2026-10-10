@@ -50,7 +50,7 @@ export default async function ActivityPage() {
                     status={
                       entry.resourceType === "admin_member" ||
                       entry.resourceType === "admin_invite"
-                        ? "owner"
+                        ? "access"
                         : entry.action === "convention.published" ||
                             entry.action === "convention.restored"
                           ? "published"

@@ -189,7 +189,7 @@ export default async function TeamPage({
                     {invites.map((invite) => {
                       const expired = invite.expiresAt <= now;
                       const link = baseUrl
-                        ? `${baseUrl}/sign-in?email=${encodeURIComponent(invite.email)}`
+                        ? `${baseUrl}/sign-in#email=${encodeURIComponent(invite.email)}`
                         : null;
                       return (
                         <li

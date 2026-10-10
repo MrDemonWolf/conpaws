@@ -793,7 +793,11 @@ export async function restoreRevision(formData: FormData) {
   redirect(`/conventions/${id}?restored=${nextRevision}`);
 }
 
-/** Emails an invite. Returns whether Email Service accepted it. */
+/**
+ * Emails an invite. Returns whether Email Service accepted it. The link puts
+ * the address after `#`, so opening it never sends the address to the
+ * Worker or its request logs.
+ */
 async function sendInvite(input: {
   email: string;
   role: "owner" | "editor";
@@ -810,7 +814,7 @@ async function sendInvite(input: {
       invitedBy: input.invitedBy,
       expiresAt: input.expiresAt,
       signInUrl: base
-        ? `${base}/sign-in?email=${encodeURIComponent(input.email)}`
+        ? `${base}/sign-in#email=${encodeURIComponent(input.email)}`
         : null,
     }),
   );

@@ -140,6 +140,20 @@ export async function verifySignInCodeHash(
 }
 
 /**
+ * A stable, keyed stand-in for the requesting network, so send limits can be
+ * counted per network without storing anyone's IP address. Keyed, because an
+ * unkeyed hash of an IPv4 address can be reversed by trying them all.
+ */
+export async function hashRequester(secret: string, address: string) {
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    await importCodeKey(secret),
+    encoder.encode(`conpaws-admin-requester\n${address}`),
+  );
+  return toHex(new Uint8Array(signature)).slice(0, 32);
+}
+
+/**
  * Session tokens are 256 random bits, so a plain SHA-256 is enough to make a
  * stolen copy of the sessions table useless; no key is needed.
  */

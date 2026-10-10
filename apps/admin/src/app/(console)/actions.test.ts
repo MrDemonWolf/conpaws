@@ -118,9 +118,11 @@ describe("team changes", () => {
     ]);
     const message = send.mock.calls[0]?.[0] as { to: string; text: string };
     expect(message.to).toBe("new@example.com");
+    // The address rides after `#`, so it never reaches the Worker's logs.
     expect(message.text).toContain(
-      "https://admin.conpaws.com/sign-in?email=new%40example.com",
+      "https://admin.conpaws.com/sign-in#email=new%40example.com",
     );
+    expect(message.text).not.toContain("?email=");
   });
 
   it("keeps the invite and says so when the email does not send", async () => {

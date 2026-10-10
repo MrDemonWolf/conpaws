@@ -9,11 +9,11 @@ import { requestSignInCode, verifySignInCode } from "../actions";
 export const metadata = { title: "Enter your code" };
 export const dynamic = "force-dynamic";
 
+// One message for every failed code: telling a wrong code from one that was
+// never sent would reveal who is on the team.
 const errors: Record<string, string> = {
   format: "Enter the 8 digits from the email.",
-  wrong: "That code didn't work. Check the newest email and try again.",
-  locked: "Too many wrong tries for that code. Send a new code to continue.",
-  expired: "That code expired or was already used. Send a new code.",
+  code: "That code didn't work or has expired. Check the newest email, or send a new code.",
   rate: "Too many tries from this network. Wait a minute, then try again.",
 };
 
@@ -47,7 +47,8 @@ export default async function SignInCodePage({
       {error ? <Banner tone="error">{error}</Banner> : null}
       {resent && !error ? (
         <Banner tone="info">
-          If you can sign in, a new code is on its way. Use the newest one.
+          If this address can sign in, a new code is on its way. You can ask for
+          one once a minute; use the newest.
         </Banner>
       ) : null}
       <form action={verifySignInCode} className="grid gap-4">

@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { readDeployEnv } from "@conpaws/env/deploy";
 import alchemy from "alchemy";
 import {
@@ -8,7 +9,6 @@ import {
   RateLimit,
   Worker,
 } from "alchemy/cloudflare";
-import { RandomString } from "alchemy/random";
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
 
@@ -363,9 +363,13 @@ export const reconciler = await Worker("reconciler", {
  * invite with the operator's own Cloudflare credentials. After that, owners
  * invite people from the Team screen. See apps/admin/README.md.
  *
- * The key that protects stored sign-in codes is generated here on the first
- * deploy and kept in Alchemy state, encrypted with ALCHEMY_PASSWORD, so there
- * is no secret to copy anywhere. Session cookies do not depend on it.
+ * The key that protects stored sign-in codes is derived from ALCHEMY_PASSWORD
+ * rather than generated, so there is no secret to copy anywhere and a laptop
+ * deploy and a CI deploy bind the same key. A generated key would not: Alchemy
+ * keeps state per stage, the stage defaults to the deploying user's name, and
+ * each side would rebind its own key, breaking codes sent minutes earlier.
+ * Keep ALCHEMY_PASSWORD identical everywhere production deploys from.
+ * Changing it only invalidates codes in flight; sessions do not use the key.
  *
  * Mail goes out through Cloudflare Email Service, which needs conpaws.com
  * onboarded for sending once in the dashboard (Compute, Email Service, Email
@@ -378,9 +382,11 @@ export const reconciler = await Worker("reconciler", {
  */
 const ADMIN_ORIGIN = "https://admin.conpaws.com";
 const ADMIN_EMAIL_FROM = "admin@conpaws.com";
-const adminAuthSecret = await RandomString("admin-auth-secret", {
-  length: 32,
-});
+const adminAuthSecret = alchemy.secret(
+  createHmac("sha256", env.ALCHEMY_PASSWORD)
+    .update("conpaws-admin-sign-in-code-key-v1")
+    .digest("hex"),
+);
 
 export const admin = await Nextjs("admin", {
   name: "conpaws-admin",
@@ -399,12 +405,13 @@ export const admin = await Nextjs("admin", {
     ADMIN_RUNTIME_ENV: "production",
     ADMIN_PUBLIC_URL: ADMIN_ORIGIN,
     ADMIN_EMAIL_FROM,
-    ADMIN_AUTH_SECRET: adminAuthSecret.value,
+    ADMIN_AUTH_SECRET: adminAuthSecret,
     // Sends only from the one address the console uses.
     ADMIN_EMAIL: EmailSender({ allowedSenderAddresses: [ADMIN_EMAIL_FROM] }),
     // A coarse per-network brake on code requests and code checks. The real
-    // limits are per address, in the database: a minute between codes, five
-    // an hour, ten a day, and five tries per code.
+    // limits live in the database: per address and network, a minute between
+    // codes, five an hour and ten a day; fifty a day per address in all; and
+    // five tries per code.
     ADMIN_SIGN_IN_LIMITER: RateLimit({
       namespace_id: 2610,
       simple: { limit: 10, period: 60 },

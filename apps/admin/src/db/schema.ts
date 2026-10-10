@@ -34,6 +34,8 @@ export const adminSignInCodes = sqliteTable(
     attemptId: text("attempt_id").notNull(),
     email: text("email").notNull(),
     codeHash: text("code_hash").notNull(),
+    /** Keyed hash of the requesting network, for per-network send limits. */
+    requester: text("requester").notNull().default(""),
     attempts: integer("attempts").notNull().default(0),
     createdAt: integer("created_at").notNull(),
     expiresAt: integer("expires_at").notNull(),
@@ -45,6 +47,11 @@ export const adminSignInCodes = sqliteTable(
       table.createdAt,
     ),
     index("admin_sign_in_codes_email_idx").on(table.email, table.createdAt),
+    index("admin_sign_in_codes_requester_idx").on(
+      table.email,
+      table.requester,
+      table.createdAt,
+    ),
   ],
 );
 

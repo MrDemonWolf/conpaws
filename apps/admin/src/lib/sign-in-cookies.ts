@@ -34,11 +34,25 @@ export function cookieOptions(env: AdminBindings, maxAgeSeconds: number) {
   };
 }
 
+/**
+ * Path segments of letters, digits, `-`, `_` and `~` only, then an optional
+ * query. No dots, so no `.` or `..` segments, and no empty segments, so no
+ * `//`: either can turn a path into `//other.site` once a browser resolves it.
+ */
+const SAFE_PATH =
+  /^\/(?:[A-Za-z0-9_~-]+(?:\/[A-Za-z0-9_~-]+)*\/?)?(?:\?[A-Za-z0-9._~=&%+-]*)?$/;
+
 /** Where to go after signing in: a same-site path, never back to sign-in. */
 export function safeNextPath(value: string | null | undefined) {
-  if (!value || value.length > 200) return null;
-  if (!/^\/[A-Za-z0-9\-._~/?=&%]*$/.test(value)) return null;
-  if (value.startsWith("//") || value.startsWith("/sign-in")) return null;
+  if (!value || value.length > 200 || !SAFE_PATH.test(value)) return null;
+  if (value === "/sign-in" || value.startsWith("/sign-in/")) return null;
+  if (value.startsWith("/sign-in?")) return null;
+  // Belt and braces: it must come back unchanged from a real URL parse.
+  const base = "https://admin.invalid";
+  const url = new URL(value, base);
+  if (url.origin !== base || `${url.pathname}${url.search}` !== value) {
+    return null;
+  }
   return value;
 }
 
