@@ -11,7 +11,7 @@ name: Deploy web
 #
 # Alchemy applies the whole stack in one step; deploys have no canary or
 # automatic rollback. Roll back by dispatching this workflow with the last good
-# main ancestor SHA, or use `wrangler rollback` from apps/web.
+# main ancestor SHA.
 #
 # Because of that, keep PRODUCTION_ROUTES_ENABLED false for the first deploy so
 # Cloudflare holds a known-good version before conpaws.com points at anything.
@@ -45,7 +45,7 @@ jobs:
         github.event.workflow_run.head_repository.full_name == github.repository
       )) &&
       vars.PRODUCTION_DEPLOY_ENABLED == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 25
     environment:
       name: production
@@ -60,7 +60,7 @@ jobs:
         with:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Reject stale release
         id: stale

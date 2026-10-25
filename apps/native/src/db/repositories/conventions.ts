@@ -6,8 +6,22 @@ function generateId(): string {
   return `conv_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
 
+function orderedConventionsQuery() {
+  return db
+    .select()
+    .from(conventions)
+    .orderBy(conventions.startDate, conventions.id);
+}
+
 export async function getAll(): Promise<Convention[]> {
-  return db.select().from(conventions).orderBy(conventions.startDate);
+  return orderedConventionsQuery();
+}
+
+export async function getPage(
+  limit: number,
+  offset: number,
+): Promise<Convention[]> {
+  return orderedConventionsQuery().limit(limit).offset(offset);
 }
 
 export async function getById(id: string): Promise<Convention | undefined> {

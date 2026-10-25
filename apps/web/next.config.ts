@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   reactCompiler: true,
   pageExtensions: ["ts", "tsx", "mdx"],
+  // Next 16.2.12 has an image-optimizer SSRF advisory; keep it disabled until
+  // the pinned Next/OpenNext pair can be upgraded safely.
+  images: { unoptimized: true },
 
   // Enables `app/global-not-found.tsx`, which is the only way this site can
   // serve a styled 404. It has two root layouts (one per language tree, so

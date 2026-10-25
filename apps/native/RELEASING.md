@@ -56,6 +56,8 @@ GitHub repository **secrets**:
 
 Repository **variables**: `EXPO_PUBLIC_SENTRY_DSN` and
 `NATIVE_RELEASE_ENABLED`. Use the same Sentry project as local store builds.
+Copy the full public HTTPS DSN from Sentry's **Client Keys (DSN)** page; the
+workflow rejects values without Sentry's numeric project ID.
 Keep OTA variables unset until the update host is ready.
 
 The ZIP's four profiles must be App Store distribution profiles using the

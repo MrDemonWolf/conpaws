@@ -91,6 +91,7 @@ import {
 } from "@/lib/error-fallback";
 import {
   addReportBreadcrumb,
+  isErrorReportingEnabled,
   reportError,
   reportMessage,
 } from "@/lib/error-reporting";
@@ -491,4 +492,5 @@ export const unstable_settings = {
 
 export const ErrorBoundary = ScreenErrorFallback;
 
-export default Sentry.wrap(RootLayout);
+// Leave the root unwrapped when reporting is disabled so a missing/invalid DSN installs no Sentry hooks.
+export default isErrorReportingEnabled() ? Sentry.wrap(RootLayout) : RootLayout;

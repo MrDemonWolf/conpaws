@@ -21,11 +21,16 @@ const availability = z.enum([
 ]);
 const scheduleStatus = z.enum(["not-released", "partial", "complete"]);
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+export const publicConventionSlugSchema = z
+  .string()
+  .min(2)
+  .max(96)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
 /** Strict public shape. Unknown and private fields are stripped before responses. */
 export const publicConventionSchema = z.object({
   id: z.string().min(1),
-  slug: z.string().min(1),
+  slug: publicConventionSlugSchema,
   name: z.string().min(1),
   acronym: z.string(),
   city: z.string(),

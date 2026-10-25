@@ -4,6 +4,7 @@ import type { Bindings } from "./bindings";
 import {
   getPublicPublishedSnapshot,
   listPublicPublishedSnapshots,
+  publicConventionSlugSchema,
 } from "./catalog";
 
 /**
@@ -27,10 +28,21 @@ const NO_STORE_HEADERS = {
   "X-Content-Type-Options": "nosniff",
 } as const;
 
-function catalogError(status: 404 | 503) {
+const NOT_FOUND_HEADERS = {
+  "Cache-Control": "public, max-age=0, s-maxage=30",
+  "X-Content-Type-Options": "nosniff",
+} as const;
+
+const CATALOG_ERRORS = {
+  400: "invalid_request",
+  404: "not_found",
+  503: "catalog_unavailable",
+} as const;
+
+function catalogError(status: keyof typeof CATALOG_ERRORS) {
   return Response.json(
-    { error: status === 404 ? "not_found" : "catalog_unavailable" },
-    { status, headers: NO_STORE_HEADERS },
+    { error: CATALOG_ERRORS[status] },
+    { status, headers: status === 404 ? NOT_FOUND_HEADERS : NO_STORE_HEADERS },
   );
 }
 
@@ -55,7 +67,9 @@ export function createApp() {
     c.json({ status: "ok" }, 200, { "Cache-Control": "no-store" }),
   );
 
+  // Queries do not change catalog results; reject cache-busting variants before they fan out D1 reads.
   app.get("/v1/conventions", async (c) => {
+    if (new URL(c.req.url).search) return catalogError(400);
     try {
       const conventions = await listPublicPublishedSnapshots(c.env);
       return catalogJson({ version: 1, conventions });
@@ -65,11 +79,11 @@ export function createApp() {
   });
 
   app.get("/v1/conventions/:slug", async (c) => {
+    if (new URL(c.req.url).search) return catalogError(400);
+    const slug = publicConventionSlugSchema.safeParse(c.req.param("slug"));
+    if (!slug.success) return catalogError(404);
     try {
-      const convention = await getPublicPublishedSnapshot(
-        c.env,
-        c.req.param("slug"),
-      );
+      const convention = await getPublicPublishedSnapshot(c.env, slug.data);
       if (!convention) return catalogError(404);
       return catalogJson({ version: 1, convention });
     } catch {
@@ -78,11 +92,11 @@ export function createApp() {
   });
 
   app.get("/v1/conventions/:slug/schedule", async (c) => {
+    if (new URL(c.req.url).search) return catalogError(400);
+    const slug = publicConventionSlugSchema.safeParse(c.req.param("slug"));
+    if (!slug.success) return catalogError(404);
     try {
-      const convention = await getPublicPublishedSnapshot(
-        c.env,
-        c.req.param("slug"),
-      );
+      const convention = await getPublicPublishedSnapshot(c.env, slug.data);
       if (!convention) return catalogError(404);
       return catalogJson({
         version: 1,

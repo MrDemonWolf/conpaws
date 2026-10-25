@@ -20,6 +20,8 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "test": "turbo test",
+    "security:audit": "node scripts/security-audit.mjs",
+    "security:audit:test": "node --test scripts/security-audit.test.mjs",
     "dev:native": "turbo -F @conpaws/native dev",
     "dev:admin": "turbo -F @conpaws/admin dev",
     "dev:web": "turbo -F @conpaws/web dev",
@@ -56,15 +58,16 @@
     "workerd"
   ],
   "overrides": {
-    "expo-constants": "57.0.21",
-    "lightningcss": "1.30.1"
+    "expo-constants": "57.0.22",
+    "lightningcss": "1.30.1",
+    "postcss": "8.5.30"
   },
   "patchedDependencies": {
     "react-native-screens@4.26.2": "patches/react-native-screens@4.26.2.patch"
   },
   "version": "1.0.0",
   "dependencies": {
-    "expo": "~57.0.27",
+    "expo": "~57.0.30",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3"

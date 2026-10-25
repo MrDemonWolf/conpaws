@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "exceptions": [
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-27p8-2357-5qqv",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-27p8-2357-5qqv"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-2v35-w6hq-6mfw",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-2v35-w6hq-6mfw"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-4w3w-2rp5-g8jm",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-4w3w-2rp5-g8jm"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-8344-3jmq-59r6",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-8344-3jmq-59r6"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-93r5-fhx6-vmg9",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-93r5-fhx6-vmg9"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-965w-775f-mr7g",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-965w-775f-mr7g"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-c7q8-3ch8-vqpv",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-c7q8-3ch8-vqpv"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-f6ww-3ggp-fr8h",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-f6ww-3ggp-fr8h"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-j759-j44w-7fr8",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-j759-j44w-7fr8"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-w2rr-34g9-rvrj",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-w2rr-34g9-rvrj"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-wh4c-j3r5-mjhp",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.12",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-wh4c-j3r5-mjhp"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-x4fp-j954-r2f4",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-x4fp-j954-r2f4"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-x6wf-f3px-wcqx",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-x6wf-f3px-wcqx"
+    },
+    {
+      "package": "braces",
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "severity": "high",
+      "vulnerableVersions": "<=3.0.3",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Build-time dependency only; deployed code does not accept attacker-controlled glob patterns.",
+      "upstream": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+    },
+    {
+      "package": "next",
+      "id": "GHSA-2xp9-vwfh-vxw4",
+      "severity": "critical",
+      "vulnerableVersions": ">=16.0.0 <16.3.3",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
+      "upstream": "https://github.com/advisories/GHSA-2xp9-vwfh-vxw4"
+    },
+    {
+      "package": "next",
+      "id": "GHSA-cjq9-62q9-8jv4",
+      "severity": "high",
+      "vulnerableVersions": ">=16.0.0 <16.3.8",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
+      "upstream": "https://github.com/advisories/GHSA-cjq9-62q9-8jv4"
+    },
+    {
+      "package": "next",
+      "id": "GHSA-p293-qw3h-jr36",
+      "severity": "critical",
+      "vulnerableVersions": ">=16.0.0 <16.3.3",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
+      "upstream": "https://github.com/advisories/GHSA-p293-qw3h-jr36"
+    },
+    {
+      "package": "next",
+      "id": "GHSA-vcvr-r3jv-pc5j",
+      "severity": "critical",
+      "vulnerableVersions": ">=16.2.0 <16.3.6",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
+      "upstream": "https://github.com/advisories/GHSA-vcvr-r3jv-pc5j"
+    },
+    {
+      "package": "node-forge",
+      "id": "GHSA-86w9-cpqp-85rv",
+      "severity": "high",
+      "vulnerableVersions": "<=1.4.0",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI development-certificate tooling only; application code does not import node-forge or verify attacker-supplied signatures with it.",
+      "upstream": "https://github.com/advisories/GHSA-86w9-cpqp-85rv"
+    },
+    {
+      "package": "sharp",
+      "id": "GHSA-f88m-g3jw-g9cj",
+      "severity": "high",
+      "vulnerableVersions": "<0.35.0",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Transitive Next and Miniflare image dependency; source does not import sharp or next/image, and production runs on Cloudflare Workers.",
+      "upstream": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj"
+    },
+    {
+      "package": "sharp",
+      "id": "GHSA-rgj7-g3m4-5g8c",
+      "severity": "high",
+      "vulnerableVersions": "<0.35.4",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Transitive Next and Miniflare image dependency; source does not import sharp or next/image, and production runs on Cloudflare Workers.",
+      "upstream": "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c"
+    },
+    {
+      "package": "sharp",
+      "id": "GHSA-wq5f-xc86-pv6w",
+      "severity": "high",
+      "vulnerableVersions": "<0.35.5",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Transitive Next and Miniflare image dependency; source does not import sharp or next/image, and production runs on Cloudflare Workers.",
+      "upstream": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w"
+    },
+    {
+      "package": "undici",
+      "id": "GHSA-4cwx-7wf7-3272",
+      "severity": "high",
+      "vulnerableVersions": ">=7.0.0 <7.29.0",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Transitive Alchemy and Miniflare deployment tooling only; application source does not import undici or expose its client APIs at runtime.",
+      "upstream": "https://github.com/advisories/GHSA-4cwx-7wf7-3272"
+    },
+    {
+      "package": "undici",
+      "id": "GHSA-rfgv-xxqx-mfg5",
+      "severity": "high",
+      "vulnerableVersions": ">=7.0.0 <7.29.1",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Transitive Alchemy and Miniflare deployment tooling only; application source does not import undici or expose its client APIs at runtime.",
+      "upstream": "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5"
+    },
+    {
+      "package": "undici",
+      "id": "GHSA-w293-vg96-wgc3",
+      "severity": "high",
+      "vulnerableVersions": ">=7.24.1 <7.29.1",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Transitive Alchemy and Miniflare deployment tooling only; application source does not import undici or expose its client APIs at runtime.",
+      "upstream": "https://github.com/advisories/GHSA-w293-vg96-wgc3"
+    }
+  ]
+}

@@ -182,6 +182,43 @@ describe("POST /api/waitlist", () => {
     await expect(response.json()).resolves.toEqual({ error: "closed" });
   });
 
+  it.each([
+    [undefined, false],
+    ["", false],
+    ["yes", true],
+  ])(
+    "closes POST and logs no PII when the server switch is %j",
+    async (acceptanceSwitch, configured) => {
+      const { d1, db } = fakeDb();
+      createDb.mockReturnValue(db);
+      getCloudflareContext.mockReturnValue({
+        env: {
+          ...ENV,
+          DB: d1,
+          WAITLIST_ACCEPTING_SIGNUPS: acceptanceSwitch,
+        },
+        ctx: { waitUntil: vi.fn() },
+      });
+      const error = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+
+      const response = await POST(
+        request({ email: "person@example.com", elapsedMs: 3_000 }),
+      );
+
+      expect(response.status).toBe(503);
+      await expect(response.json()).resolves.toEqual({ error: "closed" });
+      expect(error).toHaveBeenCalledWith(
+        "waitlist: signups closed, acceptance switch invalid",
+        { configured },
+      );
+      expect(JSON.stringify(error.mock.calls)).not.toContain(
+        "person@example.com",
+      );
+    },
+  );
+
   it("rejects control characters and link-like name text", async () => {
     for (const name of ["\nPaws", "claim-prize.example/xyz", "🐾"]) {
       const response = await POST(

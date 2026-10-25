@@ -40,10 +40,10 @@ Inviting, changing roles and turning access off need a code entered in the last 
 **The first owner is invited from your own machine**, because nobody can claim an empty console by visiting it first:
 
 ```bash
-bun run admin:invite -- you@example.com
+bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com
 ```
 
-The command writes the invite to the production catalog with your Wrangler login, or with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. If your login covers more than one Cloudflare account, set `CLOUDFLARE_ACCOUNT_ID` as well, because the command cannot show Wrangler's account picker. The role defaults to owner; pass `--role editor` otherwise. It refuses to run in CI, because the repository's logs are public. Use the same command if every owner loses access.
+The command defaults to the local catalog. Production requires `--remote` and an explicit `--role`; a production owner invite also requires `--confirm-email` with the exact normalized address. It writes with your Wrangler login, or with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. If your login covers more than one Cloudflare account, set `CLOUDFLARE_ACCOUNT_ID` as well, because the command cannot show Wrangler's account picker. It refuses to run in CI, because the repository's logs are public. Use the same command if every owner loses access.
 
 **Limits:** from any one network, an address gets at most one code a minute, five an hour and ten a day, and fifty a day across all networks. Counting per network means someone elsewhere cannot use up a member's allowance. A browser already signed in as that member, confirming before a team change, is held only to its own once-a-minute limit. The limits are checked inside the database write, so parallel requests cannot slip past them. A coarse per-network limit also sits in front of both forms. Networks are stored only as a keyed hash, codes only as an HMAC bound to the browser that asked for them, and sessions only as a SHA-256 of the cookie token. Sign-ins, invites and role changes appear on the Activity screen. Admin pages send `noindex`, and `robots.txt` blocks crawlers.
 
@@ -100,6 +100,6 @@ The catalog database is created by the same deploy, empty, with these migrations
 The deploy also derives the key that protects stored sign-in codes from `ALCHEMY_PASSWORD`, so there is no secret to set. Keep `ALCHEMY_PASSWORD` identical on every machine and in CI that deploys production; a mismatch only breaks codes sent in the minutes around a deploy. Two one-time steps finish the setup:
 
 1. **Turn on email sending for conpaws.com.** In the Cloudflare dashboard, go to Compute, then Email Service, then Email Sending, and choose Onboard Domain for `conpaws.com`. Cloudflare adds the SPF, DKIM, DMARC and bounce records itself. Codes come from `admin@conpaws.com`. Until this is done the console loads, but codes do not arrive and the Worker logs a sender error such as `E_SENDER_DOMAIN_NOT_AVAILABLE` or `E_SENDER_NOT_VERIFIED`.
-2. **Invite the first owner** with `bun run admin:invite -- you@example.com`, then sign in at https://admin.conpaws.com/sign-in.
+2. **Invite the first owner** with `bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com`, then sign in at https://admin.conpaws.com/sign-in.
 
 Do not invite outside hosts until organization isolation exists; today every role sees the whole catalog.

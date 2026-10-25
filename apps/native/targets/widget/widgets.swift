@@ -1434,7 +1434,7 @@ private struct ConPawsRectangularView: View {
           ConPawsAccessoryEyebrow(title: entry.strings.noPicksTitle)
           Text(entry.strings.noPicksHint).font(.caption).foregroundStyle(.secondary).lineLimit(2)
         }
-      case .finished(let convention):
+      case .finished:
         ConPawsAccessoryEyebrow(title: entry.strings.finishedComplication)
         Text(entry.strings.finishedTitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
       }

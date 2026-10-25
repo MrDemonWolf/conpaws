@@ -22,18 +22,28 @@ export function isInviteEmail(value) {
 export function parseInviteArgs(argv) {
   let email = null;
   let role = "owner";
+  let roleProvided = false;
   let local = false;
+  let remote = false;
+  let confirmEmail = null;
   let persistTo = ".wrangler/state";
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--help" || arg === "-h") return { help: true };
     if (arg === "--local") {
       local = true;
+    } else if (arg === "--remote") {
+      remote = true;
     } else if (arg === "--role") {
       role = argv[index + 1];
+      roleProvided = true;
       index += 1;
     } else if (arg.startsWith("--role=")) {
       role = arg.slice("--role=".length);
+      roleProvided = true;
+    } else if (arg === "--confirm-email") {
+      confirmEmail = argv[index + 1];
+      index += 1;
     } else if (arg === "--persist-to") {
       persistTo = argv[index + 1];
       index += 1;
@@ -48,13 +58,32 @@ export function parseInviteArgs(argv) {
   if (!isInviteEmail(normalized)) {
     return { error: `${normalized} doesn't look like an email address.` };
   }
+  if (local && remote) {
+    return { error: "Choose either --local or --remote, not both." };
+  }
+  if (remote && !roleProvided) {
+    return {
+      error: "Production invites require an explicit --role owner|editor.",
+    };
+  }
   if (role !== "owner" && role !== "editor") {
     return { error: "--role must be owner or editor." };
+  }
+  if (remote && role === "owner" && confirmEmail !== normalized) {
+    return {
+      error:
+        "A production owner invite requires --confirm-email with the exact normalized address.",
+    };
+  }
+  if (confirmEmail !== null && (!remote || role !== "owner")) {
+    return {
+      error: "--confirm-email is only valid for a production owner invite.",
+    };
   }
   if (!persistTo || persistTo.startsWith("-")) {
     return { error: "--persist-to needs a directory." };
   }
-  return { email: normalized, role, local, persistTo };
+  return { email: normalized, role, local: !remote, persistTo };
 }
 
 /** SQLite string literal. Only single quotes need doubling. */

@@ -2,11 +2,9 @@ name: mrdemonwolf-xprem
 
 services:
   xprem:
-    image: ghcr.io/mercuretechnologies/xprem:v3.1.1@sha256:dcfa04bf2acaec20461c5af17419e3b184f4a53b86930ab7b0f75aa23f4b02c4
+    # Keep rebuilds on reviewed release bytes even if the upstream tag moves.
+    image: ghcr.io/mercuretechnologies/xprem:v3.2.6@sha256:e63c81b1212d553fe84a69121543eb5e376c33103bd10902bb7970519dc7e2f8
     restart: unless-stopped
-    depends_on:
-      redis:
-        condition: service_healthy
     environment:
       PORT: "3000"
       BASE_URL: ${BASE_URL:?Set BASE_URL in Dokploy}
@@ -19,27 +17,31 @@ services:
       S3_BUCKET_NAME: ${S3_BUCKET_NAME:?Set S3_BUCKET_NAME in Dokploy}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?Set AWS_ACCESS_KEY_ID in Dokploy}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?Set AWS_SECRET_ACCESS_KEY in Dokploy}
-      CACHE_MODE: redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Dokploy}
-      CACHE_KEY_PREFIX: ${CACHE_KEY_PREFIX:-mrdemonwolf-xprem}
+      # Process-local cache is safe for one replica; switch to shared Redis before scaling out.
+      CACHE_MODE: local
       USE_DASHBOARD: "true"
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Keep usage and device data out of XPRem until collection is explicitly approved.
+      DISABLE_TELEMETRY: "true"
       DISABLE_DEVICE_TELEMETRY: "true"
       PROMETHEUS_ENABLED: "false"
+      # Forwarded client IPs affect auth and rate limits; depth must match the verified tunnel chain.
       TRUST_PROXY_HEADERS: "true"
       TRUST_PROXY_DEPTH: ${TRUST_PROXY_DEPTH:?Set TRUST_PROXY_DEPTH to the verified proxy hop count}
-    expose:
-      - "3000"
+    # The tunnel and database join this private network; no host port is published.
+    networks:
+      - dokploy-network
+    # XPRem only needs ephemeral writes, so keep the container filesystem immutable.
     read_only: true
     tmpfs:
       - /tmp:rw,nosuid,nodev,noexec,size=32m,mode=1777
+    # The app needs no extra Linux capabilities or privilege escalation.
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
+    # This gates process readiness; staging must still verify real R2 downloads.
     healthcheck:
       test:
         - CMD
@@ -54,38 +56,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-
-  redis:
-    image: redis:7.4.11-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
-    restart: unless-stopped
-    user: "999:1000"
-    command:
-      - redis-server
-      - --save
-      - ""
-      - --appendonly
-      - "no"
-      - --requirepass
-      - ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Dokploy}
-      - --maxmemory
-      - 24mb
-      - --maxmemory-policy
-      - allkeys-lru
-    environment:
-      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Dokploy}
-    read_only: true
-    tmpfs:
-      - /data:rw,nosuid,nodev,size=32m,uid=999,gid=1000,mode=0700
-    cap_drop:
-      - ALL
-    security_opt:
-      - no-new-privileges:true
-    healthcheck:
-      test:
-        - CMD
-        - redis-cli
-        - ping
-      interval: 10s
-      timeout: 3s
-      retries: 5
-      start_period: 5s
+networks:
+  dokploy-network:
+    external: true

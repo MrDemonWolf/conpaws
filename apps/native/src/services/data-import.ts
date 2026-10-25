@@ -8,21 +8,18 @@ import {
   conventionEvents,
   conventions,
 } from "@/db/schema";
-import { MAX_BACKUP_BYTES } from "@/lib/backup-limits";
+import { MAX_BACKUP_BYTES, MAX_BACKUP_ROWS } from "@/lib/backup-limits";
 import { isValidTimeZone } from "@/lib/convention-time";
+import { resolveScheduleUrl } from "@/lib/schedule-url";
 
-export { MAX_BACKUP_BYTES } from "@/lib/backup-limits";
+export { MAX_BACKUP_BYTES, MAX_BACKUP_ROWS } from "@/lib/backup-limits";
 
 import { reportError } from "@/lib/error-reporting";
 
-/**
- * Largest row count a backup may carry. Every insert runs synchronously inside
- * one transaction, so this is the bound on how long the JS thread is held.
- */
-export const MAX_BACKUP_ROWS = 50_000;
-
-/** Longest accepted value for an id, name, title, room or URL. */
+/** Longest accepted value for descriptive fields and URLs. */
 const MAX_FIELD_CHARS = 1_000;
+const MAX_ID_CHARS = 128;
+const ROUTE_SAFE_ID = /^[A-Za-z0-9_-]+$/;
 
 /** Longest accepted event description. */
 const MAX_DESCRIPTION_CHARS = 50_000;
@@ -52,14 +49,15 @@ export type ImportErrorCode =
   | "missing-data"
   | "malformed-data"
   | "too-many-rows"
+  | "device-limit"
   | "write-failed";
 
 export interface ImportErrorDetail {
   /** Size of the picked file, for `file-too-large`. */
   bytes?: number;
-  /** The ceiling that was passed, for `file-too-large` and `too-many-rows`. */
+  /** The ceiling that was passed, for size and row-limit failures. */
   limit?: number;
-  /** Combined row count in the file, for `too-many-rows`. */
+  /** Combined row count that exceeded a file or device limit. */
   rows?: number;
 }
 
@@ -174,6 +172,12 @@ function requiredString(
   return trimmed;
 }
 
+/** IDs become Expo Router path segments and native notification identifiers. */
+function requiredId(row: Record<string, unknown>, key: string): string | null {
+  const value = requiredString(row, key, MAX_ID_CHARS);
+  return value && ROUTE_SAFE_ID.test(value) ? value : null;
+}
+
 /**
  * Returns `undefined` for a value that is present but the wrong type, so a
  * caller can tell "the file said null" from "the file said something absurd".
@@ -235,12 +239,12 @@ export function validateConventionRow(
   }
   const row = candidate as Record<string, unknown>;
 
-  const id = requiredString(row, "id");
+  const id = requiredId(row, "id");
   const name = requiredString(row, "name");
   if (!id || !name) return { reason: "malformed" };
 
   const location = optionalString(row, "location");
-  const icalUrl = optionalString(row, "icalUrl");
+  const rawIcalUrl = optionalString(row, "icalUrl");
   const catalogSlug = optionalString(row, "catalogSlug");
   const rawCatalogRevision = ownString(row, "catalogRevision");
   const catalogRevision =
@@ -253,11 +257,22 @@ export function validateConventionRow(
         : undefined;
   if (
     location === undefined ||
-    icalUrl === undefined ||
+    rawIcalUrl === undefined ||
     catalogSlug === undefined ||
     catalogRevision === undefined
   ) {
     return { reason: "malformed" };
+  }
+
+  let icalUrl = rawIcalUrl;
+  if (icalUrl !== null) {
+    try {
+      // Backup files are untrusted too; apply the same HTTPS and host policy as interactive imports.
+      icalUrl = resolveScheduleUrl(icalUrl).canonicalUrl;
+    } catch {
+      return { reason: "malformed" };
+    }
+    if (icalUrl.length > MAX_FIELD_CHARS) return { reason: "malformed" };
   }
 
   const startDate = requiredString(row, "startDate");
@@ -309,8 +324,8 @@ export function validateEventRow(
   }
   const row = candidate as Record<string, unknown>;
 
-  const id = requiredString(row, "id");
-  const conventionId = requiredString(row, "conventionId");
+  const id = requiredId(row, "id");
+  const conventionId = requiredId(row, "conventionId");
   const title = requiredString(row, "title");
   if (!id || !conventionId || !title) return { reason: "malformed" };
 
@@ -467,21 +482,48 @@ export async function importData(
         tx
           .select({ id: conventions.id })
           .from(conventions)
+          .limit(MAX_BACKUP_ROWS + 1)
           .all()
           .map((row) => row.id),
       );
+      if (existingConventionIds.size > MAX_BACKUP_ROWS) {
+        return fail("device-limit", {
+          rows: existingConventionIds.size,
+          limit: MAX_BACKUP_ROWS,
+        });
+      }
       const existingEventIds = new Set(
         tx
           .select({ id: conventionEvents.id })
           .from(conventionEvents)
+          .limit(MAX_BACKUP_ROWS - existingConventionIds.size + 1)
           .all()
           .map((row) => row.id),
       );
+      const existingRows = existingConventionIds.size + existingEventIds.size;
+      if (existingRows > MAX_BACKUP_ROWS) {
+        return fail("device-limit", {
+          rows: existingRows,
+          limit: MAX_BACKUP_ROWS,
+        });
+      }
       const plan = planDataImport(
         envelope,
         existingConventionIds,
         existingEventIds,
       );
+
+      const totalRows =
+        existingConventionIds.size +
+        existingEventIds.size +
+        plan.conventions.length +
+        plan.events.length;
+      if (totalRows > MAX_BACKUP_ROWS) {
+        return fail("device-limit", {
+          rows: totalRows,
+          limit: MAX_BACKUP_ROWS,
+        });
+      }
 
       for (const batch of chunkRows(plan.conventions, CONVENTION_COLUMNS)) {
         tx.insert(conventions).values(batch).run();

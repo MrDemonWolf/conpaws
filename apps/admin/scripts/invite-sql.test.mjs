@@ -23,11 +23,11 @@ async function execute(catalog, sql) {
 }
 
 describe("admin:invite arguments", () => {
-  it("default to inviting an owner in production", () => {
+  it("defaults to a local owner and requires explicit production intent", () => {
     expect(parseInviteArgs(["You@Example.com"])).toEqual({
       email: "you@example.com",
       role: "owner",
-      local: false,
+      local: true,
       persistTo: ".wrangler/state",
     });
     expect(
@@ -46,7 +46,40 @@ describe("admin:invite arguments", () => {
     ).toHaveProperty("error");
     expect(parseInviteArgs(["--role=editor", "a@example.com"])).toMatchObject({
       role: "editor",
+      local: true,
     });
+    expect(parseInviteArgs(["a@example.com", "--remote"])).toHaveProperty(
+      "error",
+    );
+    expect(
+      parseInviteArgs(["a@example.com", "--remote", "--role", "owner"]),
+    ).toHaveProperty("error");
+    expect(
+      parseInviteArgs([
+        "You@Example.com",
+        "--remote",
+        "--role",
+        "owner",
+        "--confirm-email",
+        "you@example.com",
+      ]),
+    ).toMatchObject({ email: "you@example.com", role: "owner", local: false });
+    expect(
+      parseInviteArgs([
+        "you@example.com",
+        "--remote",
+        "--role",
+        "owner",
+        "--confirm-email",
+        "other@example.com",
+      ]),
+    ).toHaveProperty("error");
+    expect(
+      parseInviteArgs(["you@example.com", "--remote", "--role", "editor"]),
+    ).toMatchObject({ role: "editor", local: false });
+    expect(
+      parseInviteArgs(["you@example.com", "--remote", "--local"]),
+    ).toHaveProperty("error");
     expect(parseInviteArgs(["--help"])).toEqual({ help: true });
   });
 

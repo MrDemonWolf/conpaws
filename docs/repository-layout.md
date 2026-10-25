@@ -56,8 +56,10 @@ Use the pinned Node and Bun versions for parity with CI.
 `bun run deploy` manages everything: the website, the API Worker, the catalog
 and waitlist databases, the CDN bucket, the waitlist reconciler and the admin
 console. Staff sign in to the console with one-time email codes; the first
-owner is invited with `bun run admin:invite`. Wrangler configurations contain
-local placeholder database IDs; production resources are owned by Alchemy.
+owner is invited with `bun run admin:invite -- you@example.com --remote --role
+owner --confirm-email you@example.com`. The invite command defaults to the
+local catalog. Wrangler configurations contain local placeholder database
+IDs; production resources are owned by Alchemy.
 
 The current admin roles grant catalog-wide access, and an invite adds someone
 to that whole-catalog team. Organization isolation, convention-scoped host

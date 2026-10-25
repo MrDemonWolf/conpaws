@@ -137,7 +137,7 @@ afterEach(() => {
 describe("syncRow", () => {
   it("stamps synced_at and clears the error on success", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(null, { status: 204 }),
+      Response.json({ data: { lists: [{ id: 3 }] } }),
     );
     const { db, updates } = fakeDb();
 
@@ -218,7 +218,7 @@ describe("reconcile", () => {
   it("replays every pending row and reports the tally", async () => {
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(Response.json({ data: { lists: [{ id: 3 }] } }))
       .mockResolvedValueOnce(new Response("nope", { status: 500 }));
 
     const { db } = fakeDb([
@@ -236,7 +236,7 @@ describe("reconcile", () => {
 
   it("caps a backlog at the batch size", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(null, { status: 204 }),
+      Response.json({ data: { lists: [{ id: 3 }] } }),
     );
     const rows = Array.from({ length: RECONCILE_BATCH_SIZE + 10 }, (_, i) => ({
       id: String(i),

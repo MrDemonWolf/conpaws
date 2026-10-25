@@ -24,6 +24,7 @@ const ERROR_KEYS: Record<string, string> = {
   "missing-data": "malformed",
   "malformed-data": "malformed",
   "too-many-rows": "tooManyRows",
+  "device-limit": "writeFailed",
   "write-failed": "writeFailed",
 };
 

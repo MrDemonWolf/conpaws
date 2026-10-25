@@ -4,7 +4,7 @@ import * as Sharing from "expo-sharing";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention, ConventionEvent } from "@/db/schema";
-import { MAX_BACKUP_BYTES } from "@/lib/backup-limits";
+import { MAX_BACKUP_BYTES, MAX_BACKUP_ROWS } from "@/lib/backup-limits";
 import { hapticSuccess } from "@/services/haptics";
 
 export interface ExportPayload {
@@ -17,18 +17,64 @@ export interface ExportPayload {
   };
 }
 
-export async function exportAllData(): Promise<ExportPayload> {
-  const conventions = await conventionsRepo.getAll();
+const EXPORT_PAGE_SIZE = 25;
 
+export async function exportAllData(): Promise<ExportPayload> {
+  const exportedAt = new Date().toISOString();
+  const conventions: Convention[] = [];
   const allEvents: ConventionEvent[] = [];
-  for (const conv of conventions) {
-    const events = await eventsRepo.getByConventionId(conv.id);
-    allEvents.push(...events);
+  const encoder = new TextEncoder();
+  let bytes = encoder.encode(
+    JSON.stringify({
+      version: 1,
+      exportedAt,
+      app: "ConPaws",
+      data: { conventions: [], events: [] },
+    }),
+  ).byteLength;
+  let rowCount = 0;
+
+  function append<T>(target: T[], row: T): void {
+    const rowBytes = encoder.encode(JSON.stringify(row)).byteLength;
+    const nextBytes = bytes + rowBytes + (target.length ? 1 : 0);
+    if (rowCount === MAX_BACKUP_ROWS) {
+      throw new Error(
+        `Export exceeds the maximum restorable backup row count of ${MAX_BACKUP_ROWS}.`,
+      );
+    }
+    if (nextBytes > MAX_BACKUP_BYTES) {
+      throw new Error(
+        `Export is larger than the maximum restorable backup size of ${MAX_BACKUP_BYTES} bytes.`,
+      );
+    }
+    bytes = nextBytes;
+    rowCount++;
+    target.push(row);
+  }
+
+  for (let offset = 0; ; offset += EXPORT_PAGE_SIZE) {
+    const page = await conventionsRepo.getPage(EXPORT_PAGE_SIZE, offset);
+    for (const convention of page) append(conventions, convention);
+
+    if (page.length < EXPORT_PAGE_SIZE) break;
+  }
+
+  for (const convention of conventions) {
+    for (let offset = 0; ; offset += EXPORT_PAGE_SIZE) {
+      const page = await eventsRepo.getByConventionIdPage(
+        convention.id,
+        EXPORT_PAGE_SIZE,
+        offset,
+      );
+      for (const event of page) append(allEvents, event);
+
+      if (page.length < EXPORT_PAGE_SIZE) break;
+    }
   }
 
   return {
     version: 1,
-    exportedAt: new Date().toISOString(),
+    exportedAt,
     app: "ConPaws",
     data: {
       conventions,

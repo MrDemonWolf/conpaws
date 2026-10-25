@@ -4,8 +4,8 @@
   // LOCAL DEVELOPMENT ONLY.
   //
   // Production deployment is owned by packages/infra/alchemy.run.ts, which
-  // uploads this Worker as `conpaws-api`, binds the admin-owned catalog D1 and
-  // the cdn.conpaws.com bucket, and attaches api.conpaws.com. This file exists
+  // uploads this Worker as `conpaws-api`, binds the admin-owned catalog D1,
+  // and attaches api.conpaws.com. This file exists
   // so `bun run --filter @conpaws/api dev` serves the same routes on a laptop
   // against the admin app's local catalog state. Never put a real
   // `database_id` here.
@@ -24,13 +24,6 @@
       "binding": "CATALOG_DB",
       "database_name": "conpaws-admin-preview-local-v2",
       "database_id": "conpaws-admin-preview-local-v2"
-    }
-  ],
-
-  "r2_buckets": [
-    {
-      "binding": "CDN_BUCKET",
-      "bucket_name": "conpaws-cdn-local"
     }
   ],
 

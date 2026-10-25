@@ -44,9 +44,8 @@ const env = readDeployEnv(process.env);
  * .github/workflows/deploy-web.yml decides whether this program runs at all,
  * and `ROUTES_ENABLED` below decides whether conpaws.com points at the Worker.
  * Deploy with routes disabled first so Cloudflare holds a known-good version
- * before the apex moves. There is no automatic rollback:
- *
- *   cd apps/web && bunx wrangler rollback
+ * before the apex moves. There is no automatic rollback; dispatch
+ * .github/workflows/deploy-web.yml with a last-known-good main ancestor SHA.
  *
  * Run under Node via tsx rather than Bun — Bun segfaults executing an Alchemy
  * program, the same reason wolfathon's deploy scripts use tsx.
@@ -231,8 +230,8 @@ const waitlistSecrets = {
  * for Node builtins that only resolve under the adapter's own upload path.
  */
 export const web = await Nextjs("web", {
-  // Explicit script name → conpaws.<subdomain>.workers.dev, and the name
-  // `wrangler rollback` expects. Without it Alchemy prefixes app and stage.
+  // Explicit script name → conpaws.<subdomain>.workers.dev. Without it,
+  // Alchemy prefixes app and stage.
   //
   // Renamed from `conpaws-web` on 2026-08-26. Alchemy has no rename: changing
   // this destroys the old Worker and creates a new one, which detaches and
@@ -271,11 +270,12 @@ export const web = await Nextjs("web", {
  * Public content on cdn.conpaws.com: convention artwork and other files that
  * are not part of a site build.
  *
- * Nothing writes here yet. The bucket is bound to the API Worker so uploads
- * can land without an infrastructure change. The r2.dev development subdomain
- * stays off; the only public surface is the custom domain. The website's own
- * build output does not belong here: Workers static assets already serve it
- * from the edge, versioned with each deploy and rolled back with it.
+ * Nothing writes here yet. The bucket is not bound to the public API Worker;
+ * add a separate authenticated write path when uploads exist. The r2.dev
+ * development subdomain stays off; the only public surface is the custom
+ * domain. The website's own build output does not belong here: Workers static
+ * assets already serve it from the edge, versioned with each deploy and rolled
+ * back with it.
  */
 export const cdn = await R2Bucket("cdn", {
   name: "conpaws-cdn",
@@ -319,7 +319,6 @@ export const api = await Worker("api", {
   previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     CATALOG_DB: catalog,
-    CDN_BUCKET: cdn,
   },
 });
 

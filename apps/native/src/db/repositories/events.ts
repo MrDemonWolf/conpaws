@@ -11,9 +11,7 @@ function generateId(): string {
   return `evt_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export async function getByConventionId(
-  conventionId: string,
-): Promise<ConventionEvent[]> {
+function conventionEventsQuery(conventionId: string) {
   return db
     .select()
     .from(conventionEvents)
@@ -24,6 +22,20 @@ export async function getByConventionId(
       conventionEvents.title,
       conventionEvents.id,
     );
+}
+
+export async function getByConventionId(
+  conventionId: string,
+): Promise<ConventionEvent[]> {
+  return conventionEventsQuery(conventionId);
+}
+
+export async function getByConventionIdPage(
+  conventionId: string,
+  limit: number,
+  offset: number,
+): Promise<ConventionEvent[]> {
+  return conventionEventsQuery(conventionId).limit(limit).offset(offset);
 }
 
 export async function getById(

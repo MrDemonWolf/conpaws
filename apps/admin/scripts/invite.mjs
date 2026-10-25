@@ -15,12 +15,15 @@ import { inviteSql, parseInviteArgs } from "./invite-sql.mjs";
 const USAGE = `Invite someone to ConPaws Admin.
 
   bun run admin:invite -- you@example.com [--role owner|editor] [--local]
+  bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com
 
 The invite lasts seven days. They sign in at https://admin.conpaws.com/sign-in
-with that address and get a one-time code by email. --role defaults to owner,
-which is what you want for the first person. --local writes to the local
-development catalog instead of production; add --persist-to DIR if your local
-Worker keeps its state somewhere other than apps/admin/.wrangler/state.
+with that address and get a one-time code by email. Invites default to the
+local development catalog; locally, --role defaults to owner. Production
+requires --remote and an explicit --role. A production owner invite also
+requires --confirm-email to exactly match the normalized email address. Add
+--persist-to DIR if your local Worker keeps its state somewhere other than
+apps/admin/.wrangler/state.
 
 Production uses your Wrangler login (bunx wrangler login) or the
 CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID environment variables. If your

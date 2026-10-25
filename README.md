@@ -73,7 +73,7 @@ Never miss a panel again.
 | Local database    | expo-sqlite with Drizzle ORM                                 |
 | Backend (target)  | Cloudflare Workers — Hono, tRPC, Better-Auth                 |
 | Cloud database    | Cloudflare D1 (SQLite) with Drizzle ORM                      |
-| File storage (planned) | Cloudflare R2                                  |
+| File storage      | Cloudflare R2 — public CDN live; OTA buckets need recreation; product uploads planned |
 | Website           | Next.js 16.2.12 on Cloudflare Workers via OpenNext           |
 | Infrastructure    | Alchemy — D1, Worker bindings and secrets, cron              |
 | Bot protection    | Cloudflare Turnstile (server-side siteverify)                |
@@ -139,8 +139,7 @@ All scripts run from the repo root and fan out through Turborepo:
 - `bun run build-number:check` - Check native project build numbers
 - `bun run deploy` / `bun run destroy` - Apply or tear down the Alchemy
   stack: site, API, catalog, CDN, reconciler and admin console
-- `bun run admin:invite -- you@example.com` - Invite someone to the admin
-  console; this is how the first owner gets in
+- `bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com` - Bootstrap the production admin owner; the invite command defaults to local
 - `bun run infra:dev` - Run the Alchemy stack in development
 - `bun run db:generate` - Generate Drizzle migrations for the web D1
   database
@@ -158,46 +157,53 @@ All scripts run from the repo root and fan out through Turborepo:
 ### Website Deployment
 
 Production is owned by Alchemy (`packages/infra/alchemy.run.ts`), which
-provisions the D1 database, both Workers, their bindings, and the hourly
-reconciler cron from one typed program.
+provisions the waitlist and catalog D1 databases, site, API, reconciler and
+admin Workers, their bindings, and the hourly reconciler cron from one typed
+program.
 
-Deploys run from CI on a push to `main`, gated behind two repository
-variables and a manual approval on the `production` environment:
+Deploys run from CI on a push to `main`, gated behind repository variables and
+Nathanial's required approval on the `production` environment:
 
 - `PRODUCTION_DEPLOY_ENABLED` - the master switch; nothing deploys while
   it is `false`
 - `PRODUCTION_ROUTES_ENABLED` - attaches `conpaws.com` (with
   `www.conpaws.com` redirecting to it). Deploy with this `false` first so
   Cloudflare holds a known-good version before the apex points anywhere
+- `WORKERS_DEV_ENABLED` - serves the stable `conpaws.mrdemonwolf.workers.dev`
+  origin used before cutover
+- `PREVIEW_URLS_ENABLED` - enables or disables per-version preview subdomains
 
-There is no automatic rollback. Roll back by hand:
+All three routing values are required and must be exactly `true` or `false`.
+Keep `PRODUCTION_ROUTES_ENABLED` or `WORKERS_DEV_ENABLED` true so every deploy
+has a reachable origin.
 
-```bash
-cd apps/web && bunx wrangler rollback
-```
+There is no automatic rollback. Run `.github/workflows/deploy-web.yml` with
+`workflow_dispatch` and a last-known-good SHA that is an ancestor of
+`origin/main`.
 
 The full going-live runbook lives on the **Prerelease Site** page in Notion.
 
 ### Mobile Releases and OTA Updates
 
-Store releases remain operator-controlled. Local Xcode and Gradle builds create
-signed IPA/AAB artifacts, then the exact tested artifacts are uploaded to
-TestFlight and Play Internal Testing and promoted manually. There is no
-auto-submit.
+Store releases remain operator-controlled. GitHub Actions and Fastlane build
+and upload the native artifacts after successful CI on the exact `dev` or
+`main` commit; local Xcode and Gradle builds are the documented fallback. Store
+promotion stays manual, and there is no auto-submit.
 
 - [Mobile release guide](apps/native/RELEASING.md)
 - Self-hosted OTA decision guide — **OTA Updates** page in Notion
 - [Dokploy xprem deployment runbook](infra/xprem/README.md)
 
 OTA updates are required for the MVP. The selected path is signed
-[xprem 3.1.1](https://github.com/mercuretechnologies/xprem) hosted once for
+[xprem 3.2.5](https://github.com/mercuretechnologies/xprem/releases/tag/v3.2.5) hosted once for
 MrDemonWolf, Inc. at `updates.mrdemonwolf.com`, not EAS Update. ConPaws
 receives its own xprem app UUID, signing material, branches/channels,
 publisher token, and runtime inside that shared control plane. The app
 meets the Expo SDK 57 prerequisite, but OTA remains fail-closed until
 signed staging passes cold-start, offline-start, and rollback tests on
-physical iOS and Android devices. The deployment bundle is ready, but no
-service is deployed or enabled in a store binary.
+physical iOS and Android devices. The PostgreSQL service and R2 storage
+foundation are live, but the xprem application/control plane is not deployed or
+enabled in a store binary.
 
 ## Project Structure
 
@@ -218,7 +224,7 @@ conpaws/
 │   └── ui/          # Shared shadcn/ui components and styles
 ├── docs/            # Architecture, website, Widget and Watch docs
 ├── infra/
-│   └── xprem/       # xprem OTA descriptor and runbook (not deployed)
+│   └── xprem/       # xprem OTA descriptor/runbook; application not deployed
 └── test-data/       # iCal fixtures for import development
 ```
 

@@ -100,6 +100,19 @@ describe("resolveScheduleUrl", () => {
     );
   });
 
+  it("does not copy rejected input into the error message", () => {
+    const sentinel = "private-schedule-token";
+
+    expect(() => resolveScheduleUrl(`file:///${sentinel}`)).toThrow(
+      "Invalid schedule URL. Paste a Sched address, an .ics link, or a webcal:// link.",
+    );
+    try {
+      resolveScheduleUrl(`file:///${sentinel}`);
+    } catch (error) {
+      expect((error as Error).message).not.toContain(sentinel);
+    }
+  });
+
   it("does not treat a lookalike host as Sched", () => {
     expect(resolveScheduleUrl("https://sched.com.evil.test/x").kind).toBe(
       "ics",

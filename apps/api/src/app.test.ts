@@ -77,11 +77,49 @@ describe("api.conpaws.com", () => {
     );
     expect(missing.status).toBe(404);
     expect(await missing.json()).toEqual({ error: "not_found" });
-    expect(missing.headers.get("cache-control")).toBe("no-store");
+    expect(missing.headers.get("cache-control")).toContain("s-maxage=30");
 
     const unavailable = await app.request("/v1/conventions", {}, env());
     expect(unavailable.status).toBe(503);
     expect(await unavailable.json()).toEqual({ error: "catalog_unavailable" });
+    expect(unavailable.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("rejects malformed and oversized slugs before querying D1", async () => {
+    const { database, calls } = fakeD1([]);
+    const bindings = env({ CATALOG_DB: database as unknown as D1Database });
+
+    for (const path of [
+      "/v1/conventions/a",
+      "/v1/conventions/UPPERCASE",
+      "/v1/conventions/sample--con",
+      "/v1/conventions/sample%2Fcon/schedule",
+      `/v1/conventions/${"a".repeat(97)}/schedule`,
+    ]) {
+      const response = await app.request(path, {}, bindings);
+      expect(response.status).toBe(404);
+      expect(await response.json()).toEqual({ error: "not_found" });
+    }
+
+    expect(calls).toEqual([]);
+  });
+
+  it("rejects query variants before they can bypass the cache and query D1", async () => {
+    const { database, calls } = fakeD1([]);
+    const bindings = env({ CATALOG_DB: database as unknown as D1Database });
+
+    for (const path of [
+      "/v1/conventions?ignored=1",
+      "/v1/conventions/nobody?ignored=1",
+      "/v1/conventions/nobody/schedule?ignored=1",
+    ]) {
+      const response = await app.request(path, {}, bindings);
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "invalid_request" });
+      expect(response.headers.get("cache-control")).toBe("no-store");
+    }
+
+    expect(calls).toEqual([]);
   });
 
   it("does not serve the catalog under the old /api prefix", async () => {
