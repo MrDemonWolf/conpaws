@@ -55,6 +55,25 @@ function toSqlite(value: unknown): SqliteValue {
   throw new Error(`Unsupported bind value: ${typeof value}`);
 }
 
+function sqliteStatement(sql: string, params: SqliteValue[]) {
+  const bindings: SqliteValue[] = [];
+  let hasNumberedParameters = false;
+  const portableSql = sql.replace(/\?(\d+)/g, (_, number: string) => {
+    hasNumberedParameters = true;
+    const value = params[Number(number) - 1];
+    if (value === undefined) {
+      throw new Error(`D1_TYPE_ERROR: missing bind value for ?${number}`);
+    }
+    bindings.push(value);
+    return "?";
+  });
+
+  // Node 22's built-in SQLite does not bind D1's numbered placeholders consistently.
+  return hasNumberedParameters
+    ? { sql: portableSql, params: bindings }
+    : { sql, params };
+}
+
 function result(results: Record<string, unknown>[], changes: number) {
   return {
     results,
@@ -83,16 +102,19 @@ class TestStatement {
   }
 
   execute() {
-    const statement = this.sqlite.prepare(this.sql);
+    const normalized = sqliteStatement(this.sql, this.params);
+    const statement = this.sqlite.prepare(normalized.sql);
     const returnsRows =
       /^\s*(SELECT|WITH|PRAGMA)\b/i.test(this.sql) ||
       /\bRETURNING\b/i.test(this.sql);
     if (returnsRows) {
-      const rows = statement.all(...this.params).map((row) => ({ ...row }));
+      const rows = statement
+        .all(...normalized.params)
+        .map((row) => ({ ...row }));
       const isWrite = /^\s*(INSERT|UPDATE|DELETE)\b/i.test(this.sql);
       return result(rows, isWrite ? rows.length : 0);
     }
-    const info = statement.run(...this.params);
+    const info = statement.run(...normalized.params);
     return result([], Number(info.changes));
   }
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T22:22:32.747Z",
+  "generatedAt": "2026-10-25T22:35:00.071Z",
   "packages": [
     {
       "name": "@babel/code-frame",
@@ -4092,14 +4092,6 @@
     {
       "name": "picomatch",
       "version": "2.3.2",
-      "license": "MIT",
-      "repository": "https://github.com/micromatch/picomatch",
-      "homepage": "https://github.com/micromatch/picomatch",
-      "textId": "9219a3ebed1d1e1b"
-    },
-    {
-      "name": "picomatch",
-      "version": "4.0.5",
       "license": "MIT",
       "repository": "https://github.com/micromatch/picomatch",
       "homepage": "https://github.com/micromatch/picomatch",

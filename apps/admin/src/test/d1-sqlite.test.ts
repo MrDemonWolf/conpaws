@@ -43,3 +43,22 @@ describe("the catalog migrations", () => {
     ).toThrow(/FOREIGN KEY/);
   });
 });
+
+it("binds numbered D1 placeholders by index, including reused parameters", async () => {
+  const { database, sqlite } = createTestCatalog();
+
+  try {
+    const row = await database
+      .prepare("SELECT ?1 AS first, ?3 AS third, ?1 AS first_again")
+      .bind("first", "unused", "third")
+      .first<{ first: string; third: string; first_again: string }>();
+
+    expect(row).toEqual({
+      first: "first",
+      third: "third",
+      first_again: "first",
+    });
+  } finally {
+    sqlite.close();
+  }
+});
