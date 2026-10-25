@@ -132,56 +132,6 @@
       "upstream": "https://github.com/advisories/GHSA-x6wf-f3px-wcqx"
     },
     {
-      "package": "braces",
-      "id": "GHSA-vfj7-8cjw-p6xm",
-      "severity": "high",
-      "vulnerableVersions": "<=3.0.3",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Build-time dependency only; deployed code does not accept attacker-controlled glob patterns.",
-      "upstream": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
-    },
-    {
-      "package": "next",
-      "id": "GHSA-2xp9-vwfh-vxw4",
-      "severity": "critical",
-      "vulnerableVersions": ">=16.0.0 <16.3.3",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
-      "upstream": "https://github.com/advisories/GHSA-2xp9-vwfh-vxw4"
-    },
-    {
-      "package": "next",
-      "id": "GHSA-cjq9-62q9-8jv4",
-      "severity": "high",
-      "vulnerableVersions": ">=16.0.0 <16.3.8",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
-      "upstream": "https://github.com/advisories/GHSA-cjq9-62q9-8jv4"
-    },
-    {
-      "package": "next",
-      "id": "GHSA-p293-qw3h-jr36",
-      "severity": "critical",
-      "vulnerableVersions": ">=16.0.0 <16.3.3",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
-      "upstream": "https://github.com/advisories/GHSA-p293-qw3h-jr36"
-    },
-    {
-      "package": "next",
-      "id": "GHSA-vcvr-r3jv-pc5j",
-      "severity": "critical",
-      "vulnerableVersions": ">=16.2.0 <16.3.6",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Next is pinned for OpenNext compatibility; CI rejects next/image, next/og, ImageResponse, remotePatterns, and AVIF optimization in production source, and production runs on Cloudflare Workers rather than Windows.",
-      "upstream": "https://github.com/advisories/GHSA-vcvr-r3jv-pc5j"
-    },
-    {
       "package": "node-forge",
       "id": "GHSA-86w9-cpqp-85rv",
       "severity": "high",
@@ -192,64 +142,14 @@
       "upstream": "https://github.com/advisories/GHSA-86w9-cpqp-85rv"
     },
     {
-      "package": "sharp",
-      "id": "GHSA-f88m-g3jw-g9cj",
+      "package": "zod",
+      "id": "GHSA-mrhx-c7xc-m3w5",
       "severity": "high",
-      "vulnerableVersions": "<0.35.0",
+      "vulnerableVersions": "<4.6.6",
       "expires": "2026-11-15",
       "owner": "Nathanial Henniges",
-      "reachability": "Transitive Next and Miniflare image dependency; source does not import sharp or next/image, and production runs on Cloudflare Workers.",
-      "upstream": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj"
-    },
-    {
-      "package": "sharp",
-      "id": "GHSA-rgj7-g3m4-5g8c",
-      "severity": "high",
-      "vulnerableVersions": "<0.35.4",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Transitive Next and Miniflare image dependency; source does not import sharp or next/image, and production runs on Cloudflare Workers.",
-      "upstream": "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c"
-    },
-    {
-      "package": "sharp",
-      "id": "GHSA-wq5f-xc86-pv6w",
-      "severity": "high",
-      "vulnerableVersions": "<0.35.5",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Transitive Next and Miniflare image dependency; source does not import sharp or next/image, and production runs on Cloudflare Workers.",
-      "upstream": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w"
-    },
-    {
-      "package": "undici",
-      "id": "GHSA-4cwx-7wf7-3272",
-      "severity": "high",
-      "vulnerableVersions": ">=7.0.0 <7.29.0",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Transitive Alchemy and Miniflare deployment tooling only; application source does not import undici or expose its client APIs at runtime.",
-      "upstream": "https://github.com/advisories/GHSA-4cwx-7wf7-3272"
-    },
-    {
-      "package": "undici",
-      "id": "GHSA-rfgv-xxqx-mfg5",
-      "severity": "high",
-      "vulnerableVersions": ">=7.0.0 <7.29.1",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Transitive Alchemy and Miniflare deployment tooling only; application source does not import undici or expose its client APIs at runtime.",
-      "upstream": "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5"
-    },
-    {
-      "package": "undici",
-      "id": "GHSA-w293-vg96-wgc3",
-      "severity": "high",
-      "vulnerableVersions": ">=7.24.1 <7.29.1",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Transitive Alchemy and Miniflare deployment tooling only; application source does not import undici or expose its client APIs at runtime.",
-      "upstream": "https://github.com/advisories/GHSA-w293-vg96-wgc3"
+      "reachability": "The advisory describes Zod 4.6.0 through 4.6.5 and its upstream fix changes the v4 implementation. App workspaces now require patched Zod 4.6.6 or newer; Zod 3 remains only in Expo CLI and shadcn build tooling. Re-check toolchain reachability and the advisory scope before expiry.",
+      "upstream": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5"
     }
   ]
 }

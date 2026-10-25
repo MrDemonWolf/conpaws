@@ -86,7 +86,7 @@ Never miss a panel again.
 
 ### Prerequisites
 
-- bun (repo pins `bun@1.3.10`)
+- bun (repo pins `bun@1.4.4`)
 - Node.js `22.13.1` (pinned in `.node-version`)
 - Xcode (for iOS development)
 - Android Studio (for Android development)

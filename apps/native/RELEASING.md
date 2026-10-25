@@ -90,7 +90,7 @@ gh variable set NATIVE_RELEASE_ENABLED --body true
 
 The workflow must be merged into `main` so GitHub registers its `workflow_run`
 and manual triggers. Both branches need the version script and Fastlane files
-before activation. CI uses Bun 1.3.10, locked Fastlane gems, Java 17, and Xcode
+before activation. CI uses Bun 1.4.4, locked Fastlane gems, Java 17, and Xcode
 26.6 on `macos-26`. No EAS account, hosted build, or additional service is used.
 
 ### OTA comes next
@@ -193,7 +193,7 @@ Do these once before the first production build.
 
 ### Toolchain
 
-- Install Node.js `22.13.1` from `.node-version` and Bun `1.3.10`, then run all commands below from `apps/native`.
+- Install Node.js `22.13.1` from `.node-version` and Bun `1.4.4`, then run all commands below from `apps/native`.
 - Use Xcode 26.4 or newer. Expo SDK 57 targets iOS 16.4 or newer, so older devices cannot install this app baseline.
 - Install Android Studio with a current SDK and JDK 17. Gradle runs from the generated `android/` project.
 

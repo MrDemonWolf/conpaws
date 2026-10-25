@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
-import { dirname, extname, join, relative } from "node:path";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SEVERITIES = new Set(["low", "moderate", "high", "critical"]);
@@ -17,51 +17,6 @@ const EXCEPTION_FIELDS = [
   "upstream",
   "vulnerableVersions",
 ].sort();
-const GUARDED_SOURCE_EXTENSIONS = new Set([
-  ".cjs",
-  ".cts",
-  ".js",
-  ".jsx",
-  ".mdx",
-  ".mjs",
-  ".mts",
-  ".ts",
-  ".tsx",
-]);
-const GUARDED_SOURCE_ROOTS = ["apps", "packages"];
-const IGNORED_SOURCE_DIRECTORIES = new Set([
-  ".alchemy",
-  ".expo",
-  ".next",
-  ".open-next",
-  ".turbo",
-  ".wrangler",
-  "__tests__",
-  "android",
-  "build",
-  "coverage",
-  "dist",
-  "ios",
-  "node_modules",
-  "test-data",
-]);
-const NEXT_EXCEPTION_SOURCE_MARKERS = [
-  { feature: "next/image", pattern: /["'`]next\/image(?:\.js)?["'`]/ },
-  { feature: "next/og", pattern: /["'`]next\/og(?:\.js)?["'`]/ },
-  {
-    feature: "Next ImageResponse implementation",
-    pattern: /["'`]next\/dist\/[^"'`]*image-response(?:\.js)?["'`]/,
-  },
-  { feature: "ImageResponse", pattern: /\bImageResponse\b/ },
-  { feature: "images.remotePatterns", pattern: /\bremotePatterns\b/ },
-  {
-    feature: "legacy images.domains",
-    pathPattern: /(?:^|\/)next\.config\.[cm]?[jt]s$/,
-    pattern: /\bdomains\s*:/,
-  },
-  { feature: "AVIF image optimization", pattern: /["'`]image\/avif["'`]/i },
-];
-
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -88,62 +43,6 @@ function requireNonemptyString(value, label) {
     throw new Error(`${label} must be a non-empty string`);
   }
   return value;
-}
-
-function collectGuardedSources(root) {
-  const sources = [];
-
-  function visit(directory) {
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      if (entry.isSymbolicLink()) continue;
-      const path = join(directory, entry.name);
-      if (entry.isDirectory()) {
-        if (!IGNORED_SOURCE_DIRECTORIES.has(entry.name)) visit(path);
-        continue;
-      }
-      if (
-        !entry.isFile() ||
-        !GUARDED_SOURCE_EXTENSIONS.has(extname(entry.name)) ||
-        /\.(?:spec|test)\.[cm]?[jt]sx?$/.test(entry.name)
-      ) {
-        continue;
-      }
-      sources.push({
-        path: relative(root, path),
-        source: readFileSync(path, "utf8"),
-      });
-    }
-  }
-
-  for (const sourceRoot of GUARDED_SOURCE_ROOTS) visit(join(root, sourceRoot));
-  return sources;
-}
-
-export function validateNextExceptionSource(sources) {
-  const violations = [];
-  for (const { path, source } of sources) {
-    for (const {
-      feature,
-      pathPattern,
-      pattern,
-    } of NEXT_EXCEPTION_SOURCE_MARKERS) {
-      if (pathPattern && !pathPattern.test(path)) continue;
-      const match = pattern.exec(source);
-      if (!match) continue;
-      const line = source.slice(0, match.index).split("\n").length;
-      violations.push(`${path}:${line} uses ${feature}`);
-    }
-  }
-
-  if (violations.length > 0) {
-    throw new Error(
-      `Next dependency exception reachability changed:\n- ${violations.sort().join("\n- ")}\nUpgrade the pinned Next/OpenNext pair or re-review the exception before enabling these image paths.`,
-    );
-  }
-}
-
-export function validateNextExceptionSourceTree(root) {
-  validateNextExceptionSource(collectGuardedSources(root));
 }
 
 function parseGhsa(url, label) {
@@ -423,7 +322,6 @@ function main() {
     ".github",
     "security-audit-exceptions.json",
   );
-  validateNextExceptionSourceTree(root);
   const audit = spawnSync("bun", ["audit", "--json"], {
     cwd: root,
     encoding: "utf8",
