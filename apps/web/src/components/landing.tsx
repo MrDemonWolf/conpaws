@@ -47,11 +47,11 @@ function SectionHeading({
       <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-balance font-bold text-[clamp(28px,4vw,40px)] leading-[1.05] tracking-[-0.02em]">
+      <h2 className="mt-3 text-balance font-bold text-[clamp(32px,4vw,44px)] leading-[1.15] tracking-[-0.02em]">
         {title}
       </h2>
       {blurb ? (
-        <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed">
+        <p className="mt-4 text-base text-muted-foreground leading-relaxed sm:text-lg">
           {blurb}
         </p>
       ) : null}
@@ -443,7 +443,7 @@ export function Landing({
     // footer, which makes the footer not a contentinfo landmark and leaves the
     // page with no banner landmark at all -- so landmark navigation offered
     // exactly one destination, "main", on every page.
-    <div className="marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(112px,calc(96px+env(safe-area-inset-bottom)))]">
+    <div className="landing-page marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(112px,calc(96px+env(safe-area-inset-bottom)))]">
       <a
         href="#main"
         className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-skip"
@@ -453,15 +453,13 @@ export function Landing({
       <header>
         <nav
           aria-label={messages.nav.primaryLabel}
-          className="relative z-nav grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-border py-4 has-[details[open]]:z-menu sm:gap-y-2 sm:py-5 lg:flex lg:justify-between lg:gap-5 lg:py-6"
+          className="relative z-nav grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 border-b border-border py-5 has-[details[open]]:z-menu lg:flex lg:justify-between lg:gap-6 lg:py-6"
         >
           <span className="flex items-center gap-2.5">
             <CompassPaw className="h-9 w-9 text-primary sm:h-10 sm:w-10" />
-            <b className="font-bold text-[20px] tracking-tight sm:text-[22px]">
-              ConPaws
-            </b>
+            <b className="font-bold text-2xl tracking-tight">ConPaws</b>
           </span>
-          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5 rounded-lg bg-background px-1 sm:gap-x-2 lg:order-2 lg:flex-1 lg:justify-center lg:gap-x-1">
+          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-0 sm:gap-x-6 lg:order-2 lg:flex-1 lg:justify-center">
             {[
               ["#inside", messages.inside.eyebrow],
               ["#features", messages.lineup.title],
@@ -471,13 +469,13 @@ export function Landing({
               <a
                 key={href}
                 href={href}
-                className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-2.5 text-[13px] text-muted-foreground transition hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:px-3 sm:text-sm"
+                className="inline-flex min-h-11 items-center py-2 font-medium text-[15px] text-foreground/80 leading-6 sm:text-base underline-offset-8 transition hover:text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
               >
                 {label}
               </a>
             ))}
           </div>
-          <span className="col-start-2 row-start-1 justify-self-end lg:order-3">
+          <span className="col-start-2 row-start-1 justify-self-end lg:order-3 [&_summary]:font-sans [&_summary]:font-medium [&_summary]:text-sm [&_summary]:text-foreground [&_summary]:normal-case [&_summary]:tracking-normal">
             <LanguageSwitcher
               current={locale}
               label={messages.nav.languageLabel}
@@ -559,10 +557,10 @@ export function Landing({
                     {item.time}
                   </span>
                   <div>
-                    <h3 className="font-bold text-[17px] tracking-tight transition group-hover:text-primary">
+                    <h3 className="font-bold text-xl tracking-tight transition group-hover:text-primary">
                       {copy.title}
                     </h3>
-                    <p className="mt-1 max-w-[52ch] text-[14.5px] text-muted-foreground leading-relaxed">
+                    <p className="mt-1 max-w-[52ch] text-base text-muted-foreground leading-relaxed">
                       {copy.body}
                     </p>
                   </div>
@@ -598,10 +596,10 @@ export function Landing({
                   <span className="font-bold text-[38px] text-transparent leading-none [-webkit-text-stroke:1.5px_rgb(15_172_237/0.55)] transition group-hover:text-primary group-hover:[-webkit-text-stroke:0px]">
                     {step.n}
                   </span>
-                  <h3 className="mt-4 font-bold text-[16px] tracking-tight">
+                  <h3 className="mt-4 font-bold text-xl tracking-tight">
                     {copy.title}
                   </h3>
-                  <p className="mt-1.5 text-[14px] text-muted-foreground leading-relaxed">
+                  <p className="mt-1.5 text-base text-muted-foreground leading-relaxed">
                     {copy.body}
                   </p>
                 </div>
@@ -639,15 +637,15 @@ export function Landing({
             <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
               {messages.cta.eyebrow}
             </p>
-            <h2 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(28px,4.5vw,44px)] leading-[1.05] tracking-[-0.02em]">
+            <h2 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(32px,4.5vw,44px)] leading-[1.15] tracking-[-0.02em]">
               {messages.cta.title}
             </h2>
-            <p className="mx-auto mt-4 max-w-[46ch] text-[15px] text-muted-foreground leading-relaxed">
+            <p className="mx-auto mt-4 max-w-[46ch] text-lg text-muted-foreground leading-relaxed">
               {messages.cta.body}
             </p>
             <a
               href="#waitlist"
-              className="mt-8 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:brightness-110 hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] active:scale-[0.99]"
+              className="mt-8 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-base text-primary-foreground uppercase tracking-[0.08em] transition hover:brightness-110 hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] active:scale-[0.99]"
             >
               {messages.cta.button}
             </a>
@@ -669,7 +667,7 @@ export function Landing({
           ConPaws
         </p>
         <div className="relative flex flex-wrap items-center justify-between gap-6 pb-8">
-          <p className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
+          <p className="text-sm text-muted-foreground">
             {messages.footer.copyright.replace("{year}", String(year))}{" "}
             <a
               href="https://www.mrdemonwolf.com"
@@ -686,7 +684,7 @@ export function Landing({
               a link inside a sentence is exempt from the target-size rule. */}
           <nav
             aria-label={messages.nav.footerLabel}
-            className="-my-3 flex flex-wrap gap-x-5 gap-y-1 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
+            className="-my-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground"
           >
             <a
               href="/updates"
