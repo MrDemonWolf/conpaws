@@ -95,7 +95,7 @@ Policy and implementation references, checked October 4, 2026:
 
 ## Production release
 
-The admin console deploys with the rest of the stack: `bun run deploy` locally, or the `Deploy web` workflow after CI passes on `main`. There is no separate admin program, workflow, or setting.
+The admin console deploys with the rest of the stack: the `Deploy web` workflow after CI passes on `main` (a local `bun run deploy` is refused). There is no separate admin program, workflow, or setting.
 
 The catalog database is created by the same deploy, empty, with these migrations applied, and bound to both this console and the public API at api.conpaws.com. Nothing needs its ID. Until staff publish an edition, the API answers an empty list.
 

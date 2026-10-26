@@ -53,7 +53,7 @@ Use the pinned Node and Bun versions for parity with CI.
 
 ## Deployment boundaries
 
-`bun run deploy` manages everything: the website, the API Worker, the catalog
+`bun run deploy`, run only by GitHub Actions on `main`, manages everything: the website, the API Worker, the catalog
 and waitlist databases, the CDN bucket, the waitlist reconciler and the admin
 console. Staff sign in to the console with one-time email codes; the first
 owner is invited with `bun run admin:invite -- you@example.com --remote --role

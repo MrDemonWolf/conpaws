@@ -138,7 +138,8 @@ All scripts run from the repo root and fan out through Turborepo:
 - `bun run ship:prep` - Bump the native build number, prebuild, and verify
 - `bun run build-number:check` - Check native project build numbers
 - `bun run deploy` / `bun run destroy` - Apply or tear down the Alchemy
-  stack: site, API, catalog, CDN, reconciler and admin console
+  stack: site, API, catalog, CDN, reconciler and admin console. Runs only in
+  GitHub Actions on `main`; a laptop run is refused
 - `bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com` - Recover production owner access; first-owner setup happens in the browser and this command defaults to local
 - `bun run infra:dev` - Run the Alchemy stack in development
 - `bun run db:generate` - Generate Drizzle migrations for the web D1

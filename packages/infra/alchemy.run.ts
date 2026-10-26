@@ -12,6 +12,27 @@ import {
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
 
+/**
+ * Production changes only ever come from GitHub Actions on `main`, after CI
+ * has passed on the pull request and on the merge. A deploy or destroy from a
+ * laptop is refused here, before any credential is read; `alchemy dev` (local
+ * emulation) is still allowed. This is a guard against accidents, not a
+ * security boundary — the real boundary is the protected `production`
+ * environment, which only `main` can deploy to.
+ */
+const localOnly =
+  process.argv.includes("--dev") || process.argv.includes("--local");
+if (
+  !localOnly &&
+  (process.env.GITHUB_ACTIONS !== "true" ||
+    process.env.GITHUB_REF !== "refs/heads/main")
+) {
+  console.error(
+    "Refusing to deploy: production deploys run only from GitHub Actions on main. Merge a pull request instead.",
+  );
+  process.exit(1);
+}
+
 config({ path: "./.env" });
 config({ path: "../../apps/web/.env" });
 
