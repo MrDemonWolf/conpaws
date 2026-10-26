@@ -1,9 +1,9 @@
 /**
  * Invite someone to ConPaws Admin from your own machine.
  *
- * This is how the first owner gets in: there is no first-visitor claim on the
- * live site. It writes an invite with your Cloudflare credentials, then the
- * invitee signs in with an emailed code. After that, owners invite people
+ * Operator recovery for an initialized console with no accessible owner.
+ * It writes an invite with your Cloudflare credentials, then the invitee
+ * signs in with an emailed code. Owners normally invite people
  * from the Team screen.
  */
 import { spawnSync } from "node:child_process";

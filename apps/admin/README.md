@@ -26,7 +26,7 @@ Production migrations leave the catalog empty. Add real editions only after chec
 There is no password and no Cloudflare Access in front of the console. Staff sign in with an 8-digit code sent to their email:
 
 1. Enter an email address on `/sign-in`.
-2. If that address is on the team, or has an unexpired invite, ConPaws emails a code.
+2. On a fresh installation, any valid email can receive a code; the first verified signup becomes the owner. After setup, only team members and people with an unexpired invite receive codes.
 3. Enter the code in the same browser. It expires after 10 minutes and allows 5 tries.
 
 Neither step reveals who is on the team. The request page looks the same for every address, and every failed code gets the same message, whether it was wrong, used up, expired, or never sent.
@@ -37,7 +37,9 @@ A session lasts 7 days. If it has ended, the console sends you to sign in and th
 
 Inviting, changing roles and turning access off need a code entered in the last two hours. If yours is older, the Team screen asks you to confirm with a fresh code first. Turning someone's access off signs them out everywhere at once. An invite never re-enables an account that was turned off.
 
-**The first owner is invited from your own machine**, because nobody can claim an empty console by visiting it first:
+**Set up the first owner in your browser:** open `/sign-in` on a fresh installation, enter your email, and verify the code. The first verified signup becomes owner. Concurrent signups cannot create two initial owners. Setup remains closed even if every member is later disabled or removed.
+
+**Operator recovery:** use the laptop command below if an initialized console has no accessible owner:
 
 ```bash
 bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com
@@ -100,6 +102,6 @@ The catalog database is created by the same deploy, empty, with these migrations
 The deploy also derives the key that protects stored sign-in codes from `ALCHEMY_PASSWORD`, so there is no secret to set. Keep `ALCHEMY_PASSWORD` identical on every machine and in CI that deploys production; a mismatch only breaks codes sent in the minutes around a deploy. Two one-time steps finish the setup:
 
 1. **Turn on email sending for conpaws.com.** In the Cloudflare dashboard, go to Compute, then Email Service, then Email Sending, and choose Onboard Domain for `conpaws.com`. Cloudflare adds the SPF, DKIM, DMARC and bounce records itself. Codes come from `admin@conpaws.com`. Until this is done the console loads, but codes do not arrive and the Worker logs a sender error such as `E_SENDER_DOMAIN_NOT_AVAILABLE` or `E_SENDER_NOT_VERIFIED`.
-2. **Invite the first owner** with `bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com`, then sign in at https://admin.conpaws.com/sign-in.
+2. **Create the first owner:** open https://admin.conpaws.com/sign-in, enter your email, and verify the emailed code. A fresh console displays “Set up ConPaws Admin.” Setup ends when the first person completes verification; later access requires an invite. Claim the console immediately after its first deployment.
 
 Do not invite outside hosts until organization isolation exists; today every role sees the whole catalog.

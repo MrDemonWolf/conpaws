@@ -3,6 +3,8 @@ import { AuthScreen } from "../../components/auth-screen";
 import { EmailFromLink } from "../../components/email-from-link";
 import { Banner, Button, Field } from "../../components/ui";
 import { getAdminGate } from "../../lib/auth";
+import { getAdminBindings } from "../../lib/db";
+import { isOwnerSetupOpen } from "../../lib/sign-in";
 import { safeNextPath } from "../../lib/sign-in-cookies";
 import { requestSignInCode } from "./actions";
 
@@ -36,7 +38,19 @@ export default async function SignInPage({
   const params = await searchParams;
   const next = safeNextPath(param(params.next));
   const gate = await getAdminGate();
-  const error = errors[param(params.error)];
+  let setup = false;
+  let setupUnavailable = false;
+  if (gate.status === "identity-required") {
+    try {
+      const database = (await getAdminBindings()).CATALOG_DB;
+      setup = database ? await isOwnerSetupOpen(database) : false;
+    } catch {
+      setupUnavailable = true;
+    }
+  }
+  const error =
+    errors[param(params.error)] ??
+    (setupUnavailable ? errors.unavailable : undefined);
   // A signed-in owner comes here to confirm it's them before a team change,
   // or to read why that failed. Anyone else already signed in has nothing to
   // do here.
@@ -50,11 +64,19 @@ export default async function SignInPage({
 
   return (
     <AuthScreen
-      title={confirming ? "Confirm it's you" : "Sign in"}
+      title={
+        confirming
+          ? "Confirm it's you"
+          : setup
+            ? "Set up ConPaws Admin"
+            : "Sign in"
+      }
       description={
         confirming
           ? "Team changes need a fresh code. We'll email one to you."
-          : "Enter your email and we'll send you an 8-digit code. There's no password."
+          : setup
+            ? "Create the first owner account. Enter your email, then verify the 8-digit code we send you."
+            : "Enter your email and we'll send you an 8-digit code. There's no password."
       }
     >
       {error ? <Banner tone="error">{error}</Banner> : null}
@@ -85,8 +107,9 @@ export default async function SignInPage({
       </form>
       <EmailFromLink inputId="sign-in-email" />
       <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-        Only invited team members can sign in. If you need access, ask an owner
-        to invite you.
+        {setup
+          ? "The first person to verify their email becomes the owner. After setup, access is by invitation."
+          : "Only invited team members can sign in. If you need access, ask an owner to invite you."}
       </p>
     </AuthScreen>
   );

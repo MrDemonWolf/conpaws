@@ -11,6 +11,7 @@ import {
   endEverySession,
   endSession,
   isFreshSession,
+  isOwnerSetupOpen,
   issueSignInCode,
   readSession,
   SIGN_IN_POLICY,
@@ -108,6 +109,7 @@ describe("sending a code", () => {
 
   it("sends nothing to an address that is not on the team", async () => {
     const catalog = createTestCatalog();
+    catalog.exec("INSERT INTO admin_setup (id, completed_at) VALUES (1, 0)");
     const { result, deliver } = await issue(catalog, "stranger@example.com");
     expect(result).toBe("ineligible");
     expect(deliver).not.toHaveBeenCalled();
@@ -116,6 +118,7 @@ describe("sending a code", () => {
 
   it("sends to a live invite but not to an expired one", async () => {
     const catalog = createTestCatalog();
+    catalog.exec("INSERT INTO admin_setup (id, completed_at) VALUES (1, 0)");
     addInvite(catalog, "live@example.com", { expiresAt: T0 + MINUTE });
     addInvite(catalog, "old@example.com", { expiresAt: T0 });
     expect((await issue(catalog, "live@example.com")).result).toBe("sent");
@@ -434,6 +437,7 @@ describe("letting a verified address in", () => {
 
   it("turns a live invite into a membership, once, and records it", async () => {
     const catalog = createTestCatalog();
+    catalog.exec("INSERT INTO admin_setup (id, completed_at) VALUES (1, 0)");
     addInvite(catalog, "new@example.com", {
       role: "owner",
       expiresAt: T0 + MINUTE,
@@ -475,6 +479,7 @@ describe("letting a verified address in", () => {
 
   it("refuses an expired invite and an address with no invite", async () => {
     const catalog = createTestCatalog();
+    catalog.exec("INSERT INTO admin_setup (id, completed_at) VALUES (1, 0)");
     addInvite(catalog, "late@example.com", { expiresAt: T0 });
     await expect(
       admitMember({
@@ -664,5 +669,96 @@ describe("the code key", () => {
     expect(signInSecret({ ADMIN_RUNTIME_ENV: "local" })).toEqual(
       expect.any(String),
     );
+  });
+});
+
+describe("first-owner setup", () => {
+  it("emails a code without claiming ownership until it is verified", async () => {
+    const catalog = createTestCatalog();
+    expect(await isOwnerSetupOpen(catalog.database)).toBe(true);
+    const first = await issue(catalog, "first@example.com");
+    expect(first.result).toBe("sent");
+    expect(catalog.rows("SELECT * FROM admin_members")).toEqual([]);
+    expect(catalog.rows("SELECT * FROM admin_setup")).toEqual([]);
+    expect(await check(catalog, first.attemptId, first.code)).toEqual({
+      status: "valid",
+      email: "first@example.com",
+    });
+    expect(
+      await admitMember({
+        database: catalog.database,
+        email: "first@example.com",
+        now: T0,
+      }),
+    ).toEqual({ status: "member", role: "owner" });
+    expect(await isOwnerSetupOpen(catalog.database)).toBe(false);
+    expect(catalog.rows("SELECT action FROM audit_log")).toEqual([
+      { action: "admin.setup-completed" },
+    ]);
+    expect((await issue(catalog, "stranger@example.com")).result).toBe(
+      "ineligible",
+    );
+  });
+
+  it("allows exactly one of two competing verified signups to become owner", async () => {
+    const catalog = createTestCatalog();
+    const addresses = ["first@example.com", "second@example.com"];
+    const codes = await Promise.all(
+      addresses.map((email) => issue(catalog, email)),
+    );
+    for (const entry of codes)
+      expect((await check(catalog, entry.attemptId, entry.code)).status).toBe(
+        "valid",
+      );
+    const results = await Promise.all(
+      addresses.map((email) =>
+        admitMember({ database: catalog.database, email, now: T0 }),
+      ),
+    );
+    expect(results.filter((result) => result.status === "member")).toHaveLength(
+      1,
+    );
+    expect(
+      results.filter((result) => result.status === "not-invited"),
+    ).toHaveLength(1);
+    expect(catalog.rows("SELECT role FROM admin_members")).toEqual([
+      { role: "owner" },
+    ]);
+    expect(catalog.rows("SELECT * FROM admin_setup")).toHaveLength(1);
+    expect(catalog.rows("SELECT action FROM audit_log")).toEqual([
+      { action: "admin.setup-completed" },
+    ]);
+  });
+
+  it("stays closed when all members are disabled or deleted", async () => {
+    const catalog = createTestCatalog();
+    addMember(catalog, "old@example.com", "owner", "disabled");
+    expect(await isOwnerSetupOpen(catalog.database)).toBe(false);
+    expect((await issue(catalog, "new@example.com")).result).toBe("ineligible");
+    catalog.exec("DELETE FROM admin_members");
+    expect(await isOwnerSetupOpen(catalog.database)).toBe(false);
+    expect(
+      await admitMember({
+        database: catalog.database,
+        email: "new@example.com",
+        now: T0,
+      }),
+    ).toEqual({ status: "not-invited" });
+  });
+
+  it("rolls back the setup claim if membership creation fails", async () => {
+    const catalog = createTestCatalog();
+    catalog.exec(
+      "CREATE TRIGGER reject_member BEFORE INSERT ON admin_members BEGIN SELECT RAISE(ABORT, 'test failure'); END",
+    );
+    await expect(
+      admitMember({
+        database: catalog.database,
+        email: "first@example.com",
+        now: T0,
+      }),
+    ).rejects.toThrow("test failure");
+    expect(await isOwnerSetupOpen(catalog.database)).toBe(true);
+    expect(catalog.rows("SELECT * FROM audit_log")).toEqual([]);
   });
 });

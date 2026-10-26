@@ -198,6 +198,25 @@ describe("asking for a code", () => {
 describe("entering the code", () => {
   beforeEach(() => setup());
 
+  it("creates the first owner only after a valid emailed code", async () => {
+    await askForCode("First@Example.com");
+    const code = lastCode();
+    expect(catalog.rows("SELECT * FROM admin_members")).toEqual([]);
+    expect(
+      await redirectOf(() => verifySignInCode(form({ code: "invalid" }))),
+    ).toBe("/sign-in/code?error=format");
+    expect(catalog.rows("SELECT * FROM admin_setup")).toEqual([]);
+    expect(await redirectOf(() => verifySignInCode(form({ code })))).toBe("/");
+    expect(await getAdminGate()).toMatchObject({
+      status: "authorized",
+      session: { email: "first@example.com", role: "owner" },
+    });
+    expect(catalog.rows("SELECT action FROM audit_log")).toEqual([
+      { action: "admin.setup-completed" },
+      { action: "admin.signed-in" },
+    ]);
+  });
+
   it("signs a member in with a secure seven-day session", async () => {
     addMember(catalog, "member@example.com", "owner");
     await askForCode("member@example.com");
@@ -249,6 +268,7 @@ describe("entering the code", () => {
   });
 
   it("turns an invite into a membership on first sign-in", async () => {
+    catalog.exec("INSERT INTO admin_setup (id, completed_at) VALUES (1, 0)");
     addInvite(catalog, "new@example.com", {
       role: "editor",
       expiresAt: Date.now() + 60_000,
@@ -319,6 +339,7 @@ describe("entering the code", () => {
   });
 
   it("refuses an invite withdrawn after the code was sent", async () => {
+    catalog.exec("INSERT INTO admin_setup (id, completed_at) VALUES (1, 0)");
     addInvite(catalog, "new@example.com", { expiresAt: Date.now() + 60_000 });
     await askForCode("new@example.com");
     catalog.exec("DELETE FROM admin_invites");

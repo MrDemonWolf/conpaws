@@ -1,12 +1,23 @@
+import { readFileSync } from "node:fs";
 import { getTableConfig } from "drizzle-orm/sqlite-core";
 import { describe, expect, it } from "vitest";
-import { adminInvites, adminSessions, adminSignInCodes } from "../db/schema";
+import {
+  adminInvites,
+  adminSessions,
+  adminSetup,
+  adminSignInCodes,
+} from "../db/schema";
 import { addMember, createTestCatalog } from "./d1-sqlite";
 
 describe("the catalog migrations", () => {
   it("create the sign-in tables with the columns the Drizzle schema declares", () => {
     const catalog = createTestCatalog();
-    for (const table of [adminInvites, adminSignInCodes, adminSessions]) {
+    for (const table of [
+      adminInvites,
+      adminSignInCodes,
+      adminSessions,
+      adminSetup,
+    ]) {
       const config = getTableConfig(table);
       const columns = catalog
         .rows<{ name: string }>(`PRAGMA table_info(${config.name})`)
@@ -61,4 +72,24 @@ it("binds numbered D1 placeholders by index, including reused parameters", async
   } finally {
     sqlite.close();
   }
+});
+
+it("closes setup when migrating an existing disabled membership", () => {
+  const catalog = createTestCatalog();
+  catalog.sqlite.exec(
+    "DROP TRIGGER admin_member_completes_setup; DROP TABLE admin_setup;",
+  );
+  addMember(catalog, "old@example.com", "owner", "disabled");
+  catalog.sqlite.exec(
+    readFileSync(
+      new URL(
+        "../../drizzle/migrations/0005_first_owner_setup.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  expect(catalog.rows("SELECT id FROM admin_setup")).toEqual([{ id: 1 }]);
+  catalog.exec("DELETE FROM admin_members");
+  expect(catalog.rows("SELECT id FROM admin_setup")).toEqual([{ id: 1 }]);
 });

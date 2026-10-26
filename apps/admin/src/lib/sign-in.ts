@@ -1,9 +1,9 @@
 /**
  * Email-code sign-in for the admin console.
  *
- * Only people already on the team, or holding an unexpired invite, are ever
- * sent a code. Whether an address qualifies is decided after the browser has
- * its response, and every failed code check looks the same, so neither form
+ * A fresh console lets its first verified signup become owner. Afterwards,
+ * only members and live invitees receive codes. Eligibility is decided after
+ * the browser has its response, and every failed code check looks the same, so neither form
  * reveals who is on the team. Codes are stored as an HMAC bound to the
  * browser attempt that asked for them; sessions as the SHA-256 of a random
  * cookie token.
@@ -76,6 +76,17 @@ export function isFreshSession(
 
 export type IssueResult = "sent" | "undelivered" | "ineligible" | "throttled";
 
+const OWNER_SETUP_OPEN = `NOT EXISTS (SELECT 1 FROM admin_setup)
+  AND NOT EXISTS (SELECT 1 FROM admin_members)`;
+
+export async function isOwnerSetupOpen(database: D1Database) {
+  return Boolean(
+    await database
+      .prepare(`SELECT 1 AS open WHERE ${OWNER_SETUP_OPEN}`)
+      .first(),
+  );
+}
+
 /** A code that could still be entered: not used, not used up, not expired. */
 const LIVE_CODE = "consumed_at IS NULL AND attempts < ?13 AND expires_at > ?6";
 
@@ -130,6 +141,8 @@ export async function issueSignInCode(input: {
            (id, attempt_id, email, code_hash, requester, attempts, created_at, expires_at)
          SELECT ?1, ?2, ?3, ?4, ?5, 0, ?6, ?14
          WHERE (
+             (${OWNER_SETUP_OPEN})
+             OR
              EXISTS (SELECT 1 FROM admin_members WHERE email = ?3 AND status = 'active')
              OR (
                NOT EXISTS (SELECT 1 FROM admin_members WHERE email = ?3)
@@ -172,6 +185,7 @@ export async function issueSignInCode(input: {
   const eligible = await database
     .prepare(
       `SELECT 1 AS eligible WHERE
+         (${OWNER_SETUP_OPEN}) OR
          EXISTS (SELECT 1 FROM admin_members WHERE email = ?1 AND status = 'active')
          OR (
            NOT EXISTS (SELECT 1 FROM admin_members WHERE email = ?1)
@@ -263,8 +277,8 @@ export type Admission =
   | { status: "disabled" | "not-invited" };
 
 /**
- * Lets a verified address in: an active member as they are, or an invitee by
- * turning a live invite into an active membership with the invited role.
+ * The caller must first verify an email code. The first verified signup claims
+ * ownership atomically; later sign-ins retain the member/invite rules.
  */
 export async function admitMember(input: {
   database: D1Database;
@@ -273,6 +287,30 @@ export async function admitMember(input: {
 }): Promise<Admission> {
   const { database, email, now } = input;
   await database.batch([
+    // Claim and owner insertion share one transaction; competing signups
+    // cannot both win, and a failed insertion rolls the claim back.
+    database
+      .prepare(
+        `INSERT INTO admin_setup (id, completed_at)
+         SELECT 1, ?1 WHERE ${OWNER_SETUP_OPEN}
+         ON CONFLICT(id) DO NOTHING`,
+      )
+      .bind(now),
+    database
+      .prepare(
+        `INSERT INTO admin_members (email, role, status, created_at, created_by)
+         SELECT ?1, 'owner', 'active', ?2, 'first-owner-setup'
+         WHERE changes() = 1`,
+      )
+      .bind(email, now),
+    database
+      .prepare(
+        `INSERT INTO audit_log (id, actor_email, action, resource_type, resource_id, summary)
+         SELECT ?1, ?2, 'admin.setup-completed', 'admin_member', ?2,
+           'Completed setup as the first owner'
+         WHERE changes() = 1`,
+      )
+      .bind(crypto.randomUUID(), email),
     // INSERT ... SELECT keeps this atomic with the invite still existing, so a
     // withdrawal that lands first wins.
     database

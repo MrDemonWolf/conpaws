@@ -355,12 +355,12 @@ export const reconciler = await Worker("reconciler", {
  * The admin console at admin.conpaws.com.
  *
  * Nothing to configure, and no Cloudflare Access in front of it: staff sign
- * in with a one-time code emailed to them. Only people already on the team,
- * or holding an unexpired invite, are ever sent a code. Nobody can claim an
- * empty console by visiting it first; the first owner is invited from a
- * laptop with `bun run admin:invite -- you@example.com`, which writes the
- * invite with the operator's own Cloudflare credentials. After that, owners
- * invite people from the Team screen. See apps/admin/README.md.
+ * in with a one-time code emailed to them. A fresh installation lets the
+ * first verified signup claim ownership atomically. Setup completion persists
+ * independently of memberships, so disabling or removing owners never reopens
+ * setup. Afterwards, only active members and live invitees receive codes.
+ * Owners invite people from the Team screen; the laptop invite command remains
+ * available for operator recovery. See apps/admin/README.md.
  *
  * The key that protects stored sign-in codes is derived from ALCHEMY_PASSWORD
  * rather than generated, so there is no secret to copy anywhere and a laptop

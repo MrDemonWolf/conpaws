@@ -7,6 +7,12 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
+/** A permanent latch: removing the team must never reopen first-owner setup. */
+export const adminSetup = sqliteTable("admin_setup", {
+  id: integer("id").primaryKey(),
+  completedAt: integer("completed_at").notNull(),
+});
+
 export const adminMembers = sqliteTable("admin_members", {
   email: text("email").primaryKey(),
   role: text("role", { enum: ["owner", "editor"] }).notNull(),
@@ -192,6 +198,7 @@ export const auditLog = sqliteTable(
 );
 
 export const catalogSchema = {
+  adminSetup,
   adminInvites,
   adminMembers,
   adminSessions,
