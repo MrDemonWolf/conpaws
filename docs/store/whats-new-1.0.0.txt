@@ -1,0 +1,13 @@
+Where this goes
+- App Store: not needed. Apple hides "What's New" for an app's first version.
+- Google Play: paste the text below into "Release notes" for the first production release (500 characters max; this is about 330).
+
+<en-US>
+Welcome to ConPaws! Plan your whole convention in one place.
+• Find your convention, or import a schedule from Sched or an .ics file
+• Build your plan and see what's on now and next
+• Spot overlaps and free time between panels
+• Get reminders before panels start
+• Works offline, with no account
+• Home Screen widgets and Apple Watch support
+</en-US>
