@@ -9,7 +9,7 @@
     "start:preview": "APP_VARIANT=preview expo start",
     "start:prod": "APP_VARIANT=production expo start",
     "android": "expo run:android",
-    "ios": "SENTRY_DISABLE_AUTO_UPLOAD=true expo run:ios --device \"ConPaws iPhone Pro Max\"",
+    "ios": "SENTRY_DISABLE_AUTO_UPLOAD=true expo run:ios",
     "web": "expo start --web",
     "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
