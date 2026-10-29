@@ -35,14 +35,14 @@ required, and repository auto-merge is disabled.
 | Expo | Package compatibility passed; Expo Doctor passed 21/21; native license manifest and build-number 208 checks passed. |
 | Dependency gate | Passes with 15 existing high/critical exceptions, expiring November 15. Audit-gate regression suite passes 9/9. A passing gate does not mean zero vulnerabilities. |
 | Lint | Explicit application/package/infra/workflow scope passed with two existing warnings in a constructor mock. Whole-repository lint also passes, with 112 warnings including older mobile UX review artifacts. No warnings were auto-fixed. |
-| iOS launch | Blocked: Expo reached install/open, but simulator launch/openURL commands hung, Metro received no bundle request, and Device Hub remained on SpringBoard. No native screen, offline restart or physical-device UI proof is claimed. |
+| iOS launch | Blocked: The installed simulator binary matches the new compiled artifact (version 1.0.0/build 208, production variant Debug), but simulator launch/openURL commands hung, Metro received no bundle request, and Device Hub remained on SpringBoard. No native screen, offline restart or physical-device UI proof is claimed. |
 | iOS compile | Production-variant Debug build for the iPhone 17e simulator passed with zero errors and five Xcode warnings. Expo clean prebuild/native dependency refresh retained the app, Widget, Watch app and Watch widget. This is not a signed Release/store artifact. |
 | Worker builds | Website and admin OpenNext production builds passed after the shared-token change. |
 | Website HTTP E2E | All 23 locale pages, legal/public/SEO routes, 404, unavailable badge count and unconfigured fail-closed signup passed against the built local Worker. |
 | Admin HTTP smoke | Dashboard, conventions, activity, team, sign-in feedback, private caching, production security headers, robots, manifest and offline shell passed. |
 | Admin browser | At 375px, dashboard and convention editor had no horizontal document overflow. Fictional 200-session fixture loaded; adding one disposable session produced 201 sessions. Publish remained disabled while the source-verification date was absent. This run used the local owner shortcut; it did not re-prove emailed sign-in. |
 | API Worker | Health passed; migrated catalog returned an empty published list while the fictional draft remained private. Draft detail, invalid slug and legacy `/api/v1` paths returned 404. A separate unmigrated database returned 503 `catalog_unavailable`. |
-| Tab cleanup | The seven previous ConPaws test tabs were closed; unrelated tabs were preserved. Four tabs from this pass remained in the ConPaws QA group when browser control disconnected; native close-group actions were also interrupted, so their final cleanup is not claimed. |
+| Tab cleanup | All eleven ConPaws QA tabs (seven old tabs and four from this pass) were closed. Native Chrome controls verified that no ConPaws QA tabs remained; unrelated tabs were preserved. |
 
 The code fix at `e867e87` also passed hosted CI run `40811562538`; later
 documentation and launcher-script commits need their own final-SHA CI result.
@@ -105,6 +105,8 @@ target. Keep Node aligned with `.node-version`; a stale ignored
 native projects can also retain obsolete podspecs after package updates. Resolve
 that through Expo prebuild/run commands, preserving local configuration and the
 authoritative Widget/Watch target sources, rather than editing Podfiles manually.
+All 35 Widget/Watch/module source files were checked byte-for-byte against the
+prebuild backup; the private temporary backup was then removed.
 
 - [ ] Check all 23 locales at 320px and 375px, plus desktop; test the language
   picker, FAQ, keyboard focus, reduced motion and form errors. Chrome navigation
@@ -124,7 +126,7 @@ authoritative Widget/Watch target sources, rather than editing Podfiles manually
 
 Temporary Worker configurations/databases and local test logs were removed when
 the preview processes stopped. The final admin proof image was retained for the
-chat. Native setup repair used the pinned Node executable and an Expo-only clean
+chat. Expo/Metro were stopped, and port 8081 was verified free. Native setup repair used the pinned Node executable and an Expo-only clean
 prebuild/dependency refresh; generated asset bytes were restored to avoid a
 re-encode-only tracked diff. The stale ignored Xcode Node path was repaired.
 
