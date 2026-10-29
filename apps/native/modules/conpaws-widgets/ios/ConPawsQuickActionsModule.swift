@@ -74,13 +74,16 @@ public final class ConPawsQuickActionsModule: Module {
       ConPawsQuickActions.updateLabels(labels)
     }.runOnQueue(.main)
 
-    OnStartObserving {
-      self.observer = NotificationCenter.default.addObserver(
-        forName: ConPawsQuickActions.changed, object: nil, queue: .main
-      ) { [weak self] _ in self?.sendEvent("onQuickAction", [:]) }
-    }
-    OnStopObserving { self.stopObserving() }
-    OnDestroy { self.stopObserving() }
+    OnStartObserving { [weak self] in self?.startObserving() }
+    OnStopObserving { [weak self] in self?.stopObserving() }
+    OnDestroy { [weak self] in self?.stopObserving() }
+  }
+
+  private func startObserving() {
+    stopObserving()
+    observer = NotificationCenter.default.addObserver(
+      forName: ConPawsQuickActions.changed, object: nil, queue: .main
+    ) { [weak self] _ in self?.sendEvent("onQuickAction", [:]) }
   }
 
   private func stopObserving() {
