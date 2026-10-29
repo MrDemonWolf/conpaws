@@ -119,7 +119,7 @@ jobs:
       matrix:
         include:
           - platform: ios
-            runner: macos-26
+            runner: xcode-27
           - platform: android
             runner: ubuntu-26.04
     runs-on: ${{ matrix.runner }}
@@ -227,7 +227,14 @@ jobs:
 
       - name: Select Xcode
         if: matrix.platform == 'ios'
-        run: sudo xcode-select --switch /Applications/Xcode_26.6.app/Contents/Developer
+        run: |
+          xcode_path=/Applications/Xcode_27.1.app/Contents/Developer
+          if [[ ! -d "$xcode_path" ]]; then
+            echo "::error::Xcode 27.1 is missing from the xcode-27 runner image. Check the GitHub runner image inventory."
+            exit 1
+          fi
+          sudo xcode-select --switch "$xcode_path"
+          xcodebuild -version
 
       - name: Install workspace dependencies
         run: bun install --frozen-lockfile

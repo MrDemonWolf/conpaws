@@ -13,7 +13,7 @@ import {
   RNHostView,
 } from "@expo/ui/jetpack-compose";
 import { useTheme } from "expo-router/react-navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { PRESS_DIM } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
@@ -45,6 +45,11 @@ export function ConventionRowMenu({
   const { colors } = useTheme();
   const destructiveColor = colors.notification;
   const disabled = actions.every((action) => action.disabled);
+
+  useEffect(() => {
+    if (disabled) setExpanded(false);
+  }, [disabled]);
+
   const trigger = (
     <Pressable
       accessible
