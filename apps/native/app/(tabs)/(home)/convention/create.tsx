@@ -14,7 +14,8 @@ import {
   ConventionDateField,
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
-import { FORM_SAFE_EDGES, FormModalHeader } from "@/components/FormModalHeader";
+import { FormModalHeader } from "@/components/FormModalHeader";
+import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
 import { SafeView } from "@/components/ui";
 import { NativeText } from "@/components/ui/NativeText";
 import * as conventionsRepo from "@/db/repositories/conventions";

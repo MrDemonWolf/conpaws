@@ -22,6 +22,9 @@ export default function TabsLayout() {
   return (
     <NativeTabs
       tintColor={colors.primary}
+      backgroundColor={
+        process.env.EXPO_OS === "android" ? colors.card : undefined
+      }
       minimizeBehavior="never"
       disableTransparentOnScrollEdge
     >

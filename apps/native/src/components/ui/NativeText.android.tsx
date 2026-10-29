@@ -1,25 +1,17 @@
 import { Text as ExpoText } from "@expo/ui";
-
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
-import { themeTokens } from "@/lib/theme-tokens";
+import { useMaterialColors } from "@expo/ui/jetpack-compose";
 
 import type { NativeTextProps } from "./NativeText.types";
 
 /**
  * `@expo/ui`'s Text with a colour, for Android.
  *
- * Without one it renders **pure black in dark mode** -- measured at 1.13:1
- * against the `#0F1417` sheet background, where AA wants 4.5. Every
- * `FieldGroup.SectionFooter` in the app was affected, so the help text under
- * "Fetch Schedule", the timezone notes on convention create and edit, and the
- * name-length warnings were all invisible on a dark Android phone.
+ * Footer text previously rendered pure black on a dark Compose surface.
+ * An explicit on-surface color keeps the help text in the same palette as
+ * its FieldGroup, including the timezone notes on create and edit.
  *
- * The cause is upstream, not our theming: all 23 `<Host>`s already pass
- * `colorScheme`, but `@expo/ui`'s Android Text forwards `textStyle.color`
- * straight to Compose, and an absent colour lands on `LocalContentColor`,
- * which is black outside a Material text context. SwiftUI has no equivalent
- * gap, which is why this shipped unnoticed. Supplying the colour ourselves is
- * the whole workaround; when upstream inherits properly this file can go.
+ * These footers supply an explicit Material text role so supporting copy stays
+ * subordinate to the row labels and matches the enclosing Host's seeded palette.
  *
  * Defaulting to `muted` rather than `foreground` because every call site but
  * the type specimens in the UI gallery is section-footer help text.
@@ -29,11 +21,9 @@ export function NativeText({
   textStyle,
   ...props
 }: NativeTextProps) {
-  const scheme = useResolvedColorScheme();
-  const color =
-    tone === "muted"
-      ? themeTokens[scheme].mutedForeground
-      : themeTokens[scheme].foreground;
+  // The enclosing Host already cached the exact seeded Compose palette.
+  const colors = useMaterialColors();
+  const color = tone === "muted" ? colors.onSurfaceVariant : colors.onSurface;
 
   // Caller's own colour wins -- spread last.
   return <ExpoText {...props} textStyle={{ color, ...textStyle }} />;

@@ -54,7 +54,9 @@ export function ConventionRowMenu({
       disabled={disabled}
       // MenuView's wrapper is not focusable; this owns keyboard and TalkBack activation.
       onPress={() => menu.current?.show()}
-      className={`h-12 w-12 items-center justify-center ${PRESS_DIM}`}
+      // Native rem spacing can be 42dp here; keep Material's target in dp.
+      style={{ width: 48, height: 48 }}
+      className={`items-center justify-center ${PRESS_DIM}`}
     >
       <Host colorScheme={colorScheme} matchContents pointerEvents="none">
         <Icon name={MoreVertIcon} size={22} color={colors.text} />

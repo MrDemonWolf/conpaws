@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 import { resolveQuickActionRoute } from "./quick-action-routes";
 
 /**
- * The quick-action routes exist twice: as plain strings in the Swift
- * native modules and as typed Hrefs in quick-action-routes.ts. TypeScript catches
+ * Swift and Kotlin keep native route allowlists alongside the typed Hrefs in
+ * quick-action-routes.ts. TypeScript catches
  * drift on the TS side; a native-side typo only surfaced as a runtime
  * reportMessage on a user's phone. This test reads the native sources and holds
  * both sides to each other.
@@ -20,7 +20,7 @@ describe.each([
   ["Apple", "ios/ConPawsQuickActionsModule.swift"],
   [
     "Android",
-    "android/src/main/java/expo/modules/conpawswidgets/ConPawsQuickActionsModule.kt",
+    "android/src/main/java/expo/modules/conpawswidgets/ConPawsQuickActionsStore.kt",
   ],
 ])("%s quick-action route contract", (_, sourceFile) => {
   const source = readFileSync(resolve(nativeRoot, sourceFile), "utf8");

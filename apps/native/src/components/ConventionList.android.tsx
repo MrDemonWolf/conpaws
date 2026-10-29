@@ -1,11 +1,11 @@
 import { FlatList, View } from "react-native";
 import { Row, Text } from "@/components/ui";
-import { ConventionCard } from "./ConventionCard";
+import { ConventionCard } from "./ConventionCard.android";
 import type { ConventionListProps } from "./ConventionList.types";
 
 /**
  * `deleteLabel`, `onDelete`, `archiveItemLabel` and `onArchive` are deliberately
- * not destructured here: a `FlatList` row has no swipe affordance, so this
+ * not destructured here: an Android `FlatList` row has no swipe affordance, so this
  * implementation offers both actions through its native row menu instead. See the
  * note on those props in `ConventionList.types.ts`.
  */

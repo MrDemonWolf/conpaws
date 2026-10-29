@@ -8,6 +8,47 @@ For every task, first discover the installed skills and plugin capabilities that
 
 Use the [Notion design system](https://app.notion.com/p/408d61481c7b8117bbc9c6a114755eb3) for token sources, platform differences, component states, and accessibility checks. Reuse paired foreground/background tokens; preserve native semantic colors and Dynamic Type. Shared web color changes must keep `apps/web/src/lib/theme-contrast.test.ts` passing. Keep test evidence, grades and project notes on the [ConPaws Notion page](https://app.notion.com/p/3c8d61481c7b819d9d25c742524b4dc1), not as new report files in Git.
 
+## Native components and platform files
+
+- Reuse the native primitives in `apps/native/src/components/ui` and shared form,
+  action, validation and state logic before adding another component. Keep native
+  components in the native app; `packages/ui` contains web components.
+- An ordinary `.tsx` implementation must work on both iOS and Android. Put
+  specialized renderers in `.ios.tsx` and `.android.tsx` files; share their props
+  and behavior through `.types.ts` / `.shared.ts` modules. Do not hide an Android
+  implementation in a generic fallback file. A `.d.ts` may supply the shared
+  extension-free TypeScript contract while Metro selects the real platform file.
+- Preserve native controls: SwiftUI menus in the iOS list, Material menus on
+  Android, and native toolbars for iOS forms. Alerts confirm consequences;
+  ordinary action lists belong in menus. Keep a visible path alongside gestures.
+- Match icon meaning across SF Symbols and Material assets. Icon-only controls
+  need translated labels and keyboard activation. Use explicit 44pt / 48dp touch
+  targets: rem-based spacing can render smaller than those platform minimums.
+- Android React Native surfaces, navigation and Compose controls must use the
+  same seeded Material palette and resolved appearance. Use supported Expo color
+  APIs; do not reference missing Android theme attributes with `PlatformColor`.
+- Keep the shortcut route allowlist and onboarding, database, translations and
+  navigator gates. Capture Android shortcuts before a development-launcher
+  redirect; newer actions supersede older parked actions. Rebuild native code
+  when changing these hooks, not just the JavaScript bundle.
+
+## Native end-to-end checks
+
+The local Maestro smoke flow is run through its guarded wrapper:
+
+```bash
+bun run --filter @conpaws/native e2e -- preview android emulator-5554
+bun run --filter @conpaws/native e2e -- development ios <booted-simulator-UDID>
+```
+
+Use an explicit local simulator/emulator, an English app language, completed
+onboarding and intact preview fixtures. The wrapper rejects physical devices
+and production variants. Preview uses the production app ID, so the flow must
+verify the preview-only sample control before changing fixture data. Keep the
+flow non-destructive: no data reset, uninstall, or deletion of saved conventions.
+Coordinate device control when Nathanial is testing. Record source/syntax checks,
+device execution and signed store delivery as separate evidence in Notion.
+
 ## Browser and visual testing
 
 Use the agent's built-in browser for localhost viewers and browser-based test surfaces, including serve-sim. Do not open Safari, Chrome, or another external browser unless the user explicitly requests it. Reuse existing local servers and ports instead of starting duplicates.

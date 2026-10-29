@@ -9,7 +9,7 @@ import type {
   ConventionRowActionId,
 } from "@/lib/convention-row-actions";
 import { cn } from "@/lib/utils";
-import { ConventionRowMenu } from "./ConventionRowMenu";
+import { ConventionRowMenu } from "./ConventionRowMenu.android";
 
 interface ConventionCardProps {
   name: string;
@@ -22,11 +22,6 @@ interface ConventionCardProps {
   moreAccessibilityLabel?: string;
   className?: string;
 }
-
-const CHEVRON_ICON = Icon.select({
-  ios: "chevron.right",
-  android: ChevronRightIcon,
-});
 
 const statusStyles: Record<ConventionCardProps["status"], string> = {
   upcoming: "text-foreground",
@@ -86,7 +81,7 @@ export function ConventionCard({
         </View>
         {!onAction ? (
           <Host colorScheme={colorScheme} matchContents pointerEvents="none">
-            <Icon name={CHEVRON_ICON} size={14} color={colors.text} />
+            <Icon name={ChevronRightIcon} size={14} color={colors.text} />
           </Host>
         ) : null}
       </Pressable>

@@ -15,6 +15,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e": "node e2e/run.mjs",
     "licenses:generate": "node scripts/generate-open-source-licenses.mjs",
     "licenses:check": "node scripts/generate-open-source-licenses.mjs --check",
     "prebuild": "expo prebuild",

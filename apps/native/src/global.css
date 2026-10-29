@@ -112,9 +112,8 @@
  * resource" on the first bordered view and the app died at launch. It was not
  * a subtle degradation: Android never got past the splash.
  *
- * Android therefore uses the hex tokens above, which are the ones
- * theme-contrast.test.ts already holds at AAA. Restoring Material You dynamic
- * color here means first moving the app theme to Material 3 through a config
- * plugin — android/ is generated, so editing styles.xml by hand does not
- * survive a prebuild.
+ * The hex tokens above remain the tested fallback. At runtime the root
+ * VariableContextProvider supplies Android neutral roles from Expo UI's
+ * seeded Material 3 palette, matching the Compose Hosts without reading
+ * unresolved Android theme attributes. Metro keeps those variables dynamic.
  */

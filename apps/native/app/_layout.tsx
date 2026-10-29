@@ -74,7 +74,8 @@ import {
   usePathname,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect, useState } from "react";
+import { VariableContextProvider } from "nativewind";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppState, StatusBar, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -97,6 +98,11 @@ import {
 } from "@/lib/error-reporting";
 import { loadHapticsPreference } from "@/lib/haptics-storage";
 import i18nInstance, { initI18n } from "@/lib/i18n";
+import {
+  materialNavigationColors,
+  materialThemeVariables,
+} from "@/lib/material-theme";
+import { getNativeMaterialColors } from "@/lib/native-material-colors";
 import {
   getCachedOnboardingFlag,
   hasCompletedOnboarding,
@@ -462,21 +468,45 @@ function RootLayout() {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
 
-  if (!ready) return null;
+  const resolvedScheme = colorScheme === "dark" ? "dark" : "light";
+  const materialColors = useMemo(
+    () => getNativeMaterialColors(resolvedScheme),
+    [resolvedScheme],
+  );
+  const navigationTheme = useMemo(() => {
+    const base =
+      resolvedScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
+    return materialColors
+      ? {
+          ...base,
+          colors: {
+            ...base.colors,
+            ...materialNavigationColors(materialColors),
+          },
+        }
+      : base;
+  }, [resolvedScheme, materialColors]);
+  const materialVariables = useMemo(
+    () => (materialColors ? materialThemeVariables(materialColors) : {}),
+    [materialColors],
+  );
 
-  const navigationTheme =
-    colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
+  if (!ready) return null;
 
   if (databaseInitError) {
     return (
-      <ThemeProvider value={navigationTheme}>
-        <SafeAreaProvider>
-          <StatusBar
-            barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-          />
-          <DatabaseUnavailableScreen error={databaseInitError} />
-        </SafeAreaProvider>
-      </ThemeProvider>
+      <VariableContextProvider value={materialVariables}>
+        <ThemeProvider value={navigationTheme}>
+          <SafeAreaProvider>
+            <StatusBar
+              barStyle={
+                colorScheme === "dark" ? "light-content" : "dark-content"
+              }
+            />
+            <DatabaseUnavailableScreen error={databaseInitError} />
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </VariableContextProvider>
     );
   }
 
@@ -491,18 +521,20 @@ function RootLayout() {
     // GestureHandlerRootView hosts the swipeable event rows; the error
     // branches above have no gestures and deliberately skip it.
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={navigationTheme}>
-        <SafeAreaProvider>
-          <QueryClientProvider client={queryClient}>
-            <StatusBar
-              barStyle={
-                colorScheme === "dark" ? "light-content" : "dark-content"
-              }
-            />
-            <Stack screenOptions={{ headerShown: false }} />
-          </QueryClientProvider>
-        </SafeAreaProvider>
-      </ThemeProvider>
+      <VariableContextProvider value={materialVariables}>
+        <ThemeProvider value={navigationTheme}>
+          <SafeAreaProvider>
+            <QueryClientProvider client={queryClient}>
+              <StatusBar
+                barStyle={
+                  colorScheme === "dark" ? "light-content" : "dark-content"
+                }
+              />
+              <Stack screenOptions={{ headerShown: false }} />
+            </QueryClientProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </VariableContextProvider>
     </GestureHandlerRootView>
   );
 }
