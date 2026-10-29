@@ -6,7 +6,7 @@ For every task, first discover the installed skills and plugin capabilities that
 
 ## Design system
 
-Use `docs/design-system.md` for token sources, platform differences, component states, and accessibility checks. Reuse paired foreground/background tokens; preserve native semantic colors and Dynamic Type. Shared web color changes must keep `apps/web/src/lib/theme-contrast.test.ts` passing. Record local results and unfinished device/browser checks in the dated reports under `docs/reviews/`.
+Use the [Notion design system](https://app.notion.com/p/408d61481c7b8117bbc9c6a114755eb3) for token sources, platform differences, component states, and accessibility checks. Reuse paired foreground/background tokens; preserve native semantic colors and Dynamic Type. Shared web color changes must keep `apps/web/src/lib/theme-contrast.test.ts` passing. Keep test evidence, grades and project notes on the [ConPaws Notion page](https://app.notion.com/p/3c8d61481c7b819d9d25c742524b4dc1), not as new report files in Git.
 
 ## Browser and visual testing
 
@@ -111,7 +111,6 @@ conpaws/
 │   ├── env/                 # Zod env schemas (src/web.ts for the site build, src/deploy.ts for alchemy.run.ts)
 │   ├── infra/               # alchemy.run.ts — D1, Worker bindings/secrets, cron
 │   └── ui/                  # Shared shadcn/ui primitives (web)
-├── docs/                    # Widget and Watch design docs, mockups, UX opportunities
 ├── infra/                   # xprem OTA descriptor/runbook; application not deployed
 ├── biome.json
 ├── turbo.json
@@ -121,7 +120,7 @@ conpaws/
 ### Key Configuration (apps/native/)
 
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **Store automation uses GitHub Actions + Fastlane, not EAS.** `.github/workflows/release-native.yml` waits for successful push CI on the exact current `dev` or `main` commit. `dev` builds preview for internal-only TestFlight and Google Play internal testing; `main` builds production for App Store Connect and a Google Play production draft. Public rollout stays manual. Activation requires signing/upload secrets and `NATIVE_RELEASE_ENABLED=true`; until configured, keep using local builds. Public version changes are intentional edits to `app.config.ts`. CI assigns `1000 + Native release workflow run_number` to both platforms in its temporary checkout, records version/number/branch/SHA in Actions, and never commits the number. Do not rename/reset this workflow, use EAS remote counters, promote preview builds publicly, or independently allocate local store numbers after activation. For retries, start a new workflow run rather than re-run an old upload. Local signing remains scoped to `~/.keystores/conpaws-signing.properties`; the CI lane requires explicit upload signing. Preserve all Widget and Watch targets. Full setup and fallback: `apps/native/RELEASING.md`.
+- **Store automation uses GitHub Actions + Fastlane, not EAS.** `.github/workflows/release-native.yml` waits for successful push CI on the exact current `dev` or `main` commit. `dev` builds preview for internal-only TestFlight and Google Play internal testing; `main` builds production for App Store Connect and a Google Play production draft. Public rollout stays manual. Activation requires signing/upload secrets and `NATIVE_RELEASE_ENABLED=true`; until configured, keep using local builds. Public version changes are intentional edits to `app.config.ts`. CI assigns `1000 + Native release workflow run_number` to both platforms in its temporary checkout, records version/number/branch/SHA in Actions, and never commits the number. Do not rename/reset this workflow, use EAS remote counters, promote preview builds publicly, or independently allocate local store numbers after activation. For retries, start a new workflow run rather than re-run an old upload. Local signing remains scoped to `~/.keystores/conpaws-signing.properties`; the CI lane requires explicit upload signing. Preserve all Widget and Watch targets. Full setup and fallback: [mobile release guide](https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969).
 - **eas.json** — kept but unused by the release path. EAS CLI 22.x, committed-tree guard, `appVersionSource: "local"` and no `autoIncrement`, so an EAS build would read the same `BUILD_NUMBER` rather than a stale remote counter. Its `preview-device` profile is the only easy route to an ad-hoc iOS build; running any profile costs money. Do not add auto-submit.
 - **metro.config.js** — `withNativeWind(config)`. No `input` argument is passed; NativeWind resolves `global.css` itself. Metro is also wrapped in `getSentryExpoConfig`.
 - iOS text-style tokens live in `src/global.css`; `cn()` in `src/lib/utils.ts` registers their custom sizes with tailwind-merge, or those classes can be dropped as conflicts.
@@ -232,11 +231,12 @@ The local expo-sqlite/Drizzle schema in `apps/native/src/db/` contains `conventi
 
 ICS files and Sched convention URLs are implemented. The importer handles convention IANA timezones/DST, recurring-event identities, cancellations and re-import reconciliation, simultaneous events, categories, rooms, and content warnings. Keep re-import behavior covered with fixtures in `test-data/` and tests next to the parser, import policy, repositories, and services.
 
-## Planning Notes — moved to Notion (2026-08-26)
+## Project documentation — Notion
 
-Product planning lives under the **ConPaws** page in Nathanial's Notion.
-Implementation guides and review reports remain in the repository:
+Project docs, design notes, release guides, plans, report cards and audit history live under the **ConPaws** page in Nathanial's Notion. The repository contains the app, tests, configuration and minimal README/agent entry points:
 <https://app.notion.com/p/3c8d61481c7b819d9d25c742524b4dc1>
+
+[Project documentation library](https://app.notion.com/p/408d61481c7b818fb113ee3e0d930cb8) contains the migrated documents and a verified exact-source archive of the removed prototypes and historical notes.
 
 | Notion page | What's Inside |
 |------|--------------|
@@ -256,9 +256,7 @@ Inspect available Notion connector capabilities before asking for missing
 planning context. Verify planning claims against current code and deployment
 evidence; ask for the relevant page only when it cannot be accessed.
 
-Anything that describes how the code itself works still belongs in this repo,
-next to the code: `apps/native/RELEASING.md`, `infra/xprem/`, and the comments in
-`app.config.ts`, `eas.json` and `wrangler.jsonc`.
+Keep implementation comments beside the code and runnable configuration in Git. Put long-form explanations, release instructions and audit snapshots in Notion. Do not recreate a project `docs/` tree or duplicate the Notion report card in README files.
 
 Test data for iCal import development lives in `test-data/`. **Every fixture is
 fully dummied** — invented convention, venue, room, panel and person names — and
@@ -299,7 +297,7 @@ import preview but never mis-parse a feed.
 
 ## Workspace ownership and admin safety
 
-See `docs/repository-layout.md` for the current Better-T Stack layout. Keep deployable apps in `apps/` and reusable configuration, environment validation, infrastructure, and UI in `packages/`. App-specific database schemas and migrations stay with their owning apps; native SQLite and Worker D1 have different lifecycles.
+See the [Notion repository layout](https://app.notion.com/p/408d61481c7b81919101c4eab3109ab4) for the current Better-T Stack layout. Keep deployable apps in `apps/` and reusable configuration, environment validation, infrastructure, and UI in `packages/`. App-specific database schemas and migrations stay with their owning apps; native SQLite and Worker D1 have different lifecycles.
 
 - `apps/admin` is the private catalog console. Invite-only email-code sign-in and active catalog membership protect it; there is no Cloudflare Access. Owner/editor access is catalog-wide; do not invite outside hosts until organization and convention isolation is implemented.
 - The public website reads published catalog snapshots only. Draft edits must not leak into public API responses.

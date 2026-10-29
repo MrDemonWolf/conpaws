@@ -1,8 +1,9 @@
 /**
  * Which saved events a candidate collides with, and what saving it would do
  * to them. This is the logic behind the compare sheet, ported from the design
- * exploration's `getConflicts` and `commitChoice` (`docs/mobile-ux/app.ts`)
- * onto the app's single saved state.
+ * exploration's `getConflicts` and `commitChoice` onto the app's single saved
+ * state. Archived `mobile-ux/app.ts`:
+ * https://app.notion.com/p/408d61481c7b815b9515d3360ea19d55
  *
  * Conflicts are direct only: A overlapping B and B overlapping C never makes
  * A and C conflict. Chaining would turn a busy afternoon into one blob.

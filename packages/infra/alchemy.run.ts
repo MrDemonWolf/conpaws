@@ -381,7 +381,8 @@ export const reconciler = await Worker("reconciler", {
  * independently of memberships, so disabling or removing owners never reopens
  * setup. Afterwards, only active members and live invitees receive codes.
  * Owners invite people from the Team screen; the laptop invite command remains
- * available for operator recovery. See apps/admin/README.md.
+ * available for operator recovery. Admin setup:
+ * https://app.notion.com/p/408d61481c7b818d837dfbc723228f51
  *
  * The key that protects stored sign-in codes is derived from ALCHEMY_PASSWORD
  * rather than generated, so there is no secret to copy anywhere and a laptop

@@ -2,9 +2,11 @@
  * The rows between saved events on an agenda: how much free time there is,
  * that two panels are back-to-back, or by how much they overlap.
  *
- * The rules are the design exploration's `gap()` (`docs/mobile-ux/app.ts`),
- * with one honesty edit: a gap is a measurement, so an event whose end nobody
+ * The rules are the design exploration's `gap()`, with one honesty edit:
+ * a gap is a measurement, so an event whose end nobody
  * published gets no gap row at all rather than one invented from a fallback.
+ * Archived `mobile-ux/app.ts`:
+ * https://app.notion.com/p/408d61481c7b815b9515d3360ea19d55
  */
 
 import { conventionDayKey } from "./convention-time";

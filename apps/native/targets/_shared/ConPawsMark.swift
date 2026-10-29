@@ -9,8 +9,9 @@ import SwiftUI
 /// a monochrome mark instead of the app icon. The ring is a stroked circle
 /// converted to a fillable outline so the entire glyph stays a single path.
 ///
-/// Geometry mirrors the 24×24 vector in `docs/widget-redesign-2026-08.html`:
-/// a compass ring with four cardinal points around a four-toed paw.
+/// Geometry mirrors the 24×24 vector in archived `widget-redesign-2026-08.html`:
+/// a compass ring with four cardinal points around a four-toed paw. Source archive:
+/// https://app.notion.com/p/408d61481c7b818fb113ee3e0d930cb8
 struct ConPawsMarkShape: Shape {
   func path(in rect: CGRect) -> Path {
     let scale = min(rect.width, rect.height) / 24

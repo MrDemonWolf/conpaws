@@ -5,8 +5,9 @@ module.exports = (config) => ({
   // ponytail: iOS 17 dynamic config avoids a second legacy widget kind.
   deploymentTarget: "17.0",
   colors: {
-    // Widget brand accent per docs/widget-redesign-2026-08.html §1. The light
-    // value #00729C measures ≈4.7:1 on white — a documented divergence from
+    // Widget brand accent per archived widget-redesign-2026-08.html §1:
+    // https://app.notion.com/p/408d61481c7b818fb113ee3e0d930cb8
+    // The light value #00729C measures ≈4.7:1 on white — a documented divergence from
     // the app's AAA policy, allowed at headline sizes only. Brand-colored text
     // below ~13pt in light mode must use BrandSmallText instead. Dark mode's
     // #18B7F2 clears 8:1 on its own and needs no small-text variant.

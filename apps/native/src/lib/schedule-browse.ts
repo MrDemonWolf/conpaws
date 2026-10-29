@@ -4,8 +4,9 @@
  *
  * Everything here takes plain objects so the rules are testable without the
  * database types, the same way `schedule-view.ts` and `day-band.ts` do. The
- * rules themselves come from the design exploration in `docs/mobile-ux/app.ts`
- * (`selectSchedulePanels`), whose tests are ported to `schedule-browse.test.ts`.
+ * rules come from the archived design exploration's `selectSchedulePanels`
+ * (`mobile-ux/app.ts`), whose tests are ported to `schedule-browse.test.ts`:
+ * https://app.notion.com/p/408d61481c7b815b9515d3360ea19d55
  */
 
 import {

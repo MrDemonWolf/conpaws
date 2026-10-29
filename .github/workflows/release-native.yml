@@ -177,7 +177,7 @@ jobs:
             [[ -n "${!name}" ]] || missing+=("$name")
           done
           if (( ${#missing[@]} > 0 )); then
-            echo "::error::Missing release configuration: ${missing[*]}. See apps/native/RELEASING.md."
+            echo "::error::Missing release configuration: ${missing[*]}. See https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969"
             exit 1
           fi
 

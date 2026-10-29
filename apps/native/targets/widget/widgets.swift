@@ -8,7 +8,8 @@ import WidgetKit
 ///
 /// The light primary measures ≈4.7:1 on white — a documented divergence from
 /// the app's AAA policy (the app darkened its own primary to #005575; the
-/// widget deliberately did not, per docs/widget-redesign-2026-08.html §1).
+/// widget deliberately did not, per archived `widget-redesign-2026-08.html` §1).
+/// Source archive: https://app.notion.com/p/408d61481c7b818fb113ee3e0d930cb8
 /// That contrast is fine at headline sizes and not below ~13pt, which is what
 /// `smallText` (#00618A in light) exists for. Dark mode's #18B7F2 clears 8:1
 /// and shares one value across both roles.
