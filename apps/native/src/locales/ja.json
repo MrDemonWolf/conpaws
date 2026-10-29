@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "コンベンションのスケジュールを開きます。",
     "caughtUp": {
       "title": "予定はすべて終了しました",
       "subtitle": "{{name}}で保存したパネルはすべて終了しました。",

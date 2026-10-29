@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Öppnar konventets schema.",
     "caughtUp": {
       "title": "Du är helt i fas",
       "subtitle": "Alla dina sparade paneler på {{name}} är slut.",

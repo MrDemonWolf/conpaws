@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Abre a programação da convenção.",
     "caughtUp": {
       "title": "Tudo em dia",
       "subtitle": "Todos os seus painéis salvos na {{name}} terminaram.",

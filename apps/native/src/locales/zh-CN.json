@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "打开展会日程。",
     "caughtUp": {
       "title": "已全部完成",
       "subtitle": "你在{{name}}收藏的活动都已结束。",

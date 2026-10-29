@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "開啟展會行程。",
     "caughtUp": {
       "title": "今天的行程已完成",
       "subtitle": "你在{{name}}收藏的活動都已結束。",

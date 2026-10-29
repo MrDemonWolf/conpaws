@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "컨벤션 일정을 엽니다.",
     "caughtUp": {
       "title": "모든 일정을 마쳤어요",
       "subtitle": "{{name}}에서 저장한 패널이 모두 끝났어요.",

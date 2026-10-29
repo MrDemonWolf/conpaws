@@ -1,0 +1,4 @@
+# The root re-includes local module sources; keep Gradle output and SDK paths local.
+/build/
+/.gradle/
+/local.properties

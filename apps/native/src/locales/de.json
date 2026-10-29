@@ -565,6 +565,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Öffnet den Zeitplan der Convention.",
     "caughtUp": {
       "title": "Du bist auf dem neuesten Stand",
       "subtitle": "Alle deine gespeicherten Panels bei {{name}} sind vorbei.",

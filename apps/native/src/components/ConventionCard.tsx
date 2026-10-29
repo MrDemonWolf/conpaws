@@ -1,11 +1,15 @@
 import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
-import MoreVertIcon from "@expo/material-symbols/more_vert.xml";
 import { Host, Icon } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
 import { Pressable, View } from "react-native";
 import { PRESS_DIM, Text } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import type {
+  ConventionRowAction,
+  ConventionRowActionId,
+} from "@/lib/convention-row-actions";
 import { cn } from "@/lib/utils";
+import { ConventionRowMenu } from "./ConventionRowMenu";
 
 interface ConventionCardProps {
   name: string;
@@ -13,7 +17,8 @@ interface ConventionCardProps {
   status: "upcoming" | "active" | "ended";
   statusLabel: string;
   onPress?: () => void;
-  onMorePress?: () => void;
+  actions?: readonly ConventionRowAction[];
+  onAction?: (action: ConventionRowActionId) => void;
   moreAccessibilityLabel?: string;
   className?: string;
 }
@@ -21,11 +26,6 @@ interface ConventionCardProps {
 const CHEVRON_ICON = Icon.select({
   ios: "chevron.right",
   android: ChevronRightIcon,
-});
-
-const MORE_ICON = Icon.select({
-  ios: "ellipsis",
-  android: MoreVertIcon,
 });
 
 const statusStyles: Record<ConventionCardProps["status"], string> = {
@@ -46,7 +46,8 @@ export function ConventionCard({
   status,
   statusLabel,
   onPress,
-  onMorePress,
+  actions,
+  onAction,
   moreAccessibilityLabel,
   className,
 }: ConventionCardProps) {
@@ -83,24 +84,18 @@ export function ConventionCard({
             </View>
           </View>
         </View>
-        {!onMorePress ? (
+        {!onAction ? (
           <Host colorScheme={colorScheme} matchContents pointerEvents="none">
             <Icon name={CHEVRON_ICON} size={14} color={colors.text} />
           </Host>
         ) : null}
       </Pressable>
-      {onMorePress ? (
-        <Pressable
-          accessibilityRole="button"
+      {onAction && actions && moreAccessibilityLabel ? (
+        <ConventionRowMenu
+          actions={actions}
           accessibilityLabel={moreAccessibilityLabel}
-          hitSlop={4}
-          onPress={onMorePress}
-          className={cn("w-11 items-center justify-center", PRESS_DIM)}
-        >
-          <Host colorScheme={colorScheme} matchContents pointerEvents="none">
-            <Icon name={MORE_ICON} size={22} color={colors.text} />
-          </Host>
-        </Pressable>
+          onAction={onAction}
+        />
       ) : null}
     </View>
   );

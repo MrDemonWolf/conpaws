@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Opent het programma van de conventie.",
     "caughtUp": {
       "title": "Je bent helemaal bij",
       "subtitle": "Al je bewaarde panels op {{name}} zijn afgelopen.",

@@ -578,6 +578,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Otevře program conu.",
     "caughtUp": {
       "title": "Máte vše hotovo",
       "subtitle": "Všechny tvoje uložené panely na {{name}} skončily.",

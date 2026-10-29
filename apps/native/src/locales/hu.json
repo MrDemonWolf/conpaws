@@ -565,6 +565,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Megnyitja a con programját.",
     "caughtUp": {
       "title": "Minden programon túl vagy",
       "subtitle": "Minden mentett paneled itt véget ért: {{name}}.",

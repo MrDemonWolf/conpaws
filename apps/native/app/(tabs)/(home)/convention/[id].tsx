@@ -1,9 +1,11 @@
 import AddIcon from "@expo/material-symbols/add.xml";
+import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditIcon from "@expo/material-symbols/edit.xml";
 import EventIcon from "@expo/material-symbols/event.xml";
 import FilterListIcon from "@expo/material-symbols/filter_list.xml";
+import FolderOffIcon from "@expo/material-symbols/folder_off.xml";
 import RefreshIcon from "@expo/material-symbols/refresh.xml";
-import UploadIcon from "@expo/material-symbols/upload.xml";
+import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import { getCalendars } from "expo-localization";
@@ -123,6 +125,11 @@ import { hapticSuccess } from "@/services/haptics";
 
 type Row = ScheduleRow<ConventionEvent>;
 type Section = ScheduleSection<ConventionEvent>;
+
+const NOT_FOUND_ICON = Icon.select({
+  ios: "questionmark.folder",
+  android: FolderOffIcon,
+});
 
 const EMPTY_CONVENTION_CONTENT_STYLE = {
   flexGrow: 1,
@@ -818,7 +825,7 @@ export default function ConventionDetailScreen() {
         <Stack.Screen options={{ title: t("convention.detail") }} />
         <View className="flex-1 bg-background">
           <EmptyState
-            icon="questionmark.folder"
+            icon={NOT_FOUND_ICON}
             title={t("convention.notFound")}
             ctaLabel={t("convention.goBack")}
             onCta={() => router.back()}
@@ -1339,6 +1346,7 @@ export default function ConventionDetailScreen() {
           // Android's toolbar only renders image buttons; without this the
           // Edit action silently disappears there while iOS keeps the text.
           icon={process.env.EXPO_OS === "ios" ? undefined : EditIcon}
+          accessibilityLabel={t("common.edit")}
           onPress={() => {
             if (!tryAcquirePresentationLock(presentationLock)) return;
             router.push(`/convention/${convention.id}/edit`);
@@ -1365,7 +1373,7 @@ export default function ConventionDetailScreen() {
               icon={
                 process.env.EXPO_OS === "ios"
                   ? "square.and.arrow.down"
-                  : UploadIcon
+                  : DownloadIcon
               }
               onPress={openImportSchedule}
             >

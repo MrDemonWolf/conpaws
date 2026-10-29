@@ -565,6 +565,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Ouvre le programme de la convention.",
     "caughtUp": {
       "title": "Vous êtes à jour",
       "subtitle": "Tous tes panels enregistrés à {{name}} sont terminés.",

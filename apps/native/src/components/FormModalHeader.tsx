@@ -7,10 +7,10 @@ import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 /**
  * Header row for the Android form modals (create / edit / import).
  *
- * Android needs this because `Stack.Toolbar` does not reach `headerLeft` /
- * `headerRight` there -- the toolbar renders on iOS only -- so without it the
- * form has a title but no way to commit or abandon it. iOS uses the real
- * `Stack.Toolbar` and never renders this component.
+ * These Android forms deliberately hide the native header, so this row keeps
+ * Cancel and Save inside their full-screen modal. SDK 57 also supports native
+ * `Stack.Toolbar` headers on Android; iOS uses that toolbar for its sheets and
+ * never renders this component.
  *
  * The screens present as a full-screen `modal` on Android rather than a
  * `formSheet`; a sheet re-lays-out when the keyboard opens and clipped this row

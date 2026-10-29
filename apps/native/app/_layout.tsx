@@ -110,7 +110,11 @@ import {
   reconcileEventReminders,
   setupNotificationHandler,
 } from "@/services/notifications";
-import { consumePendingQuickAction } from "@/services/quick-actions";
+import {
+  consumePendingQuickAction,
+  subscribeToQuickActions,
+  updateQuickActionLabels,
+} from "@/services/quick-actions";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
@@ -304,9 +308,9 @@ function RootLayout() {
     addReportBreadcrumb(pathname, { scope: "navigation" });
   }, [pathname]);
 
-  // Neither a quick action nor a tapped reminder has anywhere to land while
-  // the database-unavailable screen is up: that branch renders no navigator.
-  const navigable = ready && !databaseInitError;
+  // Neither fallback renders a navigator; retain OS actions until translations
+  // and the database are usable, rather than consuming a tap into a dead end.
+  const navigable = ready && translationsReady && !databaseInitError;
 
   // The Home Screen shortcuts are installed at launch with no onboarding gate
   // of their own, so acting on one before `app/index.tsx` has resolved the flag
@@ -321,8 +325,22 @@ function RootLayout() {
     navigable && (onboardingComplete || getCachedOnboardingFlag() === true);
 
   useEffect(() => {
+    if (!ready || !translationsReady) return;
+    const updateLabels = () => {
+      void updateQuickActionLabels().catch((error) => {
+        reportError(error, { scope: "quickAction.labels" });
+      });
+    };
+    updateLabels();
+    i18nInstance.on("languageChanged", updateLabels);
+    return () => {
+      i18nInstance.off("languageChanged", updateLabels);
+    };
+  }, [ready, translationsReady]);
+
+  useEffect(() => {
     function openPendingQuickAction() {
-      const pending = consumePendingQuickAction();
+      const pending = consumePendingQuickAction(canOpenQuickAction);
       if (!pending) return;
 
       const route = resolveQuickActionRoute(pending);
@@ -343,12 +361,20 @@ function RootLayout() {
       router.push(route);
     }
 
+    // Native events also cover warm actions delivered while AppState is active.
+    const unsubscribeQuickActions = subscribeToQuickActions(() => {
+      if (canOpenQuickAction) openPendingQuickAction();
+    });
     if (canOpenQuickAction) openPendingQuickAction();
     const appStateSubscription = AppState.addEventListener(
       "change",
       (state) => {
         if (state === "active" && navigable) {
           if (canOpenQuickAction) openPendingQuickAction();
+          // Android can rate-limit label updates; retry next time it is active.
+          void updateQuickActionLabels().catch((error) => {
+            reportError(error, { scope: "quickAction.labels" });
+          });
           void publishWidgetSnapshot().catch((error) => {
             reportError(error, { scope: "appState.publishWidgetSnapshot" });
           });
@@ -378,6 +404,7 @@ function RootLayout() {
         }
       });
     return () => {
+      unsubscribeQuickActions();
       appStateSubscription.remove();
       unsubscribeMutations();
     };

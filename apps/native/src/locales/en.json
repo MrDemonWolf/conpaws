@@ -565,6 +565,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Opens the convention schedule.",
     "title": "Schedule",
     "empty": {
       "title": "No panels picked yet",

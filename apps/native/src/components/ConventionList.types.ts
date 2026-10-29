@@ -1,9 +1,15 @@
+import type {
+  ConventionRowAction,
+  ConventionRowActionId,
+} from "@/lib/convention-row-actions";
+
 export interface ConventionRowContent {
   name: string;
   dateRange: string;
   status: "upcoming" | "active" | "ended";
   statusLabel: string;
   moreAccessibilityLabel: string;
+  actions: readonly ConventionRowAction[];
   /**
    * Whether Unarchive is offered for this row — true only for explicitly
    * archived conventions that have not ended (see `canUnarchive` in
@@ -22,15 +28,14 @@ export interface ConventionListProps<T extends { id: string }> {
   onToggleArchive: () => void;
   getRowContent: (item: T) => ConventionRowContent;
   onOpen: (item: T) => void;
-  onOpenActions: (item: T) => void;
+  onAction: (item: T, action: ConventionRowActionId) => void;
   /**
    * Swipe actions, consumed by the iOS implementation only.
    *
    * iOS draws these as leading and trailing `SwipeActions` on each row. The
    * other platforms render a `FlatList`, which has no swipe affordance, and
-   * reach the same two actions through the row's ellipsis button and the
-   * action sheet `onOpenActions` opens. They stay required rather than
-   * optional because iOS cannot render a row without them, and they are
+   * reach the same actions through the row's native ellipsis menu. They stay
+   * required because iOS cannot render a row without them, and they are
    * grouped and named here so the next reader does not have to diff the two
    * implementations to discover that the base one ignores them.
    */

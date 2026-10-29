@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material Symbols Outlined, Google, Apache-2.0. See MATERIAL_SYMBOLS_LICENSE.
+     Source: https://raw.githubusercontent.com/google/material-design-icons/master/symbols/web/add/materialsymbolsoutlined/add_24px.svg -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="960" android:viewportHeight="960">
+  <path android:fillColor="#005575"
+      android:pathData="M480,0A480,480 0,1 0,480 960A480,480 0,1 0,480 0" />
+  <group android:translateX="192" android:translateY="768" android:scaleX="0.6" android:scaleY="0.6">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+  </group>
+</vector>

@@ -565,6 +565,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Abre el horario de la convención.",
     "caughtUp": {
       "title": "Ya terminaste por ahora",
       "subtitle": "Todos tus paneles guardados en {{name}} terminaron.",

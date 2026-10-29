@@ -13,8 +13,8 @@ export const unstable_settings = {
 // Material 3 full-screen-dialog pattern.
 const FORM_PRESENTATION = process.env.EXPO_OS === "ios" ? "formSheet" : "modal";
 
-// `Stack.Toolbar` only reaches the header on iOS, so Android renders its own
-// `FormModalHeader` in-content and must not also show the native header.
+// Android forms retain their in-content FormModalHeader for the keyboard-safe
+// modal layout; showing a native header too would duplicate its controls.
 const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios";
 
 export default function HomeLayout() {

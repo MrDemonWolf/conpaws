@@ -511,6 +511,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Otwiera harmonogram konwentu.",
     "caughtUp": {
       "title": "Masz już wszystko za sobą",
       "subtitle": "Wszystkie zapisane panele na {{name}} się skończyły.",

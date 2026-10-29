@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Åpner konventets program.",
     "caughtUp": {
       "title": "Du er helt à jour",
       "subtitle": "Alle de lagrede panelene dine på {{name}} er over.",

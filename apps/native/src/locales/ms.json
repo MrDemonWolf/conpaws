@@ -501,6 +501,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Membuka jadual konvensyen.",
     "caughtUp": {
       "title": "Semua sudah selesai",
       "subtitle": "Semua panel yang anda simpan di {{name}} sudah tamat.",

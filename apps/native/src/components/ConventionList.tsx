@@ -6,7 +6,7 @@ import type { ConventionListProps } from "./ConventionList.types";
 /**
  * `deleteLabel`, `onDelete`, `archiveItemLabel` and `onArchive` are deliberately
  * not destructured here: a `FlatList` row has no swipe affordance, so this
- * implementation offers both actions through `onOpenActions` instead. See the
+ * implementation offers both actions through its native row menu instead. See the
  * note on those props in `ConventionList.types.ts`.
  */
 export function ConventionList<T extends { id: string }>({
@@ -19,7 +19,7 @@ export function ConventionList<T extends { id: string }>({
   onToggleArchive,
   getRowContent,
   onOpen,
-  onOpenActions,
+  onAction,
 }: ConventionListProps<T>) {
   return (
     <FlatList
@@ -64,7 +64,7 @@ export function ConventionList<T extends { id: string }>({
                       <ConventionCard
                         {...row}
                         onPress={() => onOpen(item)}
-                        onMorePress={() => onOpenActions(item)}
+                        onAction={(action) => onAction(item, action)}
                       />
                       {index < archivedData.length - 1 ? (
                         <View className="ml-1 h-px bg-border" />
@@ -84,7 +84,7 @@ export function ConventionList<T extends { id: string }>({
           <ConventionCard
             {...row}
             onPress={() => onOpen(item)}
-            onMorePress={() => onOpenActions(item)}
+            onAction={(action) => onAction(item, action)}
           />
         );
       }}

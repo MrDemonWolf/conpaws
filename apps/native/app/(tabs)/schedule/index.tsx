@@ -299,7 +299,7 @@ export default function ScheduleScreen() {
           contentWarningLabel={
             event.contentWarning ? t("convention.contentWarning") : undefined
           }
-          accessibilityHint={t("convention.eventActionsHint")}
+          accessibilityHint={t("schedule.openConventionHint")}
           // There is no standalone event screen -- the sheet that owns
           // stars and reminders lives on the convention. Send the row
           // there rather than inventing a second place to edit the same

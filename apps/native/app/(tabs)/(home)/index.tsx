@@ -38,6 +38,10 @@ import {
   partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
+import {
+  type ConventionRowActionId,
+  conventionRowActions,
+} from "@/lib/convention-row-actions";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
@@ -273,6 +277,12 @@ export default function HomeScreen() {
     },
   });
 
+  const rowActionsDisabled =
+    sampleMutation.isPending ||
+    deleteMutation.isPending ||
+    archiveMutation.isPending ||
+    unarchiveMutation.isPending;
+
   function handleAddSamples() {
     if (
       sampleMutation.isPending ||
@@ -338,39 +348,31 @@ export default function HomeScreen() {
     );
   }
 
-  function showConventionActions(convention: Convention) {
-    if (sampleMutation.isPending) return;
-    // Archived rows swap Archive for Unarchive — when unarchiving would
-    // actually move the row (see canUnarchive). Ended conventions get
-    // neither: re-archiving is a timestamp rewrite and unarchiving a no-op.
-    const archiveAction = convention.archivedAt
-      ? canUnarchive(convention, now, deviceTimeZone)
-        ? {
-            text: t("common.unarchive"),
-            onPress: () => unarchiveMutation.mutate(convention.id),
-          }
-        : null
-      : {
-          text: t("common.archive"),
-          onPress: () => archiveMutation.mutate(convention.id),
-        };
+  function handleConventionAction(
+    convention: Convention,
+    actionId: ConventionRowActionId,
+  ) {
+    // Recheck after the menu opens: pending writes can change its availability.
+    const action = getRowContent(convention).actions.find(
+      (candidate) => candidate.id === actionId,
+    );
+    if (!action || action.disabled) return;
 
-    Alert.alert(convention.name, undefined, [
-      {
-        text: t("common.edit"),
-        onPress: () => {
-          if (!tryAcquirePresentationLock(presentationLock)) return;
-          router.push(`/convention/${convention.id}/edit`);
-        },
-      },
-      ...(archiveAction ? [archiveAction] : []),
-      {
-        text: t("common.delete"),
-        style: "destructive",
-        onPress: () => confirmDeleteConvention(convention),
-      },
-      { text: t("common.cancel"), style: "cancel" },
-    ]);
+    switch (action.id) {
+      case "edit":
+        if (!tryAcquirePresentationLock(presentationLock)) return;
+        router.push(`/convention/${convention.id}/edit`);
+        break;
+      case "archive":
+        archiveMutation.mutate(convention.id);
+        break;
+      case "unarchive":
+        unarchiveMutation.mutate(convention.id);
+        break;
+      case "delete":
+        confirmDeleteConvention(convention);
+        break;
+    }
   }
 
   // Stable across renders so the SwiftUI Host's child tree only re-diffs when
@@ -399,9 +401,23 @@ export default function HomeScreen() {
           name: item.name,
         }),
         canUnarchive: canUnarchive(item, now, deviceTimeZone),
+        actions: conventionRowActions(
+          {
+            archived: Boolean(item.archivedAt),
+            ended: status === "ended",
+            canUnarchive: canUnarchive(item, now, deviceTimeZone),
+            disabled: rowActionsDisabled,
+          },
+          {
+            edit: t("common.edit"),
+            archive: t("common.archive"),
+            unarchive: t("common.unarchive"),
+            delete: t("common.delete"),
+          },
+        ),
       };
     },
-    [locale, now, t],
+    [locale, now, rowActionsDisabled, t],
   );
 
   const showLoading = useDelayedLoading(isLoading || (isError && isFetching));
@@ -469,12 +485,12 @@ export default function HomeScreen() {
         currentEmptyLabel={t("home.archive.noCurrent")}
         onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
-        onDelete={confirmDeleteConvention}
+        onDelete={(item) => handleConventionAction(item, "delete")}
         archiveItemLabel={t("common.archive")}
-        onArchive={(item) => archiveMutation.mutate(item.id)}
+        onArchive={(item) => handleConventionAction(item, "archive")}
         unarchiveItemLabel={t("common.unarchive")}
-        onUnarchive={(item) => unarchiveMutation.mutate(item.id)}
-        onOpenActions={showConventionActions}
+        onUnarchive={(item) => handleConventionAction(item, "unarchive")}
+        onAction={handleConventionAction}
         onOpen={(item) => handleOpenConvention(item.id)}
         getRowContent={getRowContent}
       />

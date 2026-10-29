@@ -1,3 +1,5 @@
+import FolderOffIcon from "@expo/material-symbols/folder_off.xml";
+import { Icon } from "@expo/ui";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
@@ -5,6 +7,11 @@ import { ScrollView, View } from "react-native";
 import { Card, EmptyState, Row, Text } from "@/components/ui";
 import licenseManifest from "@/generated/open-source-licenses.json";
 import { openExternal } from "@/lib/open-external";
+
+const NOT_FOUND_ICON = Icon.select({
+  ios: "questionmark.folder",
+  android: FolderOffIcon,
+});
 
 function safeExternalUrl(value: string) {
   return /^https?:\/\//i.test(value) ? value : "";
@@ -37,7 +44,7 @@ export default function LicenseDetailsScreen() {
           options={{ title: t("settings.licenses.detailsTitle") }}
         />
         <EmptyState
-          icon="questionmark.folder"
+          icon={NOT_FOUND_ICON}
           title={t("settings.licenses.packageNotFoundTitle")}
           subtitle={t("settings.licenses.packageNotFoundDescription")}
         />

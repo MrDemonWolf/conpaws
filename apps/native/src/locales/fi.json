@@ -565,6 +565,7 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Avaa conin ohjelman.",
     "caughtUp": {
       "title": "Olet ajan tasalla",
       "subtitle": "Kaikki tallentamasi paneelit tapahtumassa {{name}} ovat päättyneet.",
