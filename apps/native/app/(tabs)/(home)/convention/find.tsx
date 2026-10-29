@@ -225,7 +225,7 @@ export default function FindConventionScreen() {
                 }
                 className="min-h-64 flex-none"
               />
-            ) : null
+            ) : undefined
           }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 24 }}

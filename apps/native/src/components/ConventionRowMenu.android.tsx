@@ -4,16 +4,24 @@ import EditIcon from "@expo/material-symbols/edit.xml";
 import MoreVertIcon from "@expo/material-symbols/more_vert.xml";
 import UnarchiveIcon from "@expo/material-symbols/unarchive.xml";
 import { Host, Icon } from "@expo/ui";
-import { type MenuComponentRef, MenuView } from "@expo/ui/community/menu";
+import {
+  Icon as ComposeIcon,
+  Text as ComposeText,
+  DropdownMenu,
+  DropdownMenuItem,
+  HorizontalDivider,
+  RNHostView,
+} from "@expo/ui/jetpack-compose";
 import { useTheme } from "expo-router/react-navigation";
-import { useRef } from "react";
-import { Pressable } from "react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 import { PRESS_DIM } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import type {
   ConventionRowAction,
   ConventionRowActionId,
 } from "@/lib/convention-row-actions";
+import { themeTokens } from "@/lib/theme-tokens";
 
 const ICONS = {
   edit: EditIcon,
@@ -32,19 +40,11 @@ export function ConventionRowMenu({
   accessibilityLabel: string;
   onAction: (id: ConventionRowActionId) => void;
 }) {
-  const menu = useRef<MenuComponentRef>(null);
+  const [expanded, setExpanded] = useState(false);
   const colorScheme = useResolvedColorScheme();
   const { colors } = useTheme();
+  const destructiveColor = colors.notification;
   const disabled = actions.every((action) => action.disabled);
-  const nativeActions = actions.map((action) => ({
-    id: action.id,
-    title: action.label,
-    image: ICONS[action.id],
-    attributes: {
-      destructive: action.id === "delete",
-      disabled: action.disabled,
-    },
-  }));
   const trigger = (
     <Pressable
       accessible
@@ -52,13 +52,18 @@ export function ConventionRowMenu({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}
       disabled={disabled}
-      // MenuView's wrapper is not focusable; this owns keyboard and TalkBack activation.
-      onPress={() => menu.current?.show()}
+      // The React Native trigger owns keyboard and TalkBack activation.
+      onPress={() => setExpanded(true)}
       // Native rem spacing can be 42dp here; keep Material's target in dp.
       style={{ width: 48, height: 48 }}
       className={`items-center justify-center ${PRESS_DIM}`}
     >
-      <Host colorScheme={colorScheme} matchContents pointerEvents="none">
+      <Host
+        colorScheme={colorScheme}
+        seedColor={themeTokens[colorScheme].primary}
+        matchContents
+        pointerEvents="none"
+      >
         <Icon name={MoreVertIcon} size={22} color={colors.text} />
       </Host>
     </Pressable>
@@ -67,25 +72,69 @@ export function ConventionRowMenu({
   if (disabled) return trigger;
 
   return (
-    <MenuView
-      ref={menu}
-      colorScheme={colorScheme}
-      style={{ alignSelf: "center" }}
-      actions={[
-        ...nativeActions.filter((action) => action.id !== "delete"),
-        {
-          id: "destructive",
-          title: "",
-          displayInline: true,
-          subactions: nativeActions.filter((action) => action.id === "delete"),
-        },
-      ]}
-      onPressAction={({ nativeEvent }) => {
-        const action = actions.find((item) => item.id === nativeEvent.event);
-        if (action && !action.disabled) onAction(action.id);
-      }}
-    >
-      {trigger}
-    </MenuView>
+    <View style={{ alignSelf: "center" }}>
+      <Host
+        colorScheme={colorScheme}
+        seedColor={themeTokens[colorScheme].primary}
+        matchContents
+      >
+        <DropdownMenu
+          expanded={expanded}
+          onDismissRequest={() => setExpanded(false)}
+          properties={{ clippingEnabled: false }}
+        >
+          <DropdownMenu.Trigger>
+            <RNHostView matchContents>{trigger}</RNHostView>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Items>
+            {actions
+              .filter((action) => action.id !== "delete")
+              .map((action) => (
+                <DropdownMenuItem
+                  key={action.id}
+                  enabled={!action.disabled}
+                  onClick={() => {
+                    setExpanded(false);
+                    if (!action.disabled) onAction(action.id);
+                  }}
+                >
+                  <DropdownMenuItem.Text>
+                    <ComposeText>{action.label}</ComposeText>
+                  </DropdownMenuItem.Text>
+                  <DropdownMenuItem.LeadingIcon>
+                    <ComposeIcon source={ICONS[action.id]} size={24} />
+                  </DropdownMenuItem.LeadingIcon>
+                </DropdownMenuItem>
+              ))}
+            {actions.some((action) => action.id === "delete") ? (
+              <HorizontalDivider />
+            ) : null}
+            {actions
+              .filter((action) => action.id === "delete")
+              .map((action) => (
+                <DropdownMenuItem
+                  key={action.id}
+                  enabled={!action.disabled}
+                  elementColors={{
+                    textColor: destructiveColor,
+                    leadingIconColor: destructiveColor,
+                  }}
+                  onClick={() => {
+                    setExpanded(false);
+                    if (!action.disabled) onAction(action.id);
+                  }}
+                >
+                  <DropdownMenuItem.Text>
+                    <ComposeText>{action.label}</ComposeText>
+                  </DropdownMenuItem.Text>
+                  <DropdownMenuItem.LeadingIcon>
+                    <ComposeIcon source={ICONS[action.id]} size={24} />
+                  </DropdownMenuItem.LeadingIcon>
+                </DropdownMenuItem>
+              ))}
+          </DropdownMenu.Items>
+        </DropdownMenu>
+      </Host>
+    </View>
   );
 }

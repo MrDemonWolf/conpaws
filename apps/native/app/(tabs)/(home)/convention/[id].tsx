@@ -1463,17 +1463,17 @@ export default function ConventionDetailScreen() {
         ListHeaderComponent={
           events.length > 0 || scheduleRefresh.summary !== null
             ? listHeader
-            : null
+            : undefined
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
-        ListEmptyComponent={emptyComponent}
+        ListEmptyComponent={emptyComponent ?? undefined}
         ListFooterComponent={
           view === "all" && events.length > 0 ? (
             <Text variant="caption" className="px-4 pt-4 pb-2 text-center">
               {t("convention.browse.noSeat")}
             </Text>
-          ) : null
+          ) : undefined
         }
       />
 

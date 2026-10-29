@@ -51,13 +51,44 @@ name: Native navigation and convention action smoke
 - tapOn: "Cancel"
 - assertVisible: ".*ConPaws Preview Con.*"
 
-# Exercise the native modal and Settings/Appearance navigation without writing
-# user data or changing the saved appearance preference.
+# Keep Editing must preserve a dirty form. Android's hardware Back then tests
+# usePreventRemove's repeat path; iOS Cancel tests the explicit onDiscard path.
+# The fictional draft is never saved.
 - tapOn: "Add convention"
 - tapOn: "Create convention"
 - assertVisible:
     id: convention-name-input
+- tapOn:
+    id: convention-name-input
+- inputText: "Wolf Test Draft"
 - tapOn: "Cancel"
+- assertVisible: "Discard changes?"
+- tapOn: "Keep Editing"
+- copyTextFrom:
+    id: convention-name-input
+- assertTrue:
+    condition: ${maestro.copiedText == "Wolf Test Draft"}
+    label: Keep Editing retains the draft name
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+      - back
+      - assertVisible: "Discard changes?"
+      - tapOn: "Discard"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Cancel"
+      - assertVisible: "Discard changes?"
+      - tapOn: "Discard"
+- assertNotVisible:
+    id: convention-name-input
+- assertVisible: ".*ConPaws Preview Con.*"
+
+# Exercise Settings/Appearance navigation without changing the saved preference.
 - tapOn: "Settings"
 - tapOn: "Theme"
 - assertVisible: "System"

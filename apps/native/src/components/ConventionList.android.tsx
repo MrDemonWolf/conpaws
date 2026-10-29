@@ -39,7 +39,7 @@ export function ConventionList<T extends { id: string }>({
               {currentEmptyLabel}
             </Text>
           </View>
-        ) : null
+        ) : undefined
       }
       ListFooterComponent={
         archivedData.length > 0 ? (
@@ -75,7 +75,7 @@ export function ConventionList<T extends { id: string }>({
               </View>
             ) : null}
           </View>
-        ) : null
+        ) : undefined
       }
       ItemSeparatorComponent={() => <View className="ml-1 h-px bg-border" />}
       renderItem={({ item }) => {

@@ -2,6 +2,8 @@
 import ExpoModulesCore
 import UIKit
 
+// SDK 58's ExpoAppSceneDelegate forwards cold and warm scene shortcuts to
+// this subscriber. Keep the generated SceneDelegate subclassing Expo's class.
 public final class ConPawsQuickActionsSubscriber: ExpoAppDelegateSubscriber {
   public func application(
     _ application: UIApplication,

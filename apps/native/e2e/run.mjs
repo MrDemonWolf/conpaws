@@ -4,10 +4,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const [variant, platform, deviceId] = process.argv.slice(2);
-const APP_ID = {
+const APP_IDS = {
   development: "com.mrdemonwolf.conpaws.dev",
   preview: "com.mrdemonwolf.conpaws",
-}[variant];
+};
+const APP_ID = Object.hasOwn(APP_IDS, variant) ? APP_IDS[variant] : undefined;
 const PREFLIGHT_TIMEOUT_MS = 12_000;
 
 function fail(message) {

@@ -1,6 +1,6 @@
 import { Redirect } from "expo-router";
+import { NativeTabs } from "expo-router/native-tabs";
 import { useTheme } from "expo-router/react-navigation";
-import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "react-i18next";
 import { ScreenErrorFallback } from "@/lib/error-fallback";
 import { getCachedOnboardingFlag } from "@/lib/onboarding-storage";

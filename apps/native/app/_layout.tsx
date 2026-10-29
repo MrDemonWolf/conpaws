@@ -539,9 +539,9 @@ function RootLayout() {
   );
 }
 
-// Sentry.wrap does NOT install an error boundary in @sentry/react-native
-// 7.11.0 (verified in dist/js/sdk.js: it renders TouchEventBoundary, Profiler
-// and FeedbackWidgetProvider only), so these two exports are the app's only
+// Sentry.wrap does not install an error boundary in the installed SDK
+// (verified in dist/js/sdk.js: it renders TouchEventBoundary, Profiler and
+// FeedbackFormProvider only), so these two exports are the app's only
 // boundaries. `screenErrorBoundary` is inherited through context by every
 // descendant leaf route, which keeps headers and the tab bar mounted; the
 // `ErrorBoundary` export is the last resort for a throw in this layout itself.

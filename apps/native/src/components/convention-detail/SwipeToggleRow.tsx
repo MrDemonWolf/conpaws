@@ -64,8 +64,8 @@ export function SwipeToggleRow({
       rightThreshold={48}
       // Require a clearly horizontal drag before engaging, so a vertical list
       // scroll never half-opens a row.
-      dragOffsetFromLeftEdge={16}
-      dragOffsetFromRightEdge={16}
+      dragOffsetFromLeft={16}
+      dragOffsetFromRight={-16}
       renderLeftActions={
         addLabel
           ? () => <ActionPill label={addLabel} variant="add" />

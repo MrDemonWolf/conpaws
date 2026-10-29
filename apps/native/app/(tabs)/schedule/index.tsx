@@ -383,7 +383,7 @@ export default function ScheduleScreen() {
                 overflow={reminderOverflow}
               />
             </View>
-          ) : null
+          ) : undefined
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}

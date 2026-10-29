@@ -209,7 +209,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: getVariantPng("android-icon-monochrome"),
     },
     package: getBundleId(),
-    // Edge-to-edge is always enabled in Expo SDK 57.
+    // SDK 58 targets Android 36, where edge-to-edge is enabled by default.
     // Opts into the Android 13+ back-preview animation. Expo's prebuild default
     // is `android:enableOnBackInvokedCallback="false"`, which switches it off
     // entirely. Safe to enable only because every form now guards its own exit
@@ -225,7 +225,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@bacons/apple-targets",
     "expo-sqlite",
-    ["expo-build-properties", { ios: { enableSceneSupport: true } }],
     // expo-location is autolinked, so this entry exists only to pass props. Left
     // at its defaults the plugin writes four purpose strings into Info.plist --
     // three location ones, including background "Always", plus Motion &

@@ -55,7 +55,7 @@ jobs:
       - name: Set up release tooling
         uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
         with:
-          ruby-version: '3.3'
+          ruby-version: "3.3"
           bundler-cache: true
           working-directory: apps/native
 
@@ -304,7 +304,6 @@ jobs:
             echo "::error title=API prefix check failed::/api/v1 must not exist on the API Worker, received $old_prefix_status."
             exit 1
           fi
-
 
   infrastructure:
     name: Validate deployment descriptors
