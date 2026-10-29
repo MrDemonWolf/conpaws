@@ -72,6 +72,7 @@ import {
   Stack,
   ThemeProvider,
   usePathname,
+  useSegments,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { VariableContextProvider } from "nativewind";
@@ -107,6 +108,7 @@ import {
   getCachedOnboardingFlag,
   hasCompletedOnboarding,
 } from "@/lib/onboarding-storage";
+import { canOpenQuickAction } from "@/lib/quick-action-gate";
 import { resolveQuickActionRoute } from "@/lib/quick-action-routes";
 import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
@@ -244,6 +246,7 @@ function RootLayout() {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const colorScheme = useColorScheme();
   const pathname = usePathname();
+  const segments = useSegments();
   const databaseInitError = getDatabaseInitError();
 
   // `ready` deliberately stays true across a retry: the splash is long gone,
@@ -327,8 +330,11 @@ function RootLayout() {
   // `onboardingComplete` state is only re-read on the next bootstrap — a
   // quick action tapped right after onboarding used to stay parked until the
   // next cold launch.
-  const canOpenQuickAction =
-    navigable && (onboardingComplete || getCachedOnboardingFlag() === true);
+  const quickActionReady = canOpenQuickAction(
+    navigable,
+    onboardingComplete || getCachedOnboardingFlag() === true,
+    segments[0],
+  );
 
   useEffect(() => {
     if (!ready || !translationsReady) return;
@@ -346,7 +352,7 @@ function RootLayout() {
 
   useEffect(() => {
     function openPendingQuickAction() {
-      const pending = consumePendingQuickAction(canOpenQuickAction);
+      const pending = consumePendingQuickAction(quickActionReady);
       if (!pending) return;
 
       const route = resolveQuickActionRoute(pending);
@@ -369,14 +375,14 @@ function RootLayout() {
 
     // Native events also cover warm actions delivered while AppState is active.
     const unsubscribeQuickActions = subscribeToQuickActions(() => {
-      if (canOpenQuickAction) openPendingQuickAction();
+      if (quickActionReady) openPendingQuickAction();
     });
-    if (canOpenQuickAction) openPendingQuickAction();
+    if (quickActionReady) openPendingQuickAction();
     const appStateSubscription = AppState.addEventListener(
       "change",
       (state) => {
         if (state === "active" && navigable) {
-          if (canOpenQuickAction) openPendingQuickAction();
+          if (quickActionReady) openPendingQuickAction();
           // Android can rate-limit label updates; retry next time it is active.
           void updateQuickActionLabels().catch((error) => {
             reportError(error, { scope: "quickAction.labels" });
@@ -414,7 +420,7 @@ function RootLayout() {
       appStateSubscription.remove();
       unsubscribeMutations();
     };
-  }, [navigable, canOpenQuickAction]);
+  }, [navigable, quickActionReady]);
 
   // A tapped reminder must land on the event's convention rather than wherever
   // the app happened to be. The cold-start response arrives through

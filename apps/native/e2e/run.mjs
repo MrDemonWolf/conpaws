@@ -9,7 +9,9 @@ const APP_IDS = {
   preview: "com.mrdemonwolf.conpaws",
 };
 const APP_ID = Object.hasOwn(APP_IDS, variant) ? APP_IDS[variant] : undefined;
-const PREFLIGHT_TIMEOUT_MS = 12_000;
+// Fresh iOS simulators can take time to answer while their services initialize.
+// Keep device identity checks bounded without relaxing any target restrictions.
+const PREFLIGHT_TIMEOUT_MS = 30_000;
 
 function fail(message) {
   console.error(`Native E2E preflight: ${message}`);
@@ -70,12 +72,17 @@ if (platform === "android") {
 }
 
 const flow = join(dirname(fileURLToPath(import.meta.url)), "smoke.yaml");
+// CI and local audits can keep screenshots/logs in their own temporary folder.
+const artifactsDir = process.env.CONPAWS_E2E_ARTIFACTS_DIR;
 const result = spawnSync(
   "maestro",
   [
     `--platform=${platform}`,
     `--udid=${deviceId}`,
     "test",
+    ...(artifactsDir
+      ? ["--debug-output", artifactsDir, "--test-output-dir", artifactsDir]
+      : []),
     "-e",
     `APP_ID=${APP_ID}`,
     flow,

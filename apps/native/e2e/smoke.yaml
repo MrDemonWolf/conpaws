@@ -5,7 +5,11 @@ name: Native navigation and convention action smoke
 ---
 - launchApp:
     clearState: false
-- assertVisible: "Conventions"
+    stopApp: false
+- extendedWaitUntil:
+    visible: "Conventions"
+    timeout: 60000
+- tapOn: "Conventions"
 
 # In a fresh local database the empty-state button is available. Otherwise the
 # Home toolbar can add the same two fixtures without replacing existing rows.

@@ -15,7 +15,8 @@ export function OnboardingProgress({ step }: OnboardingProgressProps) {
       accessible
       accessibilityRole="progressbar"
       accessibilityLabel={t("onboarding.progress", { step, total: 3 })}
-      accessibilityValue={{ min: 1, max: 3, now: step }}
+      // Use a zero-based range so native percentage output stays within 100%.
+      accessibilityValue={{ min: 0, max: 3, now: step }}
       className="h-4 flex-row items-center justify-center gap-2"
     >
       <View className={cn(segmentClassName, "bg-primary")} />
