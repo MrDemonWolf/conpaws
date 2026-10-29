@@ -391,6 +391,14 @@ jobs:
         env:
           EXPO_NO_GIT_STATUS: "1"
 
+      # Reapplying plugins must preserve all Apple targets and their build
+      # configurations. A clean-only check missed apple-targets issue #201.
+      - name: Check repeated native prebuild
+        run: bun run prebuild --no-install
+        working-directory: apps/native
+        env:
+          EXPO_NO_GIT_STATUS: "1"
+
       - name: Check generated native build numbers
         run: bun run build-number:check
         working-directory: apps/native

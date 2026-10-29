@@ -22,7 +22,8 @@
  * reached 208 while the shipped build was 203.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -31,6 +32,10 @@ const appDirectory = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const configPath = path.join(appDirectory, "app.config.ts");
 const infoPlistPath = path.join(appDirectory, "ios/ConPaws/Info.plist");
 const gradlePath = path.join(appDirectory, "android/app/build.gradle");
+const xcodeProjectPath = path.join(
+  appDirectory,
+  "ios/ConPaws.xcodeproj/project.pbxproj",
+);
 const gradlePropertiesPath = path.join(
   appDirectory,
   "android/gradle.properties",
@@ -180,6 +185,61 @@ export function describeDrift(expected, generated) {
     );
 }
 
+/**
+ * Expo embeds the main app's number directly in Info.plist, already checked
+ * above. Apple targets instead use CURRENT_PROJECT_VERSION in each build
+ * configuration. Only inspect ConPaws companion bundles, never project-wide
+ * defaults or unrelated targets.
+ */
+export function describeAppleTargetDrift(expected, configurations) {
+  const bundleId = "com.mrdemonwolf.conpaws";
+  const unquote = (value) => String(value ?? "").replace(/^"(.*)"$/, "$1");
+  return configurations.flatMap((configuration) => {
+    const identifier = unquote(configuration.bundleIdentifier);
+    if (
+      !identifier.startsWith(`${bundleId}.`) ||
+      identifier === `${bundleId}.dev`
+    ) {
+      return [];
+    }
+    const number = unquote(configuration.buildNumber);
+    if (/^\d+$/.test(number) && Number(number) === expected) return [];
+    return [
+      `${unquote(configuration.target)} (${unquote(configuration.name)}) ` +
+        `CURRENT_PROJECT_VERSION is ${number || "missing"}, app.config.ts says ${expected}`,
+    ];
+  });
+}
+
+async function checkAppleTargets(expected) {
+  try {
+    await access(xcodeProjectPath);
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+  // Expo's parser works on Linux too. Load it only when native output exists;
+  // pure helpers and fresh checkouts do not need the native toolchain.
+  const { IOSConfig } = createRequire(import.meta.url)("expo/config-plugins");
+  const { getPbxproj, getBuildConfigurationsForListId, isNotComment } =
+    IOSConfig.XcodeUtils;
+  const project = getPbxproj(appDirectory);
+  const configurations = Object.entries(project.pbxNativeTargetSection())
+    .filter(isNotComment)
+    .flatMap(([, target]) =>
+      getBuildConfigurationsForListId(
+        project,
+        target.buildConfigurationList,
+      ).map(([, configuration]) => ({
+        target: target.name,
+        name: configuration.name,
+        bundleIdentifier: configuration.buildSettings.PRODUCT_BUNDLE_IDENTIFIER,
+        buildNumber: configuration.buildSettings.CURRENT_PROJECT_VERSION,
+      })),
+    );
+  return describeAppleTargetDrift(expected, configurations);
+}
+
 async function readIfPresent(filePath) {
   try {
     return await readFile(filePath, "utf8");
@@ -233,6 +293,7 @@ async function check() {
       value: gradle === null ? null : parseGradleVersionCode(gradle),
     },
   ]);
+  drift.push(...(await checkAppleTargets(expected)));
 
   const requireSigning =
     (process.env.APP_VARIANT ?? "production") === "production" &&

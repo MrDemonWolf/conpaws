@@ -61,7 +61,7 @@ const getScheme = (): string => {
  * https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969
  * Local development can still use `bun run ship:prep`.
  */
-const BUILD_NUMBER = 208;
+const BUILD_NUMBER = 209;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
