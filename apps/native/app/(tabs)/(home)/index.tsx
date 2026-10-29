@@ -7,6 +7,7 @@ import SortIcon from "@expo/material-symbols/sort.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import { router, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,7 @@ import {
   ConventionListSkeleton,
   EmptyState,
   SkeletonUnderHeader,
+  Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
@@ -36,12 +38,14 @@ import {
   partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
+import { developerToolsEnabled } from "@/lib/developer-tools";
 import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
+import { addPreviewConventions } from "@/lib/preview-convention";
 import { clearScheduleRefreshState } from "@/lib/schedule-refresh-storage";
 import { cancelConventionReminders } from "@/services/notifications";
 
@@ -80,6 +84,8 @@ interface ConventionEmptyStateProps {
   onFind: () => void;
   onCreate: () => void;
   onImport: () => void;
+  onAddSamples?: () => void;
+  addingSamples: boolean;
 }
 
 function ConventionEmptyState({
@@ -91,6 +97,8 @@ function ConventionEmptyState({
   onFind,
   onCreate,
   onImport,
+  onAddSamples,
+  addingSamples,
 }: ConventionEmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center gap-1">
@@ -109,6 +117,22 @@ function ConventionEmptyState({
       <Button variant="ghost" onPress={onCreate} className="w-full">
         {createLabel}
       </Button>
+      {onAddSamples ? (
+        <View className="w-full gap-1 px-6">
+          <Button
+            variant="outline"
+            onPress={onAddSamples}
+            loading={addingSamples}
+            testID="home-add-sample-conventions"
+          >
+            Add sample conventions
+          </Button>
+          <Text variant="caption" className="text-center text-muted-foreground">
+            Fictional schedules for testing. Your saved conventions stay
+            unchanged.
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -120,6 +144,8 @@ export default function HomeScreen() {
   const [sort, setSort] = useState<ConventionSort>("upcoming");
   const [archiveExpanded, setArchiveExpanded] = useState(false);
   const presentationLock = useRef(0);
+  const appVariant = Constants.expoConfig?.extra?.appVariant;
+  const showSamples = developerToolsEnabled(__DEV__, appVariant);
   const locale = currentLocale();
   const nameCollator = localeCollator(locale);
   const deviceTimeZone = DEVICE_TIME_ZONE;
@@ -224,23 +250,71 @@ export default function HomeScreen() {
     },
   });
 
+  const sampleMutation = useMutation({
+    mutationFn: () => addPreviewConventions(__DEV__, appVariant),
+    onSuccess: async (id) => {
+      if (!id) {
+        resetPresentationLock(presentationLock);
+        return;
+      }
+      await Promise.all(
+        ["conventions", "convention", "events", "schedule"].map((key) =>
+          queryClient.invalidateQueries({ queryKey: [key] }),
+        ),
+      );
+      router.push({ pathname: "/convention/[id]", params: { id } });
+    },
+    onError: () => {
+      resetPresentationLock(presentationLock);
+      Alert.alert(
+        "Samples could not be added",
+        "Try again. Your saved conventions were not replaced.",
+      );
+    },
+  });
+
+  function handleAddSamples() {
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
+    sampleMutation.mutate();
+  }
+
   function handleImportConvention() {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push("/convention/new/import");
   }
 
   function handleFindConvention() {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push("/convention/find");
   }
 
   function handleCreateConvention() {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push("/convention/create");
   }
 
   function handleOpenConvention(id: string) {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push(`/convention/${id}`);
   }
 
@@ -265,6 +339,7 @@ export default function HomeScreen() {
   }
 
   function showConventionActions(convention: Convention) {
+    if (sampleMutation.isPending) return;
     // Archived rows swap Archive for Unarchive — when unarchiving would
     // actually move the row (see canUnarchive). Ended conventions get
     // neither: re-archiving is a timestamp rewrite and unarchiving a no-op.
@@ -358,7 +433,7 @@ export default function HomeScreen() {
         contentInsetAdjustmentBehavior="automatic"
         alwaysBounceVertical={false}
         bounces={fontScale > 1.2}
-        scrollEnabled={fontScale > 1.2}
+        scrollEnabled={showSamples || fontScale > 1.2}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: 1,
@@ -376,6 +451,8 @@ export default function HomeScreen() {
           onCreate={handleCreateConvention}
           importLabel={t("convention.importSchedule")}
           onImport={handleImportConvention}
+          onAddSamples={showSamples ? handleAddSamples : undefined}
+          addingSamples={sampleMutation.isPending}
         />
       </ScrollView>
     ) : (
@@ -461,6 +538,16 @@ export default function HomeScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
+            {showSamples ? (
+              <Stack.Toolbar.MenuAction
+                onPress={handleAddSamples}
+                disabled={sampleMutation.isPending}
+              >
+                {sampleMutation.isPending
+                  ? "Adding samples…"
+                  : "Add sample conventions"}
+              </Stack.Toolbar.MenuAction>
+            ) : null}
           </Stack.Toolbar.Menu>
         </Stack.Toolbar>
       ) : null}
