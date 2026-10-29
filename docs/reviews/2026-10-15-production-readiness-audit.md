@@ -2,6 +2,8 @@
 
 **Date:** 2026-10-15
 
+**Latest local validation:** [October 28 testing-readiness report](2026-10-28-local-testing-readiness.md). This document retains the historical audit evidence; use the newer report for current local results.
+
 **Worktree:** `/Users/nathanialhenniges/Developer/mrdemonwolf/conpaws`
 
 **Branch:** `feat/mobile-ux-redesign`

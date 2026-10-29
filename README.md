@@ -74,13 +74,18 @@ Never miss a panel again.
 | Backend (target)  | Cloudflare Workers — Hono, tRPC, Better-Auth                 |
 | Cloud database    | Cloudflare D1 (SQLite) with Drizzle ORM                      |
 | File storage      | Cloudflare R2 — public CDN live; OTA buckets need recreation; product uploads planned |
-| Website           | Next.js 16.2.12 on Cloudflare Workers via OpenNext           |
+| Website           | Next.js 16.4.3 on Cloudflare Workers via OpenNext 1.20.13           |
 | Infrastructure    | Alchemy — D1, Worker bindings and secrets, cron              |
 | Bot protection    | Cloudflare Turnstile (server-side siteverify)                |
 | Widgets and Watch | WidgetKit and SwiftUI via @bacons/apple-targets              |
 | Payments          | RevenueCat (planned)                                         |
 | Crash reporting   | Sentry — wired up; the production DSN is not yet set         |
 | Monorepo          | bun workspaces, Turborepo, Biome                             |
+
+## Design and local testing
+
+- [Design system](docs/design-system.md): token sources, platform differences, component states, and accessibility checks.
+- [Local testing readiness](docs/reviews/2026-10-28-local-testing-readiness.md): verified checks, test steps, and remaining release gates.
 
 ## Development
 

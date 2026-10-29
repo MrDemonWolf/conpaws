@@ -9,7 +9,7 @@ This private catalog editor lives at `admin.conpaws.com`. It is a separate Next.
 3. Load the preview fixture: `bun run --filter @conpaws/admin db:seed:local`.
 4. Start the app with `bun run dev:admin`, or run the built Worker with `bun run --filter @conpaws/admin preview`.
 
-With `ADMIN_DEV_EMAIL` set, you skip sign-in and act as that address; on a local catalog with no owner yet, it becomes the owner. Remove it to try the real sign-in: invite yourself with `bun run admin:invite -- you@example.com --local`, open `/sign-in`, and read the code from the dev server log. Local email is never delivered.
+With `ADMIN_DEV_EMAIL` set, you skip sign-in and act as that address; on a local catalog with no owner yet, it becomes the owner. Remove it to try the real sign-in. On a fresh local database, open `/sign-in` and verify the code printed in the dev server log to create the first owner. On an initialized database, use an existing member or invite yourself with `bun run admin:invite -- you@example.com --local`. Local email is never delivered.
 
 Both shortcuts need `ADMIN_RUNTIME_ENV=local`, which only the ignored `.dev.vars` file sets. The production deploy always binds `ADMIN_RUNTIME_ENV=production` and never binds `ADMIN_DEV_EMAIL`.
 
