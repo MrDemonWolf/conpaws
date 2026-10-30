@@ -129,8 +129,9 @@ export function parseInfoPlistVariant(xml) {
  * preview and production share a bundle identifier and an icon, so the two
  * artifacts are indistinguishable on the Home Screen. But
  * `developerToolsEnabled()` turns the debug menu, fixture data and the UI
- * gallery on for preview, and ConPaws ships to a *public* TestFlight -- where
- * that reaches everyone with the link, not just the owner.
+ * gallery on for preview. Public or external distribution must use production;
+ * internal TestFlight and Play demo builds deliberately use preview instead.
+ * A TestFlight upload alone does not establish which app variant was built.
  * Release guide: https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969
  *
  * Both signals are checked because they catch different mistakes: the env var
