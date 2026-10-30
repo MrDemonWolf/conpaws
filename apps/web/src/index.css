@@ -54,6 +54,11 @@ h6 {
   hyphens: auto;
 }
 
+/* Keep headline words intact; overflow-wrap still handles long locale strings. */
+.landing-page :is(h1, h2, h3) {
+  hyphens: none;
+}
+
 /* Decoration stays behind controls. Page shells isolate these layers from
  * provider overlays; local component layers remain inside their own context.
  * Plain @theme also exposes the grain token to the pseudo-element below. */

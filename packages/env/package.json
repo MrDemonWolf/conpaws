@@ -8,12 +8,11 @@
   },
   "exports": {
     "./web": "./src/web.ts",
-    "./deploy": "./src/deploy.ts",
-    "./admin-deploy": "./src/admin-deploy.ts"
+    "./deploy": "./src/deploy.ts"
   },
   "dependencies": {
-    "@t3-oss/env-nextjs": "^0.13.1",
-    "zod": "^4.6.5"
+    "@t3-oss/env-nextjs": "^0.13.11",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@conpaws/config": "workspace:*",

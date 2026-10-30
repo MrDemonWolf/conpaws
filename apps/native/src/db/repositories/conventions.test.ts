@@ -19,6 +19,8 @@ function storedConvention(overrides: Partial<Convention> = {}): Convention {
     timeZone: "America/Chicago",
     icalUrl: null,
     archivedAt: null,
+    catalogSlug: null,
+    catalogRevision: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
     ...overrides,

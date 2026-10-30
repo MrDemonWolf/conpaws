@@ -1,7 +1,10 @@
 {
-  "platforms": ["apple"],
+  "platforms": ["apple", "android"],
   "apple": {
-    "modules": ["ConPawsWidgetsModule"],
+    "modules": ["ConPawsWidgetsModule", "ConPawsQuickActionsModule"],
     "appDelegateSubscribers": ["ConPawsQuickActionsSubscriber"]
+  },
+  "android": {
+    "modules": ["expo.modules.conpawswidgets.ConPawsQuickActionsModule"]
   }
 }

@@ -2,10 +2,12 @@ import AddIcon from "@expo/material-symbols/add.xml";
 import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
 import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
+import SearchIcon from "@expo/material-symbols/search.xml";
 import SortIcon from "@expo/material-symbols/sort.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import { router, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,7 +19,13 @@ import {
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
-import { ConventionListSkeleton, EmptyState } from "@/components/ui";
+import {
+  Button,
+  ConventionListSkeleton,
+  EmptyState,
+  SkeletonUnderHeader,
+  Text,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
@@ -30,12 +38,18 @@ import {
   partitionConventions,
   sortConventions,
 } from "@/lib/convention-list";
+import {
+  type ConventionRowActionId,
+  conventionRowActions,
+} from "@/lib/convention-row-actions";
+import { developerToolsEnabled } from "@/lib/developer-tools";
 import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
+import { addPreviewConventions } from "@/lib/preview-convention";
 import { clearScheduleRefreshState } from "@/lib/schedule-refresh-storage";
 import { cancelConventionReminders } from "@/services/notifications";
 
@@ -70,8 +84,12 @@ interface ConventionEmptyStateProps {
   subtitle: string;
   createLabel: string;
   importLabel: string;
+  findLabel: string;
+  onFind: () => void;
   onCreate: () => void;
   onImport: () => void;
+  onAddSamples?: () => void;
+  addingSamples: boolean;
 }
 
 function ConventionEmptyState({
@@ -79,25 +97,47 @@ function ConventionEmptyState({
   subtitle,
   createLabel,
   importLabel,
+  findLabel,
+  onFind,
   onCreate,
   onImport,
+  onAddSamples,
+  addingSamples,
 }: ConventionEmptyStateProps) {
   return (
-    // Import is primary: it is the path that produces a populated schedule.
-    // Create used to be primary and led straight to a second empty state —
-    // and the last onboarding screen already promotes Import, so the two
-    // surfaces now agree about what a new user should do first.
-    <EmptyState
-      icon={EMPTY_ICON}
-      title={title}
-      subtitle={subtitle}
-      ctaLabel={importLabel}
-      onCta={onImport}
-      secondaryCtaLabel={createLabel}
-      onSecondaryCta={onCreate}
-      secondaryCtaVariant="outlined"
-      actionsInline
-    />
+    <View className="flex-1 items-center justify-center gap-1">
+      <EmptyState
+        icon={EMPTY_ICON}
+        title={title}
+        subtitle={subtitle}
+        ctaLabel={findLabel}
+        onCta={onFind}
+        secondaryCtaLabel={importLabel}
+        onSecondaryCta={onImport}
+        secondaryCtaVariant="outlined"
+        actionsInline
+        className="w-full flex-none"
+      />
+      <Button variant="ghost" onPress={onCreate} className="w-full">
+        {createLabel}
+      </Button>
+      {onAddSamples ? (
+        <View className="w-full gap-1 px-6">
+          <Button
+            variant="outline"
+            onPress={onAddSamples}
+            loading={addingSamples}
+            testID="home-add-sample-conventions"
+          >
+            Add sample conventions
+          </Button>
+          <Text variant="caption" className="text-center text-muted-foreground">
+            Fictional schedules for testing. Your saved conventions stay
+            unchanged.
+          </Text>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -108,6 +148,8 @@ export default function HomeScreen() {
   const [sort, setSort] = useState<ConventionSort>("upcoming");
   const [archiveExpanded, setArchiveExpanded] = useState(false);
   const presentationLock = useRef(0);
+  const appVariant = Constants.expoConfig?.extra?.appVariant;
+  const showSamples = developerToolsEnabled(__DEV__, appVariant);
   const locale = currentLocale();
   const nameCollator = localeCollator(locale);
   const deviceTimeZone = DEVICE_TIME_ZONE;
@@ -212,18 +254,77 @@ export default function HomeScreen() {
     },
   });
 
+  const sampleMutation = useMutation({
+    mutationFn: () => addPreviewConventions(__DEV__, appVariant),
+    onSuccess: async (id) => {
+      if (!id) {
+        resetPresentationLock(presentationLock);
+        return;
+      }
+      await Promise.all(
+        ["conventions", "convention", "events", "schedule"].map((key) =>
+          queryClient.invalidateQueries({ queryKey: [key] }),
+        ),
+      );
+      router.push({ pathname: "/convention/[id]", params: { id } });
+    },
+    onError: () => {
+      resetPresentationLock(presentationLock);
+      Alert.alert(
+        "Samples could not be added",
+        "Try again. Your saved conventions were not replaced.",
+      );
+    },
+  });
+
+  const rowActionsDisabled =
+    sampleMutation.isPending ||
+    deleteMutation.isPending ||
+    archiveMutation.isPending ||
+    unarchiveMutation.isPending;
+
+  function handleAddSamples() {
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
+    sampleMutation.mutate();
+  }
+
   function handleImportConvention() {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push("/convention/new/import");
   }
 
+  function handleFindConvention() {
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
+    router.push("/convention/find");
+  }
+
   function handleCreateConvention() {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push("/convention/create");
   }
 
   function handleOpenConvention(id: string) {
-    if (!tryAcquirePresentationLock(presentationLock)) return;
+    if (
+      sampleMutation.isPending ||
+      !tryAcquirePresentationLock(presentationLock)
+    )
+      return;
     router.push(`/convention/${id}`);
   }
 
@@ -247,38 +348,31 @@ export default function HomeScreen() {
     );
   }
 
-  function showConventionActions(convention: Convention) {
-    // Archived rows swap Archive for Unarchive — when unarchiving would
-    // actually move the row (see canUnarchive). Ended conventions get
-    // neither: re-archiving is a timestamp rewrite and unarchiving a no-op.
-    const archiveAction = convention.archivedAt
-      ? canUnarchive(convention, now, deviceTimeZone)
-        ? {
-            text: t("common.unarchive"),
-            onPress: () => unarchiveMutation.mutate(convention.id),
-          }
-        : null
-      : {
-          text: t("common.archive"),
-          onPress: () => archiveMutation.mutate(convention.id),
-        };
+  function handleConventionAction(
+    convention: Convention,
+    actionId: ConventionRowActionId,
+  ) {
+    // Recheck after the menu opens: pending writes can change its availability.
+    const action = getRowContent(convention).actions.find(
+      (candidate) => candidate.id === actionId,
+    );
+    if (!action || action.disabled) return;
 
-    Alert.alert(convention.name, undefined, [
-      {
-        text: t("common.edit"),
-        onPress: () => {
-          if (!tryAcquirePresentationLock(presentationLock)) return;
-          router.push(`/convention/${convention.id}/edit`);
-        },
-      },
-      ...(archiveAction ? [archiveAction] : []),
-      {
-        text: t("common.delete"),
-        style: "destructive",
-        onPress: () => confirmDeleteConvention(convention),
-      },
-      { text: t("common.cancel"), style: "cancel" },
-    ]);
+    switch (action.id) {
+      case "edit":
+        if (!tryAcquirePresentationLock(presentationLock)) return;
+        router.push(`/convention/${convention.id}/edit`);
+        break;
+      case "archive":
+        archiveMutation.mutate(convention.id);
+        break;
+      case "unarchive":
+        unarchiveMutation.mutate(convention.id);
+        break;
+      case "delete":
+        confirmDeleteConvention(convention);
+        break;
+    }
   }
 
   // Stable across renders so the SwiftUI Host's child tree only re-diffs when
@@ -307,9 +401,23 @@ export default function HomeScreen() {
           name: item.name,
         }),
         canUnarchive: canUnarchive(item, now, deviceTimeZone),
+        actions: conventionRowActions(
+          {
+            archived: Boolean(item.archivedAt),
+            ended: status === "ended",
+            canUnarchive: canUnarchive(item, now, deviceTimeZone),
+            disabled: rowActionsDisabled,
+          },
+          {
+            edit: t("common.edit"),
+            archive: t("common.archive"),
+            unarchive: t("common.unarchive"),
+            delete: t("common.delete"),
+          },
+        ),
       };
     },
-    [locale, now, t],
+    [locale, now, rowActionsDisabled, t],
   );
 
   const showLoading = useDelayedLoading(isLoading || (isError && isFetching));
@@ -317,7 +425,9 @@ export default function HomeScreen() {
   const content =
     isLoading || (isError && isFetching) ? (
       showLoading ? (
-        <ConventionListSkeleton />
+        <SkeletonUnderHeader>
+          <ConventionListSkeleton />
+        </SkeletonUnderHeader>
       ) : (
         <View className="flex-1 bg-background" />
       )
@@ -339,7 +449,7 @@ export default function HomeScreen() {
         contentInsetAdjustmentBehavior="automatic"
         alwaysBounceVertical={false}
         bounces={fontScale > 1.2}
-        scrollEnabled={fontScale > 1.2}
+        scrollEnabled={showSamples || fontScale > 1.2}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: 1,
@@ -352,9 +462,13 @@ export default function HomeScreen() {
           title={t("home.empty.title")}
           subtitle={t("home.empty.subtitle")}
           createLabel={t("home.empty.cta")}
+          findLabel={t("home.find")}
+          onFind={handleFindConvention}
           onCreate={handleCreateConvention}
           importLabel={t("convention.importSchedule")}
           onImport={handleImportConvention}
+          onAddSamples={showSamples ? handleAddSamples : undefined}
+          addingSamples={sampleMutation.isPending}
         />
       </ScrollView>
     ) : (
@@ -371,12 +485,12 @@ export default function HomeScreen() {
         currentEmptyLabel={t("home.archive.noCurrent")}
         onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
-        onDelete={confirmDeleteConvention}
+        onDelete={(item) => handleConventionAction(item, "delete")}
         archiveItemLabel={t("common.archive")}
-        onArchive={(item) => archiveMutation.mutate(item.id)}
+        onArchive={(item) => handleConventionAction(item, "archive")}
         unarchiveItemLabel={t("common.unarchive")}
-        onUnarchive={(item) => unarchiveMutation.mutate(item.id)}
-        onOpenActions={showConventionActions}
+        onUnarchive={(item) => handleConventionAction(item, "unarchive")}
+        onAction={handleConventionAction}
         onOpen={(item) => handleOpenConvention(item.id)}
         getRowContent={getRowContent}
       />
@@ -414,6 +528,14 @@ export default function HomeScreen() {
           >
             <Stack.Toolbar.MenuAction
               icon={
+                process.env.EXPO_OS === "ios" ? "magnifyingglass" : SearchIcon
+              }
+              onPress={handleFindConvention}
+            >
+              {t("home.find")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              icon={
                 process.env.EXPO_OS === "ios"
                   ? "calendar.badge.plus"
                   : EditCalendarIcon
@@ -432,6 +554,16 @@ export default function HomeScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
+            {showSamples ? (
+              <Stack.Toolbar.MenuAction
+                onPress={handleAddSamples}
+                disabled={sampleMutation.isPending}
+              >
+                {sampleMutation.isPending
+                  ? "Adding samples…"
+                  : "Add sample conventions"}
+              </Stack.Toolbar.MenuAction>
+            ) : null}
           </Stack.Toolbar.Menu>
         </Stack.Toolbar>
       ) : null}

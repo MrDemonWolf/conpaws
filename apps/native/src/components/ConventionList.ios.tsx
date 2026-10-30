@@ -4,6 +4,8 @@ import {
   HStack,
   Image,
   List,
+  Menu,
+  Section,
   Spacer,
   SwipeActions,
   Text,
@@ -13,6 +15,7 @@ import {
   accessibilityLabel,
   buttonStyle,
   contentShape,
+  disabled,
   font,
   foregroundStyle,
   frame,
@@ -42,7 +45,7 @@ export function ConventionList<T extends { id: string }>({
   onArchive,
   unarchiveItemLabel,
   onUnarchive,
-  onOpenActions,
+  onAction,
 }: ConventionListProps<T>) {
   const colorScheme = useResolvedColorScheme();
 
@@ -134,17 +137,48 @@ export function ConventionList<T extends { id: string }>({
             out of reach under Switch Control — so it cannot be the only way
             to archive or delete a convention.
           */}
-          <Button
-            systemImage="ellipsis.circle"
-            onPress={() => onOpenActions(item)}
+          <Menu
+            label={
+              <Image
+                systemName="ellipsis.circle"
+                modifiers={[
+                  frame({ width: 44, height: 44 }),
+                  contentShape(shapes.rectangle()),
+                ]}
+              />
+            }
             modifiers={[
               buttonStyle("borderless"),
-              frame({ width: 44, height: 44 }),
-              contentShape(shapes.rectangle()),
               accessibilityLabel(row.moreAccessibilityLabel),
               foregroundStyle({ type: "hierarchical", style: "secondary" }),
+              disabled(row.actions.every((action) => action.disabled)),
             ]}
-          />
+          >
+            {[false, true].map((destructive) => (
+              <Section key={String(destructive)}>
+                {row.actions
+                  .filter((action) => (action.id === "delete") === destructive)
+                  .map((action) => (
+                    <Button
+                      key={action.id}
+                      label={action.label}
+                      systemImage={
+                        action.id === "edit"
+                          ? "pencil"
+                          : action.id === "delete"
+                            ? "trash"
+                            : action.id === "unarchive"
+                              ? "archivebox.fill"
+                              : "archivebox"
+                      }
+                      role={destructive ? "destructive" : undefined}
+                      modifiers={[disabled(action.disabled)]}
+                      onPress={() => onAction(item, action.id)}
+                    />
+                  ))}
+              </Section>
+            ))}
+          </Menu>
         </HStack>
         {!isArchived ? (
           <SwipeActions.Actions edge="leading" allowsFullSwipe>

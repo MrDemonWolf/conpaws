@@ -13,8 +13,8 @@ export const unstable_settings = {
 // Material 3 full-screen-dialog pattern.
 const FORM_PRESENTATION = process.env.EXPO_OS === "ios" ? "formSheet" : "modal";
 
-// `Stack.Toolbar` only reaches the header on iOS, so Android renders its own
-// `FormModalHeader` in-content and must not also show the native header.
+// Android forms retain their in-content FormModalHeader for the keyboard-safe
+// modal layout; showing a native header too would duplicate its controls.
 const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios";
 
 export default function HomeLayout() {
@@ -39,6 +39,14 @@ export default function HomeLayout() {
         }}
       />
       <Stack.Screen name="convention/[id]" options={{ title: "Convention" }} />
+      <Stack.Screen
+        name="convention/find"
+        options={{ title: t("catalog.title") }}
+      />
+      <Stack.Screen
+        name="convention/find/[slug]"
+        options={{ headerLargeTitleEnabled: false }}
+      />
       <Stack.Screen
         name="convention/create"
         options={{
@@ -80,12 +88,25 @@ export default function HomeLayout() {
           // Both platforms get a real sheet here — unlike the forms above,
           // this screen has no keyboard, so the Android formSheet re-layout
           // problem that pushed the forms to full-screen modals cannot occur.
-          // fitToContents requires the content to have NATURAL height — a
-          // flex-1 wrapper makes the measurement come back screen-sized and
-          // the sheet opens tall with the content pinned to its bottom edge.
-          // EventSheetContent is deliberately unflexed for this reason.
+          // The sheet scrolls (the whole description is shown), so it takes
+          // fractional detents; fitToContents cannot measure a ScrollView.
           presentation: "formSheet",
-          sheetAllowedDetents: "fitToContents",
+          sheetAllowedDetents: [0.7, 1],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="convention/[id]/compare"
+        options={{
+          headerShown: false,
+          // A sheet on both platforms, like the event sheet: no keyboard, so
+          // the Android re-layout problem that pushed the forms to full-screen
+          // modals cannot occur. The cards scroll, so fractional detents
+          // rather than fitToContents.
+          presentation: "formSheet",
+          sheetAllowedDetents: [0.75, 1],
+          sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
         }}
       />

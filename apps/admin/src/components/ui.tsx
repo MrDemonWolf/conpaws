@@ -228,6 +228,7 @@ const statusStyles: Record<string, string> = {
   disabled: "border-slate-200 bg-slate-100 text-slate-700",
   owner: "border-violet-200 bg-violet-50 text-violet-800",
   editor: "border-slate-200 bg-slate-100 text-slate-700",
+  access: "border-sky-200 bg-sky-50 text-sky-800",
 };
 
 export function StatusPill({ status }: { status: string }) {

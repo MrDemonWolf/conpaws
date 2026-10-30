@@ -143,7 +143,7 @@ export function Waitlist({
           the translator put the word, and falls back to a plain headline if
           they rephrased it away.
         */}
-        <h1 className="motion-safe:animate-rise mt-6 text-balance font-bold text-[clamp(36px,11.2vw,42px)] leading-[0.95] tracking-[-0.03em] [animation-delay:80ms] sm:text-[clamp(42px,6.2vw,76px)]">
+        <h1 className="motion-safe:animate-rise mt-6 text-balance font-bold text-[clamp(36px,10vw,44px)] leading-[1.08] tracking-[-0.03em] [animation-delay:80ms] sm:text-[clamp(44px,5.5vw,64px)]">
           {(() => {
             const at = messages.title.indexOf(messages.titleAccent);
             if (at === -1 || !messages.titleAccent) return messages.title;
@@ -157,7 +157,7 @@ export function Waitlist({
           })()}
         </h1>
 
-        <p className="motion-safe:animate-rise mt-6 max-w-[42ch] text-[16px] text-muted-foreground leading-relaxed [animation-delay:160ms]">
+        <p className="motion-safe:animate-rise mt-6 max-w-[42ch] text-base text-muted-foreground leading-relaxed sm:text-lg [animation-delay:160ms]">
           {messages.body}
         </p>
       </div>
@@ -203,8 +203,8 @@ export function Waitlist({
             tabIndex={-1}
             className="max-w-[440px] rounded-2xl border border-primary/40 bg-primary/10 p-6 outline-none"
           >
-            <p className="font-bold text-[17px]">{messages.doneTitle}</p>
-            <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed">
+            <p className="font-bold text-xl">{messages.doneTitle}</p>
+            <p className="mt-2 text-base text-muted-foreground leading-relaxed">
               {messages.doneBody}
             </p>
           </div>
@@ -218,7 +218,7 @@ export function Waitlist({
               <div>
                 <label
                   htmlFor={nameId}
-                  className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
+                  className="mb-1.5 block font-tech text-sm text-muted-foreground uppercase tracking-[0.12em]"
                 >
                   {messages.nameLabel}
                 </label>
@@ -242,7 +242,7 @@ export function Waitlist({
               <div>
                 <label
                   htmlFor={emailId}
-                  className="mb-1.5 block font-tech text-[12px] text-muted-foreground uppercase tracking-[0.2em]"
+                  className="mb-1.5 block font-tech text-sm text-muted-foreground uppercase tracking-[0.12em]"
                 >
                   {messages.emailLabel}
                 </label>
@@ -299,7 +299,7 @@ export function Waitlist({
             <button
               type="submit"
               disabled={!acceptingSignups || status === "submitting"}
-              className="mt-5 w-full rounded-xl bg-primary px-5 py-4 font-bold text-[14px] text-primary-foreground uppercase tracking-[0.14em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
+              className="mt-5 w-full rounded-xl bg-primary px-5 py-4 font-bold text-base text-primary-foreground uppercase tracking-[0.08em] transition hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             >
               {!acceptingSignups
                 ? messages.submitClosed
@@ -328,7 +328,7 @@ export function Waitlist({
               tamperable. Until that lands, English is the honest option: the
               text shown and the text stored are the same.
             */}
-            <p className="mt-3.5 text-[13px] text-muted-foreground leading-relaxed">
+            <p className="mt-3.5 text-sm text-muted-foreground leading-relaxed">
               {acceptingSignups ? (
                 <span lang="en">{CONSENT_COPY}</span>
               ) : (

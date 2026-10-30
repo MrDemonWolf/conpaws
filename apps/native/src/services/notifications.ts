@@ -121,7 +121,7 @@ function reminderNotificationContent(
   if (override) return override;
   if (!i18n.isInitialized) {
     return {
-      title: `Time to leave for ${event.title}`,
+      title: `Reminder for ${event.title}`,
       body: event.room
         ? `Starts in ${minutesBefore} min · ${event.room}`
         : `Starts in ${minutesBefore} min`,

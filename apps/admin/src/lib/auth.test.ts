@@ -1,162 +1,200 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  addMember,
+  createTestCatalog,
+  type TestCatalog,
+} from "../test/d1-sqlite";
+import {
+  createRequestState,
+  type RequestState,
+  redirectOf,
+} from "../test/next-request";
 
-const { headersMock, bindingsMock, databaseMock, jwtVerifyMock } = vi.hoisted(
-  () => ({
-    headersMock: vi.fn(),
-    bindingsMock: vi.fn(),
-    databaseMock: vi.fn(),
-    jwtVerifyMock: vi.fn(),
-  }),
-);
+const request = vi.hoisted(() => ({ current: null as RequestState | null }));
 
-vi.mock("next/headers", () => ({ headers: headersMock }));
-vi.mock("jose", () => ({
-  createRemoteJWKSet: vi.fn(() => vi.fn()),
-  jwtVerify: jwtVerifyMock,
+vi.mock("next/headers", () => ({
+  cookies: async () => request.current?.cookies,
+  headers: async () => request.current?.headers,
 }));
-vi.mock("./db", () => ({
-  getAdminBindings: bindingsMock,
-  getCatalogDatabase: databaseMock,
+vi.mock("next/navigation", () => ({
+  redirect: (destination: string) => {
+    throw new Error(`NEXT_REDIRECT:${destination}`);
+  },
+}));
+vi.mock("@opennextjs/cloudflare", () => ({
+  getCloudflareContext: async () => request.current?.context(),
 }));
 
 import { getAdminGate, requireAdmin } from "./auth";
+import { SIGN_IN_POLICY, startSession } from "./sign-in";
 
-function setup({
-  runtime = "production",
-  devEmail,
-  ownerEmail,
-  member,
-}: {
-  runtime?: "local" | "production";
-  devEmail?: string;
-  ownerEmail?: string;
-  member?: { role: "owner" | "editor"; status: "active" | "disabled" } | null;
-} = {}) {
-  const sql: string[] = [];
-  const run = vi.fn(async () => ({ success: true }));
-  const first = vi.fn(async () => member ?? null);
-  const db = {
-    prepare: vi.fn((query: string) => {
-      sql.push(query);
-      return { bind: vi.fn(() => ({ run, first })) };
-    }),
+const SESSION = "__Host-conpaws_admin_session";
+let catalog: TestCatalog;
+let state: RequestState;
+
+function setup(env: Record<string, unknown> = {}) {
+  catalog = createTestCatalog();
+  state = createRequestState();
+  state.env = {
+    CATALOG_DB: catalog.database,
+    ADMIN_RUNTIME_ENV: "production",
+    ...env,
   };
-  bindingsMock.mockResolvedValue({
-    CATALOG_DB: {},
-    ADMIN_RUNTIME_ENV: runtime,
-    ADMIN_DEV_EMAIL: devEmail,
-    ADMIN_OWNER_EMAIL: ownerEmail,
-    CF_ACCESS_TEAM_DOMAIN: "team.cloudflareaccess.com",
-    CF_ACCESS_AUD: "audience",
-  });
-  databaseMock.mockResolvedValue(db);
-  headersMock.mockResolvedValue(new Headers());
-  jwtVerifyMock.mockResolvedValue({ payload: { email: "User@Example.com" } });
-  return { db, sql, run, first };
+  request.current = state;
 }
 
-describe("admin authorization", () => {
-  beforeEach(() => vi.clearAllMocks());
+async function signedIn(
+  email: string,
+  role: "owner" | "editor" = "editor",
+  verifiedAgoMs = 0,
+) {
+  addMember(catalog, email, role);
+  const token = await startSession({
+    database: catalog.database,
+    email,
+    now: Date.now() - verifiedAgoMs,
+  });
+  if (!token) throw new Error("expected a session");
+  state.jar.set(SESSION, token);
+  return token;
+}
 
-  it("requires an identity when no Access token or local identity exists", async () => {
-    setup();
+describe("the admin gate", () => {
+  beforeEach(() => setup());
+
+  it("asks a visitor without a session to sign in", async () => {
+    await expect(getAdminGate()).resolves.toEqual({
+      status: "identity-required",
+    });
+    state.jar.set(SESSION, "forged-or-stale");
     await expect(getAdminGate()).resolves.toEqual({
       status: "identity-required",
     });
   });
 
-  it("rejects an unknown email as not provisioned", async () => {
-    setup();
-    headersMock.mockResolvedValue(
-      new Headers({ "cf-access-jwt-assertion": "signed-token" }),
-    );
+  it("lets a signed-in member through with their role", async () => {
+    await signedIn("editor@example.com");
     await expect(getAdminGate()).resolves.toEqual({
-      status: "not-provisioned",
-      email: "user@example.com",
+      status: "authorized",
+      session: {
+        email: "editor@example.com",
+        role: "editor",
+        verifiedAt: expect.any(Number),
+      },
     });
   });
 
-  it("rejects a disabled member", async () => {
-    setup({ member: { role: "editor", status: "disabled" } });
-    headersMock.mockResolvedValue(
-      new Headers({ "cf-access-jwt-assertion": "signed-token" }),
-    );
+  it("follows role changes on the next request", async () => {
+    await signedIn("person@example.com", "editor");
+    catalog.exec("UPDATE admin_members SET role = 'owner'");
+    await expect(getAdminGate()).resolves.toMatchObject({
+      session: { role: "owner" },
+    });
+  });
+
+  it("refuses a disabled member even with a live session", async () => {
+    await signedIn("off@example.com");
+    catalog.exec("UPDATE admin_members SET status = 'disabled'");
     await expect(getAdminGate()).resolves.toEqual({
       status: "disabled",
-      email: "user@example.com",
+      email: "off@example.com",
     });
   });
 
-  it("denies an editor when owner access is required", async () => {
-    setup({ member: { role: "editor", status: "active" } });
-    headersMock.mockResolvedValue(
-      new Headers({ "cf-access-jwt-assertion": "signed-token" }),
+  it("ignores a session older than seven days", async () => {
+    await signedIn(
+      "member@example.com",
+      "editor",
+      SIGN_IN_POLICY.sessionLifetimeMs,
     );
+    await expect(getAdminGate()).resolves.toEqual({
+      status: "identity-required",
+    });
+  });
+
+  it("does not accept the local cookie name in production", async () => {
+    const token = await signedIn("member@example.com");
+    state.jar.clear();
+    state.jar.set("conpaws_admin_session", token);
+    await expect(getAdminGate()).resolves.toEqual({
+      status: "identity-required",
+    });
+  });
+
+  it("reports an unreachable or unmigrated database as unavailable", async () => {
+    setup({ CATALOG_DB: undefined });
+    await expect(getAdminGate()).resolves.toEqual({ status: "unavailable" });
+
+    setup();
+    const token = await signedIn("member@example.com");
+    catalog.sqlite.exec("DROP TABLE admin_sessions");
+    state.jar.set(SESSION, token);
+    vi.spyOn(console, "error").mockImplementationOnce(() => {});
+    await expect(getAdminGate()).resolves.toEqual({ status: "unavailable" });
+  });
+});
+
+describe("requireAdmin", () => {
+  beforeEach(() => setup());
+
+  it("sends a signed-out visitor to sign in", async () => {
+    await expect(redirectOf(() => requireAdmin())).resolves.toBe("/sign-in");
+  });
+
+  it("refuses an editor where an owner is required", async () => {
+    await signedIn("editor@example.com", "editor");
     await expect(requireAdmin("owner")).rejects.toThrow(
       "Admin access denied: owner role required",
     );
   });
 
-  it("does not bootstrap the configured owner when an owner already exists", async () => {
-    const state = new Map<
-      string,
-      { role: "owner" | "editor"; status: "active" | "disabled" }
-    >();
-    state.set("existing@example.com", { role: "owner", status: "active" });
-    const insertRun = vi.fn(async (email: string) => {
-      if (![...state.values()].some((value) => value.role === "owner")) {
-        state.set(email, { role: "owner", status: "active" });
-      }
+  it("asks an owner to confirm with a fresh code before team changes", async () => {
+    await signedIn("owner@example.com", "owner", SIGN_IN_POLICY.freshSessionMs);
+    await expect(requireAdmin("owner")).resolves.toMatchObject({
+      email: "owner@example.com",
     });
-    const queries: string[] = [];
-    bindingsMock.mockResolvedValue({
-      CATALOG_DB: {},
-      ADMIN_RUNTIME_ENV: "local",
-      ADMIN_OWNER_EMAIL: "bootstrap@example.com",
-      ADMIN_DEV_EMAIL: "bootstrap@example.com",
-    });
-    headersMock.mockResolvedValue(new Headers());
-    databaseMock.mockResolvedValue({
-      prepare: vi.fn((query: string) => {
-        queries.push(query);
-        return {
-          bind: vi.fn((email: string) => ({
-            run: () =>
-              query.includes("NOT EXISTS") &&
-              [...state.values()].some((value) => value.role === "owner")
-                ? Promise.resolve()
-                : insertRun(email),
-            first: async () => state.get(email) ?? null,
-          })),
-        };
-      }),
-    });
-
-    await expect(getAdminGate()).resolves.toEqual({
-      status: "not-provisioned",
-      email: "bootstrap@example.com",
-    });
-    expect(queries[0]).toContain(
-      "NOT EXISTS (SELECT 1 FROM admin_members WHERE role = 'owner')",
-    );
-    expect(insertRun).not.toHaveBeenCalled();
+    await expect(
+      redirectOf(() => requireAdmin("owner", { confirmAt: "/team" })),
+    ).resolves.toBe("/team?confirm=required");
   });
 
-  it("uses the dev identity bypass only for the local runtime", async () => {
-    setup({
-      runtime: "local",
-      devEmail: " Dev@Example.com ",
-      member: { role: "editor", status: "active" },
-    });
-    await expect(getAdminGate()).resolves.toEqual({
-      status: "authorized",
-      session: { email: "dev@example.com", role: "editor" },
-    });
-    expect(jwtVerifyMock).not.toHaveBeenCalled();
+  it("lets a freshly verified owner change the team", async () => {
+    await signedIn("owner@example.com", "owner", 60_000);
+    await expect(
+      requireAdmin("owner", { confirmAt: "/team" }),
+    ).resolves.toMatchObject({ email: "owner@example.com", role: "owner" });
+  });
+});
 
-    setup({ runtime: "production", devEmail: "dev@example.com" });
-    await expect(getAdminGate()).resolves.toEqual({
-      status: "identity-required",
+describe("the local development shortcut", () => {
+  it("acts as the dev address and claims an ownerless local catalog once", async () => {
+    setup({ ADMIN_RUNTIME_ENV: "local", ADMIN_DEV_EMAIL: " Dev@Example.com " });
+    await expect(getAdminGate()).resolves.toMatchObject({
+      status: "authorized",
+      session: { email: "dev@example.com", role: "owner" },
     });
+    await getAdminGate();
+    expect(catalog.rows("SELECT email, role FROM admin_members")).toEqual([
+      { email: "dev@example.com", role: "owner" },
+    ]);
+  });
+
+  it("does not take over a local catalog that already has an owner", async () => {
+    setup({ ADMIN_RUNTIME_ENV: "local", ADMIN_DEV_EMAIL: "dev@example.com" });
+    addMember(catalog, "existing@example.com", "owner");
+    await expect(getAdminGate()).resolves.toEqual({
+      status: "not-provisioned",
+      email: "dev@example.com",
+    });
+  });
+
+  it("does nothing outside the local runtime", async () => {
+    for (const runtime of ["production", undefined]) {
+      setup({ ADMIN_RUNTIME_ENV: runtime, ADMIN_DEV_EMAIL: "dev@example.com" });
+      await expect(getAdminGate(), String(runtime)).resolves.toEqual({
+        status: "identity-required",
+      });
+      expect(catalog.rows("SELECT * FROM admin_members")).toEqual([]);
+    }
   });
 });

@@ -33,31 +33,15 @@
     "searchEvents": "Szukaj wydarzeń",
     "filterEvents": "Filtruj wydarzenia",
     "scheduleActions": "Akcje harmonogramu",
-    "allEvents": "Wszystkie wydarzenia",
-    "mySchedule": "Mój harmonogram",
-    "nowAndNext": "Teraz i następne",
     "categories": "Kategorie",
     "allCategories": "Wszystkie kategorie",
-    "noMatchingEvents": "Brak pasujących wydarzeń",
-    "noMatchingEventsSubtitle": "Spróbuj innego wyszukiwania lub filtra.",
     "timesShownIn": "Godziny są wyświetlane w strefie {{timeZone}}",
-    "nowCount": "Teraz ({{eventCount}})",
-    "nextAtCount": "Następne o {{time}} ({{eventCount}})",
-    "nextCount": "Następne ({{eventCount}})",
-    "nothingHappeningNow": "W tej chwili nic z mojego harmonogramu się nie odbywa.",
-    "noMoreUpcomingEvents": "W moim harmonogramie nie ma więcej nadchodzących wydarzeń.",
-    "noEvents": "Brak wydarzeń",
-    "noEventsSubtitle": "Zaimportuj harmonogram lub dodaj wydarzenia ręcznie.",
-    "myScheduleEmpty": "Mój harmonogram jest pusty",
-    "myScheduleNowNextSubtitle": "Wybierz wydarzenia w sekcji Wszystkie, aby zobaczyć, co trwa teraz i co będzie następne.",
-    "myScheduleSubtitle": "Otwórz Wszystkie i dodaj wydarzenia, których nie chcesz przegapić.",
-    "overlapSummary": "Zapisane panele z nakładającymi się godzinami: {{count}}",
-    "overlapHelp": "Możesz zachować je wszystkie. Ustaw przypomnienie dla późniejszego panelu, aby mieć czas na zmianę sali.",
+    "noEvents": "Nie dodano jeszcze paneli",
+    "noEventsSubtitle": "Dodaj program z linku lub pliku albo dodaj panele samodzielnie.",
     "overlapLabel": "Nakłada się na inny zapisany panel",
     "runsAlongsideOne": "Odbywa się w tym samym czasie co 1 inne wydarzenie",
     "runsAlongsideMany": "Odbywa się w tym samym czasie co inne wydarzenia: {{count}}",
     "sameTimeGroup": "Wydarzenia w tym samym czasie: {{count}}",
-    "showAllEvents": "Pokaż wszystkie wydarzenia",
     "addEvent": "Dodaj Wydarzenie",
     "importSchedule": "Importuj Harmonogram",
     "startDate": "Data Rozpoczęcia",
@@ -81,22 +65,22 @@
     "createError": "Nie udało się utworzyć konwentu. Spróbuj ponownie.",
     "notFound": "Nie znaleziono konwentu.",
     "goBack": "Wróć",
-    "addToSchedule": "Dodaj do Mojego harmonogramu",
-    "removeFromSchedule": "Usuń z Mojego harmonogramu",
-    "scheduleActionHint": "Aktualizuje to wydarzenie w Moim harmonogramie.",
+    "addToSchedule": "Dodaj do mojego planu",
+    "removeFromSchedule": "Usuń z mojego planu",
+    "scheduleActionHint": "Aktualizuje ten panel w Twoim planie.",
     "scheduleHint": {
-      "body": "Dotknij wydarzenia, aby dodać je do Mojego planu. Oznaczone wydarzenia pojawią się w zakładce Plan.",
+      "body": "Stuknij panel, aby dodać go do planu. Zapisane panele pojawią się w zakładce Plan.",
       "dismiss": "Ukryj wskazówkę"
     },
-    "scheduleAddedAnnouncement": "Dodano {{event}} do Mojego harmonogramu.",
-    "scheduleRemovedAnnouncement": "Usunięto {{event}} z Mojego harmonogramu.",
+    "scheduleAddedAnnouncement": "{{event}} dodano do Twojego planu.",
+    "scheduleRemovedAnnouncement": "{{event}} usunięto z Twojego planu.",
     "scheduleUpdateErrorTitle": "Harmonogram nie został zaktualizowany",
     "scheduleUpdateErrorMessage": "Nie udało się zmienić wydarzenia. Twój harmonogram pozostał bez zmian.",
     "closeEventDetails": "Zamknij szczegóły wydarzenia",
     "timeRangeTo": "do {{time}}",
     "eventTimeRange": "{{start}} do {{end}}",
-    "inMySchedule": "W Moim harmonogramie",
-    "notInMySchedule": "Poza Moim harmonogramem",
+    "inMySchedule": "W Twoim planie",
+    "notInMySchedule": "Nie w Twoim planie",
     "reminderSet": "Przypomnienie ustawione",
     "eventSource": {
       "imported": "Zaimportowane",
@@ -119,7 +103,7 @@
       "roomPlaceholder": "Opcjonalnie",
       "roomAccessibility": "Sala wydarzenia, opcjonalna",
       "timeZoneHelp": "Data i godziny używają strefy {{timeZone}}. Czas zakończenia przypada tego samego dnia.",
-      "savedAnnouncement": "Zapisano {{event}} i dodano do Mojego harmonogramu.",
+      "savedAnnouncement": "{{event}} dodano do Twojego planu.",
       "errors": {
         "title": "Tytuł jest wymagany.",
         "startTimeZone": "Ten czas rozpoczęcia nie istnieje w strefie czasowej konwentu.",
@@ -157,8 +141,159 @@
       "dismiss": "Zamknij to powiadomienie",
       "checkNow": "Sprawdź zmiany",
       "checking": "Sprawdzanie…",
-      "checkFailedTitle": "Nie udało się sprawdzić harmonogramu",
-      "checkFailedMessage": "Link do harmonogramu konwentu nie odpowiedział. Twój plan pozostaje bez zmian."
+      "checkFailedTitle": "Nie udało się sprawdzić zmian",
+      "checkFailedMessage": "Twój zapisany program nadal tu jest. Spróbuj ponownie za chwilę."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Mój plan",
+      "now": "Teraz",
+      "accessibility": "Widok programu"
+    },
+    "browse": {
+      "allDays": "Wszystkie",
+      "allDaysAccessibility": "Wszystkie dni, {{count}} dni",
+      "dayAccessibility": "{{day}}, {{count}} paneli",
+      "allTimes": "Wszystkie godziny",
+      "slotAccessibility": "Panele między {{start}} a {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · wszystkie dni",
+      "headingDay": "{{day}} · wszystkie godziny",
+      "headingAllDays": "Wszystkie panele",
+      "total": "łącznie {{count}}",
+      "hint": "Wybierz to, co Cię zaciekawi. Zdecydujesz później.",
+      "filterActive": "Filtr: {{category}}",
+      "clearFilters": "Wyczyść filtry",
+      "noMatches": {
+        "title": "Żaden panel nie pasuje do tych wyborów",
+        "body": "Spróbuj innej godziny albo wyczyść filtry, żeby zobaczyć więcej programu."
+      },
+      "noneThisDay": {
+        "title": "Tego dnia jeszcze nic nie ma",
+        "body": "W programie nie ma paneli tego dnia. Spróbuj innego dnia."
+      },
+      "allDaysCta": "Pokaż wszystkie dni",
+      "dropIn": {
+        "title": "Wpadnij o dowolnej porze",
+        "subtitle": "Bez ustalonej godziny"
+      },
+      "noSeat": "Zapisanie panelu nie rezerwuje miejsca.",
+      "optionsOne": "{{count}} opcja",
+      "optionsMany": "{{count}} opcji",
+      "optionsMany_few": "{{count}} opcje",
+      "daysOne": "{{count}} dzień",
+      "daysMany": "{{count}} dni"
+    },
+    "savedLabel": "Zapisano",
+    "saveAction": "Zapisz {{title}} w moim planie",
+    "unsaveAction": "Usuń {{title}} z mojego planu",
+    "plan": {
+      "until": "Do {{time}}",
+      "gap": {
+        "free": "{{minutes}} min wolnego · Czas na dojście",
+        "freeHours": "{{hours}} h wolnego · Czas na oddech",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min wolnego · Czas na oddech",
+        "backToBack": "Jeden po drugim · Sprawdź następną salę",
+        "overlap": "{{minutes}} min nakładania · Wybierz, co Ci pasuje"
+      },
+      "status": {
+        "now": "Teraz",
+        "endedToday": "Wcześniej dziś",
+        "ended": "Zakończony"
+      },
+      "overlap": {
+        "title": "Niektóre panele się nakładają",
+        "body": "Zostaw oba albo wybierz ten, który chcesz.",
+        "cta": "Sprawdź nakładanie"
+      },
+      "empty": {
+        "title": "Masz wolny dzień",
+        "body": "Na ten dzień nic jeszcze nie zapisano.",
+        "cta": "Przeglądaj panele"
+      },
+      "emptyConvention": {
+        "title": "Nic jeszcze nie zapisano",
+        "body": "Przejrzyj program i wybierz panele, na które chcesz zdążyć. Możesz dodać więcej niż jeden."
+      },
+      "updated": {
+        "title": "Plan zaktualizowany",
+        "body": "Twój plan się zmienił. Godziny paneli pozostają bez zmian."
+      },
+      "savedCountOne": "{{count}} zapisany",
+      "savedCountMany": "{{count}} zapisanych",
+      "savedCountMany_few": "{{count}} zapisane"
+    },
+    "now": {
+      "happeningNow": "Trwa teraz",
+      "upNext": "Następnie",
+      "until": "Do",
+      "startsAt": "Zaczyna się o",
+      "unknownEnd": "Godzina zakończenia nie została podana",
+      "reminder": "Przypomnienie: {{label}}",
+      "next": "Następny · {{time}}",
+      "nextAccessibility": "Następny: {{title}}",
+      "otherOptions": "Inne opcje w tej godzinie",
+      "openPanel": "Otwórz panel",
+      "setReminder": "Ustaw przypomnienie",
+      "openAccessibility": "Otwórz {{title}}",
+      "nothingPicked": {
+        "title": "Nie wybrano jeszcze następnego panelu",
+        "body": "Przejrzyj program i wybierz panele, na które chcesz zdążyć.",
+        "cta": "Przeglądaj program"
+      },
+      "finished": {
+        "title": "To był Twój plan na dziś",
+        "body": "Doszedłeś do końca dzisiejszych wyborów. Być może są jeszcze inne panele do zobaczenia.",
+        "nextDay": "Następnie: {{title}}, {{day}} o {{time}}."
+      },
+      "nothingToday": {
+        "title": "Na dziś nic nie zaplanowano"
+      },
+      "allEnded": {
+        "title": "Wszystkie zapisane panele się skończyły",
+        "body": "Przejrzyj program, żeby zobaczyć, co jeszcze się dzieje."
+      },
+      "minutesLeftOne": "Została {{count}} min",
+      "minutesLeftMany": "Zostało {{count}} min",
+      "minutesLeftMany_few": "Zostały {{count}} min",
+      "minutesUntilOne": "Zaczyna się za {{count}} min",
+      "minutesUntilMany": "Zaczyna się za {{count}} min",
+      "alsoNowOne": "Teraz zapisany też: {{count}} inny",
+      "alsoNowMany": "Teraz zapisanych też: {{count}} innych",
+      "alsoNowMany_few": "Teraz zapisane też: {{count}} inne"
+    },
+    "status": {
+      "checking": "Sprawdzanie aktualizacji…"
+    },
+    "compare": {
+      "title": "Zrób miejsce dla ulubionego.",
+      "subtitle": "Te panele częściowo się na siebie nakładają. Który jest bardziej w Twoim stylu?",
+      "inPlan": "W Twoim planie",
+      "overlapsChoice": "{{minutes}} min nakłada się na Twój obecny wybór",
+      "switchTo": "Przełącz na ten panel",
+      "addToPlan": "Dodaj do mojego planu",
+      "keepOnly": "Zostaw tylko ten panel",
+      "keepPlan": "Zachowaj ten plan",
+      "keepBoth": "Zostaw oba w moim planie",
+      "othersStay": "Pozostałe zapisane panele zostają zapisane.",
+      "updatedAnnouncement": "{{event}} dodano do Twojego planu. Usunięto: {{count}}.",
+      "possibilitiesOne": "{{count}} możliwość",
+      "possibilitiesMany": "{{count}} możliwości",
+      "replacesOne": "Zastępuje {{titles}}. Usunięte panele zostają w programie; możesz je zapisać ponownie w każdej chwili.",
+      "replacesMany": "Zastępuje {{count}} zapisanych paneli. Usunięte panele zostają w programie; możesz je zapisać ponownie w każdej chwili.",
+      "replacesMany_few": "Zastępuje {{count}} zapisane panele. Usunięte panele zostają w programie; możesz je zapisać ponownie w każdej chwili."
+    },
+    "panel": {
+      "about": "O tym panelu",
+      "durationMinutesOne": "{{count}} minuta",
+      "durationMinutesMany": "{{count}} minut",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+      "durationMinutesMany_few": "{{count}} minuty",
+      "noReminder": "Brak przypomnienia",
+      "overlapsPlan": "Nakłada się na Twój plan",
+      "overlapWith": "{{minutes}} min z {{title}}",
+      "compareBeforeAdding": "Porównaj przed dodaniem"
     }
   },
   "errors": {
@@ -175,7 +310,7 @@
     "addConvention": "Dodaj Konwent",
     "empty": {
       "title": "Brak konwentów",
-      "subtitle": "Utwórz konwent lub zaimportuj istniejący harmonogram.",
+      "subtitle": "Znajdź swój konwent, aby zacząć planować, albo dodaj program z linku lub pliku.",
       "cta": "Utwórz konwent"
     },
     "loadError": "Nie udało się wczytać konwentów.",
@@ -213,7 +348,8 @@
       "success": "Usunięto {{name}}.",
       "errorTitle": "Nie udało się usunąć konwentu",
       "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
-    }
+    },
+    "find": "Znajdź mój konwent"
   },
   "import": {
     "title": "Importuj Harmonogram",
@@ -311,7 +447,7 @@
       "title": "Zaplanuj cały konwent",
       "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
       "demo": {
-        "saved": "Mój harmonogram"
+        "saved": "Mój plan"
       },
       "import": {
         "title": "Importuj dowolny harmonogram",
@@ -319,7 +455,7 @@
       },
       "plan": {
         "title": "Nie przegap żadnego panelu",
-        "description": "Ułóż własny harmonogram, sprawdzaj, co trwa teraz i co będzie dalej, oraz wychwytuj kolizje."
+        "description": "Ułóż swój plan, sprawdzaj, co dzieje się teraz i co będzie dalej, oraz wychwytuj kolizje."
       },
       "offline": {
         "title": "Prywatnie i offline",
@@ -333,10 +469,11 @@
     },
     "getStarted": {
       "title": "Wszystko gotowe na kolejny konwent?",
-      "subtitle": "Zaimportuj harmonogram już teraz albo najpierw poznaj ConPaws.",
+      "subtitle": "Znajdź swój konwent, zaimportuj program albo najpierw rozejrzyj się w ConPaws.",
       "importSchedule": "Importuj harmonogram",
       "exploreFirst": "Najpierw poznaj aplikację",
-      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne."
+      "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne.",
+      "find": "Znajdź mój konwent"
     }
   },
   "reminders": {
@@ -358,7 +495,7 @@
     "errorTitle": "Nie ustawiono przypomnienia",
     "errorMessage": "ConPaws nie mógł zaktualizować tego przypomnienia. Spróbuj ponownie.",
     "permissionTitle": "Powiadomienia są wyłączone",
-    "permissionMessage": "ConPaws potrzebuje powiadomień, aby przypomnieć Ci o wyjściu. Włącz je w Ustawieniach i ustaw przypomnienie ponownie.",
+    "permissionMessage": "ConPaws potrzebuje uprawnień do wysyłania powiadomień, aby przypomnieć Ci przed rozpoczęciem panelu. Włącz powiadomienia w Ustawieniach i ustaw przypomnienie ponownie.",
     "openSettings": "Otwórz Ustawienia",
     "tooLateTitle": "Wydarzenie zaczyna się zbyt szybko",
     "tooLateMessage": "To wydarzenie zaczyna się wcześniej, niż pozwala to przypomnienie. Wybierz krótszy czas wyprzedzenia albo późniejsze wydarzenie.",
@@ -374,23 +511,24 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Otwiera harmonogram konwentu.",
     "caughtUp": {
       "title": "Masz już wszystko za sobą",
-      "subtitle": "Wszystkie zapisane wydarzenia na {{name}} już się skończyły.",
+      "subtitle": "Wszystkie zapisane panele na {{name}} się skończyły.",
       "cta": "Zobacz konwent"
     },
     "title": "Harmonogram",
     "empty": {
-      "title": "Nic jeszcze nie oznaczono",
-      "subtitle": "Dotknij wydarzenia w konwencie, aby dodać je do Mojego planu — pojawi się tutaj.",
+      "title": "Nie wybrano jeszcze paneli",
+      "subtitle": "Przejrzyj program konwentu i wybierz panele, na które chcesz zdążyć. Pojawią się tutaj.",
       "cta": "Otwórz moje konwenty"
     },
     "timesShownInConventionTime": "Godziny podane w czasie lokalnym każdego konwentu.",
-    "loadError": "Nie udało się wczytać harmonogramu.",
+    "loadError": "Nie udało się wyświetlić Twojego planu",
     "conventionEmpty": {
-      "title": "Brak zapisanych wydarzeń dla {{name}}",
-      "subtitle": "Dodaj wydarzenia z planu konwentu, a pojawią się tutaj.",
-      "cta": "Otwórz konwent"
+      "title": "Nic jeszcze nie zapisano dla {{name}}",
+      "subtitle": "Przejrzyj program i wybierz panele, na które chcesz zdążyć.",
+      "cta": "Przeglądaj program"
     }
   },
   "settings": {
@@ -524,7 +662,75 @@
       "gettingStarted": "Pierwsze kroki",
       "gettingStartedDescription": "Gdzie znaleźć plan twojego konwentu",
       "importNow": "Importuj plan",
-      "importNowDescription": "Dodaj link Sched lub plik .ics."
+      "importNowDescription": "Dodaj link Sched lub plik .ics.",
+      "findDescription": "Wybierz konwent z katalogu ConPaws i pobierz jego program.",
+      "find": "Znajdź mój konwent"
+    }
+  },
+  "catalog": {
+    "title": "Znajdź mój konwent",
+    "searchPlaceholder": "Szukaj po nazwie lub mieście",
+    "upcoming": "Nadchodzące",
+    "past": "Poprzednie edycje",
+    "showPast": "Pokaż",
+    "hidePast": "Ukryj",
+    "scheduleReady": "Program jest gotowy",
+    "scheduleNotYet": "Programu nie ma jeszcze w ConPaws",
+    "notListed": {
+      "title": "Nie ma tu twojego konwentu?",
+      "body": "Zaimportuj program z linku lub pliku albo utwórz konwent i samodzielnie dodaj panele.",
+      "import": "Importuj program",
+      "create": "Utwórz konwent"
+    },
+    "empty": {
+      "title": "Brak konwentów na liście",
+      "body": "Wróć później lub dodaj program z linku albo pliku."
+    },
+    "searchEmpty": "Brak pasujących konwentów",
+    "searchEmptyBody": "Spróbuj wyszukać inną nazwę lub miasto.",
+    "offline": {
+      "title": "Połącz się, aby znaleźć konwent",
+      "body": "ConPaws potrzebuje internetu, aby wczytać katalog. Zapisane konwenty nadal działają."
+    },
+    "unavailable": {
+      "title": "Katalog jest niedostępny",
+      "body": "ConPaws nie może połączyć się z katalogiem. Spróbuj ponownie za chwilę."
+    },
+    "retry": "Spróbuj ponownie",
+    "sample": "Katalog przykładowy · to nie jest prawdziwy konwent",
+    "confirm": {
+      "dates": "Daty",
+      "time": "Strefa czasowa konwentu",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} wydarzenie · Gotowe do pobrania",
+      "scheduleReady_other": "{{count}} wydarzeń · Gotowe do pobrania",
+      "scheduleNotYet": "Jeszcze nie ma w ConPaws",
+      "source": "Źródło",
+      "sourceValue": "Katalog ConPaws · rewizja {{revision}}",
+      "download": "Pobierz program",
+      "update": "Zaktualizuj program",
+      "open": "Otwórz program",
+      "downloaded": "Pobrano · rewizja {{revision}}",
+      "downloading": "Pobieranie…",
+      "keepOpen": "Pozostaw ConPaws otwarte do zakończenia pobierania. Po zapisaniu możesz korzystać z programu bez internetu.",
+      "unavailableHere": {
+        "title": "Programu nie ma jeszcze w ConPaws",
+        "body": "Ten konwent jest na liście, ale jego program nie jest tu jeszcze dostępny. Dodaj program z linku lub pliku."
+      },
+      "failed": {
+        "title": "Pobieranie nie zostało ukończone",
+        "body": "Nic nie zapisano. Spróbuj ponownie."
+      },
+      "offline": {
+        "body": "Ten program nie jest jeszcze zapisany w telefonie. Połącz się z internetem i spróbuj ponownie."
+      },
+      "notFound": {
+        "title": "Nie znaleziono konwentu",
+        "body": "Mógł zostać wycofany z publikacji."
+      },
+      "successAnnouncement": "Pobrano {{name}}. Wybierz swój pierwszy panel.",
+      "scheduleReady_few": "{{count}} wydarzenia · Gotowe do pobrania",
+      "scheduleReady_many": "{{count}} wydarzeń · Gotowe do pobrania"
     }
   }
 }

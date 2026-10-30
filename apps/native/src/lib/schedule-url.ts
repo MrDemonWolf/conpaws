@@ -4,9 +4,10 @@
  */
 
 export class InvalidScheduleUrlError extends Error {
-  constructor(url: string) {
+  constructor() {
+    // Schedule links may contain private query tokens; never reflect the pasted URL into errors.
     super(
-      `Invalid schedule URL: "${url}". Paste a Sched address, an .ics link, or a webcal:// link.`,
+      "Invalid schedule URL. Paste a Sched address, an .ics link, or a webcal:// link.",
     );
     this.name = "InvalidScheduleUrlError";
   }
@@ -92,17 +93,17 @@ function normalizeScheme(value: string): string {
  */
 export function resolveScheduleUrl(input: string): ResolvedScheduleUrl {
   const normalized = normalizeScheme(input);
-  if (!normalized) throw new InvalidScheduleUrlError(input.trim());
+  if (!normalized) throw new InvalidScheduleUrlError();
 
   let parsed: URL;
   try {
     parsed = new URL(normalized);
   } catch {
-    throw new InvalidScheduleUrlError(input.trim());
+    throw new InvalidScheduleUrlError();
   }
 
   if (parsed.protocol !== "https:") {
-    throw new InvalidScheduleUrlError(input.trim());
+    throw new InvalidScheduleUrlError();
   }
 
   const canonicalUrl = parsed.toString();

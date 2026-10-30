@@ -1,13 +1,16 @@
 import { Redirect } from "expo-router";
+import { NativeTabs } from "expo-router/native-tabs";
 import { useTheme } from "expo-router/react-navigation";
-import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "react-i18next";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { ScreenErrorFallback } from "@/lib/error-fallback";
+import { getNativeMaterialColors } from "@/lib/native-material-colors";
 import { getCachedOnboardingFlag } from "@/lib/onboarding-storage";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const materialColors = getNativeMaterialColors(useResolvedColorScheme());
 
   // Inbound links resolve straight into the tabs without passing app/index's
   // gate — a widget tap (conpaws://schedule) on a fresh install used to land
@@ -22,6 +25,10 @@ export default function TabsLayout() {
   return (
     <NativeTabs
       tintColor={colors.primary}
+      backgroundColor={
+        process.env.EXPO_OS === "android" ? colors.card : undefined
+      }
+      indicatorColor={materialColors?.secondaryContainer}
       minimizeBehavior="never"
       disableTransparentOnScrollEdge
     >

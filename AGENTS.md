@@ -4,6 +4,58 @@
 
 For every task, first discover the installed skills and plugin capabilities that are relevant to the request. Use each relevant skill that materially improves correctness or execution, including the applicable Expo and platform skills for native app work. Read and follow each selected skill before acting, and use its official documentation workflow when APIs, configuration, or platform rules may have changed. Announce skill use when the skill requires it. Do not load or invoke unrelated skills simply to increase the count.
 
+## Design system
+
+Use the [Notion design system](https://app.notion.com/p/408d61481c7b8117bbc9c6a114755eb3) for token sources, platform differences, component states, and accessibility checks. Reuse paired foreground/background tokens; preserve native semantic colors and Dynamic Type. Shared web color changes must keep `apps/web/src/lib/theme-contrast.test.ts` passing. Keep test evidence, grades and project notes on the [ConPaws Notion page](https://app.notion.com/p/3c8d61481c7b819d9d25c742524b4dc1), not as new report files in Git.
+
+## Native components and platform files
+
+- Reuse the native primitives in `apps/native/src/components/ui` and shared form,
+  action, validation and state logic before adding another component. Keep native
+  components in the native app; `packages/ui` contains web components.
+- An ordinary `.tsx` implementation must work on both iOS and Android. Put
+  specialized renderers in `.ios.tsx` and `.android.tsx` files; share their props
+  and behavior through `.types.ts` / `.shared.ts` modules. Do not hide an Android
+  implementation in a generic fallback file. A `.d.ts` may supply the shared
+  extension-free TypeScript contract while Metro selects the real platform file.
+- Preserve native controls: SwiftUI menus in the iOS list, Material menus on
+  Android, and native toolbars for iOS forms. Alerts confirm consequences;
+  ordinary action lists belong in menus. Keep a visible path alongside gestures.
+- Match icon meaning across SF Symbols and Material assets. Icon-only controls
+  need translated labels and keyboard activation. Use explicit 44pt / 48dp touch
+  targets: rem-based spacing can render smaller than those platform minimums.
+- Android React Native surfaces, navigation and Compose controls must use the
+  same seeded Material palette and resolved appearance. Use supported Expo color
+  APIs; do not reference missing Android theme attributes with `PlatformColor`.
+- Keep the shortcut route allowlist and onboarding, database, translations and
+  navigator gates. Consume cold actions after the index redirect commits a tab
+  route; `useSegments()` includes route groups, unlike `usePathname()`. Capture
+  Android shortcuts before a development-launcher redirect; newer actions
+  supersede older parked actions. Rebuild native code when changing these hooks.
+- Check Android forms at 200% system text size. Keep the title on its own row
+  when space is limited so Cancel and Save remain visible and usable.
+
+## Native end-to-end checks
+
+The local Maestro smoke flow is run through its guarded wrapper:
+
+```bash
+bun run --filter @conpaws/native e2e -- preview android <local-emulator-serial>
+bun run --filter @conpaws/native e2e -- development ios <booted-simulator-UDID>
+```
+
+Use a task-owned local simulator/emulator, an English app language, completed
+onboarding and intact preview fixtures. The wrapper rejects physical devices
+and production variants. Preview uses the production app ID, so the flow must
+verify the preview-only sample control before changing fixture data. Keep the
+flow non-destructive: no data reset, uninstall, or deletion of saved conventions.
+Coordinate device control when Nathanial is testing. Record source/syntax checks,
+device execution and signed store delivery as separate evidence in Notion.
+Set `CONPAWS_E2E_ARTIFACTS_DIR` to a temporary directory when retaining Maestro
+logs/screenshots. A development client must already be connected to Metro;
+preview store builds do not need that connection. Never count a skipped
+platform branch as a passed device check.
+
 ## Browser and visual testing
 
 Use the agent's built-in browser for localhost viewers and browser-based test surfaces, including serve-sim. Do not open Safari, Chrome, or another external browser unless the user explicitly requests it. Reuse existing local servers and ports instead of starting duplicates.
@@ -12,16 +64,17 @@ Use the agent's built-in browser for localhost viewers and browser-based test su
 
 ConPaws is a furry convention companion app — an Expo/React Native mobile app plus a Next.js website, in a bun/Turborepo monorepo. The app is **local-first** (all core features work offline). Premium features ("ConPaws+") will be powered by RevenueCat. The cloud backend target is **Cloudflare Workers + D1 + R2 with Hono, tRPC, and Better-Auth** — no Supabase, no VPS, no Docker.
 
-**Repo reality check:** the native MVP is in active development. It has Expo Router screens, a SQLite/Drizzle schema and repositories, ICS/Sched import, convention-timezone handling, local reminders, backup import/export, and Vitest coverage. The premium/cloud backend, RevenueCat integration, and `apps/server` remain planned. Do not reference planned backend files as if they exist.
+**Repo reality check:** the native MVP is in active development. It has Expo Router screens, a SQLite/Drizzle schema and repositories, ICS/Sched import, convention-timezone handling, local reminders, backup import/export, a catalog download from the public API, and Vitest coverage. `apps/api` exists as the public API Worker (Hono, api.conpaws.com) and serves the read-only catalog today; the premium/cloud backend (tRPC, Better-Auth, sync) and RevenueCat integration grow out of it and remain planned. Do not reference planned backend files as if they exist.
 
 ## Development Commands
 
 All commands run from the **repo root** and fan out through Turborepo:
 
 ```bash
-bun install               # Install dependencies (bun is pinned via packageManager: bun@1.3.10)
+bun install               # Install dependencies (bun is pinned via packageManager: bun@1.4.4)
 bun dev                   # Start web + admin + native dev servers
 bun dev:admin             # Private console only (http://localhost:3003)
+bun run admin:invite -- you@example.com --remote --role owner --confirm-email you@example.com  # Recover owner access; laptop only
 bun dev:web               # Next.js only (http://localhost:3001)
 bun dev:native            # Expo dev server only
 bun start                 # Expo dev server (development variant)
@@ -32,7 +85,7 @@ bun run build             # turbo build
 bun lint                  # Biome (`biome check .`) — this repo uses Biome, NOT ESLint
 bun check-types           # TypeScript type checking across packages
 bun run test              # Run the workspace Vitest suites — NOT `bun test`
-bun prebuild              # Generate native projects
+bun prebuild              # Update native projects while preserving local folders
 bun prebuild:clean        # Clean and regenerate native projects
 bun ship:prep             # Local build prep; CI assigns store build numbers automatically
 bun run build-number:check # Confirm ios/ and android/ carry the current BUILD_NUMBER
@@ -47,15 +100,17 @@ are fine as written.
 
 ## Architecture
 
-- **Native app:** Expo SDK **57** (React Native 0.86, React 19.2). Installed versions in `apps/native/package.json` are authoritative; keep SDK packages aligned. The root `expo-constants` override forces every workspace to the SDK-matched patch and prevents hoisted dependencies drifting to another patch; bump it with each Expo SDK patch set.
+- **Native app:** Expo SDK **58** (React Native 0.88, React 19.3). Installed versions in `apps/native/package.json` are authoritative; keep SDK packages aligned. The root `expo-constants` override forces every workspace to the SDK-matched patch and prevents hoisted dependencies drifting to another patch; bump it with each Expo SDK patch set.
+- **Apple Targets prebuild patch:** `@bacons/apple-targets@5.0.0` needs the Bun patch for incremental prebuilds. Keep the replacement configuration list attached before removing the old list and iterate a snapshot of its configurations. CI repeats prebuild to catch missing Widget/Watch references. Remove the patch only after an upstream release passes that check; see [upstream issue 201](https://github.com/EvanBacon/expo-apple-targets/issues/201).
 - **Routing:** Expo Router (SDK-aligned version in `apps/native/package.json`) — file-based routes in **`apps/native/app/`** (top level, NOT `src/app/`)
-  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~57` major is correct — do not "fix" it to a single-digit major.
-- **Styling:** NativeWind v5 (Tailwind CSS v4) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`). iOS text-style tokens live in `global.css`; `cn()` registers their custom sizes with tailwind-merge, or those classes can be dropped as conflicts.
+  - **Router versioning note:** Expo Router uses SDK-aligned versions from SDK 55 onward. The current `expo-router@~58` major is correct — do not "fix" it to a single-digit major.
+- **Styling:** NativeWind v5 release candidate (Tailwind CSS v4; keep its React Native CSS engine aligned) with `clsx` + `tailwind-merge` (`cn()` in `apps/native/src/lib/utils.ts`). iOS text-style tokens live in `global.css`; `cn()` registers their custom sizes with tailwind-merge, or those classes can be dropped as conflicts.
+  - The Bun patch for `react-native-css@3.1.0-rc.0` forwards RN 0.88's `AssetRegistry` through NativeWind's React Native export wrapper. Without it, Expo Asset fails while loading Android native-tab Material icons. Keep both published CJS entries and the source entry covered; remove the patch after the upstream export is released and verified. See [react-native-css #506](https://github.com/nativewind/react-native-css/issues/506).
 - **Local database:** expo-sqlite + Drizzle ORM in `apps/native/src/db/`, with bootstrap/migration logic and repositories for conventions and events
-- **Backend (planned, `apps/server`):** Cloudflare Worker — Hono + tRPC + Better-Auth (pin >=1.6.x, per-request factory), D1 (SQLite/Drizzle), R2 storage, KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer.
-- **Website (`apps/web`):** Next.js **16.2.12, pinned exactly** — Next 16.3 + OpenNext has an unbounded prefetch loop (opennextjs-cloudflare#1334). Do not bump Next; the pin is not an upgrade candidate until that issue is fixed. It ships to Cloudflare Workers through `@opennextjs/cloudflare` (1.20.2, also pinned exactly).
-- **Catalog:** `published_slug` has a unique index. Apply admin catalog migrations with `bun run deploy:admin` before deploying web code that reads new catalog columns. Public code accesses `CATALOG_DB` only through the read-only catalog module; a test enforces that boundary.
-- **Infrastructure (`packages/infra`):** **Alchemy** (`alchemy.run.ts`) owns production — the D1 database, Worker bindings and secrets, migrations, and hourly waitlist reconciler Worker. `bun run deploy` / `bun run destroy` from the repo root. `apps/web/wrangler.jsonc` is **local dev and CI preview only**; never put a real `database_id` in it. Use the installed Alchemy version from `packages/infra/package.json`. Cloudflare credentials are optional for local validation and required to deploy. Alchemy does not do canary or automatic rollback — manual rollback uses workflow_dispatch on `.github/workflows/deploy-web.yml` with a last-good SHA (an ancestor of `origin/main`). Deploy env validation includes `NEXT_PUBLIC_SITE_URL` and the Turnstile site key. See the **Prerelease Site** page in Notion (§Deployment).
+- **Backend (`apps/api`):** the public API is its own Cloudflare Worker, `conpaws-api`, on **api.conpaws.com** (Hono; routes under `/v1`, no `/api` prefix). It serves the read-only published catalog (`GET /v1/conventions`, `/v1/conventions/{slug}`, `/v1/conventions/{slug}/schedule`, plus `/health`) from the admin-owned catalog D1 through `apps/api/src/catalog.ts`, the only module allowed to touch `CATALOG_DB` (a test enforces it). The website no longer serves any API. Planned on the same Worker: tRPC + Better-Auth (pin >=1.6.x, per-request factory), KV cache, Queues. **No RLS in D1** — all authorization happens in the Worker/tRPC layer. Public assets live in the separate `conpaws-cdn` R2 bucket on **cdn.conpaws.com**; it is not bound to this public Worker.
+- **Website and admin (`apps/web`, `apps/admin`):** Next.js **16.4.3, pinned exactly**, with `@opennextjs/cloudflare` **1.20.14, pinned exactly**. OpenNext 1.20.7 fixed the Next 16.3 prefetch loop; the current adapter supports Next 16.4. Keep Cache Components disabled until OpenNext's Cloudflare support is confirmed for this app. Keep Next and `@next/mdx` versions aligned.
+- **Catalog:** `published_slug` has a unique index. The catalog D1 (`conpaws-admin-catalog-db`) is declared in `packages/infra/alchemy.run.ts`, created empty on first deploy with `apps/admin/drizzle/migrations` applied before the Workers that read it, and bound to both the admin console and the API by resource reference, so no database ID is configured anywhere. Public code accesses `CATALOG_DB` only through `apps/api/src/catalog.ts`; a test enforces that boundary.
+- **Infrastructure (`packages/infra`):** **Alchemy** (`alchemy.run.ts`) owns production — the waitlist and catalog D1 databases, the `conpaws-cdn` R2 bucket on cdn.conpaws.com, the site, API (api.conpaws.com) and hourly waitlist reconciler Workers, their bindings and secrets, and migrations. The same deploy puts the admin console on admin.conpaws.com with first-verified-signup owner setup, then invite-only email-code sign-in and no Cloudflare Access: it derives the code key from `ALCHEMY_PASSWORD` (so the key stays stable across deploys) and binds Cloudflare Email Service (`EmailSender`, from `admin@conpaws.com`) and a `RateLimit`. conpaws.com must be onboarded for Email Sending once in the dashboard, and the first owner signs up at `/sign-in` with an emailed code. Setup is claimed atomically and stays closed after membership deletion; the laptop `admin:invite` command remains available for owner recovery. `bun run deploy` / `bun run destroy` run only in GitHub Actions on `main` (see *Deploy rule* below). `apps/web/wrangler.jsonc` is **local dev and CI preview only**; never put a real `database_id` in it. Use the installed Alchemy version from `packages/infra/package.json`. Cloudflare credentials are optional for local validation and required to deploy. Alchemy does not do canary or automatic rollback — manual rollback uses workflow_dispatch on `.github/workflows/deploy-web.yml` with a last-good SHA (an ancestor of `origin/main`). Deploy env validation includes `NEXT_PUBLIC_SITE_URL` and the Turnstile site key. See the **Prerelease Site** page in Notion (§Deployment).
 - **Waitlist: the path is LIVE and taking real signups.** Flow: renamed honeypot + timing gate → Turnstile siteverify → D1 insert → listmonk double opt-in in `ctx.waitUntil`; PII-free rejection counters are logged. The server-bound `WAITLIST_ACCEPTING_SIGNUPS` kill switch is a repo variable bound by Alchemy; `false` makes POST return `503 {error:"closed"}`, and the client follows the same build value. D1 is the source of truth and the row **is** the consent record; listmonk owns confirmation tokens, so there is deliberately no `confirm_token` column. The hourly reconciler syncs listmonk status through list queries, anonymises unsubscribed rows, purges unconfirmed D1 rows after 30 days, and never replays erased rows. Listmonk subscriber deletion is not performed; the required permission decision is pending. Because signups are live, `/privacy` has to keep describing what is actually collected.
 - **The ESP is listmonk** — self-hosted listmonk v5 at `lists.mrdemonwolf.com` (Dokploy on ash-01, sending via Amazon SES us-east-1). Brevo was never provisioned, was never wanted, and is gone from the codebase as of 2026-08-28. The client is `apps/web/src/lib/listmonk.ts`, wired into the signup route and the hourly reconciler. Config is `LISTMONK_BASE_URL`, `LISTMONK_API_USER`, `LISTMONK_API_TOKEN`, `LISTMONK_LIST_ID` (list **3**, the private double opt-in "ConPaws Waitlist"); any missing value makes `readListmonkConfig` return `null`, which is the 503/no-op fail-closed signal. `/api` sits outside Cloudflare Access deliberately, so the API token is the only credential — no Access service token.
 - **Signup is one API call, and that is deliberate.** `POST /api/subscribers` with `preconfirm_subscriptions: false` **already sends the opt-in email** — listmonk's `InsertSubscriber` calls `SendOptinConfirmation` itself for double opt-in lists. Do not add a follow-up `POST /api/subscribers/{id}/optin`; it sends a second email. A **409** (address already known — every one of the six imported subscribers, if they use the form again) is treated as success, because the only way to reach it is an earlier create, and that create already sent the opt-in. Do not "improve" this by looking the subscriber up to re-send: listmonk has no lookup-by-email route, so it would need the `query=` SQL parameter and therefore the **`subscribers:sql_query`** permission — arbitrary read SQL that supersedes all list and subscriber permissions — on a token that lives at the edge. Two further dependencies worth knowing: listmonk's "send opt-in confirmation" setting must stay **on** or signups silently stop mailing anyone, and the API user needs **manage** permission on list 3 or listmonk filters the list out and creates the subscriber with no list and no email, returning 200. Also note listmonk v5 supports only hCaptcha and Altcha, **not Turnstile** — Turnstile stays verified by our own route.
@@ -64,11 +119,12 @@ are fine as written.
 - **Badge count:** the landing-page badge number is the real confirmed signup count, served by `GET /api/waitlist/count` (public, edge-cached 5 min) and read client-side by `badge-card.tsx`. **listmonk is the source, not D1** — `waitlist.status`/`confirmed_at` exist in the schema but nothing ever writes them, because listmonk owns the confirmation click and offers no callback, so counting D1 would report 0 forever. The route answers `{ count: null }`, never `{ count: 0 }`, whenever the number cannot be established; the badge falls back to `0001` on null. Zero is a claim ("nobody signed up") and an outage must not make it. Read `subscriber_statuses.confirmed` from `/api/lists/{id}`, never `subscriber_count` — the latter sums every status, so it counts unconfirmed and deleted rows too (observed at 12 for a list of 6).
 
   **The badge depends on a listmonk setting, and silently freezes without it.** Both of those fields come from the `mat_list_subscriber_stats` **materialized view** — listmonk's `query-lists` reads it unconditionally, with no live-vs-cached branch. The only thing that ever refreshes it is the cron in `cmd/init.go`, which is registered *only* when **`app.cache_slow_queries` is true**. The setting's name is backwards from what it does: turning "Cache slow database queries" **off** does not make the count live, it stops the refresher and freezes the view forever. It is **on**, with `app.cache_slow_queries_interval` set to `*/5 * * * *` (Settings → Performance). If the badge ever stops moving while the admin UI shows more confirmed subscribers, that toggle is the first thing to check — the admin subscriber list reads live tables, which is why the two disagree. Diagnosed 2026-08-28 after a confirmed signup left the count stuck at 6.
-- **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 57/New Architecture compatibility is unverified; test on a dev build before building on it
+- **Auth (planned):** Better-Auth on the Worker, `@better-auth/expo` on the client — **open risk:** Expo SDK 58/New Architecture compatibility is unverified; test on a dev build before building on it
 - **Payments (planned):** RevenueCat, entitlement `conpaws_plus`
 - **Language:** TypeScript strict mode
 - **Lint/format:** Biome (`biome.json` at repo root) — there is no ESLint config in this repo
 - **Monorepo:** bun workspaces + Turborepo (`turbo.json`); CI runs from the root, not per-app
+- **Actions toolchains:** Linux jobs pin `ubuntu-26.04`; native CI compiles an Android arm64 debug app as well as validating config and production JavaScript bundles. Swift tests and iOS releases use `xcode-27` with Xcode 27.1 selected explicitly. Check GitHub's hosted-runner reference and run hosted CI whenever an image changes. Debug compilation does not establish store signing or device behavior.
 - **Entry point:** `expo-router/entry` (in `apps/native/package.json` `main`)
 
 ### Monorepo Structure
@@ -78,6 +134,7 @@ Verified against disk:
 ```
 conpaws/
 ├── apps/
+│   ├── api/                 # Public API Worker (Hono) at api.conpaws.com
 │   ├── native/              # Expo app
 │   │   ├── app/             # Expo Router routes: onboarding, tabs, conventions, import, settings
 │   │   ├── src/
@@ -104,8 +161,7 @@ conpaws/
 │   ├── env/                 # Zod env schemas (src/web.ts for the site build, src/deploy.ts for alchemy.run.ts)
 │   ├── infra/               # alchemy.run.ts — D1, Worker bindings/secrets, cron
 │   └── ui/                  # Shared shadcn/ui primitives (web)
-├── docs/                    # Widget and Watch design docs, mockups, UX opportunities
-├── infra/                   # xprem OTA descriptor and runbook (not deployed)
+├── infra/                   # xprem OTA descriptor/runbook; application not deployed
 ├── biome.json
 ├── turbo.json
 └── package.json
@@ -113,21 +169,24 @@ conpaws/
 
 ### Key Configuration (apps/native/)
 
+- **Expo SDK 58 prebuild:** upstream now recreates native folders by default. The repo's `prebuild` and `ship:prep` scripts explicitly use `--no-clean` to preserve machine-local native setup. Use `prebuild:clean` only deliberately after protecting custom files; Expo handles CocoaPods installation.
 - **app.config.ts** — Dynamic Expo config with variant-based bundle IDs and icons
-- **Store automation uses GitHub Actions + Fastlane, not EAS.** `.github/workflows/release-native.yml` waits for successful push CI on the exact current `dev` or `main` commit. `dev` builds preview for internal-only TestFlight and Google Play internal testing; `main` builds production for App Store Connect and a Google Play production draft. Public rollout stays manual. Activation requires signing/upload secrets and `NATIVE_RELEASE_ENABLED=true`; until configured, keep using local builds. Public version changes are intentional edits to `app.config.ts`. CI assigns `1000 + Native release workflow run_number` to both platforms in its temporary checkout, records version/number/branch/SHA in Actions, and never commits the number. Do not rename/reset this workflow, use EAS remote counters, promote preview builds publicly, or independently allocate local store numbers after activation. For retries, start a new workflow run rather than re-run an old upload. Local signing remains scoped to `~/.keystores/conpaws-signing.properties`; the CI lane requires explicit upload signing. Preserve all Widget and Watch targets. Full setup and fallback: `apps/native/RELEASING.md`.
-- **eas.json** — kept but unused by the release path. EAS CLI 22.x, committed-tree guard, `appVersionSource: "local"` and no `autoIncrement`, so an EAS build would read the same `BUILD_NUMBER` rather than a stale remote counter. Its `preview-device` profile is the only easy route to an ad-hoc iOS build; running any profile costs money. Do not add auto-submit.
-- **metro.config.js** — `withNativeWind(config)`. No `input` argument is passed; NativeWind resolves `global.css` itself. Metro is also wrapped in `getSentryExpoConfig`.
+  - Local archives use one shared build number. Read the actual existing ConPaws archive/AAB metadata, choose one higher than the maximum across platforms, and bump once. Run Expo prebuild and `build-number:check` before archiving; that check covers the app, Android, Widget and Watch configurations. Do not run `ship:prep` after a manual bump, because it increments again. After release-CI activation, follow its reserved-number policy below.
+  - TestFlight beta builds use `APP_VARIANT=preview` with `CONPAWS_ALLOW_PREVIEW=1` by default so demo/sample controls are available. Use production for an explicitly requested App Store release candidate, not merely because Xcode uploads through App Store Connect. Keep previews in the internal tester groups. Preserve the preview environment during both prebuild and archive: Expo Constants regenerates its bundled config during compilation. Before upload, verify the archive's `ConPawsBuildVariant` and `EXConstants.bundle/app.config` `extra.appVariant` both say `preview`. TestFlight's "Internal" label describes distribution, not the app variant; a production build uploaded internally still hides demo controls. Keep production gates intact for public builds.
+- **Store automation uses GitHub Actions + Fastlane, not EAS.** `.github/workflows/release-native.yml` waits for successful push CI on the exact current `dev` or `main` commit. `dev` builds preview for internal-only TestFlight and Google Play internal testing; `main` builds production for App Store Connect and a Google Play production draft. Public rollout stays manual. Activation requires signing/upload secrets and `NATIVE_RELEASE_ENABLED=true`; until configured, keep using local builds. Public version changes are intentional edits to `app.config.ts`. CI assigns `1000 + Native release workflow run_number` to both platforms in its temporary checkout, records version/number/branch/SHA in Actions, and never commits the number. Do not rename/reset this workflow, use EAS remote counters, promote preview builds publicly, or independently allocate local store numbers after activation. For retries, start a new workflow run rather than re-run an old upload. Local signing remains scoped to `~/.keystores/conpaws-signing.properties`; the CI lane requires explicit upload signing. Preserve all Widget and Watch targets. Full setup and fallback: [mobile release guide](https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969).
+- **eas.json** — kept but unused by the release path. Committed-tree guard, `appVersionSource: "local"` and no `autoIncrement`, so an EAS build would read the same `BUILD_NUMBER` rather than a stale remote counter. Its `preview-device` profile is the only easy route to an ad-hoc iOS build; running any profile costs money. Do not add auto-submit.
+- **metro.config.js** — wraps `getSentryExpoConfig` with `withNativeWind`. No `input` argument is passed; NativeWind resolves `global.css` itself. Neutral color roles are excluded from variable inlining so Android can supply the same runtime Material palette to React Native, navigation, and Compose. Preserve that exclusion when upgrading NativeWind.
 - iOS text-style tokens live in `src/global.css`; `cn()` in `src/lib/utils.ts` registers their custom sizes with tailwind-merge, or those classes can be dropped as conflicts.
 - Swift tests live in `apps/native/swift-tests` and symlink Foundation-only sources. Never put package/test files in `targets/_shared`: `@bacons/apple-targets` compiles that whole folder into every target. Expo's privacy-manifest step already attaches the app manifest to the watch app, so `targets/watch` must not have its own `PrivacyInfo.xcprivacy`.
 - **postcss.config.mjs** — plugin is `@tailwindcss/postcss`
 - **tsconfig.json** — Extends `expo/tsconfig.base`; path alias `@/*` maps to `./src/*`. `vitest.config.ts` mirrors it.
-- **OTA is required for the MVP but remains fail-closed:** the chosen host is one shared MrDemonWolf, Inc. xprem **3.1.1** control plane on Dokploy at `updates.mrdemonwolf.com`, not EAS Update. Do not create a ConPaws-only duplicate. Every product needs an isolated xprem app UUID, signing material, branches/channels, publisher token, and runtime; ConPaws client configuration must use only its record. The runtime MCP at `/mcp` is unavailable until deployment, authenticates dashboard users through OAuth rather than publisher tokens, and can reach multiple apps: list apps and confirm the exact app UUID before any mutation. The hardened descriptor and runbook are in `infra/xprem/`, but no service is deployed and the SDK 57 app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after xprem is deployed, then pass physical iOS/Android cold-start, offline-start, and rollback tests before production. See the **OTA Updates** page in Notion.
+- **OTA is required for the MVP but remains fail-closed:** the chosen host is one shared MrDemonWolf, Inc. xprem **3.2.6** control plane on Dokploy at `updates.mrdemonwolf.com`, not EAS Update. Do not create a ConPaws-only duplicate. Every product needs an isolated xprem app UUID, signing material, branches/channels, publisher token, and runtime; ConPaws client configuration must use only its record. The runtime MCP at `/mcp` is unavailable until deployment, authenticates dashboard users through OAuth rather than publisher tokens, and can reach multiple apps: list apps and confirm the exact app UUID before any mutation. The hardened descriptor and runbook are in `infra/xprem/`; the empty `mrdemonwolf-ota-assets` and `mrdemonwolf-ota-backups` buckets were deleted on 2026-10-16 and must be recreated before deployment. PostgreSQL 16 service `xprem-control-db` is deployed with internal port 5432 and no external port. Its `dokploy-network` membership, backup setup, and full dashboard/database smoke remain unverified. A prior PostgreSQL 18.6 smoke was incomplete (`/health` 200, `/dashboard` 503), so XPRem must pass a full smoke against PostgreSQL 16 before it is connected. Dokploy's existing `dokploy-project-backups` R2 credential was exposed in an accessibility view; rotate and test it after checking whether it is shared, then use that existing destination for database backups under `xprem-control-db/`. The control plane is not deployed, and the current app still has no `expo-updates`, update URL, runtime version, or channel configuration. Enable staging only after the database smoke and XPRem deployment pass, then pass physical iOS/Android cold-start, offline-start, and rollback tests before production. See the **OTA Updates** page in Notion.
 
 ### Environment Variables
 
 Local development and Alchemy deployment read app-specific environment files. Deployed Workers receive bindings and secrets through Alchemy. Never commit secret values. Store automation reads GitHub secrets and variables; EAS profiles are optional.
 
-- `EXPO_PUBLIC_SERVER_URL` — reserved for the planned API; currently unused. There is no native environment schema in `packages/env`.
+- `EXPO_PUBLIC_CONPAWS_API_URL` — overrides the public API base (`https://api.conpaws.com`) for a local `apps/api` dev server: `http://127.0.0.1:8790` on the iOS simulator, `http://10.0.2.2:8790` on the Android emulator. There is no native environment schema in `packages/env`.
 - `EXPO_PUBLIC_REVENUECAT_APPLE_KEY` / `EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY` — RevenueCat (optional; premium disabled without them)
 - `EXPO_PUBLIC_SENTRY_DSN` — crash reporting (preview/production)
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Turnstile widget (public; server verify uses the secret below)
@@ -143,12 +202,11 @@ Which file supplies those depends on how the Worker is being run, and the three 
 | Running | Reads |
 |---|---|
 | `bunx opennextjs-cloudflare preview` / `wrangler dev` in `apps/web` | `apps/web/.dev.vars` (gitignored) |
-| `bun run deploy` from the repo root (Alchemy) | `packages/infra/.env` and `apps/web/.env`, loaded by dotenv at the top of `alchemy.run.ts` |
 | GitHub Actions production deploy | repo secrets and variables — see `.github/workflows/deploy-web.yml` |
 
-Putting the values only in `.dev.vars` and then running `bun run deploy` locally yields unresolved `Config` values, not a useful error.
+`packages/infra/.env` and `apps/web/.env` are loaded by dotenv at the top of `alchemy.run.ts` for `alchemy dev` only; a local `bun run deploy` is refused before it reads them.
 
-`bun run --filter @conpaws/web preview` builds and runs the local Worker on port 8789, sharing catalog state with the admin app. Apply local migrations before testing writes. Retain `populateCache local` so prerendered locales exist in Worker assets. **`bun dev:web` is not a substitute for testing the waitlist**: it is
+`bun run --filter @conpaws/web preview` builds and runs the local site Worker on port 8789. `bun run --filter @conpaws/api dev` runs the API Worker on port 8790 against the admin app's local catalog state. Apply local migrations before testing writes. Retain `populateCache local` so prerendered locales exist in Worker assets. **`bun dev:web` is not a substitute for testing the waitlist**: it is
 plain `next dev` with no Cloudflare bindings at all, so `getCloudflareContext()`
 throws and `/api/waitlist` returns 503 no matter how the ESP is configured. Local
 D1 also needs `bun run db:migrate:local` in `apps/web` before the route can insert.
@@ -216,7 +274,7 @@ matching the visible text.
 
 The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).
 
-The tab bar uses **`NativeTabs` from `expo-router/unstable-native-tabs`** (`app/(tabs)/_layout.tsx`). That API is still marked unstable upstream, so pin expectations to the installed version and re-check it on every Expo upgrade — but do not "fix" it back to classic JS tabs. The **Technical Blueprint** in Notion remains the source for unfinished MVP and later product scope.
+The tab bar uses **`NativeTabs` from `expo-router/native-tabs`** (`app/(tabs)/_layout.tsx`), the stable SDK 58 import. Android `md` tab icons require the direct SDK-aligned `expo-symbols` dependency, which is optional to Expo Router in SDK 58. Keep its behavior aligned with the installed Expo Router version and re-check it on every Expo upgrade; preserve native tabs. The **Technical Blueprint** in Notion remains the source for unfinished MVP and later product scope.
 
 ### Database Schema
 
@@ -226,11 +284,12 @@ The local expo-sqlite/Drizzle schema in `apps/native/src/db/` contains `conventi
 
 ICS files and Sched convention URLs are implemented. The importer handles convention IANA timezones/DST, recurring-event identities, cancellations and re-import reconciliation, simultaneous events, categories, rooms, and content warnings. Keep re-import behavior covered with fixtures in `test-data/` and tests next to the parser, import policy, repositories, and services.
 
-## Planning Notes — moved to Notion (2026-08-26)
+## Project documentation — Notion
 
-Product planning lives under the **ConPaws** page in Nathanial's Notion.
-Implementation guides and review reports remain in the repository:
+Project docs, design notes, release guides, plans, report cards and audit history live under the **ConPaws** page in Nathanial's Notion. The repository contains the app, tests, configuration and minimal README/agent entry points:
 <https://app.notion.com/p/3c8d61481c7b819d9d25c742524b4dc1>
+
+[Project documentation library](https://app.notion.com/p/408d61481c7b818fb113ee3e0d930cb8) contains the migrated documents and a verified exact-source archive of the removed prototypes and historical notes.
 
 | Notion page | What's Inside |
 |------|--------------|
@@ -250,9 +309,7 @@ Inspect available Notion connector capabilities before asking for missing
 planning context. Verify planning claims against current code and deployment
 evidence; ask for the relevant page only when it cannot be accessed.
 
-Anything that describes how the code itself works still belongs in this repo,
-next to the code: `apps/native/RELEASING.md`, `infra/xprem/`, and the comments in
-`app.config.ts`, `eas.json` and `wrangler.jsonc`.
+Keep implementation comments beside the code and runnable configuration in Git. Put long-form explanations, release instructions and audit snapshots in Notion. Do not recreate a project `docs/` tree or duplicate the Notion report card in README files.
 
 Test data for iCal import development lives in `test-data/`. **Every fixture is
 fully dummied** — invented convention, venue, room, panel and person names — and
@@ -287,11 +344,35 @@ though none of the text is:
 label: nothing in the parser branches on it, so a wrong guess can mislabel the
 import preview but never mis-parse a feed.
 
+## Deploy rule
+
+**Never deploy from a laptop.** Production changes only reach Cloudflare through `.github/workflows/deploy-web.yml`, on `main`, after CI has passed on the pull request and on the merge commit. `main` is protected (pull request required, `CI / Verify` must pass, admins included), and the `production` environment accepts deployments only from `main`. `alchemy.run.ts` exits before reading any credential unless `GITHUB_ACTIONS=true` and `GITHUB_REF=refs/heads/main`; `alchemy dev` stays allowed. Do not run `wrangler deploy`, `wrangler d1 migrations apply --remote` or any other production write from a laptop, and never weaken these guards to get a change out — open a pull request. Rollback is the `workflow_dispatch` on the same workflow, run from `main`. The only laptop exception is owner recovery with `bun run admin:invite`.
+
 ## Workspace ownership and admin safety
 
-See `docs/repository-layout.md` for the current Better-T Stack layout. Keep deployable apps in `apps/` and reusable configuration, environment validation, infrastructure, and UI in `packages/`. App-specific database schemas and migrations stay with their owning apps; native SQLite and Worker D1 have different lifecycles.
+See the [Notion repository layout](https://app.notion.com/p/408d61481c7b81919101c4eab3109ab4) for the current Better-T Stack layout. Keep deployable apps in `apps/` and reusable configuration, environment validation, infrastructure, and UI in `packages/`. App-specific database schemas and migrations stay with their owning apps; native SQLite and Worker D1 have different lifecycles.
 
-- `apps/admin` is the private catalog console. Cloudflare Access and active catalog membership protect it. Owner/editor access is catalog-wide; do not invite outside hosts until organization and convention isolation is implemented.
+- `apps/admin` is the private catalog console. Invite-only email-code sign-in and active catalog membership protect it; there is no Cloudflare Access. Owner/editor access is catalog-wide; do not invite outside hosts until organization and convention isolation is implemented.
 - The public website reads published catalog snapshots only. Draft edits must not leak into public API responses.
-- Admin has a separate deployment (`bun run deploy:admin`); creating a PR does not authorize provisioning it.
+- Admin deploys with the main stack; there is no separate admin program, workflow or owner setting. A fresh console lets the first verified email signup become owner in one D1 batch. The persistent `admin_setup` latch must never reopen after members are disabled or deleted. After setup, only active members and live invites are sent a code. The laptop `admin:invite` command remains for operator recovery and refuses CI, and the request form must look identical for every address. Never bind `ADMIN_RUNTIME_ENV=local` or `ADMIN_DEV_EMAIL` in production, and never print member emails, invite links or codes in deploy or CI output (the repository is public).
 - Back up custom native targets before a clean prebuild. Preserve unrelated worktrees and ignored local files.
+- Generated Android `gradle.properties` can contain local upload-signing passwords. Never dump that file or include it in evidence archives; inspect approved non-secret keys or presence only.
+
+## Production and defensive testing
+
+- Default pentests and end-to-end checks to local previews and disposable D1 or SQLite data. Explicit authorization is required for staging, physical-device or store builds, the live waitlist, admin email/code flow, listmonk, and app stores.
+- Never log real email addresses, real authentication codes, invite links, signing material, secrets, or unpublished catalog data. Synthetic local codes must stay out of CI artifacts.
+- Changes to authentication or data boundaries need negative tests for signed-out, disabled, wrong-role, rate-limited, and draft/public cases that apply to the change.
+- Security-audit exceptions must record the advisory, current reachability, owner or upstream issue, and an expiry date.
+- Report build and unit-test evidence separately from browser, simulator, physical-device, store-delivered, and live-deployment evidence. One level does not prove another.
+
+<!-- BEGIN:turborepo-agent-rules -->
+
+# This is NOT the Turborepo you know
+
+Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
+
+Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
+
+This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
+<!-- END:turborepo-agent-rules -->

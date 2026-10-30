@@ -1,11 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCalendars } from "expo-localization";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
-import { EventSheetContent } from "@/components/convention-detail/EventActionSheet";
+import { useEffect, useMemo } from "react";
+import {
+  type EventSheetConflict,
+  EventSheetContent,
+} from "@/components/convention-detail/EventActionSheet";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
+import {
+  compareCandidates,
+  overlapMinutesBetween,
+} from "@/lib/compare-candidates";
 import { isValidTimeZone } from "@/lib/convention-time";
 import { deviceHour12 } from "@/lib/device-clock";
 
@@ -28,15 +35,25 @@ export default function EventSheetRoute() {
     enabled: !!id,
   });
 
-  const { data: event, isSuccess } = useQuery({
+  const { data: events = [], isSuccess } = useQuery({
     queryKey: ["events", id],
     queryFn: () => eventsRepo.getByConventionId(id ?? ""),
     enabled: !!id,
-    select: (events) => events.find((item) => item.id === eventId) ?? null,
   });
+  const event = events.find((item) => item.id === eventId) ?? null;
 
   const { toggleScheduleMutation, setReminderMutation } =
     useEventScheduleMutations({ conventionId: id });
+
+  const conflicts = useMemo<EventSheetConflict[]>(() => {
+    if (!event) return [];
+    const set = compareCandidates(events, event.id);
+    if (!set) return [];
+    return set.conflicts.map((conflict) => ({
+      title: conflict.title,
+      minutes: overlapMinutesBetween(event, conflict),
+    }));
+  }, [events, event]);
 
   // A deleted event (re-import removed it, say) leaves nothing to show.
   useEffect(() => {
@@ -57,10 +74,24 @@ export default function EventSheetRoute() {
       event={event}
       timeZone={timeZone}
       hour12={hour12}
+      venue={
+        event.room
+          ? (event.location ?? convention?.location)
+          : convention?.location
+      }
+      conflicts={conflicts}
       onClose={() => router.back()}
       onToggleSchedule={(item) => toggleScheduleMutation.mutate(item)}
       onSelectReminder={(item, minutes) =>
         setReminderMutation.mutate({ event: item, minutes })
+      }
+      onCompare={(item) =>
+        // Replace rather than stack: a sheet over a sheet is the HIG's one
+        // rule for sheets, and the compare sheet already knows how to get back.
+        router.replace({
+          pathname: "/convention/[id]/compare",
+          params: { id: id ?? "", candidateId: item.id },
+        })
       }
     />
   );

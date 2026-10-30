@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   bumpBuildNumber,
   ciBuildNumber,
+  describeAppleTargetDrift,
   describeDrift,
   describeVariantRisk,
   missingSigningProperties,
@@ -122,6 +123,87 @@ describe("describeDrift", () => {
         { label: "android", value: null },
       ]),
     ).toEqual([]);
+  });
+});
+
+describe("describeAppleTargetDrift", () => {
+  const companions = [
+    ["widget", "com.mrdemonwolf.conpaws.widgets"],
+    ["ConPawsWatch", "com.mrdemonwolf.conpaws.watchkitapp"],
+    [
+      "ConPawsWatchWidgetExtension",
+      "com.mrdemonwolf.conpaws.watchkitapp.widgets",
+    ],
+  ].flatMap(([target, bundleIdentifier]) =>
+    ["Debug", "Release"].map((name) => ({
+      target,
+      name,
+      bundleIdentifier,
+      buildNumber: 209,
+    })),
+  );
+
+  it("accepts matching companion numbers in every configuration", () => {
+    expect(describeAppleTargetDrift(209, companions)).toEqual([]);
+  });
+
+  it("rejects a stale Watch extension even when the main app plist matches", () => {
+    expect(describeDrift(209, [{ label: "main app", value: 209 }])).toEqual([]);
+    expect(
+      describeAppleTargetDrift(209, [
+        ...companions.slice(0, -1),
+        { ...companions.at(-1), buildNumber: 208 },
+      ]),
+    ).toEqual([
+      "ConPawsWatchWidgetExtension (Release) CURRENT_PROJECT_VERSION is 208, app.config.ts says 209",
+    ]);
+  });
+
+  it("ignores the main app's unused setting and unrelated configurations", () => {
+    expect(
+      describeAppleTargetDrift(209, [
+        { target: "project", name: "Release", buildNumber: 1 },
+        {
+          target: "ConPaws",
+          name: "Release",
+          bundleIdentifier: "com.mrdemonwolf.conpaws",
+          buildNumber: 1,
+        },
+        {
+          target: "ConPaws",
+          name: "Debug",
+          bundleIdentifier: "com.mrdemonwolf.conpaws.dev",
+          buildNumber: 1,
+        },
+        {
+          target: "OtherApp",
+          name: "Release",
+          bundleIdentifier: "com.mrdemonwolf.conpaws-other.widgets",
+          buildNumber: 1,
+        },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("accepts quoted settings and development companion bundle IDs", () => {
+    expect(
+      describeAppleTargetDrift(209, [
+        {
+          ...companions[0],
+          bundleIdentifier: '"com.mrdemonwolf.conpaws.dev.widgets"',
+          buildNumber: '"209"',
+        },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("rejects missing or unresolved companion build numbers", () => {
+    for (const buildNumber of [undefined, "$(MISSING_NUMBER)"]) {
+      expect(
+        describeAppleTargetDrift(209, [{ ...companions[0], buildNumber }]),
+      ).toHaveLength(1);
+    }
+    expect(describeAppleTargetDrift(209, [])).toEqual([]);
   });
 });
 

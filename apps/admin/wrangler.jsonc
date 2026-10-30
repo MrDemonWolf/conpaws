@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Local OpenNext/Workers preview only. Production D1 and bindings are
-  // provisioned by the separate Alchemy admin stack in packages/infra.
+  // Local `next dev` and OpenNext preview only. Production bindings come from
+  // packages/infra/alchemy.run.ts; keep the names here in step with it.
   "name": "conpaws-admin-local",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-03-10",
@@ -25,6 +25,24 @@
       "database_id": "conpaws-admin-preview-local-v2",
       "migrations_table": "drizzle_migrations",
       "migrations_dir": "drizzle/migrations"
+    }
+  ],
+  "vars": {
+    "ADMIN_EMAIL_FROM": "admin@conpaws.com"
+  },
+  // Local email is not delivered; the local runtime also prints each sign-in
+  // code in the dev server log.
+  "send_email": [
+    {
+      "name": "ADMIN_EMAIL",
+      "allowed_sender_addresses": ["admin@conpaws.com"]
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "ADMIN_SIGN_IN_LIMITER",
+      "namespace_id": "2610",
+      "simple": { "limit": 10, "period": 60 }
     }
   ]
 }

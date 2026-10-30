@@ -72,9 +72,11 @@ import {
   Stack,
   ThemeProvider,
   usePathname,
+  useSegments,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect, useState } from "react";
+import { VariableContextProvider } from "nativewind";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppState, StatusBar, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -83,6 +85,7 @@ import {
   applyAppearancePreference,
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
+import { primeCatalogSourcePreference } from "@/lib/catalog/source-preference";
 import {
   DatabaseUnavailableScreen,
   ScreenErrorFallback,
@@ -90,15 +93,22 @@ import {
 } from "@/lib/error-fallback";
 import {
   addReportBreadcrumb,
+  isErrorReportingEnabled,
   reportError,
   reportMessage,
 } from "@/lib/error-reporting";
 import { loadHapticsPreference } from "@/lib/haptics-storage";
 import i18nInstance, { initI18n } from "@/lib/i18n";
 import {
+  materialNavigationColors,
+  materialThemeVariables,
+} from "@/lib/material-theme";
+import { getNativeMaterialColors } from "@/lib/native-material-colors";
+import {
   getCachedOnboardingFlag,
   hasCompletedOnboarding,
 } from "@/lib/onboarding-storage";
+import { canOpenQuickAction } from "@/lib/quick-action-gate";
 import { resolveQuickActionRoute } from "@/lib/quick-action-routes";
 import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
@@ -108,7 +118,11 @@ import {
   reconcileEventReminders,
   setupNotificationHandler,
 } from "@/services/notifications";
-import { consumePendingQuickAction } from "@/services/quick-actions";
+import {
+  consumePendingQuickAction,
+  subscribeToQuickActions,
+  updateQuickActionLabels,
+} from "@/services/quick-actions";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
@@ -196,6 +210,7 @@ async function runLaunchBootstrap(): Promise<boolean> {
 
   // Primes the cache the reminder picker reads synchronously.
   await getDefaultReminderMinutes().catch(() => null);
+  await primeCatalogSourcePreference().catch(() => undefined);
   // Same reason: the Settings switch and the schedule check both read this
   // synchronously, and a switch that flips a frame after it renders reads as
   // the app changing the setting by itself.
@@ -231,6 +246,7 @@ function RootLayout() {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const colorScheme = useColorScheme();
   const pathname = usePathname();
+  const segments = useSegments();
   const databaseInitError = getDatabaseInitError();
 
   // `ready` deliberately stays true across a retry: the splash is long gone,
@@ -301,9 +317,9 @@ function RootLayout() {
     addReportBreadcrumb(pathname, { scope: "navigation" });
   }, [pathname]);
 
-  // Neither a quick action nor a tapped reminder has anywhere to land while
-  // the database-unavailable screen is up: that branch renders no navigator.
-  const navigable = ready && !databaseInitError;
+  // Neither fallback renders a navigator; retain OS actions until translations
+  // and the database are usable, rather than consuming a tap into a dead end.
+  const navigable = ready && translationsReady && !databaseInitError;
 
   // The Home Screen shortcuts are installed at launch with no onboarding gate
   // of their own, so acting on one before `app/index.tsx` has resolved the flag
@@ -314,12 +330,29 @@ function RootLayout() {
   // `onboardingComplete` state is only re-read on the next bootstrap — a
   // quick action tapped right after onboarding used to stay parked until the
   // next cold launch.
-  const canOpenQuickAction =
-    navigable && (onboardingComplete || getCachedOnboardingFlag() === true);
+  const quickActionReady = canOpenQuickAction(
+    navigable,
+    onboardingComplete || getCachedOnboardingFlag() === true,
+    segments[0],
+  );
+
+  useEffect(() => {
+    if (!ready || !translationsReady) return;
+    const updateLabels = () => {
+      void updateQuickActionLabels().catch((error) => {
+        reportError(error, { scope: "quickAction.labels" });
+      });
+    };
+    updateLabels();
+    i18nInstance.on("languageChanged", updateLabels);
+    return () => {
+      i18nInstance.off("languageChanged", updateLabels);
+    };
+  }, [ready, translationsReady]);
 
   useEffect(() => {
     function openPendingQuickAction() {
-      const pending = consumePendingQuickAction();
+      const pending = consumePendingQuickAction(quickActionReady);
       if (!pending) return;
 
       const route = resolveQuickActionRoute(pending);
@@ -340,12 +373,20 @@ function RootLayout() {
       router.push(route);
     }
 
-    if (canOpenQuickAction) openPendingQuickAction();
+    // Native events also cover warm actions delivered while AppState is active.
+    const unsubscribeQuickActions = subscribeToQuickActions(() => {
+      if (quickActionReady) openPendingQuickAction();
+    });
+    if (quickActionReady) openPendingQuickAction();
     const appStateSubscription = AppState.addEventListener(
       "change",
       (state) => {
         if (state === "active" && navigable) {
-          if (canOpenQuickAction) openPendingQuickAction();
+          if (quickActionReady) openPendingQuickAction();
+          // Android can rate-limit label updates; retry next time it is active.
+          void updateQuickActionLabels().catch((error) => {
+            reportError(error, { scope: "quickAction.labels" });
+          });
           void publishWidgetSnapshot().catch((error) => {
             reportError(error, { scope: "appState.publishWidgetSnapshot" });
           });
@@ -375,10 +416,11 @@ function RootLayout() {
         }
       });
     return () => {
+      unsubscribeQuickActions();
       appStateSubscription.remove();
       unsubscribeMutations();
     };
-  }, [navigable, canOpenQuickAction]);
+  }, [navigable, quickActionReady]);
 
   // A tapped reminder must land on the event's convention rather than wherever
   // the app happened to be. The cold-start response arrives through
@@ -432,21 +474,45 @@ function RootLayout() {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
 
-  if (!ready) return null;
+  const resolvedScheme = colorScheme === "dark" ? "dark" : "light";
+  const materialColors = useMemo(
+    () => getNativeMaterialColors(resolvedScheme),
+    [resolvedScheme],
+  );
+  const navigationTheme = useMemo(() => {
+    const base =
+      resolvedScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
+    return materialColors
+      ? {
+          ...base,
+          colors: {
+            ...base.colors,
+            ...materialNavigationColors(materialColors),
+          },
+        }
+      : base;
+  }, [resolvedScheme, materialColors]);
+  const materialVariables = useMemo(
+    () => (materialColors ? materialThemeVariables(materialColors) : {}),
+    [materialColors],
+  );
 
-  const navigationTheme =
-    colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
+  if (!ready) return null;
 
   if (databaseInitError) {
     return (
-      <ThemeProvider value={navigationTheme}>
-        <SafeAreaProvider>
-          <StatusBar
-            barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-          />
-          <DatabaseUnavailableScreen error={databaseInitError} />
-        </SafeAreaProvider>
-      </ThemeProvider>
+      <VariableContextProvider value={materialVariables}>
+        <ThemeProvider value={navigationTheme}>
+          <SafeAreaProvider>
+            <StatusBar
+              barStyle={
+                colorScheme === "dark" ? "light-content" : "dark-content"
+              }
+            />
+            <DatabaseUnavailableScreen error={databaseInitError} />
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </VariableContextProvider>
     );
   }
 
@@ -461,25 +527,27 @@ function RootLayout() {
     // GestureHandlerRootView hosts the swipeable event rows; the error
     // branches above have no gestures and deliberately skip it.
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={navigationTheme}>
-        <SafeAreaProvider>
-          <QueryClientProvider client={queryClient}>
-            <StatusBar
-              barStyle={
-                colorScheme === "dark" ? "light-content" : "dark-content"
-              }
-            />
-            <Stack screenOptions={{ headerShown: false }} />
-          </QueryClientProvider>
-        </SafeAreaProvider>
-      </ThemeProvider>
+      <VariableContextProvider value={materialVariables}>
+        <ThemeProvider value={navigationTheme}>
+          <SafeAreaProvider>
+            <QueryClientProvider client={queryClient}>
+              <StatusBar
+                barStyle={
+                  colorScheme === "dark" ? "light-content" : "dark-content"
+                }
+              />
+              <Stack screenOptions={{ headerShown: false }} />
+            </QueryClientProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </VariableContextProvider>
     </GestureHandlerRootView>
   );
 }
 
-// Sentry.wrap does NOT install an error boundary in @sentry/react-native
-// 7.11.0 (verified in dist/js/sdk.js: it renders TouchEventBoundary, Profiler
-// and FeedbackWidgetProvider only), so these two exports are the app's only
+// Sentry.wrap does not install an error boundary in the installed SDK
+// (verified in dist/js/sdk.js: it renders TouchEventBoundary, Profiler and
+// FeedbackFormProvider only), so these two exports are the app's only
 // boundaries. `screenErrorBoundary` is inherited through context by every
 // descendant leaf route, which keeps headers and the tab bar mounted; the
 // `ErrorBoundary` export is the last resort for a throw in this layout itself.
@@ -489,4 +557,5 @@ export const unstable_settings = {
 
 export const ErrorBoundary = ScreenErrorFallback;
 
-export default Sentry.wrap(RootLayout);
+// Leave the root unwrapped when reporting is disabled so a missing/invalid DSN installs no Sentry hooks.
+export default isErrorReportingEnabled() ? Sentry.wrap(RootLayout) : RootLayout;

@@ -13,7 +13,7 @@
     "loading": "Carregando...",
     "error": "Algo deu errado",
     "openLinkError": "Não foi possível abrir esse link",
-    "retry": "Tentar novamente",
+    "retry": "Tentar de novo",
     "learnMore": "Saiba mais",
     "version": "Versão {{version}}",
     "advanced": "Avançado",
@@ -33,31 +33,15 @@
     "searchEvents": "Buscar eventos",
     "filterEvents": "Filtrar eventos",
     "scheduleActions": "Ações da programação",
-    "allEvents": "Todos os eventos",
-    "mySchedule": "Minha programação",
-    "nowAndNext": "Agora e a seguir",
     "categories": "Categorias",
     "allCategories": "Todas as categorias",
-    "noMatchingEvents": "Nenhum evento correspondente",
-    "noMatchingEventsSubtitle": "Tente outra busca ou outro filtro.",
     "timesShownIn": "Os horários são exibidos em {{timeZone}}",
-    "nowCount": "Agora ({{eventCount}})",
-    "nextAtCount": "A seguir às {{time}} ({{eventCount}})",
-    "nextCount": "A seguir ({{eventCount}})",
-    "nothingHappeningNow": "Nada da sua programação está acontecendo agora.",
-    "noMoreUpcomingEvents": "Não há mais eventos futuros na sua programação.",
-    "noEvents": "Nenhum evento ainda",
-    "noEventsSubtitle": "Importe uma programação ou adicione eventos manualmente.",
-    "myScheduleEmpty": "Minha programação está vazia",
-    "myScheduleNowNextSubtitle": "Escolha eventos em Todos para ver o que está acontecendo agora e a seguir.",
-    "myScheduleSubtitle": "Abra Todos e adicione os eventos que você não quer perder.",
-    "overlapSummary": "Painéis salvos com horários sobrepostos: {{count}}",
-    "overlapHelp": "Você pode manter todos. Defina um lembrete para o painel seguinte e tenha tempo de trocar de sala.",
+    "noEvents": "Nenhum painel adicionado ainda",
+    "noEventsSubtitle": "Adicione uma programação por link ou arquivo, ou crie painéis você mesmo.",
     "overlapLabel": "Sobrepõe outro painel salvo",
     "runsAlongsideOne": "Acontece ao mesmo tempo que 1 outro evento",
     "runsAlongsideMany": "Acontece ao mesmo tempo que {{count}} outros eventos",
     "sameTimeGroup": "{{count}} eventos no mesmo horário",
-    "showAllEvents": "Mostrar todos os eventos",
     "addEvent": "Adicionar Evento",
     "importSchedule": "Importar Programação",
     "startDate": "Data de Início",
@@ -81,22 +65,22 @@
     "createError": "Não foi possível criar a convenção. Tente novamente.",
     "notFound": "Convenção não encontrada.",
     "goBack": "Voltar",
-    "addToSchedule": "Adicionar à Minha programação",
-    "removeFromSchedule": "Remover da Minha programação",
-    "scheduleActionHint": "Atualiza este evento na Minha programação.",
+    "addToSchedule": "Adicionar ao meu plano",
+    "removeFromSchedule": "Remover do meu plano",
+    "scheduleActionHint": "Atualiza este painel no seu plano.",
     "scheduleHint": {
-      "body": "Toque em um evento para adicioná-lo à Minha Agenda. Eventos marcados aparecem na aba Agenda.",
+      "body": "Toque em um painel para adicioná-lo ao seu plano. Os painéis salvos aparecem na aba Plano.",
       "dismiss": "Dispensar dica"
     },
-    "scheduleAddedAnnouncement": "{{event}} foi adicionado à Minha programação.",
-    "scheduleRemovedAnnouncement": "{{event}} foi removido da Minha programação.",
+    "scheduleAddedAnnouncement": "{{event}} adicionado ao seu plano.",
+    "scheduleRemovedAnnouncement": "{{event}} removido do seu plano.",
     "scheduleUpdateErrorTitle": "Programação não atualizada",
     "scheduleUpdateErrorMessage": "Não foi possível alterar o evento. Sua programação não foi modificada.",
     "closeEventDetails": "Fechar detalhes do evento",
     "timeRangeTo": "até {{time}}",
     "eventTimeRange": "{{start}} até {{end}}",
-    "inMySchedule": "Na Minha programação",
-    "notInMySchedule": "Fora da Minha programação",
+    "inMySchedule": "No seu plano",
+    "notInMySchedule": "Fora do seu plano",
     "reminderSet": "Lembrete definido",
     "eventSource": {
       "imported": "Importado",
@@ -119,7 +103,7 @@
       "roomPlaceholder": "Opcional",
       "roomAccessibility": "Sala do evento, opcional",
       "timeZoneHelp": "A data e os horários usam {{timeZone}}. O horário de término é na mesma data.",
-      "savedAnnouncement": "{{event}} foi salvo e adicionado à Minha programação.",
+      "savedAnnouncement": "{{event}} adicionado ao seu plano.",
       "errors": {
         "title": "O título é obrigatório.",
         "startTimeZone": "Essa hora de início não existe no fuso horário da convenção.",
@@ -153,8 +137,153 @@
       "dismiss": "Dispensar este aviso",
       "checkNow": "Procurar alterações",
       "checking": "Verificando…",
-      "checkFailedTitle": "Não foi possível verificar a programação",
-      "checkFailedMessage": "O link da programação do evento não respondeu. Sua agenda continua igual."
+      "checkFailedTitle": "Não foi possível verificar as mudanças",
+      "checkFailedMessage": "Sua programação salva continua aqui. Tente de novo em instantes."
+    },
+    "views": {
+      "all": "Programação",
+      "mine": "Meu plano",
+      "now": "Agora",
+      "accessibility": "Visualização da programação"
+    },
+    "browse": {
+      "allDays": "Todos",
+      "allDaysAccessibility": "Todos os dias, {{count}} dias",
+      "dayAccessibility": "{{day}}, {{count}} painéis",
+      "allTimes": "Todos os horários",
+      "slotAccessibility": "Painéis entre {{start}} e {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · todos os dias",
+      "headingDay": "{{day}} · todos os horários",
+      "headingAllDays": "Todos os painéis",
+      "total": "{{count}} no total",
+      "hint": "Escolha o que chamar sua atenção. Decida depois.",
+      "filterActive": "Filtro: {{category}}",
+      "clearFilters": "Limpar filtros",
+      "noMatches": {
+        "title": "Nenhum painel combina com essas escolhas",
+        "body": "Tente outro horário ou limpe os filtros para ver mais da programação."
+      },
+      "noneThisDay": {
+        "title": "Nada neste dia por enquanto",
+        "body": "A programação não tem painéis neste dia. Tente outro dia."
+      },
+      "allDaysCta": "Mostrar todos os dias",
+      "dropIn": {
+        "title": "Passe quando quiser",
+        "subtitle": "Sem horário fixo"
+      },
+      "noSeat": "Salvar um painel não reserva lugar.",
+      "optionsOne": "{{count}} opção",
+      "optionsMany": "{{count}} opções",
+      "daysOne": "{{count}} dia",
+      "daysMany": "{{count}} dias"
+    },
+    "savedLabel": "Salvo",
+    "saveAction": "Salvar {{title}} no meu plano",
+    "unsaveAction": "Remover {{title}} do meu plano",
+    "plan": {
+      "until": "Até {{time}}",
+      "gap": {
+        "free": "{{minutes}} min livres · Tempo para chegar",
+        "freeHours": "{{hours}} h livres · Tempo para respirar",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min livres · Tempo para respirar",
+        "backToBack": "Um atrás do outro · Confira sua próxima sala",
+        "overlap": "{{minutes}} min de sobreposição · Escolha o que funciona"
+      },
+      "status": {
+        "now": "Agora",
+        "endedToday": "Mais cedo hoje",
+        "ended": "Encerrado"
+      },
+      "overlap": {
+        "title": "Alguns painéis se sobrepõem",
+        "body": "Mantenha os dois ou escolha o que você quer.",
+        "cta": "Revisar sobreposição"
+      },
+      "empty": {
+        "title": "Seu dia está livre",
+        "body": "Nada salvo para este dia ainda.",
+        "cta": "Explorar painéis"
+      },
+      "emptyConvention": {
+        "title": "Nada salvo ainda",
+        "body": "Explore a programação e escolha os painéis que quer acompanhar. Você pode adicionar mais de um."
+      },
+      "updated": {
+        "title": "Plano atualizado",
+        "body": "Seu plano mudou. Os horários dos painéis continuam os mesmos."
+      },
+      "savedCountOne": "{{count}} salvo",
+      "savedCountMany": "{{count}} salvos"
+    },
+    "now": {
+      "happeningNow": "Acontecendo agora",
+      "upNext": "A seguir",
+      "until": "Até",
+      "startsAt": "Começa às",
+      "unknownEnd": "Horário de término não divulgado",
+      "reminder": "Lembrete: {{label}}",
+      "next": "Próximo · {{time}}",
+      "nextAccessibility": "Próximo: {{title}}",
+      "otherOptions": "Outras opções nesta hora",
+      "openPanel": "Abrir painel",
+      "setReminder": "Definir um lembrete",
+      "openAccessibility": "Abrir {{title}}",
+      "nothingPicked": {
+        "title": "Nenhum próximo painel escolhido ainda",
+        "body": "Explore a programação e escolha os painéis que quer acompanhar.",
+        "cta": "Explorar a programação"
+      },
+      "finished": {
+        "title": "Esse foi seu plano de hoje",
+        "body": "Você chegou ao fim das escolhas de hoje. Ainda pode haver outros painéis para acompanhar.",
+        "nextDay": "A seguir: {{title}}, {{day}} às {{time}}."
+      },
+      "nothingToday": {
+        "title": "Nada planejado para hoje"
+      },
+      "allEnded": {
+        "title": "Todos os seus painéis salvos terminaram",
+        "body": "Explore a programação para ver o que mais está rolando."
+      },
+      "minutesLeftOne": "Falta {{count}} min",
+      "minutesLeftMany": "Faltam {{count}} min",
+      "minutesUntilOne": "Começa em {{count}} min",
+      "minutesUntilMany": "Começa em {{count}} min",
+      "alsoNowOne": "Também salvo agora: mais {{count}}",
+      "alsoNowMany": "Também salvos agora: mais {{count}}"
+    },
+    "status": {
+      "checking": "Verificando atualizações…"
+    },
+    "compare": {
+      "title": "Abra espaço para um favorito.",
+      "subtitle": "Esses painéis acontecem em parte ao mesmo tempo. Qual tem mais a ver com você?",
+      "inPlan": "No seu plano",
+      "overlapsChoice": "{{minutes}} min se sobrepõem à sua escolha atual",
+      "switchTo": "Trocar para este painel",
+      "addToPlan": "Adicionar ao meu plano",
+      "keepOnly": "Manter só este painel",
+      "keepPlan": "Manter este plano",
+      "keepBoth": "Manter os dois no meu plano",
+      "othersStay": "Seus outros painéis salvos continuam salvos.",
+      "updatedAnnouncement": "{{event}} adicionado ao seu plano. Removidos: {{count}}.",
+      "possibilitiesOne": "{{count}} possibilidade",
+      "possibilitiesMany": "{{count}} possibilidades",
+      "replacesOne": "Substitui {{titles}}. Os painéis removidos continuam na programação; você pode salvá-los de novo quando quiser.",
+      "replacesMany": "Substitui {{count}} painéis salvos. Os painéis removidos continuam na programação; você pode salvá-los de novo quando quiser."
+    },
+    "panel": {
+      "about": "Sobre este painel",
+      "durationMinutesOne": "{{count}} minuto",
+      "durationMinutesMany": "{{count}} minutos",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+      "noReminder": "Sem lembrete",
+      "overlapsPlan": "Sobrepõe seu plano",
+      "overlapWith": "{{minutes}} min com {{title}}",
+      "compareBeforeAdding": "Comparar antes de adicionar"
     }
   },
   "errors": {
@@ -171,7 +300,7 @@
     "addConvention": "Adicionar Convenção",
     "empty": {
       "title": "Nenhuma convenção ainda",
-      "subtitle": "Crie uma convenção ou importe uma programação existente.",
+      "subtitle": "Encontre sua convenção para começar a planejar ou adicione uma programação por link ou arquivo.",
       "cta": "Criar convenção"
     },
     "loadError": "Não foi possível carregar as convenções.",
@@ -209,7 +338,8 @@
       "success": "{{name}} foi excluída.",
       "errorTitle": "Não foi possível excluir a convenção",
       "errorMessage": "Nada foi excluído. Tente novamente."
-    }
+    },
+    "find": "Encontre sua convenção"
   },
   "import": {
     "title": "Importar Programação",
@@ -307,7 +437,7 @@
       "title": "Planeje o evento inteiro",
       "subtitle": "Tudo de que você precisa quando o Wi-Fi do local para de funcionar.",
       "demo": {
-        "saved": "Minha programação"
+        "saved": "Meu plano"
       },
       "import": {
         "title": "Importe qualquer programação",
@@ -315,7 +445,7 @@
       },
       "plan": {
         "title": "Não perca nenhum painel",
-        "description": "Monte sua programação, veja o que acontece agora e em seguida e identifique conflitos."
+        "description": "Monte seu plano, veja o que está acontecendo agora e o que vem em seguida e identifique conflitos."
       },
       "offline": {
         "title": "Privado e offline",
@@ -329,10 +459,11 @@
     },
     "getStarted": {
       "title": "Tudo pronto para o próximo evento?",
-      "subtitle": "Importe uma programação agora ou explore o ConPaws primeiro.",
+      "subtitle": "Encontre sua convenção, importe uma programação ou explore o ConPaws primeiro.",
       "importSchedule": "Importar uma programação",
       "exploreFirst": "Explorar primeiro",
-      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente."
+      "localPrivacy": "Não é preciso ter conta. Seus dados ficam armazenados localmente.",
+      "find": "Encontre sua convenção"
     }
   },
   "reminders": {
@@ -354,7 +485,7 @@
     "errorTitle": "Lembrete não definido",
     "errorMessage": "O ConPaws não conseguiu atualizar este lembrete. Tente novamente.",
     "permissionTitle": "As notificações estão desativadas",
-    "permissionMessage": "O ConPaws precisa de notificações para avisar quando sair. Ative em Configurações e defina o lembrete novamente.",
+    "permissionMessage": "O ConPaws precisa de permissão para enviar notificações e lembrar você antes de um painel começar. Ative as notificações em Configurações e defina o lembrete novamente.",
     "openSettings": "Abrir Configurações",
     "tooLateTitle": "O evento começa cedo demais",
     "tooLateMessage": "Este evento começa antes do que esse lembrete permite. Escolha uma antecedência menor ou um evento mais tarde.",
@@ -370,23 +501,24 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Abre a programação da convenção.",
     "caughtUp": {
       "title": "Tudo em dia",
-      "subtitle": "Todos os eventos salvos de {{name}} já terminaram.",
+      "subtitle": "Todos os seus painéis salvos na {{name}} terminaram.",
       "cta": "Ver convenção"
     },
     "title": "Programação",
     "empty": {
-      "title": "Nada marcado ainda",
-      "subtitle": "Toque em um evento dentro de uma convenção para adicioná-lo à Minha Agenda — ele aparece aqui.",
+      "title": "Nenhum painel escolhido ainda",
+      "subtitle": "Explore a programação de uma convenção e escolha os painéis que quer acompanhar. Eles vão aparecer aqui.",
       "cta": "Abrir minhas convenções"
     },
     "timesShownInConventionTime": "Os horários aparecem no fuso local de cada convenção.",
-    "loadError": "Não foi possível carregar sua programação.",
+    "loadError": "Não conseguimos mostrar seu plano",
     "conventionEmpty": {
       "title": "Nada salvo para {{name}} ainda",
-      "subtitle": "Adicione eventos da agenda da convenção e eles aparecerão aqui.",
-      "cta": "Abrir convenção"
+      "subtitle": "Explore a programação e escolha os painéis que quer acompanhar.",
+      "cta": "Explorar a programação"
     }
   },
   "settings": {
@@ -516,7 +648,73 @@
       "gettingStarted": "Primeiros passos",
       "gettingStartedDescription": "Onde encontrar a agenda da sua convenção",
       "importNow": "Importar uma agenda",
-      "importNowDescription": "Adicione um link do Sched ou um arquivo .ics."
+      "importNowDescription": "Adicione um link do Sched ou um arquivo .ics.",
+      "findDescription": "Escolha uma convenção do catálogo ConPaws e baixe sua programação.",
+      "find": "Encontre sua convenção"
+    }
+  },
+  "catalog": {
+    "title": "Encontre sua convenção",
+    "searchPlaceholder": "Busque por nome ou cidade",
+    "upcoming": "Próximas",
+    "past": "Edições anteriores",
+    "showPast": "Mostrar",
+    "hidePast": "Ocultar",
+    "scheduleReady": "Programação pronta",
+    "scheduleNotYet": "Programação ainda não está no ConPaws",
+    "notListed": {
+      "title": "Não encontrou a convenção?",
+      "body": "Importe uma programação por link ou arquivo, ou crie uma convenção e adicione os painéis manualmente.",
+      "import": "Importar programação",
+      "create": "Criar convenção"
+    },
+    "empty": {
+      "title": "Nenhuma convenção listada",
+      "body": "Volte em breve ou adicione uma programação por link ou arquivo."
+    },
+    "searchEmpty": "Nenhuma convenção encontrada",
+    "searchEmptyBody": "Tente outro nome ou cidade.",
+    "offline": {
+      "title": "Conecte-se para encontrar sua convenção",
+      "body": "O ConPaws precisa de internet para carregar o catálogo. Suas convenções salvas continuam funcionando."
+    },
+    "unavailable": {
+      "title": "Catálogo indisponível",
+      "body": "O ConPaws não conseguiu acessar o catálogo. Tente novamente em instantes."
+    },
+    "retry": "Tentar novamente",
+    "sample": "Catálogo de exemplo · não é uma convenção real",
+    "confirm": {
+      "dates": "Datas",
+      "time": "Fuso horário da convenção",
+      "schedule": "Programação",
+      "scheduleReady_one": "{{count}} evento · Pronto para baixar",
+      "scheduleReady_other": "{{count}} eventos · Pronto para baixar",
+      "scheduleNotYet": "Ainda não está no ConPaws",
+      "source": "Fonte",
+      "sourceValue": "Catálogo ConPaws · revisão {{revision}}",
+      "download": "Baixar programação",
+      "update": "Atualizar programação",
+      "open": "Abrir programação",
+      "downloaded": "Baixada · revisão {{revision}}",
+      "downloading": "Baixando…",
+      "keepOpen": "Mantenha o ConPaws aberto até o fim do download. Depois de salvar, você pode usar a programação sem internet.",
+      "unavailableHere": {
+        "title": "Programação ainda não está no ConPaws",
+        "body": "Esta convenção está na lista, mas a programação ainda não está disponível aqui. Adicione uma programação por link ou arquivo."
+      },
+      "failed": {
+        "title": "O download não foi concluído",
+        "body": "Nada foi salvo. Tente novamente."
+      },
+      "offline": {
+        "body": "Esta programação ainda não está salva no seu celular. Conecte-se à internet e tente novamente."
+      },
+      "notFound": {
+        "title": "Convenção não encontrada",
+        "body": "Ela pode ter sido removida da publicação."
+      },
+      "successAnnouncement": "{{name}} foi baixada. Escolha seu primeiro painel."
     }
   }
 }

@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Convention finden",
+    "searchPlaceholder": "Nach Name oder Stadt suchen",
+    "upcoming": "Demnächst",
+    "past": "Vergangene Ausgaben",
+    "showPast": "Anzeigen",
+    "hidePast": "Ausblenden",
+    "scheduleReady": "Zeitplan bereit",
+    "scheduleNotYet": "Zeitplan noch nicht in ConPaws",
+    "notListed": {
+      "title": "Convention nicht dabei?",
+      "body": "Importiere einen Zeitplan über einen Link oder eine Datei oder erstelle eine Convention und füge Programmpunkte selbst hinzu.",
+      "import": "Zeitplan importieren",
+      "create": "Convention erstellen"
+    },
+    "empty": {
+      "title": "Noch keine Conventions im Katalog",
+      "body": "Schau bald wieder vorbei oder füge einen Zeitplan über einen Link oder eine Datei hinzu."
+    },
+    "searchEmpty": "Keine passenden Conventions",
+    "searchEmptyBody": "Versuche einen anderen Namen oder eine andere Stadt.",
+    "offline": {
+      "title": "Verbinde dich, um deine Convention zu finden",
+      "body": "ConPaws braucht eine Internetverbindung, um den Katalog zu laden. Deine gespeicherten Conventions funktionieren weiterhin."
+    },
+    "unavailable": {
+      "title": "Katalog nicht verfügbar",
+      "body": "ConPaws konnte den Katalog nicht erreichen. Versuche es gleich noch einmal."
+    },
+    "retry": "Erneut versuchen",
+    "sample": "Beispielkatalog · keine echte Convention",
+    "confirm": {
+      "dates": "Termine",
+      "time": "Zeitzone der Convention",
+      "schedule": "Zeitplan",
+      "scheduleReady_one": "{{count}} Programmpunkt · Bereit zum Download",
+      "scheduleReady_other": "{{count}} Programmpunkte · Bereit zum Download",
+      "scheduleNotYet": "Noch nicht in ConPaws",
+      "source": "Quelle",
+      "sourceValue": "ConPaws-Katalog · Revision {{revision}}",
+      "download": "Zeitplan herunterladen",
+      "update": "Zeitplan aktualisieren",
+      "open": "Zeitplan öffnen",
+      "downloaded": "Heruntergeladen · Revision {{revision}}",
+      "downloading": "Wird heruntergeladen…",
+      "keepOpen": "Lass ConPaws geöffnet, bis der Download abgeschlossen ist. Danach kannst du den gespeicherten Zeitplan ohne Internetverbindung nutzen.",
+      "unavailableHere": {
+        "title": "Dieser Zeitplan ist noch nicht in ConPaws",
+        "body": "Diese Convention ist gelistet, aber ihr Zeitplan ist hier noch nicht verfügbar. Füge einen Zeitplan über einen Link oder eine Datei hinzu."
+      },
+      "failed": {
+        "title": "Download nicht abgeschlossen",
+        "body": "Es wurde nichts gespeichert. Versuche es erneut."
+      },
+      "offline": {
+        "body": "Dieser Zeitplan ist noch nicht auf deinem Handy gespeichert. Stelle eine Internetverbindung her und versuche es erneut."
+      },
+      "notFound": {
+        "title": "Convention nicht gefunden",
+        "body": "Möglicherweise wurde sie aus dem Katalog entfernt."
+      },
+      "successAnnouncement": "{{name}} wurde heruntergeladen. Wähle deinen ersten Programmpunkt."
+    }
+  },
   "common": {
     "settings": "Einstellungen",
     "add": "Hinzufügen",
@@ -33,31 +97,15 @@
     "searchEvents": "Events suchen",
     "filterEvents": "Events filtern",
     "scheduleActions": "Zeitplanaktionen",
-    "allEvents": "Alle Events",
-    "mySchedule": "Mein Zeitplan",
-    "nowAndNext": "Jetzt und als Nächstes",
     "categories": "Kategorien",
     "allCategories": "Alle Kategorien",
-    "noMatchingEvents": "Keine passenden Events",
-    "noMatchingEventsSubtitle": "Versuche eine andere Suche oder einen anderen Filter.",
     "timesShownIn": "Zeiten werden in {{timeZone}} angezeigt",
-    "nowCount": "Jetzt ({{eventCount}})",
-    "nextAtCount": "Als Nächstes um {{time}} ({{eventCount}})",
-    "nextCount": "Als Nächstes ({{eventCount}})",
-    "nothingHappeningNow": "Zurzeit findet kein Event aus deinem Zeitplan statt.",
-    "noMoreUpcomingEvents": "In deinem Zeitplan gibt es keine weiteren anstehenden Events.",
-    "noEvents": "Noch keine Events",
-    "noEventsSubtitle": "Importiere einen Zeitplan oder füge Events manuell hinzu.",
-    "myScheduleEmpty": "Mein Zeitplan ist leer",
-    "myScheduleNowNextSubtitle": "Wähle unter Alle Events aus, um zu sehen, was jetzt und als Nächstes stattfindet.",
-    "myScheduleSubtitle": "Öffne Alle und füge Events hinzu, die du nicht verpassen möchtest.",
-    "overlapSummary": "Gespeicherte Panels mit Überschneidung: {{count}}",
-    "overlapHelp": "Du kannst alle behalten. Lege für das spätere Panel eine Erinnerung fest, damit genug Zeit für den Raumwechsel bleibt.",
+    "noEvents": "Noch keine Panels hinzugefügt",
+    "noEventsSubtitle": "Füg ein Programm über einen Link oder eine Datei hinzu oder leg Panels selbst an.",
     "overlapLabel": "Überschneidet sich mit einem anderen gespeicherten Panel",
     "runsAlongsideOne": "Läuft zeitgleich mit 1 weiteren Event",
     "runsAlongsideMany": "Läuft zeitgleich mit {{count}} weiteren Events",
     "sameTimeGroup": "{{count}} Events zur selben Zeit",
-    "showAllEvents": "Alle Events anzeigen",
     "addEvent": "Event hinzufügen",
     "importSchedule": "Zeitplan importieren",
     "startDate": "Startdatum",
@@ -81,22 +129,22 @@
     "createError": "Die Convention konnte nicht erstellt werden. Versuche es erneut.",
     "notFound": "Convention nicht gefunden.",
     "goBack": "Zurück",
-    "addToSchedule": "Zu Mein Zeitplan hinzufügen",
-    "removeFromSchedule": "Aus Mein Zeitplan entfernen",
-    "scheduleActionHint": "Aktualisiert dieses Event in Mein Zeitplan.",
+    "addToSchedule": "Zu meinem Plan hinzufügen",
+    "removeFromSchedule": "Aus meinem Plan entfernen",
+    "scheduleActionHint": "Aktualisiert dieses Panel in deinem Plan.",
     "scheduleHint": {
-      "body": "Tippe auf ein Event, um es zu Mein Zeitplan hinzuzufügen. Markierte Events erscheinen im Zeitplan-Tab.",
+      "body": "Tipp auf ein Panel, um es in deinen Plan aufzunehmen. Gespeicherte Panels erscheinen im Tab „Plan“.",
       "dismiss": "Hinweis ausblenden"
     },
-    "scheduleAddedAnnouncement": "{{event}} wurde zu Mein Zeitplan hinzugefügt.",
-    "scheduleRemovedAnnouncement": "{{event}} wurde aus Mein Zeitplan entfernt.",
+    "scheduleAddedAnnouncement": "{{event}} zu deinem Plan hinzugefügt.",
+    "scheduleRemovedAnnouncement": "{{event}} aus deinem Plan entfernt.",
     "scheduleUpdateErrorTitle": "Zeitplan nicht aktualisiert",
     "scheduleUpdateErrorMessage": "Das Event konnte nicht geändert werden. Dein Zeitplan blieb unverändert.",
     "closeEventDetails": "Eventdetails schließen",
     "timeRangeTo": "bis {{time}}",
     "eventTimeRange": "{{start}} bis {{end}}",
-    "inMySchedule": "In Mein Zeitplan",
-    "notInMySchedule": "Nicht in Mein Zeitplan",
+    "inMySchedule": "In deinem Plan",
+    "notInMySchedule": "Nicht in deinem Plan",
     "reminderSet": "Erinnerung festgelegt",
     "eventSource": {
       "imported": "Importiert",
@@ -119,7 +167,7 @@
       "roomPlaceholder": "Optional",
       "roomAccessibility": "Eventraum, optional",
       "timeZoneHelp": "Datum und Zeiten verwenden {{timeZone}}. Die Endzeit liegt am selben Datum.",
-      "savedAnnouncement": "{{event}} wurde gespeichert und zu Mein Zeitplan hinzugefügt.",
+      "savedAnnouncement": "{{event}} zu deinem Plan hinzugefügt.",
       "errors": {
         "title": "Ein Titel ist erforderlich.",
         "startTimeZone": "Diese Startzeit existiert in der Zeitzone der Convention nicht.",
@@ -153,8 +201,153 @@
       "dismiss": "Diesen Hinweis schließen",
       "checkNow": "Nach Änderungen suchen",
       "checking": "Wird geprüft…",
-      "checkFailedTitle": "Programm konnte nicht geprüft werden",
-      "checkFailedMessage": "Der Programm-Link der Convention hat nicht geantwortet. Dein Zeitplan ist unverändert."
+      "checkFailedTitle": "Änderungen konnten nicht geprüft werden",
+      "checkFailedMessage": "Dein gespeichertes Programm ist noch da. Versuch es gleich noch einmal."
+    },
+    "views": {
+      "all": "Programm",
+      "mine": "Mein Plan",
+      "now": "Jetzt",
+      "accessibility": "Programmansicht"
+    },
+    "browse": {
+      "allDays": "Alle",
+      "allDaysAccessibility": "Alle Tage, {{count}} Tage",
+      "dayAccessibility": "{{day}}, {{count}} Panels",
+      "allTimes": "Alle Zeiten",
+      "slotAccessibility": "Panels zwischen {{start}} und {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · alle Tage",
+      "headingDay": "{{day}} · alle Zeiten",
+      "headingAllDays": "Alle Panels",
+      "total": "{{count}} gesamt",
+      "hint": "Wähl, was dich anspricht. Entscheide später.",
+      "filterActive": "Filter: {{category}}",
+      "clearFilters": "Filter löschen",
+      "noMatches": {
+        "title": "Keine Panels passen zu dieser Auswahl",
+        "body": "Probier eine andere Uhrzeit oder lösch die Filter, um mehr vom Programm zu sehen."
+      },
+      "noneThisDay": {
+        "title": "An diesem Tag ist noch nichts",
+        "body": "Das Programm hat an diesem Tag keine Panels. Probier einen anderen Tag."
+      },
+      "allDaysCta": "Alle Tage anzeigen",
+      "dropIn": {
+        "title": "Jederzeit vorbeischauen",
+        "subtitle": "Keine feste Uhrzeit"
+      },
+      "noSeat": "Ein gespeichertes Panel reserviert keinen Platz.",
+      "optionsOne": "{{count}} Option",
+      "optionsMany": "{{count}} Optionen",
+      "daysOne": "{{count}} Tag",
+      "daysMany": "{{count}} Tage"
+    },
+    "savedLabel": "Gespeichert",
+    "saveAction": "{{title}} in meinen Plan aufnehmen",
+    "unsaveAction": "{{title}} aus meinem Plan entfernen",
+    "plan": {
+      "until": "Bis {{time}}",
+      "gap": {
+        "free": "{{minutes}} Min. frei · Zeit zum Hinkommen",
+        "freeHours": "{{hours}} Std. frei · Zeit zum Durchatmen",
+        "freeHoursMinutes": "{{hours}} Std. {{minutes}} Min. frei · Zeit zum Durchatmen",
+        "backToBack": "Direkt nacheinander · Prüf deinen nächsten Raum",
+        "overlap": "{{minutes}} Min. Überschneidung · Entscheide, was passt"
+      },
+      "status": {
+        "now": "Jetzt",
+        "endedToday": "Heute früher",
+        "ended": "Beendet"
+      },
+      "overlap": {
+        "title": "Einige Panels überschneiden sich",
+        "body": "Behalte beide oder wähl das, was du willst.",
+        "cta": "Überschneidung prüfen"
+      },
+      "empty": {
+        "title": "Dein Tag ist frei",
+        "body": "Für diesen Tag ist noch nichts gespeichert.",
+        "cta": "Panels durchstöbern"
+      },
+      "emptyConvention": {
+        "title": "Noch nichts gespeichert",
+        "body": "Stöber im Programm und wähl die Panels, die du sehen willst. Du kannst mehrere auswählen."
+      },
+      "updated": {
+        "title": "Plan aktualisiert",
+        "body": "Dein Plan hat sich geändert. Die Panelzeiten bleiben gleich."
+      },
+      "savedCountOne": "{{count}} gespeichert",
+      "savedCountMany": "{{count}} gespeichert"
+    },
+    "now": {
+      "happeningNow": "Läuft gerade",
+      "upNext": "Als Nächstes",
+      "until": "Bis",
+      "startsAt": "Beginnt um",
+      "unknownEnd": "Endzeit nicht veröffentlicht",
+      "reminder": "Erinnerung: {{label}}",
+      "next": "Danach · {{time}}",
+      "nextAccessibility": "Danach: {{title}}",
+      "otherOptions": "Weitere Optionen in dieser Stunde",
+      "openPanel": "Panel öffnen",
+      "setReminder": "Erinnerung einrichten",
+      "openAccessibility": "{{title}} öffnen",
+      "nothingPicked": {
+        "title": "Noch kein nächstes Panel ausgewählt",
+        "body": "Stöber im Programm und wähl die Panels, die du sehen willst.",
+        "cta": "Programm durchstöbern"
+      },
+      "finished": {
+        "title": "Das war dein Plan für heute",
+        "body": "Du hast das Ende deiner heutigen Auswahl erreicht. Vielleicht gibt es noch andere Panels zu entdecken.",
+        "nextDay": "Als Nächstes: {{title}} am {{day}} um {{time}}."
+      },
+      "nothingToday": {
+        "title": "Heute nichts geplant"
+      },
+      "allEnded": {
+        "title": "Alle gespeicherten Panels sind vorbei",
+        "body": "Stöber im Programm, um zu sehen, was sonst noch läuft."
+      },
+      "minutesLeftOne": "Noch {{count}} Min.",
+      "minutesLeftMany": "Noch {{count}} Min.",
+      "minutesUntilOne": "Beginnt in {{count}} Min.",
+      "minutesUntilMany": "Beginnt in {{count}} Min.",
+      "alsoNowOne": "Läuft ebenfalls gerade: {{count}} weiteres",
+      "alsoNowMany": "Läuft ebenfalls gerade: {{count}} weitere"
+    },
+    "status": {
+      "checking": "Suche nach Updates …"
+    },
+    "compare": {
+      "title": "Mach Platz für einen Favoriten.",
+      "subtitle": "Diese Panels überschneiden sich zeitlich. Welches passt am besten zu dir?",
+      "inPlan": "In deinem Plan",
+      "overlapsChoice": "{{minutes}} Min. Überschneidung mit deiner aktuellen Wahl",
+      "switchTo": "Zu diesem Panel wechseln",
+      "addToPlan": "Zu meinem Plan hinzufügen",
+      "keepOnly": "Nur dieses Panel behalten",
+      "keepPlan": "Diesen Plan behalten",
+      "keepBoth": "Beide in meinem Plan behalten",
+      "othersStay": "Deine anderen gespeicherten Panels bleiben gespeichert.",
+      "updatedAnnouncement": "{{event}} zu deinem Plan hinzugefügt. Entfernt: {{count}}.",
+      "possibilitiesOne": "{{count}} Möglichkeit",
+      "possibilitiesMany": "{{count}} Möglichkeiten",
+      "replacesOne": "Ersetzt {{titles}}. Entfernte Panels bleiben im Programm; du kannst sie jederzeit wieder speichern.",
+      "replacesMany": "Ersetzt {{count}} gespeicherte Panels. Entfernte Panels bleiben im Programm; du kannst sie jederzeit wieder speichern."
+    },
+    "panel": {
+      "about": "Über dieses Panel",
+      "durationMinutesOne": "{{count}} Minute",
+      "durationMinutesMany": "{{count}} Minuten",
+      "durationHours": "{{hours}} Std.",
+      "durationHoursMinutes": "{{hours}} Std. {{minutes}} Min.",
+      "noReminder": "Keine Erinnerung",
+      "overlapsPlan": "Überschneidet sich mit deinem Plan",
+      "overlapWith": "{{minutes}} Min. mit {{title}}",
+      "compareBeforeAdding": "Vor dem Hinzufügen vergleichen"
     }
   },
   "errors": {
@@ -167,11 +360,12 @@
     }
   },
   "home": {
+    "find": "Meine Convention finden",
     "title": "Conventions",
     "addConvention": "Convention hinzufügen",
     "empty": {
       "title": "Noch keine Conventions",
-      "subtitle": "Erstelle eine Convention oder importiere einen vorhandenen Zeitplan.",
+      "subtitle": "Finde deine Convention und beginne mit der Planung oder füge einen Zeitplan über einen Link oder eine Datei hinzu.",
       "cta": "Convention erstellen"
     },
     "loadError": "Conventions konnten nicht geladen werden.",
@@ -307,7 +501,7 @@
       "title": "Plane die ganze Con",
       "subtitle": "Alles, was du brauchst, wenn das WLAN vor Ort versagt.",
       "demo": {
-        "saved": "Mein Zeitplan"
+        "saved": "Mein Plan"
       },
       "import": {
         "title": "Jeden Zeitplan importieren",
@@ -315,7 +509,7 @@
       },
       "plan": {
         "title": "Verpasse kein Panel",
-        "description": "Erstelle deinen Zeitplan, sieh, was jetzt und als Nächstes läuft, und erkenne Überschneidungen."
+        "description": "Erstelle deinen Plan, sieh, was gerade und als Nächstes läuft, und erkenne Überschneidungen."
       },
       "offline": {
         "title": "Privat und offline",
@@ -328,8 +522,9 @@
       "next": "Weiter"
     },
     "getStarted": {
+      "find": "Meine Convention finden",
       "title": "Bereit für deine nächste Con?",
-      "subtitle": "Importiere jetzt einen Zeitplan oder sieh dich erst in ConPaws um.",
+      "subtitle": "Finde deine Convention, importiere einen Zeitplan oder sieh dich zuerst in ConPaws um.",
       "importSchedule": "Zeitplan importieren",
       "exploreFirst": "Erst ansehen",
       "localPrivacy": "Kein Konto nötig. Deine Daten bleiben lokal."
@@ -354,7 +549,7 @@
     "errorTitle": "Erinnerung nicht festgelegt",
     "errorMessage": "ConPaws konnte diese Erinnerung nicht aktualisieren. Versuche es erneut.",
     "permissionTitle": "Mitteilungen sind aus",
-    "permissionMessage": "ConPaws braucht die Erlaubnis für Mitteilungen, um dich ans Aufbrechen zu erinnern. Aktiviere sie in den Einstellungen und lege die Erinnerung erneut fest.",
+    "permissionMessage": "ConPaws benötigt die Berechtigung für Mitteilungen, um dich vor Beginn eines Panels daran zu erinnern. Aktiviere Mitteilungen in den Einstellungen und richte die Erinnerung erneut ein.",
     "openSettings": "Einstellungen öffnen",
     "tooLateTitle": "Event beginnt zu bald",
     "tooLateMessage": "Dieses Event beginnt früher, als diese Erinnerung erlaubt. Wähle eine kürzere Vorlaufzeit oder ein späteres Event.",
@@ -370,23 +565,24 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Öffnet den Zeitplan der Convention.",
     "caughtUp": {
       "title": "Du bist auf dem neuesten Stand",
-      "subtitle": "Alle gespeicherten Programmpunkte bei {{name}} sind vorbei.",
+      "subtitle": "Alle deine gespeicherten Panels bei {{name}} sind vorbei.",
       "cta": "Convention ansehen"
     },
     "title": "Zeitplan",
     "empty": {
-      "title": "Noch nichts markiert",
-      "subtitle": "Tippe in einer Convention auf ein Event, um es zu Mein Zeitplan hinzuzufügen – es erscheint hier.",
+      "title": "Noch keine Panels ausgewählt",
+      "subtitle": "Stöber im Programm einer Convention und wähl die Panels, die du sehen willst. Sie erscheinen dann hier.",
       "cta": "Meine Conventions öffnen"
     },
     "timesShownInConventionTime": "Zeiten in der Ortszeit der jeweiligen Convention.",
-    "loadError": "Dein Zeitplan konnte nicht geladen werden.",
+    "loadError": "Dein Plan konnte nicht angezeigt werden",
     "conventionEmpty": {
-      "title": "Noch nichts für {{name}} gespeichert",
-      "subtitle": "Füge Events aus dem Convention-Zeitplan hinzu und sie erscheinen hier.",
-      "cta": "Convention öffnen"
+      "title": "Für {{name}} ist noch nichts gespeichert",
+      "subtitle": "Stöber im Programm und wähl die Panels, die du sehen willst.",
+      "cta": "Programm durchstöbern"
     }
   },
   "settings": {
@@ -516,7 +712,9 @@
       "gettingStarted": "Erste Schritte",
       "gettingStartedDescription": "Wo du den Zeitplan deiner Convention findest",
       "importNow": "Zeitplan importieren",
-      "importNowDescription": "Einen Sched-Link oder eine .ics-Datei hinzufügen."
+      "importNowDescription": "Einen Sched-Link oder eine .ics-Datei hinzufügen.",
+      "find": "Meine Convention finden",
+      "findDescription": "Wähle eine Convention aus dem ConPaws-Katalog und lade ihren Zeitplan herunter."
     }
   }
 }

@@ -1,7 +1,6 @@
-import { useNavigation } from "expo-router";
-import { usePreventRemove } from "expo-router/react-navigation";
+import { usePreventRemove } from "expo-router";
 import type { TFunction } from "i18next";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 
@@ -39,7 +38,7 @@ export function useUnsavedChangesGuard({
   onDiscard,
 }: UnsavedChangesGuardOptions) {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const [allowRemoval, setAllowRemoval] = useState(false);
 
   const confirm = useCallback(
     (proceed: () => void) => {
@@ -52,11 +51,25 @@ export function useUnsavedChangesGuard({
     [isDirty, t],
   );
 
-  usePreventRemove(isDirty, ({ data }) => {
-    confirm(() => navigation.dispatch(data.action));
-  });
+  const disablePrevention = usePreventRemove(
+    isDirty && !allowRemoval,
+    ({ repeat }) => {
+      confirm(() => {
+        setAllowRemoval(true);
+        repeat();
+      });
+    },
+  );
 
   return {
-    confirmDiscard: useCallback(() => confirm(onDiscard), [confirm, onDiscard]),
+    confirmDiscard: useCallback(
+      () =>
+        confirm(() => {
+          setAllowRemoval(true);
+          disablePrevention();
+          onDiscard();
+        }),
+      [confirm, disablePrevention, onDiscard],
+    ),
   };
 }

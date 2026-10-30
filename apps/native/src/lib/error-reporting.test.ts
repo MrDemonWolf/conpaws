@@ -47,10 +47,14 @@ describe("error reporting startup", () => {
 
   it("starts the native SDK for a configured release build", () => {
     expect(initErrorReporting(false, VALID_DSN)).toBe(true);
-    expect(sentry.init).toHaveBeenCalledWith({
-      dsn: VALID_DSN,
-      sendDefaultPii: false,
-    });
+    expect(sentry.init).toHaveBeenCalledWith(
+      expect.objectContaining({
+        beforeBreadcrumb: expect.any(Function),
+        beforeSend: expect.any(Function),
+        dsn: VALID_DSN,
+        sendDefaultPii: false,
+      }),
+    );
     expect(isErrorReportingEnabled()).toBe(true);
   });
 });

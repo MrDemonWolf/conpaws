@@ -66,6 +66,7 @@ describe("importOutcomeMessage", () => {
       "missing-data": "malformed",
       "malformed-data": "malformed",
       "too-many-rows": "tooManyRows",
+      "device-limit": "writeFailed",
       "write-failed": "writeFailed",
     };
 

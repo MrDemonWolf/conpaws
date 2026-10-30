@@ -58,9 +58,10 @@ const getScheme = (): string => {
  * into its temporary checkout before prebuild, shared across dev and main.
  * Never commit CI numbers or enable an EAS remote counter. After CI activation,
  * local uploads may only use a failed run's unused reserved number; see
- * RELEASING.md. Local development can still use `bun run ship:prep`.
+ * https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969
+ * Local development can still use `bun run ship:prep`.
  */
-const BUILD_NUMBER = 208;
+const BUILD_NUMBER = 210;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
@@ -131,13 +132,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       // Which variant produced this binary, readable from the built artifact.
       //
-      // preview and production share a bundle identifier and an icon
-      // (RELEASING.md:57-59), so nothing on the Home Screen tells them apart --
-      // but preview turns on the debug menu, fixture data and the UI gallery
+      // preview and production share a bundle identifier and an icon, so
+      // nothing on the Home Screen tells them apart. Preview turns on the
+      // debug menu, fixture data and the UI gallery
       // via developerToolsEnabled(). Shipping one to a *public* TestFlight
       // would hand those to the public. Nothing else survives prebuild to
       // distinguish them, so the variant is written here and
       // `scripts/build-number.mjs --check` refuses a preview archive.
+      // Release guide: https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969
       ConPawsBuildVariant: APP_VARIANT,
     },
     privacyManifests: {
@@ -207,7 +209,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: getVariantPng("android-icon-monochrome"),
     },
     package: getBundleId(),
-    // Edge-to-edge is always enabled in Expo SDK 57.
+    // SDK 58 targets Android 36, where edge-to-edge is enabled by default.
     // Opts into the Android 13+ back-preview animation. Expo's prebuild default
     // is `android:enableOnBackInvokedCallback="false"`, which switches it off
     // entirely. Safe to enable only because every form now guards its own exit
@@ -223,7 +225,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@bacons/apple-targets",
     "expo-sqlite",
-    ["expo-build-properties", { ios: { enableSceneSupport: true } }],
     // expo-location is autolinked, so this entry exists only to pass props. Left
     // at its defaults the plugin writes four purpose strings into Info.plist --
     // three location ones, including background "Always", plus Motion &

@@ -10,10 +10,10 @@
 /*
  * ConPaws brand tokens.
  *
- * Mirrors apps/native/src/global.css so web and native stay visually identical.
- * They are duplicated rather than shared because packages/ui is web-only
- * (shadcn on @base-ui/react) and apps/native uses NativeWind — keep them in sync
- * by hand when either changes.
+ * Web tokens are shared by the marketing site and admin console. NativeWind
+ * owns separate tokens in apps/native/src/global.css: native primary colors
+ * are contrast-adjusted, and iOS surfaces use semantic platform colors.
+ * Review both palettes together without replacing platform-specific choices.
  *
  * Brand: primary #0faced (sky) · dark surface #091533 (navy) · Slate neutrals.
  */
@@ -25,9 +25,7 @@
   --popover: #ffffff;
   --popover-foreground: #0f172a;
   --primary: #0faced;
-  /* Deliberately NOT white. White on #0faced is 2.55:1, which fails WCAG AA.
-     Dark navy on #0faced is 6.88:1 and passes. Note apps/native currently sets
-     --color-primary-foreground: #ffffff, which has this contrast bug. */
+  /* White on #0faced is 2.58:1; this navy foreground clears AA at 6.56:1. */
   --primary-foreground: #041f2e;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -36,6 +34,7 @@
   --accent: #f1f5f9;
   --accent-foreground: #0f172a;
   --destructive: #ef4444;
+  --destructive-foreground: #091533;
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #0faced;
@@ -58,6 +57,7 @@
   --accent: #1e293b;
   --accent-foreground: #f8fafc;
   --destructive: #f87171;
+  --destructive-foreground: #091533;
   --border: #1e3a5f;
   --input: #1e3a5f;
   --ring: #0faced;
@@ -68,6 +68,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);

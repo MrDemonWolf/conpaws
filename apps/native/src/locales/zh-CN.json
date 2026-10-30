@@ -33,31 +33,15 @@
     "searchEvents": "搜索活动",
     "filterEvents": "筛选活动",
     "scheduleActions": "日程操作",
-    "allEvents": "全部活动",
-    "mySchedule": "我的日程",
-    "nowAndNext": "现在和接下来",
     "categories": "分类",
     "allCategories": "全部分类",
-    "noMatchingEvents": "没有匹配的活动",
-    "noMatchingEventsSubtitle": "换个搜索词或筛选条件试试。",
     "timesShownIn": "时间以{{timeZone}}显示",
-    "nowCount": "现在（{{eventCount}}）",
-    "nextAtCount": "接下来 {{time}}（{{eventCount}}）",
-    "nextCount": "接下来（{{eventCount}}）",
-    "nothingHappeningNow": "我的日程中目前没有正在进行的活动。",
-    "noMoreUpcomingEvents": "我的日程中没有更多即将开始的活动了。",
-    "noEvents": "还没有活动",
-    "noEventsSubtitle": "导入一份日程，或手动添加活动。",
-    "myScheduleEmpty": "我的日程是空的",
-    "myScheduleNowNextSubtitle": "在“全部”里选择活动，就能看到现在和接下来的安排。",
-    "myScheduleSubtitle": "打开“全部”，把不想错过的活动加进来。",
-    "overlapSummary": "时间重叠的已保存活动：{{count}}",
-    "overlapHelp": "可以全部保留。给靠后的活动设一个提醒，留出换场地的时间。",
+    "noEvents": "还没有添加活动",
+    "noEventsSubtitle": "通过链接或文件添加节目，或自己添加活动。",
     "overlapLabel": "与另一个已保存的活动时间重叠",
     "runsAlongsideOne": "与另外 1 场活动同时进行",
     "runsAlongsideMany": "与另外 {{count}} 场活动同时进行",
     "sameTimeGroup": "同时进行的 {{count}} 场活动",
-    "showAllEvents": "显示全部活动",
     "addEvent": "添加活动",
     "importSchedule": "导入日程",
     "startDate": "开始日期",
@@ -81,22 +65,22 @@
     "createError": "无法创建展会。请重试。",
     "notFound": "找不到该展会。",
     "goBack": "返回",
-    "addToSchedule": "添加到我的日程",
-    "removeFromSchedule": "从我的日程中移除",
-    "scheduleActionHint": "更新我的日程中的这个活动。",
+    "addToSchedule": "加入我的计划",
+    "removeFromSchedule": "移出我的计划",
+    "scheduleActionHint": "更新这场活动在计划中的状态。",
     "scheduleHint": {
-      "body": "点按活动即可加入我的日程。已加入的活动会显示在“日程”标签页。",
+      "body": "点按活动即可加入计划。收藏的活动会显示在“计划”标签页。",
       "dismiss": "关闭提示"
     },
-    "scheduleAddedAnnouncement": "已将{{event}}添加到我的日程。",
-    "scheduleRemovedAnnouncement": "已将{{event}}从我的日程中移除。",
+    "scheduleAddedAnnouncement": "{{event}}已加入你的计划。",
+    "scheduleRemovedAnnouncement": "{{event}}已移出你的计划。",
     "scheduleUpdateErrorTitle": "日程未更新",
     "scheduleUpdateErrorMessage": "无法更改该活动。你的日程保持原样。",
     "closeEventDetails": "关闭活动详情",
     "timeRangeTo": "至 {{time}}",
     "eventTimeRange": "{{start}} 至 {{end}}",
-    "inMySchedule": "已在我的日程中",
-    "notInMySchedule": "不在我的日程中",
+    "inMySchedule": "在你的计划中",
+    "notInMySchedule": "不在你的计划中",
     "reminderSet": "已设置提醒",
     "eventSource": {
       "imported": "导入",
@@ -119,7 +103,7 @@
       "roomPlaceholder": "可选",
       "roomAccessibility": "活动房间，可选",
       "timeZoneHelp": "日期和时间使用{{timeZone}}。结束时间在同一天内。",
-      "savedAnnouncement": "已保存{{event}}并添加到我的日程。",
+      "savedAnnouncement": "{{event}}已加入你的计划。",
       "errors": {
         "title": "标题为必填项。",
         "startTimeZone": "该开始时间在展会时区中不存在。",
@@ -153,8 +137,153 @@
       "dismiss": "关闭此提示",
       "checkNow": "检查变更",
       "checking": "检查中…",
-      "checkFailedTitle": "无法检查日程",
-      "checkFailedMessage": "展会的日程链接没有响应。你的日程保持不变。"
+      "checkFailedTitle": "无法检查更新",
+      "checkFailedMessage": "你保存的节目还在。请稍后再试。"
+    },
+    "views": {
+      "all": "节目",
+      "mine": "我的计划",
+      "now": "此刻",
+      "accessibility": "节目视图"
+    },
+    "browse": {
+      "allDays": "全部",
+      "allDaysAccessibility": "全部日期，共 {{count}} 天",
+      "dayAccessibility": "{{day}}，{{count}} 场活动",
+      "allTimes": "所有时段",
+      "slotAccessibility": "{{start}} 到 {{end}} 之间的活动",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · 全部日期",
+      "headingDay": "{{day}} · 所有时段",
+      "headingAllDays": "所有活动",
+      "total": "共 {{count}} 场",
+      "hint": "先挑感兴趣的，稍后再决定。",
+      "filterActive": "筛选：{{category}}",
+      "clearFilters": "清除筛选",
+      "noMatches": {
+        "title": "没有符合这些条件的活动",
+        "body": "换个时段，或清除筛选以查看更多节目。"
+      },
+      "noneThisDay": {
+        "title": "这一天还没有活动",
+        "body": "这一天的节目里没有活动。换一天看看。"
+      },
+      "allDaysCta": "显示全部日期",
+      "dropIn": {
+        "title": "随时可来",
+        "subtitle": "不限时段"
+      },
+      "noSeat": "收藏活动不等于预留座位。",
+      "optionsOne": "{{count}} 个选择",
+      "optionsMany": "{{count}} 个选择",
+      "daysOne": "{{count}} 天",
+      "daysMany": "{{count}} 天"
+    },
+    "savedLabel": "已收藏",
+    "saveAction": "把{{title}}加入我的计划",
+    "unsaveAction": "把{{title}}移出我的计划",
+    "plan": {
+      "until": "至 {{time}}",
+      "gap": {
+        "free": "空闲 {{minutes}} 分钟 · 够你赶过去",
+        "freeHours": "空闲 {{hours}} 小时 · 歇一歇",
+        "freeHoursMinutes": "空闲 {{hours}} 小时 {{minutes}} 分钟 · 歇一歇",
+        "backToBack": "紧接着 · 确认下一个场地",
+        "overlap": "重叠 {{minutes}} 分钟 · 选适合你的"
+      },
+      "status": {
+        "now": "进行中",
+        "endedToday": "今天早些时候",
+        "ended": "已结束"
+      },
+      "overlap": {
+        "title": "有活动时间重叠",
+        "body": "两个都留着，或选一个你想去的。",
+        "cta": "查看重叠"
+      },
+      "empty": {
+        "title": "这一天还是空的",
+        "body": "这一天还没有收藏任何活动。",
+        "cta": "浏览活动"
+      },
+      "emptyConvention": {
+        "title": "还没有收藏",
+        "body": "浏览节目，挑选你想参加的活动。可以多选。"
+      },
+      "updated": {
+        "title": "计划已更新",
+        "body": "你的计划变了，活动时间保持不变。"
+      },
+      "savedCountOne": "已收藏 {{count}} 场",
+      "savedCountMany": "已收藏 {{count}} 场"
+    },
+    "now": {
+      "happeningNow": "正在进行",
+      "upNext": "接下来",
+      "until": "直到",
+      "startsAt": "开始于",
+      "unknownEnd": "未公布结束时间",
+      "reminder": "提醒：{{label}}",
+      "next": "下一场 · {{time}}",
+      "nextAccessibility": "下一场：{{title}}",
+      "otherOptions": "这个时段的其他选择",
+      "openPanel": "打开活动",
+      "setReminder": "设置提醒",
+      "openAccessibility": "打开{{title}}",
+      "nothingPicked": {
+        "title": "还没选下一场活动",
+        "body": "浏览节目，挑选你想参加的活动。",
+        "cta": "浏览节目"
+      },
+      "finished": {
+        "title": "今天的计划到此结束",
+        "body": "今天挑选的活动都已结束，也许还有别的活动值得一看。",
+        "nextDay": "接下来：{{day}} {{time}} 的{{title}}。"
+      },
+      "nothingToday": {
+        "title": "今天没有安排"
+      },
+      "allEnded": {
+        "title": "收藏的活动都已结束",
+        "body": "浏览节目，看看还有什么。"
+      },
+      "minutesLeftOne": "还剩 {{count}} 分钟",
+      "minutesLeftMany": "还剩 {{count}} 分钟",
+      "minutesUntilOne": "{{count}} 分钟后开始",
+      "minutesUntilMany": "{{count}} 分钟后开始",
+      "alsoNowOne": "同时进行的收藏活动：另有 {{count}} 场",
+      "alsoNowMany": "同时进行的收藏活动：另有 {{count}} 场"
+    },
+    "status": {
+      "checking": "正在检查更新…"
+    },
+    "compare": {
+      "title": "给心仪的活动腾个位置。",
+      "subtitle": "这些活动的时间有部分重叠。哪一个更像你？",
+      "inPlan": "已在计划中",
+      "overlapsChoice": "与当前选择重叠 {{minutes}} 分钟",
+      "switchTo": "换成这场活动",
+      "addToPlan": "加入我的计划",
+      "keepOnly": "只保留这场活动",
+      "keepPlan": "保持现有计划",
+      "keepBoth": "两场都留在我的计划里",
+      "othersStay": "其他收藏的活动保持不变。",
+      "updatedAnnouncement": "{{event}}已加入你的计划。移出：{{count}} 场。",
+      "possibilitiesOne": "{{count}} 个选择",
+      "possibilitiesMany": "{{count}} 个选择",
+      "replacesOne": "将替换{{titles}}。移出的活动仍在节目里，随时可以再次收藏。",
+      "replacesMany": "将替换 {{count}} 场已收藏的活动。移出的活动仍在节目里，随时可以再次收藏。"
+    },
+    "panel": {
+      "about": "关于这场活动",
+      "durationMinutesOne": "{{count}} 分钟",
+      "durationMinutesMany": "{{count}} 分钟",
+      "durationHours": "{{hours}} 小时",
+      "durationHoursMinutes": "{{hours}} 小时 {{minutes}} 分钟",
+      "noReminder": "没有提醒",
+      "overlapsPlan": "与你的计划重叠",
+      "overlapWith": "与{{title}}重叠 {{minutes}} 分钟",
+      "compareBeforeAdding": "加入前先比较"
     }
   },
   "errors": {
@@ -171,7 +300,7 @@
     "addConvention": "添加展会",
     "empty": {
       "title": "还没有展会",
-      "subtitle": "创建一个展会，或导入现有的日程。",
+      "subtitle": "查找展会以开始规划，或通过链接或文件添加日程。",
       "cta": "创建展会"
     },
     "loadError": "无法加载展会。",
@@ -209,7 +338,8 @@
       "success": "已删除{{name}}。",
       "errorTitle": "无法删除展会",
       "errorMessage": "没有任何内容被删除。请重试。"
-    }
+    },
+    "find": "查找我的展会"
   },
   "import": {
     "title": "导入日程",
@@ -307,7 +437,7 @@
       "title": "规划整个展会",
       "subtitle": "会场 Wi-Fi 罢工时，你需要的一切都在。",
       "demo": {
-        "saved": "我的日程"
+        "saved": "我的计划"
       },
       "import": {
         "title": "导入任何日程",
@@ -315,7 +445,7 @@
       },
       "plan": {
         "title": "不错过任何活动",
-        "description": "编排我的日程，查看现在和接下来的安排，及时发现时间冲突。"
+        "description": "制定你的计划，查看正在进行和接下来的活动，及时发现时间冲突。"
       },
       "offline": {
         "title": "私密且离线",
@@ -329,10 +459,11 @@
     },
     "getStarted": {
       "title": "准备好迎接下一场展会了吗？",
-      "subtitle": "现在导入一份日程，或先四处看看。",
+      "subtitle": "查找展会、导入日程，或先探索 ConPaws。",
       "importSchedule": "导入日程",
       "exploreFirst": "先看看",
-      "localPrivacy": "无需账号。你的数据保存在本地。"
+      "localPrivacy": "无需账号。你的数据保存在本地。",
+      "find": "查找我的展会"
     }
   },
   "reminders": {
@@ -354,7 +485,7 @@
     "errorTitle": "提醒未设置",
     "errorMessage": "ConPaws 无法更新这个提醒。请重试。",
     "permissionTitle": "通知已关闭",
-    "permissionMessage": "ConPaws 需要通知权限才能提醒你出发。请在设置中开启，然后重新设置提醒。",
+    "permissionMessage": "ConPaws 需要通知权限，才能在专题讨论开始前提醒你。请在“设置”中开启通知，然后重新设置提醒。",
     "openSettings": "打开设置",
     "tooLateTitle": "活动开始太快了",
     "tooLateMessage": "这个活动的开始时间早于该提醒的提前量。请选择更短的提前时间，或者选一个更晚的活动。",
@@ -370,23 +501,24 @@
     }
   },
   "schedule": {
+    "openConventionHint": "打开展会日程。",
     "caughtUp": {
       "title": "已全部完成",
-      "subtitle": "{{name}}中已收藏的活动都已结束。",
+      "subtitle": "你在{{name}}收藏的活动都已结束。",
       "cta": "查看展会"
     },
     "title": "日程",
     "empty": {
-      "title": "还没有收藏任何活动",
-      "subtitle": "在展会里点按活动即可加入我的日程——它就会出现在这里。",
+      "title": "还没有选活动",
+      "subtitle": "浏览展会的节目，挑选你想参加的活动，它们会显示在这里。",
       "cta": "打开我的展会"
     },
     "timesShownInConventionTime": "时间按每个展会的当地时间显示。",
-    "loadError": "无法加载你的日程。",
+    "loadError": "无法显示你的计划",
     "conventionEmpty": {
-      "title": "{{name}}还没有保存任何活动",
-      "subtitle": "从展会日程中添加活动，它们就会出现在这里。",
-      "cta": "打开展会"
+      "title": "{{name}}还没有收藏",
+      "subtitle": "浏览节目，挑选你想参加的活动。",
+      "cta": "浏览节目"
     }
   },
   "settings": {
@@ -516,7 +648,73 @@
       "gettingStarted": "开始使用",
       "gettingStartedDescription": "去哪里找展会的日程",
       "importNow": "导入日程",
-      "importNowDescription": "添加 Sched 链接或 .ics 文件。"
+      "importNowDescription": "添加 Sched 链接或 .ics 文件。",
+      "findDescription": "从 ConPaws 目录中选择展会并下载日程。",
+      "find": "查找我的展会"
+    }
+  },
+  "catalog": {
+    "title": "查找我的展会",
+    "searchPlaceholder": "按名称或城市搜索",
+    "upcoming": "即将举办",
+    "past": "往届展会",
+    "showPast": "显示",
+    "hidePast": "隐藏",
+    "scheduleReady": "日程已就绪",
+    "scheduleNotYet": "ConPaws 中暂时没有日程",
+    "notListed": {
+      "title": "没找到展会？",
+      "body": "通过链接或文件导入日程，也可以创建展会并自行添加活动。",
+      "import": "导入日程",
+      "create": "创建展会"
+    },
+    "empty": {
+      "title": "暂无展会列表",
+      "body": "请稍后再来，或通过链接或文件添加日程。"
+    },
+    "searchEmpty": "没有匹配的展会",
+    "searchEmptyBody": "试试其他名称或城市。",
+    "offline": {
+      "title": "连接网络以查找展会",
+      "body": "ConPaws 需要互联网连接来加载目录。已保存的展会仍可使用。"
+    },
+    "unavailable": {
+      "title": "目录暂不可用",
+      "body": "ConPaws 无法连接目录，请稍后重试。"
+    },
+    "retry": "重试",
+    "sample": "示例目录 · 非真实展会",
+    "confirm": {
+      "dates": "日期",
+      "time": "展会时区",
+      "schedule": "日程",
+      "scheduleReady_one": "{{count}} 个活动 · 可下载",
+      "scheduleReady_other": "{{count}} 个活动 · 可下载",
+      "scheduleNotYet": "ConPaws 中暂无",
+      "source": "来源",
+      "sourceValue": "ConPaws 目录 · 修订版 {{revision}}",
+      "download": "下载日程",
+      "update": "更新日程",
+      "open": "打开日程",
+      "downloaded": "已下载 · 修订版 {{revision}}",
+      "downloading": "正在下载…",
+      "keepOpen": "请保持 ConPaws 打开，直到下载完成。保存后即可离线使用日程。",
+      "unavailableHere": {
+        "title": "ConPaws 中暂时没有日程",
+        "body": "此展会已列出，但这里暂时没有日程。请通过链接或文件添加日程。"
+      },
+      "failed": {
+        "title": "下载未完成",
+        "body": "没有保存任何内容，请重试。"
+      },
+      "offline": {
+        "body": "日程尚未保存到手机。请连接互联网后重试。"
+      },
+      "notFound": {
+        "title": "未找到展会",
+        "body": "它可能已取消发布。"
+      },
+      "successAnnouncement": "已下载 {{name}}。请选择你的第一个活动。"
     }
   }
 }

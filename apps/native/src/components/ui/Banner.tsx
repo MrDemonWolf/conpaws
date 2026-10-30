@@ -8,11 +8,12 @@ import { cn } from "@/lib/utils";
 
 import { PRESS_DIM, TAP_TARGET } from "./Row";
 
-export type BannerTone = "secondary" | "info";
+export type BannerTone = "secondary" | "info" | "success";
 
 const toneStyles: Record<BannerTone, { surface: string; body: string }> = {
   secondary: { surface: "bg-secondary", body: "text-muted-foreground" },
   info: { surface: "bg-info", body: "text-info-foreground" },
+  success: { surface: "bg-success", body: "text-success-foreground" },
 };
 
 interface BannerProps {
@@ -41,9 +42,9 @@ interface BannerProps {
  */
 export function useBannerIconColor(tone: BannerTone = "secondary"): string {
   const scheme = useColorScheme() === "dark" ? "dark" : "light";
-  return tone === "info"
-    ? themeTokens[scheme].infoForeground
-    : themeTokens[scheme].mutedForeground;
+  if (tone === "info") return themeTokens[scheme].infoForeground;
+  if (tone === "success") return themeTokens[scheme].successForeground;
+  return themeTokens[scheme].mutedForeground;
 }
 
 /**

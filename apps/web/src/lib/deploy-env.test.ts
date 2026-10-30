@@ -10,10 +10,13 @@ const validEnv = {
   ALCHEMY_STATE_TOKEN: "state-token",
   TURNSTILE_SECRET_KEY: "turnstile-secret",
   WAITLIST_ACCEPTING_SIGNUPS: "true",
-  LISTMONK_BASE_URL: "https://lists.example.com",
+  LISTMONK_BASE_URL: "https://lists.mrdemonwolf.com",
   LISTMONK_API_USER: "api-user",
   LISTMONK_API_TOKEN: "api-token",
   LISTMONK_LIST_ID: "3",
+  ROUTES_ENABLED: "false",
+  WORKERS_DEV_ENABLED: "true",
+  PREVIEW_URLS_ENABLED: "false",
 };
 
 describe("readDeployEnv", () => {
@@ -22,6 +25,9 @@ describe("readDeployEnv", () => {
       NEXT_PUBLIC_SITE_URL: "https://conpaws.com",
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: "site-key",
       LISTMONK_LIST_ID: 3,
+      ROUTES_ENABLED: false,
+      WORKERS_DEV_ENABLED: true,
+      PREVIEW_URLS_ENABLED: false,
     });
   });
 
@@ -42,5 +48,37 @@ describe("readDeployEnv", () => {
     );
     const { LISTMONK_API_TOKEN: _token, ...missingListmonk } = validEnv;
     expect(() => readDeployEnv(missingListmonk)).toThrow(/LISTMONK_API_TOKEN/);
+  });
+
+  it.each([
+    "http://lists.mrdemonwolf.com",
+    "https://user:password@lists.mrdemonwolf.com",
+    "https://lists.example.com",
+    "https://lists.mrdemonwolf.com/api",
+  ])("rejects unsafe listmonk production URL %s", (url) => {
+    expect(() =>
+      readDeployEnv({ ...validEnv, LISTMONK_BASE_URL: url }),
+    ).toThrow(/LISTMONK_BASE_URL/);
+  });
+
+  it.each([
+    "ROUTES_ENABLED",
+    "WORKERS_DEV_ENABLED",
+    "PREVIEW_URLS_ENABLED",
+  ] as const)("requires an explicit true or false for %s", (name) => {
+    const { [name]: _value, ...missing } = validEnv;
+    expect(() => readDeployEnv(missing)).toThrow(name);
+    expect(() => readDeployEnv({ ...validEnv, [name]: "yes" })).toThrow(name);
+    expect(() => readDeployEnv({ ...validEnv, [name]: "TRUE" })).toThrow(name);
+  });
+
+  it("requires either a custom route or workers.dev URL", () => {
+    expect(() =>
+      readDeployEnv({
+        ...validEnv,
+        ROUTES_ENABLED: "false",
+        WORKERS_DEV_ENABLED: "false",
+      }),
+    ).toThrow(/ROUTES_ENABLED or WORKERS_DEV_ENABLED must be true/);
   });
 });

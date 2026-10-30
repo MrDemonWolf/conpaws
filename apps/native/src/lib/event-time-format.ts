@@ -21,7 +21,10 @@ type FormatterKind =
   | "dayLabel"
   | "date"
   | "dateAndTime"
-  | "weekdayShort";
+  | "weekdayShort"
+  | "hourOnly"
+  | "dayOfMonth"
+  | "monthYear";
 
 const FORMATTER_OPTIONS: Record<FormatterKind, Intl.DateTimeFormatOptions> = {
   time: { hour: "numeric", minute: "2-digit" },
@@ -30,6 +33,9 @@ const FORMATTER_OPTIONS: Record<FormatterKind, Intl.DateTimeFormatOptions> = {
   date: { dateStyle: "medium" },
   dateAndTime: { dateStyle: "full", timeStyle: "short" },
   weekdayShort: { weekday: "short" },
+  hourOnly: { hour: "numeric" },
+  dayOfMonth: { day: "numeric" },
+  monthYear: { month: "long", year: "numeric" },
 };
 
 const formatterCache = new Map<string, Intl.DateTimeFormat>();
@@ -221,4 +227,77 @@ export function formatShortTime(
   timeZone?: string,
 ): string {
   return scheduleFormatter("shortTime", locale, timeZone).format(value);
+}
+
+/** "2 PM" / "14": the label of an hour chip, in the convention's zone. */
+export function formatHourLabel(
+  ms: number,
+  timeZone: string,
+  locale: string,
+  hour12?: boolean,
+): string {
+  return scheduleFormatter("hourOnly", locale, timeZone, hour12).format(
+    new Date(ms),
+  );
+}
+
+/** "Sat": the weekday of a plain calendar date, for the day strip. */
+export function formatDayKeyWeekday(dayKey: string, locale: string): string {
+  return scheduleFormatter("weekdayShort", locale, "UTC").format(
+    new Date(`${dayKey}T00:00:00Z`),
+  );
+}
+
+/** "19": the day of the month of a plain calendar date, for the day strip. */
+export function formatDayKeyNumber(dayKey: string, locale: string): string {
+  return scheduleFormatter("dayOfMonth", locale, "UTC").format(
+    new Date(`${dayKey}T00:00:00Z`),
+  );
+}
+
+/** "September 2026": the month label beside the day strip. */
+export function formatDayKeyMonth(dayKey: string, locale: string): string {
+  return scheduleFormatter("monthYear", locale, "UTC").format(
+    new Date(`${dayKey}T00:00:00Z`),
+  );
+}
+
+/**
+ * The clock split from its day period, for a time column that sets "2:00"
+ * large and "PM" small. Locales without a day period get only the clock.
+ */
+export function formatClockParts(
+  isoString: string,
+  timeZone: string,
+  locale: string,
+  hour12?: boolean,
+): { clock: string; dayPeriod?: string } {
+  const value = new Date(isoString);
+  if (Number.isNaN(value.getTime())) return { clock: "" };
+  const parts = scheduleFormatter(
+    "time",
+    locale,
+    timeZone,
+    hour12,
+  ).formatToParts(value);
+  const dayPeriod = parts.find((part) => part.type === "dayPeriod")?.value;
+  const clock = parts
+    .filter((part) => part.type !== "dayPeriod")
+    .map((part) => part.value)
+    .join("")
+    .trim();
+  return dayPeriod ? { clock, dayPeriod } : { clock };
+}
+
+/** Whole minutes between start and end, or null when the end is unknown or invalid. */
+export function eventDurationMinutes(
+  startIso: string,
+  endIso: string | null,
+): number | null {
+  if (!endIso) return null;
+  const start = Date.parse(startIso);
+  const end = Date.parse(endIso);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start)
+    return null;
+  return Math.round((end - start) / 60_000);
 }

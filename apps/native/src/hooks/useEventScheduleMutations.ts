@@ -257,5 +257,57 @@ export function useEventScheduleMutations({
     },
   });
 
-  return { toggleScheduleMutation, setReminderMutation };
+  /**
+   * The compare sheet's outcome: save some events and unsave others in one
+   * go. Reminders of the dropped events are cancelled first, exactly as a
+   * single unstar does; the rows then change together so a half-applied
+   * choice can never be observed.
+   */
+  const replaceInScheduleMutation = useMutation({
+    mutationFn: async ({
+      add,
+      remove,
+    }: {
+      add: ConventionEvent[];
+      remove: ConventionEvent[];
+    }) => {
+      await Promise.all(
+        remove
+          .filter((event) => event.reminderMinutes !== null)
+          .map((event) => cancelEventReminder(event.id)),
+      );
+      await eventsRepo.setScheduleMembership([
+        ...add.map((event) => ({ id: event.id, isInSchedule: true })),
+        ...remove.map((event) => ({ id: event.id, isInSchedule: false })),
+      ]);
+    },
+    onSuccess: (_, { add, remove }) => {
+      queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
+      queryClient.invalidateQueries({ queryKey: ["schedule"] });
+      hapticToggle(add.length > 0);
+      const added = add[0];
+      AccessibilityInfo.announceForAccessibility(
+        added
+          ? t("convention.compare.updatedAnnouncement", {
+              event: added.title,
+              count: remove.length,
+            })
+          : t("convention.scheduleRemovedAnnouncement", {
+              event: remove.map((event) => event.title).join(", "),
+            }),
+      );
+    },
+    onError: () => {
+      Alert.alert(
+        t("convention.scheduleUpdateErrorTitle"),
+        t("convention.scheduleUpdateErrorMessage"),
+      );
+    },
+  });
+
+  return {
+    toggleScheduleMutation,
+    setReminderMutation,
+    replaceInScheduleMutation,
+  };
 }

@@ -22,7 +22,7 @@ import { parseInline } from "@/i18n";
 
 function Answer({ text }: { text: string }) {
   return (
-    <p className="max-w-[68ch] px-6 pb-5 text-[14.5px] text-muted-foreground leading-relaxed">
+    <p className="max-w-[68ch] px-6 pb-5 text-base text-muted-foreground leading-relaxed">
       {parseInline(text).map((part, i) => {
         if (part.kind === "link") {
           return (
@@ -55,7 +55,7 @@ function Answer({ text }: { text: string }) {
 function FaqItem({ q, children }: { q: string; children?: ReactNode }) {
   return (
     <details className="group not-first:border-border not-first:border-t open:bg-card">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-bold text-[15.5px] tracking-tight transition hover:text-primary [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-bold text-lg tracking-tight transition hover:text-primary [&::-webkit-details-marker]:hidden">
         {q}
         <span
           aria-hidden="true"

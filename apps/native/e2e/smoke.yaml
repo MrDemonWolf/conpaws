@@ -1,0 +1,112 @@
+# Run only through run.mjs. It pins a local device and checks the variant's
+# preview-only sample control before interacting with any saved conventions.
+appId: ${APP_ID}
+name: Native navigation and convention action smoke
+---
+- launchApp:
+    clearState: false
+    stopApp: false
+- extendedWaitUntil:
+    visible: "Conventions"
+    timeout: 60000
+- tapOn: "Conventions"
+
+# In a fresh local database the empty-state button is available. Otherwise the
+# Home toolbar can add the same two fixtures without replacing existing rows.
+- runFlow:
+    when:
+      visible:
+        id: home-add-sample-conventions
+    commands:
+      - tapOn:
+          id: home-add-sample-conventions
+- runFlow:
+    when:
+      visible: "Add convention"
+    commands:
+      - tapOn: "Add convention"
+      - assertVisible: "Add sample conventions"
+      - tapOn: "Add sample conventions"
+- assertVisible: ".*ConPaws Preview Con.*"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Back"
+
+# The native row menu must expose Edit and Delete. Cancel must leave the
+# convention visible, including after opening and closing the edit form.
+- tapOn: "More actions for ConPaws Preview Con"
+- assertVisible: "Edit"
+- assertVisible: "Delete"
+- tapOn: "Delete"
+- assertVisible: "Delete ConPaws Preview Con?"
+- tapOn: "Cancel"
+- assertVisible: ".*ConPaws Preview Con.*"
+- tapOn: "More actions for ConPaws Preview Con"
+- tapOn: "Edit"
+- assertVisible:
+    id: edit-convention-name-input
+- tapOn: "Cancel"
+- assertVisible: ".*ConPaws Preview Con.*"
+
+# Keep Editing must preserve a dirty form. Android's hardware Back then tests
+# usePreventRemove's repeat path; iOS Cancel tests the explicit onDiscard path.
+# The fictional draft is never saved.
+- tapOn: "Add convention"
+- tapOn: "Create convention"
+- assertVisible:
+    id: convention-name-input
+- tapOn:
+    id: convention-name-input
+- inputText: "Wolf Test Draft"
+- tapOn: "Cancel"
+- assertVisible: "Discard changes?"
+- tapOn: "Keep Editing"
+- copyTextFrom:
+    id: convention-name-input
+- assertTrue:
+    condition: ${maestro.copiedText == "Wolf Test Draft"}
+    label: Keep Editing retains the draft name
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+      - back
+      - assertVisible: "Discard changes?"
+      - tapOn: "Discard"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Cancel"
+      - assertVisible: "Discard changes?"
+      - tapOn: "Discard"
+- assertNotVisible:
+    id: convention-name-input
+- assertVisible: ".*ConPaws Preview Con.*"
+
+# Exercise Settings/Appearance navigation without changing the saved preference.
+- tapOn: "Settings"
+- tapOn: "Theme"
+- assertVisible: "System"
+- assertVisible: "Light"
+- assertVisible: "Dark"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Back"
+- tapOn: "Schedule"
+- assertVisible: "Schedule"

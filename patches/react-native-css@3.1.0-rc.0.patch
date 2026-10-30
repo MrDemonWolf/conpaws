@@ -1,0 +1,45 @@
+diff --git a/dist/commonjs/components/index.cjs b/dist/commonjs/components/index.cjs
+index 23af26cff9df498d6c7723abba2e5f7a9a219336..d79baa1ebeabe68d6ab38af363cd88a0f47637f7 100644
+--- a/dist/commonjs/components/index.cjs
++++ b/dist/commonjs/components/index.cjs
+@@ -120,6 +120,10 @@ module.exports = {
+   get AppState() {
+     return require("react-native").AppState;
+   },
++  // NativeWind issue #506: drop when a release forwards RN 0.88's AssetRegistry.
++  get AssetRegistry() {
++    return require("react-native").AssetRegistry;
++  },
+   get BackHandler() {
+     return require("react-native").BackHandler;
+   },
+diff --git a/dist/module/components/index.cjs b/dist/module/components/index.cjs
+index 23af26cff9df498d6c7723abba2e5f7a9a219336..d79baa1ebeabe68d6ab38af363cd88a0f47637f7 100644
+--- a/dist/module/components/index.cjs
++++ b/dist/module/components/index.cjs
+@@ -120,6 +120,10 @@ module.exports = {
+   get AppState() {
+     return require("react-native").AppState;
+   },
++  // NativeWind issue #506: drop when a release forwards RN 0.88's AssetRegistry.
++  get AssetRegistry() {
++    return require("react-native").AssetRegistry;
++  },
+   get BackHandler() {
+     return require("react-native").BackHandler;
+   },
+diff --git a/src/components/index.cts b/src/components/index.cts
+index ead6ff4e49a132f375488744647af5baeb9a17a6..c2ae15a5140e5cc81d7f9ec623513efcd1fb2c91 100644
+--- a/src/components/index.cts
++++ b/src/components/index.cts
+@@ -119,6 +119,10 @@ module.exports = {
+   get AppState() {
+     return require("react-native").AppState;
+   },
++  // NativeWind issue #506: drop when a release forwards RN 0.88's AssetRegistry.
++  get AssetRegistry() {
++    return require("react-native").AssetRegistry;
++  },
+   get BackHandler() {
+     return require("react-native").BackHandler;
+   },

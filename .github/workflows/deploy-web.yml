@@ -3,12 +3,15 @@ name: Deploy web
 # Production deploy for conpaws.com.
 #
 # The apply step is Alchemy (packages/infra/alchemy.run.ts). It provisions the
-# D1 database, binds the listmonk and Turnstile secrets, applies migrations, and
-# uploads both Workers in one operation.
+# waitlist and catalog D1 databases and the cdn.conpaws.com R2 bucket, binds
+# the listmonk and Turnstile secrets, applies migrations, and uploads the site,
+# API (api.conpaws.com), reconciler and admin console (admin.conpaws.com)
+# Workers in one operation. The admin console uses email-code sign-in and
+# needs no extra token permissions or settings here.
 #
 # Alchemy applies the whole stack in one step; deploys have no canary or
 # automatic rollback. Roll back by dispatching this workflow with the last good
-# main ancestor SHA, or use `wrangler rollback` from apps/web.
+# main ancestor SHA.
 #
 # Because of that, keep PRODUCTION_ROUTES_ENABLED false for the first deploy so
 # Cloudflare holds a known-good version before conpaws.com points at anything.
@@ -42,7 +45,7 @@ jobs:
         github.event.workflow_run.head_repository.full_name == github.repository
       )) &&
       vars.PRODUCTION_DEPLOY_ENABLED == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 25
     environment:
       name: production
@@ -51,14 +54,13 @@ jobs:
       ROUTES_ENABLED: ${{ vars.PRODUCTION_ROUTES_ENABLED }}
       WORKERS_DEV_ENABLED: ${{ vars.WORKERS_DEV_ENABLED }}
       PREVIEW_URLS_ENABLED: ${{ vars.PREVIEW_URLS_ENABLED }}
-      CATALOG_DATABASE_ID: ${{ vars.CATALOG_DATABASE_ID }}
     steps:
       - name: Check out verified commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Reject stale release
         id: stale
@@ -84,7 +86,7 @@ jobs:
         if: steps.stale.outputs.skip != 'true'
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: 1.3.10
+          bun-version: 1.4.4
 
       - name: Install dependencies
         if: steps.stale.outputs.skip != 'true'
@@ -177,6 +179,27 @@ jobs:
             echo "::notice title=Live release::$HEALTH_ORIGIN is serving $RELEASE_SHA"
           else
             echo "::warning title=Live release unconfirmed::$HEALTH_ORIGIN reported '${live:-no response}', expected $RELEASE_SHA. The deploy itself succeeded; check $HEALTH_ORIGIN/api/health and the footer hash."
+          fi
+
+      # Same shape as the site probe above, for the API Worker: report-only.
+      # A brand-new custom domain can take a minute to issue its certificate,
+      # so the very first deploy may warn here once.
+      - name: Report API health
+        if: steps.stale.outputs.skip != 'true'
+        continue-on-error: true
+        env:
+          API_ORIGIN: https://api.conpaws.com
+        run: |
+          status=""
+          for _ in {1..6}; do
+            status="$(curl --silent --max-time 10 "$API_ORIGIN/health" | jq -r '.status // empty' 2>/dev/null || true)"
+            [[ "$status" == "ok" ]] && break
+            sleep 5
+          done
+          if [[ "$status" == "ok" ]]; then
+            echo "::notice title=API live::$API_ORIGIN/health answered ok"
+          else
+            echo "::warning title=API unconfirmed::$API_ORIGIN/health reported '${status:-no response}'. The deploy itself succeeded; check the conpaws-api Worker and its custom domain."
           fi
 
       - name: Compare live security headers

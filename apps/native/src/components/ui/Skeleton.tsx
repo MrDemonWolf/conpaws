@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useWindowDimensions, View, type ViewProps } from "react-native";
+import {
+  ScrollView,
+  useWindowDimensions,
+  View,
+  type ViewProps,
+} from "react-native";
 import Animated, {
   cancelAnimation,
   Easing,
@@ -115,6 +120,29 @@ export function SkeletonScreen({
         {children}
       </View>
     </View>
+  );
+}
+
+/**
+ * A whole-screen skeleton under a native large-title header. Only a scroll
+ * view receives the header inset; a plain view starts under the bar, so the
+ * placeholder rows showed through the title. Scrolling stays off: the rows
+ * are decoration, and a skeleton that scrolls invites a pull that does nothing.
+ */
+export function SkeletonUnderHeader({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <ScrollView
+      className="flex-1 bg-background"
+      contentInsetAdjustmentBehavior="automatic"
+      scrollEnabled={false}
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      {children}
+    </ScrollView>
   );
 }
 

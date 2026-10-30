@@ -1,4 +1,68 @@
 {
+  "catalog": {
+    "title": "Find your convention",
+    "searchPlaceholder": "Search by name or city",
+    "upcoming": "Upcoming",
+    "past": "Past editions",
+    "showPast": "Show",
+    "hidePast": "Hide",
+    "scheduleReady": "Schedule ready",
+    "scheduleNotYet": "Schedule not in ConPaws yet",
+    "notListed": {
+      "title": "Con not listed?",
+      "body": "Import a schedule from a link or file, or create a convention and add panels yourself.",
+      "import": "Import a schedule",
+      "create": "Create a convention"
+    },
+    "empty": {
+      "title": "No conventions listed yet",
+      "body": "Check back soon, or add a schedule from a link or file."
+    },
+    "searchEmpty": "No matching conventions",
+    "searchEmptyBody": "Try a different name or city.",
+    "offline": {
+      "title": "Connect to find your convention",
+      "body": "ConPaws needs an internet connection to load the catalog. Your saved conventions still work."
+    },
+    "unavailable": {
+      "title": "Catalog unavailable",
+      "body": "ConPaws couldn't reach the catalog. Try again in a moment."
+    },
+    "retry": "Try again",
+    "sample": "Sample catalog · not a real convention",
+    "confirm": {
+      "dates": "Dates",
+      "time": "Convention time",
+      "schedule": "Schedule",
+      "scheduleReady_one": "{{count}} event · Ready to download",
+      "scheduleReady_other": "{{count}} events · Ready to download",
+      "scheduleNotYet": "Not in ConPaws yet",
+      "source": "Source",
+      "sourceValue": "ConPaws catalog · revision {{revision}}",
+      "download": "Download schedule",
+      "update": "Update schedule",
+      "open": "Open schedule",
+      "downloaded": "Downloaded · revision {{revision}}",
+      "downloading": "Downloading…",
+      "keepOpen": "Keep ConPaws open until the download finishes. You can use this schedule without an internet connection once it's saved.",
+      "unavailableHere": {
+        "title": "This schedule isn't in ConPaws yet",
+        "body": "This convention is listed, but its schedule isn't available here yet. Add a schedule from a link or file."
+      },
+      "failed": {
+        "title": "Download didn't finish",
+        "body": "Nothing was saved. Try again."
+      },
+      "offline": {
+        "body": "This schedule isn't saved on your phone yet. Connect to the internet, then try again."
+      },
+      "notFound": {
+        "title": "Convention not found",
+        "body": "It may have been unpublished."
+      },
+      "successAnnouncement": "{{name}} downloaded. Choose your first panel."
+    }
+  },
   "common": {
     "settings": "Settings",
     "add": "Add",
@@ -13,7 +77,7 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "openLinkError": "Could not open that link",
-    "retry": "Retry",
+    "retry": "Try again",
     "learnMore": "Learn More",
     "version": "Version {{version}}",
     "advanced": "Advanced",
@@ -24,42 +88,26 @@
   },
   "convention": {
     "new": "New Convention",
-    "create": "Create Convention",
+    "create": "Create convention",
     "edit": "Edit Convention",
-    "import": "Import Schedule",
+    "import": "Import schedule",
     "detail": "Convention Details",
     "loadingTitle": "Loading convention",
     "loadErrorSubtitle": "The convention or its events could not be loaded.",
     "searchEvents": "Search events",
     "filterEvents": "Filter events",
     "scheduleActions": "Schedule actions",
-    "allEvents": "All Events",
-    "mySchedule": "My Schedule",
-    "nowAndNext": "Now and Next",
     "categories": "Categories",
-    "allCategories": "All Categories",
-    "noMatchingEvents": "No matching events",
-    "noMatchingEventsSubtitle": "Try another search or filter.",
+    "allCategories": "All categories",
     "timesShownIn": "Times shown in {{timeZone}}",
-    "nowCount": "Now ({{eventCount}})",
-    "nextAtCount": "Next at {{time}} ({{eventCount}})",
-    "nextCount": "Next ({{eventCount}})",
-    "nothingHappeningNow": "Nothing from My Schedule is happening right now.",
-    "noMoreUpcomingEvents": "No more upcoming events in My Schedule.",
-    "noEvents": "No events yet",
-    "noEventsSubtitle": "Import a schedule or add events manually.",
-    "myScheduleEmpty": "My Schedule is empty",
-    "myScheduleNowNextSubtitle": "Choose events from All to see what is happening now and next.",
-    "myScheduleSubtitle": "Open All and add the events you do not want to miss.",
-    "overlapSummary": "Saved panels involved in an overlap: {{count}}",
-    "overlapHelp": "You can keep them all. Set a reminder for the later panel to allow time between rooms.",
+    "noEvents": "No panels added yet",
+    "noEventsSubtitle": "Add a schedule from a link or file, or add panels yourself.",
     "overlapLabel": "Overlaps another saved panel",
     "runsAlongsideOne": "Runs at the same time as 1 other event",
     "runsAlongsideMany": "Runs at the same time as {{count}} other events",
     "sameTimeGroup": "{{count}} events at the same time",
-    "showAllEvents": "Show All Events",
     "addEvent": "Add Event",
-    "importSchedule": "Import Schedule",
+    "importSchedule": "Import schedule",
     "startDate": "Start Date",
     "endDate": "End Date",
     "timeZone": "Time Zone",
@@ -81,22 +129,22 @@
     "createError": "The convention could not be created. Try again.",
     "notFound": "Convention not found.",
     "goBack": "Go back",
-    "addToSchedule": "Add to My Schedule",
-    "removeFromSchedule": "Remove from My Schedule",
-    "scheduleActionHint": "Updates this event in My Schedule.",
+    "addToSchedule": "Add to my plan",
+    "removeFromSchedule": "Remove from my plan",
+    "scheduleActionHint": "Updates this panel in your plan.",
     "scheduleHint": {
-      "body": "Tap an event to add it to My Schedule. Starred events show up in the Schedule tab.",
+      "body": "Tap a panel to add it to your plan. Saved panels show up in the Schedule tab.",
       "dismiss": "Dismiss hint"
     },
-    "scheduleAddedAnnouncement": "{{event}} added to My Schedule.",
-    "scheduleRemovedAnnouncement": "{{event}} removed from My Schedule.",
+    "scheduleAddedAnnouncement": "{{event}} added to your plan.",
+    "scheduleRemovedAnnouncement": "{{event}} removed from your plan.",
     "scheduleUpdateErrorTitle": "Schedule Not Updated",
     "scheduleUpdateErrorMessage": "The event could not be changed. Your schedule was left as it was.",
     "closeEventDetails": "Close event details",
     "timeRangeTo": "to {{time}}",
     "eventTimeRange": "{{start}} to {{end}}",
-    "inMySchedule": "In My Schedule",
-    "notInMySchedule": "Not in My Schedule",
+    "inMySchedule": "In your plan",
+    "notInMySchedule": "Not in your plan",
     "reminderSet": "Reminder set",
     "eventSource": {
       "imported": "Imported",
@@ -119,7 +167,7 @@
       "roomPlaceholder": "Optional",
       "roomAccessibility": "Event room, optional",
       "timeZoneHelp": "Date and times use {{timeZone}}. End time is on the same date.",
-      "savedAnnouncement": "{{event}} saved and added to My Schedule.",
+      "savedAnnouncement": "{{event}} added to your plan.",
       "errors": {
         "title": "Title is required.",
         "startTimeZone": "That start time does not exist in the convention time zone.",
@@ -153,8 +201,153 @@
       "dismiss": "Dismiss this notice",
       "checkNow": "Check for Changes",
       "checking": "Checking…",
-      "checkFailedTitle": "Could Not Check the Schedule",
-      "checkFailedMessage": "The convention's schedule link did not answer. Your schedule is unchanged."
+      "checkFailedTitle": "Couldn't check for changes",
+      "checkFailedMessage": "Your saved schedule is still here. Try again in a moment."
+    },
+    "views": {
+      "all": "Browse",
+      "mine": "My plan",
+      "now": "Now",
+      "accessibility": "Schedule view"
+    },
+    "browse": {
+      "allDays": "All",
+      "allDaysAccessibility": "All days, {{count}} days",
+      "dayAccessibility": "{{day}}, {{count}} panels",
+      "allTimes": "All times",
+      "slotAccessibility": "Panels between {{start}} and {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · all days",
+      "headingDay": "{{day}} · all times",
+      "headingAllDays": "All panels",
+      "total": "{{count}} total",
+      "hint": "Pick what catches your eye. Decide later.",
+      "filterActive": "{{category}} filter",
+      "clearFilters": "Clear filters",
+      "noMatches": {
+        "title": "No panels match these choices",
+        "body": "Try another time or clear your filters to see more of the schedule."
+      },
+      "noneThisDay": {
+        "title": "Nothing on this day yet",
+        "body": "The schedule has no panels on this day. Try another day."
+      },
+      "allDaysCta": "Show all days",
+      "dropIn": {
+        "title": "Drop in anytime",
+        "subtitle": "Not a timed commitment"
+      },
+      "noSeat": "Saving a panel does not reserve a seat.",
+      "optionsOne": "{{count}} option",
+      "optionsMany": "{{count}} options",
+      "daysOne": "{{count}} day",
+      "daysMany": "{{count}} days"
+    },
+    "savedLabel": "Saved",
+    "saveAction": "Save {{title}} to my plan",
+    "unsaveAction": "Remove {{title}} from my plan",
+    "plan": {
+      "until": "Until {{time}}",
+      "gap": {
+        "free": "{{minutes}} min free · Time to get there",
+        "freeHours": "{{hours}} h free · Take a breather",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min free · Take a breather",
+        "backToBack": "Back-to-back · Check your next room",
+        "overlap": "{{minutes}} min overlap · Choose what works"
+      },
+      "status": {
+        "now": "Now",
+        "endedToday": "Earlier today",
+        "ended": "Ended"
+      },
+      "overlap": {
+        "title": "Some panels overlap",
+        "body": "Keep both, or choose the one you want.",
+        "cta": "Review overlap"
+      },
+      "empty": {
+        "title": "Your day is open",
+        "body": "Nothing is saved for this day yet.",
+        "cta": "Browse panels"
+      },
+      "emptyConvention": {
+        "title": "Nothing saved yet",
+        "body": "Browse the schedule and choose the panels you want to catch. You can add more than one."
+      },
+      "updated": {
+        "title": "Plan updated",
+        "body": "Your plan changed. Panel times stay the same."
+      },
+      "savedCountOne": "{{count}} saved",
+      "savedCountMany": "{{count}} saved"
+    },
+    "now": {
+      "happeningNow": "Happening now",
+      "upNext": "Up next",
+      "until": "Until",
+      "startsAt": "Starts at",
+      "unknownEnd": "End time not published",
+      "reminder": "Reminder: {{label}}",
+      "next": "Next · {{time}}",
+      "nextAccessibility": "Next: {{title}}",
+      "otherOptions": "Other options this hour",
+      "openPanel": "Open panel",
+      "setReminder": "Set a reminder",
+      "openAccessibility": "Open {{title}}",
+      "nothingPicked": {
+        "title": "No next panel picked yet",
+        "body": "Browse the schedule and choose the panels you want to catch.",
+        "cta": "Browse the schedule"
+      },
+      "finished": {
+        "title": "That's your plan for today",
+        "body": "You've reached the end of today's picks. There may still be other panels to catch.",
+        "nextDay": "Next up: {{title}} on {{day}} at {{time}}."
+      },
+      "nothingToday": {
+        "title": "Nothing planned today"
+      },
+      "allEnded": {
+        "title": "All your saved panels have ended",
+        "body": "Browse the schedule to see what else is on."
+      },
+      "minutesLeftOne": "{{count}} min left",
+      "minutesLeftMany": "{{count}} min left",
+      "minutesUntilOne": "{{count}} min until it starts",
+      "minutesUntilMany": "{{count}} min until it starts",
+      "alsoNowOne": "Also saved right now: {{count}} more",
+      "alsoNowMany": "Also saved right now: {{count}} more"
+    },
+    "status": {
+      "checking": "Checking for updates…"
+    },
+    "compare": {
+      "title": "Make room for a favorite.",
+      "subtitle": "These panels share some of the same time. Which one feels most like you?",
+      "inPlan": "In your plan",
+      "overlapsChoice": "{{minutes}} min overlaps your current choice",
+      "switchTo": "Switch to this panel",
+      "addToPlan": "Add to my plan",
+      "keepOnly": "Keep only this panel",
+      "keepPlan": "Keep this plan",
+      "keepBoth": "Keep both in my plan",
+      "othersStay": "Your other saved panels stay saved.",
+      "updatedAnnouncement": "{{event}} added to your plan. Removed: {{count}}.",
+      "possibilitiesOne": "{{count}} possibility",
+      "possibilitiesMany": "{{count}} possibilities",
+      "replacesOne": "Replaces {{titles}}. Removed panels stay on the schedule; save them again any time.",
+      "replacesMany": "Replaces {{count}} saved panels. Removed panels stay on the schedule; save them again any time."
+    },
+    "panel": {
+      "about": "About this panel",
+      "durationMinutesOne": "{{count}} minute",
+      "durationMinutesMany": "{{count}} minutes",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+      "noReminder": "No reminder",
+      "overlapsPlan": "Overlaps your plan",
+      "overlapWith": "{{minutes}} min with {{title}}",
+      "compareBeforeAdding": "Compare before adding"
     }
   },
   "errors": {
@@ -168,11 +361,12 @@
   },
   "home": {
     "title": "Conventions",
-    "addConvention": "Add Convention",
+    "find": "Find my convention",
+    "addConvention": "Add convention",
     "empty": {
       "title": "No conventions yet",
-      "subtitle": "Create one or import an existing schedule.",
-      "cta": "Create Convention"
+      "subtitle": "Find your convention to start planning, or add a schedule from a link or file.",
+      "cta": "Create convention"
     },
     "loadError": "Conventions could not be loaded.",
     "dateRange": "{{start}} to {{end}}",
@@ -198,9 +392,9 @@
       "errorMessage": "The convention could not be restored. Try again."
     },
     "moreActions": "More actions for {{name}}",
-    "sortBy": "Sort By",
+    "sortBy": "Sort by",
     "sort": {
-      "upcoming": "Upcoming First",
+      "upcoming": "Upcoming first",
       "name": "Name"
     },
     "delete": {
@@ -307,7 +501,7 @@
       "title": "Plan the whole con",
       "subtitle": "Everything you need when the venue Wi-Fi gives up.",
       "demo": {
-        "saved": "My Schedule"
+        "saved": "My plan"
       },
       "import": {
         "title": "Import any schedule",
@@ -315,7 +509,7 @@
       },
       "plan": {
         "title": "Never miss a panel",
-        "description": "Build My Schedule, see Now & Next, and catch overlaps."
+        "description": "Build your plan, see what is happening now and next, and catch overlaps."
       },
       "offline": {
         "title": "Private and offline",
@@ -329,7 +523,8 @@
     },
     "getStarted": {
       "title": "Ready for your next con?",
-      "subtitle": "Import a schedule now, or explore ConPaws first.",
+      "subtitle": "Find your convention, import a schedule, or explore first.",
+      "find": "Find my convention",
       "importSchedule": "Import a schedule",
       "exploreFirst": "Explore first",
       "localPrivacy": "No account required. Your data stays local."
@@ -353,9 +548,9 @@
     "errorTitle": "Reminder Not Set",
     "errorMessage": "ConPaws could not update this reminder. Try again.",
     "permissionTitle": "Notifications are off",
-    "permissionMessage": "ConPaws needs notification permission to remind you when to leave. Turn it on in Settings and set the reminder again.",
+    "permissionMessage": "ConPaws needs notification permission to remind you before a panel starts. Turn it on in Settings and set the reminder again.",
     "openSettings": "Open Settings",
-    "turnOn": "Turn On Reminders",
+    "turnOn": "Turn on reminders",
     "tooLateTitle": "Event starts too soon",
     "tooLateMessage": "This event starts sooner than that reminder. Pick a shorter lead time or a later event.",
     "pausedTitle": "Reminders are paused",
@@ -370,23 +565,24 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Opens the convention schedule.",
     "title": "Schedule",
     "empty": {
-      "title": "Nothing starred yet",
-      "subtitle": "Tap an event inside a convention to add it to My Schedule — it lands here.",
+      "title": "No panels picked yet",
+      "subtitle": "Browse a convention's schedule and choose the panels you want to catch. They'll show up here.",
       "cta": "Open my conventions"
     },
     "timesShownInConventionTime": "Times are shown in each convention's local time.",
     "caughtUp": {
       "title": "You're all caught up",
-      "subtitle": "All starred events at {{name}} have ended.",
-      "cta": "View Convention"
+      "subtitle": "All your saved panels at {{name}} have ended.",
+      "cta": "View convention"
     },
-    "loadError": "Your schedule could not be loaded.",
+    "loadError": "We couldn't show your schedule",
     "conventionEmpty": {
       "title": "Nothing saved for {{name}} yet",
-      "subtitle": "Add events from the convention schedule and they will appear here.",
-      "cta": "Open Convention"
+      "subtitle": "Browse the schedule and choose the panels you want to catch.",
+      "cta": "Browse schedule"
     }
   },
   "settings": {
@@ -515,6 +711,8 @@
     "help": {
       "gettingStarted": "Getting started",
       "gettingStartedDescription": "Where to find your convention's schedule",
+      "find": "Find my convention",
+      "findDescription": "Pick a convention from the ConPaws catalog and download its schedule.",
       "importNow": "Import a schedule",
       "importNowDescription": "Bring in a Sched link or an .ics file."
     }

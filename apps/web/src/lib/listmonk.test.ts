@@ -53,13 +53,58 @@ describe("readListmonkConfig", () => {
       })?.baseUrl,
     ).toBe("https://lists.mrdemonwolf.com");
   });
+
+  it.each([
+    "http://lists.mrdemonwolf.com",
+    "https://user:password@lists.mrdemonwolf.com",
+    "https://lists.example.com",
+    "https://lists.mrdemonwolf.com/api",
+    "https://lists.mrdemonwolf.com?redirect=https://example.com",
+    "https://lists.mrdemonwolf.com#fragment",
+  ])("rejects unsafe production base URL %s", (baseUrl) => {
+    expect(
+      readListmonkConfig({ ...COMPLETE_ENV, LISTMONK_BASE_URL: baseUrl }),
+    ).toBeNull();
+  });
+
+  it.each([
+    "http://localhost:9000",
+    "http://127.0.0.1:9000",
+    "http://[::1]:9000",
+  ])(
+    "permits loopback URL %s only with the local-development switch",
+    (baseUrl) => {
+      expect(
+        readListmonkConfig({ ...COMPLETE_ENV, LISTMONK_BASE_URL: baseUrl }),
+      ).toBeNull();
+      expect(
+        readListmonkConfig({
+          ...COMPLETE_ENV,
+          LISTMONK_BASE_URL: baseUrl,
+          LISTMONK_ALLOW_INSECURE_LOCALHOST: "true",
+        })?.baseUrl,
+      ).toBe(baseUrl);
+    },
+  );
+
+  it("does not let local mode allow a non-loopback host", () => {
+    expect(
+      readListmonkConfig({
+        ...COMPLETE_ENV,
+        LISTMONK_BASE_URL: "http://lists.example.com",
+        LISTMONK_ALLOW_INSECURE_LOCALHOST: "true",
+      }),
+    ).toBeNull();
+  });
 });
 
 describe("sendDoubleOptIn", () => {
   it("creates the subscriber on the waitlist list", async () => {
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
-      .mockResolvedValue(Response.json({ data: { id: 7 } }));
+      .mockResolvedValue(
+        Response.json({ data: { id: 7, lists: [{ id: 3 }] } }),
+      );
 
     await expect(
       sendDoubleOptIn(CONFIG, { email: "person@example.com", name: "Paws" }),
@@ -84,13 +129,55 @@ describe("sendDoubleOptIn", () => {
   it("sends exactly one request on the happy path", async () => {
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
-      .mockResolvedValue(Response.json({ data: { id: 7 } }));
+      .mockResolvedValue(Response.json({ data: { id: 7, lists: [3] } }));
 
     await sendDoubleOptIn(CONFIG, { email: "person@example.com", name: "" });
 
     // Creating the subscriber already triggers the opt-in email. A follow-up
     // /optin call here would send a second one.
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects a successful response with no attached list", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ data: { id: 7, lists: [] } }),
+    );
+
+    await expect(
+      sendDoubleOptIn(CONFIG, { email: "person@example.com", name: "" }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 200,
+      detail: "configured list 3 was not attached",
+    });
+  });
+
+  it("rejects a successful response attached to another list", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ data: { id: 7, lists: [{ id: 4 }] } }),
+    );
+
+    await expect(
+      sendDoubleOptIn(CONFIG, { email: "person@example.com", name: "" }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 200,
+      detail: "configured list 3 was not attached",
+    });
+  });
+
+  it("rejects a malformed successful response", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("not json", { status: 200 }),
+    );
+
+    await expect(
+      sendDoubleOptIn(CONFIG, { email: "person@example.com", name: "" }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 200,
+      detail: "configured list 3 was not attached",
+    });
   });
 
   it("treats a duplicate address as already handled", async () => {

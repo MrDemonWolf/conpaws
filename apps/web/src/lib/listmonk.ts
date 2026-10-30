@@ -10,6 +10,7 @@ type ListmonkEnv = {
   LISTMONK_API_USER?: string;
   LISTMONK_API_TOKEN?: string;
   LISTMONK_LIST_ID?: string;
+  LISTMONK_ALLOW_INSECURE_LOCALHOST?: string;
 };
 
 /** Outbound calls are capped so a stalled ESP cannot hold a Worker open. */
@@ -23,15 +24,39 @@ const STATUS_PAGE_SIZE = 100;
  * on it rather than pretending a signup was accepted.
  */
 export function readListmonkConfig(env: ListmonkEnv): ListmonkConfig | null {
-  const baseUrl = env.LISTMONK_BASE_URL?.replace(/\/+$/, "");
   const apiUser = env.LISTMONK_API_USER;
   const apiToken = env.LISTMONK_API_TOKEN;
   const listId = Number(env.LISTMONK_LIST_ID);
 
-  if (!baseUrl || !apiUser || !apiToken) return null;
+  if (!env.LISTMONK_BASE_URL || !apiUser || !apiToken) return null;
   if (!Number.isInteger(listId) || listId <= 0) return null;
 
-  return { baseUrl, apiUser, apiToken, listId };
+  let url: URL;
+  try {
+    url = new URL(env.LISTMONK_BASE_URL);
+  } catch {
+    return null;
+  }
+
+  if (
+    url.username ||
+    url.password ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash
+  ) {
+    return null;
+  }
+
+  const production = url.origin === "https://lists.mrdemonwolf.com";
+  // The Worker token goes only to the fixed ESP origin; localhost is an explicit local-test exception.
+  const local =
+    env.LISTMONK_ALLOW_INSECURE_LOCALHOST === "true" &&
+    (url.protocol === "http:" || url.protocol === "https:") &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  if (!production && !local) return null;
+
+  return { baseUrl: url.origin, apiUser, apiToken, listId };
 }
 
 export type ListmonkResult =
@@ -134,9 +159,10 @@ export async function fetchConfirmedCount(
  * make on the happy path, and adding one would send a duplicate email.
  *
  * listmonk owns the token, its expiry, and the confirmation click — this is the
- * whole reason the local schema has no `confirm_token` column. A 2xx here means
- * "listmonk accepted the subscriber and will send the email", not "the person
- * confirmed".
+ * whole reason the local schema has no `confirm_token` column. A successful
+ * create is accepted only when its response shows the configured list was
+ * attached. That proves listmonk accepted the subscription that sends the
+ * email, not that the person confirmed it.
  *
  * Requires listmonk's "send opt-in confirmation" setting to be on, and the
  * target list to be double opt-in. Both are true for list 3.
@@ -169,7 +195,32 @@ export async function sendDoubleOptIn(
     };
   }
 
-  if (response.ok) return { ok: true };
+  if (response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      data?: { lists?: unknown };
+    } | null;
+    const lists = body?.data?.lists;
+
+    if (
+      Array.isArray(lists) &&
+      lists.some(
+        (list) =>
+          list === config.listId ||
+          (typeof list === "object" &&
+            list !== null &&
+            "id" in list &&
+            list.id === config.listId),
+      )
+    ) {
+      return { ok: true };
+    }
+
+    return {
+      ok: false,
+      status: response.status,
+      detail: `configured list ${config.listId} was not attached`,
+    };
+  }
 
   // 409 is "listmonk already has this address", which is success for our
   // purposes: the only way to get here is a create that already happened, and

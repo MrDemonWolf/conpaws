@@ -126,6 +126,32 @@ PRAGMA user_version = 6;
 COMMIT;
 `;
 
+export const MIGRATION_7_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE conventions ADD COLUMN catalog_slug TEXT;
+PRAGMA user_version = 7;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_7_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 7;
+COMMIT;
+`;
+
+export const MIGRATION_7_REVISION_SQL = `
+BEGIN IMMEDIATE;
+ALTER TABLE conventions ADD COLUMN catalog_revision INTEGER;
+PRAGMA user_version = 7;
+COMMIT;
+`;
+
+const COMPLETE_MIGRATION_7_REVISION_SQL = `
+BEGIN IMMEDIATE;
+PRAGMA user_version = 7;
+COMMIT;
+`;
+
 const COMPLETE_MIGRATION_4_SQL = `
 BEGIN IMMEDIATE;
 PRAGMA user_version = 4;
@@ -138,7 +164,7 @@ interface MigrationDatabase {
 }
 
 /** The highest `user_version` the migration ladder below knows how to reach. */
-export const LATEST_SCHEMA_VERSION = 6;
+export const LATEST_SCHEMA_VERSION = 7;
 
 export function initializeDatabase(database: MigrationDatabase): void {
   database.execSync(CONNECTION_SQL);
@@ -162,6 +188,20 @@ export function initializeDatabase(database: MigrationDatabase): void {
   if (version < 4) applyColumnMigration(database, "age_rating");
   if (version < 5) applyColumnMigration(database, "archived_at");
   if (version < 6) applyColumnMigration(database, "feed_status");
+  if (version < 7 || !hasColumn(database, "catalog_slug")) {
+    applyColumnMigration(database, "catalog_slug");
+  }
+  if (version < 7 || !hasColumn(database, "catalog_revision")) {
+    applyColumnMigration(database, "catalog_revision");
+  }
+}
+
+function hasColumn(database: MigrationDatabase, column: string): boolean {
+  return (
+    database.getFirstSync<{ present: number }>(
+      `SELECT 1 AS present FROM pragma_table_info('conventions') WHERE name = '${column}'`,
+    )?.present === 1
+  );
 }
 
 const COLUMN_MIGRATIONS = {
@@ -189,6 +229,16 @@ const COLUMN_MIGRATIONS = {
     table: "convention_events",
     migrate: () => MIGRATION_6_SQL,
     complete: () => COMPLETE_MIGRATION_6_SQL,
+  },
+  catalog_slug: {
+    table: "conventions",
+    migrate: () => MIGRATION_7_SQL,
+    complete: () => COMPLETE_MIGRATION_7_SQL,
+  },
+  catalog_revision: {
+    table: "conventions",
+    migrate: () => MIGRATION_7_REVISION_SQL,
+    complete: () => COMPLETE_MIGRATION_7_REVISION_SQL,
   },
 } as const;
 

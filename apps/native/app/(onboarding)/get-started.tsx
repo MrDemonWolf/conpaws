@@ -14,7 +14,10 @@ export default function GetStartedScreen() {
   const iconColor = themeTokens[useResolvedColorScheme()].primary;
 
   async function finishOnboarding(
-    destination: "/convention/new/import" | "/(tabs)/(home)",
+    destination:
+      | "/convention/find"
+      | "/convention/new/import"
+      | "/(tabs)/(home)",
   ) {
     await markOnboardingComplete();
     router.replace(destination);
@@ -79,7 +82,13 @@ export default function GetStartedScreen() {
       </ScrollView>
       <View className="gap-1 px-4 pt-1 pb-2">
         <OnboardingButton
+          label={t("onboarding.getStarted.find")}
+          onPress={() => finishOnboarding("/convention/find")}
+          testID="onboarding-get-started-find"
+        />
+        <OnboardingButton
           label={t("onboarding.getStarted.importSchedule")}
+          variant="text"
           onPress={() => finishOnboarding("/convention/new/import")}
           testID="onboarding-get-started-import"
         />

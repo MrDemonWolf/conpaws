@@ -11,9 +11,7 @@ function generateId(): string {
   return `evt_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export async function getByConventionId(
-  conventionId: string,
-): Promise<ConventionEvent[]> {
+function conventionEventsQuery(conventionId: string) {
   return db
     .select()
     .from(conventionEvents)
@@ -24,6 +22,20 @@ export async function getByConventionId(
       conventionEvents.title,
       conventionEvents.id,
     );
+}
+
+export async function getByConventionId(
+  conventionId: string,
+): Promise<ConventionEvent[]> {
+  return conventionEventsQuery(conventionId);
+}
+
+export async function getByConventionIdPage(
+  conventionId: string,
+  limit: number,
+  offset: number,
+): Promise<ConventionEvent[]> {
+  return conventionEventsQuery(conventionId).limit(limit).offset(offset);
 }
 
 export async function getById(
@@ -570,6 +582,31 @@ export async function update(
     .update(conventionEvents)
     .set({ ...data, updatedAt: new Date().toISOString() })
     .where(eq(conventionEvents.id, id));
+}
+
+/**
+ * Saves and unsaves several events at once, in one transaction, for the
+ * compare sheet. Unsaved rows also lose their reminder minutes: a reminder
+ * for a panel the user just dropped would announce a plan they no longer
+ * have. The OS request is cancelled by the caller before this runs.
+ */
+export async function setScheduleMembership(
+  changes: readonly { id: string; isInSchedule: boolean }[],
+): Promise<void> {
+  if (changes.length === 0) return;
+  const updatedAt = new Date().toISOString();
+  await db.transaction(async (tx) => {
+    for (const change of changes) {
+      await tx
+        .update(conventionEvents)
+        .set(
+          change.isInSchedule
+            ? { isInSchedule: true, updatedAt }
+            : { isInSchedule: false, reminderMinutes: null, updatedAt },
+        )
+        .where(eq(conventionEvents.id, change.id));
+    }
+  });
 }
 
 export async function getIdsByConventionId(

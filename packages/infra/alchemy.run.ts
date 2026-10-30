@@ -1,8 +1,37 @@
+import { createHmac } from "node:crypto";
 import { readDeployEnv } from "@conpaws/env/deploy";
 import alchemy from "alchemy";
-import { D1Database, Nextjs, Worker } from "alchemy/cloudflare";
+import {
+  D1Database,
+  EmailSender,
+  Nextjs,
+  R2Bucket,
+  RateLimit,
+  Worker,
+} from "alchemy/cloudflare";
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
+
+/**
+ * Production changes only ever come from GitHub Actions on `main`, after CI
+ * has passed on the pull request and on the merge. A deploy or destroy from a
+ * laptop is refused here, before any credential is read; `alchemy dev` (local
+ * emulation) is still allowed. This is a guard against accidents, not a
+ * security boundary — the real boundary is the protected `production`
+ * environment, which only `main` can deploy to.
+ */
+const localOnly =
+  process.argv.includes("--dev") || process.argv.includes("--local");
+if (
+  !localOnly &&
+  (process.env.GITHUB_ACTIONS !== "true" ||
+    process.env.GITHUB_REF !== "refs/heads/main")
+) {
+  console.error(
+    "Refusing to deploy: production deploys run only from GitHub Actions on main. Merge a pull request instead.",
+  );
+  process.exit(1);
+}
 
 config({ path: "./.env" });
 config({ path: "../../apps/web/.env" });
@@ -36,9 +65,8 @@ const env = readDeployEnv(process.env);
  * .github/workflows/deploy-web.yml decides whether this program runs at all,
  * and `ROUTES_ENABLED` below decides whether conpaws.com points at the Worker.
  * Deploy with routes disabled first so Cloudflare holds a known-good version
- * before the apex moves. There is no automatic rollback:
- *
- *   cd apps/web && bunx wrangler rollback
+ * before the apex moves. There is no automatic rollback; dispatch
+ * .github/workflows/deploy-web.yml with a last-known-good main ancestor SHA.
  *
  * Run under Node via tsx rather than Bun — Bun segfaults executing an Alchemy
  * program, the same reason wolfathon's deploy scripts use tsx.
@@ -97,22 +125,27 @@ const db = await D1Database("database", {
 });
 
 /**
- * Public API binding to the admin-owned catalog database. D1 grants this
- * Worker write access; public handlers enforce the read-only boundary in code.
- * The admin stack owns creation, migrations and deletion. This stack binds its
- * existing ID only, after the admin stack has been deployed and migrated.
+ * The convention catalog: editions staff curate in the admin console and the
+ * API publishes read-only.
+ *
+ * Declared here, in the same program as both Workers that use it, so Alchemy
+ * creates it (empty) on the first deploy, applies the admin migrations, and
+ * wires its ID into each binding itself. There is no ID to copy by hand. The
+ * database starts with no published editions, so the API answers an empty
+ * list until staff publish the first one.
+ *
+ * D1 grants every bound Worker write access. apps/api/src/catalog.ts is the
+ * API's read-only boundary and a test keeps the binding out of every other
+ * module; the admin console is the only writer.
  */
-const catalogBinding: Record<string, D1Database> = env.CATALOG_DATABASE_ID
-  ? {
-      CATALOG_DB: {
-        type: "d1" as const,
-        name: "conpaws-admin-catalog-db",
-        id: env.CATALOG_DATABASE_ID,
-        jurisdiction: "default",
-        dev: { id: "conpaws-admin-preview-local-v2", remote: false },
-      },
-    }
-  : {};
+const catalog = await D1Database("catalog-database", {
+  name: "conpaws-admin-catalog-db",
+  adopt: true,
+  migrationsDir: "../../apps/admin/drizzle/migrations",
+  // Same bookkeeping table as the waitlist database and the admin app's
+  // local wrangler config, so a laptop and production agree on what ran.
+  migrationsTable: "drizzle_migrations",
+});
 
 /**
  * Observability is billed per event, and one event is a single log line or a
@@ -170,6 +203,12 @@ const OBSERVABILITY = {
  */
 const WEB_LIMITS = { cpu_ms: 500 } as const;
 const RECONCILER_LIMITS = { cpu_ms: 5_000 } as const;
+// The API is JSON over one D1 query per request; 200ms leaves room for a cold
+// isolate and still bounds a runaway at a tiny fraction of the default.
+const API_LIMITS = { cpu_ms: 200 } as const;
+// The admin console is an OpenNext render like the site, so it gets the same
+// ceiling for the same reasons.
+const ADMIN_LIMITS = { cpu_ms: 500 } as const;
 
 /**
  * The ESP is self-hosted listmonk at lists.mrdemonwolf.com, sending via SES.
@@ -212,8 +251,8 @@ const waitlistSecrets = {
  * for Node builtins that only resolve under the adapter's own upload path.
  */
 export const web = await Nextjs("web", {
-  // Explicit script name → conpaws.<subdomain>.workers.dev, and the name
-  // `wrangler rollback` expects. Without it Alchemy prefixes app and stage.
+  // Explicit script name → conpaws.<subdomain>.workers.dev. Without it,
+  // Alchemy prefixes app and stage.
   //
   // Renamed from `conpaws-web` on 2026-08-26. Alchemy has no rename: changing
   // this destroys the old Worker and creates a new one, which detaches and
@@ -238,7 +277,6 @@ export const web = await Nextjs("web", {
   previewSubdomains: env.PREVIEW_URLS_ENABLED,
   bindings: {
     DB: db,
-    ...catalogBinding,
     TURNSTILE_SECRET_KEY: alchemy.secret(env.TURNSTILE_SECRET_KEY),
     ...waitlistSecrets,
   },
@@ -246,6 +284,62 @@ export const web = await Nextjs("web", {
     env: {
       PORT: "3001",
     },
+  },
+});
+
+/**
+ * Public content on cdn.conpaws.com: convention artwork and other files that
+ * are not part of a site build.
+ *
+ * Nothing writes here yet. The bucket is not bound to the public API Worker;
+ * add a separate authenticated write path when uploads exist. The r2.dev
+ * development subdomain stays off; the only public surface is the custom
+ * domain. The website's own build output does not belong here: Workers static
+ * assets already serve it from the edge, versioned with each deploy and rolled
+ * back with it.
+ */
+export const cdn = await R2Bucket("cdn", {
+  name: "conpaws-cdn",
+  adopt: true,
+  devDomain: false,
+  domains: ["cdn.conpaws.com"],
+  // Read-only from any origin: the bucket serves public images and files.
+  cors: [
+    {
+      allowed: { origins: ["*"], methods: ["GET", "HEAD"] },
+      maxAgeSeconds: 86_400,
+    },
+  ],
+});
+
+/**
+ * The public API, served at api.conpaws.com by its own Worker.
+ *
+ * Split from the site on purpose: the Next.js Worker stays a marketing and
+ * waitlist surface, while this Hono Worker carries the catalog today and the
+ * planned tRPC + Better-Auth backend later, with its own limits, domain and
+ * rollback. Routes live under /v1 with no /api prefix.
+ */
+export const api = await Worker("api", {
+  name: "conpaws-api",
+  adopt: true,
+  cwd: "../../apps/api",
+  entrypoint: "src/index.ts",
+  compatibility: "node",
+  compatibilityDate: COMPATIBILITY_DATE,
+  observability: OBSERVABILITY,
+  limits: API_LIMITS,
+  // Workers Cache: Cloudflare checks its edge cache before invoking the Worker
+  // and honours the handlers' Cache-Control. Without it a Worker-generated
+  // response is never stored anywhere, so the catalog's 30-second s-maxage
+  // would be decoration and every client would run the D1 query itself.
+  cache: true,
+  domains: ["api.conpaws.com"],
+  // The custom domain is the only public surface.
+  url: false,
+  previewSubdomains: env.PREVIEW_URLS_ENABLED,
+  bindings: {
+    CATALOG_DB: catalog,
   },
 });
 
@@ -279,14 +373,91 @@ export const reconciler = await Worker("reconciler", {
 });
 
 /**
+ * The admin console at admin.conpaws.com.
+ *
+ * Nothing to configure, and no Cloudflare Access in front of it: staff sign
+ * in with a one-time code emailed to them. A fresh installation lets the
+ * first verified signup claim ownership atomically. Setup completion persists
+ * independently of memberships, so disabling or removing owners never reopens
+ * setup. Afterwards, only active members and live invitees receive codes.
+ * Owners invite people from the Team screen; the laptop invite command remains
+ * available for operator recovery. Admin setup:
+ * https://app.notion.com/p/408d61481c7b818d837dfbc723228f51
+ *
+ * The key that protects stored sign-in codes is derived from ALCHEMY_PASSWORD
+ * rather than generated, so there is no secret to copy anywhere and a laptop
+ * deploy and a CI deploy bind the same key. A generated key would not: Alchemy
+ * keeps state per stage, the stage defaults to the deploying user's name, and
+ * each side would rebind its own key, breaking codes sent minutes earlier.
+ * Keep ALCHEMY_PASSWORD identical everywhere production deploys from.
+ * Changing it only invalidates codes in flight; sessions do not use the key.
+ *
+ * Mail goes out through Cloudflare Email Service, which needs conpaws.com
+ * onboarded for sending once in the dashboard (Compute, Email Service, Email
+ * Sending, Onboard Domain). Until then the console deploys and loads, but
+ * codes do not arrive and the Worker logs a sender error such as
+ * E_SENDER_DOMAIN_NOT_AVAILABLE.
+ *
+ * This section runs last on purpose: if it fails, everything public has
+ * already deployed.
+ */
+const ADMIN_ORIGIN = "https://admin.conpaws.com";
+const ADMIN_EMAIL_FROM = "admin@conpaws.com";
+const adminAuthSecret = alchemy.secret(
+  createHmac("sha256", env.ALCHEMY_PASSWORD)
+    .update("conpaws-admin-sign-in-code-key-v1")
+    .digest("hex"),
+);
+
+export const admin = await Nextjs("admin", {
+  name: "conpaws-admin",
+  adopt: true,
+  cwd: "../../apps/admin",
+  build: "bun run build:cloudflare",
+  compatibilityDate: COMPATIBILITY_DATE,
+  observability: OBSERVABILITY,
+  limits: ADMIN_LIMITS,
+  domains: ["admin.conpaws.com"],
+  url: false,
+  previewSubdomains: false,
+  bindings: {
+    CATALOG_DB: catalog,
+    // Never `local`: that value turns on development shortcuts.
+    ADMIN_RUNTIME_ENV: "production",
+    ADMIN_PUBLIC_URL: ADMIN_ORIGIN,
+    ADMIN_EMAIL_FROM,
+    ADMIN_AUTH_SECRET: adminAuthSecret,
+    // Sends only from the one address the console uses.
+    ADMIN_EMAIL: EmailSender({ allowedSenderAddresses: [ADMIN_EMAIL_FROM] }),
+    // A coarse per-network brake on code requests and code checks. The real
+    // limits live in the database: per address and network, a minute between
+    // codes, five an hour and ten a day; fifty a day per address in all; and
+    // five tries per code.
+    ADMIN_SIGN_IN_LIMITER: RateLimit({
+      namespace_id: 2610,
+      simple: { limit: 10, period: 60 },
+    }),
+  },
+  dev: {
+    env: { PORT: "3003" },
+  },
+});
+
+/**
  * Binding types, consumed by apps/web/cloudflare-env.d.ts and
  * apps/web/workers/reconcile.ts. Renaming a binding above is then a type error
  * at the call site rather than a runtime `undefined` in production.
  */
 export type WebEnv = typeof web.Env;
 export type ReconcilerEnv = typeof reconciler.Env;
+export type ApiEnv = typeof api.Env;
+export type AdminEnv = typeof admin.Env;
 
 console.log(`Web         -> ${web.url}`);
+console.log(`API         -> ${api.name} (api.conpaws.com)`);
+console.log(`CDN bucket  -> ${cdn.name} (cdn.conpaws.com)`);
+console.log(`Catalog D1  -> ${catalog.name}`);
 console.log(`Reconciler  -> ${reconciler.name}`);
+console.log(`Admin       -> ${admin.name} (admin.conpaws.com)`);
 
 await app.finalize();

@@ -59,6 +59,28 @@ interface EventItemProps {
    * definition, so a star on each would mean nothing.
    */
   showScheduleIndicator?: boolean;
+  /**
+   * The category's accent, drawn as a thin bar at the start of the row. Pure
+   * decoration: the category name is always printed too, and overlap grouping
+   * keeps its own primary-coloured edge, so nothing is said by hue alone.
+   */
+  accentColor?: string | null;
+  /**
+   * "Saved", printed as a pill when the event is in the schedule. The star
+   * glyph used to carry this alone; a word survives colour-blindness and
+   * reads aloud.
+   */
+  savedLabel?: string;
+  /**
+   * A visible star button on the trailing edge, the discoverable twin of the
+   * swipe. Its label should name the event and the action.
+   */
+  trailingAction?: {
+    label: string;
+    selected: boolean;
+    onPress: () => void;
+    testID?: string;
+  };
   onPress?: () => void;
   onLongPress?: () => void;
   interactive?: boolean;
@@ -85,6 +107,9 @@ export function EventItem({
   overlapGroupSize,
   overlapCount = 0,
   showScheduleIndicator = true,
+  accentColor,
+  savedLabel,
+  trailingAction,
   onPress,
   onLongPress,
   interactive = true,
@@ -164,6 +189,20 @@ export function EventItem({
         interactive ? t("convention.eventActionsHint") : undefined
       }
       accessibilityState={{ selected: isInSchedule }}
+      accessibilityActions={
+        trailingAction
+          ? [{ name: "activate", label: trailingAction.label }]
+          : undefined
+      }
+      onAccessibilityAction={
+        trailingAction
+          ? (event) => {
+              if (event.nativeEvent.actionName === "activate") {
+                trailingAction.onPress();
+              }
+            }
+          : undefined
+      }
       style={inCluster ? clusterEdge : undefined}
       className={cn(
         // min-h-14 is the 44pt minimum tap target; py-3 gives the 8pt rhythm
@@ -177,6 +216,18 @@ export function EventItem({
         className,
       )}
     >
+      {accentColor ? (
+        <View
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          className={cn(
+            "rounded-full",
+            stacked ? "h-1 w-10" : "w-1 self-stretch",
+          )}
+          style={{ backgroundColor: accentColor }}
+        />
+      ) : null}
       <View className="min-w-20 shrink-0">
         <Text variant="label" className="tabular-nums text-primary">
           {startTime}
@@ -222,10 +273,10 @@ export function EventItem({
                 }
               />
             ) : null}
-            {isInSchedule && showScheduleIndicator ? (
+            {isInSchedule && showScheduleIndicator && !trailingAction ? (
               // A filled star, matching the Schedule tab's icon and the
               // "star an event" copy — the old ✓ glyph shared no vocabulary
-              // with either.
+              // with either. Hidden when the row has its own star button.
               <Star
                 size={15}
                 color={themeTokens[isDark ? "dark" : "light"].primary}
@@ -235,8 +286,11 @@ export function EventItem({
           </View>
         </View>
 
-        {ageLabel || meta ? (
+        {ageLabel || meta || (isInSchedule && savedLabel) ? (
           <View className="flex-row flex-wrap items-center gap-2">
+            {isInSchedule && showScheduleIndicator && savedLabel ? (
+              <Badge variant="active" label={savedLabel} />
+            ) : null}
             {ageBadge && ageLabel ? (
               <Badge
                 variant={ageBadge.variant}
@@ -303,6 +357,34 @@ export function EventItem({
           </Text>
         ) : null}
       </View>
+
+      {trailingAction ? (
+        // A plain RN pressable with a lucide glyph, not an @expo/ui Host: on
+        // Android a Host inside a Pressable swallows the touch.
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={trailingAction.label}
+          accessibilityState={{ selected: trailingAction.selected }}
+          hitSlop={4}
+          onPress={trailingAction.onPress}
+          testID={trailingAction.testID}
+          className={cn(
+            "h-11 w-11 items-center justify-center rounded-full",
+            stacked ? "self-end" : "self-center",
+            PRESS_DIM,
+          )}
+        >
+          <Star
+            size={22}
+            color={themeTokens[isDark ? "dark" : "light"].primary}
+            fill={
+              trailingAction.selected
+                ? themeTokens[isDark ? "dark" : "light"].primary
+                : "transparent"
+            }
+          />
+        </Pressable>
+      ) : null}
     </Pressable>
   );
 

@@ -1,4 +1,70 @@
 {
+  "catalog": {
+    "title": "Najít svůj con",
+    "searchPlaceholder": "Hledat podle názvu nebo města",
+    "upcoming": "Nadcházející",
+    "past": "Minulé ročníky",
+    "showPast": "Zobrazit",
+    "hidePast": "Skrýt",
+    "scheduleReady": "Program připraven",
+    "scheduleNotYet": "Program zatím v ConPaws není",
+    "notListed": {
+      "title": "Con tu není?",
+      "body": "Importuj program z odkazu nebo souboru, nebo vytvoř con a přidej panely ručně.",
+      "import": "Importovat program",
+      "create": "Vytvořit con"
+    },
+    "empty": {
+      "title": "V katalogu zatím nejsou žádné cony",
+      "body": "Brzy se vrať nebo přidej program odkazem či souborem."
+    },
+    "searchEmpty": "Žádné odpovídající cony",
+    "searchEmptyBody": "Zkus jiné jméno nebo město.",
+    "offline": {
+      "title": "Připoj se a najdi svůj con",
+      "body": "ConPaws potřebuje připojení k internetu, aby načetl katalog. Uložené cony dál fungují."
+    },
+    "unavailable": {
+      "title": "Katalog není dostupný",
+      "body": "ConPaws se ke katalogu nepodařilo připojit. Zkus to za chvíli znovu."
+    },
+    "retry": "Zkusit znovu",
+    "sample": "Ukázkový katalog · nejde o skutečný con",
+    "confirm": {
+      "dates": "Termíny",
+      "time": "Čas conu",
+      "schedule": "Program",
+      "scheduleReady_one": "{{count}} událost · Připraveno ke stažení",
+      "scheduleReady_other": "{{count}} událostí · Připraveno ke stažení",
+      "scheduleNotYet": "Zatím není v ConPaws",
+      "source": "Zdroj",
+      "sourceValue": "Katalog ConPaws · revize {{revision}}",
+      "download": "Stáhnout program",
+      "update": "Aktualizovat program",
+      "open": "Otevřít program",
+      "downloaded": "Staženo · revize {{revision}}",
+      "downloading": "Stahování…",
+      "keepOpen": "Nech ConPaws otevřené, dokud se stahování nedokončí. Po uložení můžeš program používat i bez připojení k internetu.",
+      "unavailableHere": {
+        "title": "Tento program zatím není v ConPaws",
+        "body": "Tento con je v seznamu, ale jeho program tu zatím není. Přidej program odkazem nebo souborem."
+      },
+      "failed": {
+        "title": "Stahování se nedokončilo",
+        "body": "Nic se neuložilo. Zkus to znovu."
+      },
+      "offline": {
+        "body": "Tento program ještě není uložený v telefonu. Připoj se k internetu a zkus to znovu."
+      },
+      "notFound": {
+        "title": "Con nebyl nalezen",
+        "body": "Možná byl odebrán z katalogu."
+      },
+      "successAnnouncement": "{{name}} stažen. Vyber si první panel.",
+      "scheduleReady_few": "{{count}} události · Připraveno ke stažení",
+      "scheduleReady_many": "{{count}} událostí · Připraveno ke stažení"
+    }
+  },
   "common": {
     "settings": "Nastavení",
     "add": "Přidat",
@@ -33,31 +99,15 @@
     "searchEvents": "Hledat události",
     "filterEvents": "Filtrovat události",
     "scheduleActions": "Akce programu",
-    "allEvents": "Všechny události",
-    "mySchedule": "Můj program",
-    "nowAndNext": "Teď a potom",
     "categories": "Kategorie",
     "allCategories": "Všechny kategorie",
-    "noMatchingEvents": "Žádné odpovídající události",
-    "noMatchingEventsSubtitle": "Zkuste jiné hledání nebo filtr.",
     "timesShownIn": "Časy se zobrazují v pásmu {{timeZone}}",
-    "nowCount": "Teď ({{eventCount}})",
-    "nextAtCount": "Potom v {{time}} ({{eventCount}})",
-    "nextCount": "Potom ({{eventCount}})",
-    "nothingHappeningNow": "Z Mého programu právě nic neprobíhá.",
-    "noMoreUpcomingEvents": "V Mém programu už nejsou žádné další události.",
-    "noEvents": "Zatím žádné události",
-    "noEventsSubtitle": "Importujte program, nebo přidejte události ručně.",
-    "myScheduleEmpty": "Můj program je prázdný",
-    "myScheduleNowNextSubtitle": "Vyberte události ve Všech a uvidíte, co probíhá teď a co bude potom.",
-    "myScheduleSubtitle": "Otevřete Všechny a přidejte události, o které nechcete přijít.",
-    "overlapSummary": "Uložené panely, které se překrývají: {{count}}",
-    "overlapHelp": "Můžete si nechat všechny. Nastavte na pozdější panel připomenutí, ať máte čas přejít do jiné místnosti.",
+    "noEvents": "Zatím nebyly přidány žádné panely",
+    "noEventsSubtitle": "Přidej program z odkazu nebo souboru, nebo panely vytvoř sám.",
     "overlapLabel": "Překrývá se s jiným uloženým panelem",
     "runsAlongsideOne": "Probíhá souběžně s 1 další událostí",
     "runsAlongsideMany": "Probíhá souběžně s {{count}} dalšími událostmi",
     "sameTimeGroup": "Souběžné události: {{count}}",
-    "showAllEvents": "Zobrazit všechny události",
     "addEvent": "Přidat událost",
     "importSchedule": "Importovat program",
     "startDate": "Datum začátku",
@@ -81,22 +131,22 @@
     "createError": "Con se nepodařilo vytvořit. Zkuste to znovu.",
     "notFound": "Con nebyl nalezen.",
     "goBack": "Zpět",
-    "addToSchedule": "Přidat do Mého programu",
-    "removeFromSchedule": "Odebrat z Mého programu",
-    "scheduleActionHint": "Aktualizuje tuto událost v Mém programu.",
+    "addToSchedule": "Přidat do mého plánu",
+    "removeFromSchedule": "Odebrat z mého plánu",
+    "scheduleActionHint": "Aktualizuje tento panel ve tvém plánu.",
     "scheduleHint": {
-      "body": "Klepnutím na událost ji přidáte do Mého programu. Označené události se zobrazí na kartě Program.",
+      "body": "Klepni na panel a přidej ho do svého plánu. Uložené panely se zobrazí na kartě Plán.",
       "dismiss": "Zavřít nápovědu"
     },
-    "scheduleAddedAnnouncement": "{{event}} byla přidána do Mého programu.",
-    "scheduleRemovedAnnouncement": "{{event}} byla odebrána z Mého programu.",
+    "scheduleAddedAnnouncement": "{{event}} přidán do tvého plánu.",
+    "scheduleRemovedAnnouncement": "{{event}} odebrán z tvého plánu.",
     "scheduleUpdateErrorTitle": "Program nebyl aktualizován",
     "scheduleUpdateErrorMessage": "Událost se nepodařilo změnit. Váš program zůstal beze změny.",
     "closeEventDetails": "Zavřít podrobnosti události",
     "timeRangeTo": "do {{time}}",
     "eventTimeRange": "{{start}} až {{end}}",
-    "inMySchedule": "V Mém programu",
-    "notInMySchedule": "Není v Mém programu",
+    "inMySchedule": "V tvém plánu",
+    "notInMySchedule": "Není v tvém plánu",
     "reminderSet": "Připomenutí nastaveno",
     "eventSource": {
       "imported": "Importováno",
@@ -119,7 +169,7 @@
       "roomPlaceholder": "Volitelné",
       "roomAccessibility": "Místnost události, volitelné",
       "timeZoneHelp": "Datum a časy používají pásmo {{timeZone}}. Čas konce je ve stejný den.",
-      "savedAnnouncement": "{{event}} byla uložena a přidána do Mého programu.",
+      "savedAnnouncement": "{{event}} přidán do tvého plánu.",
       "errors": {
         "title": "Název je povinný.",
         "startTimeZone": "Takový čas začátku v časovém pásmu conu neexistuje.",
@@ -157,8 +207,160 @@
       "dismiss": "Zavřít toto oznámení",
       "checkNow": "Zkontrolovat změny",
       "checking": "Kontroluji…",
-      "checkFailedTitle": "Program se nepodařilo zkontrolovat",
-      "checkFailedMessage": "Odkaz na program konventu neodpověděl. Tvůj program zůstává beze změny."
+      "checkFailedTitle": "Změny se nepodařilo zkontrolovat",
+      "checkFailedMessage": "Tvůj uložený program je stále tady. Zkus to za chvíli znovu."
+    },
+    "views": {
+      "all": "Program",
+      "mine": "Můj plán",
+      "now": "Teď",
+      "accessibility": "Zobrazení programu"
+    },
+    "browse": {
+      "allDays": "Vše",
+      "allDaysAccessibility": "Všechny dny, {{count}} dní",
+      "dayAccessibility": "{{day}}, {{count}} panelů",
+      "allTimes": "Všechny časy",
+      "slotAccessibility": "Panely mezi {{start}} a {{end}}",
+      "headingSlot": "{{start}}–{{end}}",
+      "headingSlotAllDays": "{{start}}–{{end}} · všechny dny",
+      "headingDay": "{{day}} · všechny časy",
+      "headingAllDays": "Všechny panely",
+      "total": "celkem {{count}}",
+      "hint": "Vyber, co tě zaujme. Rozhodneš se později.",
+      "filterActive": "Filtr: {{category}}",
+      "clearFilters": "Zrušit filtry",
+      "noMatches": {
+        "title": "Tomuto výběru neodpovídají žádné panely",
+        "body": "Zkus jiný čas nebo zruš filtry, abys viděl víc z programu."
+      },
+      "noneThisDay": {
+        "title": "V tento den zatím nic není",
+        "body": "Program v tento den nemá žádné panely. Zkus jiný den."
+      },
+      "allDaysCta": "Zobrazit všechny dny",
+      "dropIn": {
+        "title": "Zastav se kdykoli",
+        "subtitle": "Bez pevného času"
+      },
+      "noSeat": "Uložení panelu nerezervuje místo.",
+      "optionsOne": "{{count}} možnost",
+      "optionsMany": "{{count}} možností",
+      "optionsMany_few": "{{count}} možnosti",
+      "daysOne": "{{count}} den",
+      "daysMany": "{{count}} dní",
+      "daysMany_few": "{{count}} dny"
+    },
+    "savedLabel": "Uloženo",
+    "saveAction": "Uložit {{title}} do mého plánu",
+    "unsaveAction": "Odebrat {{title}} z mého plánu",
+    "plan": {
+      "until": "Do {{time}}",
+      "gap": {
+        "free": "{{minutes}} min volno · Čas na přesun",
+        "freeHours": "{{hours}} h volno · Čas si vydechnout",
+        "freeHoursMinutes": "{{hours}} h {{minutes}} min volno · Čas si vydechnout",
+        "backToBack": "Hned po sobě · Zkontroluj svou další místnost",
+        "overlap": "Překryv {{minutes}} min · Vyber, co ti vyhovuje"
+      },
+      "status": {
+        "now": "Teď",
+        "endedToday": "Dnes dříve",
+        "ended": "Skončilo"
+      },
+      "overlap": {
+        "title": "Některé panely se překrývají",
+        "body": "Nech si oba, nebo vyber ten, který chceš.",
+        "cta": "Zkontrolovat překryv"
+      },
+      "empty": {
+        "title": "Máš volný den",
+        "body": "Na tento den zatím nic uloženého nemáš.",
+        "cta": "Procházet panely"
+      },
+      "emptyConvention": {
+        "title": "Zatím nic uloženého",
+        "body": "Projdi si program a vyber panely, které chceš stihnout. Můžeš přidat víc než jeden."
+      },
+      "updated": {
+        "title": "Plán aktualizován",
+        "body": "Tvůj plán se změnil. Časy panelů zůstávají stejné."
+      },
+      "savedCountOne": "{{count}} uložený",
+      "savedCountMany": "{{count}} uložených",
+      "savedCountMany_few": "{{count}} uložené"
+    },
+    "now": {
+      "happeningNow": "Právě probíhá",
+      "upNext": "Následuje",
+      "until": "Do",
+      "startsAt": "Začíná v",
+      "unknownEnd": "Čas konce není zveřejněn",
+      "reminder": "Připomenutí: {{label}}",
+      "next": "Další · {{time}}",
+      "nextAccessibility": "Další: {{title}}",
+      "otherOptions": "Další možnosti v této hodině",
+      "openPanel": "Otevřít panel",
+      "setReminder": "Nastavit připomenutí",
+      "openAccessibility": "Otevřít {{title}}",
+      "nothingPicked": {
+        "title": "Zatím nemáš vybraný další panel",
+        "body": "Projdi si program a vyber panely, které chceš stihnout.",
+        "cta": "Procházet program"
+      },
+      "finished": {
+        "title": "To byl tvůj plán na dnešek",
+        "body": "Dnešní výběr jsi dokončil. Možná jsou ještě další panely, které stojí za to.",
+        "nextDay": "Další: {{title}} {{day}} v {{time}}."
+      },
+      "nothingToday": {
+        "title": "Na dnešek nic naplánováno"
+      },
+      "allEnded": {
+        "title": "Všechny tvoje uložené panely skončily",
+        "body": "Projdi si program a podívej se, co ještě běží."
+      },
+      "minutesLeftOne": "Zbývá {{count}} min",
+      "minutesLeftMany": "Zbývá {{count}} min",
+      "minutesUntilOne": "Začíná za {{count}} min",
+      "minutesUntilMany": "Začíná za {{count}} min",
+      "alsoNowOne": "Právě teď také uloženo: {{count}} další",
+      "alsoNowMany": "Právě teď také uloženo: {{count}} dalších",
+      "alsoNowMany_few": "Právě teď také uloženo: {{count}} další"
+    },
+    "status": {
+      "checking": "Hledám aktualizace…"
+    },
+    "compare": {
+      "title": "Udělej místo oblíbenému panelu.",
+      "subtitle": "Tyto panely se částečně časově překrývají. Který je víc tvůj?",
+      "inPlan": "V tvém plánu",
+      "overlapsChoice": "{{minutes}} min se překrývá s tvou současnou volbou",
+      "switchTo": "Přejít na tento panel",
+      "addToPlan": "Přidat do mého plánu",
+      "keepOnly": "Nechat si jen tento panel",
+      "keepPlan": "Ponechat tento plán",
+      "keepBoth": "Nechat si oba v plánu",
+      "othersStay": "Tvoje ostatní uložené panely zůstávají uložené.",
+      "updatedAnnouncement": "{{event}} přidán do tvého plánu. Odebráno: {{count}}.",
+      "possibilitiesOne": "{{count}} možnost",
+      "possibilitiesMany": "{{count}} možností",
+      "possibilitiesMany_few": "{{count}} možnosti",
+      "replacesOne": "Nahradí {{titles}}. Odebrané panely zůstávají v programu; kdykoli si je můžeš uložit znovu.",
+      "replacesMany": "Nahradí {{count}} uložených panelů. Odebrané panely zůstávají v programu; kdykoli si je můžeš uložit znovu.",
+      "replacesMany_few": "Nahradí {{count}} uložené panely. Odebrané panely zůstávají v programu; kdykoli si je můžeš uložit znovu."
+    },
+    "panel": {
+      "about": "O tomto panelu",
+      "durationMinutesOne": "{{count}} minuta",
+      "durationMinutesMany": "{{count}} minut",
+      "durationHours": "{{hours}} h",
+      "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+      "durationMinutesMany_few": "{{count}} minuty",
+      "noReminder": "Bez připomenutí",
+      "overlapsPlan": "Překrývá se s tvým plánem",
+      "overlapWith": "{{minutes}} min s {{title}}",
+      "compareBeforeAdding": "Porovnat před přidáním"
     }
   },
   "errors": {
@@ -171,11 +373,12 @@
     }
   },
   "home": {
+    "find": "Najít můj con",
     "title": "Cony",
     "addConvention": "Přidat con",
     "empty": {
       "title": "Zatím žádné cony",
-      "subtitle": "Vytvořte nový, nebo importujte existující program.",
+      "subtitle": "Najdi svůj con a začni plánovat, nebo přidej program z odkazu či souboru.",
       "cta": "Vytvořit con"
     },
     "loadError": "Cony se nepodařilo načíst.",
@@ -311,7 +514,7 @@
       "title": "Naplánujte si celý con",
       "subtitle": "Všechno, co potřebujete, když to Wi-Fi na místě vzdá.",
       "demo": {
-        "saved": "Můj program"
+        "saved": "Můj plán"
       },
       "import": {
         "title": "Importujte jakýkoli program",
@@ -319,7 +522,7 @@
       },
       "plan": {
         "title": "Nezmeškejte žádný panel",
-        "description": "Sestavte si Můj program, sledujte Teď a potom a odhalte překryvy."
+        "description": "Sestavte si plán, sledujte, co se děje právě teď a co bude následovat, a odhalte časové překryvy."
       },
       "offline": {
         "title": "Soukromé a offline",
@@ -332,8 +535,9 @@
       "next": "Pokračovat"
     },
     "getStarted": {
+      "find": "Najít můj con",
       "title": "Připraveni na další con?",
-      "subtitle": "Importujte program hned, nebo si ConPaws nejdřív prohlédněte.",
+      "subtitle": "Najdi svůj con, importuj program nebo si nejdřív prohlédni ConPaws.",
       "importSchedule": "Importovat program",
       "exploreFirst": "Nejdřív prozkoumat",
       "localPrivacy": "Účet není potřeba. Vaše data zůstávají v zařízení."
@@ -358,7 +562,7 @@
     "errorTitle": "Připomenutí nebylo nastaveno",
     "errorMessage": "ConPaws nedokázal toto připomenutí aktualizovat. Zkuste to znovu.",
     "permissionTitle": "Oznámení jsou vypnutá",
-    "permissionMessage": "Aby vám ConPaws mohl připomenout, kdy vyrazit, potřebuje oprávnění k oznámením. Zapněte je v Nastavení a nastavte připomenutí znovu.",
+    "permissionMessage": "ConPaws potřebuje oprávnění k oznámením, aby vám mohl připomenout začátek panelu. Zapněte oznámení v Nastavení a nastavte připomenutí znovu.",
     "openSettings": "Otevřít Nastavení",
     "tooLateTitle": "Událost začíná příliš brzy",
     "tooLateMessage": "Tato událost začíná dřív, než tohle připomenutí dovoluje. Vyberte kratší předstih, nebo pozdější událost.",
@@ -374,23 +578,24 @@
     }
   },
   "schedule": {
+    "openConventionHint": "Otevře program conu.",
     "caughtUp": {
       "title": "Máte vše hotovo",
-      "subtitle": "Všechny uložené události na {{name}} už skončily.",
+      "subtitle": "Všechny tvoje uložené panely na {{name}} skončily.",
       "cta": "Zobrazit con"
     },
     "title": "Program",
     "empty": {
-      "title": "Zatím nic označeného",
-      "subtitle": "Klepněte na událost uvnitř conu a přidejte ji do Mého programu — objeví se tady.",
+      "title": "Zatím nemáš vybrané žádné panely",
+      "subtitle": "Projdi si program conu a vyber panely, které chceš stihnout. Zobrazí se tady.",
       "cta": "Otevřít moje cony"
     },
     "timesShownInConventionTime": "Časy se zobrazují v místním čase každého conu.",
-    "loadError": "Váš program se nepodařilo načíst.",
+    "loadError": "Tvůj plán se nepodařilo zobrazit",
     "conventionEmpty": {
       "title": "Pro {{name}} zatím nic uloženého",
-      "subtitle": "Přidejte události z programu conu a objeví se tady.",
-      "cta": "Otevřít con"
+      "subtitle": "Projdi si program a vyber panely, které chceš stihnout.",
+      "cta": "Procházet program"
     }
   },
   "settings": {
@@ -524,7 +729,9 @@
       "gettingStarted": "Začínáme",
       "gettingStartedDescription": "Kde najít program vašeho conu",
       "importNow": "Importovat program",
-      "importNowDescription": "Vložte odkaz Sched nebo soubor .ics."
+      "importNowDescription": "Vložte odkaz Sched nebo soubor .ics.",
+      "find": "Najít můj con",
+      "findDescription": "Vyber con z katalogu ConPaws a stáhni jeho program."
     }
   }
 }

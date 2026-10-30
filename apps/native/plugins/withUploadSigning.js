@@ -40,7 +40,8 @@ const { withGradleProperties } = require("expo/config-plugins");
  *
  *     keytool -printcert -jarfile build/ConPaws-<version>-<build>.aab
  *
- * RELEASING.md carries the expected fingerprint.
+ * The release guide carries the expected fingerprint:
+ * https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969
  */
 
 const SIGNING_PROPERTIES_PATH = path.join(

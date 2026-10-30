@@ -21,15 +21,10 @@ import { z } from "zod";
  * on the deploying machine, before anything is uploaded.
  */
 
-/**
- * `"true"` means true and everything else means false, matching what the
- * call sites did by hand. Absent is false, so an unset flag keeps the
- * conservative default (no custom domain, no public workers.dev URL).
- */
-const flag = z
-  .string()
-  .optional()
-  .transform((value) => value === "true");
+const flag = (name: string) =>
+  z
+    .enum(["true", "false"], { message: `${name} must be true or false` })
+    .transform((value) => value === "true");
 
 /**
  * Required, present, and not blank.
@@ -44,74 +39,77 @@ const required = (name: string) => {
   return z.string(message).min(1, message);
 };
 
-export const deployEnvSchema = z.object({
-  /**
-   * Cloudflare credentials consumed by Alchemy's provider. Optional: a local
-   * deploy may authenticate through an Alchemy/Wrangler login profile instead.
-   * deploy-web.yml always passes both, and Alchemy fails loudly without auth.
-   */
-  CLOUDFLARE_API_TOKEN: z.string().min(1).optional(),
-  CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
-  NEXT_PUBLIC_SITE_URL: z
-    .url("NEXT_PUBLIC_SITE_URL must be an absolute URL")
-    .refine((value) => {
-      const hostname = new URL(value).hostname;
-      return hostname !== "localhost" && hostname !== "127.0.0.1";
-    }, "NEXT_PUBLIC_SITE_URL must not use localhost or 127.0.0.1"),
-  NEXT_PUBLIC_TURNSTILE_SITE_KEY: required("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
-  /** Existing admin-owned D1 ID; omit until the admin stack is deployed. */
-  CATALOG_DATABASE_ID: z.preprocess(
-    (value) => (value === "" ? undefined : value),
-    z.string().uuid().optional(),
-  ),
-  /** Encrypts `alchemy.secret(...)` values at rest. Serializing fails without it. */
-  ALCHEMY_PASSWORD: required("ALCHEMY_PASSWORD"),
-  /** Auth for the shared account-wide `alchemy-state` store worker. */
-  ALCHEMY_STATE_TOKEN: required("ALCHEMY_STATE_TOKEN"),
+export const deployEnvSchema = z
+  .object({
+    /**
+     * Cloudflare credentials consumed by Alchemy's provider. Optional: a local
+     * deploy may authenticate through an Alchemy/Wrangler login profile instead.
+     * deploy-web.yml always passes both, and Alchemy fails loudly without auth.
+     */
+    CLOUDFLARE_API_TOKEN: z.string().min(1).optional(),
+    CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
+    NEXT_PUBLIC_SITE_URL: z
+      .url("NEXT_PUBLIC_SITE_URL must be an absolute URL")
+      .refine((value) => {
+        const hostname = new URL(value).hostname;
+        return hostname !== "localhost" && hostname !== "127.0.0.1";
+      }, "NEXT_PUBLIC_SITE_URL must not use localhost or 127.0.0.1"),
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: required("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
+    ALCHEMY_PASSWORD: required("ALCHEMY_PASSWORD"),
+    /** Auth for the shared account-wide `alchemy-state` store worker. */
+    ALCHEMY_STATE_TOKEN: required("ALCHEMY_STATE_TOKEN"),
 
-  /** Server half of the Turnstile pair. The site key is a build-time client var. */
-  TURNSTILE_SECRET_KEY: required("TURNSTILE_SECRET_KEY"),
-  /** Shared with the public build so the form and POST gate change together. */
-  WAITLIST_ACCEPTING_SIGNUPS: z.enum(["true", "false"], {
-    message: "WAITLIST_ACCEPTING_SIGNUPS must be true or false",
-  }),
+    /** Server half of the Turnstile pair. The site key is a build-time client var. */
+    TURNSTILE_SECRET_KEY: required("TURNSTILE_SECRET_KEY"),
+    /** Shared with the public build so the form and POST gate change together. */
+    WAITLIST_ACCEPTING_SIGNUPS: z.enum(["true", "false"], {
+      message: "WAITLIST_ACCEPTING_SIGNUPS must be true or false",
+    }),
 
-  /**
-   * listmonk. All four are required together: a partial set is precisely the
-   * half-open waitlist this schema exists to prevent.
-   *
-   * The base URL is parsed as a URL rather than checked for length, because
-   * `readListmonkConfig` only strips trailing slashes — anything else wrong
-   * with it surfaces as a fetch failure per signup, not at deploy.
-   */
-  LISTMONK_BASE_URL: z
-    .string("LISTMONK_BASE_URL is required and must not be empty")
-    .url("LISTMONK_BASE_URL must be an absolute URL"),
-  LISTMONK_API_USER: required("LISTMONK_API_USER"),
-  LISTMONK_API_TOKEN: required("LISTMONK_API_TOKEN"),
-  /**
-   * The list id, which is 3 in production. This is the value the audit was
-   * actually about: nothing checked it, so a typo bound something
-   * `readListmonkConfig` rejects, and it was only ever rejected at the edge,
-   * once per request, long after the deploy said it had worked.
-   *
-   * Matched as digits rather than run through `Number`, because coercion is
-   * too generous to be a check here: `Number("")` is 0, `Number(" 3 ")` is 3,
-   * and `Number("3e2")` is 300. A list id is typed by a human from the
-   * listmonk UI and is always plain digits.
-   */
-  LISTMONK_LIST_ID: z
-    .string("LISTMONK_LIST_ID is required and must not be empty")
-    .regex(/^[1-9]\d*$/, "LISTMONK_LIST_ID must be a positive whole number")
-    .transform(Number),
+    /** listmonk. All four are required together and egress stays on our host. */
+    LISTMONK_BASE_URL: z
+      .string("LISTMONK_BASE_URL is required and must not be empty")
+      .url("LISTMONK_BASE_URL must be an absolute URL")
+      .refine((value) => {
+        const url = new URL(value);
+        return (
+          url.origin === "https://lists.mrdemonwolf.com" &&
+          !url.username &&
+          !url.password &&
+          url.pathname === "/" &&
+          !url.search &&
+          !url.hash
+        );
+      }, "LISTMONK_BASE_URL must be the root of https://lists.mrdemonwolf.com"),
+    LISTMONK_API_USER: required("LISTMONK_API_USER"),
+    LISTMONK_API_TOKEN: required("LISTMONK_API_TOKEN"),
+    /**
+     * The list id, which is 3 in production. This is the value the audit was
+     * actually about: nothing checked it, so a typo bound something
+     * `readListmonkConfig` rejects, and it was only ever rejected at the edge,
+     * once per request, long after the deploy said it had worked.
+     *
+     * Matched as digits rather than run through `Number`, because coercion is
+     * too generous to be a check here: `Number("")` is 0, `Number(" 3 ")` is 3,
+     * and `Number("3e2")` is 300. A list id is typed by a human from the
+     * listmonk UI and is always plain digits.
+     */
+    LISTMONK_LIST_ID: z
+      .string("LISTMONK_LIST_ID is required and must not be empty")
+      .regex(/^[1-9]\d*$/, "LISTMONK_LIST_ID must be a positive whole number")
+      .transform(Number),
 
-  /** Whether conpaws.com and www point at this Worker. */
-  ROUTES_ENABLED: flag,
-  /** Whether a stable `*.workers.dev` URL is served. Off by default: it is an indexable copy of the site. */
-  WORKERS_DEV_ENABLED: flag,
-  /** Whether per-version preview subdomains are served. */
-  PREVIEW_URLS_ENABLED: flag,
-});
+    /** Whether conpaws.com and www point at this Worker. */
+    ROUTES_ENABLED: flag("ROUTES_ENABLED"),
+    /** Whether a stable `*.workers.dev` URL is served. Off by default: it is an indexable copy of the site. */
+    WORKERS_DEV_ENABLED: flag("WORKERS_DEV_ENABLED"),
+    /** Whether per-version preview subdomains are served. */
+    PREVIEW_URLS_ENABLED: flag("PREVIEW_URLS_ENABLED"),
+  })
+  .refine((env) => env.ROUTES_ENABLED || env.WORKERS_DEV_ENABLED, {
+    message: "ROUTES_ENABLED or WORKERS_DEV_ENABLED must be true",
+    path: ["ROUTES_ENABLED"],
+  });
 
 export type DeployEnv = z.infer<typeof deployEnvSchema>;
 

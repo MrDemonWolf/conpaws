@@ -18,6 +18,39 @@ export function getPreviewConventionFixtures(
   return [buildConPawsPreviewFixture(), buildBlankPreviewFixture()] as const;
 }
 
+export async function addPreviewConventions(
+  isDev: boolean,
+  appVariant: unknown,
+): Promise<string | null> {
+  const fixtures = getPreviewConventionFixtures(isDev, appVariant);
+  if (!fixtures) return null;
+
+  db.transaction((tx) => {
+    for (const fixture of fixtures) {
+      // Opening samples again must preserve the tester's edits and selections.
+      const inserted = tx
+        .insert(conventions)
+        .values(fixture.convention)
+        .onConflictDoNothing({ target: conventions.id })
+        .returning({ id: conventions.id })
+        .get();
+      if (inserted && fixture.events.length > 0) {
+        tx.insert(conventionEvents)
+          .values(
+            fixture.events.map((event) => ({
+              ...event,
+              // Sample data must not create reminder intent on app activation.
+              reminderMinutes: null,
+            })),
+          )
+          .run();
+      }
+    }
+  });
+
+  return PREVIEW_CONVENTION_ID;
+}
+
 export async function resetPreviewConventions(
   isDev: boolean,
   appVariant: unknown,

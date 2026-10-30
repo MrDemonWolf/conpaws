@@ -1,8 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Alert, AppState } from "react-native";
+import { AppState } from "react-native";
 import type { Convention } from "@/db/schema";
 import { reportError } from "@/lib/error-reporting";
 import {
@@ -42,7 +41,6 @@ export function useScheduleRefresh(
   convention: Convention | undefined,
 ): ScheduleRefreshState {
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
   const [summary, setSummary] = useState<ScheduleChangeSummary | null>(null);
   const [checkedAt, setCheckedAt] = useState<number | null>(null);
   const [checking, setChecking] = useState(false);
@@ -114,32 +112,23 @@ export function useScheduleRefresh(
         // A failure is admitted only when the user pressed for the check: an
         // unbidden "couldn't reach the schedule" on convention wifi reads as an
         // accusation, and there is nothing the reader can do about it anyway.
-        if (result.status === "failed" && force) {
-          setFailed(true);
-          Alert.alert(
-            t("convention.scheduleUpdate.checkFailedTitle"),
-            t("convention.scheduleUpdate.checkFailedMessage"),
-          );
-        }
+        // The screen answers with a banner that keeps the saved schedule in
+        // view and offers a retry; an alert would cover the very rows the
+        // reader still has.
+        if (result.status === "failed" && force) setFailed(true);
       } catch (error) {
         reportError(error, { scope: "schedule-refresh.run" });
         if (!mounted.current) return;
         setChecking(false);
         // Same restraint as a `failed` result: only a check the user asked for
         // gets to interrupt them about it.
-        if (force) {
-          setFailed(true);
-          Alert.alert(
-            t("convention.scheduleUpdate.checkFailedTitle"),
-            t("convention.scheduleUpdate.checkFailedMessage"),
-          );
-        }
+        if (force) setFailed(true);
       } finally {
         if (inFlight.current === controller) inFlight.current = null;
         running.current = false;
       }
     },
-    [convention, queryClient, t],
+    [convention, queryClient],
   );
 
   useFocusEffect(
@@ -167,6 +156,7 @@ export function useScheduleRefresh(
     }, [run]),
     dismiss: useCallback(() => {
       setSummary(null);
+      setFailed(false);
     }, []),
   };
 }

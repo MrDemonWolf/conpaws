@@ -3,13 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const documentPicker = vi.hoisted(() => ({
   getDocumentAsync: vi.fn(),
 }));
+const database = vi.hoisted(() => ({ transaction: vi.fn() }));
 
 /** Stands in for the one `File(uri).text()` call `pickBackupFile` makes. */
 const readFileText = vi.hoisted(() => vi.fn(async (_uri: string) => ""));
 const deleteCachedFile = vi.hoisted(() => vi.fn());
 const fileSizes = vi.hoisted(() => new Map<string, number | null>());
 
-vi.mock("@/db", () => ({ db: {} }));
+vi.mock("@/db", () => ({ db: database }));
 vi.mock("expo-document-picker", () => documentPicker);
 vi.mock("expo-file-system", () => ({
   File: class {
@@ -30,6 +31,7 @@ vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
 import {
   type BackupEnvelope,
   chunkRows,
+  importData,
   MAX_BACKUP_BYTES,
   MAX_BACKUP_ROWS,
   pickBackupFile,
@@ -49,6 +51,8 @@ function conventionRow(overrides: Record<string, unknown> = {}) {
     location: null,
     archivedAt: null,
     icalUrl: "https://testcon.sched.com",
+    catalogSlug: null,
+    catalogRevision: null,
     status: "upcoming",
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
@@ -381,6 +385,58 @@ describe("insert batching", () => {
   it("returns nothing for no rows", () => {
     expect(chunkRows([], 19)).toEqual([]);
   });
+
+  it("does not grow the local database beyond the restorable row ceiling", async () => {
+    const existingRows = [
+      [],
+      Array.from({ length: MAX_BACKUP_ROWS }, (_, index) => ({
+        id: `event-${index}`,
+      })),
+    ];
+    const insert = vi.fn();
+    const tx = {
+      select: () => ({
+        from: () => ({
+          limit: () => ({ all: () => existingRows.shift() }),
+        }),
+      }),
+      insert: () => ({ values: insert }),
+    };
+    database.transaction.mockImplementation((callback) => callback(tx));
+
+    await expect(importData(envelope([conventionRow()], []))).resolves.toEqual({
+      ok: false,
+      code: "device-limit",
+      detail: { rows: MAX_BACKUP_ROWS + 1, limit: MAX_BACKUP_ROWS },
+    });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("stops before loading event IDs when existing conventions exceed the ceiling", async () => {
+    const existingRows = [
+      Array.from({ length: MAX_BACKUP_ROWS + 1 }, (_, index) => ({
+        id: `con-${index}`,
+      })),
+      [],
+    ];
+    const tx = {
+      select: () => ({
+        from: () => ({
+          limit: () => ({ all: () => existingRows.shift() }),
+        }),
+      }),
+      insert: vi.fn(),
+    };
+    database.transaction.mockImplementation((callback) => callback(tx));
+
+    await expect(importData(envelope([], []))).resolves.toEqual({
+      ok: false,
+      code: "device-limit",
+      detail: { rows: MAX_BACKUP_ROWS + 1, limit: MAX_BACKUP_ROWS },
+    });
+    expect(existingRows).toHaveLength(1);
+    expect(tx.insert).not.toHaveBeenCalled();
+  });
 });
 
 describe("convention row validation", () => {
@@ -417,6 +473,26 @@ describe("convention row validation", () => {
       name: "Test Con",
     });
   });
+
+  it.each(["/", "%2F", "row\u0001id", "x".repeat(129)])(
+    "rejects route-unsafe or oversized restored IDs (%s)",
+    (id) => {
+      const conventionPlan = planOne({ id });
+      expect(conventionPlan.conventions).toEqual([]);
+      expect(conventionPlan.result.reasons.malformed).toBe(1);
+
+      for (const field of ["id", "conventionId"] as const) {
+        const eventPlan = planDataImport(
+          envelope([conventionRow()], [eventRow({ [field]: id })]),
+          new Set(),
+          new Set(),
+          NOW,
+        );
+        expect(eventPlan.events).toEqual([]);
+        expect(eventPlan.result.reasons.malformed).toBe(1);
+      }
+    },
+  );
 
   it("rejects anything that is not a row object", () => {
     for (const candidate of ["a string", 42, null, true, ["nested"]]) {
@@ -460,6 +536,20 @@ describe("convention row validation", () => {
     ).toBe(1);
   });
 
+  it("round-trips catalog identifiers and defaults them for older backups", () => {
+    expect(planOne({}).conventions[0]).toMatchObject({
+      catalogSlug: null,
+      catalogRevision: null,
+    });
+    expect(
+      planOne({ catalogSlug: "sample-con", catalogRevision: 7 }).conventions[0],
+    ).toMatchObject({ catalogSlug: "sample-con", catalogRevision: 7 });
+    expect(
+      planOne({ catalogSlug: "sample-con", catalogRevision: 0 }).result.reasons
+        .malformed,
+    ).toBe(1);
+  });
+
   it("rejects a non-string where an optional string belongs", () => {
     for (const broken of [
       { location: 12345 },
@@ -474,6 +564,32 @@ describe("convention row validation", () => {
     // Absent and explicitly null both mean "no value", and both are fine.
     expect(planOne({ location: null }).conventions[0].location).toBeNull();
     expect(planOne({ icalUrl: undefined }).conventions[0].icalUrl).toBeNull();
+  });
+
+  it("validates and canonicalizes a restored schedule URL", () => {
+    expect(
+      planOne({ icalUrl: " webcal://ExampleCon.sched.com/event/private " })
+        .conventions[0].icalUrl,
+    ).toBe("https://examplecon.sched.com");
+
+    for (const icalUrl of [
+      "file:///private/schedule.ics",
+      "javascript:alert('private schedule')",
+      "not a URL",
+    ]) {
+      const plan = planOne({ icalUrl });
+      expect(plan.conventions).toEqual([]);
+      expect(plan.result.reasons.malformed).toBe(1);
+    }
+  });
+
+  it("rejects a schedule URL whose canonical form exceeds the field ceiling", () => {
+    const plan = planOne({
+      icalUrl: `https://example.com/${"é".repeat(980)}`,
+    });
+
+    expect(plan.conventions).toEqual([]);
+    expect(plan.result.reasons.malformed).toBe(1);
   });
 
   it("rejects a name longer than the per-field ceiling", () => {

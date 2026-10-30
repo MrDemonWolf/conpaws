@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "exceptions": [
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-27p8-2357-5qqv",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-27p8-2357-5qqv"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-2v35-w6hq-6mfw",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-2v35-w6hq-6mfw"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-4w3w-2rp5-g8jm",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-4w3w-2rp5-g8jm"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-8344-3jmq-59r6",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-8344-3jmq-59r6"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-93r5-fhx6-vmg9",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-93r5-fhx6-vmg9"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-965w-775f-mr7g",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-965w-775f-mr7g"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-c7q8-3ch8-vqpv",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-c7q8-3ch8-vqpv"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-f6ww-3ggp-fr8h",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-f6ww-3ggp-fr8h"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-j759-j44w-7fr8",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-j759-j44w-7fr8"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-w2rr-34g9-rvrj",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-w2rr-34g9-rvrj"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-wh4c-j3r5-mjhp",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.12",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-wh4c-j3r5-mjhp"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-x4fp-j954-r2f4",
+      "severity": "high",
+      "vulnerableVersions": ">=0.7.0 <=0.8.14",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-x4fp-j954-r2f4"
+    },
+    {
+      "package": "@xmldom/xmldom",
+      "id": "GHSA-x6wf-f3px-wcqx",
+      "severity": "high",
+      "vulnerableVersions": "<0.8.13",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
+      "upstream": "https://github.com/advisories/GHSA-x6wf-f3px-wcqx"
+    },
+    {
+      "package": "node-forge",
+      "id": "GHSA-86w9-cpqp-85rv",
+      "severity": "high",
+      "vulnerableVersions": "<=1.4.0",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "Expo CLI development-certificate tooling only; application code does not import node-forge or verify attacker-supplied signatures with it.",
+      "upstream": "https://github.com/advisories/GHSA-86w9-cpqp-85rv"
+    },
+    {
+      "package": "zod",
+      "id": "GHSA-mrhx-c7xc-m3w5",
+      "severity": "high",
+      "vulnerableVersions": "<4.6.6",
+      "expires": "2026-11-15",
+      "owner": "Nathanial Henniges",
+      "reachability": "The advisory describes Zod 4.6.0 through 4.6.5 and its upstream fix changes the v4 implementation. App workspaces now require patched Zod 4.6.6 or newer; Zod 3 remains only in Expo CLI and shadcn build tooling. Re-check toolchain reachability and the advisory scope before expiry.",
+      "upstream": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5"
+    }
+  ]
+}

@@ -172,7 +172,14 @@ export async function POST(request: Request) {
     return unavailable();
   }
 
-  if (env.WAITLIST_ACCEPTING_SIGNUPS === "false") {
+  // Only a literal true opens real signups; missing or misspelled deploy config must fail closed.
+  const acceptanceSwitch = env.WAITLIST_ACCEPTING_SIGNUPS;
+  if (acceptanceSwitch !== "true") {
+    if (acceptanceSwitch !== "false") {
+      console.error("waitlist: signups closed, acceptance switch invalid", {
+        configured: Boolean(acceptanceSwitch),
+      });
+    }
     return Response.json({ error: "closed" }, { status: 503 });
   }
 

@@ -103,10 +103,7 @@ public class ConPawsWidgetsModule: Module {
     }
 
     Function("consumePendingQuickAction") { () -> String? in
-      let key = "conpaws.pending-quick-action"
-      let route = UserDefaults.standard.string(forKey: key)
-      UserDefaults.standard.removeObject(forKey: key)
-      return route
+      ConPawsQuickActions.consume()
     }
 
     AsyncFunction("publishSnapshot") { (json: String) -> Bool in
