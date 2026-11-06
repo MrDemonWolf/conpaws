@@ -11,6 +11,7 @@ import {
 } from "alchemy/cloudflare";
 import { CloudflareStateStore } from "alchemy/state";
 import { config } from "dotenv";
+import { WEB_BUNDLE_OPTIONS } from "./website-bundle";
 
 /**
  * Production changes only ever come from GitHub Actions on `main`, after CI
@@ -263,6 +264,7 @@ export const web = await Nextjs("web", {
   cwd: "../../apps/web",
   // Populate prerendered cache files before Alchemy uploads ASSETS.
   build: "bun run build:cloudflare",
+  bundle: WEB_BUNDLE_OPTIONS,
   compatibilityDate: COMPATIBILITY_DATE,
   observability: OBSERVABILITY,
   limits: WEB_LIMITS,

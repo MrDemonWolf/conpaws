@@ -17,6 +17,8 @@
   "main": ".open-next/worker.js",
   "workers_dev": false,
   "preview_urls": false,
+  // Match the production bundle: next-themes serializes its startup script.
+  "keep_names": false,
   // MUST equal COMPATIBILITY_DATE in packages/infra/alchemy.run.ts, which is
   // what production actually applies. This file said 2026-08-20 while
   // production ran 2026-03-10, so local preview and CI's smoke test exercised
