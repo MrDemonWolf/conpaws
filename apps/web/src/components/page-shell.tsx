@@ -2,6 +2,7 @@ import { cn } from "@conpaws/ui/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { AppearancePicker } from "@/components/appearance-picker";
 import { SiteHeader } from "@/components/site-header";
 import { UPDATES_LABEL } from "@/content/changelog";
 import type { Messages } from "@/i18n";
@@ -128,6 +129,9 @@ function PageFooter({
             {messages.footer.terms}
           </a>
         </nav>
+      </div>
+      <div className="mt-6">
+        <AppearancePicker labels={messages.appearance} />
       </div>
     </footer>
   );

@@ -119,6 +119,35 @@ try {
       forcedColors: "none",
     });
   }
+
+  const picker = appearance.locator("footer").getByRole("combobox", {
+    name: "Appearance",
+  });
+  await picker.selectOption("light");
+  await appearance.waitForFunction(() =>
+    document.documentElement.classList.contains("light"),
+  );
+  await appearance.reload({ waitUntil: "load" });
+  await appearance.waitForFunction(
+    () =>
+      document.querySelector<HTMLSelectElement>("footer select")?.value ===
+      "light",
+  );
+  assert.equal(
+    await picker.inputValue(),
+    "light",
+    "The choice survives reload",
+  );
+  assert(
+    await appearance.evaluate(() =>
+      document.documentElement.classList.contains("light"),
+    ),
+    "An explicit choice overrides the dark system preference",
+  );
+  await picker.selectOption("system");
+  await appearance.waitForFunction(() =>
+    document.documentElement.classList.contains("dark"),
+  );
   await appearance.close();
 
   const layouts = [
@@ -250,6 +279,41 @@ try {
           `${layout.width}px ${layout.textScale * 100}% text ${path}: horizontal scroll=${result.scrolls}, covered anchor=${result.anchorCovered}; ${result.offenders.join("; ")}`,
         );
       }
+      if (layout.width === 320 && layout.textScale === 2) {
+        await page.locator('header button[aria-haspopup="dialog"]').click();
+        const appearanceIssues = await page
+          .locator("dialog[open]")
+          .getByRole("combobox")
+          .evaluate((select) => {
+            const label = select.closest("label");
+            const text = label?.querySelector("span");
+            if (!label || !text) throw new Error("Missing appearance label");
+            const bounds = label.getBoundingClientRect();
+            const outside = (rect: DOMRect) =>
+              rect.left < bounds.left - 1 ||
+              rect.right > bounds.right + 1 ||
+              rect.top < bounds.top - 1 ||
+              rect.bottom > bounds.bottom + 1;
+            const range = document.createRange();
+            range.selectNodeContents(text);
+            const control = select.getBoundingClientRect();
+            const issues: string[] = [];
+            if (label.scrollWidth > label.clientWidth + 1)
+              issues.push("appearance label scrolls horizontally");
+            if (Array.from(range.getClientRects()).some(outside))
+              issues.push("appearance text exceeds its label");
+            if (outside(control))
+              issues.push("appearance picker exceeds its label");
+            if (control.width < 44 || control.height < 44)
+              issues.push("appearance picker target is smaller than 44px");
+            return issues;
+          });
+        if (appearanceIssues.length)
+          failures.push(
+            `320px 200% text ${path}: ${appearanceIssues.join("; ")}`,
+          );
+        await page.keyboard.press("Escape");
+      }
     }
     await page.close();
   }
@@ -265,6 +329,26 @@ try {
   await menu.click();
   const dialog = page.getByRole("dialog", { name: "Menu", exact: true });
   assert(await dialog.isVisible(), "Mobile navigation must open");
+  const mobileAppearance = dialog.getByRole("combobox", { name: "Appearance" });
+  await mobileAppearance.selectOption("dark");
+  await page.waitForFunction(() =>
+    document.documentElement.classList.contains("dark"),
+  );
+  assert(await dialog.isVisible(), "Changing appearance keeps navigation open");
+  assert.equal(
+    await page.locator("footer select").inputValue(),
+    "dark",
+    "Menu and footer share the same preference",
+  );
+  await mobileAppearance.focus();
+  await page.keyboard.press("Tab");
+  assert(
+    await dialog
+      .getByRole("link", { name: "Join waitlist" })
+      .evaluate((element) => document.activeElement === element),
+    "Tab moves from the native appearance picker to the next menu action",
+  );
+  await mobileAppearance.selectOption("system");
   await dialog.getByRole("link", { name: "ConPaws", exact: true }).focus();
   await page.keyboard.press("Shift+Tab");
   assert(

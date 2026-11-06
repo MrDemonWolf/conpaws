@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppPreview, type AppPreviewScreen } from "@/components/app-preview";
+import { AppearancePicker } from "@/components/appearance-picker";
 import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
@@ -398,6 +399,9 @@ export function Landing({
                 {messages.footer.terms}
               </a>
             </nav>
+          </div>
+          <div className="relative pb-8">
+            <AppearancePicker labels={messages.appearance} />
           </div>
         </footer>
         <MobileAction

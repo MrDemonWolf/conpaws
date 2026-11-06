@@ -21,6 +21,12 @@
     "closeMenu": "Navigatie sluiten",
     "updates": "Updates"
   },
+  "appearance": {
+    "label": "Uiterlijk",
+    "system": "Systeem",
+    "light": "Licht",
+    "dark": "Donker"
+  },
   "ticker": {
     "screenReaderSummary": "Programma's, offline eerst, herinneringen, inhoudswaarschuwingen, iOS, Android.",
     "items": [

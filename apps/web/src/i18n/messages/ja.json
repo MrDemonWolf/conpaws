@@ -21,6 +21,12 @@
     "closeMenu": "ナビゲーションを閉じる",
     "updates": "更新情報"
   },
+  "appearance": {
+    "label": "外観",
+    "system": "システム",
+    "light": "ライト",
+    "dark": "ダーク"
+  },
   "ticker": {
     "screenReaderSummary": "スケジュール、オフライン優先、リマインダー、コンテンツ警告、iOS、Android。",
     "items": [

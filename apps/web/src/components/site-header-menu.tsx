@@ -101,7 +101,7 @@ export function SiteHeaderMenu({
     if (event.key !== "Tab") return;
     const targets = Array.from(
       element.querySelectorAll<HTMLElement>(
-        "a[href], button:not([disabled]), summary",
+        "a[href], button:not([disabled]), select:not([disabled]), summary",
       ),
     ).filter((target) => {
       const details = target.closest("details");

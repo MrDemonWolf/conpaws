@@ -21,6 +21,12 @@
     "closeMenu": "Close navigation",
     "updates": "Updates"
   },
+  "appearance": {
+    "label": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
   "ticker": {
     "screenReaderSummary": "Schedules, offline first, reminders, content flags, iOS, Android.",
     "items": [

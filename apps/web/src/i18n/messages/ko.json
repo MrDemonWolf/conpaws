@@ -21,6 +21,12 @@
     "closeMenu": "탐색 메뉴 닫기",
     "updates": "업데이트"
   },
+  "appearance": {
+    "label": "화면 모드",
+    "system": "시스템",
+    "light": "라이트",
+    "dark": "다크"
+  },
   "ticker": {
     "screenReaderSummary": "일정, 오프라인 우선, 알림, 콘텐츠 경고, iOS, Android.",
     "items": ["일정", "오프라인 우선", "알림", "콘텐츠 경고", "iOS", "Android"]

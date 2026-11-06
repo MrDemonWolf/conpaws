@@ -21,6 +21,12 @@
     "closeMenu": "Chiudi navigazione",
     "updates": "Novità"
   },
+  "appearance": {
+    "label": "Aspetto",
+    "system": "Sistema",
+    "light": "Chiaro",
+    "dark": "Scuro"
+  },
   "ticker": {
     "screenReaderSummary": "Programmi, offline prima di tutto, promemoria, avvisi sui contenuti, iOS, Android.",
     "items": [

@@ -21,6 +21,12 @@
     "closeMenu": "Navigation schließen",
     "updates": "Neuigkeiten"
   },
+  "appearance": {
+    "label": "Erscheinungsbild",
+    "system": "System",
+    "light": "Hell",
+    "dark": "Dunkel"
+  },
   "ticker": {
     "screenReaderSummary": "Zeitpläne, Offline zuerst, Erinnerungen, Inhaltshinweise, iOS, Android.",
     "items": [
