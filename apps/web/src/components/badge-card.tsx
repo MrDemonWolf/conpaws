@@ -120,12 +120,12 @@ export function BadgeCard({ name }: { name: string }) {
 
   return (
     <div
-      className="group/badge flex w-full max-w-[320px] select-none flex-col items-center"
+      className="group/badge mx-auto flex w-full max-w-[288px] select-none flex-col items-center"
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
     >
       {/* Everything below sways together, hinged where the clip sits. */}
-      <div className="motion-safe:animate-sway flex w-full max-w-[320px] origin-[50%_-30px] flex-col items-center">
+      <div className="motion-safe:animate-sway flex w-full max-w-[288px] origin-[50%_-30px] flex-col items-center">
         {/* ---- lanyard straps ----
             Anchored at the BOTTOM and much taller than their visible area, so
             their top ends always sit above the viewport edge — a strap that
@@ -185,7 +185,7 @@ export function BadgeCard({ name }: { name: string }) {
         </div>
 
         {/* ---- the card, with pointer tilt ---- */}
-        <div className="w-full max-w-[320px] [perspective:1100px]">
+        <div className="w-full max-w-[288px] [perspective:1100px]">
           <div ref={cardRef} className="badge-tilt">
             <BadgeFace name={name} badgeNumber={badgeNumber} />
           </div>

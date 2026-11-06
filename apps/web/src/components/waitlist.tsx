@@ -8,6 +8,7 @@ import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import type { Messages } from "@/i18n";
 import { CONSENT_COPY } from "../lib/consent";
 import { Badge } from "./badge";
+import { BADGE_NAME_MAX_LENGTH, limitBadgeName } from "./badge-name";
 import { CompassPaw } from "./compass-paw";
 
 type Status = "idle" | "submitting" | "done";
@@ -37,6 +38,7 @@ export function Waitlist({
 }) {
   const Heading = headingLevel;
   const nameId = useId();
+  const nameCountId = `${nameId}-count`;
   const emailId = useId();
   const hpId = useId();
 
@@ -233,13 +235,43 @@ export function Waitlist({
                   autoComplete="name"
                   placeholder={messages.namePlaceholder}
                   value={name}
+                  aria-describedby={nameCountId}
                   onChange={(e) => {
-                    setName(e.target.value);
+                    setName(limitBadgeName(e.target.value));
                     setErrorMessage("");
                   }}
-                  maxLength={60}
+                  onPaste={(event) => {
+                    // Native maxlength can cut a pasted grapheme in half.
+                    // Preserve the selection's suffix and insert whole characters.
+                    event.preventDefault();
+                    const input = event.currentTarget;
+                    const start = input.selectionStart ?? name.length;
+                    const end = input.selectionEnd ?? start;
+                    const pasted = limitBadgeName(
+                      event.clipboardData.getData("text/plain"),
+                      BADGE_NAME_MAX_LENGTH - name.length + end - start,
+                    );
+                    const next = limitBadgeName(
+                      name.slice(0, start) + pasted + name.slice(end),
+                    );
+                    setName(next);
+                    setErrorMessage("");
+                    const caret = Math.min(start + pasted.length, next.length);
+                    requestAnimationFrame(() => {
+                      if (input.isConnected) {
+                        input.setSelectionRange(caret, caret);
+                      }
+                    });
+                  }}
+                  maxLength={BADGE_NAME_MAX_LENGTH}
                   className={INPUT_CLASS}
                 />
+                <p
+                  id={nameCountId}
+                  className="mt-1.5 text-right font-tech text-muted-foreground text-xs tabular-nums"
+                >
+                  {name.length} / {BADGE_NAME_MAX_LENGTH}
+                </p>
               </div>
 
               <div>

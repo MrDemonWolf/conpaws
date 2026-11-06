@@ -140,8 +140,9 @@ export function DesignSystemPage() {
           Borders use <code className="font-tech">--border</code>; inputs use{" "}
           <code className="font-tech">--input</code>; focus uses{" "}
           <code className="font-tech">--ring</code>. Keep these roles separate.
-          Filled cyan actions use the dark primary foreground, rather than white
-          text.
+          Filled actions use their paired primary foreground: light appearance
+          pairs darker cyan with white text; dark appearance pairs bright cyan
+          with dark text.
         </p>
       </ReferenceSection>
 

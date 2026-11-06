@@ -114,20 +114,6 @@ export function AppPreview({
 
   return (
     <figure className={styles.hero}>
-      <fieldset className={styles.selector}>
-        <legend className="sr-only">{label}</legend>
-        {screens.map((screen, index) => (
-          <button
-            key={screen.id}
-            type="button"
-            aria-pressed={index === activeIndex}
-            onClick={() => setSelectedIndex(index)}
-            onKeyDown={(event) => onKeyDown(event, index)}
-          >
-            {screen.title}
-          </button>
-        ))}
-      </fieldset>
       <div
         className={`${styles.screen} ${styles.swipe}`}
         onPointerDown={onPointerDown}
@@ -153,11 +139,21 @@ export function AppPreview({
           />
         ))}
       </div>
-      <div className={styles.dots} aria-hidden="true">
+      <fieldset className={styles.dots}>
+        <legend className="sr-only">{label}</legend>
         {screens.map((screen, index) => (
-          <span key={screen.id} data-active={index === activeIndex} />
+          <button
+            key={screen.id}
+            type="button"
+            aria-label={screen.title}
+            aria-pressed={index === activeIndex}
+            onClick={() => setSelectedIndex(index)}
+            onKeyDown={(event) => onKeyDown(event, index)}
+          >
+            <span aria-hidden="true" />
+          </button>
         ))}
-      </div>
+      </fieldset>
       <figcaption
         className={styles.caption}
         aria-live="polite"

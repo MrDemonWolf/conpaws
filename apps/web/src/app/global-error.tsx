@@ -22,7 +22,13 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      style={{
+        backgroundColor: "var(--gx-background, #000)",
+        colorScheme: "dark",
+      }}
+    >
       <body
         style={{
           margin: 0,
@@ -30,21 +36,33 @@ export default function GlobalError({
           display: "grid",
           placeItems: "center",
           padding: "24px",
-          background: "#f7f9fb",
-          color: "#0d1a2b",
+          background: "var(--gx-background, #000)",
+          color: "var(--gx-foreground, #f5f5f5)",
           fontFamily:
             "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
           lineHeight: 1.6,
         }}
       >
         <style>{`
-          @media (prefers-color-scheme: dark) {
-            body { background: #091533 !important; color: #e8eef6 !important; }
-            .gx-card { background: #0e1c3d !important; border-color: #24365e !important; }
-            .gx-muted { color: #9fb0c9 !important; }
+          :root {
+            --gx-background: #000;
+            --gx-foreground: #f5f5f5;
+            --gx-card: #1c1c1c;
+            --gx-border: #737373;
+            --gx-muted: #a3a3a3;
+          }
+          @media (prefers-color-scheme: light) {
+            :root {
+              --gx-background: #fff;
+              --gx-foreground: #171717;
+              --gx-card: #f5f5f5;
+              --gx-border: #737373;
+              --gx-muted: #525252;
+              color-scheme: light !important;
+            }
           }
           .gx-btn:hover { filter: brightness(1.1); }
-          .gx-btn:focus-visible { outline: 2px solid #0faced; outline-offset: 3px; }
+          .gx-btn:focus-visible { outline: 2px solid #00729c; outline-offset: 3px; }
         `}</style>
 
         <main
@@ -52,8 +70,8 @@ export default function GlobalError({
           style={{
             maxWidth: "34rem",
             width: "100%",
-            background: "#ffffff",
-            border: "1px solid #dde5ee",
+            background: "var(--gx-card, #1c1c1c)",
+            border: "1px solid var(--gx-border, #737373)",
             borderRadius: "18px",
             padding: "40px 32px",
             textAlign: "center",
@@ -66,7 +84,7 @@ export default function GlobalError({
               fontSize: "11px",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
-              color: "#5d7186",
+              color: "var(--gx-muted, #a3a3a3)",
             }}
           >
             Something broke
@@ -89,7 +107,7 @@ export default function GlobalError({
               margin: "16px auto 0",
               maxWidth: "44ch",
               fontSize: "15px",
-              color: "#5d7186",
+              color: "var(--gx-muted, #a3a3a3)",
             }}
           >
             The problem is on our side, not yours. Trying again usually works —
@@ -130,7 +148,7 @@ export default function GlobalError({
               className="gx-btn"
               style={{
                 borderRadius: "12px",
-                border: "1px solid #dde5ee",
+                border: "1px solid var(--gx-border, #737373)",
                 color: "inherit",
                 textDecoration: "none",
                 padding: "14px 26px",
@@ -150,7 +168,7 @@ export default function GlobalError({
               style={{
                 margin: "26px 0 0",
                 fontSize: "12px",
-                color: "#5d7186",
+                color: "var(--gx-muted, #a3a3a3)",
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
               }}
             >

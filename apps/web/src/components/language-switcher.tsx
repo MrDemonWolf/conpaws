@@ -94,7 +94,7 @@ export function LanguageSwitcher({
         className={
           inline
             ? "mt-2 max-h-[40dvh] overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-2"
-            : "absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-112px))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(9_21_51/0.65)]"
+            : "absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-112px))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(0_0_0/0.65)]"
         }
       >
         {/* `publishedLocales()`, not LOCALES: `[locale]/page.tsx` sets

@@ -204,18 +204,19 @@
     flex: 1;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 0.75rem 1.25rem;
   }
 
   .desktopNav {
     display: flex;
     min-width: 0;
-    flex: 1;
+    flex: 0 1 auto;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    gap: 0.25rem 1.5rem;
+    justify-content: flex-start;
+    gap: 0.25rem 1.25rem;
+    margin-inline-end: auto;
   }
 
   .desktopNav a {
@@ -223,7 +224,7 @@
     align-items: center;
     min-height: 44px;
     color: var(--muted-foreground);
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     line-height: 1.4;
     overflow-wrap: anywhere;

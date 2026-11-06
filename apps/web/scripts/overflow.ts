@@ -32,6 +32,44 @@ const paths = [
 const browser = await chromium.launch();
 const failures: string[] = [];
 try {
+  const fallback = await browser.newPage({
+    javaScriptEnabled: false,
+    colorScheme: "light",
+  });
+  await fallback.goto(origin.toString(), { waitUntil: "load" });
+  assert(
+    await fallback.evaluate(() =>
+      document.documentElement.classList.contains("dark"),
+    ),
+    "Before JavaScript, the server must keep the dark fallback",
+  );
+  assert.equal(
+    await fallback.evaluate(
+      () => getComputedStyle(document.documentElement).backgroundColor,
+    ),
+    "rgb(0, 0, 0)",
+    "The fallback canvas must be dark before theme hydration",
+  );
+  await fallback.close();
+
+  const appearance = await browser.newPage({ colorScheme: "dark" });
+  await appearance.goto(origin.toString(), { waitUntil: "load" });
+  for (const colorScheme of ["dark", "light", "dark"] as const) {
+    await appearance.emulateMedia({ colorScheme });
+    await appearance.waitForFunction(
+      (theme) => document.documentElement.classList.contains(theme),
+      colorScheme,
+    );
+    assert.equal(
+      await appearance.evaluate(
+        () => getComputedStyle(document.documentElement).backgroundColor,
+      ),
+      colorScheme === "dark" ? "rgb(0, 0, 0)" : "rgb(255, 255, 255)",
+      "The hydrated page must follow system appearance changes",
+    );
+  }
+  await appearance.close();
+
   for (const width of WIDTHS) {
     const page = await browser.newPage({ viewport: { width, height: 800 } });
     for (const path of paths) {
@@ -114,6 +152,18 @@ try {
     name: "Reminders",
     exact: true,
   });
+  const previewImage = page.locator('figure img[data-active="true"]');
+  const imageBounds = await previewImage.boundingBox();
+  const dotBounds = await reminders.boundingBox();
+  assert(imageBounds && dotBounds, "Preview and its controls must be visible");
+  assert(
+    dotBounds.y >= imageBounds.y + imageBounds.height &&
+      dotBounds.width >= 44 &&
+      dotBounds.height >= 44,
+    "Preview controls belong below the image with usable touch targets",
+  );
+  await reminders.click();
+  assert.equal(await reminders.getAttribute("aria-pressed"), "true");
   await reminders.focus();
   await reminders.press("ArrowRight");
   assert.equal(
@@ -152,5 +202,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `PASS: no horizontal overflow on ${paths.length} pages at ${WIDTHS.join(" and ")}px; keyboard navigation, preview selection and reduced motion`,
+  `PASS: no horizontal overflow on ${paths.length} pages at ${WIDTHS.join(" and ")}px; dark fallback, system appearance, keyboard navigation, preview selection and reduced motion`,
 );
