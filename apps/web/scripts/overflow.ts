@@ -67,6 +67,54 @@ try {
       colorScheme === "dark" ? "rgb(0, 0, 0)" : "rgb(255, 255, 255)",
       "The hydrated page must follow system appearance changes",
     );
+    const glass = await appearance.evaluate(() => {
+      const header = document.querySelector("header");
+      if (!header) throw new Error("Missing site header");
+      const style = getComputedStyle(header);
+      return {
+        supported:
+          CSS.supports(
+            "background",
+            "color-mix(in srgb, black 85%, transparent)",
+          ) &&
+          (CSS.supports("backdrop-filter", "blur(1px)") ||
+            CSS.supports("-webkit-backdrop-filter", "blur(1px)")),
+        filter:
+          style.backdropFilter ||
+          style.getPropertyValue("-webkit-backdrop-filter"),
+      };
+    });
+    assert.equal(glass.filter, glass.supported ? "blur(18px)" : "none");
+    for (const preference of [
+      { contrast: "more" },
+      { contrast: "no-preference", forcedColors: "active" },
+    ] as const) {
+      await appearance.emulateMedia(preference);
+      const opaque = await appearance.locator("header").evaluate((header) => {
+        const style = getComputedStyle(header);
+        return {
+          filter:
+            style.backdropFilter ||
+            style.getPropertyValue("-webkit-backdrop-filter"),
+          background: style.backgroundColor,
+          canvas: getComputedStyle(document.documentElement).backgroundColor,
+        };
+      });
+      assert.equal(
+        opaque.filter,
+        "none",
+        "Accessibility preferences remove blur",
+      );
+      assert.equal(
+        opaque.background,
+        opaque.canvas,
+        "Header fallback stays solid",
+      );
+    }
+    await appearance.emulateMedia({
+      contrast: "no-preference",
+      forcedColors: "none",
+    });
   }
   await appearance.close();
 

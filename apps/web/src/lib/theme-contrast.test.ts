@@ -160,6 +160,29 @@ describe.each([
         contrast(color(resolved, surface), color(resolved, "ring")),
       ).toBeGreaterThanOrEqual(3);
   });
+
+  it("keeps sticky header labels readable over light or dark scrolling content", () => {
+    const headerCss = readFileSync(
+      new URL("../components/site-header.module.css", import.meta.url),
+      "utf8",
+    );
+    const tint = headerCss.match(/var\(--background\)\s+(\d+)%/)?.[1];
+    if (!tint) throw new Error("Missing header tint");
+    const opacity = Number(tint) / 100;
+    const canvas = color(resolved, "background");
+    for (const channel of [0, 1]) {
+      const backdrop = canvas.map(
+        (value) => value * opacity + channel * (1 - opacity),
+      ) as Rgb;
+      for (const text of ["foreground", "muted-foreground", "primary"])
+        expect(
+          contrast(color(resolved, text), backdrop),
+        ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        contrast(color(resolved, "ring"), backdrop),
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
 });
 
 it("uses the tested foreground pair for destructive Button and Badge", () => {
