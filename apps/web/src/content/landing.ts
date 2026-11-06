@@ -35,7 +35,11 @@
  * English catalog is the one that renders.
  */
 export interface LineupItem {
-  /** Programme-guide time. Sorts the visual rhythm, not real scheduling. */
+  /**
+   * Programme-guide time. Sorts the visual rhythm, not real scheduling. Keep
+   * the HH:MM shape: each lineup row is its own grid with a max-content time
+   * column, so equal character counts are what keep the titles aligned.
+   */
   time: string;
   tag: "Core" | "QoL" | "Safety";
 }

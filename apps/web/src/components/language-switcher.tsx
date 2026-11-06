@@ -16,6 +16,9 @@ import { localeHref, publishedLocales } from "@/i18n/routing";
  *   - Every option written in its own language. A list that says "German" and
  *     "Japanese" in English is no help to the people trying to leave English.
  *   - The current language named on the button and marked in the list.
+ *   - That name written in full, wrapping when the header is narrow and never
+ *     truncated: an ellipsis would hide the current language from exactly the
+ *     person who cannot read the page around it.
  *   - `hreflang` on every option, so the link says what it leads to.
  *   - Closes on Escape and on a click outside.
  *
@@ -83,7 +86,7 @@ export function LanguageSwitcher({
         className={
           inline
             ? "mt-2 max-h-[40dvh] overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-2"
-            : "absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-112px))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(0_0_0/0.65)]"
+            : "absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-var(--site-header-height,96px)-2rem))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(0_0_0/0.65)]"
         }
       >
         {/* `publishedLocales()`, not LOCALES: `[locale]/page.tsx` sets

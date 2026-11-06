@@ -26,6 +26,9 @@
   }
 }
 
+/* Wrap at every width: with enlarged text the brand and the menu button no
+ * longer share one 320px row, so the header grows to two rows instead of
+ * overflowing. index.css reads the measured height for scroll offsets. */
 .inner {
   display: flex;
   flex-wrap: wrap;
@@ -38,17 +41,19 @@
   padding: 0.75rem 1.5rem;
 }
 
+/* The wordmark never breaks or shrinks below its text: it scales with the
+ * viewport instead, so under text zoom on a phone it stays one word that fits
+ * the row (7.5vw is 24px at 320px, so nothing changes at 100% text). */
 .brand {
   display: inline-flex;
-  flex-shrink: 1;
-  min-width: 0;
+  flex-shrink: 0;
   max-width: 100%;
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
   color: var(--foreground);
   font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
-  font-size: 1.5rem;
+  font-size: min(1.5rem, 7.5vw);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.15;
@@ -56,8 +61,7 @@
 }
 
 .brand span {
-  min-width: 0;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .mark {
@@ -96,9 +100,12 @@
   overflow-wrap: anywhere;
 }
 
+/* When the row wraps, a lone item would sit at the start of its line; keep
+ * the menu button at the trailing edge where the thumb expects it. */
 .mobile {
   min-width: 0;
   max-width: 100%;
+  margin-inline-start: auto;
 }
 
 .menuButton svg,
@@ -139,6 +146,7 @@
 
 .drawerHeader {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -146,6 +154,10 @@
   flex-shrink: 0;
   padding: 0.75rem 1.5rem;
   border-block-end: 1px solid var(--border);
+}
+
+.closeButton {
+  margin-inline-start: auto;
 }
 
 .drawerBody {
@@ -157,6 +169,13 @@
   padding: 1.5rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+/* The body is the scroll container, so its items must keep their size: a
+ * column flexbox otherwise squeezes the last control to its min-height and
+ * a two-line label at 200% text spills outside the filled button. */
+.drawerBody > * {
+  flex-shrink: 0;
 }
 
 .mobileNav {
@@ -173,6 +192,7 @@
   font-size: 1.375rem;
   font-weight: 600;
   line-height: 1.4;
+  hyphens: auto;
   overflow-wrap: anywhere;
   text-decoration: none;
 }
@@ -239,7 +259,9 @@
     flex: 1;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-start;
+    /* A row without the nav (its auto margin keeps the nav leading) holds
+     * only the language and waitlist controls, which belong trailing. */
+    justify-content: flex-end;
     gap: 0.75rem 1.25rem;
   }
 
@@ -262,6 +284,7 @@
     font-size: 0.9375rem;
     font-weight: 500;
     line-height: 1.4;
+    hyphens: auto;
     overflow-wrap: anywhere;
     text-decoration: none;
   }
@@ -271,12 +294,17 @@
     display: none;
   }
 
+  /* No width cap: a cap folded "Rejoindre la liste d’attente" onto two lines
+   * with the row half empty. The control takes its natural width and, when
+   * the row is full, moves whole to the next row; the row keeps it trailing. */
   .desktop .waitlist {
-    max-width: 12rem;
+    max-width: none;
   }
 
+  /* Wide enough for the longest native name, "Español (Latinoamérica)", on one
+   * line at 100% text; longer text wraps rather than truncates. */
   .desktop [data-lang-menu] > summary {
-    max-width: 11rem;
+    max-width: 14rem;
     border: 0;
     border-radius: var(--radius);
     padding-inline: 0.5rem;
@@ -303,5 +331,13 @@
 @media (prefers-reduced-motion: reduce) {
   .drawer[open] {
     animation: none;
+  }
+}
+
+/* Without JavaScript the <noscript> branch renders the whole menu inside the
+ * header; a sticky header that tall would cover half a phone screen. */
+@media (scripting: none) {
+  .header {
+    position: static;
   }
 }

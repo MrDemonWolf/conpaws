@@ -42,7 +42,7 @@ function ReferenceSection({
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className="scroll-mt-8 border-t border-border py-10 sm:py-14"
+      className="border-t border-border py-10 sm:py-14"
     >
       <div className="mb-6 max-w-[64ch]">
         <h2

@@ -1,15 +1,28 @@
-// Rendered layout check for every locale at narrow phone widths.
+// Rendered layout check for the website: every page at phone, tablet and
+// desktop widths, and every page with simulated 200% text.
 //
 //   bun run --filter @conpaws/web preview        # local Worker on 8789
 //   bun apps/web/scripts/overflow.ts http://127.0.0.1:8789
 //
 // e2e.ts only fetches HTML, so it cannot see a heading word wider than the
-// viewport (the Norwegian hero did exactly that). This loads each page in
-// headless Chromium and fails if the document scrolls horizontally or any
-// visible element sticks out past the right edge. Needs Playwright's Chromium:
+// viewport (the Norwegian hero did exactly that) or a Dutch feature label cut
+// off by its card. This loads each page in headless Chromium and fails when
+//
+//   - the document scrolls sideways,
+//   - visible text is clipped by an overflow-hidden or overflow-clip ancestor,
+//   - a link, button, summary or label is narrower or shorter than its text,
+//   - the #features anchor lands under the sticky header,
+//
+// first with the page as served, then with the mobile menu and its language
+// list open (or the desktop language menu), so the translated header strings
+// are measured too. 200% text follows WCAG 1.4.4 and the repo's large-text
+// rule; Chromium has no text-only zoom, so every element's computed font size
+// is doubled inline, which leaves rem spacing alone the way text zoom does.
+// The appearance, no-script, skip-link, fragment and keyboard sections cover
+// behaviour that only exists after hydration. Needs Playwright's Chromium:
 // `bunx playwright-core install chromium-headless-shell` once per machine.
 import assert from "node:assert/strict";
-import { chromium } from "playwright-core";
+import { chromium, type Page } from "playwright-core";
 import { LOCALE_CODES } from "../src/i18n/config";
 
 const origin = new URL(process.argv[2] ?? "http://127.0.0.1:8789");
@@ -19,6 +32,7 @@ assert(
 );
 
 const WIDTHS = [320, 375, 768, 1024, 1280];
+const TEXT_SCALE_WIDTHS = [320, 1024];
 const localePaths = LOCALE_CODES.map((locale) =>
   locale === "en" ? "/" : `/${locale}`,
 );
@@ -31,6 +45,169 @@ const paths = [
   "/confirmed",
   "/design-system",
 ];
+// The shared Button keeps shadcn's whitespace-nowrap, so the design-system
+// specimens cannot wrap at 200% yet; that reference page is checked at 100%.
+const textScalePaths = paths.filter((path) => path !== "/design-system");
+
+/** True once site-header-menu.tsx has published the header's real height. */
+const headerMeasured = () => {
+  const header = document.querySelector("header");
+  if (!header) return true;
+  const published = Number.parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue(
+      "--site-header-height",
+    ),
+  );
+  return Math.abs(published - header.getBoundingClientRect().height) < 1;
+};
+
+/** Let the caret rotation and other CSS transitions finish before measuring. */
+const settle = (page: Page) =>
+  page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation instanceof CSSTransition)
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
+
+/**
+ * Walk the visible text under `rootSelector` and report text that an
+ * overflow-hidden ancestor clips, or that is wider or taller than the link,
+ * button, summary or label it belongs to. Also reports sideways scrolling of
+ * the document (root is body) or of any scroll container under the root.
+ */
+const measureText = (page: Page, rootSelector: string) =>
+  page.evaluate((rootSelector) => {
+    const describe = (element: Element) => {
+      const tag = element.tagName.toLowerCase();
+      const name = element.id
+        ? `#${element.id}`
+        : element.classList[0]
+          ? `.${element.classList[0]}`
+          : "";
+      const landmark = element.closest("section[id], dialog, header, footer");
+      const where =
+        landmark && landmark !== element
+          ? ` in ${landmark.tagName.toLowerCase()}${landmark.id ? `#${landmark.id}` : ""}`
+          : "";
+      return `${tag}${name}${where}`;
+    };
+    const root = document.querySelector<HTMLElement>(rootSelector);
+    if (!root)
+      return { scrolls: false, offenders: [`missing ${rootSelector}`] };
+    const scrolls =
+      root === document.body
+        ? document.documentElement.scrollWidth >
+          document.documentElement.clientWidth
+        : [root, ...root.querySelectorAll<HTMLElement>("*")].some(
+            (pane) =>
+              /^(auto|scroll)$/.test(getComputedStyle(pane).overflowY) &&
+              pane.scrollWidth > pane.clientWidth + 1,
+          );
+    const offenders: string[] = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode() && offenders.length < 8) {
+      const node = walker.currentNode;
+      const element = node.parentElement;
+      if (!element || !node.textContent?.trim()) continue;
+      if (
+        element.closest("script, style, .sr-only, dialog:not([open])") ||
+        getComputedStyle(element).visibility === "hidden"
+      )
+        continue;
+      const details = element.closest("details:not([open])");
+      if (details && !details.querySelector("summary")?.contains(element))
+        continue;
+      const control = element.closest("a, button, summary, label");
+      const decoration = element.closest('[aria-hidden="true"]');
+      if (decoration && !control?.contains(decoration)) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const fragments = Array.from(range.getClientRects()).filter(
+        (rect) => rect.width > 0 && rect.height > 0,
+      );
+      if (!fragments.length) continue;
+      // Range rects measure the glyph content area, which overhangs a line
+      // box whose line-height is tighter than the font's natural spacing (the
+      // wordmark at 1.15 overhangs by 0.7px at 24px and 1.4px at 48px). Allow
+      // exactly that much vertically; nothing is clipped or spilling there.
+      const lineHeight = Number.parseFloat(
+        getComputedStyle(element).lineHeight,
+      );
+      const slack = (text: DOMRect) =>
+        1 +
+        (Number.isNaN(lineHeight)
+          ? 0
+          : Math.max(0, (text.height - lineHeight) / 2));
+      const exceedsX = (text: DOMRect, box: DOMRect) =>
+        text.left < box.left - 1 || text.right > box.right + 1;
+      const exceedsY = (text: DOMRect, box: DOMRect) =>
+        text.top < box.top - slack(text) ||
+        text.bottom > box.bottom + slack(text);
+      const label = node.textContent.trim().slice(0, 48);
+      let scrollX = false;
+      let scrollY = false;
+      let parent: Element | null = element;
+      while (parent) {
+        const style = getComputedStyle(parent);
+        const rect = parent.getBoundingClientRect();
+        const clipX = !scrollX && /^(hidden|clip)$/.test(style.overflowX);
+        const clipY = !scrollY && /^(hidden|clip)$/.test(style.overflowY);
+        if (
+          fragments.some(
+            (text) =>
+              (clipX && exceedsX(text, rect)) ||
+              (clipY && exceedsY(text, rect)),
+          )
+        ) {
+          offenders.push(`${describe(parent)} clips "${label}"`);
+          break;
+        }
+        scrollX ||= /^(auto|scroll)$/.test(style.overflowX);
+        scrollY ||= /^(auto|scroll)$/.test(style.overflowY);
+        parent = parent.parentElement;
+      }
+      if (control) {
+        const rect = control.getBoundingClientRect();
+        if (
+          fragments.some((text) => exceedsX(text, rect) || exceedsY(text, rect))
+        )
+          offenders.push(`${describe(control)} is smaller than "${label}"`);
+      }
+    }
+    return { scrolls, offenders };
+  }, rootSelector);
+
+/** The appearance picker inside the open menu: label, select and target. */
+const measureAppearancePicker = (page: Page) =>
+  page
+    .locator("header dialog[open]")
+    .getByRole("combobox")
+    .evaluate((select) => {
+      const label = select.closest("label");
+      const text = label?.querySelector("span");
+      if (!label || !text) throw new Error("Missing appearance label");
+      const bounds = label.getBoundingClientRect();
+      const outside = (rect: DOMRect) =>
+        rect.left < bounds.left - 1 ||
+        rect.right > bounds.right + 1 ||
+        rect.top < bounds.top - 1 ||
+        rect.bottom > bounds.bottom + 1;
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      const control = select.getBoundingClientRect();
+      const issues: string[] = [];
+      if (label.scrollWidth > label.clientWidth + 1)
+        issues.push("appearance label scrolls horizontally");
+      if (Array.from(range.getClientRects()).some(outside))
+        issues.push("appearance text exceeds its label");
+      if (outside(control)) issues.push("appearance picker exceeds its label");
+      if (control.width < 44 || control.height < 44)
+        issues.push("appearance picker target is smaller than 44px");
+      return issues;
+    });
 
 const browser = await chromium.launch();
 const failures: string[] = [];
@@ -54,6 +231,24 @@ try {
     "The fallback canvas must be dark before theme hydration",
   );
   await fallback.close();
+
+  // Without JavaScript the expanded <noscript> menu lives inside the header,
+  // which must then flow with the page instead of covering half a phone.
+  const noScript = await browser.newPage({
+    javaScriptEnabled: false,
+    viewport: { width: 375, height: 812 },
+  });
+  await noScript.goto(origin.toString(), { waitUntil: "load" });
+  assert.equal(
+    await noScript.evaluate(() => {
+      const header = document.querySelector("header");
+      if (!header) throw new Error("Missing site header");
+      return getComputedStyle(header).position;
+    }),
+    "static",
+    "Without JavaScript the header must not stick",
+  );
+  await noScript.close();
 
   const appearance = await browser.newPage({ colorScheme: "dark" });
   appearance.on("pageerror", (error) => {
@@ -155,170 +350,161 @@ try {
 
   const layouts = [
     ...WIDTHS.map((width) => ({ width, textScale: 1, paths })),
-    ...[320, 1024].map((width) => ({
+    ...TEXT_SCALE_WIDTHS.map((width) => ({
       width,
       textScale: 2,
-      paths: localePaths,
+      paths: textScalePaths,
     })),
   ];
   for (const layout of layouts) {
     const page = await browser.newPage({
       viewport: { width: layout.width, height: 800 },
+      // The hero's rise animation moves text by 18px for 0.7s; measured
+      // rects must not depend on when the snapshot lands inside that.
       reducedMotion: "reduce",
     });
+    // Pages load in well under a second locally; a hung load should be
+    // recorded against its page, not abort the whole run after 30s. A dead
+    // preview still fails fast: three unloadable pages in a row end the run
+    // instead of burning CI's job timeout one page at a time.
+    page.setDefaultTimeout(10_000);
+    let unloadable = 0;
     for (const path of layout.paths) {
-      // Not "networkidle": Turnstile and the service worker keep polling.
-      await page.goto(new URL(path, origin).toString(), { waitUntil: "load" });
-      await page.evaluate(async () => {
-        await document.fonts.ready;
-      });
-      if (layout.textScale === 2) {
-        await page.evaluate(() => {
-          // Simulate text-only enlargement, including fixed-pixel font sizes.
-          // Snapshot first so nested relative sizes are not multiplied twice.
-          const fonts = Array.from(
-            document.querySelectorAll<HTMLElement>("body, body *"),
-            (element) => ({
-              element,
-              size: Number.parseFloat(getComputedStyle(element).fontSize),
-            }),
+      const label = `${layout.width}px ${layout.textScale * 100}% text ${path}`;
+      const problems: string[] = [];
+      try {
+        // Not "networkidle": Turnstile and the service worker keep polling.
+        await page
+          .goto(new URL(path, origin).toString(), { waitUntil: "load" })
+          .then(
+            () => {
+              unloadable = 0;
+            },
+            (error: unknown) => {
+              if (++unloadable >= 3)
+                throw new Error(
+                  `${path} and the two pages before it never loaded; is the preview up?`,
+                );
+              throw error;
+            },
           );
-          for (const { element, size } of fonts)
-            element.style.fontSize = `${size * 2}px`;
+        await page.evaluate(async () => {
+          await document.fonts.ready;
         });
-      }
-      await page.waitForFunction(() => {
-        const header = document.querySelector("header");
-        if (!header) return true;
-        const height = Number.parseFloat(
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--site-header-height",
-          ),
-        );
-        return Math.abs(height - header.getBoundingClientRect().height) < 1;
-      });
-      const result = await page.evaluate(() => {
-        const viewport = document.documentElement.clientWidth;
-        const scrolls = document.documentElement.scrollWidth > viewport;
-        const offenders: string[] = [];
-        const walker = document.createTreeWalker(
-          document.body,
-          NodeFilter.SHOW_TEXT,
-        );
-        while (walker.nextNode() && offenders.length < 8) {
-          const node = walker.currentNode;
-          const element = node.parentElement;
-          if (!element || !node.textContent?.trim()) continue;
-          if (
-            element.closest("script, style, .sr-only, dialog:not([open])") ||
-            getComputedStyle(element).visibility === "hidden"
-          )
-            continue;
-          const details = element.closest("details:not([open])");
-          if (details && !details.querySelector("summary")?.contains(element))
-            continue;
-          const control = element.closest("a, button, summary, label");
-          const decoration = element.closest('[aria-hidden="true"]');
-          if (decoration && !control?.contains(decoration)) continue;
-          const range = document.createRange();
-          range.selectNodeContents(node);
-          const fragments = Array.from(range.getClientRects()).filter(
-            (rect) => rect.width > 0 && rect.height > 0,
-          );
-          if (!fragments.length) continue;
-          let scrollX = false;
-          let scrollY = false;
-          let parent: Element | null = element;
-          while (parent) {
-            const style = getComputedStyle(parent);
-            const rect = parent.getBoundingClientRect();
-            const clipX = !scrollX && /^(hidden|clip)$/.test(style.overflowX);
-            const clipY = !scrollY && /^(hidden|clip)$/.test(style.overflowY);
-            if (
-              fragments.some(
-                (text) =>
-                  (clipX &&
-                    (text.left < rect.left - 1 ||
-                      text.right > rect.right + 1)) ||
-                  (clipY &&
-                    (text.top < rect.top - 1 || text.bottom > rect.bottom + 1)),
-              )
-            ) {
-              offenders.push(
-                `${parent.tagName.toLowerCase()}: clipped ${node.textContent.trim().slice(0, 48)}`,
-              );
-              break;
-            }
-            scrollX ||= /^(auto|scroll)$/.test(style.overflowX);
-            scrollY ||= /^(auto|scroll)$/.test(style.overflowY);
-            parent = parent.parentElement;
-          }
-          if (control) {
-            const rect = control.getBoundingClientRect();
-            // Font ink may extend above a line box; real vertical clipping is checked above.
-            if (
-              fragments.some(
-                (text) =>
-                  text.left < rect.left - 1 || text.right > rect.right + 1,
-              )
-            )
-              offenders.push(
-                `${control.tagName.toLowerCase()}: label exceeds control ${node.textContent.trim().slice(0, 48)}`,
-              );
-          }
-        }
-        const target = document.getElementById("features");
-        target?.scrollIntoView({ block: "start", behavior: "instant" });
-        const header = document.querySelector("header");
-        const anchorCovered =
-          target && header
-            ? target.getBoundingClientRect().top <
-              header.getBoundingClientRect().bottom - 1
-            : false;
-        return { scrolls, offenders, anchorCovered };
-      });
-      if (result.scrolls || result.offenders.length || result.anchorCovered) {
-        failures.push(
-          `${layout.width}px ${layout.textScale * 100}% text ${path}: horizontal scroll=${result.scrolls}, covered anchor=${result.anchorCovered}; ${result.offenders.join("; ")}`,
-        );
-      }
-      if (layout.width === 320 && layout.textScale === 2) {
-        await page.locator('header button[aria-haspopup="dialog"]').click();
-        const appearanceIssues = await page
-          .locator("dialog[open]")
-          .getByRole("combobox")
-          .evaluate((select) => {
-            const label = select.closest("label");
-            const text = label?.querySelector("span");
-            if (!label || !text) throw new Error("Missing appearance label");
-            const bounds = label.getBoundingClientRect();
-            const outside = (rect: DOMRect) =>
-              rect.left < bounds.left - 1 ||
-              rect.right > bounds.right + 1 ||
-              rect.top < bounds.top - 1 ||
-              rect.bottom > bounds.bottom + 1;
-            const range = document.createRange();
-            range.selectNodeContents(text);
-            const control = select.getBoundingClientRect();
-            const issues: string[] = [];
-            if (label.scrollWidth > label.clientWidth + 1)
-              issues.push("appearance label scrolls horizontally");
-            if (Array.from(range.getClientRects()).some(outside))
-              issues.push("appearance text exceeds its label");
-            if (outside(control))
-              issues.push("appearance picker exceeds its label");
-            if (control.width < 44 || control.height < 44)
-              issues.push("appearance picker target is smaller than 44px");
-            return issues;
+        if (layout.textScale === 2) {
+          await page.evaluate(() => {
+            // Simulate text-only enlargement, including fixed-pixel font
+            // sizes. Snapshot first so nested relative sizes are not
+            // multiplied twice.
+            const fonts = Array.from(
+              document.querySelectorAll<HTMLElement>("body, body *"),
+              (element) => ({
+                element,
+                size: Number.parseFloat(getComputedStyle(element).fontSize),
+              }),
+            );
+            for (const { element, size } of fonts)
+              element.style.fontSize = `${size * 2}px`;
           });
-        if (appearanceIssues.length)
-          failures.push(
-            `320px 200% text ${path}: ${appearanceIssues.join("; ")}`,
+        }
+        await page.waitForFunction(headerMeasured).catch(() => {
+          throw new Error(
+            "--site-header-height never matched the header height (did the header hydrate?)",
           );
-        await page.keyboard.press("Escape");
+        });
+
+        const closed = await measureText(page, "body");
+        if (closed.scrolls) problems.push("page scrolls horizontally");
+        problems.push(...closed.offenders);
+        if (
+          await page.evaluate(() => {
+            const target = document.getElementById("features");
+            const header = document.querySelector("header");
+            if (!target || !header) return false;
+            target.scrollIntoView({ block: "start", behavior: "instant" });
+            return (
+              target.getBoundingClientRect().top <
+              header.getBoundingClientRect().bottom - 1
+            );
+          })
+        )
+          problems.push("#features lands under the sticky header");
+
+        if (layout.width < 1024) {
+          // The translated header strings live in the closed drawer; open it
+          // and its language list, then measure only what the drawer shows.
+          await page.locator('header button[aria-haspopup="dialog"]').click();
+          const language = page.locator("header dialog[open] details");
+          await language.evaluate((details) => {
+            (details as HTMLDetailsElement).open = true;
+          });
+          await settle(page);
+          const open = await measureText(page, "header dialog[open]");
+          if (open.scrolls) problems.push("menu scrolls horizontally");
+          problems.push(...open.offenders.map((text) => `menu open: ${text}`));
+          problems.push(...(await measureAppearancePicker(page)));
+          await language.evaluate((details) => {
+            (details as HTMLDetailsElement).open = false;
+          });
+          await page.keyboard.press("Escape");
+          await page
+            .locator("header dialog[open]")
+            .waitFor({ state: "hidden" });
+        } else {
+          const language = page
+            .locator("header details[data-lang-menu]")
+            .first();
+          await language.evaluate((details) => {
+            (details as HTMLDetailsElement).open = true;
+          });
+          await settle(page);
+          const open = await measureText(page, "header");
+          problems.push(
+            ...open.offenders.map((text) => `language menu open: ${text}`),
+          );
+          await language.evaluate((details) => {
+            (details as HTMLDetailsElement).open = false;
+          });
+        }
+      } catch (error) {
+        problems.push(error instanceof Error ? error.message : String(error));
       }
+      if (problems.length) failures.push(`${label}: ${problems.join("; ")}`);
+      if (unloadable >= 3) throw new Error(failures.at(-1));
     }
     await page.close();
+  }
+
+  // A fresh navigation to a fragment scrolls before hydration with the CSS
+  // fallback offset; site-header-menu.tsx re-applies it once the real header
+  // height is known. Locales whose header wraps are the ones that regress.
+  for (const [width, path] of [
+    [1024, "/uk"],
+    [1024, "/es-419"],
+    [375, "/fi"],
+  ] as const) {
+    const fresh = await browser.newPage({
+      viewport: { width, height: 800 },
+      reducedMotion: "reduce",
+    });
+    await fresh.goto(new URL(`${path}#features`, origin).toString(), {
+      waitUntil: "load",
+    });
+    await fresh.waitForFunction(headerMeasured);
+    const gap = await fresh.evaluate(() => {
+      const target = document.getElementById("features");
+      const header = document.querySelector("header");
+      if (!target || !header) throw new Error("Missing #features or header");
+      return (
+        target.getBoundingClientRect().top -
+        header.getBoundingClientRect().bottom
+      );
+    });
+    if (gap < 0)
+      failures.push(
+        `${width}px ${path}#features: fresh navigation lands ${Math.round(-gap)}px under the sticky header`,
+      );
+    await fresh.close();
   }
 
   // The redesigned header and manual preview selector must remain keyboard
@@ -328,6 +514,21 @@ try {
     reducedMotion: "reduce",
   });
   await page.goto(origin.toString(), { waitUntil: "load" });
+  await page.waitForFunction(headerMeasured);
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => location.hash === "#main");
+  assert(
+    (await page.evaluate(() => {
+      const main = document.getElementById("main");
+      const header = document.querySelector("header");
+      if (!main || !header) throw new Error("Missing #main or header");
+      return (
+        main.getBoundingClientRect().top - header.getBoundingClientRect().bottom
+      );
+    })) >= 0,
+    "Skip to content must land below the sticky header",
+  );
   const menu = page.getByRole("button", { name: "Menu: Open navigation" });
   await menu.click();
   const dialog = page.getByRole("dialog", { name: "Menu", exact: true });
@@ -431,12 +632,11 @@ try {
   await page.close();
 } finally {
   await browser.close();
+  // Print what was collected even when a later assertion aborts the run.
+  if (failures.length) console.error(failures.join("\n"));
 }
 
-if (failures.length) {
-  console.error(failures.join("\n"));
-  process.exit(1);
-}
+if (failures.length) process.exit(1);
 console.log(
-  `PASS: ${paths.length} pages at ${WIDTHS.join(", ")}px and all ${localePaths.length} locales with simulated 200% text at320/1024px; no clipped labels, horizontal overflow or covered anchors; appearance, keyboard and preview controls`,
+  `PASS: ${paths.length} pages at ${WIDTHS.join(", ")}px and ${textScalePaths.length} pages with simulated 200% text at ${TEXT_SCALE_WIDTHS.join(" and ")}px, menus closed and open: no clipped text, labels larger than their control, sideways scroll or covered anchors; no-script, appearance, fragment, skip link, keyboard and preview controls`,
 );
