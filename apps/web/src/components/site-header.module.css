@@ -28,6 +28,7 @@
 
 .inner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
@@ -39,7 +40,9 @@
 
 .brand {
   display: inline-flex;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
@@ -50,6 +53,11 @@
   letter-spacing: -0.025em;
   line-height: 1.15;
   text-decoration: none;
+}
+
+.brand span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .mark {
@@ -66,6 +74,7 @@
 .menuButton,
 .closeButton {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -79,10 +88,17 @@
 }
 
 .menuButton {
+  max-width: 100%;
   padding: 0.625rem 0;
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.mobile {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .menuButton svg,
@@ -134,6 +150,7 @@
 
 .drawerBody {
   display: flex;
+  min-width: 0;
   min-height: 0;
   flex-direction: column;
   gap: 1.5rem;
@@ -161,6 +178,7 @@
 }
 
 .mobileLanguage {
+  min-width: 0;
   padding-block: 1rem;
   border-block: 1px solid var(--border);
 }
@@ -212,7 +230,6 @@
 
 @media (min-width: 64rem) {
   .inner {
-    flex-wrap: wrap;
     min-height: 76px;
   }
 

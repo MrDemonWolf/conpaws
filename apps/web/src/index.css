@@ -47,6 +47,10 @@ html.dark {
   box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.28);
 }
 
+.marketing-shell {
+  overflow-wrap: anywhere;
+}
+
 /* ---------------------------------------------------------------------------
  * ConPaws pre-release page
  * Typography: Montserrat (headings, body, badge) · Roboto Mono
@@ -130,7 +134,7 @@ body {
 }
 
 main section[id] {
-  scroll-margin-top: 112px;
+  scroll-margin-top: calc(var(--site-header-height, 96px) + 16px);
 }
 
 /* Reserve room when keyboard navigation scrolls a control above the thumb bar.

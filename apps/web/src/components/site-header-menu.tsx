@@ -35,6 +35,25 @@ export function SiteHeaderMenu({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    const header = trigger.current?.closest("header");
+    if (!header) return;
+    const root = document.documentElement;
+    const updateHeaderHeight = () => {
+      const height = `${Math.ceil(header.getBoundingClientRect().height)}px`;
+      if (root.style.getPropertyValue("--site-header-height") !== height) {
+        root.style.setProperty("--site-header-height", height);
+      }
+    };
+    updateHeaderHeight();
+    const observer = new ResizeObserver(updateHeaderHeight);
+    observer.observe(header);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--site-header-height");
+    };
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     const htmlOverflow = document.documentElement.style.overflow;
     const bodyOverflow = document.body.style.overflow;

@@ -18,9 +18,12 @@ assert(
   "Run against a local preview.",
 );
 
-const WIDTHS = [320, 375];
+const WIDTHS = [320, 375, 768, 1024, 1280];
+const localePaths = LOCALE_CODES.map((locale) =>
+  locale === "en" ? "/" : `/${locale}`,
+);
 const paths = [
-  ...LOCALE_CODES.map((locale) => (locale === "en" ? "/" : `/${locale}`)),
+  ...localePaths,
   "/privacy",
   "/terms",
   "/support",
@@ -118,35 +121,133 @@ try {
   }
   await appearance.close();
 
-  for (const width of WIDTHS) {
-    const page = await browser.newPage({ viewport: { width, height: 800 } });
-    for (const path of paths) {
+  const layouts = [
+    ...WIDTHS.map((width) => ({ width, textScale: 1, paths })),
+    ...[320, 1024].map((width) => ({
+      width,
+      textScale: 2,
+      paths: localePaths,
+    })),
+  ];
+  for (const layout of layouts) {
+    const page = await browser.newPage({
+      viewport: { width: layout.width, height: 800 },
+      reducedMotion: "reduce",
+    });
+    for (const path of layout.paths) {
       // Not "networkidle": Turnstile and the service worker keep polling.
       await page.goto(new URL(path, origin).toString(), { waitUntil: "load" });
-      await page.waitForTimeout(300);
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+      });
+      if (layout.textScale === 2) {
+        await page.evaluate(() => {
+          // Simulate text-only enlargement, including fixed-pixel font sizes.
+          // Snapshot first so nested relative sizes are not multiplied twice.
+          const fonts = Array.from(
+            document.querySelectorAll<HTMLElement>("body, body *"),
+            (element) => ({
+              element,
+              size: Number.parseFloat(getComputedStyle(element).fontSize),
+            }),
+          );
+          for (const { element, size } of fonts)
+            element.style.fontSize = `${size * 2}px`;
+        });
+      }
+      await page.waitForFunction(() => {
+        const header = document.querySelector("header");
+        if (!header) return true;
+        const height = Number.parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--site-header-height",
+          ),
+        );
+        return Math.abs(height - header.getBoundingClientRect().height) < 1;
+      });
       const result = await page.evaluate(() => {
         const viewport = document.documentElement.clientWidth;
         const scrolls = document.documentElement.scrollWidth > viewport;
         const offenders: string[] = [];
-        for (const element of document.querySelectorAll("body *")) {
-          const style = getComputedStyle(element);
-          if (style.position === "fixed" || style.visibility === "hidden") {
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+        );
+        while (walker.nextNode() && offenders.length < 8) {
+          const node = walker.currentNode;
+          const element = node.parentElement;
+          if (!element || !node.textContent?.trim()) continue;
+          if (
+            element.closest("script, style, .sr-only, dialog:not([open])") ||
+            getComputedStyle(element).visibility === "hidden"
+          )
             continue;
+          const details = element.closest("details:not([open])");
+          if (details && !details.querySelector("summary")?.contains(element))
+            continue;
+          const control = element.closest("a, button, summary, label");
+          const decoration = element.closest('[aria-hidden="true"]');
+          if (decoration && !control?.contains(decoration)) continue;
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const fragments = Array.from(range.getClientRects()).filter(
+            (rect) => rect.width > 0 && rect.height > 0,
+          );
+          if (!fragments.length) continue;
+          let scrollX = false;
+          let scrollY = false;
+          let parent: Element | null = element;
+          while (parent) {
+            const style = getComputedStyle(parent);
+            const rect = parent.getBoundingClientRect();
+            const clipX = !scrollX && /^(hidden|clip)$/.test(style.overflowX);
+            const clipY = !scrollY && /^(hidden|clip)$/.test(style.overflowY);
+            if (
+              fragments.some(
+                (text) =>
+                  (clipX &&
+                    (text.left < rect.left - 1 ||
+                      text.right > rect.right + 1)) ||
+                  (clipY &&
+                    (text.top < rect.top - 1 || text.bottom > rect.bottom + 1)),
+              )
+            ) {
+              offenders.push(
+                `${parent.tagName.toLowerCase()}: clipped ${node.textContent.trim().slice(0, 48)}`,
+              );
+              break;
+            }
+            scrollX ||= /^(auto|scroll)$/.test(style.overflowX);
+            scrollY ||= /^(auto|scroll)$/.test(style.overflowY);
+            parent = parent.parentElement;
           }
-          // Decorative layers clipped by an overflow-hidden ancestor are fine;
-          // only flag elements whose overflow actually reaches the page.
-          if (element.closest("[aria-hidden='true']")) continue;
-          const rect = element.getBoundingClientRect();
-          if (rect.width > 0 && rect.right > viewport + 1) {
-            const label = `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}`;
-            offenders.push(`${label} right=${Math.round(rect.right)}`);
+          if (control) {
+            const rect = control.getBoundingClientRect();
+            // Font ink may extend above a line box; real vertical clipping is checked above.
+            if (
+              fragments.some(
+                (text) =>
+                  text.left < rect.left - 1 || text.right > rect.right + 1,
+              )
+            )
+              offenders.push(
+                `${control.tagName.toLowerCase()}: label exceeds control ${node.textContent.trim().slice(0, 48)}`,
+              );
           }
         }
-        return { scrolls, offenders: offenders.slice(0, 5) };
+        const target = document.getElementById("features");
+        target?.scrollIntoView({ block: "start", behavior: "instant" });
+        const header = document.querySelector("header");
+        const anchorCovered =
+          target && header
+            ? target.getBoundingClientRect().top <
+              header.getBoundingClientRect().bottom - 1
+            : false;
+        return { scrolls, offenders, anchorCovered };
       });
-      if (result.scrolls) {
+      if (result.scrolls || result.offenders.length || result.anchorCovered) {
         failures.push(
-          `${width}px ${path}: page scrolls horizontally (${result.offenders.join(", ") || "no single offender"})`,
+          `${layout.width}px ${layout.textScale * 100}% text ${path}: horizontal scroll=${result.scrolls}, covered anchor=${result.anchorCovered}; ${result.offenders.join("; ")}`,
         );
       }
     }
@@ -250,5 +351,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `PASS: no horizontal overflow on ${paths.length} pages at ${WIDTHS.join(" and ")}px; dark fallback, system appearance, keyboard navigation, preview selection and reduced motion`,
+  `PASS: ${paths.length} pages at ${WIDTHS.join(", ")}px and all ${localePaths.length} locales with simulated 200% text at320/1024px; no clipped labels, horizontal overflow or covered anchors; appearance, keyboard and preview controls`,
 );

@@ -214,7 +214,7 @@ export function Landing({
                 return (
                   <div
                     key={item.time}
-                    className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
+                    className={`group grid grid-cols-[max-content_minmax(0,1fr)] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[max-content_minmax(0,1fr)_auto] sm:px-7 ${
                       i > 0 ? "border-border border-t" : ""
                     }`}
                   >
