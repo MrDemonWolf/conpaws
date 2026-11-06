@@ -54,6 +54,14 @@ export const PUBLIC_ROUTES: readonly PublicRoute[] = [
     priority: 0.5,
   },
   {
+    path: "/design-system",
+    title: "Design system",
+    summary:
+      "ConPaws colors, typography, components, interaction and accessibility guidance.",
+    changeFrequency: "monthly",
+    priority: 0.4,
+  },
+  {
     path: "/privacy",
     title: "Privacy Policy",
     summary:

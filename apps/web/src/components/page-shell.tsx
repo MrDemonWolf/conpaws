@@ -2,8 +2,7 @@ import { cn } from "@conpaws/ui/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { CompassPaw } from "@/components/compass-paw";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { SiteHeader } from "@/components/site-header";
 import { UPDATES_LABEL } from "@/content/changelog";
 import type { Messages } from "@/i18n";
 import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
@@ -31,7 +30,7 @@ export function PageShell({
   locale?: Locale;
   messages: Messages;
   /**
-   * Optional page-specific marker to the left of the language switcher.
+   * Optional page-specific marker above the page content.
    */
   navAside?: ReactNode;
   /** Legal pages read as prose and use a 760px measure, not the 1120px grid. */
@@ -42,42 +41,29 @@ export function PageShell({
     // See landing.tsx: <main> wrapping the header and footer left the page with
     // no banner landmark and no contentinfo, so landmark navigation offered
     // only "main" -- on the legal pages and the 404 as well.
-    <div
-      lang={locale}
-      className={cn(
-        "marketing-shell relative z-content isolate mx-auto px-6 pb-24",
-        narrow ? "max-w-[760px]" : "max-w-[1120px]",
-      )}
-    >
+    <>
       <a
         href="#main"
         className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-skip"
       >
         {messages.nav.skipToContent}
       </a>
-      <header>
-        <nav
-          aria-label={messages.nav.primaryLabel}
-          className="relative z-nav flex items-center justify-between py-5 has-[details[open]]:z-menu sm:py-6"
-        >
-          <Link href="/" className="flex items-center gap-3">
-            <CompassPaw className="h-10 w-10 text-primary" />
-            <b className="font-bold text-[22px] tracking-tight">ConPaws</b>
-          </Link>
-          <span className="flex items-center gap-3">
-            {navAside}
-            <LanguageSwitcher
-              current={locale}
-              label={messages.nav.languageLabel}
-            />
-          </span>
-        </nav>
-      </header>
+      <SiteHeader locale={locale} messages={messages} />
+      <div
+        lang={locale}
+        className={cn(
+          "marketing-shell relative z-content isolate mx-auto px-6 pb-24",
+          narrow ? "max-w-[760px]" : "max-w-[1120px]",
+        )}
+      >
+        <main id="main">
+          {navAside ? <div className="pt-6">{navAside}</div> : null}
+          {children}
+        </main>
 
-      <main id="main">{children}</main>
-
-      <PageFooter messages={messages} locale={locale} />
-    </div>
+        <PageFooter messages={messages} locale={locale} />
+      </div>
+    </>
   );
 }
 
@@ -117,6 +103,12 @@ function PageFooter({
           >
             {UPDATES_LABEL[locale]}
           </a>
+          <Link
+            href="/design-system"
+            className="inline-flex min-h-11 items-center transition hover:text-primary"
+          >
+            {messages.footer.designSystem}
+          </Link>
           <a
             href="/support"
             className="inline-flex min-h-11 items-center transition hover:text-primary"

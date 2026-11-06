@@ -11,7 +11,15 @@
     "back": "Takaisin",
     "skipToContent": "Siirry sisältöön",
     "primaryLabel": "Sivuston ylätunniste",
-    "footerLabel": "Oikeudelliset tiedot ja tuki"
+    "footerLabel": "Oikeudelliset tiedot ja tuki",
+    "inside": "Sovellus",
+    "features": "Ominaisuudet",
+    "faq": "Usein kysytyt kysymykset",
+    "joinWaitlist": "Liity jonotuslistalle",
+    "menu": "Valikko",
+    "openMenu": "Avaa navigointi",
+    "closeMenu": "Sulje navigointi",
+    "updates": "Päivitykset"
   },
   "ticker": {
     "screenReaderSummary": "Ohjelmat, offline ensin, muistutukset, sisältövaroitukset, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Tuki",
     "privacy": "Tietosuoja",
-    "terms": "Ehdot"
+    "terms": "Ehdot",
+    "designSystem": "Designjärjestelmä"
   },
   "waitlist": {
     "badgeOpen": "Betan jonotuslista auki",
@@ -241,5 +250,23 @@
         "hint": "Mitä tallennamme, ja mitä emme"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Kumppanisi furrytapahtumiin",
+    "title": "Tapahtumasi ohjelma.",
+    "titleAccent": "Valmiina myös offline-tilassa.",
+    "body": "Etsi tapahtumasi tai tuo sen ohjelma. Merkitse kiinnostavat ohjelmanumerot tähdellä, jätä aikaa kiertelyyn ja pidä suunnitelmasi mukana, vaikka tapahtuman Wi-Fi katkeaisi.",
+    "secondary": "Tutustu sovellukseen",
+    "platforms": "Kehitteillä · iOS ja Android"
+  },
+  "showcase": {
+    "label": "Sovelluksen esikatselunäkymät",
+    "note": "Esikatselu kehitteillä olevasta sovelluksesta. Kuvitteelliset tiedot.",
+    "browseTitle": "Ohjelma",
+    "browseDescription": "Selaa tapahtuman koko ohjelmaa.",
+    "planTitle": "Oma suunnitelma",
+    "planDescription": "Kokoa valitsemasi ohjelmanumerot Oma suunnitelma -näkymään.",
+    "remindersTitle": "Muistutukset",
+    "remindersDescription": "Valitse oletusmuistutus tai aseta muistutus erikseen kullekin ohjelmanumerolle."
   }
 }

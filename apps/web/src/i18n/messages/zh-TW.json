@@ -11,7 +11,15 @@
     "back": "返回",
     "skipToContent": "跳至主要內容",
     "primaryLabel": "網站頁首",
-    "footerLabel": "法律與支援"
+    "footerLabel": "法律與支援",
+    "inside": "應用程式介紹",
+    "features": "功能",
+    "faq": "常見問題",
+    "joinWaitlist": "加入等候名單",
+    "menu": "選單",
+    "openMenu": "開啟導覽",
+    "closeMenu": "關閉導覽",
+    "updates": "更新資訊"
   },
   "ticker": {
     "screenReaderSummary": "議程、離線優先、提醒、內容提示、iOS、Android。",
@@ -169,7 +177,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "支援",
     "privacy": "隱私",
-    "terms": "條款"
+    "terms": "條款",
+    "designSystem": "設計系統"
   },
   "waitlist": {
     "badgeOpen": "測試版候補名單開放中",
@@ -234,5 +243,23 @@
         "hint": "我們儲存什麼，不儲存什麼"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "你的獸展隨行夥伴",
+    "title": "你的獸展行程。",
+    "titleAccent": "離線也能用。",
+    "body": "找到你要參加的展會，或匯入議程。為感興趣的節目加上星號，留點時間四處逛逛，即使展場 Wi-Fi 斷線，也能隨時查看自己的計畫。",
+    "secondary": "看看應用程式",
+    "platforms": "開發中 · iOS 與 Android"
+  },
+  "showcase": {
+    "label": "應用程式畫面預覽",
+    "note": "開發中的應用程式預覽。資料均為虛構。",
+    "browseTitle": "節目",
+    "browseDescription": "瀏覽展會的完整議程。",
+    "planTitle": "我的計畫",
+    "planDescription": "在「我的計畫」中集中查看你選好的節目。",
+    "remindersTitle": "提醒",
+    "remindersDescription": "選擇預設提醒時間，也可以為每個活動個別設定。"
   }
 }

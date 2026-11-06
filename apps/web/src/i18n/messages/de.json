@@ -11,7 +11,15 @@
     "back": "Zurück",
     "skipToContent": "Zum Inhalt springen",
     "primaryLabel": "Kopfbereich",
-    "footerLabel": "Rechtliches und Support"
+    "footerLabel": "Rechtliches und Support",
+    "inside": "Die App",
+    "features": "Funktionen",
+    "faq": "FAQ",
+    "joinWaitlist": "Zur Warteliste",
+    "menu": "Menü",
+    "openMenu": "Navigation öffnen",
+    "closeMenu": "Navigation schließen",
+    "updates": "Neuigkeiten"
   },
   "ticker": {
     "screenReaderSummary": "Zeitpläne, Offline zuerst, Erinnerungen, Inhaltshinweise, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Support",
     "privacy": "Datenschutz",
-    "terms": "AGB"
+    "terms": "AGB",
+    "designSystem": "Designsystem"
   },
   "waitlist": {
     "badgeOpen": "Beta-Warteliste offen",
@@ -241,5 +250,23 @@
         "hint": "Was wir speichern und was nicht"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Dein Begleiter für Furry-Conventions",
+    "title": "Dein Con-Programm.",
+    "titleAccent": "Auch offline bereit.",
+    "body": "Finde deine Convention oder importiere ihr Programm. Markiere deine Favoriten mit einem Stern, lass Zeit zum Entdecken und behalte deinen Plan auch dann, wenn das Con-WLAN ausfällt.",
+    "secondary": "Wirf einen Blick hinein",
+    "platforms": "In Entwicklung · iOS und Android"
+  },
+  "showcase": {
+    "label": "App-Vorschau",
+    "note": "Vorschau der App in Entwicklung. Fiktive Daten.",
+    "browseTitle": "Programm",
+    "browseDescription": "Entdecke das komplette Convention-Programm.",
+    "planTitle": "Mein Plan",
+    "planDescription": "Behalte deine ausgewählten Programmpunkte unter Mein Plan im Blick.",
+    "remindersTitle": "Erinnerungen",
+    "remindersDescription": "Wähle eine Standarderinnerung oder lege sie für jede Veranstaltung einzeln fest."
   }
 }

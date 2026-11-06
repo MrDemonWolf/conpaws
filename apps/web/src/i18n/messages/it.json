@@ -11,7 +11,15 @@
     "back": "Indietro",
     "skipToContent": "Vai al contenuto",
     "primaryLabel": "Intestazione del sito",
-    "footerLabel": "Note legali e assistenza"
+    "footerLabel": "Note legali e assistenza",
+    "inside": "L’app",
+    "features": "Funzioni",
+    "faq": "Domande frequenti",
+    "joinWaitlist": "Iscriviti alla lista d’attesa",
+    "menu": "Menu",
+    "openMenu": "Apri navigazione",
+    "closeMenu": "Chiudi navigazione",
+    "updates": "Novità"
   },
   "ticker": {
     "screenReaderSummary": "Programmi, offline prima di tutto, promemoria, avvisi sui contenuti, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Assistenza",
     "privacy": "Privacy",
-    "terms": "Termini"
+    "terms": "Termini",
+    "designSystem": "Sistema di design"
   },
   "waitlist": {
     "badgeOpen": "Lista d'attesa beta aperta",
@@ -241,5 +250,23 @@
         "hint": "Cosa conserviamo, e cosa no"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Il tuo compagno alle convention furry",
+    "title": "Il programma della tua con.",
+    "titleAccent": "Pronto anche offline.",
+    "body": "Trova la tua convention o importane il programma. Metti una stella agli incontri che ti interessano, lascia spazio per gironzolare e conserva il tuo piano anche quando il Wi-Fi della con ti abbandona.",
+    "secondary": "Dai un’occhiata",
+    "platforms": "In sviluppo · iOS e Android"
+  },
+  "showcase": {
+    "label": "Anteprime delle schermate dell’app",
+    "note": "Anteprima dell’app in sviluppo. Dati fittizi.",
+    "browseTitle": "Programma",
+    "browseDescription": "Esplora il programma completo della convention.",
+    "planTitle": "Il mio piano",
+    "planDescription": "Ritrova gli incontri che hai scelto in Il mio piano.",
+    "remindersTitle": "Promemoria",
+    "remindersDescription": "Scegli un promemoria predefinito o impostane uno per ogni evento."
   }
 }

@@ -26,6 +26,7 @@ const paths = [
   "/support",
   "/updates",
   "/confirmed",
+  "/design-system",
 ];
 
 const browser = await chromium.launch();
@@ -65,6 +66,83 @@ try {
     }
     await page.close();
   }
+
+  // The redesigned header and manual preview selector must remain keyboard
+  // usable after hydration, not merely fit in the server-rendered page.
+  const page = await browser.newPage({
+    viewport: { width: 375, height: 812 },
+    reducedMotion: "reduce",
+  });
+  await page.goto(origin.toString(), { waitUntil: "load" });
+  const menu = page.getByRole("button", { name: "Menu: Open navigation" });
+  await menu.click();
+  const dialog = page.getByRole("dialog", { name: "Menu", exact: true });
+  assert(await dialog.isVisible(), "Mobile navigation must open");
+  await dialog.getByRole("link", { name: "ConPaws", exact: true }).focus();
+  await page.keyboard.press("Shift+Tab");
+  assert(
+    await dialog
+      .getByRole("link", { name: "Join waitlist" })
+      .evaluate((element) => document.activeElement === element),
+    "Shift+Tab must remain inside mobile navigation",
+  );
+  const language = dialog.locator("details[data-lang-menu]");
+  await language.locator("summary").click();
+  await page.keyboard.press("Escape");
+  assert(
+    !(await language.evaluate((element) => element.hasAttribute("open"))) &&
+      (await dialog.isVisible()),
+    "First Escape closes only the language picker",
+  );
+  await page.keyboard.press("Escape");
+  assert(!(await dialog.isVisible()), "Second Escape closes navigation");
+  assert(
+    await menu.evaluate((element) => document.activeElement === element),
+    "Closing navigation restores the trigger focus",
+  );
+
+  await menu.press("Enter");
+  await dialog.getByRole("link", { name: "The app", exact: true }).click();
+  assert(!(await dialog.isVisible()), "A section link closes navigation");
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.id),
+    "inside",
+    "A section link moves focus to its content",
+  );
+
+  const reminders = page.getByRole("button", {
+    name: "Reminders",
+    exact: true,
+  });
+  await reminders.focus();
+  await reminders.press("ArrowRight");
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Browse", exact: true })
+      .getAttribute("aria-pressed"),
+    "true",
+    "Preview arrows wrap to Browse",
+  );
+  await page.keyboard.press("End");
+  assert.equal(await reminders.getAttribute("aria-pressed"), "true");
+  assert.equal(
+    await page
+      .locator('figure img[data-active="true"]')
+      .evaluate((element) => getComputedStyle(element).transitionDuration),
+    "0s",
+    "Reduced motion disables the preview crossfade",
+  );
+  const gallery = page.getByRole("region", {
+    name: "App preview screens",
+    exact: true,
+  });
+  await gallery.focus();
+  await gallery.press("ArrowRight");
+  await page.waitForFunction(
+    () =>
+      (document.querySelector("section[tabindex='0']")?.scrollLeft ?? 0) > 0,
+  );
+  await page.close();
 } finally {
   await browser.close();
 }
@@ -74,5 +152,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `PASS: no horizontal overflow on ${paths.length} pages at ${WIDTHS.join(" and ")}px`,
+  `PASS: no horizontal overflow on ${paths.length} pages at ${WIDTHS.join(" and ")}px; keyboard navigation, preview selection and reduced motion`,
 );

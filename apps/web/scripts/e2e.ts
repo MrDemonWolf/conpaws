@@ -31,6 +31,7 @@ for (const path of [
   "/support",
   "/confirmed",
   "/updates",
+  "/design-system",
   "/robots.txt",
   "/sitemap.xml",
   "/llms.txt",
@@ -40,8 +41,17 @@ for (const path of [
 }
 assert((await get("/updates")).includes("Release notes are on their way"));
 assert((await get("/sitemap.xml")).includes("/updates"));
+assert((await get("/sitemap.xml")).includes("/design-system"));
 assert((await get("/llms.txt")).includes("/updates"));
+assert((await get("/llms.txt")).includes("/design-system"));
 assert.equal((await fetch(new URL("/missing-e2e-page", origin))).status, 404);
+
+for (const screen of ["browse", "plan", "reminders"]) {
+  const path = `/app-preview/${screen}.png`;
+  const response = await fetch(new URL(path, origin));
+  assert.equal(response.status, 200, path);
+  assert(response.headers.get("content-type")?.startsWith("image/png"), path);
+}
 
 const count = JSON.parse(await get("/api/waitlist/count"));
 assert.equal(count.count, null, "Unconfigured preview must not invent a count");

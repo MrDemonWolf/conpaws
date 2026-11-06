@@ -11,7 +11,15 @@
     "back": "Vissza",
     "skipToContent": "Ugrás a tartalomhoz",
     "primaryLabel": "Webhely fejléce",
-    "footerLabel": "Jogi tudnivalók és támogatás"
+    "footerLabel": "Jogi tudnivalók és támogatás",
+    "inside": "Az alkalmazás",
+    "features": "Funkciók",
+    "faq": "Gyakori kérdések",
+    "joinWaitlist": "Feliratkozás a várólistára",
+    "menu": "Menü",
+    "openMenu": "Navigáció megnyitása",
+    "closeMenu": "Navigáció bezárása",
+    "updates": "Frissítések"
   },
   "ticker": {
     "screenReaderSummary": "Programok, offline elsőként, emlékeztetők, tartalmi figyelmeztetések, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Támogatás",
     "privacy": "Adatvédelem",
-    "terms": "Feltételek"
+    "terms": "Feltételek",
+    "designSystem": "Dizájnrendszer"
   },
   "waitlist": {
     "badgeOpen": "A béta várólistája nyitva",
@@ -241,5 +250,23 @@
         "hint": "Mit tárolunk, és mit nem"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Társad a furry rendezvényeken",
+    "title": "A rendezvényed programja.",
+    "titleAccent": "Offline is készen áll.",
+    "body": "Keresd meg a rendezvényedet, vagy importáld a programját. Csillagozd meg, ami érdekel, hagyj időt a nézelődésre, és tartsd kéznél a tervedet akkor is, ha elmegy a rendezvény wifije.",
+    "secondary": "Nézz bele",
+    "platforms": "Fejlesztés alatt · iOS és Android"
+  },
+  "showcase": {
+    "label": "Az alkalmazás képernyőinek előnézete",
+    "note": "A fejlesztés alatt álló alkalmazás előnézete. Kitalált adatok.",
+    "browseTitle": "Program",
+    "browseDescription": "Böngészd a rendezvény teljes programját.",
+    "planTitle": "Tervem",
+    "planDescription": "A kiválasztott programokat egy helyen találod a Tervem nézetben.",
+    "remindersTitle": "Emlékeztetők",
+    "remindersDescription": "Válassz alapértelmezett emlékeztetőt, vagy állítsd be külön minden programhoz."
   }
 }

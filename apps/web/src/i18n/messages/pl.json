@@ -11,7 +11,15 @@
     "back": "Wstecz",
     "skipToContent": "Przejdź do treści",
     "primaryLabel": "Nagłówek witryny",
-    "footerLabel": "Informacje prawne i pomoc"
+    "footerLabel": "Informacje prawne i pomoc",
+    "inside": "Aplikacja",
+    "features": "Funkcje",
+    "faq": "Pytania i odpowiedzi",
+    "joinWaitlist": "Dołącz do listy oczekujących",
+    "menu": "Menu",
+    "openMenu": "Otwórz nawigację",
+    "closeMenu": "Zamknij nawigację",
+    "updates": "Aktualności"
   },
   "ticker": {
     "screenReaderSummary": "Plany, offline przede wszystkim, przypomnienia, ostrzeżenia o treści, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Pomoc",
     "privacy": "Prywatność",
-    "terms": "Regulamin"
+    "terms": "Regulamin",
+    "designSystem": "System projektowy"
   },
   "waitlist": {
     "badgeOpen": "Lista oczekujących na betę otwarta",
@@ -241,5 +250,23 @@
         "hint": "Co przechowujemy, a czego nie"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Twój towarzysz na konwentach furry",
+    "title": "Twój program konwentu.",
+    "titleAccent": "Gotowy także offline.",
+    "body": "Znajdź swój konwent lub zaimportuj jego program. Oznacz gwiazdką to, co Cię interesuje, zostaw czas na zwiedzanie i miej plan pod ręką, nawet gdy konwentowe Wi-Fi zawiedzie.",
+    "secondary": "Zajrzyj do środka",
+    "platforms": "W przygotowaniu · iOS i Android"
+  },
+  "showcase": {
+    "label": "Podgląd ekranów aplikacji",
+    "note": "Podgląd aplikacji w przygotowaniu. Fikcyjne dane.",
+    "browseTitle": "Program",
+    "browseDescription": "Przeglądaj pełny program konwentu.",
+    "planTitle": "Mój plan",
+    "planDescription": "Zbierz wybrane punkty programu w widoku Mój plan.",
+    "remindersTitle": "Przypomnienia",
+    "remindersDescription": "Wybierz domyślne przypomnienie lub ustaw je osobno dla każdej aktywności."
   }
 }

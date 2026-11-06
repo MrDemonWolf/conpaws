@@ -13,7 +13,9 @@ const css = readFileSync(
 type Rgb = [number, number, number];
 
 function color(block: string, name: string): Rgb {
-  const hex = block.match(new RegExp(`--${name}:\\s*(#[0-9a-f]{6})`, "i"))?.[1];
+  const hex = [
+    ...block.matchAll(new RegExp(`--${name}:\\s*(#[0-9a-f]{6})`, "gi")),
+  ].at(-1)?.[1];
   if (!hex) throw new Error(`Missing --${name}`);
   const channel = (offset: number) =>
     Number.parseInt(hex.slice(offset, offset + 2), 16) / 255;
@@ -67,6 +69,32 @@ describe.each([
         contrast(hover, color(block, "destructive-foreground")),
       ).toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe("website charcoal surfaces", () => {
+  const websiteCss = readFileSync(
+    new URL("../index.css", import.meta.url),
+    "utf8",
+  );
+  const sharedDark = css.match(/\.dark\s*\{([\s\S]*?)\}/)?.[1];
+  const websiteDark = websiteCss.match(/html\.dark\s*\{([\s\S]*?)\}/)?.[1];
+  if (!sharedDark || !websiteDark) throw new Error("Missing website theme");
+  const resolved = `${sharedDark}\n${websiteDark}`;
+
+  it("keeps foreground pairs readable on page, raised and supporting surfaces", () => {
+    for (const surface of ["background", "card", "secondary", "muted"])
+      for (const text of ["foreground", "muted-foreground"])
+        expect(
+          contrast(color(resolved, surface), color(resolved, text)),
+        ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("keeps input boundaries visible on page and card", () => {
+    for (const surface of ["background", "card"])
+      expect(
+        contrast(color(resolved, surface), color(resolved, "input")),
+      ).toBeGreaterThanOrEqual(3);
   });
 });
 

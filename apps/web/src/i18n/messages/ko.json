@@ -11,7 +11,15 @@
     "back": "뒤로",
     "skipToContent": "본문으로 건너뛰기",
     "primaryLabel": "사이트 헤더",
-    "footerLabel": "법적 고지 및 지원"
+    "footerLabel": "법적 고지 및 지원",
+    "inside": "앱 소개",
+    "features": "기능",
+    "faq": "자주 묻는 질문",
+    "joinWaitlist": "대기 명단 등록",
+    "menu": "메뉴",
+    "openMenu": "탐색 메뉴 열기",
+    "closeMenu": "탐색 메뉴 닫기",
+    "updates": "업데이트"
   },
   "ticker": {
     "screenReaderSummary": "일정, 오프라인 우선, 알림, 콘텐츠 경고, iOS, Android.",
@@ -169,7 +177,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "지원",
     "privacy": "개인정보",
-    "terms": "약관"
+    "terms": "약관",
+    "designSystem": "디자인 시스템"
   },
   "waitlist": {
     "badgeOpen": "베타 대기자 명단 오픈",
@@ -234,5 +243,23 @@
         "hint": "무엇을 저장하고, 무엇을 저장하지 않는지"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "퍼리 컨벤션을 함께할 동반자",
+    "title": "내 컨벤션 일정.",
+    "titleAccent": "오프라인에서도 준비 완료.",
+    "body": "참가할 컨벤션을 찾거나 일정을 가져오세요. 관심 있는 프로그램에 별표를 하고, 둘러볼 시간도 남겨 두세요. 행사장 와이파이가 끊겨도 내 일정은 그대로예요.",
+    "secondary": "앱 둘러보기",
+    "platforms": "개발 중 · iOS 및 Android"
+  },
+  "showcase": {
+    "label": "앱 화면 미리 보기",
+    "note": "개발 중인 앱의 미리 보기입니다. 가상 데이터를 사용합니다.",
+    "browseTitle": "프로그램",
+    "browseDescription": "컨벤션 전체 프로그램을 둘러보세요.",
+    "planTitle": "내 일정",
+    "planDescription": "선택한 프로그램을 내 일정에서 한눈에 확인하세요.",
+    "remindersTitle": "알림",
+    "remindersDescription": "기본 알림을 선택하거나 프로그램별로 따로 설정하세요."
   }
 }

@@ -1,0 +1,271 @@
+.header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-index-nav, 40);
+  width: 100%;
+  border-block-end: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  max-width: 1120px;
+  min-height: 68px;
+  margin-inline: auto;
+  padding: 0.75rem 1.5rem;
+}
+
+.brand {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  color: var(--foreground);
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-decoration: none;
+}
+
+.mark {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.desktop {
+  display: none;
+}
+
+.menuButton,
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.menuButton {
+  padding: 0.625rem 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.menuButton svg,
+.closeButton svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(26rem, calc(100% - 1rem));
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-inline-start: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  overflow: hidden;
+}
+
+.drawer[open] {
+  display: flex;
+  flex-direction: column;
+  animation: drawer-enter 180ms ease-out;
+}
+
+.drawer::backdrop {
+  background: rgb(0 0 0 / 60%);
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 76px;
+  flex-shrink: 0;
+  padding: 0.75rem 1.5rem;
+  border-block-end: 1px solid var(--border);
+}
+
+.drawerBody {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileNav a {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding-block: 0.75rem;
+  color: var(--foreground);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.mobileLanguage {
+  padding-block: 1rem;
+  border-block: 1px solid var(--border);
+}
+
+.waitlist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--primary);
+  border-radius: 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-decoration: none;
+}
+
+.mobileNav a:hover,
+.desktopNav a:hover,
+.menuButton:hover,
+.closeButton:hover {
+  color: var(--primary);
+}
+
+.waitlist:hover {
+  filter: brightness(1.08);
+}
+
+.noScript {
+  padding: 0 1.5rem 1.5rem;
+}
+
+@keyframes drawer-enter {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (min-width: 64rem) {
+  .inner {
+    flex-wrap: wrap;
+    min-height: 76px;
+  }
+
+  .desktop {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .desktopNav {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 1.5rem;
+  }
+
+  .desktopNav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted-foreground);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+  }
+
+  .mobile,
+  .noScript {
+    display: none;
+  }
+
+  .desktop .waitlist {
+    max-width: 12rem;
+  }
+
+  .desktop [data-lang-menu] > summary {
+    max-width: 11rem;
+    border: 0;
+    border-radius: var(--radius);
+    padding-inline: 0.5rem;
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
+@media (max-width: 22rem) {
+  .inner,
+  .drawerHeader {
+    gap: 0.75rem;
+    padding-inline: 1rem;
+  }
+
+  .drawerBody {
+    padding-inline: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer[open] {
+    animation: none;
+  }
+}

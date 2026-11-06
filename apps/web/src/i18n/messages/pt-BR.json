@@ -11,7 +11,15 @@
     "back": "Voltar",
     "skipToContent": "Pular para o conteúdo",
     "primaryLabel": "Cabeçalho do site",
-    "footerLabel": "Jurídico e suporte"
+    "footerLabel": "Jurídico e suporte",
+    "inside": "O app",
+    "features": "Recursos",
+    "faq": "Perguntas frequentes",
+    "joinWaitlist": "Entre na lista de espera",
+    "menu": "Menu",
+    "openMenu": "Abrir navegação",
+    "closeMenu": "Fechar navegação",
+    "updates": "Novidades"
   },
   "ticker": {
     "screenReaderSummary": "Programações, offline primeiro, lembretes, avisos de conteúdo, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Suporte",
     "privacy": "Privacidade",
-    "terms": "Termos"
+    "terms": "Termos",
+    "designSystem": "Sistema de design"
   },
   "waitlist": {
     "badgeOpen": "Lista de espera do beta aberta",
@@ -241,5 +250,23 @@
         "hint": "O que guardamos, e o que não guardamos"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Seu guia para convenções furry",
+    "title": "A programação da sua con.",
+    "titleAccent": "Pronta mesmo offline.",
+    "body": "Encontre sua convenção ou importe a programação. Marque com uma estrela os painéis que quer ver, deixe tempo para explorar e mantenha seu plano mesmo quando o Wi-Fi da con cair.",
+    "secondary": "Dê uma olhada",
+    "platforms": "Em desenvolvimento · iOS e Android"
+  },
+  "showcase": {
+    "label": "Prévia das telas do app",
+    "note": "Prévia do app em desenvolvimento. Dados fictícios.",
+    "browseTitle": "Programação",
+    "browseDescription": "Explore a programação completa da convenção.",
+    "planTitle": "Meu plano",
+    "planDescription": "Reúna os painéis que escolheu em Meu plano.",
+    "remindersTitle": "Lembretes",
+    "remindersDescription": "Escolha um lembrete padrão ou configure um para cada atividade."
   }
 }

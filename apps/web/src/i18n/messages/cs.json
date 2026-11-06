@@ -11,7 +11,15 @@
     "back": "Zpět",
     "skipToContent": "Přejít na obsah",
     "primaryLabel": "Záhlaví webu",
-    "footerLabel": "Právní informace a podpora"
+    "footerLabel": "Právní informace a podpora",
+    "inside": "Aplikace",
+    "features": "Funkce",
+    "faq": "Časté dotazy",
+    "joinWaitlist": "Přidat se na čekací listinu",
+    "menu": "Menu",
+    "openMenu": "Otevřít navigaci",
+    "closeMenu": "Zavřít navigaci",
+    "updates": "Novinky"
   },
   "ticker": {
     "screenReaderSummary": "Programy, offline především, připomínky, upozornění na obsah, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Podpora",
     "privacy": "Soukromí",
-    "terms": "Podmínky"
+    "terms": "Podmínky",
+    "designSystem": "Designový systém"
   },
   "waitlist": {
     "badgeOpen": "Čekací listina na betu je otevřená",
@@ -241,5 +250,23 @@
         "hint": "Co ukládáme a co ne"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Tvůj průvodce furry cony",
+    "title": "Tvůj program conu.",
+    "titleAccent": "Připravený i offline.",
+    "body": "Najdi svůj con nebo naimportuj jeho program. Označ hvězdičkou, co tě zajímá, nech si čas na objevování a měj svůj plán po ruce, i když conová Wi-Fi vypadne.",
+    "secondary": "Nahlédni dovnitř",
+    "platforms": "Ve vývoji · iOS a Android"
+  },
+  "showcase": {
+    "label": "Ukázky obrazovek aplikace",
+    "note": "Ukázka aplikace ve vývoji. Smyšlená data.",
+    "browseTitle": "Program",
+    "browseDescription": "Prohlédni si celý program conu.",
+    "planTitle": "Můj plán",
+    "planDescription": "Vybrané body programu najdeš pohromadě v sekci Můj plán.",
+    "remindersTitle": "Připomínky",
+    "remindersDescription": "Zvol výchozí připomínku nebo ji nastav pro každou událost zvlášť."
   }
 }

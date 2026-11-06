@@ -1,8 +1,10 @@
+import Link from "next/link";
+import { AppPreview, type AppPreviewScreen } from "@/components/app-preview";
 import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
-import { LanguageSwitcher } from "@/components/language-switcher";
 import { MobileAction } from "@/components/mobile-action";
+import { SiteHeader } from "@/components/site-header";
 import { Waitlist } from "@/components/waitlist";
 import { UPDATES_LABEL } from "@/content/changelog";
 import { LINEUP, STEPS } from "@/content/landing";
@@ -21,9 +23,8 @@ import {
  * here is launch-stable: at go-live only copy changes (the waitlist flag,
  * store links when they exist), never structure.
  *
- * The "screenshots" are DOM mockups of the app UI drawn with the same brand
- * tokens. When real captures exist, each <PhoneFrame> body is swapped for an
- * <Image> without touching the layout around it.
+ * App previews are static captures of the approved code-based review screens.
+ * They use fictional data and are labeled as development previews.
  *
  * Copy comes from the locale catalog (`src/i18n/messages/*.json`). What stays
  * in `content/landing.ts` is the part that is structure rather than language:
@@ -59,369 +60,6 @@ function SectionHeading({
   );
 }
 
-/* ------------------------------------------------------------------------ */
-/* Phone mockups — DOM-drawn app screens, swappable for real captures later */
-/* ------------------------------------------------------------------------ */
-
-/**
- * The convention shown in the mockups is invented, and has to stay that way.
- *
- * Putting a real convention's name on marketing screenshots implies a
- * partnership or an endorsement that does not exist, and the name is very
- * likely someone's trademark. It is not in the locale catalogs either: an
- * invented proper noun does not translate.
- */
-const SAMPLE_CON = "Glasswing Furmeet 2026";
-const SAMPLE_CON_SHORT = "Glasswing";
-
-function PhoneFrame({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <figure aria-label={label} className={`w-[248px] shrink-0 ${className}`}>
-      <div
-        aria-hidden="true"
-        className="rounded-[36px] border border-border bg-gradient-to-b from-slate-700/60 to-slate-900/80 p-[7px] shadow-[0_40px_80px_-30px_rgb(0_0_0/0.8),inset_0_1px_0_rgb(255_255_255/0.08)]"
-      >
-        {/*
-          A real capture is 1320x2868, so the frame is held at that ratio
-          rather than a round pixel height. A fixed height quietly crops or
-          letterboxes the day someone drops an <Image> in here.
-        */}
-        <div className="relative aspect-[1320/2868] overflow-hidden rounded-[29px] border border-border/60 bg-background">
-          {children}
-        </div>
-      </div>
-      <figcaption
-        aria-hidden="true"
-        className="mt-4 text-center font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em]"
-      >
-        {label}
-      </figcaption>
-    </figure>
-  );
-}
-
-function MiniEvent({
-  time,
-  locale,
-  title,
-  room,
-  con,
-  starred,
-  flag,
-}: {
-  time: string;
-  locale: Locale;
-  title: string;
-  room: string;
-  /** Which convention the row belongs to — only shown in the Schedule tab. */
-  con?: string;
-  starred?: boolean;
-  flag?: string;
-}) {
-  return (
-    <div
-      className={`rounded-[10px] border px-3 py-2.5 ${
-        starred ? "border-primary/50 bg-primary/10" : "border-border bg-card/60"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <span className="font-tech text-[10px] text-primary tracking-[0.08em]">
-          {new Intl.DateTimeFormat(locale, {
-            hour: "numeric",
-            minute: "2-digit",
-            timeZone: "UTC",
-          }).format(new Date(`1970-01-01T${time}:00Z`))}
-        </span>
-        <span aria-hidden="true" className="text-[11px] leading-none">
-          {starred ? "★" : "☆"}
-        </span>
-      </div>
-      <p className="mt-1 font-bold text-[12px] leading-tight tracking-tight">
-        {title}
-      </p>
-      <div className="mt-1 flex items-center gap-2">
-        <span className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.14em]">
-          {con ? `${con} · ${room}` : room}
-        </span>
-        {flag ? (
-          <span className="rounded-[4px] border border-amber-400/40 bg-amber-400/10 px-1 py-px font-tech text-[8px] text-amber-300 uppercase tracking-[0.1em]">
-            {flag}
-          </span>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function TabBar({
-  messages,
-  active,
-}: {
-  messages: Messages;
-  active: "conventions" | "schedule";
-}) {
-  const tabs = [
-    ["conventions", messages.mock.tabs.conventions],
-    ["schedule", messages.mock.tabs.schedule],
-    ["settings", messages.mock.tabs.settings],
-  ] as const;
-
-  return (
-    <div className="mt-auto flex items-center justify-around border-border border-t px-1 pt-2.5">
-      {tabs.map(([key, label]) => (
-        <span
-          key={key}
-          className={`font-tech text-[9px] uppercase tracking-[0.12em] ${
-            key === active ? "text-primary" : "text-muted-foreground/70"
-          }`}
-        >
-          {label}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function ScreenChrome({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-full flex-col px-3 pt-9 pb-4 text-foreground">
-      {children}
-    </div>
-  );
-}
-
-/**
- * The Schedule tab: every starred event from every saved convention, grouped
- * by day. Rows name their convention only when more than one is in play,
- * which is exactly what the app does.
- */
-function ScheduleScreen({
-  messages,
-  locale,
-}: {
-  messages: Messages;
-  locale: Locale;
-}) {
-  const m = messages.mock;
-  return (
-    <ScreenChrome>
-      <p className="font-bold text-[19px] leading-tight tracking-tight">
-        {m.scheduleTitle}
-      </p>
-      <p className="mt-1 text-[9px] text-muted-foreground">
-        {m.scheduleTimezoneNote}
-      </p>
-      <p className="mt-3 font-bold text-[12px] tracking-tight">
-        {m.daySaturdayFull}
-      </p>
-      <div className="mt-2 flex flex-col gap-2">
-        <MiniEvent
-          time="10:00"
-          locale={locale}
-          title={m.events.fursuitParade}
-          con={SAMPLE_CON_SHORT}
-          room={m.rooms.mainHall}
-          starred
-        />
-        <MiniEvent
-          time="13:00"
-          locale={locale}
-          title={m.events.dealersDen}
-          con={SAMPLE_CON_SHORT}
-          room={m.rooms.hallB}
-          starred
-        />
-        <MiniEvent
-          time="20:00"
-          locale={locale}
-          title={m.events.djNight}
-          con={SAMPLE_CON_SHORT}
-          room={m.rooms.ballroom}
-          starred
-          flag="18+"
-        />
-      </div>
-      <p className="mt-4 font-bold text-[12px] tracking-tight">
-        {m.daySundayFull}
-      </p>
-      <div className="mt-2 flex flex-col gap-2">
-        <MiniEvent
-          time="11:00"
-          locale={locale}
-          title={m.events.closingCeremonies}
-          con={SAMPLE_CON_SHORT}
-          room={m.rooms.mainHall}
-          starred
-        />
-      </div>
-      <TabBar messages={messages} active="schedule" />
-    </ScreenChrome>
-  );
-}
-
-/**
- * Tapping an event opens an action sheet over the schedule. The app has no
- * event detail screen, deliberately — stars and reminders live in one place.
- */
-function EventSheetScreen({
-  messages,
-  locale,
-}: {
-  messages: Messages;
-  locale: Locale;
-}) {
-  const m = messages.mock;
-  return (
-    <div className="relative h-full">
-      <ScreenChrome>
-        <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.2em]">
-          {SAMPLE_CON}
-        </p>
-        <p className="mt-0.5 font-bold text-[16px] tracking-tight">
-          {m.daySaturday}
-        </p>
-        <div className="mt-3 flex flex-col gap-2">
-          <MiniEvent
-            time="10:00"
-            locale={locale}
-            title={m.events.fursuitParade}
-            room={m.rooms.mainHall}
-            starred
-          />
-          <MiniEvent
-            time="11:30"
-            locale={locale}
-            title={m.events.drawingForBeginners}
-            room={m.rooms.panel2}
-          />
-          <MiniEvent
-            time="13:00"
-            locale={locale}
-            title={m.events.dealersDen}
-            room={m.rooms.hallB}
-            starred
-          />
-        </div>
-      </ScreenChrome>
-
-      {/* scrim + sheet */}
-      <div className="absolute inset-0 rounded-[29px] bg-black/45" />
-      <div className="absolute inset-x-0 bottom-0 rounded-t-[16px] border-border border-t bg-card pb-3">
-        <div className="mx-auto mt-2.5 mb-3 h-1 w-10 rounded-full bg-border" />
-        <p className="px-3 font-bold text-[15px] leading-tight tracking-tight">
-          {m.events.fursuitParade}
-        </p>
-        <p className="mt-1 px-3 text-[10px] text-muted-foreground">
-          {m.sheet.when.replace(/\b(\d{1,2}:\d{2})\b/g, (time) =>
-            new Intl.DateTimeFormat(locale, {
-              hour: "numeric",
-              minute: "2-digit",
-              timeZone: "UTC",
-            }).format(new Date(`1970-01-01T${time}:00Z`)),
-          )}
-        </p>
-        <div className="mt-2.5 flex flex-wrap gap-1.5 px-3">
-          <span className="rounded-[5px] border border-primary/40 bg-primary/10 px-1.5 py-px font-tech text-[8px] text-primary uppercase tracking-[0.1em]">
-            {m.sheet.reminderChip}
-          </span>
-          <span className="rounded-[5px] border border-border px-1.5 py-px font-tech text-[8px] text-muted-foreground uppercase tracking-[0.1em]">
-            {m.sheet.importedChip}
-          </span>
-        </div>
-        <p className="mt-2.5 px-3 text-[10px] text-muted-foreground leading-relaxed">
-          {m.sheet.note}
-        </p>
-        <div className="mt-2 flex flex-col">
-          {[
-            m.sheet.actionRemove,
-            m.sheet.actionChangeReminder,
-            m.sheet.actionViewOnSched,
-          ].map((action) => (
-            <span key={action} className="px-3 py-2 text-[11px] leading-tight">
-              {action}
-            </span>
-          ))}
-          <span className="mt-1 border-border border-t px-3 pt-2 text-center text-[11px] text-muted-foreground">
-            {m.sheet.close}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Now and Next inside a convention. The app is local-first, so there is no
- * network state to report — the offline claim belongs in the copy around the
- * phone, not in invented chrome pretending to be a screen the app can render.
- */
-function OfflineScreen({
-  messages,
-  locale,
-}: {
-  messages: Messages;
-  locale: Locale;
-}) {
-  const m = messages.mock;
-  return (
-    <ScreenChrome>
-      <p className="font-tech text-[9px] text-muted-foreground uppercase tracking-[0.2em]">
-        {SAMPLE_CON}
-      </p>
-      <p className="mt-0.5 font-bold text-[16px] tracking-tight">
-        {m.offlineTitle}
-      </p>
-      <p className="mt-1 text-[9px] text-muted-foreground">
-        {m.offlineTimezoneNote}
-      </p>
-      <p className="mt-3 font-bold text-[12px] tracking-tight">{m.nowCount}</p>
-      <div className="mt-2 flex flex-col gap-2">
-        <MiniEvent
-          time="13:00"
-          locale={locale}
-          title={m.events.dealersDen}
-          room={m.rooms.hallB}
-          starred
-        />
-      </div>
-      <p className="mt-4 font-bold text-[12px] tracking-tight">
-        {m.nextAt.replace(/\b(\d{1,2}:\d{2})\b/g, (time) =>
-          new Intl.DateTimeFormat(locale, {
-            hour: "numeric",
-            minute: "2-digit",
-            timeZone: "UTC",
-          }).format(new Date(`1970-01-01T${time}:00Z`)),
-        )}
-      </p>
-      <div className="mt-2 flex flex-col gap-2">
-        <MiniEvent
-          time="14:30"
-          locale={locale}
-          title={m.events.writingFurryFiction}
-          room={m.rooms.panel1}
-        />
-        <MiniEvent
-          time="14:30"
-          locale={locale}
-          title={m.events.fursuitRepairClinic}
-          room={m.rooms.panel3}
-        />
-      </div>
-      <TabBar messages={messages} active="conventions" />
-    </ScreenChrome>
-  );
-}
-
-/* ------------------------------------------------------------------------ */
-
 export function Landing({
   locale,
   messages,
@@ -432,6 +70,29 @@ export function Landing({
   launch?: LaunchConfig;
 }) {
   const year = new Date().getFullYear();
+  const screens: AppPreviewScreen[] = [
+    {
+      id: "browse",
+      title: messages.showcase.browseTitle,
+      description: messages.showcase.browseDescription,
+      src: "/app-preview/browse.png",
+      alt: messages.showcase.browseDescription,
+    },
+    {
+      id: "plan",
+      title: messages.showcase.planTitle,
+      description: messages.showcase.planDescription,
+      src: "/app-preview/plan.png",
+      alt: messages.showcase.planDescription,
+    },
+    {
+      id: "reminders",
+      title: messages.showcase.remindersTitle,
+      description: messages.showcase.remindersDescription,
+      src: "/app-preview/reminders.png",
+      alt: messages.showcase.remindersDescription,
+    },
+  ];
 
   return (
     // No `lang` here any more. It used to be set on this <div> because the
@@ -443,277 +104,310 @@ export function Landing({
     // footer, which makes the footer not a contentinfo landmark and leaves the
     // page with no banner landmark at all -- so landmark navigation offered
     // exactly one destination, "main", on every page.
-    <div className="landing-page marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(112px,calc(96px+env(safe-area-inset-bottom)))]">
+    <>
       <a
         href="#main"
         className="sr-only rounded-lg bg-primary px-4 py-2 font-tech text-primary-foreground text-[12px] uppercase tracking-[0.18em] focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-skip"
       >
         {messages.nav.skipToContent}
       </a>
-      <header>
-        <nav
-          aria-label={messages.nav.primaryLabel}
-          className="relative z-nav grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 border-b border-border py-5 has-[details[open]]:z-menu lg:flex lg:justify-between lg:gap-6 lg:py-6"
-        >
-          <span className="flex items-center gap-2.5">
-            <CompassPaw className="h-9 w-9 text-primary sm:h-10 sm:w-10" />
-            <b className="font-bold text-2xl tracking-tight">ConPaws</b>
-          </span>
-          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-0 sm:gap-x-6 lg:order-2 lg:flex-1 lg:justify-center">
-            {[
-              ["#inside", messages.inside.eyebrow],
-              ["#features", messages.lineup.title],
-              ["#faq", messages.faq.title],
-              ["/updates", UPDATES_LABEL[locale]],
-            ].map(([href, label]) => (
-              <a
-                key={href}
-                href={href}
-                className="inline-flex min-h-11 items-center py-2 font-medium text-[15px] text-foreground/80 leading-6 sm:text-base underline-offset-8 transition hover:text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-          <span className="col-start-2 row-start-1 justify-self-end lg:order-3 [&_summary]:font-sans [&_summary]:font-medium [&_summary]:text-sm [&_summary]:text-foreground [&_summary]:normal-case [&_summary]:tracking-normal">
-            <LanguageSwitcher
-              current={locale}
-              label={messages.nav.languageLabel}
-            />
-          </span>
-        </nav>
-      </header>
-
-      <main id="main">
-        {/* Keep the lanyard above section art, below all navigation controls. */}
-        <section id="waitlist" className="relative pt-4 sm:pt-6">
-          <Waitlist messages={messages.waitlist} launch={launch} />
-        </section>
-
-        {/* ---- a look inside ---- */}
-        <section
-          id="inside"
-          className="relative z-content mt-16 scroll-mt-8 sm:mt-20"
-        >
-          <SectionHeading
-            eyebrow={messages.inside.eyebrow}
-            title={messages.inside.title}
-            blurb={messages.inside.blurb}
-          />
+      <SiteHeader
+        locale={locale}
+        messages={messages}
+        homePage
+        showWaitlist={launch.mode === "waitlist"}
+      />
+      <div className="landing-page marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(112px,calc(96px+env(safe-area-inset-bottom)))]">
+        <main id="main">
           <section
-            aria-label={messages.inside.title}
-            // biome-ignore lint/a11y/noNoninteractiveTabindex: Keep the horizontal scroll region keyboard-scrollable.
-            tabIndex={0}
-            className="phone-preview-rail -mx-6 mt-8 flex snap-x snap-mandatory scroll-px-6 items-start gap-4 overflow-x-auto overscroll-x-contain px-6 pt-2 pb-4 sm:mt-12 md:mx-0 md:flex-wrap md:justify-center md:gap-6 md:overflow-visible md:scroll-p-0 md:p-0"
+            className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12"
+            aria-labelledby="hero-title"
           >
-            <PhoneFrame
-              label={messages.inside.frameSchedule}
-              className="snap-start md:translate-y-8 md:rotate-[-4deg]"
-            >
-              <ScheduleScreen messages={messages} locale={locale} />
-            </PhoneFrame>
-            <PhoneFrame
-              label={messages.inside.frameEvent}
-              className="snap-start z-10"
-            >
-              <EventSheetScreen messages={messages} locale={locale} />
-            </PhoneFrame>
-            <PhoneFrame
-              label={messages.inside.frameOffline}
-              className="snap-start md:translate-y-8 md:rotate-[4deg]"
-            >
-              <OfflineScreen messages={messages} locale={locale} />
-            </PhoneFrame>
-          </section>
-        </section>
-
-        {/* ---- feature lineup ---- */}
-        <section
-          id="features"
-          className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
-        >
-          <div className="flex items-end justify-between gap-6">
-            <SectionHeading
-              eyebrow={messages.lineup.eyebrow}
-              title={messages.lineup.title}
-            />
-            <span className="mb-1 hidden font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:block">
-              {messages.lineup.dayCounter}
-            </span>
-          </div>
-
-          <div className="landing-block mt-8 overflow-hidden rounded-2xl border border-border">
-            {LINEUP.map((item, i) => {
-              const copy = messages.lineup.items[i];
-              if (!copy) return null;
-              return (
-                <div
-                  key={item.time}
-                  className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
-                    i > 0 ? "border-border border-t" : ""
-                  }`}
+            <div>
+              <p className="font-tech text-xs text-primary uppercase tracking-[0.14em]">
+                {messages.hero.eyebrow}
+              </p>
+              <h1
+                id="hero-title"
+                className="mt-5 text-balance font-bold text-[clamp(38px,8vw,64px)] leading-[1.06] tracking-[-0.035em]"
+              >
+                {messages.hero.title}
+                <br />
+                <span className="text-primary">
+                  {messages.hero.titleAccent}
+                </span>
+              </h1>
+              <p className="mt-6 max-w-[43ch] text-base text-muted-foreground leading-relaxed sm:text-lg">
+                {messages.hero.body}
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-4">
+                <a
+                  href="#waitlist"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground"
                 >
-                  <span className="pt-0.5 font-tech text-[15px] text-primary tracking-[0.06em]">
-                    {item.time}
+                  {launch.mode === "live"
+                    ? messages.steps.items[0]?.title
+                    : messages.nav.joinWaitlist}
+                </a>
+                <a
+                  href="#inside"
+                  className="inline-flex min-h-11 items-center text-sm underline-offset-4 hover:underline"
+                >
+                  {messages.hero.secondary}{" "}
+                  <span aria-hidden="true" className="ml-2">
+                    ↓
                   </span>
-                  <div>
-                    <h3 className="font-bold text-xl tracking-tight transition group-hover:text-primary">
+                </a>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                {launch.mode === "live"
+                  ? "iOS · Android"
+                  : messages.hero.platforms}
+              </p>
+            </div>
+            <AppPreview
+              screens={screens}
+              label={messages.showcase.label}
+              note={messages.showcase.note}
+            />
+          </section>
+
+          {/* ---- a look inside ---- */}
+          <section
+            id="inside"
+            className="relative z-content mt-16 scroll-mt-8 sm:mt-20"
+          >
+            <SectionHeading
+              eyebrow={messages.inside.eyebrow}
+              title={messages.inside.title}
+              blurb={messages.inside.blurb}
+            />
+            <div className="mt-8 sm:mt-12">
+              <AppPreview
+                screens={screens}
+                label={messages.showcase.label}
+                note={messages.showcase.note}
+                variant="gallery"
+              />
+            </div>
+          </section>
+
+          {/* ---- feature lineup ---- */}
+          <section
+            id="features"
+            className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
+          >
+            <div className="flex items-end justify-between gap-6">
+              <SectionHeading
+                eyebrow={messages.lineup.eyebrow}
+                title={messages.lineup.title}
+              />
+              <span className="mb-1 hidden font-tech text-[11px] text-muted-foreground uppercase tracking-[0.2em] sm:block">
+                {messages.lineup.dayCounter}
+              </span>
+            </div>
+
+            <div className="landing-block mt-8 overflow-hidden rounded-2xl border border-border">
+              {LINEUP.map((item, i) => {
+                const copy = messages.lineup.items[i];
+                if (!copy) return null;
+                return (
+                  <div
+                    key={item.time}
+                    className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
+                      i > 0 ? "border-border border-t" : ""
+                    }`}
+                  >
+                    <span className="pt-0.5 font-tech text-[15px] text-primary tracking-[0.06em]">
+                      {item.time}
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-xl tracking-tight transition group-hover:text-primary">
+                        {copy.title}
+                      </h3>
+                      <p className="mt-1 max-w-[52ch] text-base text-muted-foreground leading-relaxed">
+                        {copy.body}
+                      </p>
+                    </div>
+                    <div className="col-start-2 mt-2 flex gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
+                      <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[10px] text-primary uppercase tracking-[0.18em]">
+                        {messages.lineup.tags[item.tag]}
+                      </span>
+                      <span className="pt-0.5 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
+                        {copy.room}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ---- how it works ---- */}
+          <section className="relative z-content mt-20 sm:mt-24">
+            <SectionHeading
+              eyebrow={messages.steps.eyebrow}
+              title={messages.steps.title}
+            />
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {STEPS.map((step, i) => {
+                const copy = messages.steps.items[i];
+                if (!copy) return null;
+                return (
+                  <div
+                    key={step.n}
+                    className="landing-block group hover:-translate-y-1 rounded-2xl border border-border p-6 transition hover:border-primary/60 hover:bg-card"
+                  >
+                    <span className="font-bold text-[38px] text-transparent leading-none [-webkit-text-stroke:1.5px_rgb(15_172_237/0.55)] transition group-hover:text-primary group-hover:[-webkit-text-stroke:0px]">
+                      {step.n}
+                    </span>
+                    <h3 className="mt-4 font-bold text-xl tracking-tight">
                       {copy.title}
                     </h3>
-                    <p className="mt-1 max-w-[52ch] text-base text-muted-foreground leading-relaxed">
+                    <p className="mt-1.5 text-base text-muted-foreground leading-relaxed">
                       {copy.body}
                     </p>
                   </div>
-                  <div className="col-start-2 mt-2 flex gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
-                    <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[10px] text-primary uppercase tracking-[0.18em]">
-                      {messages.lineup.tags[item.tag]}
-                    </span>
-                    <span className="pt-0.5 font-tech text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
-                      {copy.room}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                );
+              })}
+            </div>
+          </section>
 
-        {/* ---- how it works ---- */}
-        <section className="relative z-content mt-20 sm:mt-24">
-          <SectionHeading
-            eyebrow={messages.steps.eyebrow}
-            title={messages.steps.title}
-          />
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {STEPS.map((step, i) => {
-              const copy = messages.steps.items[i];
-              if (!copy) return null;
-              return (
-                <div
-                  key={step.n}
-                  className="landing-block group hover:-translate-y-1 rounded-2xl border border-border p-6 transition hover:border-primary/60 hover:bg-card"
-                >
-                  <span className="font-bold text-[38px] text-transparent leading-none [-webkit-text-stroke:1.5px_rgb(15_172_237/0.55)] transition group-hover:text-primary group-hover:[-webkit-text-stroke:0px]">
-                    {step.n}
-                  </span>
-                  <h3 className="mt-4 font-bold text-xl tracking-tight">
-                    {copy.title}
-                  </h3>
-                  <p className="mt-1.5 text-base text-muted-foreground leading-relaxed">
-                    {copy.body}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+          <section
+            id="waitlist"
+            className="relative mt-20 border-t border-border pt-12 sm:mt-24"
+            aria-label={messages.nav.joinWaitlist}
+          >
+            <Waitlist
+              messages={{
+                ...messages.waitlist,
+                title: messages.nav.joinWaitlist,
+                titleAccent: "",
+              }}
+              launch={launch}
+              headingLevel="h2"
+            />
+          </section>
 
-        {/* ---- FAQ ---- */}
-        <section
-          id="faq"
-          className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
-        >
-          <SectionHeading
-            eyebrow={messages.faq.eyebrow}
-            title={messages.faq.title}
-          />
-          <FaqSection items={messages.faq.items} />
-          {/* Derived from the same `messages.faq.items` the accordion just
+          {/* ---- FAQ ---- */}
+          <section
+            id="faq"
+            className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
+          >
+            <SectionHeading
+              eyebrow={messages.faq.eyebrow}
+              title={messages.faq.title}
+            />
+            <FaqSection items={messages.faq.items} />
+            {/* Derived from the same `messages.faq.items` the accordion just
               rendered, per locale. Structured data has to match the visible
               answers, and a second hardcoded copy is how it stops matching. */}
-          <JsonLd
-            data={graph(
-              softwareApplicationNode(locale, messages, launch),
-              faqPageNode(messages),
-            )}
-          />
-        </section>
+            <JsonLd
+              data={graph(
+                softwareApplicationNode(locale, messages, launch),
+                faqPageNode(messages),
+              )}
+            />
+          </section>
 
-        {/* ---- closing CTA ---- */}
-        <section className="relative z-content mt-20 sm:mt-28">
-          <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-[#0f2350] to-card px-5 py-10 text-center sm:px-8 sm:py-16">
-            <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
-            <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
-            <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
-              {messages.cta.eyebrow}
-            </p>
-            <h2 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(32px,4.5vw,44px)] leading-[1.15] tracking-[-0.02em]">
-              {messages.cta.title}
-            </h2>
-            <p className="mx-auto mt-4 max-w-[46ch] text-lg text-muted-foreground leading-relaxed">
-              {messages.cta.body}
-            </p>
-            <a
-              href="#waitlist"
-              className="mt-8 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-base text-primary-foreground uppercase tracking-[0.08em] transition hover:brightness-110 hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] active:scale-[0.99]"
-            >
-              {messages.cta.button}
-            </a>
-          </div>
-        </section>
-      </main>
+          {/* ---- closing CTA ---- */}
+          <section className="relative z-content mt-20 sm:mt-28">
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-card px-5 py-10 text-center sm:px-8 sm:py-16">
+              <CompassPaw className="-left-10 -bottom-10 absolute h-[180px] w-[180px] rotate-[-15deg] text-primary opacity-[0.07]" />
+              <CompassPaw className="-right-8 -top-12 absolute h-[160px] w-[160px] rotate-[20deg] text-primary opacity-[0.07]" />
+              <p className="font-tech text-[12px] text-primary uppercase tracking-[0.3em]">
+                {messages.cta.eyebrow}
+              </p>
+              <h2 className="mx-auto mt-3 max-w-[18ch] text-balance font-bold text-[clamp(32px,4.5vw,44px)] leading-[1.15] tracking-[-0.02em]">
+                {messages.cta.title}
+              </h2>
+              <p className="mx-auto mt-4 max-w-[46ch] text-lg text-muted-foreground leading-relaxed">
+                {messages.cta.body}
+              </p>
+              <a
+                href="#waitlist"
+                className="mt-8 inline-block rounded-xl bg-primary px-8 py-4 font-bold text-base text-primary-foreground uppercase tracking-[0.08em] transition hover:brightness-110 hover:shadow-[0_0_36px_rgb(15_172_237/0.35)] active:scale-[0.99]"
+              >
+                {messages.cta.button}
+              </a>
+            </div>
+          </section>
+        </main>
 
-      {/* ---- footer ---- */}
-      <footer className="relative z-content mt-20 overflow-hidden border-border border-t pt-8 sm:mt-28 sm:pt-10">
-        {/* Decorative wordmark. Hidden below `sm` on purpose: at 375px the
+        {/* ---- footer ---- */}
+        <footer className="relative z-content mt-20 overflow-hidden border-border border-t pt-8 sm:mt-28 sm:pt-10">
+          {/* Decorative wordmark. Hidden below `sm` on purpose: at 375px the
             120px type is wider than the viewport, so it clipped to a
             meaningless "nPaws" AND sat directly behind the footer links --
             every one of the three was 100% covered, which is what made the
             footer look broken on a phone. */}
-        <p
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 bottom-[-30px] hidden select-none font-bold text-transparent leading-none tracking-tighter [-webkit-text-stroke:1px_rgb(30_58_95/0.45)] sm:block sm:text-[170px]"
-        >
-          ConPaws
-        </p>
-        <div className="relative flex flex-wrap items-center justify-between gap-6 pb-8">
-          <p className="text-sm text-muted-foreground">
-            {messages.footer.copyright.replace("{year}", String(year))}{" "}
-            <a
-              href="https://www.mrdemonwolf.com"
-              rel="noopener"
-              className="text-primary transition hover:underline"
-            >
-              {messages.footer.company}
-            </a>
+          <p
+            aria-hidden="true"
+            className="pointer-events-none absolute right-0 bottom-[-30px] hidden select-none font-bold text-transparent leading-none tracking-tighter [-webkit-text-stroke:1px_var(--border)] sm:block sm:text-[170px]"
+          >
+            ConPaws
           </p>
-          {/* `min-h-11` is the 44px WCAG 2.5.8 target; the text is 12px, so
+          <div className="relative flex flex-wrap items-center justify-between gap-6 pb-8">
+            <p className="text-sm text-muted-foreground">
+              {messages.footer.copyright.replace("{year}", String(year))}{" "}
+              <a
+                href="https://www.mrdemonwolf.com"
+                rel="noopener"
+                className="text-primary transition hover:underline"
+              >
+                {messages.footer.company}
+              </a>
+            </p>
+            {/* `min-h-11` is the 44px WCAG 2.5.8 target; the text is 12px, so
               without it these are ~18px tall and miss by half. The negative
               margin cancels the height it adds so the footer keeps its
               spacing. The MrDemonWolf link above is left alone on purpose --
               a link inside a sentence is exempt from the target-size rule. */}
-          <nav
-            aria-label={messages.nav.footerLabel}
-            className="-my-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground"
-          >
-            <a
-              href="/updates"
-              className="inline-flex min-h-11 items-center transition hover:text-primary"
+            <nav
+              aria-label={messages.nav.footerLabel}
+              className="-my-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground"
             >
-              {UPDATES_LABEL[locale]}
-            </a>
-            <a
-              href="/support"
-              className="inline-flex min-h-11 items-center transition hover:text-primary"
-            >
-              {messages.footer.support}
-            </a>
-            <a
-              href="/privacy"
-              className="inline-flex min-h-11 items-center transition hover:text-primary"
-            >
-              {messages.footer.privacy}
-            </a>
-            <a
-              href="/terms"
-              className="inline-flex min-h-11 items-center transition hover:text-primary"
-            >
-              {messages.footer.terms}
-            </a>
-          </nav>
-        </div>
-      </footer>
-      <MobileAction label={messages.cta.button} />
-    </div>
+              <a
+                href="/updates"
+                className="inline-flex min-h-11 items-center transition hover:text-primary"
+              >
+                {UPDATES_LABEL[locale]}
+              </a>
+              <Link
+                href="/design-system"
+                className="inline-flex min-h-11 items-center transition hover:text-primary"
+              >
+                {messages.footer.designSystem}
+              </Link>
+              <a
+                href="/support"
+                className="inline-flex min-h-11 items-center transition hover:text-primary"
+              >
+                {messages.footer.support}
+              </a>
+              <a
+                href="/privacy"
+                className="inline-flex min-h-11 items-center transition hover:text-primary"
+              >
+                {messages.footer.privacy}
+              </a>
+              <a
+                href="/terms"
+                className="inline-flex min-h-11 items-center transition hover:text-primary"
+              >
+                {messages.footer.terms}
+              </a>
+            </nav>
+          </div>
+        </footer>
+        <MobileAction
+          label={
+            launch.mode === "live"
+              ? messages.cta.button
+              : messages.nav.joinWaitlist
+          }
+        />
+      </div>
+    </>
   );
 }

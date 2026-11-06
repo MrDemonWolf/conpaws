@@ -28,17 +28,26 @@ import { localeHref, publishedLocales } from "@/i18n/routing";
 export function LanguageSwitcher({
   current,
   label,
+  presentation = "default",
 }: {
   current: Locale;
   label: string;
+  presentation?: "default" | "inline";
 }) {
   const active = LOCALES.find((l) => l.code === current) ?? LOCALES[0];
   const published = new Set(publishedLocales());
   const menuLocales = LOCALES.filter((l) => published.has(l.code));
+  const inline = presentation === "inline";
 
   return (
     <details className="group relative" data-lang-menu>
-      <summary className="flex min-h-11 min-w-0 max-w-[min(11rem,calc(100vw_-_13rem))] cursor-pointer list-none items-center gap-2 rounded-full border border-border px-3 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.16em] transition hover:text-primary sm:max-w-none [&::-webkit-details-marker]:hidden">
+      <summary
+        className={
+          inline
+            ? "flex min-h-11 w-full cursor-pointer list-none items-center gap-3 rounded-lg py-2 text-base text-foreground [&::-webkit-details-marker]:hidden"
+            : "flex min-h-11 min-w-0 max-w-[min(11rem,calc(100vw_-_13rem))] cursor-pointer list-none items-center gap-2 rounded-full border border-border px-3 font-tech text-[11px] text-muted-foreground uppercase tracking-[0.16em] transition hover:text-primary sm:max-w-none [&::-webkit-details-marker]:hidden"
+        }
+      >
         <span className="sr-only">
           {label}: {active.nativeName}
         </span>
@@ -55,15 +64,23 @@ export function LanguageSwitcher({
           {/* The two meridians that make a bare circle read as a globe. */}
           <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" />
         </svg>
-        <span
-          aria-hidden="true"
-          className="min-w-0 truncate max-[23rem]:hidden"
-        >
-          {active.nativeName}
-        </span>
-        <span aria-hidden="true" className="hidden max-[23rem]:inline">
-          {active.code.toUpperCase()}
-        </span>
+        {inline ? (
+          <span aria-hidden="true" className="min-w-0 flex-1 break-words">
+            {label}: {active.nativeName}
+          </span>
+        ) : (
+          <>
+            <span
+              aria-hidden="true"
+              className="min-w-0 truncate max-[23rem]:hidden"
+            >
+              {active.nativeName}
+            </span>
+            <span aria-hidden="true" className="hidden max-[23rem]:inline">
+              {active.code.toUpperCase()}
+            </span>
+          </>
+        )}
         <span
           aria-hidden="true"
           className="text-primary transition group-open:rotate-180"
@@ -74,7 +91,11 @@ export function LanguageSwitcher({
       {/* Local layer within the header; the open header uses the menu layer. */}
       <nav
         aria-label={label}
-        className="absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-112px))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(9_21_51/0.65)]"
+        className={
+          inline
+            ? "mt-2 max-h-[40dvh] overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-2"
+            : "absolute right-0 z-10 mt-2 max-h-[min(60dvh,calc(100dvh-112px))] w-[min(256px,calc(100vw-48px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-2 shadow-[0_16px_48px_-16px_rgb(9_21_51/0.65)]"
+        }
       >
         {/* `publishedLocales()`, not LOCALES: `[locale]/page.tsx` sets
             `dynamicParams = false`, so a locale listed in config without a
