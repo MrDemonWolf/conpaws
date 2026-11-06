@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./alchemy.run": "./alchemy.run.ts"
+    "./alchemy.run": "./alchemy.run.ts",
+    "./website-bundle": "./website-bundle.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

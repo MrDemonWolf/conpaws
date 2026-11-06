@@ -56,6 +56,9 @@ try {
   await fallback.close();
 
   const appearance = await browser.newPage({ colorScheme: "dark" });
+  appearance.on("pageerror", (error) => {
+    failures.push(`Appearance startup: ${error.message}`);
+  });
   await appearance.goto(origin.toString(), { waitUntil: "load" });
   for (const colorScheme of ["dark", "light", "dark"] as const) {
     await appearance.emulateMedia({ colorScheme });

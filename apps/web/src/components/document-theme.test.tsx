@@ -1,4 +1,8 @@
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
+import { WEB_BUNDLE_OPTIONS } from "@conpaws/infra/website-bundle";
+import { build } from "esbuild";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -18,8 +22,7 @@ const markup = () =>
     </Document>,
   );
 
-function bootstrap() {
-  const html = markup();
+function bootstrap(html = markup()) {
   const script = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].find(
     (match) => match[1]?.includes("prefers-color-scheme: dark"),
   );
@@ -33,41 +36,58 @@ function applyBeforeHydration(
   stored: string | null,
   dark: boolean,
   blocked = false,
+  source = bootstrap().source,
 ) {
   const classes = new Set(["dark"]);
   const style = {
     colorScheme: "dark",
     backgroundColor: "var(--background, #000)",
   };
-  runInNewContext(bootstrap().source, {
-    document: {
-      documentElement: {
-        classList: {
-          remove: (...names: string[]) =>
-            names.forEach((name) => {
-              classes.delete(name);
-            }),
-          add: (name: string) => classes.add(name),
+  runInNewContext(
+    source,
+    {
+      document: {
+        documentElement: {
+          classList: {
+            remove: (...names: string[]) =>
+              names.forEach((name) => {
+                classes.delete(name);
+              }),
+            add: (name: string) => classes.add(name),
+          },
+          style,
         },
-        style,
+      },
+      localStorage: {
+        getItem: (key: string) => {
+          expect(key).toBe("theme");
+          if (blocked) throw new Error("Storage denied");
+          return stored;
+        },
+      },
+      window: {
+        matchMedia: (query: string) => {
+          expect(query).toBe("(prefers-color-scheme: dark)");
+          return { matches: dark };
+        },
       },
     },
-    localStorage: {
-      getItem: (key: string) => {
-        expect(key).toBe("theme");
-        if (blocked) throw new Error("Storage denied");
-        return stored;
-      },
+    {
+      timeout: 1_000,
+      contextCodeGeneration: { strings: false, wasm: false },
     },
-    window: {
-      matchMedia: (query: string) => {
-        expect(query).toBe("(prefers-color-scheme: dark)");
-        return { matches: dark };
-      },
-    },
-  });
+  );
   return { classes: [...classes], style };
 }
+
+const themeCases = [
+  [null, false, "light"],
+  [null, true, "dark"],
+  ["system", false, "light"],
+  ["system", true, "dark"],
+  ["dark", false, "dark"],
+  ["light", true, "light"],
+] as const;
 
 describe("website theme before hydration", () => {
   it("renders a dark variable-based canvas before external CSS or JavaScript", () => {
@@ -88,14 +108,7 @@ describe("website theme before hydration", () => {
     );
   });
 
-  it.each([
-    [null, false, "light"],
-    [null, true, "dark"],
-    ["system", false, "light"],
-    ["system", true, "dark"],
-    ["dark", false, "dark"],
-    ["light", true, "light"],
-  ] as const)(
+  it.each(themeCases)(
     "resolves stored %s and system-dark %s to %s before content",
     (stored, dark, expected) => {
       const result = applyBeforeHydration(stored, dark);
@@ -111,6 +124,58 @@ describe("website theme before hydration", () => {
     const result = applyBeforeHydration(null, false, true);
     expect(result.classes).toEqual(["dark"]);
     expect(result.style.colorScheme).toBe("dark");
+  });
+
+  it("executes the actual next-themes bootstrap after deployment minification", async () => {
+    const result = await build({
+      stdin: {
+        contents: `
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ThemeProvider } from "next-themes";
+globalThis.html = renderToStaticMarkup(createElement(ThemeProvider, {
+  attribute: "class",
+  defaultTheme: "system",
+  enableSystem: true,
+  enableColorScheme: true,
+  disableTransitionOnChange: true,
+  scriptProps: { "data-cfasync": "false" },
+}));`,
+        resolveDir: fileURLToPath(new URL("../../", import.meta.url)),
+      },
+      bundle: true,
+      write: false,
+      platform: "node",
+      format: "cjs",
+      target: "es2022",
+      external: ["react", "react-dom/server"],
+      ...WEB_BUNDLE_OPTIONS,
+    });
+    const output = result.outputFiles[0]?.text;
+    if (!output) throw new Error("Missing the minified theme provider");
+    const require = createRequire(import.meta.url);
+    const context = {
+      html: "",
+      require: (name: string) => {
+        if (name !== "react" && name !== "react-dom/server")
+          throw new Error(`Unexpected theme provider import: ${name}`);
+        return require(name);
+      },
+    };
+    runInNewContext(output, context, {
+      timeout: 1_000,
+      contextCodeGeneration: { strings: false, wasm: false },
+    });
+    const source = bootstrap(context.html).source;
+    for (const [stored, dark, expected] of themeCases) {
+      const applied = applyBeforeHydration(stored, dark, false, source);
+      expect(applied.classes).toEqual([expected]);
+      expect(applied.style.colorScheme).toBe(expected);
+      expect(applied.style.backgroundColor).toBe("var(--background, #000)");
+    }
+    const blocked = applyBeforeHydration(null, false, true, source);
+    expect(blocked.classes).toEqual(["dark"]);
+    expect(blocked.style.colorScheme).toBe("dark");
   });
 
   it("offers matching browser chrome colors for both system appearances", () => {
