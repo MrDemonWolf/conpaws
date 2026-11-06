@@ -21,6 +21,12 @@
     "closeMenu": "關閉導覽",
     "updates": "更新資訊"
   },
+  "appearance": {
+    "label": "外觀",
+    "system": "跟隨系統",
+    "light": "淺色",
+    "dark": "深色"
+  },
   "ticker": {
     "screenReaderSummary": "議程、離線優先、提醒、內容提示、iOS、Android。",
     "items": ["議程", "離線優先", "提醒", "內容提示", "iOS", "Android"]

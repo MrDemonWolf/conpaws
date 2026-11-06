@@ -41,7 +41,11 @@ const robotoMono = Roboto_Mono({
 });
 
 export const rootViewport: Viewport = {
-  themeColor: "#000000",
+  colorScheme: "dark light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 };
 
 /**
@@ -74,7 +78,16 @@ export function Document({
   children: React.ReactNode;
 }) {
   return (
-    <html lang={locale} dir={localeDir(locale)} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={localeDir(locale)}
+      className="dark"
+      style={{
+        backgroundColor: "var(--background, #000)",
+        colorScheme: "dark",
+      }}
+      suppressHydrationWarning
+    >
       <body
         className={`${montserrat.variable} ${robotoMono.variable} font-sans antialiased`}
       >
@@ -87,6 +100,9 @@ export function Document({
             are page-scoped and emitted by <Landing>: structured data has to
             describe the page it is on, and /terms has no FAQ. */}
         <JsonLd data={graph(organizationNode(), webSiteNode())} />
+        {/* next-themes emits its existing synchronous script before content.
+            It replaces the dark fallback with the saved or system theme.
+            The variable above follows that theme once CSS has loaded. */}
         <Providers>{children}</Providers>
         <ServiceWorker />
       </body>

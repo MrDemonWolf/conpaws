@@ -21,6 +21,12 @@
     "closeMenu": "Fechar navegação",
     "updates": "Novidades"
   },
+  "appearance": {
+    "label": "Aparência",
+    "system": "Sistema",
+    "light": "Claro",
+    "dark": "Escuro"
+  },
   "ticker": {
     "screenReaderSummary": "Programações, offline primeiro, lembretes, avisos de conteúdo, iOS, Android.",
     "items": [

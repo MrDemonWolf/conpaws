@@ -21,6 +21,12 @@
     "closeMenu": "Закрити навігацію",
     "updates": "Оновлення"
   },
+  "appearance": {
+    "label": "Вигляд",
+    "system": "Системна",
+    "light": "Світла",
+    "dark": "Темна"
+  },
   "ticker": {
     "screenReaderSummary": "Програми, офлайн передусім, нагадування, попередження про вміст, iOS, Android.",
     "items": [

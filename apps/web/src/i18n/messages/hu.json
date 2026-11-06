@@ -21,6 +21,12 @@
     "closeMenu": "Navigáció bezárása",
     "updates": "Frissítések"
   },
+  "appearance": {
+    "label": "Megjelenés",
+    "system": "Rendszer",
+    "light": "Világos",
+    "dark": "Sötét"
+  },
   "ticker": {
     "screenReaderSummary": "Programok, offline elsőként, emlékeztetők, tartalmi figyelmeztetések, iOS, Android.",
     "items": [

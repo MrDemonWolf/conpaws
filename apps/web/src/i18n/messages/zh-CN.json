@@ -21,6 +21,12 @@
     "closeMenu": "关闭导航",
     "updates": "更新信息"
   },
+  "appearance": {
+    "label": "外观",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
+  },
   "ticker": {
     "screenReaderSummary": "日程、离线优先、提醒、内容提示、iOS、Android。",
     "items": ["日程", "离线优先", "提醒", "内容提示", "iOS", "Android"]

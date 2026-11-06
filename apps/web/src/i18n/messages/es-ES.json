@@ -21,6 +21,12 @@
     "closeMenu": "Cerrar navegación",
     "updates": "Novedades"
   },
+  "appearance": {
+    "label": "Apariencia",
+    "system": "Sistema",
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
   "ticker": {
     "screenReaderSummary": "Horarios, sin conexión primero, recordatorios, avisos de contenido, iOS, Android.",
     "items": [

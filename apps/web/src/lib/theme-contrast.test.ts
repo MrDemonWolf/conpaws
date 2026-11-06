@@ -72,22 +72,79 @@ describe.each([
   });
 });
 
-describe("website charcoal surfaces", () => {
+describe.each([
+  ["light", /:root\s*\{([\s\S]*?)\}/, /html\.light\s*\{([\s\S]*?)\}/],
+  ["dark", /\.dark\s*\{([\s\S]*?)\}/, /html\.dark\s*\{([\s\S]*?)\}/],
+] as const)("website %s surfaces", (_, sharedPattern, websitePattern) => {
   const websiteCss = readFileSync(
     new URL("../index.css", import.meta.url),
     "utf8",
   );
-  const sharedDark = css.match(/\.dark\s*\{([\s\S]*?)\}/)?.[1];
-  const websiteDark = websiteCss.match(/html\.dark\s*\{([\s\S]*?)\}/)?.[1];
-  if (!sharedDark || !websiteDark) throw new Error("Missing website theme");
-  const resolved = `${sharedDark}\n${websiteDark}`;
+  const sharedTheme = css.match(sharedPattern)?.[1];
+  const websiteTheme = websiteCss.match(websitePattern)?.[1];
+  if (!sharedTheme || !websiteTheme) throw new Error("Missing website theme");
+  const resolved = `${sharedTheme}\n${websiteTheme}`;
+
+  it("keeps website surfaces and supporting text neutral", () => {
+    for (const name of [
+      "background",
+      "foreground",
+      "card",
+      "card-foreground",
+      "popover",
+      "popover-foreground",
+      "primary-foreground",
+      "secondary",
+      "secondary-foreground",
+      "muted",
+      "muted-foreground",
+      "accent",
+      "accent-foreground",
+      "destructive-foreground",
+      "border",
+      "input",
+    ]) {
+      const [red, green, blue] = color(resolved, name);
+      expect(red, name).toBe(green);
+      expect(green, name).toBe(blue);
+    }
+  });
 
   it("keeps foreground pairs readable on page, raised and supporting surfaces", () => {
-    for (const surface of ["background", "card", "secondary", "muted"])
+    for (const surface of [
+      "background",
+      "card",
+      "popover",
+      "secondary",
+      "muted",
+      "accent",
+    ])
       for (const text of ["foreground", "muted-foreground"])
         expect(
           contrast(color(resolved, surface), color(resolved, text)),
         ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("keeps paired actions and semantic text readable on the website", () => {
+    for (const name of ["primary", "destructive"])
+      expect(
+        contrast(color(resolved, name), color(resolved, `${name}-foreground`)),
+      ).toBeGreaterThanOrEqual(4.5);
+    for (const surface of ["background", "card", "secondary", "muted"]) {
+      const backdrop = color(resolved, surface);
+      for (const name of ["primary", "destructive"]) {
+        const fill = color(resolved, name);
+        expect(contrast(fill, backdrop)).toBeGreaterThanOrEqual(4.5);
+        const hover: Rgb = [
+          fill[0] * 0.9 + backdrop[0] * 0.1,
+          fill[1] * 0.9 + backdrop[1] * 0.1,
+          fill[2] * 0.9 + backdrop[2] * 0.1,
+        ];
+        expect(
+          contrast(hover, color(resolved, `${name}-foreground`)),
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
   });
 
   it("keeps input boundaries visible on page and card", () => {
@@ -95,6 +152,36 @@ describe("website charcoal surfaces", () => {
       expect(
         contrast(color(resolved, surface), color(resolved, "input")),
       ).toBeGreaterThanOrEqual(3);
+  });
+
+  it("keeps focus rings visible on page and supporting surfaces", () => {
+    for (const surface of ["background", "card", "secondary", "muted"])
+      expect(
+        contrast(color(resolved, surface), color(resolved, "ring")),
+      ).toBeGreaterThanOrEqual(3);
+  });
+
+  it("keeps sticky header labels readable over light or dark scrolling content", () => {
+    const headerCss = readFileSync(
+      new URL("../components/site-header.module.css", import.meta.url),
+      "utf8",
+    );
+    const tint = headerCss.match(/var\(--background\)\s+(\d+)%/)?.[1];
+    if (!tint) throw new Error("Missing header tint");
+    const opacity = Number(tint) / 100;
+    const canvas = color(resolved, "background");
+    for (const channel of [0, 1]) {
+      const backdrop = canvas.map(
+        (value) => value * opacity + channel * (1 - opacity),
+      ) as Rgb;
+      for (const text of ["foreground", "muted-foreground", "primary"])
+        expect(
+          contrast(color(resolved, text), backdrop),
+        ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        contrast(color(resolved, "ring"), backdrop),
+      ).toBeGreaterThanOrEqual(3);
+    }
   });
 });
 

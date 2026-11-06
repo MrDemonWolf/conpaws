@@ -8,8 +8,27 @@
   color: var(--foreground);
 }
 
+@supports (background: color-mix(in srgb, black 85%, transparent)) and
+  ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header {
+    background: color-mix(in srgb, var(--background) 85%, transparent);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more),
+  (forced-colors: active) {
+  .header {
+    background: var(--background);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 .inner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
@@ -21,7 +40,9 @@
 
 .brand {
   display: inline-flex;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
@@ -32,6 +53,11 @@
   letter-spacing: -0.025em;
   line-height: 1.15;
   text-decoration: none;
+}
+
+.brand span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .mark {
@@ -48,6 +74,7 @@
 .menuButton,
 .closeButton {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -61,10 +88,17 @@
 }
 
 .menuButton {
+  max-width: 100%;
   padding: 0.625rem 0;
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.mobile {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .menuButton svg,
@@ -116,6 +150,7 @@
 
 .drawerBody {
   display: flex;
+  min-width: 0;
   min-height: 0;
   flex-direction: column;
   gap: 1.5rem;
@@ -143,6 +178,7 @@
 }
 
 .mobileLanguage {
+  min-width: 0;
   padding-block: 1rem;
   border-block: 1px solid var(--border);
 }
@@ -194,7 +230,6 @@
 
 @media (min-width: 64rem) {
   .inner {
-    flex-wrap: wrap;
     min-height: 76px;
   }
 
@@ -204,18 +239,19 @@
     flex: 1;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 0.75rem 1.25rem;
   }
 
   .desktopNav {
     display: flex;
     min-width: 0;
-    flex: 1;
+    flex: 0 1 auto;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    gap: 0.25rem 1.5rem;
+    justify-content: flex-start;
+    gap: 0.25rem 1.25rem;
+    margin-inline-end: auto;
   }
 
   .desktopNav a {
@@ -223,7 +259,7 @@
     align-items: center;
     min-height: 44px;
     color: var(--muted-foreground);
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     line-height: 1.4;
     overflow-wrap: anywhere;

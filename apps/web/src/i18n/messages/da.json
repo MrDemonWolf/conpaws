@@ -21,6 +21,12 @@
     "closeMenu": "Luk navigation",
     "updates": "Nyheder"
   },
+  "appearance": {
+    "label": "Udseende",
+    "system": "System",
+    "light": "Lys",
+    "dark": "Mørk"
+  },
   "ticker": {
     "screenReaderSummary": "Programmer, offline først, påmindelser, indholdsadvarsler, iOS, Android.",
     "items": [

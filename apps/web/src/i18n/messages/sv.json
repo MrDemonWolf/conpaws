@@ -21,6 +21,12 @@
     "closeMenu": "Stäng navigering",
     "updates": "Nyheter"
   },
+  "appearance": {
+    "label": "Utseende",
+    "system": "System",
+    "light": "Ljust",
+    "dark": "Mörkt"
+  },
   "ticker": {
     "screenReaderSummary": "Program, offline först, påminnelser, innehållsvarningar, iOS, Android.",
     "items": [

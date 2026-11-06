@@ -21,6 +21,12 @@
     "closeMenu": "Zavřít navigaci",
     "updates": "Novinky"
   },
+  "appearance": {
+    "label": "Vzhled",
+    "system": "Systém",
+    "light": "Světlý",
+    "dark": "Tmavý"
+  },
   "ticker": {
     "screenReaderSummary": "Programy, offline především, připomínky, upozornění na obsah, iOS, Android.",
     "items": [

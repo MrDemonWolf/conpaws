@@ -21,6 +21,12 @@
     "closeMenu": "Zamknij nawigację",
     "updates": "Aktualności"
   },
+  "appearance": {
+    "label": "Wygląd",
+    "system": "Systemowy",
+    "light": "Jasny",
+    "dark": "Ciemny"
+  },
   "ticker": {
     "screenReaderSummary": "Plany, offline przede wszystkim, przypomnienia, ostrzeżenia o treści, iOS, Android.",
     "items": [

@@ -21,6 +21,12 @@
     "closeMenu": "Sulje navigointi",
     "updates": "Päivitykset"
   },
+  "appearance": {
+    "label": "Ulkoasu",
+    "system": "Järjestelmä",
+    "light": "Vaalea",
+    "dark": "Tumma"
+  },
   "ticker": {
     "screenReaderSummary": "Ohjelmat, offline ensin, muistutukset, sisältövaroitukset, iOS, Android.",
     "items": [

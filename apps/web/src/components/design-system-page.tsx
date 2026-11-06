@@ -140,8 +140,15 @@ export function DesignSystemPage() {
           Borders use <code className="font-tech">--border</code>; inputs use{" "}
           <code className="font-tech">--input</code>; focus uses{" "}
           <code className="font-tech">--ring</code>. Keep these roles separate.
-          Filled cyan actions use the dark primary foreground, rather than white
-          text.
+          Filled actions use their paired primary foreground: light appearance
+          pairs darker cyan with white text; dark appearance pairs bright cyan
+          with dark text.
+        </p>
+        <p className="mt-3 max-w-[70ch] text-sm text-muted-foreground leading-relaxed">
+          The sticky website header uses a tinted backdrop blur. It stays solid
+          when the effect is unsupported, or when the browser reports reduced
+          transparency, increased contrast or forced colors. Menu drawers remain
+          solid.
         </p>
       </ReferenceSection>
 

@@ -21,6 +21,12 @@
     "closeMenu": "Fermer la navigation",
     "updates": "Actualités"
   },
+  "appearance": {
+    "label": "Apparence",
+    "system": "Système",
+    "light": "Clair",
+    "dark": "Sombre"
+  },
   "ticker": {
     "screenReaderSummary": "Programmes, hors ligne d'abord, rappels, avertissements de contenu, iOS, Android.",
     "items": [

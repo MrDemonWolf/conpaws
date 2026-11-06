@@ -4,45 +4,6 @@
   margin: 0 auto;
 }
 
-.selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  min-width: 0;
-  margin: 0 0 16px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--card);
-}
-
-.selector button {
-  flex: 1 0 auto;
-  min-width: 0;
-  min-height: 44px;
-  padding: 8px 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--muted-foreground);
-  font: inherit;
-  font-size: 13px;
-  overflow-wrap: normal;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.selector button[aria-pressed="true"] {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  font-weight: 600;
-}
-
-.selector button:focus-visible {
-  outline: 3px solid var(--ring);
-  outline-offset: 3px;
-}
-
 .screen {
   position: relative;
   width: 100%;
@@ -83,9 +44,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 24px;
-  margin-top: 12px;
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.dots button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dots button:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
 }
 
 .dots span {
@@ -93,13 +72,11 @@
   height: 6px;
   border-radius: 999px;
   background: var(--muted-foreground);
-  opacity: 0.5;
 }
 
-.dots span[data-active="true"] {
+.dots button[aria-pressed="true"] span {
   width: 20px;
   background: var(--primary);
-  opacity: 1;
 }
 
 .caption {

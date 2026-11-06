@@ -21,6 +21,12 @@
     "closeMenu": "Tutup navigasi",
     "updates": "Kemas kini"
   },
+  "appearance": {
+    "label": "Rupa",
+    "system": "Sistem",
+    "light": "Cerah",
+    "dark": "Gelap"
+  },
   "ticker": {
     "screenReaderSummary": "Jadual, luar talian dahulu, peringatan, amaran kandungan, iOS, Android.",
     "items": [

@@ -2,6 +2,7 @@ import { LAUNCH } from "@/content/launch";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/index";
 import { localeHref } from "@/i18n/routing";
+import { AppearancePicker } from "./appearance-picker";
 import { CompassPaw } from "./compass-paw";
 import { LanguageSwitcher } from "./language-switcher";
 import styles from "./site-header.module.css";
@@ -63,6 +64,7 @@ export function SiteHeader({
           presentation="inline"
         />
       </div>
+      <AppearancePicker labels={messages.appearance} />
       {waitlist}
     </>
   );

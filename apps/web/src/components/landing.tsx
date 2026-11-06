@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppPreview, type AppPreviewScreen } from "@/components/app-preview";
+import { AppearancePicker } from "@/components/appearance-picker";
 import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
@@ -214,7 +215,7 @@ export function Landing({
                 return (
                   <div
                     key={item.time}
-                    className={`group grid grid-cols-[64px_1fr] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[80px_1fr_auto] sm:px-7 ${
+                    className={`group grid grid-cols-[max-content_minmax(0,1fr)] items-start gap-x-5 px-5 py-5 transition hover:bg-card sm:grid-cols-[max-content_minmax(0,1fr)_auto] sm:px-7 ${
                       i > 0 ? "border-border border-t" : ""
                     }`}
                   >
@@ -398,6 +399,9 @@ export function Landing({
                 {messages.footer.terms}
               </a>
             </nav>
+          </div>
+          <div className="relative pb-8">
+            <AppearancePicker labels={messages.appearance} />
           </div>
         </footer>
         <MobileAction
