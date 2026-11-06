@@ -47,8 +47,23 @@ html.dark {
   box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.28);
 }
 
+/* Translated copy can hold one word wider than a 320px column: a Dutch
+ * feature-card label was clipped by its overflow-hidden card, and at 200% text
+ * even "ILMOITTAUTUMINEN" on the waitlist button is wider than a phone. So any
+ * word in the shell may break as a last resort. `anywhere`, not `break-word`,
+ * because only `anywhere` lowers min-content, so grid and flex tracks shrink
+ * to fit instead of growing past their card; rows that should wrap as a row
+ * before any word breaks say so with `flex-wrap`. Headings keep their own
+ * rule below because the 404 page renders outside this shell. */
 .marketing-shell {
   overflow-wrap: anywhere;
+}
+
+/* Tables keep word-sized columns and scroll inside their wrapper instead:
+ * `anywhere` would feed one-letter break opportunities into the auto table
+ * layout and chop every cell word on a phone (the /privacy tables). */
+.marketing-shell table {
+  overflow-wrap: break-word;
 }
 
 /* ---------------------------------------------------------------------------
@@ -133,8 +148,14 @@ body {
   isolation: isolate;
 }
 
-main section[id] {
-  scroll-margin-top: calc(var(--site-header-height, 96px) + 16px);
+/* The sticky header hides whatever a fragment or focus scroll lands under it.
+ * Padding on the root covers every target the same way: section anchors, the
+ * skip link's #main, and controls that keyboard focus scrolls into view.
+ * --site-header-height is published by site-header-menu.tsx once hydrated;
+ * 96px is the pre-hydration allowance for a one-row header (68-76px plus
+ * border) and keeps the previous 112px total with the 16px of breathing room. */
+html {
+  scroll-padding-top: calc(var(--site-header-height, 96px) + 16px);
 }
 
 /* Reserve room when keyboard navigation scrolls a control above the thumb bar.

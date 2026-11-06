@@ -19,6 +19,17 @@ type SiteHeaderMenuProps = {
   children: ReactNode;
 };
 
+/** The element the current URL fragment points at, if any. */
+function fragmentTarget() {
+  const fragment = location.hash.slice(1);
+  if (!fragment) return null;
+  try {
+    return document.getElementById(decodeURIComponent(fragment));
+  } catch {
+    return document.getElementById(fragment);
+  }
+}
+
 /** Only dialog behavior hydrates; the locale list stays server-rendered. */
 export function SiteHeaderMenu({
   brand,
@@ -34,6 +45,13 @@ export function SiteHeaderMenu({
   const focusAfterClose = useRef<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
 
+  // The header grows to extra rows for long locale labels and enlarged text,
+  // so no constant scroll offset can clear it. Publish the measured height as
+  // --site-header-height on <html>: index.css turns it into scroll-padding and
+  // scripts/overflow.ts waits for it. It lives here because this is the
+  // header's only client component. A fresh navigation to a fragment has
+  // already scrolled with the CSS fallback by the time this runs, so re-apply
+  // it once; reloads and history navigation keep their restored position.
   useEffect(() => {
     const header = trigger.current?.closest("header");
     if (!header) return;
@@ -45,6 +63,13 @@ export function SiteHeaderMenu({
       }
     };
     updateHeaderHeight();
+    const [navigation] = performance.getEntriesByType("navigation");
+    if (
+      navigation instanceof PerformanceNavigationTiming &&
+      navigation.type === "navigate"
+    ) {
+      fragmentTarget()?.scrollIntoView({ block: "start", behavior: "instant" });
+    }
     const observer = new ResizeObserver(updateHeaderHeight);
     observer.observe(header);
     return () => {

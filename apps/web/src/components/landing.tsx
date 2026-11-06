@@ -174,10 +174,7 @@ export function Landing({
           </section>
 
           {/* ---- a look inside ---- */}
-          <section
-            id="inside"
-            className="relative z-content mt-16 scroll-mt-8 sm:mt-20"
-          >
+          <section id="inside" className="relative z-content mt-16 sm:mt-20">
             <SectionHeading
               eyebrow={messages.inside.eyebrow}
               title={messages.inside.title}
@@ -194,10 +191,7 @@ export function Landing({
           </section>
 
           {/* ---- feature lineup ---- */}
-          <section
-            id="features"
-            className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
-          >
+          <section id="features" className="relative z-content mt-20 sm:mt-24">
             <div className="flex items-end justify-between gap-6">
               <SectionHeading
                 eyebrow={messages.lineup.eyebrow}
@@ -230,7 +224,7 @@ export function Landing({
                         {copy.body}
                       </p>
                     </div>
-                    <div className="col-start-2 mt-2 flex gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
+                    <div className="col-start-2 mt-2 flex flex-wrap gap-2 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end">
                       <span className="rounded-[6px] border border-primary/30 bg-primary/10 px-2 py-0.5 font-tech text-[10px] text-primary uppercase tracking-[0.18em]">
                         {messages.lineup.tags[item.tag]}
                       </span>
@@ -291,10 +285,7 @@ export function Landing({
           </section>
 
           {/* ---- FAQ ---- */}
-          <section
-            id="faq"
-            className="relative z-content mt-20 scroll-mt-8 sm:mt-24"
-          >
+          <section id="faq" className="relative z-content mt-20 sm:mt-24">
             <SectionHeading
               eyebrow={messages.faq.eyebrow}
               title={messages.faq.title}
