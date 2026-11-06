@@ -11,7 +11,15 @@
     "back": "返回",
     "skipToContent": "跳到主要内容",
     "primaryLabel": "网站页眉",
-    "footerLabel": "法律与支持"
+    "footerLabel": "法律与支持",
+    "inside": "应用介绍",
+    "features": "功能",
+    "faq": "常见问题",
+    "joinWaitlist": "加入等候名单",
+    "menu": "菜单",
+    "openMenu": "打开导航",
+    "closeMenu": "关闭导航",
+    "updates": "更新信息"
   },
   "ticker": {
     "screenReaderSummary": "日程、离线优先、提醒、内容提示、iOS、Android。",
@@ -169,7 +177,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "支持",
     "privacy": "隐私",
-    "terms": "条款"
+    "terms": "条款",
+    "designSystem": "设计系统"
   },
   "waitlist": {
     "badgeOpen": "测试版等候名单开放中",
@@ -234,5 +243,23 @@
         "hint": "我们存什么，不存什么"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "你的兽展随行伙伴",
+    "title": "你的兽展日程。",
+    "titleAccent": "离线也能用。",
+    "body": "找到你要参加的展会，或导入日程。为感兴趣的节目加星标，留点时间四处逛逛，即使展会 Wi-Fi 掉线，也能随时查看自己的计划。",
+    "secondary": "看看应用",
+    "platforms": "开发中 · iOS 和 Android"
+  },
+  "showcase": {
+    "label": "应用界面预览",
+    "note": "开发中的应用预览。数据均为虚构。",
+    "browseTitle": "节目",
+    "browseDescription": "浏览展会的完整日程。",
+    "planTitle": "我的计划",
+    "planDescription": "在“我的计划”中集中查看你选好的节目。",
+    "remindersTitle": "提醒",
+    "remindersDescription": "选择默认提醒时间，也可以为每个活动单独设置。"
   }
 }

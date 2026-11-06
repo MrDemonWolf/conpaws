@@ -11,7 +11,15 @@
     "back": "Kembali",
     "skipToContent": "Langkau ke kandungan",
     "primaryLabel": "Pengepala tapak",
-    "footerLabel": "Undang-undang dan sokongan"
+    "footerLabel": "Undang-undang dan sokongan",
+    "inside": "Aplikasi",
+    "features": "Ciri-ciri",
+    "faq": "Soalan lazim",
+    "joinWaitlist": "Sertai senarai menunggu",
+    "menu": "Menu",
+    "openMenu": "Buka navigasi",
+    "closeMenu": "Tutup navigasi",
+    "updates": "Kemas kini"
   },
   "ticker": {
     "screenReaderSummary": "Jadual, luar talian dahulu, peringatan, amaran kandungan, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Sokongan",
     "privacy": "Privasi",
-    "terms": "Terma"
+    "terms": "Terma",
+    "designSystem": "Sistem reka bentuk"
   },
   "waitlist": {
     "badgeOpen": "Senarai menunggu beta dibuka",
@@ -241,5 +250,23 @@
         "hint": "Apa yang kami simpan, dan apa yang tidak"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Teman anda di konvensyen furry",
+    "title": "Jadual konvensyen anda.",
+    "titleAccent": "Sedia di luar talian.",
+    "body": "Cari konvensyen anda atau import jadualnya. Tandakan acara pilihan dengan bintang, luangkan masa untuk meneroka, dan akses pelan anda walaupun Wi-Fi konvensyen terputus.",
+    "secondary": "Lihat aplikasi",
+    "platforms": "Dalam pembangunan · iOS dan Android"
+  },
+  "showcase": {
+    "label": "Pratonton skrin aplikasi",
+    "note": "Pratonton aplikasi dalam pembangunan. Data rekaan.",
+    "browseTitle": "Program",
+    "browseDescription": "Semak keseluruhan jadual konvensyen.",
+    "planTitle": "Pelan saya",
+    "planDescription": "Himpunkan acara pilihan anda dalam Pelan saya.",
+    "remindersTitle": "Peringatan",
+    "remindersDescription": "Pilih peringatan lalai atau tetapkan satu bagi setiap acara."
   }
 }

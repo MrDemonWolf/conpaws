@@ -11,7 +11,15 @@
     "back": "Retour",
     "skipToContent": "Aller au contenu",
     "primaryLabel": "En-tête du site",
-    "footerLabel": "Mentions légales et assistance"
+    "footerLabel": "Mentions légales et assistance",
+    "inside": "L’app",
+    "features": "Fonctionnalités",
+    "faq": "FAQ",
+    "joinWaitlist": "Rejoindre la liste d’attente",
+    "menu": "Menu",
+    "openMenu": "Ouvrir la navigation",
+    "closeMenu": "Fermer la navigation",
+    "updates": "Actualités"
   },
   "ticker": {
     "screenReaderSummary": "Programmes, hors ligne d'abord, rappels, avertissements de contenu, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Assistance",
     "privacy": "Confidentialité",
-    "terms": "Conditions"
+    "terms": "Conditions",
+    "designSystem": "Système de design"
   },
   "waitlist": {
     "badgeOpen": "Liste d'attente bêta ouverte",
@@ -241,5 +250,23 @@
         "hint": "Ce que nous stockons, et ce que nous ne stockons pas"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Votre compagnon de convention furry",
+    "title": "Le programme de votre convention.",
+    "titleAccent": "Prêt hors ligne.",
+    "body": "Trouvez votre convention ou importez son programme. Marquez vos activités préférées d’une étoile, gardez du temps pour flâner et retrouvez votre plan même quand le Wi-Fi de la convention vous lâche.",
+    "secondary": "Découvrez l’app",
+    "platforms": "En développement · iOS et Android"
+  },
+  "showcase": {
+    "label": "Aperçu des écrans de l’app",
+    "note": "Aperçu de l’app en développement. Données fictives.",
+    "browseTitle": "Programme",
+    "browseDescription": "Parcourez le programme complet de la convention.",
+    "planTitle": "Mon plan",
+    "planDescription": "Retrouvez vos activités sélectionnées dans Mon plan.",
+    "remindersTitle": "Rappels",
+    "remindersDescription": "Choisissez un rappel par défaut ou définissez-en un pour chaque activité."
   }
 }

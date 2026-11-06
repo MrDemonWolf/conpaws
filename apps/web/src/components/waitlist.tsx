@@ -29,10 +29,13 @@ const INPUT_CLASS =
 export function Waitlist({
   messages,
   launch = LAUNCH,
+  headingLevel = "h1",
 }: {
   messages: WaitlistMessages;
   launch?: LaunchConfig;
+  headingLevel?: "h1" | "h2";
 }) {
+  const Heading = headingLevel;
   const nameId = useId();
   const emailId = useId();
   const hpId = useId();
@@ -143,7 +146,7 @@ export function Waitlist({
           the translator put the word, and falls back to a plain headline if
           they rephrased it away.
         */}
-        <h1 className="motion-safe:animate-rise mt-6 text-balance font-bold text-[clamp(36px,10vw,44px)] leading-[1.08] tracking-[-0.03em] [animation-delay:80ms] sm:text-[clamp(44px,5.5vw,64px)]">
+        <Heading className="motion-safe:animate-rise mt-6 text-balance font-bold text-[clamp(36px,10vw,44px)] leading-[1.08] tracking-[-0.03em] [animation-delay:80ms] sm:text-[clamp(44px,5.5vw,64px)]">
           {(() => {
             const at = messages.title.indexOf(messages.titleAccent);
             if (at === -1 || !messages.titleAccent) return messages.title;
@@ -155,7 +158,7 @@ export function Waitlist({
               </>
             );
           })()}
-        </h1>
+        </Heading>
 
         <p className="motion-safe:animate-rise mt-6 max-w-[42ch] text-base text-muted-foreground leading-relaxed sm:text-lg [animation-delay:160ms]">
           {messages.body}

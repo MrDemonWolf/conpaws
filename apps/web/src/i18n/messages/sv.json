@@ -11,7 +11,15 @@
     "back": "Tillbaka",
     "skipToContent": "Hoppa till innehåll",
     "primaryLabel": "Webbplatsens sidhuvud",
-    "footerLabel": "Juridik och support"
+    "footerLabel": "Juridik och support",
+    "inside": "Appen",
+    "features": "Funktioner",
+    "faq": "Frågor och svar",
+    "joinWaitlist": "Ställ dig på väntelistan",
+    "menu": "Meny",
+    "openMenu": "Öppna navigering",
+    "closeMenu": "Stäng navigering",
+    "updates": "Nyheter"
   },
   "ticker": {
     "screenReaderSummary": "Program, offline först, påminnelser, innehållsvarningar, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Support",
     "privacy": "Integritet",
-    "terms": "Villkor"
+    "terms": "Villkor",
+    "designSystem": "Designsystem"
   },
   "waitlist": {
     "badgeOpen": "Väntelistan för betan är öppen",
@@ -241,5 +250,23 @@
         "hint": "Vad vi sparar, och vad vi inte sparar"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Din följeslagare på furry-konvent",
+    "title": "Ditt konventsprogram.",
+    "titleAccent": "Redo även offline.",
+    "body": "Hitta ditt konvent eller importera programmet. Stjärnmärk det du vill uppleva, lämna tid att strosa och behåll din plan även när konventets Wi-Fi sviker.",
+    "secondary": "Ta en titt",
+    "platforms": "Under utveckling · iOS och Android"
+  },
+  "showcase": {
+    "label": "Förhandsvisning av appens skärmar",
+    "note": "Förhandsvisning av appen under utveckling. Fiktiva data.",
+    "browseTitle": "Program",
+    "browseDescription": "Bläddra i konventets hela program.",
+    "planTitle": "Min plan",
+    "planDescription": "Samla dina valda programpunkter i Min plan.",
+    "remindersTitle": "Påminnelser",
+    "remindersDescription": "Välj en standardpåminnelse eller ställ in en för varje aktivitet."
   }
 }

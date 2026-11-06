@@ -11,7 +11,15 @@
     "back": "Voltar",
     "skipToContent": "Saltar para o conteúdo",
     "primaryLabel": "Cabeçalho do site",
-    "footerLabel": "Jurídico e apoio"
+    "footerLabel": "Jurídico e apoio",
+    "inside": "A app",
+    "features": "Funcionalidades",
+    "faq": "Perguntas frequentes",
+    "joinWaitlist": "Entra na lista de espera",
+    "menu": "Menu",
+    "openMenu": "Abrir navegação",
+    "closeMenu": "Fechar navegação",
+    "updates": "Novidades"
   },
   "ticker": {
     "screenReaderSummary": "Programas, offline primeiro, lembretes, avisos de conteúdo, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Apoio",
     "privacy": "Privacidade",
-    "terms": "Termos"
+    "terms": "Termos",
+    "designSystem": "Sistema de design"
   },
   "waitlist": {
     "badgeOpen": "Lista de espera da beta aberta",
@@ -241,5 +250,23 @@
         "hint": "O que guardamos, e o que não guardamos"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "O teu guia para convenções furry",
+    "title": "O programa da tua con.",
+    "titleAccent": "Pronto mesmo sem ligação.",
+    "body": "Encontra a tua convenção ou importa o programa. Marca com uma estrela os painéis que queres ver, deixa tempo para explorar e mantém o teu plano mesmo quando o Wi-Fi da con falhar.",
+    "secondary": "Dá uma vista de olhos",
+    "platforms": "Em desenvolvimento · iOS e Android"
+  },
+  "showcase": {
+    "label": "Pré-visualização dos ecrãs da app",
+    "note": "Pré-visualização da app em desenvolvimento. Dados fictícios.",
+    "browseTitle": "Programação",
+    "browseDescription": "Explora o programa completo da convenção.",
+    "planTitle": "Meu plano",
+    "planDescription": "Reúne os painéis que escolheste em Meu plano.",
+    "remindersTitle": "Lembretes",
+    "remindersDescription": "Escolhe um lembrete predefinido ou configura um para cada atividade."
   }
 }

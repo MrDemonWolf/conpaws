@@ -11,7 +11,15 @@
     "back": "Back",
     "skipToContent": "Skip to content",
     "primaryLabel": "Site header",
-    "footerLabel": "Legal and support"
+    "footerLabel": "Legal and support",
+    "inside": "The app",
+    "features": "Features",
+    "faq": "FAQ",
+    "joinWaitlist": "Join waitlist",
+    "menu": "Menu",
+    "openMenu": "Open navigation",
+    "closeMenu": "Close navigation",
+    "updates": "Updates"
   },
   "ticker": {
     "screenReaderSummary": "Schedules, offline first, reminders, content flags, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Support",
     "privacy": "Privacy",
-    "terms": "Terms"
+    "terms": "Terms",
+    "designSystem": "Design system"
   },
   "waitlist": {
     "badgeOpen": "Beta waitlist open",
@@ -241,5 +250,23 @@
         "hint": "What we store, and what we don't"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Your furry convention companion",
+    "title": "Your con schedule.",
+    "titleAccent": "Ready offline.",
+    "body": "Find your convention or import its schedule. Star the panels you want, leave time to wander, and keep your plan when con Wi-Fi drops.",
+    "secondary": "Take a look inside",
+    "platforms": "In development · iOS & Android"
+  },
+  "showcase": {
+    "label": "App preview screens",
+    "note": "In-development app preview. Fictional data.",
+    "browseTitle": "Browse",
+    "browseDescription": "Browse the full convention schedule.",
+    "planTitle": "My plan",
+    "planDescription": "Keep the panels you chose together in My plan.",
+    "remindersTitle": "Reminders",
+    "remindersDescription": "Choose a default reminder or set one per event."
   }
 }

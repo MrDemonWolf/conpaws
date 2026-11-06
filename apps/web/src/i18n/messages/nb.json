@@ -11,7 +11,15 @@
     "back": "Tilbake",
     "skipToContent": "Gå til innhold",
     "primaryLabel": "Nettstedets topptekst",
-    "footerLabel": "Juridisk og støtte"
+    "footerLabel": "Juridisk og støtte",
+    "inside": "Appen",
+    "features": "Funksjoner",
+    "faq": "Spørsmål og svar",
+    "joinWaitlist": "Sett deg på ventelisten",
+    "menu": "Meny",
+    "openMenu": "Åpne navigasjon",
+    "closeMenu": "Lukk navigasjon",
+    "updates": "Nyheter"
   },
   "ticker": {
     "screenReaderSummary": "Programmer, offline først, påminnelser, innholdsvarsler, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Support",
     "privacy": "Personvern",
-    "terms": "Vilkår"
+    "terms": "Vilkår",
+    "designSystem": "Designsystem"
   },
   "waitlist": {
     "badgeOpen": "Ventelisten for betaen er åpen",
@@ -241,5 +250,23 @@
         "hint": "Hva vi lagrer, og hva vi ikke lagrer"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Din følgesvenn på furry-konventer",
+    "title": "Ditt konventprogram.",
+    "titleAccent": "Klart uten nett.",
+    "body": "Finn konventet ditt eller importer programmet. Stjernemerk det du vil oppleve, sett av tid til å utforske, og behold planen selv når konventets Wi-Fi svikter.",
+    "secondary": "Ta en titt",
+    "platforms": "Under utvikling · iOS og Android"
+  },
+  "showcase": {
+    "label": "Forhåndsvisning av appskjermer",
+    "note": "Forhåndsvisning av appen under utvikling. Fiktive data.",
+    "browseTitle": "Program",
+    "browseDescription": "Bla gjennom hele konventets program.",
+    "planTitle": "Min plan",
+    "planDescription": "Samle de valgte programpunktene i Min plan.",
+    "remindersTitle": "Påminnelser",
+    "remindersDescription": "Velg en standardpåminnelse eller angi én for hvert arrangement."
   }
 }

@@ -130,26 +130,6 @@
       "owner": "Nathanial Henniges",
       "reachability": "Expo CLI build tooling only; application code does not import an XML parser or parse untrusted XML.",
       "upstream": "https://github.com/advisories/GHSA-x6wf-f3px-wcqx"
-    },
-    {
-      "package": "node-forge",
-      "id": "GHSA-86w9-cpqp-85rv",
-      "severity": "high",
-      "vulnerableVersions": "<=1.4.0",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "Expo CLI development-certificate tooling only; application code does not import node-forge or verify attacker-supplied signatures with it.",
-      "upstream": "https://github.com/advisories/GHSA-86w9-cpqp-85rv"
-    },
-    {
-      "package": "zod",
-      "id": "GHSA-mrhx-c7xc-m3w5",
-      "severity": "high",
-      "vulnerableVersions": "<4.6.6",
-      "expires": "2026-11-15",
-      "owner": "Nathanial Henniges",
-      "reachability": "The advisory describes Zod 4.6.0 through 4.6.5 and its upstream fix changes the v4 implementation. App workspaces now require patched Zod 4.6.6 or newer; Zod 3 remains only in Expo CLI and shadcn build tooling. Re-check toolchain reachability and the advisory scope before expiry.",
-      "upstream": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5"
     }
   ]
 }

@@ -11,7 +11,15 @@
     "back": "Volver",
     "skipToContent": "Saltar al contenido",
     "primaryLabel": "Encabezado del sitio",
-    "footerLabel": "Legal y soporte"
+    "footerLabel": "Legal y soporte",
+    "inside": "La app",
+    "features": "Funciones",
+    "faq": "Preguntas frecuentes",
+    "joinWaitlist": "Apúntate a la lista de espera",
+    "menu": "Menú",
+    "openMenu": "Abrir navegación",
+    "closeMenu": "Cerrar navegación",
+    "updates": "Novedades"
   },
   "ticker": {
     "screenReaderSummary": "Horarios, sin conexión primero, recordatorios, avisos de contenido, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Soporte",
     "privacy": "Privacidad",
-    "terms": "Términos"
+    "terms": "Términos",
+    "designSystem": "Sistema de diseño"
   },
   "waitlist": {
     "badgeOpen": "Lista de espera de la beta abierta",
@@ -241,5 +250,23 @@
         "hint": "Qué guardamos, y qué no"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Tu compañero para las convenciones furry",
+    "title": "El programa de tu con.",
+    "titleAccent": "Listo sin conexión.",
+    "body": "Encuentra tu convención o importa su programa. Marca con una estrella las actividades que te interesan, deja tiempo para explorar y conserva tu plan aunque falle el Wi-Fi de la con.",
+    "secondary": "Echa un vistazo",
+    "platforms": "En desarrollo · iOS y Android"
+  },
+  "showcase": {
+    "label": "Vistas previas de la app",
+    "note": "Vista previa de la app en desarrollo. Datos ficticios.",
+    "browseTitle": "Programa",
+    "browseDescription": "Explora el programa completo de la convención.",
+    "planTitle": "Mi plan",
+    "planDescription": "Reúne las actividades que has elegido en Mi plan.",
+    "remindersTitle": "Recordatorios",
+    "remindersDescription": "Elige un recordatorio predeterminado o configura uno para cada actividad."
   }
 }

@@ -15,7 +15,7 @@
  * are contrast-adjusted, and iOS surfaces use semantic platform colors.
  * Review both palettes together without replacing platform-specific choices.
  *
- * Brand: primary #0faced (sky) · dark surface #091533 (navy) · Slate neutrals.
+ * Brand: primary #0faced. The website overrides dark surfaces in apps/web/src/index.css.
  */
 :root {
   --background: #ffffff;

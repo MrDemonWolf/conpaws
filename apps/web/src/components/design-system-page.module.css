@@ -1,0 +1,15 @@
+.notes {
+  width: min(30rem, calc(100vw - 3rem));
+  max-height: calc(100dvh - 3rem);
+  margin: auto;
+  overflow-y: auto;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-xl);
+  padding: calc(var(--spacing) * 6);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+.notes::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}

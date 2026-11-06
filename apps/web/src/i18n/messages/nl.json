@@ -11,7 +11,15 @@
     "back": "Terug",
     "skipToContent": "Naar inhoud springen",
     "primaryLabel": "Sitekop",
-    "footerLabel": "Juridisch en ondersteuning"
+    "footerLabel": "Juridisch en ondersteuning",
+    "inside": "De app",
+    "features": "Functies",
+    "faq": "Veelgestelde vragen",
+    "joinWaitlist": "Op de wachtlijst",
+    "menu": "Menu",
+    "openMenu": "Navigatie openen",
+    "closeMenu": "Navigatie sluiten",
+    "updates": "Updates"
   },
   "ticker": {
     "screenReaderSummary": "Programma's, offline eerst, herinneringen, inhoudswaarschuwingen, iOS, Android.",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "Support",
     "privacy": "Privacy",
-    "terms": "Voorwaarden"
+    "terms": "Voorwaarden",
+    "designSystem": "Designsysteem"
   },
   "waitlist": {
     "badgeOpen": "Bèta-wachtlijst open",
@@ -241,5 +250,23 @@
         "hint": "Wat we bewaren, en wat niet"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "Je maatje voor furryconventies",
+    "title": "Jouw conprogramma.",
+    "titleAccent": "Ook offline klaar.",
+    "body": "Zoek je conventie of importeer het programma. Geef de onderdelen die je wilt zien een ster, houd tijd over om rond te kijken en behoud je plan als de wifi op de con uitvalt.",
+    "secondary": "Neem een kijkje",
+    "platforms": "In ontwikkeling · iOS en Android"
+  },
+  "showcase": {
+    "label": "Voorbeelden van appschermen",
+    "note": "Voorbeeld van de app in ontwikkeling. Fictieve gegevens.",
+    "browseTitle": "Programma",
+    "browseDescription": "Bekijk het volledige programma van de conventie.",
+    "planTitle": "Mijn plan",
+    "planDescription": "Houd je gekozen programmaonderdelen bij elkaar in Mijn plan.",
+    "remindersTitle": "Herinneringen",
+    "remindersDescription": "Kies een standaardherinnering of stel er een per activiteit in."
   }
 }

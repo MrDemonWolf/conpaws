@@ -1,0 +1,164 @@
+.hero {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.selector button {
+  flex: 1 0 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 13px;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.selector button[aria-pressed="true"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+}
+
+.selector button:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  max-width: 272px;
+  aspect-ratio: 440 / 956;
+  overflow: hidden;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: var(--card);
+  outline: 1px solid var(--border);
+  box-shadow: 0 20px 64px -32px #0009;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.swipe {
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+  pointer-events: none;
+}
+
+.slide[data-active="true"] {
+  opacity: 1;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 24px;
+  margin-top: 12px;
+}
+
+.dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+.dots span[data-active="true"] {
+  width: 20px;
+  background: var(--primary);
+  opacity: 1;
+}
+
+.caption {
+  margin-top: 12px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.caption strong {
+  display: block;
+  margin: 0 0 4px;
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.caption p {
+  margin: 0;
+}
+
+.caption small {
+  display: block;
+  font-size: 11px;
+}
+
+.gallery {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 4px 2px 20px;
+}
+
+.figure {
+  flex: 0 0 240px;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.gallery .screen {
+  max-width: 240px;
+}
+
+@media (min-width: 768px) {
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    overflow: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: none;
+  }
+}

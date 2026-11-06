@@ -11,7 +11,15 @@
     "back": "戻る",
     "skipToContent": "本文へスキップ",
     "primaryLabel": "サイトヘッダー",
-    "footerLabel": "法的情報とサポート"
+    "footerLabel": "法的情報とサポート",
+    "inside": "アプリについて",
+    "features": "機能",
+    "faq": "よくある質問",
+    "joinWaitlist": "ウェイトリストに登録",
+    "menu": "メニュー",
+    "openMenu": "ナビゲーションを開く",
+    "closeMenu": "ナビゲーションを閉じる",
+    "updates": "更新情報"
   },
   "ticker": {
     "screenReaderSummary": "スケジュール、オフライン優先、リマインダー、コンテンツ警告、iOS、Android。",
@@ -176,7 +184,8 @@
     "company": "MrDemonWolf, Inc.",
     "support": "サポート",
     "privacy": "プライバシー",
-    "terms": "利用規約"
+    "terms": "利用規約",
+    "designSystem": "デザインシステム"
   },
   "waitlist": {
     "badgeOpen": "ベータのウェイトリスト受付中",
@@ -241,5 +250,23 @@
         "hint": "保存するもの、しないもの"
       }
     ]
+  },
+  "hero": {
+    "eyebrow": "ファーリーコンベンションのおとも",
+    "title": "コンベンションの予定を。",
+    "titleAccent": "オフラインでも、いつでも。",
+    "body": "参加するコンベンションを探すか、スケジュールを取り込みましょう。気になるプログラムに星を付け、会場を巡る時間も忘れずに。Wi-Fi が途切れても、自分の予定はいつでも確認できます。",
+    "secondary": "アプリを見てみる",
+    "platforms": "開発中 · iOS・Android"
+  },
+  "showcase": {
+    "label": "アプリ画面のプレビュー",
+    "note": "開発中のアプリのプレビューです。データは架空です。",
+    "browseTitle": "プログラム",
+    "browseDescription": "コンベンションのプログラム全体を確認できます。",
+    "planTitle": "マイプラン",
+    "planDescription": "選んだプログラムをマイプランにまとめられます。",
+    "remindersTitle": "リマインダー",
+    "remindersDescription": "標準のリマインダーを選ぶか、プログラムごとに設定できます。"
   }
 }
