@@ -84,7 +84,16 @@ export function SiteHeaderMenu({
     const bodyOverflow = document.body.style.overflow;
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    const desktop = window.matchMedia("(min-width: 64rem)");
+    const closeOnDesktop = () => {
+      if (!desktop.matches) return;
+      focusAfterClose.current =
+        trigger.current?.closest("header")?.querySelector("a") ?? null;
+      dialog.current?.close();
+    };
+    desktop.addEventListener("change", closeOnDesktop);
     return () => {
+      desktop.removeEventListener("change", closeOnDesktop);
       document.documentElement.style.overflow = htmlOverflow;
       document.body.style.overflow = bodyOverflow;
       const target = focusAfterClose.current ?? trigger.current;

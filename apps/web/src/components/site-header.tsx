@@ -7,6 +7,7 @@ import { CompassPaw } from "./compass-paw";
 import { LanguageSwitcher } from "./language-switcher";
 import styles from "./site-header.module.css";
 import { SiteHeaderMenu } from "./site-header-menu";
+import { SitePreferences } from "./site-preferences";
 
 type SiteHeaderProps = {
   locale: Locale;
@@ -75,6 +76,16 @@ export function SiteHeader({
         {brand}
         <div className={styles.desktop}>
           {navigation()}
+          <SitePreferences
+            label={`${messages.nav.languageLabel} / ${messages.appearance.label}`}
+          >
+            <LanguageSwitcher
+              current={locale}
+              label={messages.nav.languageLabel}
+              presentation="inline"
+            />
+            <AppearancePicker labels={messages.appearance} />
+          </SitePreferences>
           {waitlist}
         </div>
         <SiteHeaderMenu

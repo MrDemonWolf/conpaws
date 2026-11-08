@@ -181,9 +181,9 @@ const measureText = (page: Page, rootSelector: string) =>
   }, rootSelector);
 
 /** The appearance picker inside the open menu: label, select and target. */
-const measureAppearancePicker = (page: Page) =>
+const measureAppearancePicker = (page: Page, root = "header dialog[open]") =>
   page
-    .locator("header dialog[open]")
+    .locator(root)
     .getByRole("combobox")
     .evaluate((select) => {
       const label = select.closest("label");
@@ -250,7 +250,10 @@ try {
   );
   await noScript.close();
 
-  const appearance = await browser.newPage({ colorScheme: "dark" });
+  const appearance = await browser.newPage({
+    colorScheme: "dark",
+    viewport: { width: 375, height: 812 },
+  });
   appearance.on("pageerror", (error) => {
     failures.push(`Appearance startup: ${error.message}`);
   });
@@ -432,7 +435,7 @@ try {
         )
           problems.push("#features lands under the sticky header");
 
-        {
+        if (layout.width < 1024) {
           // The translated header strings live in the closed drawer; open it
           // and its language list, then measure only what the drawer shows.
           await page.locator('header button[aria-haspopup="dialog"]').click();
@@ -452,6 +455,37 @@ try {
           await page
             .locator("header dialog[open]")
             .waitFor({ state: "hidden" });
+        } else {
+          assert.equal(
+            await page
+              .locator('header button[aria-haspopup="dialog"]:visible')
+              .count(),
+            0,
+            "Desktop has no mobile menu",
+          );
+          const preferences = page.locator("[data-site-preferences]");
+          await preferences.locator(":scope > summary").click();
+          const language = preferences.locator("details[data-lang-menu]");
+          await language.evaluate((element) => {
+            (element as HTMLDetailsElement).open = true;
+          });
+          await settle(page);
+          const open = await measureText(page, "[data-site-preferences]");
+          if (open.scrolls)
+            problems.push("desktop preferences scroll horizontally");
+          problems.push(
+            ...open.offenders.map((text) => `preferences: ${text}`),
+          );
+          problems.push(
+            ...(await measureAppearancePicker(page, "[data-site-preferences]")),
+          );
+          await page.keyboard.press("Escape");
+          await page.keyboard.press("Escape");
+          assert.equal(
+            await preferences.getAttribute("open"),
+            null,
+            "Escape closes desktop preferences",
+          );
         }
       } catch (error) {
         problems.push(error instanceof Error ? error.message : String(error));
