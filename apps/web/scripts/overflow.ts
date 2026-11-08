@@ -610,7 +610,7 @@ try {
     name: "Your con schedule. Ready offline.",
   });
   assert.equal(
-    await hero.locator("figure img:visible").count(),
+    await hero.locator(":scope > figure img:visible").count(),
     1,
     "Hero shows one screenshot matching the page appearance",
   );
