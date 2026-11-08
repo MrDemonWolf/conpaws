@@ -619,6 +619,20 @@ try {
     0,
     "The static hero has no carousel or playback controls",
   );
+  const waitlistClip = await page.locator("#waitlist").evaluate((element) => ({
+    x: getComputedStyle(element).overflowX,
+    y: getComputedStyle(element).overflowY,
+  }));
+  assert.equal(
+    waitlistClip.x,
+    "clip",
+    "Badge artwork stays inside the waitlist horizontally",
+  );
+  assert.equal(
+    waitlistClip.y,
+    "clip",
+    "Lanyard begins at the waitlist border instead of covering the previous section",
+  );
   const gallery = page.getByRole("region", {
     name: "App preview screens",
     exact: true,

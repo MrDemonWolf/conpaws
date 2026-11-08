@@ -271,7 +271,7 @@ export function Landing({
 
           <section
             id="waitlist"
-            className="relative mt-20 border-t border-border pt-12 sm:mt-24"
+            className="relative isolate mt-20 overflow-clip border-t border-border pt-12 sm:mt-24"
             aria-label={messages.nav.joinWaitlist}
           >
             <Waitlist
