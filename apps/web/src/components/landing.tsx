@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { AppPreview, type AppPreviewScreen } from "@/components/app-preview";
 import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Waitlist } from "@/components/waitlist";
-import { UPDATES_LABEL } from "@/content/changelog";
 import { LINEUP, STEPS } from "@/content/landing";
 import { LAUNCH, type LaunchConfig } from "@/content/launch";
 import type { Messages } from "@/i18n";
@@ -68,7 +67,6 @@ export function Landing({
   messages: Messages;
   launch?: LaunchConfig;
 }) {
-  const year = new Date().getFullYear();
   const screens: AppPreviewScreen[] = [
     {
       id: "browse",
@@ -327,72 +325,7 @@ export function Landing({
           </section>
         </main>
 
-        {/* ---- footer ---- */}
-        <footer className="relative z-content mt-20 overflow-hidden border-border border-t pt-8 sm:mt-28 sm:pt-10">
-          {/* Decorative wordmark. Hidden below `sm` on purpose: at 375px the
-            120px type is wider than the viewport, so it clipped to a
-            meaningless "nPaws" AND sat directly behind the footer links --
-            every one of the three was 100% covered, which is what made the
-            footer look broken on a phone. */}
-          <p
-            aria-hidden="true"
-            className="pointer-events-none absolute right-0 bottom-[-30px] hidden select-none font-bold text-transparent leading-none tracking-tighter [-webkit-text-stroke:1px_var(--border)] sm:block sm:text-[170px]"
-          >
-            ConPaws
-          </p>
-          <div className="relative flex flex-wrap items-center justify-between gap-6 pb-8">
-            <p className="text-sm text-muted-foreground">
-              {messages.footer.copyright.replace("{year}", String(year))}{" "}
-              <a
-                href="https://www.mrdemonwolf.com"
-                rel="noopener"
-                className="text-primary transition hover:underline"
-              >
-                {messages.footer.company}
-              </a>
-            </p>
-            {/* `min-h-11` is the 44px WCAG 2.5.8 target; the text is 12px, so
-              without it these are ~18px tall and miss by half. The negative
-              margin cancels the height it adds so the footer keeps its
-              spacing. The MrDemonWolf link above is left alone on purpose --
-              a link inside a sentence is exempt from the target-size rule. */}
-            <nav
-              aria-label={messages.nav.footerLabel}
-              className="-my-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground"
-            >
-              <a
-                href="/updates"
-                className="inline-flex min-h-11 items-center transition hover:text-primary"
-              >
-                {UPDATES_LABEL[locale]}
-              </a>
-              <Link
-                href="/design-system"
-                className="inline-flex min-h-11 items-center transition hover:text-primary"
-              >
-                {messages.footer.designSystem}
-              </Link>
-              <a
-                href="/support"
-                className="inline-flex min-h-11 items-center transition hover:text-primary"
-              >
-                {messages.footer.support}
-              </a>
-              <a
-                href="/privacy"
-                className="inline-flex min-h-11 items-center transition hover:text-primary"
-              >
-                {messages.footer.privacy}
-              </a>
-              <a
-                href="/terms"
-                className="inline-flex min-h-11 items-center transition hover:text-primary"
-              >
-                {messages.footer.terms}
-              </a>
-            </nav>
-          </div>
-        </footer>
+        <SiteFooter messages={messages} locale={locale} />
       </div>
     </>
   );

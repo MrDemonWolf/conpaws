@@ -19,6 +19,7 @@ const colorRoles = [
 ] as const;
 
 const sections = [
+  ["brand", "Brand assets"],
   ["colors", "Colors"],
   ["typography", "Typography"],
   ["spacing", "Space & shape"],
@@ -97,6 +98,98 @@ export function DesignSystemPage() {
           </a>
         ))}
       </nav>
+
+      <ReferenceSection
+        id="brand"
+        title="Brand assets & basic rules"
+        description="Use the official ConPaws artwork already shipped with the app and website. Keep the artwork intact, give it room, and choose a background with clear contrast."
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <h3 className="font-display text-lg font-semibold">
+                Official compass-and-paw mark
+              </h3>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex min-h-40 items-center justify-center gap-5 rounded-xl border border-border bg-background p-6">
+                <div className="flex size-24 items-center justify-center rounded-2xl bg-[#091533]">
+                  <CompassPaw className="size-16 text-[#0faced]" />
+                </div>
+                <div className="flex size-24 items-center justify-center rounded-2xl bg-[#0faced]">
+                  <CompassPaw className="size-16 text-[#041f2e]" />
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The mark is shared from the app icon and rendered from the
+                canonical SVG path. Use it as supplied; do not stretch, crop,
+                rotate or add effects.
+              </p>
+              <a
+                href="/icon.svg"
+                download="conpaws-mark.svg"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Download SVG mark
+              </a>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <h3 className="font-display text-lg font-semibold">
+                Wordmark & app icon
+              </h3>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border border-border bg-[#091533] p-6 text-white">
+                <CompassPaw className="size-16 text-[#0faced]" />
+                <span className="font-display text-2xl font-bold tracking-tight">
+                  ConPaws
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The app icon uses the same mark on the platform-provided icon
+                background. Pair the mark with the ConPaws wordmark in headings
+                and navigation; keep clear space around the complete lockup.
+              </p>
+              <a
+                href="/app-icon.png"
+                download="conpaws-app-icon.png"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Download app icon
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+        <ul className="mt-5 grid gap-3 text-sm text-muted-foreground leading-relaxed sm:grid-cols-2">
+          <li className="rounded-lg border border-border p-4">
+            <strong className="text-foreground">Clear space:</strong> leave at
+            least one paw-mark width between the artwork and nearby content.
+          </li>
+          <li className="rounded-lg border border-border p-4">
+            <strong className="text-foreground">Small sizes:</strong> use the
+            icon asset for app icons; use the SVG mark for web. Check that the
+            paw and compass details remain legible.
+          </li>
+          <li className="rounded-lg border border-border p-4">
+            <strong className="text-foreground">Color:</strong> use cyan as an
+            accent with the paired dark foreground on fills. Keep body copy on
+            readable neutral surfaces.
+          </li>
+          <li className="rounded-lg border border-border p-4">
+            <strong className="text-foreground">Avoid:</strong> recoloring,
+            distorting, outlining, shadowing or placing the mark over busy
+            imagery.
+          </li>
+        </ul>
+        <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+          ConPaws brand assets are provided for identifying this app and its
+          official website. Do not imply endorsement or alter the mark. Contact
+          MrDemonWolf, Inc. for permission to use the artwork outside that
+          context.
+        </p>
+      </ReferenceSection>
 
       <ReferenceSection
         id="colors"

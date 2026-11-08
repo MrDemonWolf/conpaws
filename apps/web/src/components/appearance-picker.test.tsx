@@ -21,4 +21,16 @@ describe("appearance picker", () => {
     expect(html).toContain('<option value="light">Light</option>');
     expect(html).toContain('<option value="dark">Dark</option>');
   });
+
+  it("renders a labelled direct theme toggle for the desktop header", () => {
+    const html = renderToStaticMarkup(
+      <AppearancePicker
+        labels={getMessages("en").appearance}
+        presentation="button"
+      />,
+    );
+    expect(html).toContain('aria-label="Appearance: Light"');
+    expect(html).toContain("<button");
+    expect(html).not.toContain("<select");
+  });
 });
