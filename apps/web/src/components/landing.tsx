@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { AppPreview, type AppPreviewScreen } from "@/components/app-preview";
-import { AppearancePicker } from "@/components/appearance-picker";
 import { CompassPaw } from "@/components/compass-paw";
 import { FaqSection } from "@/components/faq";
 import { JsonLd } from "@/components/json-ld";
-import { MobileAction } from "@/components/mobile-action";
 import { SiteHeader } from "@/components/site-header";
 import { Waitlist } from "@/components/waitlist";
 import { UPDATES_LABEL } from "@/content/changelog";
@@ -77,6 +75,7 @@ export function Landing({
       title: messages.showcase.browseTitle,
       description: messages.showcase.browseDescription,
       src: "/app-preview/browse.png",
+      darkSrc: "/app-preview/browse-dark.png",
       alt: messages.showcase.browseDescription,
     },
     {
@@ -84,6 +83,7 @@ export function Landing({
       title: messages.showcase.planTitle,
       description: messages.showcase.planDescription,
       src: "/app-preview/plan.png",
+      darkSrc: "/app-preview/plan-dark.png",
       alt: messages.showcase.planDescription,
     },
     {
@@ -91,6 +91,7 @@ export function Landing({
       title: messages.showcase.remindersTitle,
       description: messages.showcase.remindersDescription,
       src: "/app-preview/reminders.png",
+      darkSrc: "/app-preview/reminders-dark.png",
       alt: messages.showcase.remindersDescription,
     },
   ];
@@ -118,10 +119,10 @@ export function Landing({
         homePage
         showWaitlist={launch.mode === "waitlist"}
       />
-      <div className="landing-page marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(112px,calc(96px+env(safe-area-inset-bottom)))]">
+      <div className="landing-page marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-[max(24px,env(safe-area-inset-bottom))]">
         <main id="main">
           <section
-            className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12"
+            className="landing-hero grid items-center gap-8 border-b border-border py-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-12"
             aria-labelledby="hero-title"
           >
             <div>
@@ -144,7 +145,7 @@ export function Landing({
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <a
                   href="#waitlist"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground"
+                  className="waitlist-motion inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground"
                 >
                   {launch.mode === "live"
                     ? messages.steps.items[0]?.title
@@ -174,7 +175,7 @@ export function Landing({
           </section>
 
           {/* ---- a look inside ---- */}
-          <section id="inside" className="relative z-content mt-16 sm:mt-20">
+          <section id="inside" className="relative z-content mt-10 sm:mt-14">
             <SectionHeading
               eyebrow={messages.inside.eyebrow}
               title={messages.inside.title}
@@ -270,7 +271,7 @@ export function Landing({
 
           <section
             id="waitlist"
-            className="relative mt-20 border-t border-border pt-12 sm:mt-24"
+            className="relative isolate mt-20 overflow-clip border-t border-border pt-12 sm:mt-24"
             aria-label={messages.nav.joinWaitlist}
           >
             <Waitlist
@@ -391,17 +392,7 @@ export function Landing({
               </a>
             </nav>
           </div>
-          <div className="relative pb-8">
-            <AppearancePicker labels={messages.appearance} />
-          </div>
         </footer>
-        <MobileAction
-          label={
-            launch.mode === "live"
-              ? messages.cta.button
-              : messages.nav.joinWaitlist
-          }
-        />
       </div>
     </>
   );

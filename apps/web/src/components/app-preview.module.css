@@ -7,7 +7,7 @@
 .screen {
   position: relative;
   width: 100%;
-  max-width: 272px;
+  max-width: 184px;
   aspect-ratio: 440 / 956;
   overflow: hidden;
   margin: 0 auto;
@@ -21,62 +21,6 @@
   display: block;
   width: 100%;
   height: auto;
-}
-
-.swipe {
-  touch-action: pan-y;
-  user-select: none;
-}
-
-.slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 180ms ease-out;
-  pointer-events: none;
-}
-
-.slide[data-active="true"] {
-  opacity: 1;
-}
-
-.dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  margin: 12px 0 0;
-  padding: 0;
-  border: 0;
-}
-
-.dots button {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  cursor: pointer;
-}
-
-.dots button:focus-visible {
-  outline: 3px solid var(--ring);
-  outline-offset: 3px;
-}
-
-.dots span {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--muted-foreground);
-}
-
-.dots button[aria-pressed="true"] span {
-  width: 20px;
-  background: var(--primary);
 }
 
 .caption {
@@ -131,11 +75,5 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 28px;
     overflow: visible;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slide {
-    transition: none;
   }
 }

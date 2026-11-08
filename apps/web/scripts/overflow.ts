@@ -181,9 +181,9 @@ const measureText = (page: Page, rootSelector: string) =>
   }, rootSelector);
 
 /** The appearance picker inside the open menu: label, select and target. */
-const measureAppearancePicker = (page: Page) =>
+const measureAppearancePicker = (page: Page, root = "header dialog[open]") =>
   page
-    .locator("header dialog[open]")
+    .locator(root)
     .getByRole("combobox")
     .evaluate((select) => {
       const label = select.closest("label");
@@ -250,7 +250,10 @@ try {
   );
   await noScript.close();
 
-  const appearance = await browser.newPage({ colorScheme: "dark" });
+  const appearance = await browser.newPage({
+    colorScheme: "dark",
+    viewport: { width: 375, height: 812 },
+  });
   appearance.on("pageerror", (error) => {
     failures.push(`Appearance startup: ${error.message}`);
   });
@@ -318,7 +321,8 @@ try {
     });
   }
 
-  const picker = appearance.locator("footer").getByRole("combobox", {
+  await appearance.locator('header button[aria-haspopup="dialog"]').click();
+  const picker = appearance.locator("header dialog").getByRole("combobox", {
     name: "Appearance",
   });
   await picker.selectOption("light");
@@ -326,10 +330,11 @@ try {
     document.documentElement.classList.contains("light"),
   );
   await appearance.reload({ waitUntil: "load" });
+  await appearance.locator('header button[aria-haspopup="dialog"]').click();
   await appearance.waitForFunction(
     () =>
-      document.querySelector<HTMLSelectElement>("footer select")?.value ===
-      "light",
+      document.querySelector<HTMLSelectElement>("header dialog select")
+        ?.value === "light",
   );
   assert.equal(
     await picker.inputValue(),
@@ -451,20 +456,36 @@ try {
             .locator("header dialog[open]")
             .waitFor({ state: "hidden" });
         } else {
-          const language = page
-            .locator("header details[data-lang-menu]")
-            .first();
-          await language.evaluate((details) => {
-            (details as HTMLDetailsElement).open = true;
+          assert.equal(
+            await page
+              .locator('header button[aria-haspopup="dialog"]:visible')
+              .count(),
+            0,
+            "Desktop has no mobile menu",
+          );
+          const preferences = page.locator("[data-site-preferences]");
+          await preferences.locator(":scope > summary").click();
+          const language = preferences.locator("details[data-lang-menu]");
+          await language.evaluate((element) => {
+            (element as HTMLDetailsElement).open = true;
           });
           await settle(page);
-          const open = await measureText(page, "header");
+          const open = await measureText(page, "[data-site-preferences]");
+          if (open.scrolls)
+            problems.push("desktop preferences scroll horizontally");
           problems.push(
-            ...open.offenders.map((text) => `language menu open: ${text}`),
+            ...open.offenders.map((text) => `preferences: ${text}`),
           );
-          await language.evaluate((details) => {
-            (details as HTMLDetailsElement).open = false;
-          });
+          problems.push(
+            ...(await measureAppearancePicker(page, "[data-site-preferences]")),
+          );
+          await page.keyboard.press("Escape");
+          await page.keyboard.press("Escape");
+          assert.equal(
+            await preferences.getAttribute("open"),
+            null,
+            "Escape closes desktop preferences",
+          );
         }
       } catch (error) {
         problems.push(error instanceof Error ? error.message : String(error));
@@ -540,9 +561,9 @@ try {
   );
   assert(await dialog.isVisible(), "Changing appearance keeps navigation open");
   assert.equal(
-    await page.locator("footer select").inputValue(),
+    await mobileAppearance.inputValue(),
     "dark",
-    "Menu and footer share the same preference",
+    "The menu reflects the selected preference",
   );
   await mobileAppearance.focus();
   await page.keyboard.press("Tab");
@@ -585,39 +606,32 @@ try {
     "A section link moves focus to its content",
   );
 
-  const reminders = page.getByRole("button", {
-    name: "Reminders",
-    exact: true,
+  const hero = page.getByRole("region", {
+    name: "Your con schedule. Ready offline.",
   });
-  const previewImage = page.locator('figure img[data-active="true"]');
-  const imageBounds = await previewImage.boundingBox();
-  const dotBounds = await reminders.boundingBox();
-  assert(imageBounds && dotBounds, "Preview and its controls must be visible");
-  assert(
-    dotBounds.y >= imageBounds.y + imageBounds.height &&
-      dotBounds.width >= 44 &&
-      dotBounds.height >= 44,
-    "Preview controls belong below the image with usable touch targets",
-  );
-  await reminders.click();
-  assert.equal(await reminders.getAttribute("aria-pressed"), "true");
-  await reminders.focus();
-  await reminders.press("ArrowRight");
   assert.equal(
-    await page
-      .getByRole("button", { name: "Browse", exact: true })
-      .getAttribute("aria-pressed"),
-    "true",
-    "Preview arrows wrap to Browse",
+    await hero.locator(":scope > figure img:visible").count(),
+    1,
+    "Hero shows one screenshot matching the page appearance",
   );
-  await page.keyboard.press("End");
-  assert.equal(await reminders.getAttribute("aria-pressed"), "true");
   assert.equal(
-    await page
-      .locator('figure img[data-active="true"]')
-      .evaluate((element) => getComputedStyle(element).transitionDuration),
-    "0s",
-    "Reduced motion disables the preview crossfade",
+    await hero.locator("button").count(),
+    0,
+    "The static hero has no carousel or playback controls",
+  );
+  const waitlistClip = await page.locator("#waitlist").evaluate((element) => ({
+    x: getComputedStyle(element).overflowX,
+    y: getComputedStyle(element).overflowY,
+  }));
+  assert.equal(
+    waitlistClip.x,
+    "clip",
+    "Badge artwork stays inside the waitlist horizontally",
+  );
+  assert.equal(
+    waitlistClip.y,
+    "clip",
+    "Lanyard begins at the waitlist border instead of covering the previous section",
   );
   const gallery = page.getByRole("region", {
     name: "App preview screens",

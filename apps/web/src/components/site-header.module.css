@@ -341,3 +341,65 @@
     position: static;
   }
 }
+
+.waitlist,
+.menuButton,
+.desktopNav a {
+  transition:
+    transform 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .waitlist:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px -8px var(--primary);
+  }
+  .menuButton:hover,
+  .desktopNav a:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.preferences {
+  position: relative;
+  min-width: 0;
+}
+.preferences > summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 44px;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+.preferences > summary::-webkit-details-marker {
+  display: none;
+}
+.preferences > summary:hover {
+  background: var(--accent);
+}
+.preferences > summary svg {
+  width: 22px;
+  height: 22px;
+}
+.preferencesBody {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 12px);
+  width: min(22rem, calc(100vw - 48px));
+  max-height: calc(100dvh - var(--site-header-height, 96px) - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  box-shadow: 0 16px 40px #0004;
+}
+.preferencesBody > label {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
