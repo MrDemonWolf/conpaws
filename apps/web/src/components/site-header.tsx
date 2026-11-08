@@ -7,7 +7,6 @@ import { CompassPaw } from "./compass-paw";
 import { LanguageSwitcher } from "./language-switcher";
 import styles from "./site-header.module.css";
 import { SiteHeaderMenu } from "./site-header-menu";
-import { SitePreferences } from "./site-preferences";
 
 type SiteHeaderProps = {
   locale: Locale;
@@ -58,14 +57,14 @@ export function SiteHeader({
   const mobileContent = (
     <>
       {navigation(true)}
-      <div className={styles.mobileLanguage}>
+      <div className={styles.mobilePreferences}>
         <LanguageSwitcher
           current={locale}
           label={messages.nav.languageLabel}
           presentation="inline"
         />
+        <AppearancePicker labels={messages.appearance} presentation="inline" />
       </div>
-      <AppearancePicker labels={messages.appearance} />
       {waitlist}
     </>
   );
@@ -76,16 +75,14 @@ export function SiteHeader({
         {brand}
         <div className={styles.desktop}>
           {navigation()}
-          <SitePreferences
-            label={`${messages.nav.languageLabel} / ${messages.appearance.label}`}
-          >
-            <LanguageSwitcher
-              current={locale}
-              label={messages.nav.languageLabel}
-              presentation="inline"
-            />
-            <AppearancePicker labels={messages.appearance} />
-          </SitePreferences>
+          <LanguageSwitcher
+            current={locale}
+            label={messages.nav.languageLabel}
+          />
+          <AppearancePicker
+            labels={messages.appearance}
+            presentation="button"
+          />
           {waitlist}
         </div>
         <SiteHeaderMenu

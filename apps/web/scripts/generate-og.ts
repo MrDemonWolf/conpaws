@@ -26,19 +26,21 @@ import { OG_IMAGE_PATH } from "../src/lib/root-metadata";
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-// Brand: packages/ui globals.css. Navy field, sky primary.
-const NAVY = "#091533";
-const SURFACE = "#0f1d45";
-const BORDER = "#1e3a5f";
+// Brand: website dark appearance, with the real app screen as the product image.
+const NAVY = "#0b0d11";
+const SURFACE = "#14181e";
+const BORDER = "#343b45";
 const SKY = "#0faced";
-const SKY_GLOW = "#0faced";
+const SKY_GLOW = "#17627b";
 const WHITE = "#f4f8ff";
-const MUTED = "#aab9e1";
+const MUTED = "#aab1bb";
 
 const FONT = "'DejaVu Sans', Verdana, 'Helvetica Neue', Arial, sans-serif";
 
 // The mark's viewBox is 130 units square; this is the box it fills on the card.
-const MARK = { x: 155, y: 193, size: 244 };
+const MARK = { x: 78, y: 58, size: 54 };
+
+const APP_SCREEN = { x: 785, y: 12, width: 393, height: 855 };
 
 /** Path data of the official mark, taken verbatim from icon.svg. */
 function markPaths(): string {
@@ -55,28 +57,32 @@ function markPaths(): string {
 
 function cardSvg(): string {
   const scale = MARK.size / 130;
+  const appScreen = readFileSync(
+    fileURLToPath(
+      new URL("../public/app-preview/browse-dark.png", import.meta.url),
+    ),
+  ).toString("base64");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <defs>
-    <radialGradient id="glow-tl" cx="14%" cy="0%" r="55%">
-      <stop offset="0" stop-color="${SKY_GLOW}" stop-opacity="0.22"/>
+    <radialGradient id="glow" cx="0%" cy="0%" r="72%">
+      <stop offset="0" stop-color="${SKY_GLOW}" stop-opacity="0.2"/>
       <stop offset="1" stop-color="${SKY_GLOW}" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="glow-br" cx="100%" cy="100%" r="45%">
-      <stop offset="0" stop-color="${SKY_GLOW}" stop-opacity="0.16"/>
-      <stop offset="1" stop-color="${SKY_GLOW}" stop-opacity="0"/>
-    </radialGradient>
+    <clipPath id="app-screen"><rect x="${APP_SCREEN.x}" y="${APP_SCREEN.y}" width="${APP_SCREEN.width}" height="${APP_SCREEN.height}" rx="18"/></clipPath>
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="${NAVY}"/>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow-tl)"/>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow-br)"/>
-  <rect x="70" y="62" width="1060" height="506" rx="32" fill="${SURFACE}" stroke="${BORDER}" stroke-width="2"/>
-  <rect x="70" y="62" width="1060" height="8" rx="4" fill="${SKY}"/>
-  <rect x="556" y="88" width="88" height="14" rx="7" fill="${NAVY}" stroke="${BORDER}" stroke-width="2"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow)"/>
   <g transform="translate(${MARK.x} ${MARK.y}) scale(${scale}) translate(-35 -34)" fill="${SKY}">${markPaths()}</g>
-  <text x="474" y="309" font-family="${FONT}" font-size="112" font-weight="700" fill="${WHITE}">ConPaws</text>
-  <text x="474" y="384" font-family="${FONT}" font-size="41" fill="${MUTED}">Your con schedule, sorted.</text>
-  <rect x="474" y="438" width="52" height="4" rx="2" fill="${SKY}"/>
-  <text x="474" y="493" font-family="${FONT}" font-size="28" font-weight="700" letter-spacing="4.5" fill="${SKY}">iOS · Android · conpaws.com</text>
+  <text x="148" y="98" font-family="${FONT}" font-size="38" font-weight="700" fill="${WHITE}">ConPaws</text>
+  <text x="78" y="214" font-family="${FONT}" font-size="17" font-weight="700" letter-spacing="4" fill="${SKY}">YOUR CONVENTION COMPANION</text>
+  <text x="78" y="306" font-family="${FONT}" font-size="62" font-weight="700" fill="${WHITE}">Your con schedule.</text>
+  <text x="78" y="376" font-family="${FONT}" font-size="62" font-weight="700" fill="${SKY}">Ready offline.</text>
+  <text x="80" y="438" font-family="${FONT}" font-size="25" fill="${MUTED}">Browse panels. Star what matters.</text>
+  <text x="80" y="475" font-family="${FONT}" font-size="25" fill="${MUTED}">Keep your plan ready offline.</text>
+  <text x="80" y="548" font-family="${FONT}" font-size="17" font-weight="700" letter-spacing="3.5" fill="${SKY}">BROWSE · PLAN · GO OFFLINE</text>
+  <text x="80" y="589" font-family="${FONT}" font-size="18" fill="${MUTED}">conpaws.com</text>
+  <rect x="${APP_SCREEN.x}" y="${APP_SCREEN.y}" width="${APP_SCREEN.width}" height="${APP_SCREEN.height}" rx="18" fill="${SURFACE}" stroke="${BORDER}" stroke-width="2"/>
+  <image href="data:image/png;base64,${appScreen}" x="${APP_SCREEN.x + 2}" y="${APP_SCREEN.y + 2}" width="${APP_SCREEN.width - 4}" height="${APP_SCREEN.height - 4}" preserveAspectRatio="xMidYMid slice" clip-path="url(#app-screen)"/>
 </svg>`;
 }
 

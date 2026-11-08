@@ -1,21 +1,6 @@
 import { limitBadgeName } from "./badge-name";
 import { CompassPaw } from "./compass-paw";
 
-/** Deterministic 11×11 mini-QR. Pure decoration — encodes nothing. */
-const QR = [
-  "11111010111",
-  "10001001001",
-  "10101010101",
-  "10001011101",
-  "11111010111",
-  "00000100000",
-  "11101110111",
-  "01010001010",
-  "11011010011",
-  "10110101101",
-  "11101011111",
-].map((row) => row.split("").map((c) => c === "1"));
-
 /**
  * The badge card face. Pure presentation, no handlers.
  * Portrait 3:4 proportions, 288 × 384 CSS pixels at the preferred size.
@@ -39,9 +24,6 @@ export function BadgeFace({
       {/* punched slot the ring passes through */}
       <div className="-translate-x-1/2 absolute top-[12px] left-1/2 h-[10px] w-[76px] rounded-full bg-background shadow-[inset_0_2px_4px_rgb(0_0_0/0.9),0_1px_0_rgb(255_255_255/0.06)]" />
 
-      {/* ghost paw watermark */}
-      <CompassPaw className="-right-12 -bottom-12 absolute h-[220px] w-[220px] rotate-12 text-primary opacity-[0.05]" />
-
       {/* shine sweep on hover */}
       <div className="badge-shine-layer" />
 
@@ -63,8 +45,7 @@ export function BadgeFace({
         <div
           className="motion-safe:animate-holo mt-4 h-[7px] rounded-full opacity-80"
           style={{
-            background:
-              "linear-gradient(110deg,#0faced,#7dd3fc,#a78bfa,#34d399,#facc15,#0faced)",
+            background: "linear-gradient(110deg,#0faced,#9be3fb,#0faced)",
             backgroundSize: "300% 100%",
           }}
         />
@@ -90,50 +71,34 @@ export function BadgeFace({
           </p>
         </div>
 
-        {/* role band */}
-        <div className="mt-4 flex items-center justify-between rounded-[8px] bg-primary px-3.5 py-2">
-          <span className="font-display font-bold text-[12px] text-primary-foreground uppercase tracking-[0.12em]">
-            Beta Tester
-          </span>
-          <span className="font-tech font-medium text-[9.5px] text-primary-foreground/90 uppercase tracking-[0.1em]">
-            Founding Pack
-          </span>
+        {/* membership mark */}
+        <div className="mt-4 rounded-[8px] border border-primary/20 bg-primary/8 px-3.5 py-2.5">
+          <div className="border-primary border-l-2 pl-3">
+            <p className="font-display font-bold text-[12px] text-foreground uppercase tracking-[0.12em]">
+              Beta Tester
+            </p>
+            <p className="mt-0.5 font-tech font-medium text-[9px] text-primary uppercase tracking-[0.12em]">
+              Founding Pack
+            </p>
+          </div>
         </div>
 
-        {/* footer: QR + badge number */}
-        <div className="mt-5 flex items-end justify-between">
-          <svg
-            viewBox="0 0 11 11"
-            className="h-[52px] w-[52px] rounded-[4px] bg-slate-100 p-[3px]"
-            role="presentation"
-          >
-            <title>Badge code</title>
-            {QR.flatMap((row, y) =>
-              row.map((on, x) =>
-                on ? (
-                  <rect
-                    // biome-ignore lint/suspicious/noArrayIndexKey: static grid
-                    key={`${x}-${y}`}
-                    x={x + 0.55}
-                    y={y + 0.55}
-                    width={0.9}
-                    height={0.9}
-                    fill="#0b1839"
-                    transform="scale(0.909)"
-                  />
-                ) : null,
-              ),
-            )}
-          </svg>
+        {/* footer: real brand mark and readable badge number */}
+        <div className="mt-auto flex items-end justify-between border-border border-t pt-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="grid h-10 w-10 place-items-center rounded-[9px] border border-primary/20 bg-primary/8">
+              <CompassPaw className="h-6 w-6 text-primary" />
+            </div>
+            <p className="font-tech font-medium text-[9px] text-muted-foreground uppercase tracking-[0.1em]">
+              Offline ready
+            </p>
+          </div>
           <div className="text-right">
-            <p className="font-tech font-semibold text-[23px] text-primary leading-none tracking-[0.04em] tabular-nums">
-              № {badgeNumber}
+            <p className="font-tech font-medium text-[8px] text-muted-foreground uppercase tracking-[0.16em]">
+              Badge no.
             </p>
-            <p className="mt-1.5 font-tech font-medium text-[10px] text-muted-foreground uppercase tracking-[0.12em]">
-              iOS · Android · Est. 2025
-            </p>
-            <p className="mt-0.5 font-tech font-medium text-[10px] text-muted-foreground/85 uppercase tracking-[0.12em]">
-              Navigate · Connect · Enjoy
+            <p className="mt-1 font-tech font-semibold text-[22px] text-primary leading-none tracking-[0.04em] tabular-nums">
+              {badgeNumber}
             </p>
           </div>
         </div>
