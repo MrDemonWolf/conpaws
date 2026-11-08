@@ -266,10 +266,6 @@
     "platforms": "Fejlesztés alatt · iOS és Android"
   },
   "showcase": {
-    "rotation": {
-      "pause": "Előnézet szüneteltetése",
-      "play": "Előnézet indítása"
-    },
     "label": "Az alkalmazás képernyőinek előnézete",
     "note": "A fejlesztés alatt álló alkalmazás előnézete. Kitalált adatok.",
     "browseTitle": "Program",

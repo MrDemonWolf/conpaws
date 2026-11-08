@@ -266,10 +266,6 @@
     "platforms": "En développement · iOS et Android"
   },
   "showcase": {
-    "rotation": {
-      "pause": "Mettre en pause l’aperçu",
-      "play": "Lancer l’aperçu"
-    },
     "label": "Aperçu des écrans de l’app",
     "note": "Aperçu de l’app en développement. Données fictives.",
     "browseTitle": "Programme",

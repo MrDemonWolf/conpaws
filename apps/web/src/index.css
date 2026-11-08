@@ -309,13 +309,3 @@ html.dark [data-capture-theme="light"] {
 html.dark [data-capture-theme="dark"] {
   display: block;
 }
-@media (prefers-reduced-motion: no-preference) {
-  html.light [data-preview-alternate="true"] [data-capture-theme="light"],
-  html.dark [data-preview-alternate="true"] [data-capture-theme="dark"] {
-    display: none;
-  }
-  html.light [data-preview-alternate="true"] [data-capture-theme="dark"],
-  html.dark [data-preview-alternate="true"] [data-capture-theme="light"] {
-    display: block;
-  }
-}

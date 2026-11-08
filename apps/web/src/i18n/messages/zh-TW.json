@@ -259,7 +259,6 @@
     "platforms": "開發中 · iOS 與 Android"
   },
   "showcase": {
-    "rotation": { "pause": "暫停外觀預覽", "play": "播放外觀預覽" },
     "label": "應用程式畫面預覽",
     "note": "開發中的應用程式預覽。資料均為虛構。",
     "browseTitle": "節目",

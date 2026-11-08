@@ -266,7 +266,6 @@
     "platforms": "Em desenvolvimento · iOS e Android"
   },
   "showcase": {
-    "rotation": { "pause": "Pausar prévia", "play": "Reproduzir prévia" },
     "label": "Prévia das telas do app",
     "note": "Prévia do app em desenvolvimento. Dados fictícios.",
     "browseTitle": "Programação",

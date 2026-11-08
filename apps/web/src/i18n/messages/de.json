@@ -266,10 +266,6 @@
     "platforms": "In Entwicklung · iOS und Android"
   },
   "showcase": {
-    "rotation": {
-      "pause": "Darstellungsvorschau pausieren",
-      "play": "Darstellungsvorschau starten"
-    },
     "label": "App-Vorschau",
     "note": "Vorschau der App in Entwicklung. Fiktive Daten.",
     "browseTitle": "Programm",

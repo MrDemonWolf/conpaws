@@ -259,7 +259,6 @@
     "platforms": "开发中 · iOS 和 Android"
   },
   "showcase": {
-    "rotation": { "pause": "暂停外观预览", "play": "播放外观预览" },
     "label": "应用界面预览",
     "note": "开发中的应用预览。数据均为虚构。",
     "browseTitle": "节目",

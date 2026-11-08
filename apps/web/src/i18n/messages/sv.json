@@ -266,10 +266,6 @@
     "platforms": "Under utveckling · iOS och Android"
   },
   "showcase": {
-    "rotation": {
-      "pause": "Pausa förhandsvisning",
-      "play": "Spela förhandsvisning"
-    },
     "label": "Förhandsvisning av appens skärmar",
     "note": "Förhandsvisning av appen under utveckling. Fiktiva data.",
     "browseTitle": "Program",

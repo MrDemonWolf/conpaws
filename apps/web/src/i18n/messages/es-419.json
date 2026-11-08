@@ -266,10 +266,6 @@
     "platforms": "En desarrollo · iOS y Android"
   },
   "showcase": {
-    "rotation": {
-      "pause": "Pausar vista previa",
-      "play": "Reproducir vista previa"
-    },
     "label": "Vistas previas de la app",
     "note": "Vista previa de la app en desarrollo. Datos ficticios.",
     "browseTitle": "Programa",

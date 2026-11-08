@@ -266,10 +266,6 @@
     "platforms": "Em desenvolvimento · iOS e Android"
   },
   "showcase": {
-    "rotation": {
-      "pause": "Pausar pré-visualização",
-      "play": "Reproduzir pré-visualização"
-    },
     "label": "Pré-visualização dos ecrãs da app",
     "note": "Pré-visualização da app em desenvolvimento. Dados fictícios.",
     "browseTitle": "Programação",

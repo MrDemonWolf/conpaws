@@ -572,39 +572,18 @@ try {
     "A section link moves focus to its content",
   );
 
-  const reminders = page.getByRole("button", {
-    name: "Reminders",
-    exact: true,
+  const hero = page.getByRole("region", {
+    name: "Your con schedule. Ready offline.",
   });
-  const previewImage = page.locator('figure [data-active="true"] img:visible');
-  const imageBounds = await previewImage.boundingBox();
-  const dotBounds = await reminders.boundingBox();
-  assert(imageBounds && dotBounds, "Preview and its controls must be visible");
-  assert(
-    dotBounds.y >= imageBounds.y + imageBounds.height &&
-      dotBounds.width >= 44 &&
-      dotBounds.height >= 44,
-    "Preview controls belong below the image with usable touch targets",
-  );
-  await reminders.click();
-  assert.equal(await reminders.getAttribute("aria-pressed"), "true");
-  await reminders.focus();
-  await reminders.press("ArrowRight");
   assert.equal(
-    await page
-      .getByRole("button", { name: "Browse", exact: true })
-      .getAttribute("aria-pressed"),
-    "true",
-    "Preview arrows wrap to Browse",
+    await hero.locator("figure img:visible").count(),
+    1,
+    "Hero shows one screenshot matching the page appearance",
   );
-  await page.keyboard.press("End");
-  assert.equal(await reminders.getAttribute("aria-pressed"), "true");
   assert.equal(
-    await page
-      .locator('figure [data-active="true"] img:visible')
-      .evaluate((element) => getComputedStyle(element).transitionDuration),
-    "0s",
-    "Reduced motion disables the preview crossfade",
+    await hero.locator("button").count(),
+    0,
+    "The static hero has no carousel or playback controls",
   );
   const gallery = page.getByRole("region", {
     name: "App preview screens",

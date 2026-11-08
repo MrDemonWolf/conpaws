@@ -266,7 +266,6 @@
     "platforms": "Dalam pembangunan · iOS dan Android"
   },
   "showcase": {
-    "rotation": { "pause": "Jeda pratonton", "play": "Mainkan pratonton" },
     "label": "Pratonton skrin aplikasi",
     "note": "Pratonton aplikasi dalam pembangunan. Data rekaan.",
     "browseTitle": "Program",

@@ -171,7 +171,6 @@ export function Landing({
               screens={screens}
               label={messages.showcase.label}
               note={messages.showcase.note}
-              rotationLabels={messages.showcase.rotation}
             />
           </section>
 
@@ -187,7 +186,6 @@ export function Landing({
                 screens={screens}
                 label={messages.showcase.label}
                 note={messages.showcase.note}
-                rotationLabels={messages.showcase.rotation}
                 variant="gallery"
               />
             </div>

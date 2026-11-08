@@ -266,7 +266,6 @@
     "platforms": "W przygotowaniu · iOS i Android"
   },
   "showcase": {
-    "rotation": { "pause": "Wstrzymaj podgląd", "play": "Odtwórz podgląd" },
     "label": "Podgląd ekranów aplikacji",
     "note": "Podgląd aplikacji w przygotowaniu. Fikcyjne dane.",
     "browseTitle": "Program",

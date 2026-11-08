@@ -266,7 +266,6 @@
     "platforms": "Kehitteillä · iOS ja Android"
   },
   "showcase": {
-    "rotation": { "pause": "Keskeytä esikatselu", "play": "Toista esikatselu" },
     "label": "Sovelluksen esikatselunäkymät",
     "note": "Esikatselu kehitteillä olevasta sovelluksesta. Kuvitteelliset tiedot.",
     "browseTitle": "Ohjelma",
