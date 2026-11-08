@@ -259,6 +259,10 @@
     "platforms": "개발 중 · iOS 및 Android"
   },
   "showcase": {
+    "rotation": {
+      "pause": "테마 미리보기 일시 정지",
+      "play": "테마 미리보기 재생"
+    },
     "label": "앱 화면 미리 보기",
     "note": "개발 중인 앱의 미리 보기입니다. 가상 데이터를 사용합니다.",
     "browseTitle": "프로그램",

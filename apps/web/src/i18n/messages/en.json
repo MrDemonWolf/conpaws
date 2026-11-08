@@ -266,6 +266,10 @@
     "platforms": "In development · iOS & Android"
   },
   "showcase": {
+    "rotation": {
+      "pause": "Pause appearance preview",
+      "play": "Play appearance preview"
+    },
     "label": "App preview screens",
     "note": "In-development app preview. Fictional data.",
     "browseTitle": "Browse",

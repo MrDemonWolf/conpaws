@@ -75,10 +75,6 @@ export function SiteHeader({
         {brand}
         <div className={styles.desktop}>
           {navigation()}
-          <LanguageSwitcher
-            current={locale}
-            label={messages.nav.languageLabel}
-          />
           {waitlist}
         </div>
         <SiteHeaderMenu

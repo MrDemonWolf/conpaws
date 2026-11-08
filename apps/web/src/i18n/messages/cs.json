@@ -266,6 +266,7 @@
     "platforms": "Ve vývoji · iOS a Android"
   },
   "showcase": {
+    "rotation": { "pause": "Pozastavit náhled", "play": "Spustit náhled" },
     "label": "Ukázky obrazovek aplikace",
     "note": "Ukázka aplikace ve vývoji. Smyšlená data.",
     "browseTitle": "Program",

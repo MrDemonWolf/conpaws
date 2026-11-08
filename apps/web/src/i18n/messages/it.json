@@ -266,6 +266,7 @@
     "platforms": "In sviluppo · iOS e Android"
   },
   "showcase": {
+    "rotation": { "pause": "Pausa anteprima", "play": "Avvia anteprima" },
     "label": "Anteprime delle schermate dell’app",
     "note": "Anteprima dell’app in sviluppo. Dati fittizi.",
     "browseTitle": "Programma",

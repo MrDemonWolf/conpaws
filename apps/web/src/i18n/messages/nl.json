@@ -266,6 +266,10 @@
     "platforms": "In ontwikkeling · iOS en Android"
   },
   "showcase": {
+    "rotation": {
+      "pause": "Weergavevoorbeeld pauzeren",
+      "play": "Weergavevoorbeeld afspelen"
+    },
     "label": "Voorbeelden van appschermen",
     "note": "Voorbeeld van de app in ontwikkeling. Fictieve gegevens.",
     "browseTitle": "Programma",

@@ -1,14 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { type KeyboardEvent, type PointerEvent, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  type PointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "./app-preview.module.css";
+import { startPreviewRotation } from "./app-preview-playback";
 
 export interface AppPreviewScreen {
   id: string;
   title: string;
   description: string;
   src: string;
+  darkSrc?: string;
   alt: string;
 }
 
@@ -16,6 +24,7 @@ interface AppPreviewProps {
   screens: readonly AppPreviewScreen[];
   label: string;
   note: string;
+  rotationLabels: { pause: string; play: string };
   variant?: "hero" | "gallery";
 }
 
@@ -39,9 +48,22 @@ export function AppPreview({
   screens,
   label,
   note,
+  rotationLabels,
   variant = "hero",
 }: AppPreviewProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [alternate, setAlternate] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [interacting, setInteracting] = useState(false);
+  useEffect(() => {
+    if (variant !== "hero" || paused || interacting) return;
+    return startPreviewRotation(
+      window.matchMedia("(prefers-reduced-motion: reduce)"),
+      () => setAlternate((value) => !value),
+      () => setAlternate(false),
+    );
+  }, [variant, paused, interacting]);
+
   const swipe = useRef<{ id: number; x: number; y: number } | null>(null);
   if (screens.length === 0) return null;
   const activeIndex = Math.min(selectedIndex, screens.length - 1);
@@ -93,6 +115,7 @@ export function AppPreview({
             <div className={styles.screen}>
               <Image
                 className={styles.image}
+                data-capture-theme={screen.darkSrc ? "light" : undefined}
                 src={screen.src}
                 alt={screen.alt}
                 width={440}
@@ -100,6 +123,18 @@ export function AppPreview({
                 sizes="(max-width: 767px) 240px, 30vw"
                 loading="lazy"
               />
+              {screen.darkSrc && (
+                <Image
+                  className={styles.image}
+                  data-capture-theme="dark"
+                  src={screen.darkSrc}
+                  alt={screen.alt}
+                  width={440}
+                  height={956}
+                  sizes="(max-width: 767px) 240px, 30vw"
+                  loading="lazy"
+                />
+              )}
             </div>
             <figcaption className={styles.caption}>
               <strong>{screen.title}</strong>
@@ -113,7 +148,17 @@ export function AppPreview({
   }
 
   return (
-    <figure className={styles.hero}>
+    <figure
+      className={styles.hero}
+      data-preview-alternate={alternate}
+      onMouseEnter={() => setInteracting(true)}
+      onMouseLeave={() => setInteracting(false)}
+      onFocus={() => setInteracting(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setInteracting(false);
+      }}
+    >
       <div
         className={`${styles.screen} ${styles.swipe}`}
         onPointerDown={onPointerDown}
@@ -123,42 +168,70 @@ export function AppPreview({
         }}
       >
         {screens.map((screen, index) => (
-          <Image
+          <div
             key={screen.id}
-            className={`${styles.image} ${styles.slide}`}
-            data-active={index === activeIndex}
+            className={`${styles.slide} ${index === activeIndex ? styles.activeSlide : ""}`}
             aria-hidden={index !== activeIndex}
-            src={screen.src}
-            alt={index === activeIndex ? screen.alt : ""}
-            width={440}
-            height={956}
-            sizes="272px"
-            loading={index === 0 ? "eager" : "lazy"}
-            fetchPriority={index === 0 ? "high" : "auto"}
-            draggable={false}
-          />
+            data-active={index === activeIndex}
+          >
+            <Image
+              className={styles.image}
+              data-capture-theme={screen.darkSrc ? "light" : undefined}
+              src={screen.src}
+              alt={index === activeIndex ? screen.alt : ""}
+              width={440}
+              height={956}
+              sizes="220px"
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              draggable={false}
+            />
+            {screen.darkSrc && (
+              <Image
+                className={styles.image}
+                data-capture-theme="dark"
+                src={screen.darkSrc}
+                alt={index === activeIndex ? screen.alt : ""}
+                width={440}
+                height={956}
+                sizes="220px"
+                loading={index === 0 ? "eager" : "lazy"}
+                draggable={false}
+              />
+            )}
+          </div>
         ))}
       </div>
-      <fieldset className={styles.dots}>
-        <legend className="sr-only">{label}</legend>
-        {screens.map((screen, index) => (
-          <button
-            key={screen.id}
-            type="button"
-            aria-label={screen.title}
-            aria-pressed={index === activeIndex}
-            onClick={() => setSelectedIndex(index)}
-            onKeyDown={(event) => onKeyDown(event, index)}
-          >
-            <span aria-hidden="true" />
-          </button>
-        ))}
-      </fieldset>
-      <figcaption
-        className={styles.caption}
-        aria-live="polite"
-        aria-atomic="true"
-      >
+      <div className={styles.controls}>
+        <fieldset className={styles.dots}>
+          <legend className="sr-only">{label}</legend>
+          {screens.map((screen, index) => (
+            <button
+              key={screen.id}
+              type="button"
+              aria-label={screen.title}
+              aria-pressed={index === activeIndex}
+              onClick={() => {
+                setSelectedIndex(index);
+                setPaused(true);
+              }}
+              onKeyDown={(event) => onKeyDown(event, index)}
+            >
+              <span aria-hidden="true" />
+            </button>
+          ))}
+        </fieldset>
+        <button
+          type="button"
+          className={styles.rotation}
+          aria-pressed={paused}
+          aria-label={paused ? rotationLabels.play : rotationLabels.pause}
+          onClick={() => setPaused((value) => !value)}
+        >
+          {paused ? "▶" : "Ⅱ"}
+        </button>
+      </div>
+      <figcaption className="sr-only" aria-live="polite" aria-atomic="true">
         <strong>{selected.title}</strong>
         <p>{selected.description}</p>
         <small>{note}</small>

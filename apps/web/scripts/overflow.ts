@@ -318,7 +318,8 @@ try {
     });
   }
 
-  const picker = appearance.locator("footer").getByRole("combobox", {
+  await appearance.locator('header button[aria-haspopup="dialog"]').click();
+  const picker = appearance.locator("header dialog").getByRole("combobox", {
     name: "Appearance",
   });
   await picker.selectOption("light");
@@ -326,10 +327,11 @@ try {
     document.documentElement.classList.contains("light"),
   );
   await appearance.reload({ waitUntil: "load" });
+  await appearance.locator('header button[aria-haspopup="dialog"]').click();
   await appearance.waitForFunction(
     () =>
-      document.querySelector<HTMLSelectElement>("footer select")?.value ===
-      "light",
+      document.querySelector<HTMLSelectElement>("header dialog select")
+        ?.value === "light",
   );
   assert.equal(
     await picker.inputValue(),
@@ -430,7 +432,7 @@ try {
         )
           problems.push("#features lands under the sticky header");
 
-        if (layout.width < 1024) {
+        {
           // The translated header strings live in the closed drawer; open it
           // and its language list, then measure only what the drawer shows.
           await page.locator('header button[aria-haspopup="dialog"]').click();
@@ -450,21 +452,6 @@ try {
           await page
             .locator("header dialog[open]")
             .waitFor({ state: "hidden" });
-        } else {
-          const language = page
-            .locator("header details[data-lang-menu]")
-            .first();
-          await language.evaluate((details) => {
-            (details as HTMLDetailsElement).open = true;
-          });
-          await settle(page);
-          const open = await measureText(page, "header");
-          problems.push(
-            ...open.offenders.map((text) => `language menu open: ${text}`),
-          );
-          await language.evaluate((details) => {
-            (details as HTMLDetailsElement).open = false;
-          });
         }
       } catch (error) {
         problems.push(error instanceof Error ? error.message : String(error));
@@ -540,9 +527,9 @@ try {
   );
   assert(await dialog.isVisible(), "Changing appearance keeps navigation open");
   assert.equal(
-    await page.locator("footer select").inputValue(),
+    await mobileAppearance.inputValue(),
     "dark",
-    "Menu and footer share the same preference",
+    "The menu reflects the selected preference",
   );
   await mobileAppearance.focus();
   await page.keyboard.press("Tab");
@@ -589,7 +576,7 @@ try {
     name: "Reminders",
     exact: true,
   });
-  const previewImage = page.locator('figure img[data-active="true"]');
+  const previewImage = page.locator('figure [data-active="true"] img:visible');
   const imageBounds = await previewImage.boundingBox();
   const dotBounds = await reminders.boundingBox();
   assert(imageBounds && dotBounds, "Preview and its controls must be visible");
@@ -614,7 +601,7 @@ try {
   assert.equal(await reminders.getAttribute("aria-pressed"), "true");
   assert.equal(
     await page
-      .locator('figure img[data-active="true"]')
+      .locator('figure [data-active="true"] img:visible')
       .evaluate((element) => getComputedStyle(element).transitionDuration),
     "0s",
     "Reduced motion disables the preview crossfade",

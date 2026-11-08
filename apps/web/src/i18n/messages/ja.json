@@ -266,6 +266,10 @@
     "platforms": "開発中 · iOS・Android"
   },
   "showcase": {
+    "rotation": {
+      "pause": "外観プレビューを一時停止",
+      "play": "外観プレビューを再生"
+    },
     "label": "アプリ画面のプレビュー",
     "note": "開発中のアプリのプレビューです。データは架空です。",
     "browseTitle": "プログラム",
