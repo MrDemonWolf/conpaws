@@ -300,7 +300,7 @@ html {
   }
 }
 
-[data-capture-theme="dark"] {
+html [data-capture-theme="dark"] {
   display: none;
 }
 html.dark [data-capture-theme="light"] {
