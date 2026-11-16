@@ -1,25 +1,13 @@
 import { cn } from "@conpaws/ui/lib/utils";
-import Link from "next/link";
 import type { ReactNode } from "react";
-
-import { AppearancePicker } from "@/components/appearance-picker";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { UPDATES_LABEL } from "@/content/changelog";
 import type { Messages } from "@/i18n";
 import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 
 /**
- * Nav and footer for every page that is not the landing page.
- *
- * The 404, `/confirmed` and the legal pages each carried their own copy of this
- * chrome, and the copies had drifted: the landing page got a redesign and 23
- * locales, the other three kept a 28px logo, an 18px wordmark, no language
- * switcher, and three different footers — one of which
- * (`/confirmed`) dropped the `min-h-11` that the other two document as the
- * WCAG 2.5.8 target, leaving its footer links about 18px tall.
- *
- * Sharing the chrome is what stops that happening again. Every string here
- * comes from `nav.*` and `footer.*`, which were already translated.
+ * Shared chrome for pages that use the standard content shell. The landing
+ * page uses the same SiteHeader and SiteFooter around its custom layout.
  */
 export function PageShell({
   locale = DEFAULT_LOCALE,
@@ -52,88 +40,16 @@ export function PageShell({
       <SiteHeader locale={locale} messages={messages} />
       <div
         lang={locale}
-        className={cn(
-          "marketing-shell relative z-content isolate mx-auto px-6 pb-24",
-          narrow ? "max-w-[760px]" : "max-w-[1120px]",
-        )}
+        className="marketing-shell relative z-content isolate mx-auto max-w-[1120px] px-6 pb-24"
       >
-        <main id="main">
+        <main id="main" className={cn(narrow && "mx-auto max-w-[760px]")}>
           {navAside ? <div className="pt-6">{navAside}</div> : null}
           {children}
         </main>
 
-        <PageFooter messages={messages} locale={locale} />
+        <SiteFooter messages={messages} locale={locale} />
       </div>
     </>
-  );
-}
-
-/** The landing page's footer, minus its decorative oversized wordmark. */
-function PageFooter({
-  messages,
-  locale,
-}: {
-  messages: Messages;
-  locale: Locale;
-}) {
-  const year = new Date().getFullYear();
-
-  return (
-    <footer className="relative z-content mt-24 border-border border-t pt-8">
-      <div className="flex flex-wrap items-center justify-between gap-6">
-        <p className="font-tech text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-          {messages.footer.copyright.replace("{year}", String(year))}{" "}
-          <a
-            href="https://www.mrdemonwolf.com"
-            rel="noopener"
-            className="text-primary transition hover:underline"
-          >
-            {messages.footer.company}
-          </a>
-        </p>
-        {/* `min-h-11` is the 44px WCAG 2.5.8 target; at 12px these are ~18px
-            tall without it. `-my-3` cancels the height so spacing is unchanged.
-            The MrDemonWolf link above is exempt — it sits inside a sentence. */}
-        <nav
-          aria-label={messages.nav.footerLabel}
-          className="-my-3 flex flex-wrap gap-x-5 font-tech text-[12px] text-muted-foreground uppercase tracking-[0.18em]"
-        >
-          <a
-            href="/updates"
-            className="inline-flex min-h-11 items-center transition hover:text-primary"
-          >
-            {UPDATES_LABEL[locale]}
-          </a>
-          <Link
-            href="/design-system"
-            className="inline-flex min-h-11 items-center transition hover:text-primary"
-          >
-            {messages.footer.designSystem}
-          </Link>
-          <a
-            href="/support"
-            className="inline-flex min-h-11 items-center transition hover:text-primary"
-          >
-            {messages.footer.support}
-          </a>
-          <a
-            href="/privacy"
-            className="inline-flex min-h-11 items-center transition hover:text-primary"
-          >
-            {messages.footer.privacy}
-          </a>
-          <a
-            href="/terms"
-            className="inline-flex min-h-11 items-center transition hover:text-primary"
-          >
-            {messages.footer.terms}
-          </a>
-        </nav>
-      </div>
-      <div className="mt-6">
-        <AppearancePicker labels={messages.appearance} />
-      </div>
-    </footer>
   );
 }
 

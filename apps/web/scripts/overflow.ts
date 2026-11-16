@@ -94,7 +94,13 @@ const measureText = (page: Page, rootSelector: string) =>
           : "";
       return `${tag}${name}${where}`;
     };
-    const root = document.querySelector<HTMLElement>(rootSelector);
+    const root = Array.from(
+      document.querySelectorAll<HTMLElement>(rootSelector),
+    ).find(
+      (element) =>
+        element.getClientRects().length > 0 &&
+        getComputedStyle(element).visibility !== "hidden",
+    );
     if (!root)
       return { scrolls: false, offenders: [`missing ${rootSelector}`] };
     const scrolls =
@@ -180,16 +186,16 @@ const measureText = (page: Page, rootSelector: string) =>
     return { scrolls, offenders };
   }, rootSelector);
 
-/** The appearance picker inside the open menu: label, select and target. */
+/** The appearance picker inside the mobile drawer: label, select and target. */
 const measureAppearancePicker = (page: Page, root = "header dialog[open]") =>
   page
     .locator(root)
     .getByRole("combobox")
     .evaluate((select) => {
-      const label = select.closest("label");
-      const text = label?.querySelector("span");
-      if (!label || !text) throw new Error("Missing appearance label");
-      const bounds = label.getBoundingClientRect();
+      const container = select.parentElement;
+      const text = container?.querySelector("span");
+      if (!container || !text) throw new Error("Missing appearance label");
+      const bounds = container.getBoundingClientRect();
       const outside = (rect: DOMRect) =>
         rect.left < bounds.left - 1 ||
         rect.right > bounds.right + 1 ||
@@ -199,7 +205,7 @@ const measureAppearancePicker = (page: Page, root = "header dialog[open]") =>
       range.selectNodeContents(text);
       const control = select.getBoundingClientRect();
       const issues: string[] = [];
-      if (label.scrollWidth > label.clientWidth + 1)
+      if (container.scrollWidth > container.clientWidth + 1)
         issues.push("appearance label scrolls horizontally");
       if (Array.from(range.getClientRects()).some(outside))
         issues.push("appearance text exceeds its label");
@@ -208,6 +214,18 @@ const measureAppearancePicker = (page: Page, root = "header dialog[open]") =>
         issues.push("appearance picker target is smaller than 44px");
       return issues;
     });
+
+/** Desktop uses the compact sun/moon control instead of the mobile select. */
+const measureAppearanceToggle = (page: Page) =>
+  page.locator("header button[title]").evaluate((button) => {
+    const bounds = button.getBoundingClientRect();
+    const issues: string[] = [];
+    if (!button.getAttribute("aria-label"))
+      issues.push("appearance toggle is missing an accessible label");
+    if (bounds.width < 44 || bounds.height < 44)
+      issues.push("appearance toggle target is smaller than 44px");
+    return issues;
+  });
 
 const browser = await chromium.launch();
 const failures: string[] = [];
@@ -463,28 +481,28 @@ try {
             0,
             "Desktop has no mobile menu",
           );
-          const preferences = page.locator("[data-site-preferences]");
-          await preferences.locator(":scope > summary").click();
-          const language = preferences.locator("details[data-lang-menu]");
+          const language = page
+            .locator("header details[data-lang-menu]")
+            .first();
           await language.evaluate((element) => {
             (element as HTMLDetailsElement).open = true;
           });
           await settle(page);
-          const open = await measureText(page, "[data-site-preferences]");
+          const open = await measureText(
+            page,
+            "header details[data-lang-menu]",
+          );
           if (open.scrolls)
-            problems.push("desktop preferences scroll horizontally");
+            problems.push("desktop language menu scrolls horizontally");
           problems.push(
-            ...open.offenders.map((text) => `preferences: ${text}`),
+            ...open.offenders.map((text) => `language menu: ${text}`),
           );
-          problems.push(
-            ...(await measureAppearancePicker(page, "[data-site-preferences]")),
-          );
-          await page.keyboard.press("Escape");
+          problems.push(...(await measureAppearanceToggle(page)));
           await page.keyboard.press("Escape");
           assert.equal(
-            await preferences.getAttribute("open"),
+            await language.getAttribute("open"),
             null,
-            "Escape closes desktop preferences",
+            "Escape closes the desktop language menu",
           );
         }
       } catch (error) {

@@ -197,10 +197,16 @@
   text-decoration: none;
 }
 
-.mobileLanguage {
+.mobilePreferences {
   min-width: 0;
   padding-block: 1rem;
   border-block: 1px solid var(--border);
+}
+
+.mobilePreferences > * + * {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
 }
 
 .waitlist {
