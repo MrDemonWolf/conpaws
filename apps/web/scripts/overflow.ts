@@ -94,7 +94,13 @@ const measureText = (page: Page, rootSelector: string) =>
           : "";
       return `${tag}${name}${where}`;
     };
-    const root = document.querySelector<HTMLElement>(rootSelector);
+    const root = Array.from(
+      document.querySelectorAll<HTMLElement>(rootSelector),
+    ).find(
+      (element) =>
+        element.getClientRects().length > 0 &&
+        getComputedStyle(element).visibility !== "hidden",
+    );
     if (!root)
       return { scrolls: false, offenders: [`missing ${rootSelector}`] };
     const scrolls =
