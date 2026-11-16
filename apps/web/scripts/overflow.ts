@@ -491,11 +491,10 @@ try {
           );
           problems.push(...(await measureAppearanceToggle(page)));
           await page.keyboard.press("Escape");
-          await page.keyboard.press("Escape");
           assert.equal(
-            await preferences.getAttribute("open"),
+            await language.getAttribute("open"),
             null,
-            "Escape closes desktop preferences",
+            "Escape closes the desktop language menu",
           );
         }
       } catch (error) {
