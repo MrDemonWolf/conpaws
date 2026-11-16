@@ -481,7 +481,9 @@ try {
             0,
             "Desktop has no mobile menu",
           );
-          const language = page.locator("header details[data-lang-menu]");
+          const language = page
+            .locator("header details[data-lang-menu]")
+            .first();
           await language.evaluate((element) => {
             (element as HTMLDetailsElement).open = true;
           });
