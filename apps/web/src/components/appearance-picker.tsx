@@ -34,11 +34,15 @@ export function AppearancePicker({
 
   if (presentation === "inline") {
     return (
-      <div className="flex min-w-0 items-center gap-3 text-base text-foreground">
-        <AppearanceIcon mode={icon} />
-        <span className="min-w-0 flex-1">{labels.label}</span>
+      <div className="grid min-w-0 gap-2 text-base text-foreground">
+        <div className="flex min-w-0 items-center gap-3">
+          <AppearanceIcon mode={icon} />
+          <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+            {labels.label}
+          </span>
+        </div>
         <select
-          className="min-h-[44px] min-w-0 max-w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground disabled:opacity-60"
+          className="min-h-[44px] w-full min-w-0 max-w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground disabled:opacity-60"
           aria-label={labels.label}
           value={mounted ? (theme ?? "system") : "system"}
           disabled={!mounted}

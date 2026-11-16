@@ -112,11 +112,11 @@ export function DesignSystemPage() {
               </h3>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex min-h-40 items-center justify-center gap-5 rounded-xl border border-border bg-background p-6">
-                <div className="flex size-24 items-center justify-center rounded-2xl bg-[#091533]">
+              <div className="flex min-h-40 items-center justify-center gap-4 rounded-xl border border-border bg-background p-4 sm:gap-5 sm:p-6">
+                <div className="flex size-20 items-center justify-center rounded-2xl bg-[#091533] sm:size-24">
                   <CompassPaw className="size-16 text-[#0faced]" />
                 </div>
-                <div className="flex size-24 items-center justify-center rounded-2xl bg-[#0faced]">
+                <div className="flex size-20 items-center justify-center rounded-2xl bg-[#0faced] sm:size-24">
                   <CompassPaw className="size-16 text-[#041f2e]" />
                 </div>
               </div>
