@@ -22,6 +22,7 @@ import {
   multilineTextAlignment,
   padding,
   progressViewStyle,
+  resizable,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
 import {
@@ -92,7 +93,6 @@ export function TrackedEventActivityLayout(
     type: "hierarchical",
     style: "secondary",
   });
-  const symbol = "calendar.badge.clock";
 
   function countdown(textStyle: "title3" | "caption" | "footnote") {
     if (countdownTarget == null) return null;
@@ -255,14 +255,17 @@ export function TrackedEventActivityLayout(
       />
     );
   }
-  // Where the title is not on screen, the symbol is the only thing VoiceOver
-  // can reach, so it names the event; elsewhere it is decoration.
-  function icon(textStyle: "title3" | "caption" | "footnote", spoken: boolean) {
+  // The ConPaws mark from the extension's asset catalog, a template image the
+  // accent colours. Its compass ring blurs below 16 points. Where the title is
+  // not on screen, the mark is the only thing VoiceOver can reach, so it names
+  // the event; elsewhere it is decoration.
+  function icon(points: number, spoken: boolean) {
     return (
       <Image
-        systemName={symbol}
+        assetName="ConPawsMark"
         modifiers={[
-          font({ textStyle }),
+          resizable(),
+          frame({ width: points, height: points }),
           foregroundStyle(accent),
           spoken
             ? accessibilityLabel(`${props.title}, ${caption}`)
@@ -285,7 +288,7 @@ export function TrackedEventActivityLayout(
         modifiers={[padding({ horizontal: 16, vertical: 12 })]}
       >
         <HStack spacing={6}>
-          {icon("footnote", false)}
+          {icon(16, false)}
           <Text
             modifiers={[
               font({ textStyle: "caption", weight: "semibold" }),
@@ -313,7 +316,7 @@ export function TrackedEventActivityLayout(
         {countdownTarget == null ? status("footnote") : countdown("footnote")}
       </VStack>
     ),
-    compactLeading: icon("footnote", true),
+    compactLeading: icon(18, true),
     compactTrailing:
       countdownTarget == null ? (
         <Text
@@ -345,13 +348,11 @@ export function TrackedEventActivityLayout(
           ]}
         />
       ),
-    minimal: icon("caption", true),
+    minimal: icon(18, true),
     // The expanded island's corners are curved, and text set flush to its
     // edges is cut off there; the inset keeps captions and the room whole.
     expandedLeading: (
-      <VStack modifiers={[padding({ leading: 6 })]}>
-        {icon("title3", false)}
-      </VStack>
+      <VStack modifiers={[padding({ leading: 6 })]}>{icon(26, false)}</VStack>
     ),
     expandedCenter: title(1, "headline"),
     expandedTrailing: (

@@ -113,12 +113,30 @@ assert.deepEqual(
 const resources = targets
   .find((target) => target.props.name === "ExpoWidgetsTarget")
   .getResourcesBuildPhase().props.files;
+for (const [file, what] of [
+  ["PrivacyInfo.xcprivacy", "privacy manifest"],
+  ["WidgetAssets.xcassets", "asset catalog (the ConPaws mark)"],
+]) {
+  assert.equal(
+    resources.filter((entry) => entry.props.fileRef?.props.path?.endsWith(file))
+      .length,
+    1,
+    `The widget must bundle its ${what} exactly once`,
+  );
+}
+const mark = "WidgetAssets.xcassets/ConPawsMark.imageset";
+for (const file of ["Contents.json", "ConPawsMark.svg"])
+  assert.deepEqual(
+    readFileSync(path.join(extensionRoot, mark, file)),
+    readFileSync(path.join(appRoot, "src/widgets", mark, file)),
+    `The generated extension must bundle the canonical ${file}`,
+  );
 assert.equal(
-  resources.filter((file) =>
-    file.props.fileRef?.props.path?.endsWith("PrivacyInfo.xcprivacy"),
-  ).length,
-  1,
-  "The widget must bundle its privacy manifest exactly once",
+  JSON.parse(
+    readFileSync(path.join(extensionRoot, mark, "Contents.json"), "utf8"),
+  ).properties["template-rendering-intent"],
+  "template",
+  "The ConPaws mark must stay a template image so the widget can tint it",
 );
 
 const androidRoot = path.join(appRoot, "android/app/src/main");

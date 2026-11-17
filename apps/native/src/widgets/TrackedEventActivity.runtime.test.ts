@@ -230,6 +230,14 @@ function expectNoBrokenValues(tree: unknown) {
   }
 }
 
+/** Modifiers Expo UI applies on the Image itself rather than registering. */
+function imageModifierNames(registry: string): string[] {
+  const start = registry.indexOf("func applyImageModifier(");
+  if (start < 0) return [];
+  const body = registry.slice(start, registry.indexOf("default:", start));
+  return [...body.matchAll(/case "(\w+)":/g)].map(([, name]) => name);
+}
+
 describe("isolated Live Activity layout", () => {
   it("only uses components and modifiers the installed Expo UI declares and renders", () => {
     expect(components.length).toBeGreaterThan(0);
@@ -259,10 +267,12 @@ describe("isolated Live Activity layout", () => {
       path.join(uiRoot, "ios/Modifiers/ViewModifierRegistry.swift"),
       "utf8",
     );
+    const imageOnly = imageModifierNames(registry);
     for (const name of modifiers) {
       expect(declarations, name).toMatch(
         new RegExp(`export declare (const|function) ${name}\\b`),
       );
+      if (imageOnly.includes(name)) continue;
       expect(registry, name).toContain(`register("${name}")`);
     }
   });
@@ -553,7 +563,7 @@ describe("isolated Live Activity layout", () => {
       const [image] = nodes(tree[region]).filter(
         (node) => node.type === "Image",
       );
-      expect(image.props.systemName).toBe("calendar.badge.clock");
+      expect(image.props.assetName).toBe("ConPawsMark");
       expect(
         image.props.modifiers?.find(
           (item) => item.type === "accessibilityLabel",

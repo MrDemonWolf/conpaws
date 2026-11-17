@@ -1,6 +1,8 @@
 import {
+  cpSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -13,7 +15,7 @@ import { describe, expect, it } from "vitest";
 import xcode from "xcode";
 import parser from "xcode/lib/parser/pbxproj";
 import withConPawsWidgets, {
-  addWidgetPrivacyManifest,
+  addWidgetResource,
   patchAndroidBuildGradle,
   patchAndroidProvider,
   patchAndroidWidgetInfo,
@@ -121,6 +123,15 @@ describe("phone widget target migration", () => {
         build(projectFixture().toJSON()),
       );
       writeFileSync(path.join(sourceFolder, "PrivacyInfo.xcprivacy"), manifest);
+      cpSync(
+        new URL("../src/widgets/WidgetAssets.xcassets", import.meta.url),
+        path.join(sourceFolder, "WidgetAssets.xcassets"),
+        { recursive: true },
+      );
+      // A stale asset from an earlier prebuild must not survive the copy.
+      mkdirSync(path.join(widgetFolder, "WidgetAssets.xcassets/Old.imageset"), {
+        recursive: true,
+      });
       writeFileSync(
         path.join(widgetFolder, "ConPawsWidget.swift"),
         generatedWidgetSwift,
@@ -138,6 +149,9 @@ describe("phone widget target migration", () => {
       expect(
         readFileSync(path.join(widgetFolder, "ConPawsWidget.swift"), "utf8"),
       ).toContain('static let persistentIdentifier = "ConPawsWidgetIntent"');
+      expect(
+        readdirSync(path.join(widgetFolder, "WidgetAssets.xcassets")).sort(),
+      ).toEqual(["ConPawsMark.imageset", "Contents.json"]);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -167,7 +181,7 @@ describe("phone widget target migration", () => {
     expect(project.has("UNRELATED")).toBe(true);
   });
 
-  it("bundles the extension privacy manifest in its own resources exactly once", () => {
+  it("bundles the extension privacy manifest and assets in its own resources exactly once", () => {
     const fixture = projectFixture().toJSON();
     fixture.objects.OLD.name = "ExpoWidgetsTarget";
     const project = xcode.project("/tmp/conpaws-widget-test.pbxproj");
@@ -181,16 +195,20 @@ describe("phone widget target migration", () => {
     );
     project.addToPbxGroup(group.uuid, "GROUP");
     project.addBuildPhase([], "PBXResourcesBuildPhase", "Resources", "WATCH");
-    addWidgetPrivacyManifest(project);
-    const resourceIds = () =>
-      project.pbxResourcesBuildPhaseObj("OLD").files.map((file) => file.value);
-    expect(resourceIds()).toHaveLength(1);
+    const files = ["PrivacyInfo.xcprivacy", "WidgetAssets.xcassets"];
+    for (const file of files) addWidgetResource(project, file);
+    const resources = () =>
+      project
+        .pbxResourcesBuildPhaseObj("OLD")
+        .files.map((file) => file.comment)
+        .sort();
+    expect(resources()).toEqual(files.map((file) => `${file} in Resources`));
     expect(project.pbxResourcesBuildPhaseObj("WATCH").files).toHaveLength(0);
-    const first = resourceIds();
-    addWidgetPrivacyManifest(project);
-    expect(resourceIds()).toEqual(first);
+    const first = resources();
+    for (const file of files) addWidgetResource(project, file);
+    expect(resources()).toEqual(first);
     expect(project.pbxGroupByName("ExpoWidgetsTarget").children).toHaveLength(
-      1,
+      2,
     );
   });
 

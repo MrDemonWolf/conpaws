@@ -110,7 +110,11 @@ function patchWidgetIntentIdentity(source) {
   return patched;
 }
 
-function addWidgetPrivacyManifest(project) {
+// Files the widget extension bundles from src/widgets. Each is copied into the
+// generated target folder on every prebuild and attached to its resources.
+const WIDGET_RESOURCES = ["PrivacyInfo.xcprivacy", "WidgetAssets.xcassets"];
+
+function addWidgetResource(project, filename) {
   const targetUuid = project.findTargetKey("ExpoWidgetsTarget");
   if (!targetUuid) throw new Error("ExpoWidgetsTarget was not generated.");
   const target = project.pbxNativeTargetSection()[targetUuid];
@@ -125,20 +129,20 @@ function addWidgetPrivacyManifest(project) {
   }
   IOSConfig.XcodeUtils.addResourceFileToGroup({
     project,
-    filepath: "PrivacyInfo.xcprivacy",
+    filepath: filename,
     groupName: "ExpoWidgetsTarget",
     isBuildFile: true,
     targetUuid,
   });
   const fileRef = project
     .pbxGroupByName("ExpoWidgetsTarget")
-    .children.find((child) => child.comment === "PrivacyInfo.xcprivacy").value;
+    .children.find((child) => child.comment === filename).value;
   const buildFiles = project.pbxBuildFileSection();
   const buildFileId = Object.keys(buildFiles).find(
     (key) => buildFiles[key]?.fileRef === fileRef,
   );
   // Repair a prior attachment through Expo's fallback to the app's resources
-  // phase. Keep the main app's separate privacy manifest intact.
+  // phase. Keep the main app's own privacy manifest and assets intact.
   phases = project.hash.project.objects.PBXResourcesBuildPhase;
   for (const [key, phase] of Object.entries(phases)) {
     if (key.endsWith("_comment")) continue;
@@ -149,7 +153,7 @@ function addWidgetPrivacyManifest(project) {
   const resources = target.buildPhases.find((phase) => phases[phase.value]);
   phases[resources.value].files.push({
     value: buildFileId,
-    comment: "PrivacyInfo.xcprivacy in Resources",
+    comment: `${filename} in Resources`,
   });
 }
 
@@ -183,16 +187,21 @@ module.exports = function withConPawsWidgets(config) {
       const project = XcodeProject.open(projectPath);
       removeLegacyWidgetTarget(project, config.ios.bundleIdentifier);
       fs.writeFileSync(projectPath, build(project.toJSON()));
-      fs.copyFileSync(
-        path.join(
-          config.modRequest.projectRoot,
-          "src/widgets/PrivacyInfo.xcprivacy",
-        ),
-        path.join(
+      for (const filename of WIDGET_RESOURCES) {
+        const target = path.join(
           config.modRequest.platformProjectRoot,
-          "ExpoWidgetsTarget/PrivacyInfo.xcprivacy",
-        ),
-      );
+          "ExpoWidgetsTarget",
+          filename,
+        );
+        // Replace, never merge: an asset removed from src/widgets must not
+        // linger in the generated catalog.
+        fs.rmSync(target, { recursive: true, force: true });
+        fs.cpSync(
+          path.join(config.modRequest.projectRoot, "src/widgets", filename),
+          target,
+          { recursive: true },
+        );
+      }
       const widgetSource = path.join(
         config.modRequest.platformProjectRoot,
         "ExpoWidgetsTarget/ConPawsWidget.swift",
@@ -205,7 +214,8 @@ module.exports = function withConPawsWidgets(config) {
     },
   ]);
   config = withXcodeProject(config, (config) => {
-    addWidgetPrivacyManifest(config.modResults);
+    for (const filename of WIDGET_RESOURCES)
+      addWidgetResource(config.modResults, filename);
     // expo-widgets keeps an existing target's build settings on incremental
     // prebuilds. Keep variant identity and reserved store numbers in sync.
     syncWidgetBuildSettings(config.modResults, config);
@@ -266,5 +276,6 @@ module.exports.patchAndroidProvider = patchAndroidProvider;
 module.exports.patchAndroidWidgetInfo = patchAndroidWidgetInfo;
 module.exports.patchAndroidBuildGradle = patchAndroidBuildGradle;
 module.exports.patchWidgetIntentIdentity = patchWidgetIntentIdentity;
-module.exports.addWidgetPrivacyManifest = addWidgetPrivacyManifest;
+module.exports.addWidgetResource = addWidgetResource;
+module.exports.WIDGET_RESOURCES = WIDGET_RESOURCES;
 module.exports.syncWidgetBuildSettings = syncWidgetBuildSettings;

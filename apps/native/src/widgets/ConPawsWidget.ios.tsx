@@ -29,6 +29,7 @@ import {
   multilineTextAlignment,
   padding,
   progressViewStyle,
+  resizable,
   shapes,
   tint,
   widgetURL,
@@ -473,11 +474,15 @@ export function ConPawsWidgetLayout(
       <Text modifiers={[eyebrowFont, secondary, lineLimit(1)]}>{text}</Text>
     ) : null;
   }
-  function pawMark() {
+  // The ConPaws mark from the extension's asset catalog. It is a template
+  // image, so it takes the row's colour and the tinted Home Screen's accent.
+  // Its compass ring blurs below 16 points, so it does not shrink with the
+  // caption beside it.
+  function brandMark() {
     return (
       <Image
-        systemName="pawprint.fill"
-        modifiers={[font({ textStyle: "caption2" }), secondary]}
+        assetName="ConPawsMark"
+        modifiers={[resizable(), frame({ width: 16, height: 16 }), secondary]}
       />
     );
   }
@@ -489,7 +494,7 @@ export function ConPawsWidgetLayout(
         ) : null}
         {small(eyebrowText)}
         <Spacer minLength={4} />
-        {withMark ? pawMark() : null}
+        {withMark ? brandMark() : null}
       </HStack>
     );
   }
@@ -682,7 +687,7 @@ export function ConPawsWidgetLayout(
           </Text>
         </VStack>
         <Spacer minLength={4} />
-        {pawMark()}
+        {brandMark()}
       </HStack>
     );
   }

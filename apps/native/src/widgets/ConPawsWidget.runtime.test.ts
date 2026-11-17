@@ -282,6 +282,14 @@ function texts(node: unknown): string[] {
   );
 }
 
+/** Modifiers Expo UI applies on the Image itself rather than registering. */
+function imageModifierNames(registry: string): string[] {
+  const start = registry.indexOf("func applyImageModifier(");
+  if (start < 0) return [];
+  const body = registry.slice(start, registry.indexOf("default:", start));
+  return [...body.matchAll(/case "(\w+)":/g)].map(([, name]) => name);
+}
+
 function modifierValue(node: Node, type: string): unknown {
   return node.props.modifiers?.find((item) => item.type === type)?.values[0];
 }
@@ -734,11 +742,12 @@ describe("iOS widget design rules", () => {
         "utf8",
       ),
     ].join("\n");
+    const imageOnly = imageModifierNames(registries);
     for (const name of iosModifiers) {
       expect(declarations, name).toMatch(
         new RegExp(`export declare (const|function) ${name}\\b`),
       );
-      if (name === "shapes") continue;
+      if (name === "shapes" || imageOnly.includes(name)) continue;
       expect(registries, name).toContain(`register("${name}")`);
     }
     // Shape builders the layout calls must exist in the installed builder.
@@ -794,6 +803,20 @@ describe("iOS widget design rules", () => {
       for (const image of nodes(render("ios", props, family)).filter(
         (node) => node.type === "Image",
       )) {
+        // The brand mark is artwork, not a symbol: it needs resizable and a
+        // frame, or it draws at the asset's own size.
+        if (image.props.assetName) {
+          expect(image.props.assetName, state).toBe("ConPawsMark");
+          expect(
+            image.props.modifiers?.some((item) => item.type === "resizable"),
+            state,
+          ).toBe(true);
+          expect(modifierValue(image, "frame"), state).toMatchObject({
+            width: 16,
+            height: 16,
+          });
+          continue;
+        }
         // Without one, Expo UI pins the symbol at a fixed 24pt.
         const style = modifierValue(image, "font") as
           | { textStyle?: string }
@@ -1052,7 +1075,7 @@ describe("Android widget design rules", () => {
     const names = new Set(
       [...source.matchAll(/"(widget_\w+)"/g)].map(([, name]) => name),
     );
-    expect([...names].sort()).toEqual(["widget_paw", "widget_refresh"]);
+    expect([...names].sort()).toEqual(["widget_mark", "widget_refresh"]);
     for (const name of names)
       expect(readdirSync(drawables), name).toContain(`${name}.xml`);
   });

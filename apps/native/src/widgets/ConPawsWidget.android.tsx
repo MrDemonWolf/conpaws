@@ -282,7 +282,7 @@ export function ConPawsWidgetLayout(
     return (
       <Row verticalAlignment="center" modifiers={[fillMaxWidth()]}>
         <Image
-          source={{ uri: "widget_paw" }}
+          source={{ uri: "widget_mark" }}
           tint={primary}
           modifiers={[size(16, 16)]}
         />
@@ -489,15 +489,15 @@ export function ConPawsWidgetLayout(
     );
   else if (kind === "empty")
     content = centred(
-      "widget_paw",
+      "widget_mark",
       word("noConvention"),
       word("noConventionHint"),
     );
   else if (kind === "noPicks")
-    content = centred("widget_paw", word("noEvents"), word("noEventsHint"));
+    content = centred("widget_mark", word("noEvents"), word("noEventsHint"));
   else if (kind === "finished")
     content = centred(
-      "widget_paw",
+      "widget_mark",
       word("finished"),
       fill(word("finishedHint"), "name", convention?.name ?? ""),
     );
