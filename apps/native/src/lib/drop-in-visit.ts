@@ -108,3 +108,18 @@ export function validateDropInVisit(
     endTime: new Date(start + duration).toISOString(),
   };
 }
+
+/**
+ * Whether a reminder `minutesBefore` a visit starting at `startTime` would
+ * already have fired. A visit to a drop-in that is open now usually starts
+ * now, so the default lead time often lands in the past, where the system
+ * cannot schedule it.
+ */
+export function visitReminderHasPassed(
+  startTime: string,
+  minutesBefore: number | null,
+  nowMs: number,
+): boolean {
+  if (minutesBefore === null) return false;
+  return Date.parse(startTime) - minutesBefore * 60_000 <= nowMs;
+}

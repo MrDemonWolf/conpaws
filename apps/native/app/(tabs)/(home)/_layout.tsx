@@ -91,6 +91,9 @@ export default function HomeLayout() {
       <Stack.Screen
         name="convention/[id]/event/[eventId]/visit"
         options={{
+          // The iOS form uses this native header. Without a title, iOS shows
+          // the route path ("convention/[id]/event/…") in its place.
+          title: t("convention.visit.title"),
           headerLargeTitleEnabled: false,
           headerShown: FORM_HEADER_SHOWN,
           presentation: "fullScreenModal",

@@ -21,6 +21,7 @@ import {
   plannedEvent,
   VISIT_DURATIONS,
   validateDropInVisit,
+  visitReminderHasPassed,
 } from "@/lib/drop-in-visit";
 import {
   formatEventDuration,
@@ -193,7 +194,15 @@ function VisitForm({
       setSaving(false);
     }
   }
-  const canSave = validation.ok && event.feedStatus === null && !saving;
+  // A visit to a drop-in that is already open usually starts now, so the
+  // default lead time can point at a moment that has passed. The system
+  // cannot schedule that, and saving would fail with a generic error; say so
+  // here instead and let the reader pick a lead time that can still fire.
+  const reminderPassed =
+    validation.ok &&
+    visitReminderHasPassed(validation.startTime, reminder, Date.now());
+  const canSave =
+    validation.ok && event.feedStatus === null && !saving && !reminderPassed;
   return (
     <SafeView edges={FORM_SAFE_EDGES}>
       {process.env.EXPO_OS === "ios" ? (
@@ -314,7 +323,11 @@ function VisitForm({
             )}
           </Text>
         ) : null}
-        {error ? (
+        {reminderPassed ? (
+          <Text accessibilityRole="alert" testID="visit-reminder-passed">
+            {t("reminders.tooLateMessage")}
+          </Text>
+        ) : error ? (
           <Text accessibilityRole="alert">{t("reminders.errorMessage")}</Text>
         ) : null}
         {hasVisit(event) ? (

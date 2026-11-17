@@ -4,6 +4,7 @@ import {
   isValidVisit,
   plannedEvent,
   validateDropInVisit,
+  visitReminderHasPassed,
 } from "./drop-in-visit";
 
 const event = {
@@ -110,4 +111,29 @@ it("keeps legacy drop-in intent stored while omitting an unplanned opening-hours
     reminderMinutes: null,
   });
   expect(event).toMatchObject({ isInSchedule: true, reminderMinutes: 15 });
+});
+
+describe("visitReminderHasPassed", () => {
+  const start = "2026-11-17T06:00:00.000Z";
+  const at = (iso: string) => Date.parse(iso);
+
+  it("flags a lead time that lands before now", () => {
+    // Planning a visit to a drop-in that is already open: 15 minutes before
+    // a visit starting now is in the past and cannot be scheduled.
+    expect(visitReminderHasPassed(start, 15, at("2026-11-17T06:00:00Z"))).toBe(
+      true,
+    );
+    expect(visitReminderHasPassed(start, 0, at("2026-11-17T06:00:00Z"))).toBe(
+      true,
+    );
+  });
+
+  it("allows a lead time still ahead, and no reminder at all", () => {
+    expect(visitReminderHasPassed(start, 15, at("2026-11-17T05:40:00Z"))).toBe(
+      false,
+    );
+    expect(
+      visitReminderHasPassed(start, null, at("2026-11-17T07:00:00Z")),
+    ).toBe(false);
+  });
 });
