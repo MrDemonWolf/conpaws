@@ -335,15 +335,21 @@ export function ConPawsWidgetLayout(
   // The following event shares one quiet line. It may wrap to a second line
   // rather than cut a time short at large text sizes; it is the first thing a
   // short widget clips.
+  //
+  // Glance cannot tell the layout its height, and has no weight modifier. As
+  // the last child, a fill-height column takes whatever height is left, so the
+  // line sits on the widget's bottom edge: a tall widget's spare room becomes
+  // space between the card and this footer instead of a blank band under it,
+  // and a short widget leaves the column no spare room at all.
   function thenLine() {
     if (!then) return null;
     return (
-      <>
+      <Column modifiers={[fillMaxSize()]} verticalAlignment="bottom">
         {gap(8)}
         <Text color={variant} style={{ fontSize: 13 }} maxLines={2}>
           {`${fill(word("nextAt"), "time", clock(then.startAtMs, true))} · ${then.title}`}
         </Text>
-      </>
+      </Column>
     );
   }
   function eventCard(event: WidgetEventSnapshot) {
