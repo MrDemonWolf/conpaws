@@ -330,7 +330,7 @@ jobs:
 
           jq --exit-status '
             ((.services | keys) == ["xprem"]) and
-            (.services.xprem.image == "ghcr.io/mercuretechnologies/xprem:v3.2.6@sha256:e63c81b1212d553fe84a69121543eb5e376c33103bd10902bb7970519dc7e2f8") and
+            (.services.xprem.image == "ghcr.io/mercuretechnologies/xprem:v3.2.7@sha256:fd6998921c343f6151867195cc6373415d4c134b106a97ccebe9e885f848bc26") and
             (.services.xprem.read_only == true) and
             (.services.xprem.cap_drop | index("ALL") != null) and
             (.services.xprem.security_opt | index("no-new-privileges:true") != null) and
