@@ -124,6 +124,24 @@ export function parseArgs(argv) {
 }
 
 /**
+ * Uncommitted paths that matter. Prebuild regenerates the Watch targets'
+ * asset catalogs (icon and accent colours) from the build variant, so they
+ * differ from the committed copies after every preview or production
+ * prebuild. They are derived output, not source changes, and do not count.
+ */
+export function meaningfulChanges(porcelain) {
+  return porcelain
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .filter(
+      (line) =>
+        !/(^|\/)apps\/native\/targets\/[^/]+\/Assets\.xcassets\//.test(
+          line.slice(3),
+        ),
+    );
+}
+
+/**
  * Release CI state from `gh variable list --json name,value`. A missing
  * variable is the normal "off" state; anything gh cannot answer counts as
  * unknown, and unknown refuses, because a wrong guess costs a build number.
@@ -338,8 +356,9 @@ function preflight(options) {
   const variant = options.trackConfig.variant;
   const problems = guardProblems({
     dirty:
-      run("git", ["status", "--porcelain"], { quiet: true }).stdout.trim() !==
-      "",
+      meaningfulChanges(
+        run("git", ["status", "--porcelain"], { quiet: true }).stdout,
+      ).length > 0,
     releaseCi: releaseCiState(
       run("gh", ["variable", "list", "--json", "name,value"], { quiet: true }),
     ),

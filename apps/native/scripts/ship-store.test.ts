@@ -4,6 +4,7 @@ import {
   buildExportOptions,
   bundleProblems,
   guardProblems,
+  meaningfulChanges,
   parseArgs,
   releaseCiState,
   TRACKS,
@@ -238,5 +239,27 @@ describe("bundleProblems", () => {
         expectedVariant: "preview",
       }),
     ).toHaveLength(3);
+  });
+});
+
+describe("meaningfulChanges", () => {
+  it("ignores the Watch asset catalogs that prebuild regenerates", () => {
+    const porcelain = [
+      " M apps/native/targets/watch/Assets.xcassets/AppIcon.appiconset/App-Icon-1024x1024@1x.png",
+      " M apps/native/targets/watch-widget/Assets.xcassets/$accent.colorset/Contents.json",
+    ].join("\n");
+    expect(meaningfulChanges(porcelain)).toEqual([]);
+  });
+
+  it("still counts real source changes, including other Watch files", () => {
+    const porcelain = [
+      " M apps/native/targets/watch/content.swift",
+      "?? apps/native/src/new.ts",
+      " M apps/native/targets/watch/Assets.xcassets/AppIcon.appiconset/Contents.json",
+    ].join("\n");
+    expect(meaningfulChanges(porcelain)).toEqual([
+      " M apps/native/targets/watch/content.swift",
+      "?? apps/native/src/new.ts",
+    ]);
   });
 });
