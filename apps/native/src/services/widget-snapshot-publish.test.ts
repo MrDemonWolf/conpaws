@@ -20,9 +20,8 @@ vi.mock("./tracked-event", () => ({ reconcileTrackedEvent }));
 const reportError = vi.fn();
 vi.mock("@/lib/error-reporting", () => ({ reportError }));
 vi.mock("@/db/repositories/conventions", () => ({ getAll }));
-vi.mock("@/db/repositories/events", () => ({
-  getByConventionId: vi.fn(async () => []),
-}));
+const getByConventionId = vi.fn(async (_id: string): Promise<unknown[]> => []);
+vi.mock("@/db/repositories/events", () => ({ getByConventionId }));
 vi.mock("@/lib/i18n", () => ({
   default: { t: () => "", resolvedLanguage: "en", language: "en" },
 }));
@@ -47,6 +46,63 @@ describe("publishWidgetSnapshot", () => {
         presentation: expect.objectContaining({ hour12: false }),
       }),
     );
+  });
+
+  it("gives only the iOS Watch payload descriptions and options", async () => {
+    const now = Date.now();
+    const day = (offset: number) =>
+      new Date(now + offset * 86_400_000).toISOString().slice(0, 10);
+    const row = (id: string, isInSchedule: boolean) => ({
+      id,
+      conventionId: "con",
+      title: id,
+      description: `<p>About ${id}</p>`,
+      startTime: new Date(now + 600_000).toISOString(),
+      endTime: new Date(now + 4_200_000).toISOString(),
+      location: null,
+      room: null,
+      isInSchedule,
+      reminderMinutes: null,
+      ageRating: null,
+      feedStatus: null,
+    });
+    getAll.mockResolvedValue([
+      {
+        id: "con",
+        name: "Con",
+        startDate: day(-1),
+        endDate: day(1),
+        timeZone: "UTC",
+      },
+    ]);
+    getByConventionId.mockResolvedValue([
+      row("saved", true),
+      row("option", false),
+    ]);
+    try {
+      vi.stubEnv("EXPO_OS", "ios");
+      await publishWidgetSnapshot();
+      const watch = JSON.parse(publishSnapshot.mock.calls[0]?.[0] ?? "{}");
+      expect(watch.conventions[0].events[0].summary).toBe("About saved");
+      expect(watch.conventions[0].options[0]).toMatchObject({
+        id: "option",
+        summary: "About option",
+        reminderMinutes: null,
+      });
+      const phone = JSON.stringify(publishPhoneWidget.mock.calls[0]?.[0]);
+      expect(phone).not.toContain("summary");
+      expect(phone).not.toContain("options");
+
+      vi.stubEnv("EXPO_OS", "android");
+      await publishWidgetSnapshot();
+      const android = publishSnapshot.mock.calls[1]?.[0] ?? "";
+      expect(android).not.toContain("summary");
+      expect(android).not.toContain("options");
+    } finally {
+      vi.unstubAllEnvs();
+      getAll.mockReset();
+      getByConventionId.mockResolvedValue([]);
+    }
   });
 
   it("never builds two snapshots at once and coalesces mid-flight triggers", async () => {

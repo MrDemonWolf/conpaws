@@ -4,16 +4,18 @@ import { AccessibilityInfo, Alert, Linking } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { hasVisit, isValidVisit, plannedEvent } from "@/lib/drop-in-visit";
-import { reportError } from "@/lib/error-reporting";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { removeDropInVisit } from "@/services/drop-in-visit";
+import {
+  stopTrackingUnsaved,
+  toggleEventInPlan,
+} from "@/services/event-schedule";
 import { hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
   getNotificationPermissionStatus,
   scheduleEventReminder,
 } from "@/services/notifications";
-import { stopTrackingIfAffected } from "@/services/tracked-event";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /** Why a reminder could not be set, so each cause gets its own message. */
@@ -30,22 +32,6 @@ class ReminderError extends Error {
   constructor(failure: ReminderFailure) {
     super(failure);
     this.failure = failure;
-  }
-}
-
-/**
- * An event taken off the schedule stops being tracked straight away, rather
- * than at the next reconcile. The schedule write has already succeeded by the
- * time this runs, so a failure here is reported instead of failing the
- * mutation; the reconcile that follows every successful mutation still
- * catches it, because the row now reads as unsaved.
- */
-async function stopTrackingUnsaved(eventIds: readonly string[]) {
-  if (eventIds.length === 0) return;
-  try {
-    await stopTrackingIfAffected({ eventIds }, "unsaved");
-  } catch (error) {
-    reportError(error, { scope: "trackedEvent.unsaved" });
   }
 }
 
@@ -95,29 +81,9 @@ export function useEventScheduleMutations({
   const queryClient = useQueryClient();
 
   const toggleScheduleMutation = useMutation({
-    mutationFn: async (event: ConventionEvent) => {
-      if (event.isInSchedule && hasVisit(event)) {
-        await removeDropInVisit(event);
-        await stopTrackingUnsaved([event.id]);
-        return;
-      }
-      const isInSchedule = !event.isInSchedule;
-      if (isInSchedule || event.reminderMinutes === null) {
-        await eventsRepo.update(event.id, { isInSchedule });
-        if (!isInSchedule) await stopTrackingUnsaved([event.id]);
-        return;
-      }
-
-      // An event taken off the schedule keeps no reminder: leaving one armed
-      // fires a "time to leave" notification for a panel the user has already
-      // dropped, and the row no longer shows a badge that would explain it.
-      await cancelEventReminder(event.id);
-      await eventsRepo.update(event.id, {
-        isInSchedule,
-        reminderMinutes: null,
-      });
-      await stopTrackingUnsaved([event.id]);
-    },
+    // Shared with the Watch's save and remove commands, so a panel dropped on
+    // the wrist loses its visit, reminder and tracking exactly as a star does.
+    mutationFn: (event: ConventionEvent) => toggleEventInPlan(event),
     onSuccess: (_, event) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
       if (hasVisit(event) && event.isInSchedule) {

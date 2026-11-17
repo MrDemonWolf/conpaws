@@ -196,7 +196,8 @@ struct ScheduleStateTests {
       endAtMs: (end ?? now.addingTimeInterval(86_400)).timeIntervalSince1970 * 1_000,
       timeZoneIdentifier: "UTC",
       dateRangeLabel: "",
-      events: events
+      events: events,
+      options: nil
     )
   }
 
@@ -222,7 +223,8 @@ struct ScheduleStateTests {
       location: nil,
       room: nil,
       reminderMinutes: reminderMinutes,
-      ageRating: nil
+      ageRating: nil,
+      summary: nil
     )
   }
 

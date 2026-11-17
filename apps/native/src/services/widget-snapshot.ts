@@ -18,6 +18,8 @@ import i18n from "@/lib/i18n";
 import { getNativeMaterialColors } from "@/lib/native-material-colors";
 import { themeTokens } from "@/lib/theme-tokens";
 import type { WidgetStrings } from "@/widgets/ConPawsWidget.types";
+import { handledWatchCommandIds } from "./watch-command-receipts";
+import { withWatchExtras } from "./watch-snapshot";
 
 /**
  * Paired colour roles for the Android widget. The container roles were added
@@ -264,6 +266,14 @@ function eventSnapshot(
   // the answer is never a panel the convention stopped running. There is no
   // room on those surfaces to explain the difference.
   if (event.feedStatus !== null) return null;
+  return toWidgetEvent(event, localeIdentifier);
+}
+
+/** One row in the widget's shape; null without a usable start. */
+function toWidgetEvent(
+  event: ConventionEvent,
+  localeIdentifier: string,
+): WidgetEventSnapshot | null {
   const startAtMs = Date.parse(event.startTime);
   if (!Number.isFinite(startAtMs)) return null;
   const parsedEnd = event.endTime ? Date.parse(event.endTime) : Number.NaN;
@@ -425,9 +435,10 @@ async function buildSnapshotAndPublish(
         ] as const,
     ),
   );
+  const eventsByConvention = new Map(eventEntries);
   const snapshot = buildWidgetSnapshot(
     conventions,
-    new Map(eventEntries),
+    eventsByConvention,
     i18n.resolvedLanguage || i18n.language || "en",
     Date.now(),
     getTimeFormatPreference(),
@@ -450,9 +461,21 @@ async function buildSnapshotAndPublish(
   snapshot.presentation.strings =
     nativeWidgetModule.getWidgetStrings?.(snapshot.localeIdentifier) ??
     undefined;
-  // Watch and the Android timer only need schedule data, not phone layout strings.
+  // Watch and the Android timer only need schedule data, not phone layout
+  // strings. On iOS the Watch also gets descriptions and the options it may
+  // add from; the phone widgets below keep the plain snapshot.
   const published = await nativeWidgetModule.publishSnapshot(
-    JSON.stringify({ ...snapshot, presentation: undefined }),
+    withWatchExtras(snapshot, eventsByConvention, {
+      os: process.env.EXPO_OS,
+      nowMs: snapshot.generatedAtMs,
+      // Unsaved, so no reminder: a stale one on the row would claim one.
+      toOption: (event) =>
+        toWidgetEvent(
+          { ...event, reminderMinutes: null },
+          snapshot.localeIdentifier,
+        ),
+      handledCommandIds: handledWatchCommandIds(snapshot.generatedAtMs),
+    }),
   );
   const { publishPhoneWidget } = await import("./widget-publication");
   publishPhoneWidget(snapshot);

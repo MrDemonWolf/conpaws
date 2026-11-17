@@ -125,6 +125,7 @@ import {
   updateQuickActionLabels,
 } from "@/services/quick-actions";
 import { initTrackedEvent } from "@/services/tracked-event";
+import { initWatchCommands } from "@/services/watch-commands";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
@@ -325,6 +326,24 @@ function RootLayout() {
   useEffect(() => {
     if (!ready || !translationsReady || databaseInitError) return;
     return initTrackedEvent();
+  }, [ready, translationsReady, databaseInitError]);
+
+  // Save and remove taps from the Apple Watch, queued natively until the
+  // database is usable. Same gate as tracking: applying one writes event rows
+  // and can stop the tracked event.
+  useEffect(() => {
+    if (!ready || !translationsReady || databaseInitError) return;
+    return initWatchCommands({
+      refreshCaches: (conventionIds) =>
+        Promise.allSettled([
+          ...conventionIds.map((conventionId) =>
+            queryClient.invalidateQueries({
+              queryKey: ["events", conventionId],
+            }),
+          ),
+          queryClient.invalidateQueries({ queryKey: ["schedule"] }),
+        ]),
+    });
   }, [ready, translationsReady, databaseInitError]);
 
   useEffect(() => {

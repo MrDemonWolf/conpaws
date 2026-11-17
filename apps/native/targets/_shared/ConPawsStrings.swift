@@ -279,6 +279,18 @@ struct ConPawsStrings: Codable, Sendable {
   let staleHint: String
   let staleHintShort: String
   let staleA11yFormat: String
+
+  // MARK: Watch plan actions (2026-11)
+  //
+  // Copied verbatim from the app catalogs (keys in watch-strings-parity.test.ts),
+  // so the Watch says what the phone says about the same panel.
+
+  let aboutThisPanel: String
+  let removeFromPlan: String
+  let addToPlan: String
+  let otherOptionsThisHour: String
+  let remove: String
+  let saved: String
 }
 
 // MARK: - Substitution
@@ -467,6 +479,12 @@ extension ConPawsStrings {
     staleHint: "Open ConPaws to check for changes",
     staleHintShort: "This plan may be out of date",
     staleA11yFormat: "Last updated %@. Open ConPaws to check for changes.",
+    aboutThisPanel: "About this panel",
+    removeFromPlan: "Remove from my plan",
+    addToPlan: "Add to my plan",
+    otherOptionsThisHour: "Other options this hour",
+    remove: "Remove",
+    saved: "Saved",
   )
 
   private static let de = ConPawsStrings(
@@ -548,6 +566,12 @@ extension ConPawsStrings {
     staleHint: "Öffne ConPaws, um nach Änderungen zu sehen",
     staleHintShort: "Dieser Plan ist möglicherweise nicht aktuell",
     staleA11yFormat: "Zuletzt aktualisiert %@. Öffne ConPaws, um nach Änderungen zu sehen.",
+    aboutThisPanel: "Über dieses Panel",
+    removeFromPlan: "Aus meinem Plan entfernen",
+    addToPlan: "Zu meinem Plan hinzufügen",
+    otherOptionsThisHour: "Weitere Optionen in dieser Stunde",
+    remove: "Entfernen",
+    saved: "Gespeichert",
   )
 
   private static let esES = ConPawsStrings(
@@ -625,6 +649,12 @@ extension ConPawsStrings {
     staleHint: "Abre ConPaws para comprobar si hay cambios",
     staleHintShort: "Puede que este plan esté desactualizado",
     staleA11yFormat: "Última actualización %@. Abre ConPaws para comprobar si hay cambios.",
+    aboutThisPanel: "Sobre este panel",
+    removeFromPlan: "Quitar de mi plan",
+    addToPlan: "Añadir a mi plan",
+    otherOptionsThisHour: "Otras opciones esta hora",
+    remove: "Quitar",
+    saved: "Guardado",
   )
 
   private static let fr = ConPawsStrings(
@@ -702,6 +732,12 @@ extension ConPawsStrings {
     staleHint: "Ouvre ConPaws pour vérifier les changements",
     staleHintShort: "Ce programme n’est peut-être plus à jour",
     staleA11yFormat: "Dernière mise à jour %@. Ouvre ConPaws pour vérifier les changements.",
+    aboutThisPanel: "À propos de ce panel",
+    removeFromPlan: "Retirer de mon plan",
+    addToPlan: "Ajouter à mon plan",
+    otherOptionsThisHour: "Autres options cette heure-ci",
+    remove: "Retirer",
+    saved: "Enregistré",
   )
 
   private static let nl = ConPawsStrings(
@@ -779,6 +815,12 @@ extension ConPawsStrings {
     staleHint: "Open ConPaws om wijzigingen te controleren",
     staleHintShort: "Dit schema is mogelijk verouderd",
     staleA11yFormat: "Laatst bijgewerkt %@. Open ConPaws om wijzigingen te controleren.",
+    aboutThisPanel: "Over dit panel",
+    removeFromPlan: "Uit mijn plan verwijderen",
+    addToPlan: "Aan mijn plan toevoegen",
+    otherOptionsThisHour: "Andere opties dit uur",
+    remove: "Verwijderen",
+    saved: "Bewaard",
   )
 
   private static let pl = ConPawsStrings(
@@ -866,6 +908,12 @@ extension ConPawsStrings {
     staleHint: "Otwórz ConPaws, aby sprawdzić zmiany",
     staleHintShort: "Plan może być nieaktualny",
     staleA11yFormat: "Ostatnia aktualizacja %@. Otwórz ConPaws, aby sprawdzić zmiany.",
+    aboutThisPanel: "O tym panelu",
+    removeFromPlan: "Usuń z mojego planu",
+    addToPlan: "Dodaj do mojego planu",
+    otherOptionsThisHour: "Inne opcje w tej godzinie",
+    remove: "Usuń",
+    saved: "Zapisano",
   )
 
   private static let ptBR = ConPawsStrings(
@@ -943,6 +991,12 @@ extension ConPawsStrings {
     staleHint: "Abra o ConPaws para conferir se há mudanças",
     staleHintShort: "Este plano pode estar desatualizado",
     staleA11yFormat: "Última atualização %@. Abra o ConPaws para conferir se há mudanças.",
+    aboutThisPanel: "Sobre este painel",
+    removeFromPlan: "Remover do meu plano",
+    addToPlan: "Adicionar ao meu plano",
+    otherOptionsThisHour: "Outras opções nesta hora",
+    remove: "Remover",
+    saved: "Salvo",
   )
 
   private static let sv = ConPawsStrings(
@@ -1020,6 +1074,12 @@ extension ConPawsStrings {
     staleHint: "Öppna ConPaws för att söka efter ändringar",
     staleHintShort: "Planen kan vara inaktuell",
     staleA11yFormat: "Uppdaterad senast %@. Öppna ConPaws för att söka efter ändringar.",
+    aboutThisPanel: "Om den här panelen",
+    removeFromPlan: "Ta bort från min plan",
+    addToPlan: "Lägg till i min plan",
+    otherOptionsThisHour: "Andra alternativ den här timmen",
+    remove: "Ta bort",
+    saved: "Sparad",
   )
 
   private static let es419 = ConPawsStrings(
@@ -1097,6 +1157,12 @@ extension ConPawsStrings {
     staleHint: "Abre ConPaws para revisar si hay cambios",
     staleHintShort: "Puede que este plan esté desactualizado",
     staleA11yFormat: "Última actualización %@. Abre ConPaws para revisar si hay cambios.",
+    aboutThisPanel: "Sobre este panel",
+    removeFromPlan: "Quitar de mi plan",
+    addToPlan: "Agregar a mi plan",
+    otherOptionsThisHour: "Otras opciones esta hora",
+    remove: "Quitar",
+    saved: "Guardado",
   )
 
   private static let ptPT = ConPawsStrings(
@@ -1174,6 +1240,12 @@ extension ConPawsStrings {
     staleHint: "Abre o ConPaws para verificar alterações",
     staleHintShort: "Este plano pode estar desatualizado",
     staleA11yFormat: "Última atualização %@. Abre o ConPaws para verificar alterações.",
+    aboutThisPanel: "Sobre este painel",
+    removeFromPlan: "Remover do meu plano",
+    addToPlan: "Adicionar ao meu plano",
+    otherOptionsThisHour: "Outras opções nesta hora",
+    remove: "Remover",
+    saved: "Guardado",
   )
 
   private static let ja = ConPawsStrings(
@@ -1251,6 +1323,12 @@ extension ConPawsStrings {
     staleHint: "ConPawsを開いて変更を確認",
     staleHintShort: "プランが古い可能性があります",
     staleA11yFormat: "最終更新%@。ConPawsを開いて変更を確認してください。",
+    aboutThisPanel: "このパネルについて",
+    removeFromPlan: "マイプランから外す",
+    addToPlan: "マイプランに追加",
+    otherOptionsThisHour: "この時間の他の候補",
+    remove: "削除",
+    saved: "保存済み",
   )
 
   private static let zhTW = ConPawsStrings(
@@ -1328,6 +1406,12 @@ extension ConPawsStrings {
     staleHint: "開啟 ConPaws 檢查是否有變更",
     staleHintShort: "計畫可能已過時",
     staleA11yFormat: "最後更新於%@。開啟 ConPaws 檢查是否有變更。",
+    aboutThisPanel: "關於這場活動",
+    removeFromPlan: "移出我的計畫",
+    addToPlan: "加入我的計畫",
+    otherOptionsThisHour: "這個時段的其他選擇",
+    remove: "移除",
+    saved: "已收藏",
   )
 
   private static let zhCN = ConPawsStrings(
@@ -1405,6 +1489,12 @@ extension ConPawsStrings {
     staleHint: "打开 ConPaws 检查更改",
     staleHintShort: "此计划可能已过时",
     staleA11yFormat: "最后更新于%@。打开 ConPaws 检查更改。",
+    aboutThisPanel: "关于这场活动",
+    removeFromPlan: "移出我的计划",
+    addToPlan: "加入我的计划",
+    otherOptionsThisHour: "这个时段的其他选择",
+    remove: "移除",
+    saved: "已收藏",
   )
 
   private static let ko = ConPawsStrings(
@@ -1482,6 +1572,12 @@ extension ConPawsStrings {
     staleHint: "ConPaws를 열어 변경 사항 확인",
     staleHintShort: "일정이 최신이 아닐 수 있습니다",
     staleA11yFormat: "마지막 업데이트 %@. ConPaws를 열어 변경 사항을 확인하세요.",
+    aboutThisPanel: "이 패널 소개",
+    removeFromPlan: "내 일정에서 제거",
+    addToPlan: "내 일정에 추가",
+    otherOptionsThisHour: "이 시간대의 다른 선택지",
+    remove: "제거",
+    saved: "저장됨",
   )
 
   private static let it = ConPawsStrings(
@@ -1559,6 +1655,12 @@ extension ConPawsStrings {
     staleHint: "Apri ConPaws per controllare gli aggiornamenti",
     staleHintShort: "Il piano potrebbe non essere aggiornato",
     staleA11yFormat: "Ultimo aggiornamento %@. Apri ConPaws per controllare gli aggiornamenti.",
+    aboutThisPanel: "Su questo panel",
+    removeFromPlan: "Rimuovi dal mio piano",
+    addToPlan: "Aggiungi al mio piano",
+    otherOptionsThisHour: "Altre opzioni in quest’ora",
+    remove: "Rimuovi",
+    saved: "Salvato",
   )
 
   private static let ms = ConPawsStrings(
@@ -1636,6 +1738,12 @@ extension ConPawsStrings {
     staleHint: "Buka ConPaws untuk menyemak perubahan",
     staleHintShort: "Pelan ini mungkin sudah lapuk",
     staleA11yFormat: "Kemas kini terakhir %@. Buka ConPaws untuk menyemak perubahan.",
+    aboutThisPanel: "Tentang panel ini",
+    removeFromPlan: "Keluarkan daripada pelan saya",
+    addToPlan: "Tambah ke pelan saya",
+    otherOptionsThisHour: "Pilihan lain pada jam ini",
+    remove: "Alih keluar",
+    saved: "Disimpan",
   )
 
   private static let da = ConPawsStrings(
@@ -1713,6 +1821,12 @@ extension ConPawsStrings {
     staleHint: "Åbn ConPaws for at tjekke for ændringer",
     staleHintShort: "Planen kan være forældet",
     staleA11yFormat: "Sidst opdateret %@. Åbn ConPaws for at tjekke for ændringer.",
+    aboutThisPanel: "Om dette panel",
+    removeFromPlan: "Fjern fra min plan",
+    addToPlan: "Føj til min plan",
+    otherOptionsThisHour: "Andre muligheder denne time",
+    remove: "Fjern",
+    saved: "Gemt",
   )
 
   private static let nb = ConPawsStrings(
@@ -1790,6 +1904,12 @@ extension ConPawsStrings {
     staleHint: "Åpne ConPaws for å se etter endringer",
     staleHintShort: "Planen kan være utdatert",
     staleA11yFormat: "Sist oppdatert %@. Åpne ConPaws for å se etter endringer.",
+    aboutThisPanel: "Om dette panelet",
+    removeFromPlan: "Fjern fra min plan",
+    addToPlan: "Legg til i min plan",
+    otherOptionsThisHour: "Andre alternativer denne timen",
+    remove: "Fjern",
+    saved: "Lagret",
   )
 
   private static let fi = ConPawsStrings(
@@ -1867,6 +1987,12 @@ extension ConPawsStrings {
     staleHint: "Avaa ConPaws ja tarkista muutokset",
     staleHintShort: "Suunnitelma ei ehkä ole ajan tasalla",
     staleA11yFormat: "Päivitetty viimeksi %@. Avaa ConPaws ja tarkista muutokset.",
+    aboutThisPanel: "Tietoa paneelista",
+    removeFromPlan: "Poista suunnitelmastani",
+    addToPlan: "Lisää suunnitelmaani",
+    otherOptionsThisHour: "Muita vaihtoehtoja tällä tunnilla",
+    remove: "Poista",
+    saved: "Tallennettu",
   )
 
   private static let cs = ConPawsStrings(
@@ -1944,6 +2070,12 @@ extension ConPawsStrings {
     staleHint: "Otevři ConPaws a zkontroluj změny",
     staleHintShort: "Plán může být zastaralý",
     staleA11yFormat: "Naposledy aktualizováno %@. Otevři ConPaws a zkontroluj změny.",
+    aboutThisPanel: "O tomto panelu",
+    removeFromPlan: "Odebrat z mého plánu",
+    addToPlan: "Přidat do mého plánu",
+    otherOptionsThisHour: "Další možnosti v této hodině",
+    remove: "Odebrat",
+    saved: "Uloženo",
   )
 
   private static let hu = ConPawsStrings(
@@ -2021,6 +2153,12 @@ extension ConPawsStrings {
     staleHint: "Nyisd meg a ConPawst a változások ellenőrzéséhez",
     staleHintShort: "Lehet, hogy ez a terv elavult",
     staleA11yFormat: "Utolsó frissítés %@. Nyisd meg a ConPawst a változások ellenőrzéséhez.",
+    aboutThisPanel: "Erről a panelről",
+    removeFromPlan: "Eltávolítás a tervemből",
+    addToPlan: "Hozzáadás a tervemhez",
+    otherOptionsThisHour: "Más lehetőségek ebben az órában",
+    remove: "Eltávolítás",
+    saved: "Mentve",
   )
 
   private static let uk = ConPawsStrings(
@@ -2098,6 +2236,12 @@ extension ConPawsStrings {
     staleHint: "Відкрий ConPaws, щоб перевірити зміни",
     staleHintShort: "План може бути застарілим",
     staleA11yFormat: "Востаннє оновлено %@. Відкрий ConPaws, щоб перевірити зміни.",
+    aboutThisPanel: "Про цю панель",
+    removeFromPlan: "Прибрати з мого плану",
+    addToPlan: "Додати до мого плану",
+    otherOptionsThisHour: "Інші варіанти цієї години",
+    remove: "Прибрати",
+    saved: "Збережено",
   )
 
   private static let ru = ConPawsStrings(
@@ -2175,5 +2319,11 @@ extension ConPawsStrings {
     staleHint: "Открой ConPaws, чтобы проверить изменения",
     staleHintShort: "План может быть неактуальным",
     staleA11yFormat: "Последнее обновление %@. Открой ConPaws, чтобы проверить изменения.",
+    aboutThisPanel: "Об этой панели",
+    removeFromPlan: "Убрать из моего плана",
+    addToPlan: "Добавить в мой план",
+    otherOptionsThisHour: "Другие варианты в этот час",
+    remove: "Убрать",
+    saved: "Сохранено",
   )
 }

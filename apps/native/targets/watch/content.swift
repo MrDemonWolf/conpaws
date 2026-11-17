@@ -11,6 +11,9 @@ import SwiftUI
 private enum WatchRoute: Hashable {
   case today
   case event(conventionID: String, eventID: String)
+  /// An unsaved panel from "Other options this hour". Kept when the panel is
+  /// added: the same screen then shows it as saved rather than popping.
+  case option(conventionID: String, eventID: String)
 }
 
 struct ContentView: View {
@@ -45,11 +48,20 @@ struct ContentView: View {
     .environment(\.locale, store.snapshot.locale)
     .onChange(of: store.snapshot.generatedAtMs) {
       // A new schedule can drop the event a detail screen is showing. Pop it
-      // rather than leave the reader on an empty screen.
+      // rather than leave the reader on an empty screen. That includes an
+      // event removed from here: once the phone confirms, there is nothing
+      // left to show.
       let snapshot = store.snapshot
       path.removeAll { route in
-        guard case .event(let conventionID, let eventID) = route else { return false }
-        return snapshot.event(id: eventID, in: conventionID) == nil
+        switch route {
+        case .today:
+          return false
+        case .event(let conventionID, let eventID):
+          return snapshot.event(id: eventID, in: conventionID) == nil
+        case .option(let conventionID, let eventID):
+          return snapshot.event(id: eventID, in: conventionID) == nil
+            && snapshot.option(id: eventID, in: conventionID) == nil
+        }
       }
     }
   }
@@ -77,19 +89,56 @@ private struct WatchRouteView: View {
             event: found.event,
             convention: found.convention,
             now: context.date,
-            strings: snapshot.strings
+            strings: snapshot.strings,
+            planAction: planAction(.remove, found.event, found.convention, now: context.date)
+          )
+        }
+      case .option(let conventionID, let eventID):
+        if let found = snapshot.event(id: eventID, in: conventionID) {
+          // Added from this screen and confirmed by the phone.
+          EventDetailView(
+            event: found.event,
+            convention: found.convention,
+            now: context.date,
+            strings: snapshot.strings,
+            planAction: planAction(.remove, found.event, found.convention, now: context.date),
+            confirmsSaved: true
+          )
+        } else if let found = snapshot.option(id: eventID, in: conventionID) {
+          EventDetailView(
+            event: found.event,
+            convention: found.convention,
+            now: context.date,
+            strings: snapshot.strings,
+            planAction: planAction(.add, found.event, found.convention, now: context.date)
           )
         }
       }
+    }
+  }
+
+  private func planAction(
+    _ kind: WatchPlanAction.Kind,
+    _ event: ConPawsEventSnapshot,
+    _ convention: ConPawsConventionSnapshot,
+    now: Date
+  ) -> WatchPlanAction {
+    WatchPlanAction(
+      kind: kind,
+      // Either direction: a remove waiting on the phone also blocks an add.
+      isPending: store.pendingAction(for: event.id, now: now) != nil
+    ) { [store] in
+      store.send(kind == .add ? .save : .remove, event: event, convention: convention)
     }
   }
 }
 
 /// The root screen for whichever state the schedule is in.
 ///
-/// Always On redacts per view, not per screen: only event titles, rooms and
-/// age ratings are `privacySensitive`, so the system hides those wrist-down
-/// while the countdown, the clock times and the convention name stay readable.
+/// Always On redacts per view, not per screen: only event titles, rooms, age
+/// ratings and descriptions are `privacySensitive`, so the system hides those
+/// wrist-down while the countdown, the clock times and the convention name
+/// stay readable.
 /// A crowded hall can read a title off a raised wrist; the countdown is the
 /// reason this app opts into Always On at all. Card fills drop too (see
 /// `CardBackground`).
@@ -124,11 +173,26 @@ private struct WatchRootView: View {
         snapshotDate: snapshotDate,
         strings: strings
       )
-    case .noPicks:
-      EmptyScheduleView(
-        title: strings.noPicksTitle,
-        message: strings.noPicksWatchMessage
-      )
+    case .noPicks(let convention):
+      // An empty plan is when adding from the wrist matters most -- removing
+      // the last saved panel here lands on this screen -- so the hour's
+      // options stay offered under the empty state rather than vanish.
+      let options = convention.optionsThisHour(at: now)
+      if options.isEmpty {
+        EmptyScheduleView(
+          title: strings.noPicksTitle,
+          message: strings.noPicksWatchMessage
+        )
+      } else {
+        NoPicksOptionsView(
+          convention: convention,
+          options: options,
+          now: now,
+          isUsingSavedSchedule: isUsingSavedSchedule,
+          snapshotDate: snapshotDate,
+          strings: strings
+        )
+      }
     case .next, .currentOnly, .finished:
       ScheduleHomeView(
         schedule: schedule,
@@ -275,6 +339,12 @@ private struct ScheduleHomeView: View {
           if !schedule.todayEvents.isEmpty {
             TodayLinkRow(count: schedule.todayEvents.count, strings: strings)
           }
+
+          OtherOptionsSection(
+            convention: convention,
+            options: convention.optionsThisHour(at: schedule.now),
+            strings: strings
+          )
         }
 
         if isUsingSavedSchedule {
@@ -413,6 +483,74 @@ private struct ScheduleHomeView: View {
   }
 }
 
+/// The phone's "Other options this hour", by this watch's clock. Each row
+/// opens the panel with an Add button. Draws nothing without options.
+private struct OtherOptionsSection: View {
+  @Environment(\.locale) private var locale
+  let convention: ConPawsConventionSnapshot
+  let options: [ConPawsEventSnapshot]
+  let strings: ConPawsStrings
+
+  var body: some View {
+    if !options.isEmpty {
+      SectionLabel(title: strings.otherOptionsThisHour)
+      ForEach(options) { option in
+        EventCard(
+          eyebrow: WatchFormat.timeRange(option, in: convention, locale: locale),
+          event: option,
+          conventionID: convention.id,
+          accented: false,
+          route: .option(conventionID: convention.id, eventID: option.id)
+        ) {
+          if let place = option.shortPlace {
+            Text(place).privacySensitive()
+          }
+        }
+      }
+    }
+  }
+}
+
+/// No saved panels yet, but some running this hour: the empty state's words,
+/// then the options to add from.
+private struct NoPicksOptionsView: View {
+  let convention: ConPawsConventionSnapshot
+  let options: [ConPawsEventSnapshot]
+  let now: Date
+  let isUsingSavedSchedule: Bool
+  var snapshotDate: Date?
+  let strings: ConPawsStrings
+
+  var body: some View {
+    ScrollView {
+      LazyVStack(alignment: .leading, spacing: WatchMetrics.cardSpacing) {
+        VStack(spacing: 4) {
+          Text(strings.noPicksTitle)
+            .font(.headline)
+            .accessibilityAddTraits(.isHeader)
+          Text(strings.noPicksWatchMessage)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 6)
+        .accessibilityElement(children: .combine)
+
+        OtherOptionsSection(convention: convention, options: options, strings: strings)
+
+        if isUsingSavedSchedule {
+          SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate, now: now)
+            .padding(.horizontal, WatchMetrics.cardInset)
+        }
+      }
+      .padding(.horizontal, 4)
+      .padding(.bottom, 8)
+    }
+    .navigationTitle(strings.scheduleTitle)
+  }
+}
+
 /// The finished state's message, centered under the header.
 private struct FinishedStatusView: View {
   let convention: ConPawsConventionSnapshot
@@ -510,10 +648,12 @@ private struct EventCard<Detail: View>: View {
   let event: ConPawsEventSnapshot
   let conventionID: String
   var accented = true
+  /// Where the card leads; a saved event's detail unless told otherwise.
+  var route: WatchRoute?
   @ViewBuilder var detail: Detail
 
   var body: some View {
-    NavigationLink(value: WatchRoute.event(conventionID: conventionID, eventID: event.id)) {
+    NavigationLink(value: route ?? WatchRoute.event(conventionID: conventionID, eventID: event.id)) {
       VStack(alignment: .leading, spacing: 3) {
         // Callers hand this over in the case it is drawn in. Upper-casing here
         // instead would also hit the clock times the later-event cards use as
@@ -748,12 +888,28 @@ private struct TodayRow: View {
   }
 }
 
+/// Add or remove, as the detail screen's last control.
+private struct WatchPlanAction {
+  enum Kind {
+    case add
+    case remove
+  }
+
+  let kind: Kind
+  /// Sent and not yet confirmed by a snapshot from the phone.
+  let isPending: Bool
+  let perform: () -> Void
+}
+
 private struct EventDetailView: View {
   @Environment(\.locale) private var locale
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
   let now: Date
   let strings: ConPawsStrings
+  var planAction: WatchPlanAction?
+  /// The panel was just added from this screen; say so once it is confirmed.
+  var confirmsSaved = false
 
   private var hasEnded: Bool {
     ConPawsScheduleResolver.effectiveEnd(of: event) <= now
@@ -769,6 +925,8 @@ private struct EventDetailView: View {
           .fixedSize(horizontal: false, vertical: true)
           .privacySensitive()
           .accessibilityAddTraits(.isHeader)
+
+        savedConfirmation
 
         status
 
@@ -811,10 +969,50 @@ private struct EventDetailView: View {
               .accessibilityHidden(true)
           }
         }
+
+        if let summary = event.summary {
+          VStack(alignment: .leading, spacing: 2) {
+            Text(strings.aboutThisPanel)
+              .font(.caption2.bold())
+              .foregroundStyle(.secondary)
+              .accessibilityAddTraits(.isHeader)
+            // Hidden wrist-down like the title: a description can say as much.
+            Text(summary)
+              .font(.footnote)
+              .fixedSize(horizontal: false, vertical: true)
+              .privacySensitive()
+          }
+          .padding(.top, 4)
+        }
+
+        if let planAction {
+          PlanActionButton(action: planAction, eventTitle: event.title, strings: strings)
+            .padding(.top, 6)
+        }
       }
       .font(.callout)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, 8)
+    }
+    .onAppear {
+      // The branch that draws this replaces the option screen the moment the
+      // phone confirms, so appearing is the confirmation.
+      if confirmsSaved {
+        AccessibilityNotification.Announcement(strings.saved).post()
+      }
+    }
+  }
+
+  @ViewBuilder private var savedConfirmation: some View {
+    if confirmsSaved {
+      Label {
+        Text(strings.saved)
+      } icon: {
+        Image(systemName: "checkmark.circle.fill")
+          .accessibilityHidden(true)
+      }
+      .font(.caption.bold())
+      .foregroundStyle(Color.accentColor)
     }
   }
 
@@ -868,6 +1066,49 @@ private struct EventDetailView: View {
       )
     else { return range }
     return "\(day) · \(range)"
+  }
+}
+
+/// "Add to my plan" straight away; "Remove from my plan" after a
+/// confirmation, since it also drops the reminder and any visit.
+///
+/// While the phone has not confirmed, the label is a spinner, whose system
+/// "In progress" label is what VoiceOver reads, and the button is disabled so
+/// a second tap cannot send a second command.
+private struct PlanActionButton: View {
+  @Environment(\.redactionReasons) private var redactionReasons
+  @Environment(\.isLuminanceReduced) private var isLuminanceReduced
+  let action: WatchPlanAction
+  let eventTitle: String
+  let strings: ConPawsStrings
+  @State private var isConfirmingRemoval = false
+
+  /// A dialog title cannot be marked `privacySensitive`, so wrist-down it
+  /// names the action instead of the panel, the way every other title on
+  /// these screens is hidden.
+  private var dialogTitle: String {
+    redactionReasons.contains(.privacy) || isLuminanceReduced
+      ? strings.removeFromPlan
+      : eventTitle
+  }
+
+  var body: some View {
+    Button(role: action.kind == .remove ? .destructive : nil) {
+      switch action.kind {
+      case .add: action.perform()
+      case .remove: isConfirmingRemoval = true
+      }
+    } label: {
+      if action.isPending {
+        ProgressView()
+      } else {
+        Text(action.kind == .add ? strings.addToPlan : strings.removeFromPlan)
+      }
+    }
+    .disabled(action.isPending)
+    .confirmationDialog(dialogTitle, isPresented: $isConfirmingRemoval, titleVisibility: .visible) {
+      Button(strings.remove, role: .destructive, action: action.perform)
+    }
   }
 }
 
@@ -1201,6 +1442,19 @@ private extension ConPawsSnapshot {
     else { return nil }
     return (event, convention)
   }
+
+  /// An unsaved option, from the whole window the phone sent rather than the
+  /// current hour, so a detail screen outlives the hour that listed it.
+  func option(
+    id eventID: String,
+    in conventionID: String
+  ) -> (event: ConPawsEventSnapshot, convention: ConPawsConventionSnapshot)? {
+    guard
+      let convention = conventions.first(where: { $0.id == conventionID }),
+      let option = convention.options?.first(where: { $0.id == eventID })
+    else { return nil }
+    return (option, convention)
+  }
 }
 
 private extension ConPawsConventionSnapshot {
@@ -1225,7 +1479,8 @@ func runWatchScheduleSelfCheck() {
     location: nil,
     room: nil,
     reminderMinutes: nil,
-    ageRating: nil
+    ageRating: nil,
+    summary: nil
   )
   let next = ConPawsEventSnapshot(
     id: "next",
@@ -1235,7 +1490,8 @@ func runWatchScheduleSelfCheck() {
     location: nil,
     room: nil,
     reminderMinutes: 30,
-    ageRating: nil
+    ageRating: nil,
+    summary: nil
   )
   let convention = ConPawsConventionSnapshot(
     id: "con",
@@ -1244,7 +1500,8 @@ func runWatchScheduleSelfCheck() {
     endAtMs: now.addingTimeInterval(86_400).timeIntervalSince1970 * 1_000,
     timeZoneIdentifier: "UTC",
     dateRangeLabel: "Today",
-    events: [current, next]
+    events: [current, next],
+    options: nil
   )
   let snapshot = ConPawsSnapshot(
     schemaVersion: 1,
@@ -1263,6 +1520,9 @@ func runWatchScheduleSelfCheck() {
   // does not, which is what pops a stale detail screen.
   assert(snapshot.event(id: "next", in: "con")?.event.id == "next")
   assert(snapshot.event(id: "next", in: "other") == nil)
+  // A saved event is never also an option, so an option route resolves to
+  // one or the other.
+  assert(snapshot.option(id: "next", in: "con") == nil)
   let deepLink = ConPawsSnapshotStore.appURL(conventionID: "con /?#")
   let deepLinkComponents = deepLink.flatMap {
     URLComponents(url: $0, resolvingAgainstBaseURL: false)
@@ -1341,7 +1601,8 @@ private enum WatchPreviewFixtures {
     minutes: Double = 60,
     room: String? = "Studio B",
     reminderMinutes: Int? = nil,
-    ageRating: String? = nil
+    ageRating: String? = nil,
+    summary: String? = nil
   ) -> ConPawsEventSnapshot {
     ConPawsEventSnapshot(
       id: id,
@@ -1351,11 +1612,15 @@ private enum WatchPreviewFixtures {
       location: "ConPaws Convention Center",
       room: room,
       reminderMinutes: reminderMinutes,
-      ageRating: ageRating
+      ageRating: ageRating,
+      summary: summary
     )
   }
 
-  private static func snapshot(_ events: [ConPawsEventSnapshot]) -> ConPawsSnapshot {
+  private static func snapshot(
+    _ events: [ConPawsEventSnapshot],
+    options: [ConPawsEventSnapshot]? = nil
+  ) -> ConPawsSnapshot {
     ConPawsSnapshot(
       schemaVersion: 2,
       generatedAtMs: now.timeIntervalSince1970 * 1_000,
@@ -1368,7 +1633,8 @@ private enum WatchPreviewFixtures {
           endAtMs: at(days: 4, hour: 23).timeIntervalSince1970 * 1_000,
           timeZoneIdentifier: TimeZone.autoupdatingCurrent.identifier,
           dateRangeLabel: "Preview dates",
-          events: events
+          events: events,
+          options: options
         ),
       ]
     )
@@ -1394,6 +1660,43 @@ private enum WatchPreviewFixtures {
       event("after", "Art Show Tour", from: now.addingTimeInterval(7_200)),
     ])
   }
+
+  /// Saved panels plus two unsaved ones in this hour, with descriptions.
+  static var options: ConPawsSnapshot {
+    let hour = calendar.dateInterval(of: .hour, for: now)?.start ?? now
+    return snapshot(
+      [
+        event(
+          "running",
+          "Fursuit Parade Staging",
+          from: now.addingTimeInterval(-1_800),
+          room: "Main Ballroom",
+          summary: "Line up by colour group. Handlers stay with their suiters until the parade leaves."
+        ),
+        event("after", "Art Show Tour", from: now.addingTimeInterval(7_200)),
+      ],
+      options: [
+        event(
+          "option-1",
+          "Beginner Fursuit Making",
+          from: hour.addingTimeInterval(1_800),
+          room: "Hall B",
+          summary: "Foam, fleece and patterning basics. Bring nothing; materials are provided."
+        ),
+        event("option-2", "Writers' Circle", from: hour, room: "Studio C"),
+      ]
+    )
+  }
+
+  /// Nothing saved yet, with the same two options running this hour.
+  static var noPicksWithOptions: ConPawsSnapshot {
+    snapshot([], options: options.conventions[0].options)
+  }
+
+  static var savedPanel: (event: ConPawsEventSnapshot, convention: ConPawsConventionSnapshot) {
+    let convention = options.conventions[0]
+    return (convention.events[0], convention)
+  }
 }
 
 #Preview("Home · Later") {
@@ -1406,6 +1709,56 @@ private enum WatchPreviewFixtures {
     )
   }
   .environment(\.locale, WatchPreviewFixtures.later.locale)
+}
+
+#Preview("Home · Options") {
+  NavigationStack {
+    WatchRootView(
+      snapshot: WatchPreviewFixtures.options,
+      now: WatchPreviewFixtures.now,
+      isUsingSavedSchedule: false,
+      snapshotDate: nil
+    )
+  }
+  .environment(\.locale, WatchPreviewFixtures.options.locale)
+}
+
+#Preview("Home · No picks, options") {
+  NavigationStack {
+    WatchRootView(
+      snapshot: WatchPreviewFixtures.noPicksWithOptions,
+      now: WatchPreviewFixtures.now,
+      isUsingSavedSchedule: false,
+      snapshotDate: nil
+    )
+  }
+  .environment(\.locale, WatchPreviewFixtures.noPicksWithOptions.locale)
+}
+
+#Preview("Detail · Remove") {
+  let found = WatchPreviewFixtures.savedPanel
+  NavigationStack {
+    EventDetailView(
+      event: found.event,
+      convention: found.convention,
+      now: WatchPreviewFixtures.now,
+      strings: .english,
+      planAction: WatchPlanAction(kind: .remove, isPending: false) {}
+    )
+  }
+}
+
+#Preview("Detail · Pending") {
+  let found = WatchPreviewFixtures.savedPanel
+  NavigationStack {
+    EventDetailView(
+      event: found.event,
+      convention: found.convention,
+      now: WatchPreviewFixtures.now,
+      strings: .english,
+      planAction: WatchPlanAction(kind: .add, isPending: true) {}
+    )
+  }
 }
 
 #Preview("Home · Always On") {

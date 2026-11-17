@@ -21,7 +21,7 @@ struct ConPawsSharedTests {
   func roomLeadsThePlaceLabel(values: [String]) {
     let event = ConPawsEventSnapshot(
       id: "panel", title: "Panel", startAtMs: 0, endAtMs: nil,
-      location: values[1], room: values[0], reminderMinutes: nil, ageRating: nil
+      location: values[1], room: values[0], reminderMinutes: nil, ageRating: nil, summary: nil
     )
     #expect(event.place == (values[2].isEmpty ? nil : values[2]))
   }
@@ -36,7 +36,7 @@ struct ConPawsSharedTests {
   func shortPlaceIsRoomFirst(room: String?, location: String?, expected: String?) {
     let event = ConPawsEventSnapshot(
       id: "panel", title: "Panel", startAtMs: 0, endAtMs: nil,
-      location: location, room: room, reminderMinutes: nil, ageRating: nil
+      location: location, room: room, reminderMinutes: nil, ageRating: nil, summary: nil
     )
     #expect(event.shortPlace == expected)
   }

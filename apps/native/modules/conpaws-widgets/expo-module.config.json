@@ -4,7 +4,8 @@
     "modules": ["ConPawsWidgetsModule", "ConPawsQuickActionsModule"],
     "appDelegateSubscribers": [
       "ConPawsQuickActionsSubscriber",
-      "ConPawsTrackedEventSubscriber"
+      "ConPawsTrackedEventSubscriber",
+      "ConPawsWatchSubscriber"
     ]
   },
   "android": {

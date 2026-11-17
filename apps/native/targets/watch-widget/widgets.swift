@@ -55,7 +55,8 @@ private struct ConPawsWatchEntry: TimelineEntry {
           location: "Convention Center",
           room: "Main Ballroom",
           reminderMinutes: nil,
-          ageRating: nil
+          ageRating: nil,
+          summary: nil
         ),
         ConPawsEventSnapshot(
           id: "preview-next",
@@ -65,9 +66,11 @@ private struct ConPawsWatchEntry: TimelineEntry {
           location: "Convention Center",
           room: "Hall A",
           reminderMinutes: 30,
-          ageRating: nil
+          ageRating: nil,
+          summary: nil
         ),
-      ]
+      ],
+      options: nil
     )
     return ConPawsWatchEntry(
       date: now,
