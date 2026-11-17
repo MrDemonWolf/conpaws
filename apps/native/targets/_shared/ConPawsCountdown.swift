@@ -144,6 +144,20 @@ enum ConPawsCountdown {
     return "\(strings.startsIn) \(strings.compactMinutes(minutes))"
   }
 
+  /// Whether a screen that redraws itself -- the watch app, not a widget --
+  /// should show a ticking timer for this wait instead of the worded ladder.
+  ///
+  /// Inclusive at the edge of the window. The watch app ticks on minute
+  /// boundaries and event and reminder times are whole minutes, so the tick
+  /// that opens a 60-minute window lands on exactly 3,600 seconds; an
+  /// exclusive test showed "In 1 hour" under a "STARTS IN" eyebrow for that
+  /// first minute. Callers compute this once and hand the same answer to the
+  /// eyebrow and the timer so the two cannot disagree.
+  static func showsLiveTimer(from: Date, to: Date, within window: TimeInterval) -> Bool {
+    let remaining = to.timeIntervalSince(from)
+    return remaining > 0 && remaining <= window
+  }
+
   /// Whole minutes remaining, or nil once the wait is an hour or more and the
   /// shared ladder takes over. Never below 1 so the countdown does not show 0.
   static func leaveMinutes(from: Date, to: Date) -> Int? {

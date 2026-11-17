@@ -26,6 +26,32 @@ struct ConPawsSharedTests {
     #expect(event.place == (values[2].isEmpty ? nil : values[2]))
   }
 
+  @Test(arguments: [
+    ("Studio B", "Center", "Studio B"),
+    (nil, "Center", "Center"),
+    ("  ", "Center", "Center"),
+    (" Hall A \n", nil, "Hall A"),
+    (nil, nil, nil),
+  ] as [(String?, String?, String?)])
+  func shortPlaceIsRoomFirst(room: String?, location: String?, expected: String?) {
+    let event = ConPawsEventSnapshot(
+      id: "panel", title: "Panel", startAtMs: 0, endAtMs: nil,
+      location: location, room: room, reminderMinutes: nil, ageRating: nil
+    )
+    #expect(event.shortPlace == expected)
+  }
+
+  // Inclusive at the edge: the watch app ticks on minute boundaries, so the
+  // tick that opens a 60-minute window lands on exactly 3,600 seconds.
+  @Test(arguments: [
+    (-60.0, false), (0, false), (1, true), (3_599, true), (3_600, true), (3_601, false),
+  ])
+  func liveTimerIncludesTheEdgeOfItsWindow(secondsLeft: TimeInterval, expected: Bool) {
+    let now = Date(timeIntervalSince1970: 1_767_225_600)
+    let target = now.addingTimeInterval(secondsLeft)
+    #expect(ConPawsCountdown.showsLiveTimer(from: now, to: target, within: 3_600) == expected)
+  }
+
   @Test func unknownEventEndsDoNotBecomePublishedEndTimes() throws {
     let decoder = JSONDecoder()
     let withoutEnd = #"{"id":"panel","title":"Panel","startAtMs":50400000}"#

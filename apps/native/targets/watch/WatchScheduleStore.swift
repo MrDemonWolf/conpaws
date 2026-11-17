@@ -17,7 +17,6 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
   private let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
-  @Published private(set) var isReachable = false
 
   var isUsingSavedSchedule: Bool {
     isUsingSavedSchedule(at: .now)
@@ -124,16 +123,10 @@ extension WatchScheduleStore: WCSessionDelegate {
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: Error?
   ) {
-    DispatchQueue.main.async { [weak self] in
-      self?.isReachable = session.isReachable
-    }
+    // No reachability is published: nothing on screen showed it, and every
+    // change re-rendered the whole tree for nothing. The schedule arrives as
+    // application context and user info, which do not need the phone in reach.
     receive(session.receivedApplicationContext)
-  }
-
-  func sessionReachabilityDidChange(_ session: WCSession) {
-    DispatchQueue.main.async { [weak self] in
-      self?.isReachable = session.isReachable
-    }
   }
 
   func session(

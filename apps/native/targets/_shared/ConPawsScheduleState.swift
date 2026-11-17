@@ -76,6 +76,17 @@ enum ConPawsScheduleResolver {
     return now >= start.addingTimeInterval(-Double(minutes) * 60) && now < start
   }
 
+  /// Whether the event's reminder has yet to fire.
+  ///
+  /// Once it has, "Reminder at 1:45 PM" describes the past, so a glanceable
+  /// card drops the line. The boundary matches `isInReminderWindow`: the
+  /// minute the window opens is the minute the reminder fired.
+  static func isReminderPending(_ event: ConPawsEventSnapshot, now: Date) -> Bool {
+    guard let minutes = event.reminderMinutes, minutes >= 0 else { return false }
+    let start = Date(timeIntervalSince1970: event.startAtMs / 1_000)
+    return now < start.addingTimeInterval(-Double(minutes) * 60)
+  }
+
   static func effectiveEnd(of event: ConPawsEventSnapshot) -> Date {
     Date(timeIntervalSince1970: (event.endAtMs ?? event.startAtMs + 3_600_000) / 1_000)
   }

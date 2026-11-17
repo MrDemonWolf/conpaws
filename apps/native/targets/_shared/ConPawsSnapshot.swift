@@ -113,6 +113,17 @@ struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
     return values.isEmpty ? nil : values.joined(separator: " • ")
   }
 
+  /// The room alone, or the venue when there is no room: the label for a line
+  /// that has one row to fill. The venue is the same for the whole convention,
+  /// so `place` ("Studio B • ConPaws Convention Center") truncated to
+  /// "Studio B • ConPaws Co…" on every row that tried to fit it. Matches the
+  /// phone widget's `place()`. Screens with room to spare keep `place`.
+  var shortPlace: String? {
+    [room, location].lazy
+      .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+      .first { !$0.isEmpty }
+  }
+
   /// Unknown ends use the published start, never the resolver's one-hour fallback.
   func currentTimingLabel(timeZone: TimeZone, locale: Locale, strings: ConPawsStrings) -> String {
     var clock = Date.FormatStyle.dateTime.hour().minute()

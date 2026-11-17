@@ -1,8 +1,21 @@
 import Foundation
 import SwiftUI
 
+/// Where the watch app can push.
+///
+/// Value-based, so a pushed screen belongs to the path rather than to the link
+/// that opened it. With closure links, Up Next's card moving into the Happening
+/// Now slot on the minute tick took its link -- and the reader's detail screen
+/// -- with it, at the exact moment that screen mattered. The convention id
+/// travels with the event id so the lookup is exact.
+private enum WatchRoute: Hashable {
+  case today
+  case event(conventionID: String, eventID: String)
+}
+
 struct ContentView: View {
   @ObservedObject var store: WatchScheduleStore
+  @State private var path: [WatchRoute] = []
 
   var body: some View {
     // NavigationStack OUTSIDE the TimelineView: with the stack inside, the
@@ -10,7 +23,7 @@ struct ContentView: View {
     // emptied) rebuilt the stack and popped the reader out of a detail
     // screen. `.everyMinute` aligns ticks to the minute boundary and is the
     // cadence the system throttles correctly in Always On.
-    NavigationStack {
+    NavigationStack(path: $path) {
       TimelineView(.everyMinute) { context in
         WatchRootView(
           snapshot: store.snapshot,
@@ -19,62 +32,111 @@ struct ContentView: View {
           snapshotDate: store.snapshotDate
         )
       }
+      // Registered once, outside the TimelineView closure. Each destination
+      // runs its own minute timeline against the store, so a pushed screen
+      // stays live without depending on the root re-creating it.
+      .navigationDestination(for: WatchRoute.self) { route in
+        WatchRouteView(store: store, route: route)
+      }
+    }
+    // On the stack, not the root view: pushed screens inherit the stack's
+    // environment rather than the root's, and every time they format has to
+    // be in the app's language, which is a phone setting, not the watch's.
+    .environment(\.locale, store.snapshot.locale)
+    .onChange(of: store.snapshot.generatedAtMs) {
+      // A new schedule can drop the event a detail screen is showing. Pop it
+      // rather than leave the reader on an empty screen.
+      let snapshot = store.snapshot
+      path.removeAll { route in
+        guard case .event(let conventionID, let eventID) = route else { return false }
+        return snapshot.event(id: eventID, in: conventionID) == nil
+      }
     }
   }
 }
 
+/// A pushed screen, re-resolved against the store every minute.
+private struct WatchRouteView: View {
+  @ObservedObject var store: WatchScheduleStore
+  let route: WatchRoute
+
+  var body: some View {
+    TimelineView(.everyMinute) { context in
+      let snapshot = store.snapshot
+      switch route {
+      case .today:
+        TodayListView(
+          schedule: WatchScheduleProjection(snapshot: snapshot, now: context.date),
+          strings: snapshot.strings
+        )
+      case .event(let conventionID, let eventID):
+        // A miss lasts one frame at most: ContentView pops the route as soon
+        // as the snapshot that dropped the event lands.
+        if let found = snapshot.event(id: eventID, in: conventionID) {
+          EventDetailView(
+            event: found.event,
+            convention: found.convention,
+            now: context.date,
+            strings: snapshot.strings
+          )
+        }
+      }
+    }
+  }
+}
+
+/// The root screen for whichever state the schedule is in.
+///
+/// Always On redacts per view, not per screen: only event titles, rooms and
+/// age ratings are `privacySensitive`, so the system hides those wrist-down
+/// while the countdown, the clock times and the convention name stay readable.
+/// A crowded hall can read a title off a raised wrist; the countdown is the
+/// reason this app opts into Always On at all. Card fills drop too (see
+/// `CardBackground`).
 private struct WatchRootView: View {
-  @Environment(\.isLuminanceReduced) private var isLuminanceReduced
   let snapshot: ConPawsSnapshot
   let now: Date
   let isUsingSavedSchedule: Bool
   let snapshotDate: Date?
 
-  private var schedule: WatchScheduleProjection {
-    WatchScheduleProjection(snapshot: snapshot, now: now)
-  }
-
-  /// The app's language, which is a setting on the phone rather than a setting
-  /// on this watch. It arrives with the schedule and is threaded down by hand
-  /// so no view can quietly fall back to the watch's own language.
-  private var strings: ConPawsStrings { snapshot.strings }
-
   var body: some View {
-    Group {
-      switch schedule.state {
-      case .noConvention:
-        EmptyScheduleView(
-          title: strings.noConventionTitle,
-          message: strings.noConventionWatchMessage
-        )
-      case .countdown(let convention):
-        PreConventionView(
-          convention: convention,
-          now: now,
-          isUsingSavedSchedule: isUsingSavedSchedule,
-          snapshotDate: snapshotDate,
-          strings: strings
-        )
-      case .noPicks:
-        EmptyScheduleView(
-          title: strings.noPicksTitle,
-          message: strings.noPicksWatchMessage
-        )
-      case .next, .currentOnly, .finished:
-        ScheduleHomeView(
-          schedule: schedule,
-          isUsingSavedSchedule: isUsingSavedSchedule,
-          snapshotDate: snapshotDate,
-          strings: strings
-        )
-      }
+    // Projected once per tick so every section reads the same answer.
+    let schedule = WatchScheduleProjection(snapshot: snapshot, now: now)
+    // The app's language, which is a setting on the phone rather than a
+    // setting on this watch. It arrives with the schedule and is threaded down
+    // by hand so no view can quietly fall back to the watch's own language.
+    let strings = snapshot.strings
+
+    switch schedule.state {
+    case .noConvention:
+      // "Open ConPaws" read oddly from inside the ConPaws watch app; these
+      // purpose-built strings say where to go instead.
+      EmptyScheduleView(
+        title: strings.noScheduleTitle,
+        message: strings.noScheduleMessage,
+        systemImage: "iphone"
+      )
+    case .countdown(let convention):
+      PreConventionView(
+        convention: convention,
+        now: now,
+        isUsingSavedSchedule: isUsingSavedSchedule,
+        snapshotDate: snapshotDate,
+        strings: strings
+      )
+    case .noPicks:
+      EmptyScheduleView(
+        title: strings.noPicksTitle,
+        message: strings.noPicksWatchMessage
+      )
+    case .next, .currentOnly, .finished:
+      ScheduleHomeView(
+        schedule: schedule,
+        isUsingSavedSchedule: isUsingSavedSchedule,
+        snapshotDate: snapshotDate,
+        strings: strings
+      )
     }
-    // Always On: soften everything but keep the countdown legible. Event
-    // titles and rooms are readable at a glance in a crowded hall, so they
-    // redact on the dimmed wrist-down display.
-    .opacity(isLuminanceReduced ? 0.7 : 1)
-    .privacySensitive(isLuminanceReduced)
-    .environment(\.locale, snapshot.locale)
   }
 }
 
@@ -86,41 +148,58 @@ private struct PreConventionView: View {
   let strings: ConPawsStrings
 
   var body: some View {
-    // Kept scrollable for large Dynamic Type, but the content is sized to
-    // fit without scrolling at default sizes. A decorative mark used to sit
-    // above the title and pushed the date range off the bottom of a 46mm
-    // screen -- it was already hidden from VoiceOver, so it cost a line and
-    // carried nothing.
-    ScrollView {
+    let showsTimer = ConPawsCountdown.showsLiveTimer(
+      from: now,
+      to: convention.startDate,
+      within: 86_400
+    )
+    // Centered when it fits, scrollable for large Dynamic Type. A decorative
+    // mark used to sit above the title and pushed the date range off the
+    // bottom of a 46mm screen -- it was already hidden from VoiceOver, so it
+    // cost a line and carried nothing.
+    CenteredScrollView {
       VStack(spacing: 8) {
         Text(convention.name)
           .font(.headline)
-          .multilineTextAlignment(.center)
 
-        AdaptiveCountdownView(
-          target: convention.startDate,
-          now: now,
-          timeZone: convention.timeZone,
-          strings: strings
-        )
-        .font(.title2.bold())
-        .foregroundStyle(Color.accentColor)
-        .monospacedDigit()
+        VStack(spacing: 2) {
+          AdaptiveCountdownView(
+            target: convention.startDate,
+            now: now,
+            timeZone: convention.timeZone,
+            showsTimer: showsTimer,
+            strings: strings
+          )
+          .font(.title2.bold())
+          .foregroundStyle(Color.accentColor)
+          .monospacedDigit()
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
 
-        Text(strings.untilTheConvention)
-          .font(.caption2)
-          .foregroundStyle(.secondary)
+          // Only under the ticking timer. Beside "In 12 days" or "Tomorrow"
+          // it read as the same thing said twice.
+          if showsTimer {
+            Text(strings.untilTheConvention)
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+          }
+        }
 
         Text(convention.dateRangeLabel)
           .font(.caption)
-          .multilineTextAlignment(.center)
 
         if isUsingSavedSchedule {
-          SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate, now: now)
+          SavedScheduleLabel(
+            strings: strings,
+            snapshotDate: snapshotDate,
+            now: now,
+            alignment: .center
+          )
         }
       }
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
-      .padding(.top, 10)
       .accessibilityElement(children: .combine)
     }
     .navigationTitle(strings.comingUpTitle)
@@ -136,271 +215,536 @@ private struct ScheduleHomeView: View {
 
   var body: some View {
     ScrollView {
-      LazyVStack(alignment: .leading, spacing: 8) {
+      LazyVStack(alignment: .leading, spacing: WatchMetrics.cardSpacing) {
         if let convention = schedule.convention {
-          Text(convention.name)
-            .font(.caption.bold())
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-            .padding(.horizontal, 4)
-        }
+          header(convention)
 
-        if let current = schedule.activeEvent, let convention = schedule.convention {
-          let label = schedule.nextEvent == nil
-            ? "\(strings.happeningNowCaps) · \(current.currentTimingLabel(timeZone: convention.timeZone, locale: locale, strings: strings))"
-            : strings.happeningNowCaps
-          EventCard(
-            label: label,
-            event: current,
-            convention: convention,
-            strings: strings,
-            detail: schedule.nextEvent == nil
-              ? strings.noLaterSavedEvents
-              : WatchFormat.timeRange(current, in: convention, locale: locale)
-          )
-        }
+          // The outcome first, centered, before any link: it used to render
+          // at the very bottom, under the Today row, as two overlapping lines.
+          if case .finished = schedule.state {
+            FinishedStatusView(convention: convention, now: schedule.now, strings: strings)
+          }
 
-        if let next = schedule.nextEvent, let convention = schedule.convention {
-          EventCard(
-            label: schedule.isLeaveWindow ? strings.startsInCaps : strings.upNextCaps,
-            event: next,
-            convention: convention,
-            strings: strings
-          ) {
-            VStack(alignment: .leading, spacing: 1) {
-              if schedule.isLeaveWindow {
-                AdaptiveCountdownView(
-                  target: next.startDate,
-                  now: schedule.now,
-                  timeZone: convention.timeZone,
-                  strings: strings
+          if let current = schedule.activeEvent {
+            if schedule.nextEvent == nil {
+              currentOnlyHero(current, in: convention)
+            } else {
+              EventCard(
+                eyebrow: strings.happeningNowCaps,
+                event: current,
+                conventionID: convention.id
+              ) {
+                TimeAndPlace(
+                  time: WatchFormat.timeRange(current, in: convention, locale: locale),
+                  place: current.shortPlace
                 )
-                .font(.title3.bold())
-                .monospacedDigit()
-                .foregroundStyle(Color.accentColor)
-              } else {
-                Text(nextEventTime(next, in: convention))
-              }
-              if let reminder = WatchFormat.reminderAt(next, in: convention, locale: locale, strings: strings) {
-                Text(reminder)
               }
             }
           }
-        }
 
-        if !schedule.laterEvents.isEmpty, let convention = schedule.convention {
-          Text(strings.laterLabel)
-            .font(.caption2.bold())
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 4)
-
-          ForEach(schedule.laterEvents) { event in
-            EventCard(
-              label: WatchFormat.time(event.startDate, in: convention, locale: locale),
-              event: event,
-              convention: convention,
-              strings: strings,
-              accented: false,
-              detail: event.place ?? strings.scheduledLabel
-            )
+          if let next = schedule.nextEvent {
+            nextHero(next, in: convention)
           }
-        }
 
-        if let convention = schedule.convention {
-          NavigationLink {
-            TodayListView(
-              events: schedule.todayEvents,
-              convention: convention,
-              activeEventID: schedule.activeEvent?.id,
-              scheduleState: schedule.state,
-              strings: strings
-            )
-          } label: {
-            HStack {
-              Label(strings.today, systemImage: "list.bullet")
-              Spacer()
-              Text("\(schedule.todayEvents.count)")
-                .foregroundStyle(.secondary)
+          if !schedule.laterEvents.isEmpty {
+            SectionLabel(title: strings.laterLabel)
+            ForEach(schedule.laterEvents) { event in
+              EventCard(
+                // Day-aware: a bare "11:00 AM" for tomorrow's panel read as
+                // later today.
+                eyebrow: WatchFormat.nextEventTime(
+                  event.startDate,
+                  relativeTo: schedule.now,
+                  in: convention,
+                  locale: locale,
+                  strings: strings
+                ),
+                event: event,
+                conventionID: convention.id,
+                accented: false
+              ) {
+                if let place = event.shortPlace {
+                  Text(place).privacySensitive()
+                }
+              }
             }
-            .font(.body)
-            .frame(minHeight: 44)
-            .padding(.horizontal, 10)
-            .background(.quaternary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
           }
-          .buttonStyle(.plain)
-          .accessibilityLabel("\(strings.today), \(strings.events(schedule.todayEvents.count))")
-        }
 
-        if case .finished = schedule.state {
-          VStack(spacing: 2) {
-            Text(strings.finishedComplication)
-            Text(strings.finishedTitle)
+          // Hidden on a day with no picks rather than offering "Today 0" and
+          // an empty screen behind it.
+          if !schedule.todayEvents.isEmpty {
+            TodayLinkRow(count: schedule.todayEvents.count, strings: strings)
           }
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, minHeight: 44)
         }
 
         if isUsingSavedSchedule {
           SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate, now: schedule.now)
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, WatchMetrics.cardInset)
         }
       }
       .padding(.horizontal, 4)
       .padding(.bottom, 8)
     }
     .navigationTitle(strings.scheduleTitle)
+    .toolbar {
+      if !schedule.todayEvents.isEmpty {
+        ToolbarItem(placement: .topBarTrailing) {
+          NavigationLink(value: WatchRoute.today) {
+            Label(strings.today, systemImage: "list.bullet")
+          }
+        }
+      }
+    }
   }
 
-  private func nextEventTime(
-    _ event: ConPawsEventSnapshot,
+  private func header(_ convention: ConPawsConventionSnapshot) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: 4) {
+      Text(convention.name)
+        .font(.caption.bold())
+        .foregroundStyle(.secondary)
+        .lineLimit(2)
+        .accessibilityAddTraits(.isHeader)
+      Spacer(minLength: 0)
+      if isUsingSavedSchedule {
+        // Seen at the top, where the eye lands; spoken once, by the footer,
+        // which carries the full sentence and when the plan last synced.
+        Image(systemName: "exclamationmark.arrow.circlepath")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .accessibilityHidden(true)
+      }
+    }
+    .padding(.horizontal, WatchMetrics.cardInset)
+  }
+
+  private func nextHero(
+    _ next: ConPawsEventSnapshot,
     in convention: ConPawsConventionSnapshot
-  ) -> String {
-    WatchFormat.nextEventTime(
-      event.startDate,
+  ) -> some View {
+    // One answer for both the eyebrow and the value line. Separate boundary
+    // tests left the first minute of every leave window reading
+    // "STARTS IN / Starting soon" instead of a ticking timer.
+    let showsTimer = ConPawsCountdown.showsLiveTimer(
+      from: schedule.now,
+      to: next.startDate,
+      within: schedule.isLeaveWindow ? 86_400 : 3_600
+    )
+    let isToday = WatchFormat.dayLabel(
+      next.startDate,
       relativeTo: schedule.now,
       in: convention,
       locale: locale,
       strings: strings
-    )
-  }
-}
+    ) == nil
 
-private struct EventCard<Detail: View>: View {
-  let label: String
-  let event: ConPawsEventSnapshot
-  let convention: ConPawsConventionSnapshot
-  let strings: ConPawsStrings
-  let accented: Bool
-  let detail: Detail
-
-  init(
-    label: String,
-    event: ConPawsEventSnapshot,
-    convention: ConPawsConventionSnapshot,
-    strings: ConPawsStrings,
-    accented: Bool = true,
-    @ViewBuilder detail: () -> Detail
-  ) {
-    self.label = label
-    self.event = event
-    self.convention = convention
-    self.strings = strings
-    self.accented = accented
-    self.detail = detail()
-  }
-
-  init(
-    label: String,
-    event: ConPawsEventSnapshot,
-    convention: ConPawsConventionSnapshot,
-    strings: ConPawsStrings,
-    accented: Bool = true,
-    detail: String
-  ) where Detail == Text {
-    self.init(
-      label: label,
-      event: event,
-      convention: convention,
-      strings: strings,
-      accented: accented
+    return HeroCard(
+      eyebrow: showsTimer ? strings.startsInCaps : strings.upNextCaps,
+      event: next,
+      conventionID: convention.id
     ) {
-      Text(detail)
+      if showsTimer {
+        AdaptiveCountdownView(
+          target: next.startDate,
+          now: schedule.now,
+          timeZone: convention.timeZone,
+          showsTimer: true,
+          strings: strings
+        )
+      } else if isToday {
+        // "In 3 hours": the same ladder the complication reads. Another day
+        // gets no value line; the detail line already says "Tomorrow".
+        Text(
+          ConPawsCountdown.label(
+            from: schedule.now,
+            to: next.startDate,
+            timeZone: convention.timeZone,
+            strings: strings
+          )
+        )
+      }
+    } detail: {
+      TimeAndPlace(
+        time: WatchFormat.nextEventTime(
+          next.startDate,
+          relativeTo: schedule.now,
+          in: convention,
+          locale: locale,
+          strings: strings
+        ),
+        place: next.shortPlace
+      )
+      // Only while it is still to come: after it fires, "Reminder at…"
+      // describes the past.
+      if ConPawsScheduleResolver.isReminderPending(next, now: schedule.now),
+        let reminder = WatchFormat.reminderAt(next, in: convention, locale: locale, strings: strings)
+      {
+        Label {
+          Text(reminder)
+        } icon: {
+          Image(systemName: "bell")
+            .accessibilityHidden(true)
+        }
+      }
     }
   }
 
+  private func currentOnlyHero(
+    _ current: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot
+  ) -> some View {
+    let timing = current.currentTimingLabel(
+      timeZone: convention.timeZone,
+      locale: locale,
+      strings: strings
+    )
+    return HeroCard(
+      eyebrow: "\(strings.happeningNowCaps) · \(timing)",
+      event: current,
+      conventionID: convention.id
+    ) {
+      EmptyView()
+    } detail: {
+      if let place = current.shortPlace {
+        Text(place).privacySensitive()
+      }
+      // The short form: the long one truncated at 41 and 45mm.
+      Text(strings.noLaterSavedEventsShort)
+    }
+  }
+}
+
+/// The finished state's message, centered under the header.
+private struct FinishedStatusView: View {
+  let convention: ConPawsConventionSnapshot
+  let now: Date
+  let strings: ConPawsStrings
+
   var body: some View {
-    NavigationLink {
-      EventDetailView(event: event, convention: convention, strings: strings)
-    } label: {
-      VStack(alignment: .leading, spacing: 3) {
-        // Callers hand this over in the case it is drawn in. Upper-casing here
-        // instead would also hit the clock times the later-event cards use as
-        // their label, and would do it with the wrong language's casing rules.
-        Text(label)
+    VStack(spacing: 6) {
+      Image(systemName: "checkmark.circle")
+        .font(.title2)
+        .foregroundStyle(Color.accentColor)
+        .accessibilityHidden(true)
+      Text(strings.finishedTitle)
+        .font(.headline)
+      // Only while the convention is still on, when adding a panel on the
+      // phone is still worth doing. The watch has no schedule to browse, so
+      // this points at the phone rather than at "the schedule in ConPaws".
+      if convention.endDate > now {
+        Text(strings.openOnIphone)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+    }
+    .multilineTextAlignment(.center)
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, 4)
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// A label between cards, inset to the cards' text edge.
+private struct SectionLabel: View {
+  let title: String
+
+  var body: some View {
+    Text(title)
+      .font(.caption2.bold())
+      .foregroundStyle(.secondary)
+      .padding(.horizontal, WatchMetrics.cardInset)
+      .padding(.top, 2)
+      .accessibilityAddTraits(.isHeader)
+  }
+}
+
+/// The card that answers "what now": the next event, or the running one when
+/// nothing follows it. Tinted so it stands apart from the Later cards.
+private struct HeroCard<Value: View, Detail: View>: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  let eyebrow: String
+  let event: ConPawsEventSnapshot
+  let conventionID: String
+  @ViewBuilder var value: Value
+  @ViewBuilder var detail: Detail
+
+  var body: some View {
+    NavigationLink(value: WatchRoute.event(conventionID: conventionID, eventID: event.id)) {
+      VStack(alignment: .leading, spacing: 2) {
+        Text(eyebrow)
           .font(.caption2.bold())
           .foregroundStyle(Color.accentColor)
+        // Directly under its eyebrow, so "STARTS IN" and its timer read as
+        // one phrase instead of having the title between them.
+        value
+          .font(.title3.bold())
+          .monospacedDigit()
+          .foregroundStyle(Color.accentColor)
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
         Text(event.title)
           .font(.headline)
-          .lineLimit(2)
-        detail
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
+          .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 3)
+          .privacySensitive()
+          .padding(.top, 1)
+        VStack(alignment: .leading, spacing: 1) {
+          detail
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .lineLimit(2)
       }
       .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-      .padding(.horizontal, 10)
-      .padding(.vertical, 7)
-      .background(.quaternary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-      .contentShape(Rectangle())
+      .padding(.horizontal, WatchMetrics.cardInset)
+      .padding(.vertical, 9)
+      .cardBackground(Color.accentColor.opacity(0.22))
+      .contentShape(.rect)
     }
     .buttonStyle(.plain)
     .accessibilityElement(children: .combine)
   }
 }
 
+private struct EventCard<Detail: View>: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  let eyebrow: String
+  let event: ConPawsEventSnapshot
+  let conventionID: String
+  var accented = true
+  @ViewBuilder var detail: Detail
+
+  var body: some View {
+    NavigationLink(value: WatchRoute.event(conventionID: conventionID, eventID: event.id)) {
+      VStack(alignment: .leading, spacing: 3) {
+        // Callers hand this over in the case it is drawn in. Upper-casing here
+        // instead would also hit the clock times the later-event cards use as
+        // their label, and would do it with the wrong language's casing rules.
+        Text(eyebrow)
+          .font(.caption2.bold())
+          .foregroundStyle(accented ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
+        Text(event.title)
+          .font(.headline)
+          .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+          .privacySensitive()
+        VStack(alignment: .leading, spacing: 1) {
+          detail
+        }
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+        .lineLimit(2)
+      }
+      .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+      .padding(.horizontal, WatchMetrics.cardInset)
+      .padding(.vertical, 8)
+      .cardBackground(.quaternary)
+      .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// A time and a room: one line when both fit, stacked when they do not.
+///
+/// Always two Text views, never one string. Always On redacts the room and
+/// must leave the time beside it readable; a joined "2:00 PM · Studio B"
+/// could only hide both or neither.
+private struct TimeAndPlace: View {
+  let time: String
+  let place: String?
+
+  var body: some View {
+    if let place {
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: 4) {
+          Text(time)
+          Text(verbatim: "·")
+            .accessibilityHidden(true)
+          Text(place)
+            .privacySensitive()
+        }
+        .lineLimit(1)
+
+        VStack(alignment: .leading, spacing: 1) {
+          Text(time)
+          Text(place)
+            .privacySensitive()
+        }
+      }
+    } else {
+      Text(time)
+    }
+  }
+}
+
+private struct TodayLinkRow: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  let count: Int
+  let strings: ConPawsStrings
+
+  var body: some View {
+    // At accessibility sizes the count drops under the label instead of
+    // squeezing "Today" down to a few letters.
+    let layout = dynamicTypeSize.isAccessibilitySize
+      ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
+      : AnyLayout(HStackLayout(spacing: 6))
+
+    NavigationLink(value: WatchRoute.today) {
+      layout {
+        Label(strings.today, systemImage: "list.bullet")
+          .frame(maxWidth: .infinity, alignment: .leading)
+        Text("\(count)")
+          .foregroundStyle(.secondary)
+      }
+      .font(.body)
+      .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+      .padding(.horizontal, WatchMetrics.cardInset)
+      .padding(.vertical, 4)
+      .cardBackground(.quaternary)
+      .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel("\(strings.today), \(strings.events(count))")
+  }
+}
+
 private struct TodayListView: View {
   @Environment(\.locale) private var locale
-  let events: [ConPawsEventSnapshot]
-  let convention: ConPawsConventionSnapshot
-  var activeEventID: String?
-  let scheduleState: ConPawsScheduleState
+  @Environment(\.redactionReasons) private var redactionReasons
+  /// One-shot, so coming back from a detail screen keeps the reader's place
+  /// instead of jumping back to the running event.
+  @State private var didScrollToNow = false
+  let schedule: WatchScheduleProjection
   let strings: ConPawsStrings
 
   var body: some View {
     Group {
-      if events.isEmpty {
-        switch scheduleState {
-        case .noConvention:
-          EmptyScheduleView(title: strings.noConventionTitle, message: strings.noConventionWatchMessage)
-        case .noPicks:
-          EmptyScheduleView(title: strings.noPicksTitle, message: strings.noPicksWatchMessage)
-        case .finished:
-          EmptyScheduleView(title: strings.finishedComplication, message: strings.finishedTitle)
-        case .next, .countdown:
-          EmptyScheduleView(title: strings.noEventsTodayTitle, message: strings.noEventsTodayMessage)
-        case .currentOnly:
-          EmptyScheduleView(title: strings.happeningNowCaps, message: strings.noLaterSavedEvents)
-        }
+      if let convention = schedule.convention, !schedule.todayEvents.isEmpty {
+        list(convention)
       } else {
-        List(events) { event in
-          NavigationLink {
-            EventDetailView(event: event, convention: convention, strings: strings)
-          } label: {
-            HStack(spacing: 6) {
-              if event.id == activeEventID {
-                // Mockup frame 2: the running event is marked, not styled by
-                // color alone — a bar plus the accent both carry it.
-                RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                  .fill(Color.accentColor)
-                  .frame(width: 3)
-                  .accessibilityHidden(true)
-              }
-              VStack(alignment: .leading, spacing: 2) {
-                Text(event.title)
-                  .font(.body.weight(.semibold))
-                  .lineLimit(2)
-                Text(WatchFormat.timeRange(event, in: convention, locale: locale))
-                  .font(.caption2)
-                  .foregroundStyle(
-                    event.id == activeEventID
-                      ? AnyShapeStyle(Color.accentColor)
-                      : AnyShapeStyle(.secondary)
-                  )
-              }
-            }
-            .frame(minHeight: 44, alignment: .leading)
-          }
-          .accessibilityLabel(
-            "\(event.title), \(WatchFormat.timeRange(event, in: convention, locale: locale))"
-          )
-        }
-        // ponytail: plain, not .carousel — carousel scales rows toward the
-        // screen center, so a single-event day renders as an oversized slab.
-        .listStyle(.plain)
+        emptyState
       }
     }
     .navigationTitle(strings.today)
+  }
+
+  private func list(_ convention: ConPawsConventionSnapshot) -> some View {
+    ScrollViewReader { proxy in
+      List(schedule.todayEvents) { event in
+        let isRunning = event.id == schedule.activeEvent?.id
+        let timeRange = WatchFormat.timeRange(event, in: convention, locale: locale)
+        NavigationLink(value: WatchRoute.event(conventionID: convention.id, eventID: event.id)) {
+          TodayRow(
+            event: event,
+            timeRange: timeRange,
+            isRunning: isRunning,
+            hasEnded: ConPawsScheduleResolver.effectiveEnd(of: event) <= schedule.now
+          )
+        }
+        // This label replaces the row's Texts, so their `privacySensitive`
+        // never reaches it: wrist-down it must leave the title and room out
+        // itself and speak only the time that stays drawn.
+        .accessibilityLabel(
+          redactionReasons.contains(.privacy)
+            ? timeRange
+            : [event.title, timeRange, event.shortPlace].compactMap { $0 }.joined(separator: ", ")
+        )
+        // The accent bar is hidden from VoiceOver, so the running row says so.
+        .accessibilityValue(isRunning ? strings.now : "")
+      }
+      // ponytail: plain, not .carousel — carousel scales rows toward the
+      // screen center, so a single-event day renders as an oversized slab.
+      .listStyle(.plain)
+      .task {
+        // Open at now rather than at the first panel of the morning. In a
+        // task, not onAppear, so the scroll lands after the list has laid out.
+        guard !didScrollToNow else { return }
+        didScrollToNow = true
+        if let target = scrollTarget {
+          proxy.scrollTo(target, anchor: .top)
+        }
+      }
+    }
+  }
+
+  /// The running event, else the next to start; nil leaves the list at the top.
+  private var scrollTarget: String? {
+    let events = schedule.todayEvents
+    if let active = schedule.activeEvent?.id, events.contains(where: { $0.id == active }) {
+      return active
+    }
+    return events.first { $0.startDate > schedule.now }?.id
+  }
+
+  @ViewBuilder private var emptyState: some View {
+    switch schedule.state {
+    case .noConvention:
+      EmptyScheduleView(
+        title: strings.noScheduleTitle,
+        message: strings.noScheduleMessage,
+        systemImage: "iphone"
+      )
+    case .noPicks:
+      EmptyScheduleView(title: strings.noPicksTitle, message: strings.noPicksWatchMessage)
+    case .finished:
+      // Not "No more panels today": that was wrong on every day after the
+      // convention, and this screen is about today's list.
+      EmptyScheduleView(
+        title: strings.noEventsTodayTitle,
+        message: strings.finishedTitle,
+        systemImage: "checkmark.circle"
+      )
+    case .next, .countdown:
+      EmptyScheduleView(title: strings.noEventsTodayTitle, message: strings.noEventsTodayMessage)
+    case .currentOnly:
+      EmptyScheduleView(title: strings.happeningNowCaps, message: strings.noLaterSavedEvents)
+    }
+  }
+}
+
+private struct TodayRow: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  let event: ConPawsEventSnapshot
+  let timeRange: String
+  let isRunning: Bool
+  let hasEnded: Bool
+
+  var body: some View {
+    HStack(spacing: 6) {
+      if isRunning {
+        // Mockup frame 2: the running event is marked, not styled by
+        // color alone — a bar plus the accent both carry it.
+        RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+          .fill(Color.accentColor)
+          .frame(width: 3)
+          .accessibilityHidden(true)
+      }
+      VStack(alignment: .leading, spacing: 2) {
+        Text(event.title)
+          .font(.body.weight(.semibold))
+          .foregroundStyle(hasEnded ? HierarchicalShapeStyle.secondary : HierarchicalShapeStyle.primary)
+          .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+          .privacySensitive()
+        HStack(spacing: 3) {
+          // Ended rows carry a check as well as the dimmer title, by the same
+          // rule as the running bar: state is never shown by color alone.
+          if hasEnded {
+            Image(systemName: "checkmark")
+              .accessibilityHidden(true)
+          }
+          Text(timeRange)
+        }
+        .font(.caption2)
+        .foregroundStyle(isRunning ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
+        if let place = event.shortPlace {
+          Text(place)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
+            .privacySensitive()
+        }
+      }
+    }
+    .frame(minHeight: 44, alignment: .leading)
   }
 }
 
@@ -408,31 +752,57 @@ private struct EventDetailView: View {
   @Environment(\.locale) private var locale
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
+  let now: Date
   let strings: ConPawsStrings
 
+  private var hasEnded: Bool {
+    ConPawsScheduleResolver.effectiveEnd(of: event) <= now
+  }
+
   var body: some View {
+    // No navigation title: the event's own title is the heading, as watchOS
+    // 10 lays out pushed screens. A generic "Event" in the bar said nothing.
     ScrollView {
-      VStack(alignment: .leading, spacing: 10) {
+      VStack(alignment: .leading, spacing: 8) {
         Text(event.title)
           .font(.headline)
           .fixedSize(horizontal: false, vertical: true)
+          .privacySensitive()
+          .accessibilityAddTraits(.isHeader)
+
+        status
+
+        if let rating = event.ageRating {
+          Text(rating)
+            .font(.caption2.bold())
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.quaternary, in: .capsule)
+            .privacySensitive()
+        }
 
         Label {
-          Text(WatchFormat.timeRange(event, in: convention, locale: locale))
+          Text(clockLabel)
+            .foregroundStyle(hasEnded ? HierarchicalShapeStyle.secondary : HierarchicalShapeStyle.primary)
         } icon: {
-          Image(systemName: "clock")
+          // A check once it is over, so an ended event is not marked by a
+          // dimmer color alone.
+          Image(systemName: hasEnded ? "checkmark.circle" : "clock")
             .accessibilityHidden(true)
         }
 
         if let location = event.place {
           Label {
             Text(location)
+              .privacySensitive()
           } icon: {
             Image(systemName: "mappin.and.ellipse")
               .accessibilityHidden(true)
           }
         }
 
+        // Kept after it fires, unlike on the Home card: here it answers
+        // "did I set one?" rather than "what happens next".
         if let reminder = WatchFormat.reminderAt(event, in: convention, locale: locale, strings: strings) {
           Label {
             Text(reminder)
@@ -446,7 +816,58 @@ private struct EventDetailView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, 8)
     }
-    .navigationTitle(strings.eventTitle)
+  }
+
+  /// Running, about to start, or later today -- in the words the Home cards
+  /// already use. Another day says nothing here; the clock line names the day.
+  @ViewBuilder private var status: some View {
+    let start = event.startDate
+    if start <= now, !hasEnded {
+      Text(
+        "\(strings.happeningNowCaps) · \(event.currentTimingLabel(timeZone: convention.timeZone, locale: locale, strings: strings))"
+      )
+      .font(.caption2.bold())
+      .foregroundStyle(Color.accentColor)
+    } else if ConPawsCountdown.showsLiveTimer(from: now, to: start, within: 3_600) {
+      VStack(alignment: .leading, spacing: 0) {
+        Text(strings.startsInCaps)
+          .font(.caption2.bold())
+        AdaptiveCountdownView(
+          target: start,
+          now: now,
+          timeZone: convention.timeZone,
+          showsTimer: true,
+          strings: strings
+        )
+        .font(.title3.bold())
+        .monospacedDigit()
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+      }
+      .foregroundStyle(Color.accentColor)
+      .accessibilityElement(children: .combine)
+    } else if start > now,
+      WatchFormat.dayLabel(start, relativeTo: now, in: convention, locale: locale, strings: strings) == nil
+    {
+      Text(ConPawsCountdown.label(from: now, to: start, timeZone: convention.timeZone, strings: strings))
+        .font(.caption.bold())
+        .foregroundStyle(Color.accentColor)
+    }
+  }
+
+  /// "Tomorrow · 10:00–11:30 AM" once the event is not today.
+  private var clockLabel: String {
+    let range = WatchFormat.timeRange(event, in: convention, locale: locale)
+    guard
+      let day = WatchFormat.dayLabel(
+        event.startDate,
+        relativeTo: now,
+        in: convention,
+        locale: locale,
+        strings: strings
+      )
+    else { return range }
+    return "\(day) · \(range)"
   }
 }
 
@@ -454,13 +875,16 @@ private struct AdaptiveCountdownView: View {
   let target: Date
   let now: Date
   let timeZone: TimeZone
+  /// Decided by the caller, once, so an eyebrow that reads STARTS IN and this
+  /// view can never disagree about which form is showing.
+  let showsTimer: Bool
   let strings: ConPawsStrings
 
   var body: some View {
-    if target.timeIntervalSince(now) < 86_400, target > now {
-      // Inside the last day the app keeps a live timer. Unlike a widget it is
-      // on screen and refreshing, so it can honour per-second precision -- and
-      // this is the stretch where that precision is worth having.
+    if showsTimer, target > now {
+      // Inside its window the app keeps a live timer. Unlike a widget it is
+      // on screen and refreshing, so it can honour per-second precision --
+      // and this is the stretch where that precision is worth having.
       Text(timerInterval: now...target, countsDown: true)
         .accessibilityLabel(
           strings.remaining(
@@ -472,9 +896,6 @@ private struct AdaptiveCountdownView: View {
       // Lock Screen read. The app used to say "12 D 9 H" here while its own
       // complication said "In 12 days" about the same wait.
       Text(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone, strings: strings))
-        .accessibilityLabel(
-          ConPawsCountdown.label(from: now, to: target, timeZone: timeZone, strings: strings)
-        )
     }
   }
 }
@@ -484,6 +905,7 @@ private struct SavedScheduleLabel: View {
   let strings: ConPawsStrings
   var snapshotDate: Date?
   let now: Date
+  var alignment: TextAlignment = .leading
 
   private var updatedText: String? {
     guard let snapshotDate else { return nil }
@@ -493,15 +915,29 @@ private struct SavedScheduleLabel: View {
     return formatter.localizedString(for: snapshotDate, relativeTo: now)
   }
 
+  private var stackAlignment: HorizontalAlignment {
+    switch alignment {
+    case .leading: .leading
+    case .center: .center
+    case .trailing: .trailing
+    }
+  }
+
   var body: some View {
-    // Modifiers go on the stack: an `if` is not a view to modify.
+    // Modifiers go on the stack: an `if` is not a view to modify. The symbol
+    // carries "this may be out of date", which used to be a third line.
     if let updatedText {
-      VStack(alignment: .leading, spacing: 1) {
-        Text(strings.text(strings.lastUpdatedFormat, updatedText))
-        Text("\(strings.staleHintShort) · \(strings.openOnIphone)")
+      VStack(alignment: stackAlignment, spacing: 1) {
+        Label {
+          Text(strings.text(strings.lastUpdatedFormat, updatedText))
+        } icon: {
+          Image(systemName: "exclamationmark.arrow.circlepath")
+        }
+        Text(strings.openOnIphone)
       }
       .font(.caption2)
       .foregroundStyle(.secondary)
+      .multilineTextAlignment(alignment)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(strings.text(strings.staleA11yFormat, updatedText))
     }
@@ -511,41 +947,92 @@ private struct SavedScheduleLabel: View {
 private struct EmptyScheduleView: View {
   let title: String
   let message: String
+  var systemImage = "calendar"
 
   var body: some View {
-    // Scrollable for the same reason PreConventionView is: at accessibility
-    // type sizes the message — the only text telling the user how to recover
-    // — clipped with no way to reach it.
-    ScrollView {
+    // Scrollable at accessibility sizes for the same reason PreConventionView
+    // is: the message — the only text telling the user how to recover —
+    // clipped with no way to reach it.
+    CenteredScrollView {
       VStack(spacing: 8) {
-        Image(systemName: "calendar")
+        Image(systemName: systemImage)
           .font(.title2)
           .foregroundStyle(Color.accentColor)
           .accessibilityHidden(true)
         Text(title)
           .font(.headline)
+          .accessibilityAddTraits(.isHeader)
         Text(message)
           .font(.caption)
           .foregroundStyle(.secondary)
-          .multilineTextAlignment(.center)
       }
+      .multilineTextAlignment(.center)
+      .frame(maxWidth: .infinity)
       .padding(.horizontal, 10)
       .accessibilityElement(children: .combine)
     }
   }
 }
 
+/// Centers short content on the screen and scrolls it once it outgrows the
+/// screen (large Dynamic Type, long translations), so it never clips.
+private struct CenteredScrollView<Content: View>: View {
+  @ViewBuilder var content: Content
+
+  var body: some View {
+    ViewThatFits(in: .vertical) {
+      content
+      ScrollView {
+        content
+      }
+    }
+  }
+}
+
+/// Shared measurements, so the header, the section labels and the text inside
+/// the cards start at one leading edge.
+private enum WatchMetrics {
+  /// A card's inner horizontal padding, and the inset of every label between
+  /// cards.
+  static let cardInset: CGFloat = 10
+  static let cardSpacing: CGFloat = 10
+  static let cornerRadius: CGFloat = 12
+}
+
+/// A card's platter, dropped in Always On as Apple's Always On guidance asks:
+/// on the dimmed display a filled card reads as a lit slab, and the text alone
+/// carries the layout. Reading `isLuminanceReduced` here, in a leaf modifier,
+/// keeps the wrist-down switch from invalidating the whole screen.
+private struct CardBackground<Style: ShapeStyle>: ViewModifier {
+  @Environment(\.isLuminanceReduced) private var isLuminanceReduced
+  let style: Style
+
+  func body(content: Content) -> some View {
+    content.background {
+      if !isLuminanceReduced {
+        RoundedRectangle(cornerRadius: WatchMetrics.cornerRadius, style: .continuous)
+          .fill(style)
+      }
+    }
+  }
+}
+
+private extension View {
+  func cardBackground<Style: ShapeStyle>(_ style: Style) -> some View {
+    modifier(CardBackground(style: style))
+  }
+}
+
 private struct WatchScheduleProjection {
   let now: Date
   let state: ConPawsScheduleState
+  /// Up to two saved events after Up Next, soonest first.
+  let laterEvents: [ConPawsEventSnapshot]
+  /// Every saved event starting today in the convention's time zone.
+  let todayEvents: [ConPawsEventSnapshot]
+  let isLeaveWindow: Bool
 
-  var convention: ConPawsConventionSnapshot? {
-    switch state {
-    case .noConvention: nil
-    case .countdown(let convention), .finished(let convention), .noPicks(let convention): convention
-    case .next(let convention, _, _), .currentOnly(let convention, _): convention
-    }
-  }
+  var convention: ConPawsConventionSnapshot? { Self.convention(of: state) }
 
   var activeEvent: ConPawsEventSnapshot? {
     switch state {
@@ -555,43 +1042,47 @@ private struct WatchScheduleProjection {
     }
   }
 
-  var nextEvent: ConPawsEventSnapshot? {
-    if case .next(_, _, let upcoming) = state { return upcoming }
-    return nil
-  }
-
-  var laterEvents: [ConPawsEventSnapshot] {
-    guard let convention else { return [] }
-    return Array(
-      convention.events
-        .filter { $0.startDate > now && $0.id != nextEvent?.id }
-        .sorted { $0.startAtMs < $1.startAtMs }
-        .prefix(2)
-    )
-  }
-
-  var todayEvents: [ConPawsEventSnapshot] {
-    guard let convention else { return [] }
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
-    return convention.events
-      .filter { calendar.isDate($0.startDate, inSameDayAs: now) }
-      .sorted { $0.startAtMs < $1.startAtMs }
-  }
-
-  var isLeaveWindow: Bool {
-    guard let nextEvent else { return false }
-    return ConPawsScheduleResolver.isInReminderWindow(nextEvent, now: now)
-  }
+  var nextEvent: ConPawsEventSnapshot? { Self.nextEvent(of: state) }
 
   init(snapshot: ConPawsSnapshot, now: Date) {
-    self.now = now
-    state = ConPawsScheduleResolver.resolve(
+    let state = ConPawsScheduleResolver.resolve(
       snapshot: snapshot,
       selectedConventionID: nil,
       skipCountdown: false,
       now: now
     )
+    let next = Self.nextEvent(of: state)
+    self.now = now
+    self.state = state
+    isLeaveWindow = next.map { ConPawsScheduleResolver.isInReminderWindow($0, now: now) } ?? false
+
+    guard let convention = Self.convention(of: state) else {
+      laterEvents = []
+      todayEvents = []
+      return
+    }
+    let sorted = convention.events.sorted { $0.startAtMs < $1.startAtMs }
+    laterEvents = Array(
+      sorted
+        .filter { $0.startDate > now && $0.id != next?.id }
+        .prefix(2)
+    )
+    var calendar = Calendar.autoupdatingCurrent
+    calendar.timeZone = convention.timeZone
+    todayEvents = sorted.filter { calendar.isDate($0.startDate, inSameDayAs: now) }
+  }
+
+  private static func convention(of state: ConPawsScheduleState) -> ConPawsConventionSnapshot? {
+    switch state {
+    case .noConvention: nil
+    case .countdown(let convention), .finished(let convention), .noPicks(let convention): convention
+    case .next(let convention, _, _), .currentOnly(let convention, _): convention
+    }
+  }
+
+  private static func nextEvent(of state: ConPawsScheduleState) -> ConPawsEventSnapshot? {
+    if case .next(_, _, let upcoming) = state { return upcoming }
+    return nil
   }
 }
 
@@ -619,6 +1110,33 @@ private enum WatchFormat {
     return formatter.string(from: date)
   }
 
+  /// "Tomorrow" or a weekday for a date that is not today in the convention's
+  /// time zone; nil for today, which needs no day.
+  static func dayLabel(
+    _ date: Date,
+    relativeTo now: Date,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale,
+    strings: ConPawsStrings
+  ) -> String? {
+    var calendar = Calendar.autoupdatingCurrent
+    calendar.timeZone = convention.timeZone
+    guard !calendar.isDate(date, inSameDayAs: now) else { return nil }
+
+    if
+      let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
+      calendar.isDate(date, inSameDayAs: tomorrow)
+    {
+      return strings.tomorrow
+    }
+
+    let formatter = DateFormatter()
+    formatter.locale = locale
+    formatter.timeZone = convention.timeZone
+    formatter.setLocalizedDateFormatFromTemplate("EEEE")
+    return formatter.string(from: date)
+  }
+
   static func nextEventTime(
     _ date: Date,
     relativeTo now: Date,
@@ -626,23 +1144,11 @@ private enum WatchFormat {
     locale: Locale,
     strings: ConPawsStrings
   ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
     let timeLabel = time(date, in: convention, locale: locale)
-    guard !calendar.isDate(date, inSameDayAs: now) else { return timeLabel }
-
-    if
-      let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
-      calendar.isDate(date, inSameDayAs: tomorrow)
-    {
-      return "\(strings.tomorrow) · \(timeLabel)"
-    }
-
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.setLocalizedDateFormatFromTemplate("EEEE")
-    return "\(formatter.string(from: date)) · \(timeLabel)"
+    guard
+      let day = dayLabel(date, relativeTo: now, in: convention, locale: locale, strings: strings)
+    else { return timeLabel }
+    return "\(day) · \(timeLabel)"
   }
 
   static func timeRange(
@@ -655,7 +1161,6 @@ private enum WatchFormat {
     }
     return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
   }
-
 
   /// How long the wait is, spoken as two units.
   ///
@@ -682,6 +1187,19 @@ private enum WatchFormat {
       return strings.duration(strings.days(days), strings.hours(hours))
     }
     return strings.duration(strings.hours(hours), strings.minutes(minutes))
+  }
+}
+
+private extension ConPawsSnapshot {
+  func event(
+    id eventID: String,
+    in conventionID: String
+  ) -> (event: ConPawsEventSnapshot, convention: ConPawsConventionSnapshot)? {
+    guard
+      let convention = conventions.first(where: { $0.id == conventionID }),
+      let event = convention.events.first(where: { $0.id == eventID })
+    else { return nil }
+    return (event, convention)
   }
 }
 
@@ -728,18 +1246,23 @@ func runWatchScheduleSelfCheck() {
     dateRangeLabel: "Today",
     events: [current, next]
   )
-  let schedule = WatchScheduleProjection(
-    snapshot: ConPawsSnapshot(
-      schemaVersion: 1,
-      generatedAtMs: now.timeIntervalSince1970 * 1_000,
-      localeIdentifier: "en",
-      conventions: [convention]
-    ),
-    now: now
+  let snapshot = ConPawsSnapshot(
+    schemaVersion: 1,
+    generatedAtMs: now.timeIntervalSince1970 * 1_000,
+    localeIdentifier: "en",
+    conventions: [convention]
   )
+  let schedule = WatchScheduleProjection(snapshot: snapshot, now: now)
   assert(schedule.activeEvent?.id == "current")
   assert(schedule.nextEvent?.id == "next")
   assert(schedule.isLeaveWindow)
+  // Up Next has its own card, so Later never repeats it.
+  assert(schedule.laterEvents.isEmpty)
+  assert(schedule.todayEvents.map(\.id) == ["current", "next"])
+  // The routes a detail screen is pushed with resolve, and a dropped event
+  // does not, which is what pops a stale detail screen.
+  assert(snapshot.event(id: "next", in: "con")?.event.id == "next")
+  assert(snapshot.event(id: "next", in: "other") == nil)
   let deepLink = ConPawsSnapshotStore.appURL(conventionID: "con /?#")
   let deepLinkComponents = deepLink.flatMap {
     URLComponents(url: $0, resolvingAgainstBaseURL: false)
@@ -764,6 +1287,16 @@ func runWatchScheduleSelfCheck() {
       strings: .english
     ).hasPrefix("Tomorrow · ")
   )
+  // Today needs no day label; that is what keeps same-day cards to a bare time.
+  assert(
+    WatchFormat.dayLabel(
+      now.addingTimeInterval(60),
+      relativeTo: now,
+      in: convention,
+      locale: Locale(identifier: "en_US"),
+      strings: .english
+    ) == nil
+  )
   // Beyond a day out the app reads the shared ladder, not its own wording.
   assert(
     ConPawsCountdown.label(
@@ -783,5 +1316,112 @@ func runWatchScheduleSelfCheck() {
       strings: ConPawsStrings.resolve("sv")
     ) == "I morgon"
   )
+}
+
+/// Snapshots for the canvas, built around the moment the preview renders.
+private enum WatchPreviewFixtures {
+  static let now = Date()
+
+  private static var calendar: Calendar {
+    var calendar = Calendar.autoupdatingCurrent
+    calendar.timeZone = .autoupdatingCurrent
+    return calendar
+  }
+
+  /// `hour` o'clock, `days` from today.
+  private static func at(days: Int, hour: Int) -> Date {
+    let day = calendar.date(byAdding: .day, value: days, to: calendar.startOfDay(for: now)) ?? now
+    return calendar.date(bySettingHour: hour, minute: 0, second: 0, of: day) ?? day
+  }
+
+  private static func event(
+    _ id: String,
+    _ title: String,
+    from start: Date,
+    minutes: Double = 60,
+    room: String? = "Studio B",
+    reminderMinutes: Int? = nil,
+    ageRating: String? = nil
+  ) -> ConPawsEventSnapshot {
+    ConPawsEventSnapshot(
+      id: id,
+      title: title,
+      startAtMs: start.timeIntervalSince1970 * 1_000,
+      endAtMs: start.addingTimeInterval(minutes * 60).timeIntervalSince1970 * 1_000,
+      location: "ConPaws Convention Center",
+      room: room,
+      reminderMinutes: reminderMinutes,
+      ageRating: ageRating
+    )
+  }
+
+  private static func snapshot(_ events: [ConPawsEventSnapshot]) -> ConPawsSnapshot {
+    ConPawsSnapshot(
+      schemaVersion: 2,
+      generatedAtMs: now.timeIntervalSince1970 * 1_000,
+      localeIdentifier: "en",
+      conventions: [
+        ConPawsConventionSnapshot(
+          id: "preview-convention",
+          name: "ConPaws Preview Con",
+          startAtMs: at(days: -1, hour: 0).timeIntervalSince1970 * 1_000,
+          endAtMs: at(days: 4, hour: 23).timeIntervalSince1970 * 1_000,
+          timeZoneIdentifier: TimeZone.autoupdatingCurrent.identifier,
+          dateRangeLabel: "Preview dates",
+          events: events
+        ),
+      ]
+    )
+  }
+
+  /// Today's pick is over and three are left. Three, not two: Up Next takes
+  /// the first, so only the other two can show under Later.
+  static var later: ConPawsSnapshot {
+    snapshot([
+      event("ended", "Opening Ceremonies", from: now.addingTimeInterval(-7_200), room: "Main Ballroom"),
+      event("tomorrow-10", "Tabletop Games 101", from: at(days: 1, hour: 10)),
+      event("tomorrow-11", "Music Production Workshop", from: at(days: 1, hour: 11), room: "Hall A"),
+      event("later-14", "Maker Skills Roundtable", from: at(days: 3, hour: 14), ageRating: "18+ Adult"),
+    ])
+  }
+
+  /// A panel running now and the next starting in 20 minutes inside its
+  /// 30-minute reminder: the leave window, with a ticking timer.
+  static var leaveWindow: ConPawsSnapshot {
+    snapshot([
+      event("running", "Fursuit Parade Staging", from: now.addingTimeInterval(-1_800), room: "Main Ballroom"),
+      event("next", "Fursuit Meetup", from: now.addingTimeInterval(1_200), room: "Hall A", reminderMinutes: 30),
+      event("after", "Art Show Tour", from: now.addingTimeInterval(7_200)),
+    ])
+  }
+}
+
+#Preview("Home · Later") {
+  NavigationStack {
+    WatchRootView(
+      snapshot: WatchPreviewFixtures.later,
+      now: WatchPreviewFixtures.now,
+      isUsingSavedSchedule: false,
+      snapshotDate: nil
+    )
+  }
+  .environment(\.locale, WatchPreviewFixtures.later.locale)
+}
+
+#Preview("Home · Always On") {
+  // The canvas cannot drop a wrist, so this sets what the system sets: the
+  // dimmed display and the privacy redaction. Titles and rooms should turn to
+  // bars; the timer, the clock times and the convention name should not.
+  NavigationStack {
+    WatchRootView(
+      snapshot: WatchPreviewFixtures.leaveWindow,
+      now: WatchPreviewFixtures.now,
+      isUsingSavedSchedule: false,
+      snapshotDate: nil
+    )
+  }
+  .environment(\.locale, WatchPreviewFixtures.leaveWindow.locale)
+  .environment(\.isLuminanceReduced, true)
+  .environment(\.redactionReasons, .privacy)
 }
 #endif

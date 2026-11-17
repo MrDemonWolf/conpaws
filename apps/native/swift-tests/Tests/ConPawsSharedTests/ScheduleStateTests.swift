@@ -72,6 +72,34 @@ struct ScheduleStateTests {
     #expect(!ConPawsScheduleResolver.isInReminderWindow(upcoming, now: upcomingDate(upcoming)))
   }
 
+  // The watch's Up Next card shows the reminder line while it is pending and a
+  // ticking timer once the leave window opens; never both, never neither.
+  @Test(arguments: [-60.0, -1, 0, 1, 600, 899])
+  func reminderIsPendingExactlyUntilTheLeaveWindowOpens(offset: TimeInterval) {
+    let upcoming = event("upcoming", from: now.addingTimeInterval(900), reminderMinutes: 15)
+    let moment = now.addingTimeInterval(offset)
+    #expect(
+      ConPawsScheduleResolver.isReminderPending(upcoming, now: moment)
+        != ConPawsScheduleResolver.isInReminderWindow(upcoming, now: moment)
+    )
+  }
+
+  @Test func reminderPendingEdges() {
+    let atStart = event("at-start", from: now.addingTimeInterval(60), reminderMinutes: 0)
+    #expect(ConPawsScheduleResolver.isReminderPending(atStart, now: now))
+    #expect(ConPawsScheduleResolver.isReminderPending(atStart, now: upcomingDate(atStart)) == false)
+    let unset = event("unset", from: now.addingTimeInterval(900))
+    #expect(ConPawsScheduleResolver.isReminderPending(unset, now: now) == false)
+  }
+
+  // A 60-minute reminder opens its window exactly an hour out. The eyebrow
+  // (leave window) and the timer must agree on that first minute.
+  @Test func hourLongLeaveWindowOpensOnATimer() {
+    let upcoming = event("upcoming", from: now.addingTimeInterval(3_600), reminderMinutes: 60)
+    #expect(ConPawsScheduleResolver.isInReminderWindow(upcoming, now: now))
+    #expect(ConPawsCountdown.showsLiveTimer(from: now, to: upcomingDate(upcoming), within: 3_600))
+  }
+
   @Test func unknownEndDefaultsToSixtyMinutes() {
     let recent = event("unknown", from: now.addingTimeInterval(-3_540))
     let ended = event("unknown", from: now.addingTimeInterval(-3_600))
