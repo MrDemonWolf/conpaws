@@ -206,6 +206,40 @@ export function TrackedEventActivityLayout(
       </VStack>
     );
   }
+  // One line under the title: the time stays whole and the room gives way
+  // first, so neither is pushed onto a line the banner has no height for.
+  function detailsRow() {
+    if (!props.timeLabel && !props.place) return null;
+    return (
+      <HStack spacing={0}>
+        {props.timeLabel ? (
+          <Text
+            modifiers={[
+              font({ textStyle: "subheadline" }),
+              secondary,
+              monospacedDigit(),
+              lineLimit(1),
+              layoutPriority(2),
+            ]}
+          >
+            {props.timeLabel}
+          </Text>
+        ) : null}
+        {props.place ? (
+          <Text
+            modifiers={[
+              font({ textStyle: "subheadline" }),
+              secondary,
+              lineLimit(1),
+            ]}
+          >
+            {props.timeLabel ? ` · ${props.place}` : props.place}
+          </Text>
+        ) : null}
+        <Spacer minLength={0} />
+      </HStack>
+    );
+  }
   function stopButton() {
     return (
       <Button
@@ -239,11 +273,16 @@ export function TrackedEventActivityLayout(
   }
 
   return {
+    // The Lock Screen gives a Live Activity at most 160 points of height.
+    // Stop shares the header row and the time and room share one line, so the
+    // title keeps its second line. The countdown wins width through its layout
+    // priority; fixedSize must not be used on it, because a timer's ideal
+    // width is far wider than its text and pushes the banner off screen.
     banner: (
       <VStack
         alignment="leading"
-        spacing={8}
-        modifiers={[padding({ all: 16 })]}
+        spacing={6}
+        modifiers={[padding({ horizontal: 16, vertical: 12 })]}
       >
         <HStack spacing={6}>
           {icon("footnote", false)}
@@ -256,21 +295,16 @@ export function TrackedEventActivityLayout(
           >
             {props.conventionName}
           </Text>
-          <Spacer />
+          <Spacer minLength={8} />
+          {stopButton()}
         </HStack>
         <HStack alignment="top" spacing={12}>
-          <VStack alignment="leading" spacing={2}>
-            {title(2, "headline")}
-            {detailsLines()}
-          </VStack>
+          {title(2, "headline")}
           <Spacer minLength={8} />
           {phaseBlock("trailing")}
         </HStack>
+        {detailsRow()}
         {progress()}
-        <HStack>
-          <Spacer />
-          {stopButton()}
-        </HStack>
       </VStack>
     ),
     bannerSmall: (
@@ -312,11 +346,25 @@ export function TrackedEventActivityLayout(
         />
       ),
     minimal: icon("caption", true),
-    expandedLeading: icon("title3", false),
+    // The expanded island's corners are curved, and text set flush to its
+    // edges is cut off there; the inset keeps captions and the room whole.
+    expandedLeading: (
+      <VStack modifiers={[padding({ leading: 6 })]}>
+        {icon("title3", false)}
+      </VStack>
+    ),
     expandedCenter: title(1, "headline"),
-    expandedTrailing: phaseBlock("trailing"),
+    expandedTrailing: (
+      <VStack modifiers={[padding({ trailing: 6 })]}>
+        {phaseBlock("trailing")}
+      </VStack>
+    ),
     expandedBottom: (
-      <VStack alignment="leading" spacing={6}>
+      <VStack
+        alignment="leading"
+        spacing={6}
+        modifiers={[padding({ horizontal: 8, bottom: 4 })]}
+      >
         {progress()}
         <HStack alignment="bottom" spacing={8}>
           {detailsLines()}

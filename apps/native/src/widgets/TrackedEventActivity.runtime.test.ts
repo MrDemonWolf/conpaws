@@ -441,26 +441,78 @@ describe("isolated Live Activity layout", () => {
     expectNoBrokenValues(tree);
   });
 
-  it("gives the time and the place a line each, so neither cuts the other", () => {
+  it("never lets the room cut the time, in the banner or the island", () => {
     const input = props({ place: "Grand Ballroom Salon C, Level 3" });
     const tree = render(input);
-    for (const region of ["banner", "expandedBottom"] as const) {
-      const lines = nodes(tree[region]).filter(
-        (node) =>
-          node.type === "Text" &&
-          (node.props.text === input.timeLabel ||
-            node.props.text === input.place),
+    const lineLimit = (node: Node) =>
+      node.props.modifiers?.find((item) => item.type === "lineLimit")
+        ?.values[0];
+    const priority = (node: Node) =>
+      Number(
+        node.props.modifiers?.find((item) => item.type === "layoutPriority")
+          ?.values[0] ?? 0,
       );
+
+    // The island has the height for a line each.
+    const island = nodes(tree.expandedBottom).filter(
+      (node) =>
+        node.type === "Text" &&
+        (node.props.text === input.timeLabel ||
+          node.props.text === input.place),
+    );
+    expect(island.map((node) => node.props.text)).toEqual([
+      input.timeLabel,
+      input.place,
+    ]);
+    for (const line of island) expect(lineLimit(line)).toBe(1);
+
+    // The banner has no height to spare, so they share a line and the room
+    // gives way first.
+    const time = nodes(tree.banner).find(
+      (node) => node.type === "Text" && node.props.text === input.timeLabel,
+    );
+    const place = nodes(tree.banner).find(
+      (node) => node.type === "Text" && node.props.text === ` · ${input.place}`,
+    );
+    expect(time && place).toBeTruthy();
+    if (!time || !place) return;
+    expect(lineLimit(time)).toBe(1);
+    expect(lineLimit(place)).toBe(1);
+    expect(priority(time)).toBeGreaterThan(priority(place));
+  });
+
+  it("keeps the banner's title two lines beside a countdown that wins width", () => {
+    const running = props({
+      startAtMs: NOW - 10 * MINUTE,
+      endAtMs: NOW + 50 * MINUTE,
+      cleanupAtMs: NOW + 50 * MINUTE,
+    });
+    const banner = nodes(render(running).banner);
+    const priority = (node: Node | undefined) =>
+      Number(
+        node?.props.modifiers?.find((item) => item.type === "layoutPriority")
+          ?.values[0] ?? 0,
+      );
+    const title = banner.find(
+      (node) => node.type === "Text" && node.props.text === running.title,
+    );
+    const timer = banner.find(
+      (node) => node.type === "Text" && node.props.timerInterval != null,
+    );
+    expect(
+      title?.props.modifiers?.find((item) => item.type === "lineLimit")
+        ?.values[0],
+    ).toBe(2);
+    expect(priority(timer)).toBeGreaterThan(priority(title));
+    // A timer's ideal width is far wider than its text: fixedSize on it
+    // pushed the whole banner off screen on a simulator.
+    for (const node of banner)
       expect(
-        lines.map((node) => node.props.text),
-        region,
-      ).toEqual([input.timeLabel, input.place]);
-      for (const line of lines)
-        expect(
-          line.props.modifiers?.find((item) => item.type === "lineLimit")
-            ?.values[0],
-        ).toBe(1);
-    }
+        node.props.modifiers?.some((item) => item.type === "fixedSize"),
+      ).not.toBe(true);
+    // Stop sits in the header row, not on a line of its own.
+    const rows = banner.filter((node) => node.type === "HStack");
+    expect(nodes(rows[0]).some((node) => node.type === "Button")).toBe(true);
   });
 
   it("uses the bright accent on the dark activity surfaces in both appearances", () => {
