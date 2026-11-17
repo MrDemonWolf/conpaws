@@ -116,6 +116,7 @@ import {
   SCHEDULE_EMPTY_CONTENT_STYLE,
   SCHEDULE_LIST_CONTENT_STYLE,
   shouldBounceSchedule,
+  showsScheduleHeader,
 } from "@/lib/schedule-list-styles";
 import {
   buildAgendaSections,
@@ -1348,6 +1349,12 @@ export default function ConventionDetailScreen() {
     />
   );
 
+  // The Now hero card is the whole Now view when no other panel fits this
+  // hour. It lives in the list header, so the list must keep that header and
+  // scroll like a populated one.
+  const nowHeroOnly =
+    view === "now" && heroProps !== null && sections.length === 0;
+
   const emptyComponent =
     view === "all" ? (
       events.length === 0 ? (
@@ -1529,9 +1536,9 @@ export default function ConventionDetailScreen() {
         // Bounce only when there is a schedule to show. Empty states must
         // not rubber-band, but the iOS large title needs a scrollable list
         // to lay itself into, so a populated list has to bounce.
-        alwaysBounceVertical={shouldBounceSchedule(sections)}
+        alwaysBounceVertical={shouldBounceSchedule(sections, nowHeroOnly)}
         scrollEnabled={canScrollSchedule(
-          sections.length > 0 || view === "all",
+          sections.length > 0 || view === "all" || nowHeroOnly,
           fontScale,
         )}
         sections={sections}
@@ -1551,7 +1558,7 @@ export default function ConventionDetailScreen() {
         }
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
-          sections.length === 0 && view !== "all"
+          !showsScheduleHeader(view, sections.length, heroProps !== null)
             ? undefined
             : events.length > 0 || scheduleRefresh.summary !== null
               ? listHeader

@@ -24,8 +24,29 @@ export const SCHEDULE_LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
  * written out at each list: the two schedule screens have already drifted apart
  * on it once, and the failure it causes is subtle enough to survive review.
  */
-export function shouldBounceSchedule(sections: { length: number }): boolean {
-  return sections.length > 0;
+export function shouldBounceSchedule(
+  sections: { length: number },
+  headerStandsInForRows = false,
+): boolean {
+  return sections.length > 0 || headerStandsInForRows;
+}
+
+/**
+ * Whether the convention screen keeps its list header: the view switcher,
+ * the filters and the Now hero card.
+ *
+ * An empty Plan or Now view hands the screen to its centred empty state,
+ * whose button leads back to Browse. A Now view with a hero card is not
+ * empty, even when no other panel fits the current hour: the card lives in
+ * this header and stands in for the empty state. Hiding the header there hid
+ * the card and the switcher with it and left a blank screen.
+ */
+export function showsScheduleHeader(
+  view: "all" | "mine" | "now",
+  rowCount: number,
+  hasNowHero: boolean,
+): boolean {
+  return view === "all" || rowCount > 0 || (view === "now" && hasNowHero);
 }
 
 /** Keep normal empty screens still while letting enlarged text remain reachable. */
