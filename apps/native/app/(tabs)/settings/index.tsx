@@ -11,15 +11,13 @@ import { type Href, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ActivityIndicator,
-  Alert,
-  Linking,
-  useWindowDimensions,
-} from "react-native";
+import { Alert, Linking, useWindowDimensions } from "react-native";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
+// Platform-split: Compose rows cannot measure a React Native spinner, which
+// squeezed the Notifications row into one letter per line on Android.
+import { RowSpinner } from "@/components/ui/RowSpinner";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
@@ -335,7 +333,7 @@ export default function SettingsScreen() {
             }
             trailing={
               notificationPermission === null || requestingPermission ? (
-                <ActivityIndicator size="small" />
+                <RowSpinner />
               ) : (
                 <ExternalIndicator />
               )
@@ -397,9 +395,7 @@ export default function SettingsScreen() {
                 ? t("settings.data.exporting")
                 : t("settings.data.exportDescription")
             }
-            trailing={
-              isExporting ? <ActivityIndicator size="small" /> : undefined
-            }
+            trailing={isExporting ? <RowSpinner /> : undefined}
             onPress={isExporting ? undefined : handleExport}
           >
             {t("settings.data.exportData")}
@@ -411,9 +407,7 @@ export default function SettingsScreen() {
                 ? t("settings.data.importing")
                 : t("settings.data.importDescription")
             }
-            trailing={
-              isImporting ? <ActivityIndicator size="small" /> : undefined
-            }
+            trailing={isImporting ? <RowSpinner /> : undefined}
             onPress={isImporting ? undefined : () => importData()}
           >
             {t("settings.data.importData")}
