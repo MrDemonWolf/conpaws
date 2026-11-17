@@ -22,7 +22,11 @@
     "prebuild:clean": "expo prebuild --clean",
     "build-number:bump": "node scripts/build-number.mjs --bump",
     "build-number:check": "node scripts/build-number.mjs --check",
-    "ship:prep": "bun run licenses:check && node scripts/build-number.mjs --bump && expo prebuild --no-clean && node scripts/build-number.mjs --check"
+    "ship:prep": "bun run licenses:check && node scripts/build-number.mjs --bump && expo prebuild --no-clean && node scripts/build-number.mjs --check",
+    "ship:testflight": "node scripts/ship-store.mjs ios --track testflight",
+    "ship:testflight:public": "node scripts/ship-store.mjs ios --track public",
+    "ship:android": "node scripts/ship-store.mjs android --track internal",
+    "ship:android:public": "node scripts/ship-store.mjs android --track public"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
