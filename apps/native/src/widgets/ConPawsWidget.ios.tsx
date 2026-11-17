@@ -1133,9 +1133,13 @@ export function ConPawsWidgetLayout(
   if (!heroEvent) {
     const large = family === "systemLarge";
     return (
+      // A small widget has about 138 points of height. A title2 glyph, a
+      // title that wraps and a three-line hint need more, so the hint was cut
+      // mid-word; the small size takes a smaller glyph and tighter spacing,
+      // and the hint shrinks a little before it truncates.
       <VStack
         alignment="center"
-        spacing={6}
+        spacing={family === "systemSmall" ? 4 : 6}
         modifiers={[...root, ...spokenModifiers, ...fill]}
       >
         {large ? header() : null}
@@ -1143,7 +1147,13 @@ export function ConPawsWidgetLayout(
         <Image
           systemName={emptyGlyph}
           modifiers={[
-            font({ textStyle: large ? "title" : "title2" }),
+            font({
+              textStyle: large
+                ? "title"
+                : family === "systemSmall"
+                  ? "title3"
+                  : "title2",
+            }),
             heroColor,
           ]}
         />
@@ -1164,6 +1174,7 @@ export function ConPawsWidgetLayout(
             secondary,
             multilineTextAlignment("center"),
             lineLimit(3),
+            minimumScaleFactor(0.85),
           ]}
         >
           {emptyHint}
