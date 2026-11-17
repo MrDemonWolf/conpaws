@@ -649,6 +649,62 @@ describe("upsertBySourceUid transaction", () => {
     expect(Object.keys(payload)).not.toContain("visitEndTime");
   });
 
+  it("leaves a row the feed republished unchanged untouched, updatedAt included", async () => {
+    const unchanged = storedEvent({
+      id: "unchanged",
+      sourceUid: "panel-1",
+      title: "Same panel",
+      room: "Room A",
+      startTime: "2026-06-12T16:00:00.000Z",
+      endTime: "2026-06-12T17:00:00.000Z",
+    });
+    const tombstoned = storedEvent({
+      id: "tombstoned",
+      sourceUid: "panel-2",
+      title: "Back again",
+      room: "Room A",
+      startTime: "2026-06-12T18:00:00.000Z",
+      endTime: "2026-06-12T19:00:00.000Z",
+      feedStatus: "removed",
+    });
+    const recorder = recordingTx([unchanged, tombstoned]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+    const republished = (row: ConventionEvent) =>
+      sourceEvent({
+        sourceUid: row.sourceUid,
+        legacySourceUid: null,
+        title: row.title,
+        room: row.room,
+        startTime: row.startTime,
+        endTime: row.endTime,
+      });
+    const identity = (row: ConventionEvent) =>
+      occurrence({
+        sourceUid: row.sourceUid ?? "",
+        legacySourceUid: null,
+        startTime: row.startTime,
+        recurrenceTime: null,
+        title: row.title,
+      });
+
+    const result = await upsertBySourceUid(
+      [republished(unchanged), republished(tombstoned)],
+      "convention-1",
+      snapshot([identity(unchanged), identity(tombstoned)], [], true),
+    );
+
+    // Still counted as matched, but only the row whose mark clears is written.
+    expect(result.updated).toBe(2);
+    expect(recorder.updates).toHaveLength(1);
+    expect(recorder.updates[0]).toMatchObject({
+      title: "Back again",
+      feedStatus: null,
+      updatedAt: expect.any(String),
+    });
+  });
+
   it("does not carry legacySourceUid into an inserted row", async () => {
     const recorder = recordingTx([]);
     mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>

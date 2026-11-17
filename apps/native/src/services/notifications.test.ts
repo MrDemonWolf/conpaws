@@ -23,6 +23,7 @@ const notificationMocks = vi.hoisted(() => ({
 const eventRepoMocks = vi.hoisted(() => ({
   getAllWithReminders: vi.fn(),
   update: vi.fn(),
+  clearPassedReminder: vi.fn(),
 }));
 const conventionRepoMocks = vi.hoisted(() => ({ getAll: vi.fn() }));
 const i18nMock = vi.hoisted(() => ({
@@ -300,9 +301,10 @@ describe("startup reminder reconciliation", () => {
 
     expect(notificationMocks.requestPermissionsAsync).not.toHaveBeenCalled();
     expect(notificationMocks.scheduleNotificationAsync).not.toHaveBeenCalled();
-    expect(eventRepoMocks.update).toHaveBeenCalledWith("event-1", {
-      reminderMinutes: null,
-    });
+    // Housekeeping, so the row's updatedAt still says when the user last
+    // changed it; a Watch tap is compared against that.
+    expect(eventRepoMocks.clearPassedReminder).toHaveBeenCalledWith("event-1");
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
     expect(result.cleared).toBe(1);
   });
 

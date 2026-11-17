@@ -93,7 +93,7 @@ export async function rearmImportedReminders(
     const triggerMs = new Date(event.startTime).getTime() - minutes * 60 * 1000;
     if (Number.isFinite(triggerMs) && triggerMs <= now) {
       await cancelEventReminder(event.id);
-      await eventsRepo.update(event.id, { reminderMinutes: null });
+      await eventsRepo.clearPassedReminder(event.id);
       cleared++;
       continue;
     }

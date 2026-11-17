@@ -5,7 +5,7 @@ import {
 } from "./useImportSchedule";
 
 const { repo, notifications } = vi.hoisted(() => ({
-  repo: { update: vi.fn() },
+  repo: { update: vi.fn(), clearPassedReminder: vi.fn() },
   notifications: {
     scheduleEventReminder: vi.fn(),
     cancelEventReminder: vi.fn(),
@@ -91,9 +91,8 @@ describe("rearmImportedReminders", () => {
     );
 
     expect(result).toEqual({ rescheduled: 0, cleared: 1, paused: 0 });
-    expect(repo.update).toHaveBeenCalledWith("past", {
-      reminderMinutes: null,
-    });
+    expect(repo.clearPassedReminder).toHaveBeenCalledWith("past");
+    expect(repo.update).not.toHaveBeenCalled();
     expect(notifications.cancelEventReminder).toHaveBeenCalledWith("past");
     expect(notifications.scheduleEventReminder).not.toHaveBeenCalled();
   });

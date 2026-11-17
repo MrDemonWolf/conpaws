@@ -320,7 +320,7 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
 
     if (triggerMs <= Date.now()) {
       await cancelEventReminder(event.id);
-      await eventsRepo.update(event.id, { reminderMinutes: null });
+      await eventsRepo.clearPassedReminder(event.id);
       cleared++;
       continue;
     }
