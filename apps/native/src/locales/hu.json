@@ -60,7 +60,9 @@
         "title": "A rendezvény nem található",
         "body": "Lehet, hogy eltávolították a katalógusból."
       },
-      "successAnnouncement": "{{name}} letöltve. Válaszd ki az első panelt."
+      "successAnnouncement": "{{name}} letöltve. Válaszd ki az első panelt.",
+      "venue": "Helyszín",
+      "offlineAvailable": "Letöltés után offline is elérhető"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Minden nap mutatása",
       "dropIn": {
         "title": "Ugorj be bármikor",
-        "subtitle": "Nincs kötött időpont"
+        "subtitle": "Nincs kötött időpont",
+        "filter": "Kötetlen programok · {{count}}",
+        "find": "Kötetlen program keresése"
       },
       "noSeat": "Egy panel mentése nem foglal helyet.",
       "optionsOne": "{{count}} lehetőség",
@@ -348,6 +352,14 @@
       "overlapsPlan": "Átfedésben van a terveddel",
       "overlapWith": "{{minutes}} perc ezzel: {{title}}",
       "compareBeforeAdding": "Összehasonlítás hozzáadás előtt"
+    },
+    "visit": {
+      "title": "Látogatás tervezése",
+      "edit": "Látogatás szerkesztése",
+      "duration": "Látogatás hossza",
+      "windowError": "A teljes látogatásnak a nyitvatartási időbe kell esnie.",
+      "invalid": "A nyitvatartás megváltozott. Módosítsd a látogatásodat.",
+      "remove": "Látogatás eltávolítása"
     }
   },
   "errors": {
@@ -379,12 +391,11 @@
     },
     "archive": {
       "title": "Archívum ({{count}})",
-      "show": "Megjelenítés",
-      "hide": "Elrejtés",
       "noCurrent": "Nincsenek közelgő conok.",
       "success": "{{name}} archiválva.",
       "errorTitle": "A cont nem sikerült archiválni",
-      "errorMessage": "Semmi sem lett archiválva. Próbáld újra."
+      "errorMessage": "Semmi sem lett archiválva. Próbáld újra.",
+      "showConventions": "Archivált találkozók megjelenítése"
     },
     "unarchive": {
       "success": "{{name}} visszaállítva az archívumból.",
@@ -392,7 +403,6 @@
       "errorMessage": "A cont nem sikerült visszaállítani. Próbáld újra."
     },
     "moreActions": "További műveletek: {{name}}",
-    "sortBy": "Rendezés",
     "sort": {
       "upcoming": "Közelgők elöl",
       "name": "Név"
@@ -403,7 +413,8 @@
       "success": "{{name}} törölve.",
       "errorTitle": "A cont nem sikerült törölni",
       "errorMessage": "Semmi sem lett törölve. Próbáld újra."
-    }
+    },
+    "sortAndView": "Rendezés és nézet"
   },
   "import": {
     "title": "Program importálása",
@@ -492,42 +503,36 @@
   "onboarding": {
     "progress": "{{step}}. lépés / {{total}}",
     "welcome": {
-      "tagline": "A conod programja, offline is kéznél.",
-      "subtitle": "Tervezz a rossz conos Wi-Fi ellenére is. A programod az eszközödön marad.",
+      "tagline": "A rendezvényed, offline is készen.",
+      "subtitle": "Keresd meg a rendezvényedet, vagy importálj .ics-fájlt vagy Sched-hivatkozást.",
       "continue": "Tovább",
-      "skip": "Kihagyás"
+      "skip": "Kihagyás",
+      "exampleTitle": "Mintarendezvény",
+      "connectionNote": "A programok kereséséhez és letöltéséhez internetkapcsolat kell. A letöltött program offline is elérhető marad."
     },
     "features": {
-      "title": "Tervezd meg az egész cont",
-      "subtitle": "Minden, amire szükséged van, amikor a helyszíni Wi-Fi feladja.",
-      "demo": {
-        "saved": "Tervem"
-      },
-      "import": {
-        "title": "Importálj bármilyen programot",
-        "description": "Adj hozzá .ics-fájlt, vagy illessz be egy Sched-linket."
-      },
-      "plan": {
-        "title": "Ne maradj le egyetlen panelről sem",
-        "description": "Állítsd össze a tervedet, nézd meg, mi történik most és mi következik, és szúrd ki az átfedéseket."
-      },
-      "offline": {
-        "title": "Privát és offline",
-        "description": "A conod adatai ezen az eszközön maradnak."
-      },
-      "plus": {
-        "title": "Ingyenes és offline",
-        "description": "Itt minden működik fiók és hálózat nélkül. Az opcionális felhőfunkciók később érkezhetnek."
-      },
-      "next": "Tovább"
+      "title": "Válaszd ki a téged érdeklő paneleket.",
+      "subtitle": "Koppints a csillagra egy esemény mentéséhez. Ezután nyisd meg a Tervem nézetet.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Tovább",
+      "practiceNote": "Próbáld ki itt. Ez a minta nem módosítja a rendezvényeidet.",
+      "viewsNote": "A Program a programot mutatja. A Tervem a választásaidat tárolja. A Most az aktuális és következő eseményeket mutatja.",
+      "emptyPlan": "Még nincs terved. Nyisd meg a Program nézetet, és koppints a csillagra."
     },
     "getStarted": {
       "find": "Rendezvény keresése",
-      "title": "Készen állsz a következő conra?",
-      "subtitle": "Találd meg a rendezvényed, importálj programot, vagy előbb nézz körül.",
+      "title": "Emlékeztető, amikor szeretnéd.",
+      "subtitle": "Egy esemény mentése és egy emlékeztető beállítása két külön döntés.",
       "importSchedule": "Program importálása",
       "exploreFirst": "Előbb körülnézek",
-      "localPrivacy": "Nem kell fiók. Az adataid helyben maradnak."
+      "localPrivacy": "Nem kell fiók. Az adataid helyben maradnak.",
+      "example": "Mintaesemény",
+      "sampleOnly": "Csak minta. Nem küldünk értesítést.",
+      "permissionNote": "A telefon akkor kér értesítési engedélyt, amikor valódi emlékeztetőt állítasz be. A ConPaws értesítések nélkül is használható."
     }
   },
   "reminders": {
@@ -706,7 +711,10 @@
       "notRequested": "Még nem lett kérve",
       "defaultLead": "Alapértelmezett emlékeztető",
       "defaultLeadDescription": "Előre kiválasztva, amikor új eseményre állítasz be emlékeztetőt.",
-      "noDefault": "Nincs"
+      "noDefault": "Nincs",
+      "enable": "Értesítések engedélyezése",
+      "changeError": "Nem sikerült frissíteni az értesítési engedélyt. Próbáld újra.",
+      "defaultLeadError": "Nem sikerült menteni az alapértelmezett emlékeztetőt. Próbáld újra."
     },
     "help": {
       "gettingStarted": "Első lépések",
@@ -714,7 +722,28 @@
       "importNow": "Program importálása",
       "importNowDescription": "Adj meg egy Sched-linket vagy egy .ics-fájlt.",
       "find": "Rendezvény keresése",
-      "findDescription": "Válassz rendezvényt a ConPaws katalógusából, és töltsd le a programját."
+      "findDescription": "Válassz rendezvényt a ConPaws katalógusából, és töltsd le a programját.",
+      "replay": "Bemutató újraindítása",
+      "replayDescription": "Gyakorlás ideiglenes mintaadatokkal"
+    },
+    "preview": {
+      "title": "Előzetes verzió tesztelése",
+      "add": "Mintatalálkozók hozzáadása",
+      "description": "Kitalált programok teszteléshez. A többi találkozód változatlan marad.",
+      "restore": "Mintaadatok visszaállítása",
+      "restoreConfirm": "A mintatalálkozók módosításai felül lesznek írva. A többi találkozód és beállításod változatlan marad.",
+      "testReminder": "Emlékeztető tesztelése",
+      "testDescription": "Valódi helyi értesítés ütemezése körülbelül öt másodperc múlvára.",
+      "testScheduled": "Helyi értesítés ütemezve körülbelül öt másodperc múlvára.",
+      "nativeOnly": "Az emlékeztetők teszteléséhez a natív alkalmazás szükséges.",
+      "error": "Nem sikerült végrehajtani a tesztműveletet. Próbáld újra."
+    },
+    "timeFormat": {
+      "title": "Időformátum",
+      "system": "Eszközbeállítás használata",
+      "hour12": "12 órás · 7:00 PM",
+      "hour24": "24 órás · 19:00",
+      "saveError": "Nem sikerült menteni az időformátumot. Próbáld újra."
     }
   }
 }

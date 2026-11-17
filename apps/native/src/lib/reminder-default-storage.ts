@@ -1,13 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ONBOARDING_STORAGE_KEY } from "./onboarding-storage";
 
-/**
- * The preferred lead time for new leave reminders, settable in Settings.
- * The reminder picker pre-checks this option for events that have no reminder
- * yet, so the common case is open picker → tap the already-suggested row.
- * `null` (no stored value) keeps the old behavior: "No leave reminder" checked.
- *
- * Values mirror the picker: minutes before the event, 0 = at event time.
- */
+/** The suggested lead time for a newly enabled reminder; saving an event stays separate. */
 export const REMINDER_DEFAULT_STORAGE_KEY = "reminderDefaultMinutes";
 
 /** The options Settings offers, matching the sheet's picker. */
@@ -17,12 +11,21 @@ let cachedDefault: number | null | undefined;
 
 export async function getDefaultReminderMinutes(): Promise<number | null> {
   if (cachedDefault !== undefined) return cachedDefault;
-  const stored = await AsyncStorage.getItem(REMINDER_DEFAULT_STORAGE_KEY).catch(
-    () => null,
-  );
-  const parsed = stored === null ? Number.NaN : Number(stored);
-  cachedDefault = Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
-  return cachedDefault;
+  try {
+    const stored = await AsyncStorage.getItem(REMINDER_DEFAULT_STORAGE_KEY);
+    if (stored === null) {
+      // Old versions removed the key for None, so preserve that on existing installs.
+      const existing = await AsyncStorage.getItem(ONBOARDING_STORAGE_KEY);
+      await setDefaultReminderMinutes(existing === "true" ? null : 15);
+    } else {
+      const parsed =
+        stored === "none" || stored.trim() === "" ? Number.NaN : Number(stored);
+      cachedDefault = Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+    }
+  } catch {
+    return null;
+  }
+  return cachedDefault ?? null;
 }
 
 export function getCachedDefaultReminderMinutes(): number | null {
@@ -32,15 +35,12 @@ export function getCachedDefaultReminderMinutes(): number | null {
 export async function setDefaultReminderMinutes(
   minutes: number | null,
 ): Promise<void> {
-  cachedDefault = minutes;
-  if (minutes === null) {
-    await AsyncStorage.removeItem(REMINDER_DEFAULT_STORAGE_KEY).catch(
-      () => undefined,
-    );
-    return;
+  if (minutes !== null && (!Number.isInteger(minutes) || minutes < 0)) {
+    throw new RangeError("Invalid reminder lead time");
   }
   await AsyncStorage.setItem(
     REMINDER_DEFAULT_STORAGE_KEY,
-    String(minutes),
-  ).catch(() => undefined);
+    minutes === null ? "none" : String(minutes),
+  );
+  cachedDefault = minutes;
 }

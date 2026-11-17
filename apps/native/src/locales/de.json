@@ -60,7 +60,9 @@
         "title": "Convention nicht gefunden",
         "body": "Möglicherweise wurde sie aus dem Katalog entfernt."
       },
-      "successAnnouncement": "{{name}} wurde heruntergeladen. Wähle deinen ersten Programmpunkt."
+      "successAnnouncement": "{{name}} wurde heruntergeladen. Wähle deinen ersten Programmpunkt.",
+      "venue": "Veranstaltungsort",
+      "offlineAvailable": "Nach dem Download offline verfügbar"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Alle Tage anzeigen",
       "dropIn": {
         "title": "Jederzeit vorbeischauen",
-        "subtitle": "Keine feste Uhrzeit"
+        "subtitle": "Keine feste Uhrzeit",
+        "filter": "Offene Angebote · {{count}}",
+        "find": "Offenes Angebot finden"
       },
       "noSeat": "Ein gespeichertes Panel reserviert keinen Platz.",
       "optionsOne": "{{count}} Option",
@@ -348,6 +352,14 @@
       "overlapsPlan": "Überschneidet sich mit deinem Plan",
       "overlapWith": "{{minutes}} Min. mit {{title}}",
       "compareBeforeAdding": "Vor dem Hinzufügen vergleichen"
+    },
+    "visit": {
+      "title": "Besuch planen",
+      "edit": "Besuch bearbeiten",
+      "duration": "Besuchsdauer",
+      "windowError": "Der gesamte Besuch muss innerhalb der Öffnungszeiten liegen.",
+      "invalid": "Die Öffnungszeiten haben sich geändert. Bearbeite deinen Besuch.",
+      "remove": "Besuch entfernen"
     }
   },
   "errors": {
@@ -379,12 +391,11 @@
     },
     "archive": {
       "title": "Archiv ({{count}})",
-      "show": "Anzeigen",
-      "hide": "Ausblenden",
       "noCurrent": "Keine bevorstehenden Conventions.",
       "success": "{{name}} wurde archiviert.",
       "errorTitle": "Convention konnte nicht archiviert werden",
-      "errorMessage": "Es wurde nichts archiviert. Versuche es erneut."
+      "errorMessage": "Es wurde nichts archiviert. Versuche es erneut.",
+      "showConventions": "Archivierte Conventions anzeigen"
     },
     "unarchive": {
       "success": "{{name}} aus dem Archiv wiederhergestellt.",
@@ -392,7 +403,6 @@
       "errorMessage": "Die Convention konnte nicht wiederhergestellt werden. Versuche es erneut."
     },
     "moreActions": "Weitere Aktionen für {{name}}",
-    "sortBy": "Sortieren nach",
     "sort": {
       "upcoming": "Bevorstehende zuerst",
       "name": "Name"
@@ -403,7 +413,8 @@
       "success": "{{name}} wurde gelöscht.",
       "errorTitle": "Convention konnte nicht gelöscht werden",
       "errorMessage": "Es wurde nichts gelöscht. Versuche es erneut."
-    }
+    },
+    "sortAndView": "Sortieren & Ansicht"
   },
   "import": {
     "title": "Zeitplan importieren",
@@ -492,42 +503,36 @@
   "onboarding": {
     "progress": "Schritt {{step}} von {{total}}",
     "welcome": {
-      "tagline": "Dein Convention-Plan. Auch offline verfügbar.",
-      "subtitle": "Plane trotz schlechtem Con-WLAN. Dein Zeitplan bleibt auf deinem Gerät.",
+      "tagline": "Deine Convention. Auch offline bereit.",
+      "subtitle": "Finde deine Convention oder importiere eine .ics-Datei oder einen Sched-Link.",
       "continue": "Weiter",
-      "skip": "Überspringen"
+      "skip": "Überspringen",
+      "exampleTitle": "Beispiel-Convention",
+      "connectionNote": "Zum Finden und Herunterladen von Zeitplänen brauchst du eine Verbindung. Dein heruntergeladener Zeitplan bleibt offline verfügbar."
     },
     "features": {
-      "title": "Plane die ganze Con",
-      "subtitle": "Alles, was du brauchst, wenn das WLAN vor Ort versagt.",
-      "demo": {
-        "saved": "Mein Plan"
-      },
-      "import": {
-        "title": "Jeden Zeitplan importieren",
-        "description": "Füge eine .ics-Datei hinzu oder einen Sched-Link ein."
-      },
-      "plan": {
-        "title": "Verpasse kein Panel",
-        "description": "Erstelle deinen Plan, sieh, was gerade und als Nächstes läuft, und erkenne Überschneidungen."
-      },
-      "offline": {
-        "title": "Privat und offline",
-        "description": "Deine Convention-Daten bleiben auf diesem Gerät."
-      },
-      "plus": {
-        "title": "Kostenlos und offline",
-        "description": "Alles hier funktioniert ohne Konto und ohne Netz. Optionale Cloud-Funktionen kommen vielleicht später."
-      },
-      "next": "Weiter"
+      "title": "Wähle die Panels, die dich interessieren.",
+      "subtitle": "Tippe auf den Stern, um ein Event zu speichern. Öffne dann „Mein Plan“, um deine Auswahl zu sehen.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Weiter",
+      "practiceNote": "Probiere es hier aus. Dieses Beispiel verändert deine Conventions nicht.",
+      "viewsNote": "„Programm“ zeigt den Zeitplan. „Mein Plan“ enthält deine Auswahl. „Jetzt“ zeigt aktuelle und nächste Events.",
+      "emptyPlan": "Noch nichts geplant. Öffne „Programm“ und tippe auf den Stern."
     },
     "getStarted": {
       "find": "Meine Convention finden",
-      "title": "Bereit für deine nächste Con?",
-      "subtitle": "Finde deine Convention, importiere einen Zeitplan oder sieh dich zuerst in ConPaws um.",
+      "title": "Ein Hinweis, wenn du ihn möchtest.",
+      "subtitle": "Ein Event zu speichern und eine Erinnerung einzustellen sind zwei getrennte Entscheidungen.",
       "importSchedule": "Zeitplan importieren",
       "exploreFirst": "Erst ansehen",
-      "localPrivacy": "Kein Konto nötig. Deine Daten bleiben lokal."
+      "localPrivacy": "Kein Konto nötig. Deine Daten bleiben lokal.",
+      "example": "Beispiel-Event",
+      "sampleOnly": "Nur ein Beispiel. Es wird keine Benachrichtigung gesendet.",
+      "permissionNote": "Dein Handy fragt nach der Berechtigung für Benachrichtigungen, wenn du eine echte Erinnerung einstellst. Du kannst ConPaws ohne Benachrichtigungen nutzen."
     }
   },
   "reminders": {
@@ -706,7 +711,10 @@
       "notRequested": "Noch nicht angefragt",
       "defaultLead": "Standarderinnerung",
       "defaultLeadDescription": "Vorausgewählt, wenn du bei einem neuen Event eine Erinnerung setzt.",
-      "noDefault": "Keine"
+      "noDefault": "Keine",
+      "enable": "Benachrichtigungen aktivieren",
+      "changeError": "Die Berechtigung für Benachrichtigungen konnte nicht aktualisiert werden. Versuche es erneut.",
+      "defaultLeadError": "Deine Standarderinnerung konnte nicht gespeichert werden. Versuche es erneut."
     },
     "help": {
       "gettingStarted": "Erste Schritte",
@@ -714,7 +722,28 @@
       "importNow": "Zeitplan importieren",
       "importNowDescription": "Einen Sched-Link oder eine .ics-Datei hinzufügen.",
       "find": "Meine Convention finden",
-      "findDescription": "Wähle eine Convention aus dem ConPaws-Katalog und lade ihren Zeitplan herunter."
+      "findDescription": "Wähle eine Convention aus dem ConPaws-Katalog und lade ihren Zeitplan herunter.",
+      "replay": "Einführung wiederholen",
+      "replayDescription": "Mit vorübergehenden Beispieldaten üben"
+    },
+    "preview": {
+      "title": "Vorschau testen",
+      "add": "Beispiel-Conventions hinzufügen",
+      "description": "Fiktive Zeitpläne zum Testen. Deine anderen Conventions bleiben unverändert.",
+      "restore": "Beispieldaten wiederherstellen",
+      "restoreConfirm": "Änderungen an Beispiel-Conventions werden ersetzt. Deine anderen Conventions und Einstellungen bleiben unverändert.",
+      "testReminder": "Erinnerung testen",
+      "testDescription": "Eine echte lokale Benachrichtigung in etwa fünf Sekunden planen.",
+      "testScheduled": "Eine lokale Benachrichtigung wurde für etwa fünf Sekunden ab jetzt geplant.",
+      "nativeOnly": "Erinnerungstests erfordern die native App.",
+      "error": "Die Vorschauaktion konnte nicht abgeschlossen werden. Versuche es erneut."
+    },
+    "timeFormat": {
+      "title": "Zeitformat",
+      "system": "Geräteeinstellung verwenden",
+      "hour12": "12 Stunden · 7:00 PM",
+      "hour24": "24 Stunden · 19:00",
+      "saveError": "Dein Zeitformat konnte nicht gespeichert werden. Versuche es erneut."
     }
   }
 }

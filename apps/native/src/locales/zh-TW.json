@@ -171,7 +171,9 @@
       "allDaysCta": "顯示全部日期",
       "dropIn": {
         "title": "隨時可來",
-        "subtitle": "不限時段"
+        "subtitle": "不限時段",
+        "filter": "自由參加 · {{count}}",
+        "find": "尋找自由參加活動"
       },
       "noSeat": "收藏活動不等於預留座位。",
       "optionsOne": "{{count}} 個選擇",
@@ -284,6 +286,14 @@
       "overlapsPlan": "與你的計畫重疊",
       "overlapWith": "與{{title}}重疊 {{minutes}} 分鐘",
       "compareBeforeAdding": "加入前先比較"
+    },
+    "visit": {
+      "title": "規劃造訪",
+      "edit": "編輯造訪計畫",
+      "duration": "停留時間",
+      "windowError": "整段造訪時間必須在開放時間內。",
+      "invalid": "開放時間已變更，請編輯造訪計畫。",
+      "remove": "移除造訪計畫"
     }
   },
   "errors": {
@@ -314,12 +324,11 @@
     },
     "archive": {
       "title": "封存（{{count}}）",
-      "show": "顯示",
-      "hide": "隱藏",
       "noCurrent": "沒有即將舉行的展會。",
       "success": "已封存{{name}}。",
       "errorTitle": "無法封存展會",
-      "errorMessage": "沒有任何內容被封存。請再試一次。"
+      "errorMessage": "沒有任何內容被封存。請再試一次。",
+      "showConventions": "顯示已封存的展會"
     },
     "unarchive": {
       "success": "已從封存中還原{{name}}。",
@@ -327,7 +336,6 @@
       "errorMessage": "無法還原這個展會。請再試一次。"
     },
     "moreActions": "{{name}}的更多操作",
-    "sortBy": "排序方式",
     "sort": {
       "upcoming": "即將舉行優先",
       "name": "名稱"
@@ -339,7 +347,8 @@
       "errorTitle": "無法刪除展會",
       "errorMessage": "沒有任何內容被刪除。請再試一次。"
     },
-    "find": "尋找我的展會"
+    "find": "尋找我的展會",
+    "sortAndView": "排序與顯示"
   },
   "import": {
     "title": "匯入行程表",
@@ -428,42 +437,36 @@
   "onboarding": {
     "progress": "第 {{step}} 步，共 {{total}} 步",
     "welcome": {
-      "tagline": "你的展會行程，離線也能用。",
-      "subtitle": "再糟的會場 Wi-Fi 也不怕。你的行程就存在裝置上。",
+      "tagline": "你的獸聚，離線也能用。",
+      "subtitle": "尋找獸聚，或匯入 .ics 檔案或 Sched 連結。",
       "continue": "繼續",
-      "skip": "略過"
+      "skip": "略過",
+      "exampleTitle": "獸聚範例",
+      "connectionNote": "尋找和下載行程需要網路連線。下載後的行程可離線使用。"
     },
     "features": {
-      "title": "規劃整場展會",
-      "subtitle": "當會場 Wi-Fi 罷工時，你需要的一切都在。",
-      "demo": {
-        "saved": "我的計畫"
-      },
-      "import": {
-        "title": "匯入任何行程表",
-        "description": "加入 .ics 檔案，或貼上 Sched 連結。"
-      },
-      "plan": {
-        "title": "不錯過任何活動",
-        "description": "安排你的計畫、查看現在正在進行和接下來的活動，並及早發現時間衝突。"
-      },
-      "offline": {
-        "title": "私密且離線",
-        "description": "你的展會資料只保存在這部裝置上。"
-      },
-      "plus": {
-        "title": "免費且可離線使用",
-        "description": "這裡的一切都不需要帳號、不需要網路即可運作。選用的雲端功能可能會在日後推出。"
-      },
-      "next": "繼續"
+      "title": "挑選你想參加的活動。",
+      "subtitle": "點一下星號儲存活動，再開啟「我的計畫」查看你的選擇。",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "繼續",
+      "practiceNote": "在這裡試試看。此範例不會變更你的獸聚。",
+      "viewsNote": "「節目」顯示行程，「我的計畫」儲存你的選擇，「此刻」顯示進行中及即將開始的活動。",
+      "emptyPlan": "還沒有計畫。開啟「節目」並點一下星號。"
     },
     "getStarted": {
-      "title": "準備好迎接下一場展會了嗎？",
-      "subtitle": "尋找展會、匯入行程，或先探索 ConPaws。",
+      "title": "需要時，再來個提醒。",
+      "subtitle": "儲存活動和設定提醒是兩個獨立的選擇。",
       "importSchedule": "匯入行程表",
       "exploreFirst": "先看看",
       "localPrivacy": "不需要帳號。你的資料保存在本機。",
-      "find": "尋找我的展會"
+      "find": "尋找我的展會",
+      "example": "活動範例",
+      "sampleOnly": "僅供示範，不會傳送通知。",
+      "permissionNote": "設定真正的提醒時，手機才會要求通知權限。不啟用通知也能使用 ConPaws。"
     }
   },
   "reminders": {
@@ -642,7 +645,10 @@
       "notRequested": "尚未請求",
       "defaultLead": "預設提醒",
       "defaultLeadDescription": "為新活動設定提醒時的預選值。",
-      "noDefault": "無"
+      "noDefault": "無",
+      "enable": "啟用通知",
+      "changeError": "無法更新通知權限，請重試。",
+      "defaultLeadError": "無法儲存預設提醒，請重試。"
     },
     "help": {
       "gettingStarted": "開始使用",
@@ -650,7 +656,28 @@
       "importNow": "匯入行程表",
       "importNowDescription": "加入 Sched 連結或 .ics 檔案。",
       "findDescription": "從 ConPaws 目錄選擇展會並下載行程。",
-      "find": "尋找我的展會"
+      "find": "尋找我的展會",
+      "replay": "重新查看導覽",
+      "replayDescription": "使用暫時的範例資料練習"
+    },
+    "preview": {
+      "title": "預覽版測試",
+      "add": "新增範例展會",
+      "description": "用於測試的虛構行程。其他展會不會改變。",
+      "restore": "還原範例資料",
+      "restoreConfirm": "對範例展會的變更將被取代。其他展會與設定不會改變。",
+      "testReminder": "測試提醒",
+      "testDescription": "安排約五秒後傳送一則真正的本機通知。",
+      "testScheduled": "已安排約五秒後傳送一則本機通知。",
+      "nativeOnly": "提醒測試需要原生應用程式。",
+      "error": "無法完成預覽操作，請重試。"
+    },
+    "timeFormat": {
+      "title": "時間格式",
+      "system": "使用裝置設定",
+      "hour12": "12小時制 · 下午7:00",
+      "hour24": "24小時制 · 19:00",
+      "saveError": "無法儲存時間格式，請重試。"
     }
   },
   "catalog": {
@@ -714,7 +741,9 @@
         "title": "找不到展會",
         "body": "可能已取消發布。"
       },
-      "successAnnouncement": "已下載 {{name}}。請選擇你的第一個活動。"
+      "successAnnouncement": "已下載 {{name}}。請選擇你的第一個活動。",
+      "venue": "場地",
+      "offlineAvailable": "下載後可離線使用"
     }
   }
 }

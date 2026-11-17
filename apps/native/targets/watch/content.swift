@@ -147,7 +147,7 @@ private struct ScheduleHomeView: View {
 
         if let current = schedule.activeEvent, let convention = schedule.convention {
           let label = schedule.nextEvent == nil
-            ? "\(strings.happeningNowCaps) · \(strings.text(strings.untilCapsFormat, WatchFormat.time(ConPawsScheduleResolver.effectiveEnd(of: current), in: convention, locale: locale)))"
+            ? "\(strings.happeningNowCaps) · \(current.currentTimingLabel(timeZone: convention.timeZone, locale: locale, strings: strings))"
             : strings.happeningNowCaps
           EventCard(
             label: label,
@@ -201,7 +201,7 @@ private struct ScheduleHomeView: View {
               convention: convention,
               strings: strings,
               accented: false,
-              detail: WatchFormat.location(event) ?? strings.scheduledLabel
+              detail: event.place ?? strings.scheduledLabel
             )
           }
         }
@@ -424,7 +424,7 @@ private struct EventDetailView: View {
             .accessibilityHidden(true)
         }
 
-        if let location = WatchFormat.location(event) {
+        if let location = event.place {
           Label {
             Text(location)
           } icon: {
@@ -656,13 +656,6 @@ private enum WatchFormat {
     return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
   }
 
-  static func location(_ event: ConPawsEventSnapshot) -> String? {
-    let values = [event.room, event.location]
-      .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .filter { !$0.isEmpty }
-    if values.count == 2, values[0] == values[1] { return values[0] }
-    return values.isEmpty ? nil : values.joined(separator: " • ")
-  }
 
   /// How long the wait is, spoken as two units.
   ///

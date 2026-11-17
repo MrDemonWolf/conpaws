@@ -595,16 +595,22 @@ export async function setScheduleMembership(
 ): Promise<void> {
   if (changes.length === 0) return;
   const updatedAt = new Date().toISOString();
-  await db.transaction(async (tx) => {
+  await db.transaction((tx) => {
     for (const change of changes) {
-      await tx
-        .update(conventionEvents)
+      tx.update(conventionEvents)
         .set(
           change.isInSchedule
             ? { isInSchedule: true, updatedAt }
-            : { isInSchedule: false, reminderMinutes: null, updatedAt },
+            : {
+                isInSchedule: false,
+                reminderMinutes: null,
+                visitStartTime: null,
+                visitEndTime: null,
+                updatedAt,
+              },
         )
-        .where(eq(conventionEvents.id, change.id));
+        .where(eq(conventionEvents.id, change.id))
+        .run();
     }
   });
 }

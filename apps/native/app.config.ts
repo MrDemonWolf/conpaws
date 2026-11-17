@@ -85,7 +85,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           ios: {
             appExtensions: [
               {
-                targetName: "widget",
+                targetName: "ExpoWidgetsTarget",
                 bundleIdentifier: `${getBundleId()}.widgets`,
                 entitlements: {
                   "com.apple.security.application-groups": [
@@ -223,7 +223,65 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     "expo-router",
-    "@bacons/apple-targets",
+    // Run before generators so its post-generation mods preserve the existing identities.
+    "./plugins/withConPawsWidgets.js",
+    ["@bacons/apple-targets", { match: "{watch,watch-widget}" }],
+    [
+      "expo-widgets",
+      {
+        bundleIdentifier: `${getBundleId()}.widgets`,
+        groupIdentifier: `group.${getBundleId()}`,
+        enableAndroid: true,
+        enablePushNotifications: false,
+        widgets: [
+          {
+            name: "ConPawsWidget",
+            displayName: "ConPaws",
+            description: "Convention countdowns and your next planned event.",
+            ios: {
+              supportedFamilies: [
+                "systemSmall",
+                "systemMedium",
+                "systemLarge",
+                "accessoryCircular",
+                "accessoryRectangular",
+                "accessoryInline",
+              ],
+              initialLayout: "./src/widgets/ConPawsWidget.ios.tsx",
+              configuration: {
+                title: "ConPaws",
+                parameters: {
+                  convention: {
+                    title: "Convention",
+                    type: "enum",
+                    dynamic: true,
+                    default: "current",
+                    values: [{ name: "Automatic", value: "current" }],
+                  },
+                  mode: {
+                    title: "Display",
+                    type: "enum",
+                    default: "automatic",
+                    values: [
+                      { name: "Automatic", value: "automatic" },
+                      { name: "Convention Countdown", value: "countdown" },
+                      { name: "Next Event", value: "nextEvent" },
+                    ],
+                  },
+                },
+              },
+            },
+            android: {
+              initialLayout: "./src/widgets/ConPawsWidget.android.tsx",
+              targetCellWidth: 4,
+              targetCellHeight: 3,
+              minHeight: 220,
+              resizeMode: "both",
+            },
+          },
+        ],
+      },
+    ],
     "expo-sqlite",
     // expo-location is autolinked, so this entry exists only to pass props. Left
     // at its defaults the plugin writes four purpose strings into Info.plist --

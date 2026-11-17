@@ -1,7 +1,7 @@
 import { Collapsible, FieldGroup, Host, ListItem, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, parseISO } from "date-fns";
+import { format, max, parseISO } from "date-fns";
 import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -347,9 +347,7 @@ export default function EditConventionScreen() {
               locale={locale}
               timeZoneName={validation.errors.timeZone ? undefined : timeZone}
               colorScheme={resolvedColorScheme}
-              onChange={(value) =>
-                setEndDate(value < startDate ? startDate : value)
-              }
+              onChange={(value) => setEndDate(max([value, startDate]))}
             />
             {validation.warnings.longSpan ? (
               <FieldGroup.SectionFooter>

@@ -1,8 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Convention, ConventionEvent } from "@/db/schema";
-import { buildWidgetSnapshot } from "./widget-snapshot";
+import {
+  buildWidgetPresentation,
+  buildWidgetSnapshot,
+} from "./widget-snapshot";
 
 vi.mock("expo", () => ({ requireOptionalNativeModule: () => null }));
+vi.mock("expo-constants", () => ({ default: { expoConfig: {} } }));
+vi.mock("expo-localization", () => ({
+  getCalendars: () => [{ uses24hourClock: true }],
+}));
+vi.mock("@/lib/appearance-storage", () => ({
+  getAppearancePreference: () => "system",
+}));
+vi.mock("@/lib/device-clock", () => ({
+  getTimeFormatPreference: () => "system",
+}));
 vi.mock("@/db/repositories/conventions", () => ({ getAll: vi.fn() }));
 vi.mock("@/db/repositories/events", () => ({ getByConventionId: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({
@@ -10,9 +23,50 @@ vi.mock("@/lib/i18n", () => ({
     t: (key: string, values: { start?: string; end?: string; lng?: string }) =>
       key.startsWith("convention.ageRatings.")
         ? `pill:${key.split(".").pop()}:${values.lng}`
-        : `${values.start} – ${values.end}`,
+        : key === "home.dateRange"
+          ? `${values.start} – ${values.end}`
+          : `${key}:${values.lng}`,
   },
 }));
+
+describe("widget presentation", () => {
+  it("uses paired native tokens when Material colors are unavailable", () => {
+    expect(buildWidgetPresentation(null, null, "system", "en")).toMatchObject({
+      palette: { light: { background: "#ffffff", accent: "#005575" } },
+    });
+  });
+
+  it("preserves paired Material roles, strips trailing alpha and uses app language", () => {
+    const light = {
+      surfaceContainer: "#F0F1F2FF",
+      onSurface: "#101112FF",
+      onSurfaceVariant: "#404142FF",
+      primary: "#005575FF",
+    } as const;
+    const dark = {
+      ...light,
+      surfaceContainer: "#101112FF",
+      onSurface: "#F0F1F2FF",
+    } as const;
+    const presentation = buildWidgetPresentation(light, dark, "dark", "de");
+    expect(presentation).toMatchObject({
+      appearance: "dark",
+      palette: {
+        light: {
+          background: "#F0F1F2",
+          foreground: "#101112",
+          secondary: "#404142",
+          accent: "#005575",
+        },
+        dark: { background: "#101112", foreground: "#F0F1F2" },
+      },
+      labels: {
+        next: "convention.now.upNext:de",
+        current: "convention.now.happeningNow:de",
+      },
+    });
+  });
+});
 
 const convention: Convention = {
   id: "con-1",
@@ -60,6 +114,21 @@ function event(
 }
 
 describe("buildWidgetSnapshot", () => {
+  it.each(["system", "12", "24"] as const)(
+    "carries the %s clock choice without changing the snapshot schema",
+    (timeFormat) => {
+      const snapshot = buildWidgetSnapshot(
+        [],
+        new Map(),
+        "en",
+        1000,
+        timeFormat,
+      );
+      expect(snapshot.schemaVersion).toBe(2);
+      expect(snapshot.timeFormat).toBe(timeFormat);
+    },
+  );
+
   it("uses convention time and includes only scheduled events in time order", () => {
     const snapshot = buildWidgetSnapshot(
       [convention],
@@ -190,4 +259,21 @@ describe("buildWidgetSnapshot", () => {
 
     expect(snapshot.conventions).toHaveLength(isValid ? 1 : 0);
   });
+});
+
+it("publishes personal visit times to Widget and Watch, omitting invalidated visits", () => {
+  const visit = {
+    ...event("market", "2026-09-03T10:00:00-05:00", true),
+    endTime: "2026-09-03T18:00:00-05:00",
+    visitStartTime: "2026-09-03T16:00:00-05:00",
+    visitEndTime: "2026-09-03T16:30:00-05:00",
+  };
+  const build = (row: ConventionEvent) =>
+    buildWidgetSnapshot([convention], new Map([[convention.id, [row]]]), "en")
+      .conventions[0].events;
+  expect(build(visit)[0]).toMatchObject({
+    startAtMs: Date.parse(visit.visitStartTime),
+    endAtMs: Date.parse(visit.visitEndTime),
+  });
+  expect(build({ ...visit, endTime: "2026-09-03T15:00:00-05:00" })).toEqual([]);
 });

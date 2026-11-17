@@ -12,7 +12,7 @@ import Foundation
 /// Regional pairs are kept apart rather than collapsed, because they disagree
 /// in this vocabulary: es-419 says "Ahora mismo" where es-ES says "Ahora", and
 /// pt-PT writes "ecrã" where pt-BR writes "tela".
-enum ConPawsLanguage: String, CaseIterable, Sendable {
+enum ConPawsLanguage: String, CaseIterable, Codable, Sendable {
   case en
   case es419 = "es-419"
   case esES = "es-ES"
@@ -113,7 +113,7 @@ extension ConPawsLanguage {
 /// goes through the same string-only path: a numeric format specifier and a
 /// Swift `Int` disagree about width, and mixing the two is how a format string
 /// starts reading the wrong bytes.
-struct ConPawsPluralUnit: Sendable {
+struct ConPawsPluralUnit: Codable, Sendable {
   let one: String
   let few: String
   let other: String
@@ -173,7 +173,7 @@ struct ConPawsPluralUnit: Sendable {
 /// The strings the *system* renders -- the widget gallery entry, the
 /// configuration intent, `CFBundleDisplayName` -- are deliberately not here.
 /// Those follow the device language by design and do need real resources.
-struct ConPawsStrings: Sendable {
+struct ConPawsStrings: Codable, Sendable {
   let language: ConPawsLanguage
 
   // MARK: Countdown vocabulary

@@ -53,15 +53,7 @@ export default function HomeLayout() {
           title: t("convention.new"),
           headerLargeTitleEnabled: false,
           headerShown: FORM_HEADER_SHOWN,
-          presentation: FORM_PRESENTATION,
-          sheetAllowedDetents: [0.55, 0.85],
-          // Opens tall. At 0.55 a form with several fields showed roughly its
-          // first two, so the sheet arrived already needing to be dragged --
-          // and the reader has to discover that before they can even read what
-          // they are filling in. The short detent stays available for peeking
-          // at the list behind.
-          sheetInitialDetentIndex: 1,
-          sheetGrabberVisible: true,
+          presentation: "fullScreenModal",
         }}
       />
       <Stack.Screen
@@ -94,6 +86,14 @@ export default function HomeLayout() {
           sheetAllowedDetents: [0.7, 1],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="convention/[id]/event/[eventId]/visit"
+        options={{
+          headerLargeTitleEnabled: false,
+          headerShown: FORM_HEADER_SHOWN,
+          presentation: "fullScreenModal",
         }}
       />
       <Stack.Screen

@@ -171,7 +171,9 @@
       "allDaysCta": "Alle dagen tonen",
       "dropIn": {
         "title": "Loop wanneer je wilt binnen",
-        "subtitle": "Geen vaste tijd"
+        "subtitle": "Geen vaste tijd",
+        "filter": "Vrije inloop · {{count}}",
+        "find": "Zoek een inloopactiviteit"
       },
       "noSeat": "Een panel bewaren reserveert geen plek.",
       "optionsOne": "{{count}} optie",
@@ -284,6 +286,14 @@
       "overlapsPlan": "Overlapt met je plan",
       "overlapWith": "{{minutes}} min met {{title}}",
       "compareBeforeAdding": "Vergelijk voor je toevoegt"
+    },
+    "visit": {
+      "title": "Bezoek plannen",
+      "edit": "Bezoek bewerken",
+      "duration": "Bezoekduur",
+      "windowError": "Het hele bezoek moet binnen de openingstijden vallen.",
+      "invalid": "De openingstijden zijn gewijzigd. Bewerk je bezoek.",
+      "remove": "Bezoek verwijderen"
     }
   },
   "errors": {
@@ -314,12 +324,11 @@
     },
     "archive": {
       "title": "Archief ({{count}})",
-      "show": "Tonen",
-      "hide": "Verbergen",
       "noCurrent": "Geen aankomende conventies.",
       "success": "{{name}} is gearchiveerd.",
       "errorTitle": "Conventie kon niet worden gearchiveerd",
-      "errorMessage": "Er is niets gearchiveerd. Probeer het opnieuw."
+      "errorMessage": "Er is niets gearchiveerd. Probeer het opnieuw.",
+      "showConventions": "Gearchiveerde conventies tonen"
     },
     "unarchive": {
       "success": "{{name}} teruggezet uit het archief.",
@@ -327,7 +336,6 @@
       "errorMessage": "De conventie kon niet worden teruggezet. Probeer het opnieuw."
     },
     "moreActions": "Meer acties voor {{name}}",
-    "sortBy": "Sorteren op",
     "sort": {
       "upcoming": "Aankomende eerst",
       "name": "Naam"
@@ -339,7 +347,8 @@
       "errorTitle": "Conventie kon niet worden verwijderd",
       "errorMessage": "Er is niets verwijderd. Probeer het opnieuw."
     },
-    "find": "Mijn conventie vinden"
+    "find": "Mijn conventie vinden",
+    "sortAndView": "Sorteren en weergave"
   },
   "import": {
     "title": "Rooster importeren",
@@ -428,42 +437,36 @@
   "onboarding": {
     "progress": "Stap {{step}} van {{total}}",
     "welcome": {
-      "tagline": "Je conventieprogramma, ook offline beschikbaar.",
-      "subtitle": "Plan vooruit, ook met slechte wifi op de con. Je programma blijft op je apparaat.",
+      "tagline": "Jouw conventie, ook offline beschikbaar.",
+      "subtitle": "Zoek je conventie of importeer een .ics-bestand of Sched-link.",
       "continue": "Doorgaan",
-      "skip": "Overslaan"
+      "skip": "Overslaan",
+      "exampleTitle": "Voorbeeldconventie",
+      "connectionNote": "Je hebt een verbinding nodig om programma’s te zoeken en te downloaden. Je gedownloade programma blijft offline beschikbaar."
     },
     "features": {
-      "title": "Plan je hele con",
-      "subtitle": "Alles wat je nodig hebt als de wifi op de locatie uitvalt.",
-      "demo": {
-        "saved": "Mijn plan"
-      },
-      "import": {
-        "title": "Importeer elk programma",
-        "description": "Voeg een .ics-bestand toe of plak een Sched-link."
-      },
-      "plan": {
-        "title": "Mis nooit een panel",
-        "description": "Stel je plan samen, zie wat er nu en hierna gebeurt en ontdek overlap."
-      },
-      "offline": {
-        "title": "Privé en offline",
-        "description": "Je conventiegegevens blijven op dit apparaat."
-      },
-      "plus": {
-        "title": "Gratis en offline",
-        "description": "Alles hier werkt zonder account en zonder netwerk. Optionele cloudfuncties komen misschien later."
-      },
-      "next": "Doorgaan"
+      "title": "Kies de panels die je wilt zien.",
+      "subtitle": "Tik op de ster om een evenement te bewaren. Open daarna Mijn plan om je keuze te zien.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Doorgaan",
+      "practiceNote": "Probeer het hier. Dit voorbeeld verandert je conventies niet.",
+      "viewsNote": "Programma toont het programma. Mijn plan bevat je keuzes. Nu toont wat er bezig is en wat hierna komt.",
+      "emptyPlan": "Nog niets gepland. Ga naar Programma en tik op de ster."
     },
     "getStarted": {
-      "title": "Klaar voor je volgende con?",
-      "subtitle": "Vind je conventie, importeer een programma of ontdek ConPaws eerst.",
+      "title": "Een seintje, wanneer jij dat wilt.",
+      "subtitle": "Een evenement bewaren en een herinnering instellen zijn aparte keuzes.",
       "importSchedule": "Programma importeren",
       "exploreFirst": "Eerst verkennen",
       "localPrivacy": "Geen account nodig. Je gegevens blijven lokaal.",
-      "find": "Mijn conventie vinden"
+      "find": "Mijn conventie vinden",
+      "example": "Voorbeeldevenement",
+      "sampleOnly": "Alleen een voorbeeld. Er wordt geen melding verstuurd.",
+      "permissionNote": "Je telefoon vraagt toestemming voor meldingen wanneer je een echte herinnering instelt. Je kunt ConPaws zonder meldingen gebruiken."
     }
   },
   "reminders": {
@@ -642,7 +645,10 @@
       "notRequested": "Nog niet gevraagd",
       "defaultLead": "Standaardherinnering",
       "defaultLeadDescription": "Vooraf geselecteerd wanneer je een herinnering op een nieuw evenement zet.",
-      "noDefault": "Geen"
+      "noDefault": "Geen",
+      "enable": "Meldingen inschakelen",
+      "changeError": "De toestemming voor meldingen kon niet worden bijgewerkt. Probeer het opnieuw.",
+      "defaultLeadError": "Je standaardherinnering kon niet worden opgeslagen. Probeer het opnieuw."
     },
     "help": {
       "gettingStarted": "Aan de slag",
@@ -650,7 +656,28 @@
       "importNow": "Schema importeren",
       "importNowDescription": "Voeg een Sched-link of een .ics-bestand toe.",
       "findDescription": "Kies een conventie uit de ConPaws-catalogus en download het programma.",
-      "find": "Mijn conventie vinden"
+      "find": "Mijn conventie vinden",
+      "replay": "Uitleg opnieuw bekijken",
+      "replayDescription": "Oefen met tijdelijke voorbeeldgegevens"
+    },
+    "preview": {
+      "title": "Voorbeeldversie testen",
+      "add": "Voorbeeldconventies toevoegen",
+      "description": "Fictieve programma’s om te testen. Je andere conventies blijven ongewijzigd.",
+      "restore": "Voorbeeldgegevens herstellen",
+      "restoreConfirm": "Wijzigingen aan voorbeeldconventies worden vervangen. Je andere conventies en instellingen blijven ongewijzigd.",
+      "testReminder": "Een herinnering testen",
+      "testDescription": "Een echte lokale melding plannen over ongeveer vijf seconden.",
+      "testScheduled": "Er is een lokale melding gepland over ongeveer vijf seconden.",
+      "nativeOnly": "Voor herinneringstests is de native app vereist.",
+      "error": "De testactie kon niet worden voltooid. Probeer het opnieuw."
+    },
+    "timeFormat": {
+      "title": "Tijdnotatie",
+      "system": "Apparaatinstelling gebruiken",
+      "hour12": "12 uur · 7:00 PM",
+      "hour24": "24 uur · 19:00",
+      "saveError": "Je tijdnotatie kon niet worden opgeslagen. Probeer het opnieuw."
     }
   },
   "catalog": {
@@ -714,7 +741,9 @@
         "title": "Conventie niet gevonden",
         "body": "Mogelijk is deze niet meer gepubliceerd."
       },
-      "successAnnouncement": "{{name}} gedownload. Kies je eerste panel."
+      "successAnnouncement": "{{name}} gedownload. Kies je eerste panel.",
+      "venue": "Locatie",
+      "offlineAvailable": "Na het downloaden offline beschikbaar"
     }
   }
 }

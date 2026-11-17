@@ -36,6 +36,8 @@ export const conventionEvents = sqliteTable("convention_events", {
     .notNull()
     .default(false),
   reminderMinutes: integer("reminder_minutes"),
+  visitStartTime: text("visit_start_time"),
+  visitEndTime: text("visit_end_time"),
   sourceUid: text("source_uid"),
   sourceUrl: text("source_url"),
   isAgeRestricted: integer("is_age_restricted", { mode: "boolean" })
@@ -66,5 +68,11 @@ export const conventionEvents = sqliteTable("convention_events", {
 
 export type Convention = typeof conventions.$inferSelect;
 export type NewConvention = typeof conventions.$inferInsert;
-export type ConventionEvent = typeof conventionEvents.$inferSelect;
+type StoredConventionEvent = typeof conventionEvents.$inferSelect;
+// Older backups and callers omit personal visits; database reads return null.
+export type ConventionEvent = Omit<
+  StoredConventionEvent,
+  "visitStartTime" | "visitEndTime"
+> &
+  Partial<Pick<StoredConventionEvent, "visitStartTime" | "visitEndTime">>;
 export type NewConventionEvent = typeof conventionEvents.$inferInsert;

@@ -86,6 +86,7 @@ import {
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
 import { primeCatalogSourcePreference } from "@/lib/catalog/source-preference";
+import { loadTimeFormatPreference } from "@/lib/device-clock";
 import {
   DatabaseUnavailableScreen,
   ScreenErrorFallback,
@@ -210,6 +211,9 @@ async function runLaunchBootstrap(): Promise<boolean> {
 
   // Primes the cache the reminder picker reads synchronously.
   await getDefaultReminderMinutes().catch(() => null);
+  await loadTimeFormatPreference().catch((error) => {
+    reportError(error, { scope: "bootstrap.timeFormat" });
+  });
   await primeCatalogSourcePreference().catch(() => undefined);
   // Same reason: the Settings switch and the schedule check both read this
   // synchronously, and a switch that flips a frame after it renders reads as
@@ -301,7 +305,7 @@ function RootLayout() {
   // Neither of these affects what is painted, so they run after the first
   // frame instead of holding the splash open.
   useEffect(() => {
-    if (!ready || databaseInitError) return;
+    if (!ready || !translationsReady || databaseInitError) return;
 
     void reconcileEventReminders()
       .then(recordReminderReconciliation)
@@ -311,7 +315,7 @@ function RootLayout() {
     void publishWidgetSnapshot().catch((error) => {
       reportError(error, { scope: "bootstrap.publishWidgetSnapshot" });
     });
-  }, [ready, databaseInitError]);
+  }, [ready, translationsReady, databaseInitError]);
 
   useEffect(() => {
     addReportBreadcrumb(pathname, { scope: "navigation" });

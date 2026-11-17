@@ -20,7 +20,7 @@ import {
 } from "@/lib/catalog/source-preference";
 import {
   type ConventionPreviewState,
-  developerToolsEnabled,
+  developerDiagnosticsEnabled,
 } from "@/lib/developer-tools";
 import { resetOnboarding } from "@/lib/onboarding-storage";
 import {
@@ -57,7 +57,7 @@ export default function DebugScreen() {
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
   const appVariant = Constants.expoConfig?.extra?.appVariant;
-  const enabled = developerToolsEnabled(__DEV__, appVariant);
+  const enabled = developerDiagnosticsEnabled(__DEV__, appVariant);
   const version =
     Application.nativeApplicationVersion ??
     Constants.expoConfig?.version ??

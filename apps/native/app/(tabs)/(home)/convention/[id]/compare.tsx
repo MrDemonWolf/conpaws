@@ -17,7 +17,8 @@ import {
   planAfterChoice,
 } from "@/lib/compare-candidates";
 import { isValidTimeZone } from "@/lib/convention-time";
-import { deviceHour12 } from "@/lib/device-clock";
+import { useHour12 } from "@/lib/device-clock";
+import { plannedEvent } from "@/lib/drop-in-visit";
 import { formatEventEndTime, formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import { setBrowseState } from "@/lib/schedule-browse-store";
@@ -40,7 +41,7 @@ export default function CompareSheetRoute() {
   }>();
   const { t } = useTranslation();
   const locale = currentLocale();
-  const hour12 = deviceHour12();
+  const hour12 = useHour12();
   const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
 
   const { data: convention } = useQuery({
@@ -55,7 +56,10 @@ export default function CompareSheetRoute() {
   });
 
   const set = useMemo(
-    () => (candidateId ? compareCandidates(events, candidateId) : null),
+    () =>
+      candidateId
+        ? compareCandidates(events.map(plannedEvent), candidateId)
+        : null,
     [events, candidateId],
   );
   const [selectedId, setSelectedId] = useState(

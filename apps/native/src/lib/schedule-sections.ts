@@ -81,12 +81,12 @@ function groupByDay<T extends BrowseEvent>(
 
 export function buildBrowseSections<T extends BrowseEvent>(
   selection: BrowseSelection<T>,
-  filters: Pick<BrowseFilters, "dayKey">,
+  filters: Pick<BrowseFilters, "dayKey"> & { dropInsOnly?: boolean },
   timeZone: string,
 ): ScheduleSection<T>[] {
   const sections: ScheduleSection<T>[] = [];
 
-  if (filters.dayKey === null) {
+  if (!filters.dropInsOnly && filters.dayKey === null) {
     for (const [dayKey, events] of groupByDay(selection.rows, timeZone)) {
       sections.push({
         key: `day:${dayKey}`,
@@ -95,7 +95,7 @@ export function buildBrowseSections<T extends BrowseEvent>(
         data: events.map((event) => ({ kind: "event", id: event.id, event })),
       });
     }
-  } else if (selection.rows.length > 0) {
+  } else if (!filters.dropInsOnly && selection.rows.length > 0) {
     sections.push({
       key: `day:${filters.dayKey}`,
       heading: { kind: "none" },

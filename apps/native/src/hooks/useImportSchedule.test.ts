@@ -135,3 +135,32 @@ describe("rearmImportedReminders", () => {
     );
   });
 });
+
+it("re-arms personal visits after import and preserves invalidated reminder intent", async () => {
+  repo.update.mockReset();
+  notifications.scheduleEventReminder.mockReset().mockResolvedValue("armed");
+  notifications.cancelEventReminder.mockReset().mockResolvedValue(true);
+  const visit = reminderEvent({
+    startTime: "2026-08-27T14:00:00.000Z",
+    endTime: "2026-08-27T22:00:00.000Z",
+    visitStartTime: "2026-08-27T18:00:00.000Z",
+    visitEndTime: "2026-08-27T18:30:00.000Z",
+  });
+  expect(await rearmImportedReminders([visit], NOW)).toMatchObject({
+    rescheduled: 1,
+  });
+  expect(notifications.scheduleEventReminder).toHaveBeenCalledWith(
+    expect.objectContaining({ startTime: visit.visitStartTime }),
+    30,
+    { requestPermission: false },
+  );
+  notifications.scheduleEventReminder.mockClear();
+  expect(
+    await rearmImportedReminders(
+      [{ ...visit, endTime: "2026-08-27T17:00:00.000Z" }],
+      NOW,
+    ),
+  ).toMatchObject({ paused: 1 });
+  expect(notifications.scheduleEventReminder).not.toHaveBeenCalled();
+  expect(repo.update).not.toHaveBeenCalled();
+});

@@ -27,6 +27,7 @@ bun lint
 bun run security:audit
 ```
 
-Read [AGENTS.md](AGENTS.md) for repository constraints. App-specific setup and
-release procedures are in the Notion documentation library. Production deploys
+Read [AGENTS.md](AGENTS.md) for repository constraints and the index of scoped
+`AGENTS.md` files for each app/package. App-specific setup and release procedures
+are in the Notion documentation library. Production deploys
 run only through GitHub Actions on `main` after CI; do not deploy from a laptop.

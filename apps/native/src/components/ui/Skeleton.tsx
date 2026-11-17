@@ -210,9 +210,11 @@ export function ConventionListSkeleton({ rows }: { rows?: number } = {}) {
 export function ScheduleSkeleton({
   sections = 2,
   rowsPerSection,
+  children,
 }: {
   sections?: number;
   rowsPerSection?: number;
+  children?: React.ReactNode;
 } = {}) {
   // A day header is ~40pt and an event row ~60pt; the rows have to cover
   // whatever the headers do not.
@@ -221,6 +223,7 @@ export function ScheduleSkeleton({
 
   return (
     <SkeletonScreen>
+      {children}
       {placeholderKeys("schedule-section", sections).map((sectionKey) => (
         <View key={sectionKey}>
           <View className="px-4 pt-4 pb-2">

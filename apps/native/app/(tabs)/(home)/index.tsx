@@ -90,6 +90,8 @@ interface ConventionEmptyStateProps {
   onImport: () => void;
   onAddSamples?: () => void;
   addingSamples: boolean;
+  sampleLabel: string;
+  sampleDescription: string;
 }
 
 function ConventionEmptyState({
@@ -103,6 +105,8 @@ function ConventionEmptyState({
   onImport,
   onAddSamples,
   addingSamples,
+  sampleLabel,
+  sampleDescription,
 }: ConventionEmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center gap-1">
@@ -129,11 +133,10 @@ function ConventionEmptyState({
             loading={addingSamples}
             testID="home-add-sample-conventions"
           >
-            Add sample conventions
+            {sampleLabel}
           </Button>
           <Text variant="caption" className="text-center text-muted-foreground">
-            Fictional schedules for testing. Your saved conventions stay
-            unchanged.
+            {sampleDescription}
           </Text>
         </View>
       ) : null}
@@ -270,10 +273,7 @@ export default function HomeScreen() {
     },
     onError: () => {
       resetPresentationLock(presentationLock);
-      Alert.alert(
-        "Samples could not be added",
-        "Try again. Your saved conventions were not replaced.",
-      );
+      Alert.alert(t("common.error"), t("settings.preview.error"));
     },
   });
 
@@ -469,6 +469,8 @@ export default function HomeScreen() {
           onImport={handleImportConvention}
           onAddSamples={showSamples ? handleAddSamples : undefined}
           addingSamples={sampleMutation.isPending}
+          sampleLabel={t("settings.preview.add")}
+          sampleDescription={t("settings.preview.description")}
         />
       </ScrollView>
     ) : (
@@ -479,11 +481,7 @@ export default function HomeScreen() {
         archiveLabel={t("home.archive.title", {
           count: archivedConventions.length,
         })}
-        archiveActionLabel={t(
-          archiveExpanded ? "home.archive.hide" : "home.archive.show",
-        )}
         currentEmptyLabel={t("home.archive.noCurrent")}
-        onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
         onDelete={(item) => handleConventionAction(item, "delete")}
         archiveItemLabel={t("common.archive")}
@@ -506,8 +504,8 @@ export default function HomeScreen() {
             icon={
               process.env.EXPO_OS === "ios" ? "arrow.up.arrow.down" : SortIcon
             }
-            accessibilityLabel={t("home.sortBy")}
-            title={t("home.sortBy")}
+            accessibilityLabel={t("home.sortAndView")}
+            title={t("home.sortAndView")}
           >
             <Stack.Toolbar.MenuAction
               isOn={sort === "upcoming"}
@@ -520,6 +518,12 @@ export default function HomeScreen() {
               onPress={() => setSort("name")}
             >
               {t("home.sort.name")}
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              isOn={archiveExpanded}
+              onPress={() => setArchiveExpanded((expanded) => !expanded)}
+            >
+              {t("home.archive.showConventions")}
             </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
           <Stack.Toolbar.Menu
@@ -560,8 +564,8 @@ export default function HomeScreen() {
                 disabled={sampleMutation.isPending}
               >
                 {sampleMutation.isPending
-                  ? "Adding samples…"
-                  : "Add sample conventions"}
+                  ? t("common.loading")
+                  : t("settings.preview.add")}
               </Stack.Toolbar.MenuAction>
             ) : null}
           </Stack.Toolbar.Menu>

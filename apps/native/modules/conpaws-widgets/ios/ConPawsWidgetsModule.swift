@@ -3,7 +3,7 @@ import Foundation
 import WatchConnectivity
 import WidgetKit
 
-/// The App Group slot the widget, the complication and the watch app all read.
+/// The raw schedule slot mirrored to the Watch app and complication.
 ///
 /// Named once for the same reason the widget kinds are: this string is a
 /// contract with code in another target that no compiler checks, so a rename
@@ -104,6 +104,12 @@ public class ConPawsWidgetsModule: Module {
 
     Function("consumePendingQuickAction") { () -> String? in
       ConPawsQuickActions.consume()
+    }
+
+    Function("getWidgetStrings") { (localeIdentifier: String) -> [String: Any]? in
+      let strings = ConPawsStrings.resolve(localeIdentifier)
+      guard let data = try? JSONEncoder().encode(strings) else { return nil }
+      return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 
     AsyncFunction("publishSnapshot") { (json: String) -> Bool in

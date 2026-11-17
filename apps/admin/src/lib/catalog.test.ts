@@ -141,4 +141,39 @@ describe("convention catalog validation", () => {
       "Added session: Opening ceremony (2027-02-26T10:00–2027-02-26T11:00 · Main hall).",
     ]);
   });
+
+  it.each([
+    ["America/New_York", "2026-03-08", "02:15", "03:15", false],
+    ["America/New_York", "2026-03-08", "01:15", "02:15", false],
+    ["America/New_York", "2026-03-08", "01:15", "03:15", true],
+    ["America/New_York", "2026-11-01", "01:15", "01:45", true],
+    ["Australia/Lord_Howe", "2026-10-04", "02:15", "03:15", false],
+    ["Australia/Lord_Howe", "2026-10-04", "02:30", "03:15", true],
+    ["Asia/Kathmandu", "2026-03-08", "02:15", "03:15", true],
+    ["Pacific/Apia", "2011-12-30", "10:00", "11:00", false],
+  ])(
+    "checks both publication times in %s on %s (%s–%s)",
+    (timezone, day, startsAt, endsAt, valid) => {
+      const convention = conventionInputSchema.parse({
+        ...validConvention,
+        startsOn: day,
+        endsOn: day,
+        timezone,
+        sourceVerifiedAt: day,
+        scheduleStatus: "complete",
+      });
+      const session = scheduleEventInputSchema.parse({
+        title: "Opening ceremony",
+        startsAt: `${day}T${startsAt}`,
+        endsAt: `${day}T${endsAt}`,
+      });
+      const issues = getPublicationIssues({
+        convention,
+        sessions: [session],
+        today: day,
+      });
+      expect(issues.length === 0).toBe(valid);
+      if (!valid) expect(issues[0]).toContain("Opening ceremony");
+    },
+  );
 });

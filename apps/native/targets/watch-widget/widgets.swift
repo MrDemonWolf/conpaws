@@ -177,13 +177,9 @@ private struct ConPawsWatchEntryView: View {
           strings: entry.strings
         )
       case let .current(event, convention):
-        let until = WidgetFormat.time(
-          ConPawsScheduleResolver.effectiveEnd(of: event),
-          in: convention,
-          locale: entry.snapshot.locale
-        )
+        let timing = event.currentTimingLabel(timeZone: convention.timeZone, locale: entry.snapshot.locale, strings: entry.strings)
         VStack(alignment: .leading, spacing: 2) {
-          WatchEyebrow(title: "\(entry.strings.happeningNowCaps) · \(entry.strings.text(entry.strings.untilCapsFormat, until))")
+          WatchEyebrow(title: "\(entry.strings.happeningNowCaps) · \(timing)")
           Text(event.title).font(.headline).lineLimit(2)
           Text(entry.strings.noLaterSavedEventsShort).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
         }
@@ -304,7 +300,7 @@ private struct LeaveWidgetView: View {
         Text(next.title).font(.headline).lineLimit(1)
       }
 
-      if let location = WidgetFormat.location(next) {
+      if let location = next.place {
         Text("\(nextTime) · \(location)")
           .font(.caption2)
           .foregroundStyle(.secondary)
@@ -377,7 +373,7 @@ private struct NextWidgetView: View {
         Text(event.title).font(.headline).lineLimit(1)
       }
 
-      if let location = WidgetFormat.location(event) {
+      if let location = event.place {
         Text("\(startTime) · \(location)")
           .font(.caption2)
           .foregroundStyle(.secondary)
@@ -409,7 +405,7 @@ private struct NextWidgetView: View {
   private var accessibilitySummary: String {
     let next = strings.text(strings.nextEventA11yFormat, event.title, startTime)
     let currentText = current.map { "\(strings.happeningNowCaps), \($0.title). " } ?? ""
-    let place = WidgetFormat.location(event).map { ", \($0)" } ?? ""
+    let place = event.place.map { ", \($0)" } ?? ""
     let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
       .map { ". \($0)" } ?? ""
     return "\(currentText)\(next)\(place)\(reminder)."
@@ -645,13 +641,6 @@ private enum WidgetFormat {
     return "\(formatter.string(from: date)) · \(timeLabel)"
   }
 
-  static func location(_ event: ConPawsEventSnapshot) -> String? {
-    let values = [event.room, event.location]
-      .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .filter { !$0.isEmpty }
-    if values.count == 2, values[0] == values[1] { return values[0] }
-    return values.isEmpty ? nil : values.joined(separator: " • ")
-  }
 
   /// How long the wait is, spoken as two units.
   ///

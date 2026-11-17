@@ -28,7 +28,7 @@ const swift = readFileSync(swiftPath, "utf8");
 /** The `case` lines of `enum ConPawsLanguage`, as the locale codes they mean. */
 function swiftLanguages(): string[] {
   const enumBody = swift.match(
-    /enum ConPawsLanguage: String, CaseIterable, Sendable \{([\s\S]*?)\n\n/,
+    /enum ConPawsLanguage:[^{]+\{([\s\S]*?)\n\n/,
   )?.[1];
   if (!enumBody) throw new Error("Could not find enum ConPawsLanguage");
 

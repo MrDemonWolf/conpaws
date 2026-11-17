@@ -20,6 +20,8 @@ import {
   getAppearancePreference,
   saveAppearancePreference,
 } from "@/lib/appearance-storage";
+import { reportError } from "@/lib/error-reporting";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 const APPEARANCE_ICONS: Record<
@@ -48,7 +50,12 @@ export default function AppearanceScreen() {
     setAppearance(next);
 
     void saveAppearancePreference(next)
-      .then(() => applyAppearancePreference(next))
+      .then(async () => {
+        applyAppearancePreference(next);
+        await publishWidgetSnapshot().catch((error) => {
+          reportError(error, { scope: "settings.appearance.widgetSnapshot" });
+        });
+      })
       .catch(() => {
         setAppearance(previous);
         Alert.alert(t("common.error"), t("settings.appearance.changeError"));

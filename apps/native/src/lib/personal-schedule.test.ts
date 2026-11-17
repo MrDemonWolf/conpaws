@@ -21,6 +21,22 @@ function entry(
 const NOW = new Date("2026-07-03T12:00:00Z");
 
 describe("groupPersonalScheduleByDay", () => {
+  it("removes the final event when the clock advances past its end", () => {
+    const events = [
+      entry({
+        id: "ending",
+        startTime: "2026-07-03T17:00:00Z",
+        endTime: "2026-07-03T18:00:00Z",
+      }),
+    ];
+    expect(
+      groupPersonalScheduleByDay(events, new Date("2026-07-03T17:59:00Z")),
+    ).toHaveLength(1);
+    expect(
+      groupPersonalScheduleByDay(events, new Date("2026-07-03T18:01:00Z")),
+    ).toEqual([]);
+  });
+
   it("groups by the convention's own day, not the device's", () => {
     // 01:30 UTC on the 4th is still the evening of the 3rd in New York.
     const groups = groupPersonalScheduleByDay(

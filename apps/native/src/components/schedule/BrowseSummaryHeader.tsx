@@ -35,9 +35,9 @@ export function BrowseSummaryHeader({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={hint.actionLabel}
-            hitSlop={8}
             onPress={hint.onAction}
             className={PRESS_DIM}
+            style={{ minWidth: 48, minHeight: 48, justifyContent: "center" }}
           >
             <Text variant="caption" className="font-semibold text-primary">
               {hint.actionLabel}

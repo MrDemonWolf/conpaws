@@ -27,3 +27,11 @@ export const SCHEDULE_LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
 export function shouldBounceSchedule(sections: { length: number }): boolean {
   return sections.length > 0;
 }
+
+/** Keep normal empty screens still while letting enlarged text remain reachable. */
+export function canScrollSchedule(
+  hasRows: boolean,
+  fontScale: number,
+): boolean {
+  return hasRows || fontScale > 1;
+}

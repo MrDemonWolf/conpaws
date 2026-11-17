@@ -5,6 +5,8 @@ struct ConPawsSnapshot: Codable, Sendable {
   let generatedAtMs: Double
   let localeIdentifier: String
   let conventions: [ConPawsConventionSnapshot]
+  /// Optional so snapshots from older app versions keep using the device clock.
+  var timeFormat: String?
 
   static let empty = ConPawsSnapshot(
     schemaVersion: 1,
@@ -27,6 +29,11 @@ struct ConPawsSnapshot: Codable, Sendable {
     var language = Locale.Language.Components(identifier: localeIdentifier)
     language.region = language.region ?? device.region
     components.languageComponents = language
+    switch timeFormat {
+    case "12": components.hourCycle = .oneToTwelve
+    case "24": components.hourCycle = .zeroToTwentyThree
+    default: break
+    }
     return Locale(components: components)
   }
 
@@ -64,7 +71,7 @@ struct ConPawsSnapshot: Codable, Sendable {
       )
     }
     return ConPawsSnapshot(schemaVersion: schemaVersion, generatedAtMs: generatedAtMs,
-      localeIdentifier: localeIdentifier, conventions: validConventions)
+      localeIdentifier: localeIdentifier, conventions: validConventions, timeFormat: timeFormat)
   }
 }
 
@@ -72,7 +79,6 @@ struct ConPawsSnapshot: Codable, Sendable {
 /// does nothing at all when handed a kind no widget answers to -- a rename that
 /// misses one call site fails silently and stays broken.
 enum ConPawsWidgetKind {
-  static let homeScreen = "ConPawsWidget"
   static let watchComplication = "ConPawsWatchWidget"
 }
 
@@ -98,6 +104,23 @@ struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
   /// `dateRangeLabel`. Absent in schema v1 payloads and for all-ages events,
   /// and optional here precisely so both decode to "no pill".
   let ageRating: String?
+
+  var place: String? {
+    let values = [room, location]
+      .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+      .filter { !$0.isEmpty }
+    if values.count == 2, values[0] == values[1] { return values[0] }
+    return values.isEmpty ? nil : values.joined(separator: " • ")
+  }
+
+  /// Unknown ends use the published start, never the resolver's one-hour fallback.
+  func currentTimingLabel(timeZone: TimeZone, locale: Locale, strings: ConPawsStrings) -> String {
+    var clock = Date.FormatStyle.dateTime.hour().minute()
+    clock.timeZone = timeZone
+    clock.locale = locale
+    let time = Date(timeIntervalSince1970: (endAtMs ?? startAtMs) / 1_000).formatted(clock)
+    return endAtMs == nil ? time : strings.text(strings.untilCapsFormat, time)
+  }
 }
 
 enum ConPawsSnapshotStore {

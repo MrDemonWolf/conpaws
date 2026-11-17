@@ -1,9 +1,89 @@
+import type { MaterialColors } from "@expo/ui/jetpack-compose";
 import { requireOptionalNativeModule } from "expo";
+import Constants from "expo-constants";
+import { getCalendars } from "expo-localization";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention, ConventionEvent } from "@/db/schema";
+import type { AppearancePreference } from "@/lib/appearance";
+import { getAppearancePreference } from "@/lib/appearance-storage";
 import { fromConventionTime, isValidTimeZone } from "@/lib/convention-time";
+import {
+  getTimeFormatPreference,
+  resolveHour12,
+  type TimeFormatPreference,
+} from "@/lib/device-clock";
+import { plannedEvent } from "@/lib/drop-in-visit";
 import i18n from "@/lib/i18n";
+import { getNativeMaterialColors } from "@/lib/native-material-colors";
+import { themeTokens } from "@/lib/theme-tokens";
+import type { WidgetStrings } from "@/widgets/ConPawsWidget.types";
+
+type WidgetPalette = {
+  background: string;
+  foreground: string;
+  secondary: string;
+  accent: string;
+};
+type WidgetMaterialColors = Pick<
+  MaterialColors,
+  "surfaceContainer" | "onSurface" | "onSurfaceVariant" | "primary"
+>;
+
+export interface WidgetPresentation {
+  appearance: AppearancePreference;
+  appScheme?: "conpaws" | "conpaws-dev";
+  hour12?: boolean;
+  strings?: WidgetStrings;
+  palette: { light: WidgetPalette; dark: WidgetPalette };
+  labels: Record<"next" | "current" | "noEvents" | "finished", string>;
+}
+
+export function buildWidgetPresentation(
+  light: WidgetMaterialColors | null,
+  dark: WidgetMaterialColors | null,
+  appearance: AppearancePreference,
+  localeIdentifier: string,
+): WidgetPresentation {
+  const palette = (colors: WidgetMaterialColors): WidgetPalette => {
+    // Expo supplies RRGGBBAA; Android Color.parseColor expects AARRGGBB.
+    const opaque = (color: string) => color.slice(0, 7);
+    return {
+      background: opaque(colors.surfaceContainer),
+      foreground: opaque(colors.onSurface),
+      secondary: opaque(colors.onSurfaceVariant),
+      accent: opaque(colors.primary),
+    };
+  };
+  const t = (key: string) => i18n.t(key, { lng: localeIdentifier });
+  return {
+    appearance,
+    palette: {
+      light: light
+        ? palette(light)
+        : {
+            background: "#ffffff",
+            foreground: themeTokens.light.foreground,
+            secondary: themeTokens.light.mutedForeground,
+            accent: themeTokens.light.primary,
+          },
+      dark: dark
+        ? palette(dark)
+        : {
+            background: "#000000",
+            foreground: themeTokens.dark.foreground,
+            secondary: themeTokens.dark.mutedForeground,
+            accent: themeTokens.dark.primary,
+          },
+    },
+    labels: {
+      next: t("convention.now.upNext"),
+      current: t("convention.now.happeningNow"),
+      noEvents: t("schedule.empty.title"),
+      finished: t("schedule.caughtUp.title"),
+    },
+  };
+}
 
 export interface WidgetEventSnapshot {
   id: string;
@@ -31,17 +111,23 @@ export interface WidgetConventionSnapshot {
   timeZoneIdentifier: string;
   dateRangeLabel: string;
   events: WidgetEventSnapshot[];
+  /** Original counts retained when Expo timeline entries trim event history. */
+  eventCount?: number;
+  remainingTodayCount?: number;
 }
 
 export interface WidgetSnapshot {
   schemaVersion: 2;
   generatedAtMs: number;
   localeIdentifier: string;
+  timeFormat?: TimeFormatPreference;
+  presentation?: WidgetPresentation;
   conventions: WidgetConventionSnapshot[];
 }
 
 interface NativeWidgetModule {
   publishSnapshot(json: string): Promise<boolean>;
+  getWidgetStrings?(localeIdentifier: string): WidgetStrings | null;
 }
 
 const nativeWidgetModule =
@@ -81,9 +167,10 @@ function agePillLabel(
 }
 
 function eventSnapshot(
-  event: ConventionEvent,
+  sourceEvent: ConventionEvent,
   localeIdentifier: string,
 ): WidgetEventSnapshot | null {
+  const event = plannedEvent(sourceEvent);
   if (!event.isInSchedule) return null;
   // A marked event stays on the phone's schedule so the user can see what
   // happened to it, but the widget and the Watch answer "what is next" — and
@@ -111,6 +198,7 @@ export function buildWidgetSnapshot(
   eventsByConvention: ReadonlyMap<string, readonly ConventionEvent[]>,
   localeIdentifier: string,
   generatedAtMs = Date.now(),
+  timeFormat: TimeFormatPreference = "system",
 ): WidgetSnapshot {
   const fallbackTimeZone =
     Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
@@ -172,6 +260,7 @@ export function buildWidgetSnapshot(
     schemaVersion: 2,
     generatedAtMs,
     localeIdentifier,
+    timeFormat,
     conventions: snapshots.sort(
       (a, b) => a.startAtMs - b.startAtMs || a.name.localeCompare(b.name),
     ),
@@ -225,6 +314,32 @@ async function buildAndPublishSnapshot(): Promise<boolean> {
     conventions,
     new Map(eventEntries),
     i18n.resolvedLanguage || i18n.language || "en",
+    Date.now(),
+    getTimeFormatPreference(),
   );
-  return nativeWidgetModule.publishSnapshot(JSON.stringify(snapshot));
+  snapshot.presentation = buildWidgetPresentation(
+    getNativeMaterialColors("light"),
+    getNativeMaterialColors("dark"),
+    getAppearancePreference(),
+    snapshot.localeIdentifier,
+  );
+  snapshot.presentation.appScheme =
+    Constants.expoConfig?.extra?.appVariant === "development"
+      ? "conpaws-dev"
+      : "conpaws";
+  // shortcut: closed widgets keep this system-clock choice until the next app publication.
+  snapshot.presentation.hour12 = resolveHour12(
+    snapshot.timeFormat ?? "system",
+    getCalendars()[0]?.uses24hourClock,
+  );
+  snapshot.presentation.strings =
+    nativeWidgetModule.getWidgetStrings?.(snapshot.localeIdentifier) ??
+    undefined;
+  // Watch and the Android timer only need schedule data, not phone layout strings.
+  const published = await nativeWidgetModule.publishSnapshot(
+    JSON.stringify({ ...snapshot, presentation: undefined }),
+  );
+  const { publishPhoneWidget } = await import("./widget-publication");
+  publishPhoneWidget(snapshot);
+  return published;
 }

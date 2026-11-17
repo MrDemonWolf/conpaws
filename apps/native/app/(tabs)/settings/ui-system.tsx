@@ -52,7 +52,7 @@ import {
   subscribeAppearancePreference,
 } from "@/lib/appearance-storage";
 import { categoryAccentColor } from "@/lib/category-color";
-import { developerToolsEnabled } from "@/lib/developer-tools";
+import { developerDiagnosticsEnabled } from "@/lib/developer-tools";
 
 const CHEVRON_ICON = Icon.select({
   ios: "chevron.right",
@@ -154,7 +154,7 @@ export default function UiSystemScreen() {
   const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);
   const [galleryDay, setGalleryDay] = useState("thu");
   const [gallerySlot, setGallerySlot] = useState<number | null>(null);
-  const enabled = developerToolsEnabled(
+  const enabled = developerDiagnosticsEnabled(
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
   );

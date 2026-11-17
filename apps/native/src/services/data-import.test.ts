@@ -778,3 +778,45 @@ describe("picking a backup file", () => {
     });
   });
 });
+
+it("restores personal visit instants without arming reminders and accepts old backups", () => {
+  const visit = {
+    visitStartTime: "2026-08-21T15:30:00.000Z",
+    visitEndTime: "2026-08-21T16:00:00.000Z",
+  };
+  const plan = planDataImport(
+    envelope(
+      [conventionRow()],
+      [eventRow({ ...visit, endTime: "2026-08-21T23:00:00.000Z" })],
+    ),
+    new Set(),
+    new Set(),
+    NOW,
+  );
+  expect(plan.events[0]).toMatchObject({ ...visit, reminderMinutes: null });
+  const old = planDataImport(
+    envelope([conventionRow()], [eventRow()]),
+    new Set(),
+    new Set(),
+    NOW,
+  );
+  expect(old.events[0]).toMatchObject({
+    visitStartTime: null,
+    visitEndTime: null,
+  });
+  const malformed = planDataImport(
+    envelope(
+      [conventionRow()],
+      [
+        eventRow({
+          visitStartTime: "invalid",
+          visitEndTime: visit.visitEndTime,
+        }),
+      ],
+    ),
+    new Set(),
+    new Set(),
+    NOW,
+  );
+  expect(malformed.events).toEqual([]);
+});

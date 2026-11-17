@@ -10,6 +10,7 @@ import { Alert } from "react-native";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { reportError } from "@/lib/error-reporting";
 import i18n, {
   changeLanguage,
   LANGUAGE_META,
@@ -18,6 +19,7 @@ import i18n, {
 } from "@/lib/i18n";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import { reconcileEventReminders } from "@/services/notifications";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 
@@ -66,6 +68,9 @@ export default function LanguageScreen() {
     setIsChanging(true);
     try {
       await changeLanguage(code);
+      await publishWidgetSnapshot().catch((error) => {
+        reportError(error, { scope: "settings.language.widgetSnapshot" });
+      });
       // A pending reminder carries the title and body that were composed when
       // it was scheduled, so its text stays in the old language until
       // something rewrites the OS request. Reconciling here is what makes

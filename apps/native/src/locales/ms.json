@@ -171,7 +171,9 @@
       "allDaysCta": "Tunjukkan semua hari",
       "dropIn": {
         "title": "Singgah bila-bila masa",
-        "subtitle": "Tiada masa tetap"
+        "subtitle": "Tiada masa tetap",
+        "filter": "Aktiviti terbuka · {{count}}",
+        "find": "Cari aktiviti terbuka"
       },
       "noSeat": "Menyimpan panel tidak menempah tempat duduk.",
       "optionsOne": "{{count}} pilihan",
@@ -284,6 +286,14 @@
       "overlapsPlan": "Bertindih dengan pelan anda",
       "overlapWith": "{{minutes}} min dengan {{title}}",
       "compareBeforeAdding": "Bandingkan sebelum menambah"
+    },
+    "visit": {
+      "title": "Rancang lawatan",
+      "edit": "Edit lawatan",
+      "duration": "Tempoh lawatan",
+      "windowError": "Seluruh lawatan mesti dalam waktu operasi.",
+      "invalid": "Waktu operasi berubah. Edit lawatan anda.",
+      "remove": "Alih keluar lawatan"
     }
   },
   "errors": {
@@ -314,12 +324,11 @@
     },
     "archive": {
       "title": "Arkib ({{count}})",
-      "show": "Tunjukkan",
-      "hide": "Sembunyikan",
       "noCurrent": "Tiada konvensyen akan datang.",
       "success": "{{name}} diarkibkan.",
       "errorTitle": "Konvensyen Tidak Dapat Diarkibkan",
-      "errorMessage": "Tiada apa-apa diarkibkan. Cuba lagi."
+      "errorMessage": "Tiada apa-apa diarkibkan. Cuba lagi.",
+      "showConventions": "Tunjukkan konvensyen yang diarkibkan"
     },
     "unarchive": {
       "success": "{{name}} dipulihkan daripada arkib.",
@@ -327,7 +336,6 @@
       "errorMessage": "Konvensyen tidak dapat dipulihkan. Cuba lagi."
     },
     "moreActions": "Tindakan lain untuk {{name}}",
-    "sortBy": "Susun Ikut",
     "sort": {
       "upcoming": "Akan Datang Dahulu",
       "name": "Nama"
@@ -339,7 +347,8 @@
       "errorTitle": "Konvensyen Tidak Dapat Dipadamkan",
       "errorMessage": "Tiada apa-apa dipadamkan. Cuba lagi."
     },
-    "find": "Cari konvensyen saya"
+    "find": "Cari konvensyen saya",
+    "sortAndView": "Isih dan paparan"
   },
   "import": {
     "title": "Import Jadual",
@@ -428,42 +437,36 @@
   "onboarding": {
     "progress": "Langkah {{step}} daripada {{total}}",
     "welcome": {
-      "tagline": "Jadual konvensyen anda, sedia secara luar talian.",
-      "subtitle": "Rancang walaupun Wi-Fi konvensyen bermasalah. Jadual anda kekal pada peranti anda.",
+      "tagline": "Konvensyen anda, tersedia di luar talian.",
+      "subtitle": "Cari konvensyen anda atau import fail .ics atau pautan Sched.",
       "continue": "Teruskan",
-      "skip": "Langkau"
+      "skip": "Langkau",
+      "exampleTitle": "Contoh konvensyen",
+      "connectionNote": "Sambungan diperlukan untuk mencari dan memuat turun jadual. Jadual yang dimuat turun kekal tersedia di luar talian."
     },
     "features": {
-      "title": "Rancang keseluruhan konvensyen",
-      "subtitle": "Semua yang anda perlukan apabila Wi-Fi tempat acara tumbang.",
-      "demo": {
-        "saved": "Pelan saya"
-      },
-      "import": {
-        "title": "Import sebarang jadual",
-        "description": "Tambah fail .ics atau tampal pautan Sched."
-      },
-      "plan": {
-        "title": "Jangan terlepas sebarang panel",
-        "description": "Bina pelan anda, lihat perkara yang sedang berlaku sekarang dan seterusnya, dan kesan pertindihan."
-      },
-      "offline": {
-        "title": "Peribadi dan luar talian",
-        "description": "Data konvensyen anda kekal pada peranti ini."
-      },
-      "plus": {
-        "title": "Percuma dan luar talian",
-        "description": "Semua di sini berfungsi tanpa akaun dan tanpa rangkaian. Ciri awan pilihan mungkin menyusul kemudian."
-      },
-      "next": "Teruskan"
+      "title": "Pilih panel yang anda mahu.",
+      "subtitle": "Ketik bintang untuk menyimpan acara. Kemudian buka Pelan saya untuk melihat pilihan anda.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Teruskan",
+      "practiceNote": "Cuba di sini. Contoh ini tidak akan mengubah konvensyen anda.",
+      "viewsNote": "Program memaparkan jadual. Pelan saya menyimpan pilihan anda. Sekarang menunjukkan acara semasa dan seterusnya.",
+      "emptyPlan": "Belum ada rancangan. Buka Program dan ketik bintang."
     },
     "getStarted": {
-      "title": "Sedia untuk konvensyen seterusnya?",
-      "subtitle": "Cari konvensyen anda, import jadual, atau teroka ConPaws dahulu.",
+      "title": "Peringatan, apabila anda mahukannya.",
+      "subtitle": "Menyimpan acara dan menetapkan peringatan ialah pilihan yang berasingan.",
       "importSchedule": "Import jadual",
       "exploreFirst": "Teroka dahulu",
       "localPrivacy": "Tiada akaun diperlukan. Data anda kekal setempat.",
-      "find": "Cari konvensyen saya"
+      "find": "Cari konvensyen saya",
+      "example": "Contoh acara",
+      "sampleOnly": "Contoh sahaja. Tiada pemberitahuan akan dihantar.",
+      "permissionNote": "Telefon anda meminta kebenaran pemberitahuan apabila anda menetapkan peringatan sebenar. Anda boleh menggunakan ConPaws tanpa pemberitahuan."
     }
   },
   "reminders": {
@@ -642,7 +645,10 @@
       "notRequested": "Belum diminta",
       "defaultLead": "Peringatan lalai",
       "defaultLeadDescription": "Dipilih terlebih dahulu apabila anda menetapkan peringatan pada acara baharu.",
-      "noDefault": "Tiada"
+      "noDefault": "Tiada",
+      "enable": "Dayakan pemberitahuan",
+      "changeError": "Tidak dapat mengemas kini kebenaran pemberitahuan. Cuba lagi.",
+      "defaultLeadError": "Tidak dapat menyimpan peringatan lalai. Cuba lagi."
     },
     "help": {
       "gettingStarted": "Mula di sini",
@@ -650,7 +656,28 @@
       "importNow": "Import jadual",
       "importNowDescription": "Masukkan pautan Sched atau fail .ics.",
       "findDescription": "Pilih konvensyen daripada katalog ConPaws dan muat turun jadualnya.",
-      "find": "Cari konvensyen saya"
+      "find": "Cari konvensyen saya",
+      "replay": "Ulang panduan",
+      "replayDescription": "Berlatih dengan data contoh sementara"
+    },
+    "preview": {
+      "title": "Ujian versi pratonton",
+      "add": "Tambah konvensyen contoh",
+      "description": "Jadual rekaan untuk ujian. Konvensyen lain anda tidak berubah.",
+      "restore": "Pulihkan data contoh",
+      "restoreConfirm": "Perubahan pada konvensyen contoh akan diganti. Konvensyen lain dan tetapan anda tidak berubah.",
+      "testReminder": "Uji peringatan",
+      "testDescription": "Jadualkan pemberitahuan setempat sebenar dalam kira-kira lima saat.",
+      "testScheduled": "Pemberitahuan setempat telah dijadualkan dalam kira-kira lima saat.",
+      "nativeOnly": "Ujian peringatan memerlukan aplikasi natif.",
+      "error": "Tidak dapat melengkapkan tindakan pratonton. Cuba lagi."
+    },
+    "timeFormat": {
+      "title": "Format masa",
+      "system": "Gunakan tetapan peranti",
+      "hour12": "12 jam · 7:00 PM",
+      "hour24": "24 jam · 19:00",
+      "saveError": "Tidak dapat menyimpan format masa. Cuba lagi."
     }
   },
   "catalog": {
@@ -714,7 +741,9 @@
         "title": "Konvensyen tidak ditemui",
         "body": "Mungkin telah dinyahterbitkan."
       },
-      "successAnnouncement": "{{name}} dimuat turun. Pilih panel pertama anda."
+      "successAnnouncement": "{{name}} dimuat turun. Pilih panel pertama anda.",
+      "venue": "Tempat",
+      "offlineAvailable": "Tersedia di luar talian selepas dimuat turun"
     }
   }
 }

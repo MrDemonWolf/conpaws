@@ -40,7 +40,7 @@ export function Chip({
         selected ? "bg-primary" : "border border-border bg-card",
         PRESS_DIM,
       )}
-      style={{ borderCurve: "continuous" }}
+      style={{ borderCurve: "continuous", minHeight: 48, minWidth: 48 }}
     >
       <Text
         variant="label"

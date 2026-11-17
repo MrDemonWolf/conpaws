@@ -62,7 +62,9 @@
       },
       "successAnnouncement": "{{name}} stažen. Vyber si první panel.",
       "scheduleReady_few": "{{count}} události · Připraveno ke stažení",
-      "scheduleReady_many": "{{count}} událostí · Připraveno ke stažení"
+      "scheduleReady_many": "{{count}} událostí · Připraveno ke stažení",
+      "venue": "Místo konání",
+      "offlineAvailable": "Po stažení dostupné offline"
     }
   },
   "common": {
@@ -241,7 +243,9 @@
       "allDaysCta": "Zobrazit všechny dny",
       "dropIn": {
         "title": "Zastav se kdykoli",
-        "subtitle": "Bez pevného času"
+        "subtitle": "Bez pevného času",
+        "filter": "Volný vstup · {{count}}",
+        "find": "Najít volně přístupnou aktivitu"
       },
       "noSeat": "Uložení panelu nerezervuje místo.",
       "optionsOne": "{{count}} možnost",
@@ -361,6 +365,14 @@
       "overlapsPlan": "Překrývá se s tvým plánem",
       "overlapWith": "{{minutes}} min s {{title}}",
       "compareBeforeAdding": "Porovnat před přidáním"
+    },
+    "visit": {
+      "title": "Naplánovat návštěvu",
+      "edit": "Upravit návštěvu",
+      "duration": "Délka návštěvy",
+      "windowError": "Celá návštěva musí být v otevírací době.",
+      "invalid": "Otevírací doba se změnila. Upravte návštěvu.",
+      "remove": "Odebrat návštěvu"
     }
   },
   "errors": {
@@ -392,12 +404,11 @@
     },
     "archive": {
       "title": "Archiv ({{count}})",
-      "show": "Zobrazit",
-      "hide": "Skrýt",
       "noCurrent": "Žádné nadcházející cony.",
       "success": "{{name}} byl archivován.",
       "errorTitle": "Con se nepodařilo archivovat",
-      "errorMessage": "Nic nebylo archivováno. Zkuste to znovu."
+      "errorMessage": "Nic nebylo archivováno. Zkuste to znovu.",
+      "showConventions": "Zobrazit archivované cony"
     },
     "unarchive": {
       "success": "{{name}} byl obnoven z archivu.",
@@ -405,7 +416,6 @@
       "errorMessage": "Con se nepodařilo obnovit. Zkuste to znovu."
     },
     "moreActions": "Další akce pro {{name}}",
-    "sortBy": "Řadit podle",
     "sort": {
       "upcoming": "Nejbližší první",
       "name": "Název"
@@ -416,7 +426,8 @@
       "success": "{{name}} byl smazán.",
       "errorTitle": "Con se nepodařilo smazat",
       "errorMessage": "Nic nebylo smazáno. Zkuste to znovu."
-    }
+    },
+    "sortAndView": "Řazení a zobrazení"
   },
   "import": {
     "title": "Importovat program",
@@ -505,42 +516,36 @@
   "onboarding": {
     "progress": "Krok {{step}} z {{total}}",
     "welcome": {
-      "tagline": "Program vašeho conu, připravený offline.",
-      "subtitle": "Plánujte i přes mizernou conovou Wi-Fi. Váš program zůstává ve vašem zařízení.",
+      "tagline": "Tvoje con akce, připravená i offline.",
+      "subtitle": "Najdi svou con akci nebo importuj soubor .ics či odkaz na Sched.",
       "continue": "Pokračovat",
-      "skip": "Přeskočit"
+      "skip": "Přeskočit",
+      "exampleTitle": "Ukázková con akce",
+      "connectionNote": "K vyhledání a stažení programů potřebuješ připojení. Stažený program zůstane dostupný i offline."
     },
     "features": {
-      "title": "Naplánujte si celý con",
-      "subtitle": "Všechno, co potřebujete, když to Wi-Fi na místě vzdá.",
-      "demo": {
-        "saved": "Můj plán"
-      },
-      "import": {
-        "title": "Importujte jakýkoli program",
-        "description": "Přidejte soubor .ics, nebo vložte odkaz Sched."
-      },
-      "plan": {
-        "title": "Nezmeškejte žádný panel",
-        "description": "Sestavte si plán, sledujte, co se děje právě teď a co bude následovat, a odhalte časové překryvy."
-      },
-      "offline": {
-        "title": "Soukromé a offline",
-        "description": "Data vašeho conu zůstávají v tomto zařízení."
-      },
-      "plus": {
-        "title": "Zdarma a offline",
-        "description": "Všechno tady funguje bez účtu a bez sítě. Volitelné cloudové funkce mohou přijít později."
-      },
-      "next": "Pokračovat"
+      "title": "Vyber si panely, které chceš.",
+      "subtitle": "Klepnutím na hvězdičku ulož událost. Pak otevři Můj plán a prohlédni si svou volbu.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Pokračovat",
+      "practiceNote": "Vyzkoušej si to tady. Tato ukázka tvoje con akce nezmění.",
+      "viewsNote": "Program zobrazuje program. Můj plán obsahuje tvoje volby. Teď ukazuje aktuální a následující události.",
+      "emptyPlan": "Zatím nic neplánuješ. Otevři Program a klepni na hvězdičku."
     },
     "getStarted": {
       "find": "Najít můj con",
-      "title": "Připraveni na další con?",
-      "subtitle": "Najdi svůj con, importuj program nebo si nejdřív prohlédni ConPaws.",
+      "title": "Připomenutí, když ho chceš.",
+      "subtitle": "Uložení události a nastavení připomenutí jsou dvě samostatné volby.",
       "importSchedule": "Importovat program",
       "exploreFirst": "Nejdřív prozkoumat",
-      "localPrivacy": "Účet není potřeba. Vaše data zůstávají v zařízení."
+      "localPrivacy": "Účet není potřeba. Vaše data zůstávají v zařízení.",
+      "example": "Ukázková událost",
+      "sampleOnly": "Pouze ukázka. Žádné oznámení se neodešle.",
+      "permissionNote": "Telefon požádá o povolení oznámení, až nastavíš skutečné připomenutí. ConPaws můžeš používat i bez oznámení."
     }
   },
   "reminders": {
@@ -723,7 +728,10 @@
       "notRequested": "Zatím nevyžádáno",
       "defaultLead": "Výchozí připomenutí",
       "defaultLeadDescription": "Předvybráno, když nastavujete připomenutí u nové události.",
-      "noDefault": "Žádné"
+      "noDefault": "Žádné",
+      "enable": "Povolit oznámení",
+      "changeError": "Nepodařilo se aktualizovat oprávnění k oznámením. Zkus to znovu.",
+      "defaultLeadError": "Nepodařilo se uložit výchozí připomenutí. Zkus to znovu."
     },
     "help": {
       "gettingStarted": "Začínáme",
@@ -731,7 +739,28 @@
       "importNow": "Importovat program",
       "importNowDescription": "Vložte odkaz Sched nebo soubor .ics.",
       "find": "Najít můj con",
-      "findDescription": "Vyber con z katalogu ConPaws a stáhni jeho program."
+      "findDescription": "Vyber con z katalogu ConPaws a stáhni jeho program.",
+      "replay": "Zopakovat průvodce",
+      "replayDescription": "Procvič si ovládání s dočasnými ukázkovými daty"
+    },
+    "preview": {
+      "title": "Testování náhledu",
+      "add": "Přidat ukázkové cony",
+      "description": "Smyšlené programy pro testování. Ostatní cony zůstanou beze změny.",
+      "restore": "Obnovit ukázková data",
+      "restoreConfirm": "Změny v ukázkových conech budou nahrazeny. Ostatní cony a nastavení zůstanou beze změny.",
+      "testReminder": "Vyzkoušet připomenutí",
+      "testDescription": "Naplánovat skutečné místní oznámení přibližně za pět sekund.",
+      "testScheduled": "Místní oznámení bylo naplánováno přibližně za pět sekund.",
+      "nativeOnly": "Testy připomenutí vyžadují nativní aplikaci.",
+      "error": "Testovací akci se nepodařilo dokončit. Zkus to znovu."
+    },
+    "timeFormat": {
+      "title": "Formát času",
+      "system": "Použít nastavení zařízení",
+      "hour12": "12hodinový · 7:00 PM",
+      "hour24": "24hodinový · 19:00",
+      "saveError": "Nepodařilo se uložit formát času. Zkus to znovu."
     }
   }
 }

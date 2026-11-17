@@ -1,7 +1,7 @@
 import { Collapsible, FieldGroup, Host, ListItem, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQueryClient } from "@tanstack/react-query";
-import { addDays, format, startOfDay } from "date-fns";
+import { addDays, format, max, startOfDay } from "date-fns";
 import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack } from "expo-router";
@@ -283,9 +283,7 @@ export default function CreateConventionScreen() {
               locale={locale}
               timeZoneName={validTimeZone}
               colorScheme={resolvedColorScheme}
-              onChange={(value) =>
-                setEndDate(value < startDate ? startDate : value)
-              }
+              onChange={(value) => setEndDate(max([value, startDate]))}
             />
             <Collapsible
               label={t("common.advanced")}

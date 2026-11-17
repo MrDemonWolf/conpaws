@@ -5,6 +5,9 @@
     "appDelegateSubscribers": ["ConPawsQuickActionsSubscriber"]
   },
   "android": {
-    "modules": ["expo.modules.conpawswidgets.ConPawsQuickActionsModule"]
+    "modules": [
+      "expo.modules.conpawswidgets.ConPawsQuickActionsModule",
+      "expo.modules.conpawswidgets.ConPawsWidgetsModule"
+    ]
   }
 }

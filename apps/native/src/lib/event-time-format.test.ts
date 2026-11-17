@@ -1,9 +1,12 @@
+import { createInstance } from "i18next";
 import { describe, expect, it } from "vitest";
+import en from "../locales/en.json";
 import {
   eventEndDayOffset,
   formatConventionDate,
   formatDayKeyLabel,
   formatEventDayLabel,
+  formatEventDuration,
   formatEventEndDateTime,
   formatEventEndTime,
   formatEventTime,
@@ -256,5 +259,17 @@ describe("formatEventEndDateTime", () => {
     expect(
       formatEventEndDateTime(TABLETOP_START, "not a date", CON_ZONE, "en"),
     ).toBe("");
+  });
+});
+
+describe("formatEventDuration", () => {
+  it("uses the same translated minute, hour and mixed labels in sheets and visit forms", async () => {
+    const i18n = createInstance();
+    await i18n.init({ lng: "en", resources: { en: { translation: en } } });
+    expect(formatEventDuration(1, i18n.t)).toBe("1 minute");
+    expect(formatEventDuration(45, i18n.t)).toBe("45 minutes");
+    expect(formatEventDuration(60, i18n.t)).toBe("1 h");
+    expect(formatEventDuration(90, i18n.t)).toBe("1 h 30 min");
+    expect(formatEventDuration(120, i18n.t)).toBe("2 h");
   });
 });

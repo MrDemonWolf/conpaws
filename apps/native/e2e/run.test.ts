@@ -10,7 +10,8 @@ function runInvalidArgs(args: string[]) {
   return spawnSync(process.execPath, [runner, ...args], {
     encoding: "utf8",
     env: { ...process.env, PATH: "" },
-    timeout: 2_000,
+    // Native builds can delay Node startup; this is a hang limit, not a speed check.
+    timeout: 10_000,
   });
 }
 

@@ -164,7 +164,7 @@ interface MigrationDatabase {
 }
 
 /** The highest `user_version` the migration ladder below knows how to reach. */
-export const LATEST_SCHEMA_VERSION = 7;
+export const LATEST_SCHEMA_VERSION = 8;
 
 export function initializeDatabase(database: MigrationDatabase): void {
   database.execSync(CONNECTION_SQL);
@@ -194,17 +194,38 @@ export function initializeDatabase(database: MigrationDatabase): void {
   if (version < 7 || !hasColumn(database, "catalog_revision")) {
     applyColumnMigration(database, "catalog_revision");
   }
+  for (const column of ["visit_start_time", "visit_end_time"] as const) {
+    if (version < 8 || !hasColumn(database, column, "convention_events")) {
+      applyColumnMigration(database, column);
+    }
+  }
 }
 
-function hasColumn(database: MigrationDatabase, column: string): boolean {
+function hasColumn(
+  database: MigrationDatabase,
+  column: string,
+  table = "conventions",
+): boolean {
   return (
     database.getFirstSync<{ present: number }>(
-      `SELECT 1 AS present FROM pragma_table_info('conventions') WHERE name = '${column}'`,
+      `SELECT 1 AS present FROM pragma_table_info('${table}') WHERE name = '${column}'`,
     )?.present === 1
   );
 }
 
 const COLUMN_MIGRATIONS = {
+  visit_start_time: {
+    table: "convention_events",
+    migrate: () =>
+      "BEGIN IMMEDIATE; ALTER TABLE convention_events ADD COLUMN visit_start_time TEXT; PRAGMA user_version = 8; COMMIT;",
+    complete: () => "BEGIN IMMEDIATE; PRAGMA user_version = 8; COMMIT;",
+  },
+  visit_end_time: {
+    table: "convention_events",
+    migrate: () =>
+      "BEGIN IMMEDIATE; ALTER TABLE convention_events ADD COLUMN visit_end_time TEXT; PRAGMA user_version = 8; COMMIT;",
+    complete: () => "BEGIN IMMEDIATE; PRAGMA user_version = 8; COMMIT;",
+  },
   time_zone: {
     table: "conventions",
     migrate: () => MIGRATION_2_SQL,

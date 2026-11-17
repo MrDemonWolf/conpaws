@@ -34,9 +34,7 @@ export function ConventionList<T extends { id: string }>({
   archivedData,
   archiveExpanded,
   archiveLabel,
-  archiveActionLabel,
   currentEmptyLabel,
-  onToggleArchive,
   getRowContent,
   onOpen,
   deleteLabel,
@@ -244,47 +242,15 @@ export function ConventionList<T extends { id: string }>({
           </Text>
         ) : null}
         {data.map((item) => renderConvention(item))}
-        {archivedData.length > 0 ? (
-          <Button
-            onPress={onToggleArchive}
+        {archiveExpanded && archivedData.length > 0 ? (
+          <Text
             modifiers={[
-              buttonStyle("plain"),
-              accessibilityLabel(`${archiveLabel}, ${archiveActionLabel}`),
-              listRowInsets({
-                top: 0,
-                leading: 16,
-                bottom: 0,
-                trailing: 16,
-              }),
+              font({ textStyle: "headline" }),
+              padding({ vertical: 12 }),
             ]}
           >
-            <HStack
-              spacing={12}
-              modifiers={[
-                frame({ maxWidth: Infinity, minHeight: 44 }),
-                padding({ vertical: 10 }),
-                contentShape(shapes.rectangle()),
-              ]}
-            >
-              <Text
-                modifiers={[font({ textStyle: "body", weight: "semibold" })]}
-              >
-                {archiveLabel}
-              </Text>
-              <Spacer />
-              <Text
-                modifiers={[
-                  font({ textStyle: "caption" }),
-                  foregroundStyle({
-                    type: "hierarchical",
-                    style: "secondary",
-                  }),
-                ]}
-              >
-                {archiveActionLabel}
-              </Text>
-            </HStack>
-          </Button>
+            {archiveLabel}
+          </Text>
         ) : null}
         {archiveExpanded
           ? archivedData.map((item) => renderConvention(item, true))

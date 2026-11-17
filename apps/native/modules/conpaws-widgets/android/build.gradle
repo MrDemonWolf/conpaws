@@ -16,4 +16,16 @@ android {
 
 dependencies {
   implementation 'com.facebook.react:react-android'
+  implementation project(':expo-widgets')
+}
+
+// Pure model/parser checks run on the JVM without Android or test libraries.
+afterEvaluate {
+  tasks.register('widgetModelCheck', JavaExec) {
+    dependsOn 'compileDebugUnitTestKotlin'
+    classpath = files("${buildDir}/tmp/kotlin-classes/debug", "${buildDir}/tmp/kotlin-classes/debugUnitTest") + configurations.debugUnitTestRuntimeClasspath.incoming.artifactView {
+      attributes.attribute(org.gradle.api.attributes.Attribute.of("artifactType", String), "jar")
+    }.files
+    mainClass = 'expo.modules.conpawswidgets.ConPawsWidgetModelChecks'
+  }
 }

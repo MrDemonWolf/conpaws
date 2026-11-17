@@ -60,7 +60,9 @@
         "title": "Convention not found",
         "body": "It may have been unpublished."
       },
-      "successAnnouncement": "{{name}} downloaded. Choose your first panel."
+      "successAnnouncement": "{{name}} downloaded. Choose your first panel.",
+      "venue": "Venue",
+      "offlineAvailable": "Available offline after download"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Show all days",
       "dropIn": {
         "title": "Drop in anytime",
-        "subtitle": "Not a timed commitment"
+        "subtitle": "Not a timed commitment",
+        "filter": "Drop-ins · {{count}}",
+        "find": "Find a drop-in"
       },
       "noSeat": "Saving a panel does not reserve a seat.",
       "optionsOne": "{{count}} option",
@@ -348,6 +352,14 @@
       "overlapsPlan": "Overlaps your plan",
       "overlapWith": "{{minutes}} min with {{title}}",
       "compareBeforeAdding": "Compare before adding"
+    },
+    "visit": {
+      "title": "Plan a visit",
+      "edit": "Edit visit",
+      "duration": "Visit length",
+      "windowError": "Keep the whole visit inside the opening hours.",
+      "invalid": "Opening hours changed. Edit your visit.",
+      "remove": "Remove visit"
     }
   },
   "errors": {
@@ -379,12 +391,11 @@
     },
     "archive": {
       "title": "Archive ({{count}})",
-      "show": "Show",
-      "hide": "Hide",
       "noCurrent": "No upcoming conventions.",
       "success": "Archived {{name}}.",
       "errorTitle": "Could Not Archive Convention",
-      "errorMessage": "Nothing was archived. Try again."
+      "errorMessage": "Nothing was archived. Try again.",
+      "showConventions": "Show archived conventions"
     },
     "unarchive": {
       "success": "{{name}} restored from the archive.",
@@ -392,7 +403,6 @@
       "errorMessage": "The convention could not be restored. Try again."
     },
     "moreActions": "More actions for {{name}}",
-    "sortBy": "Sort by",
     "sort": {
       "upcoming": "Upcoming first",
       "name": "Name"
@@ -403,7 +413,8 @@
       "success": "Deleted {{name}}.",
       "errorTitle": "Could Not Delete Convention",
       "errorMessage": "Nothing was deleted. Try again."
-    }
+    },
+    "sortAndView": "Sort & view"
   },
   "import": {
     "title": "Import Schedule",
@@ -492,42 +503,36 @@
   "onboarding": {
     "progress": "Step {{step}} of {{total}}",
     "welcome": {
-      "tagline": "Your convention schedule, ready offline.",
-      "subtitle": "Plan around bad con Wi-Fi. Your schedule stays on your device.",
+      "tagline": "Your convention, ready offline.",
+      "subtitle": "Find your convention or bring an .ics file or Sched link.",
       "continue": "Continue",
-      "skip": "Skip"
+      "skip": "Skip",
+      "exampleTitle": "Example convention",
+      "connectionNote": "A connection is needed to find and download schedules. Your downloaded schedule stays available offline."
     },
     "features": {
-      "title": "Plan the whole con",
-      "subtitle": "Everything you need when the venue Wi-Fi gives up.",
-      "demo": {
-        "saved": "My plan"
-      },
-      "import": {
-        "title": "Import any schedule",
-        "description": "Add an .ics file or paste a Sched link."
-      },
-      "plan": {
-        "title": "Never miss a panel",
-        "description": "Build your plan, see what is happening now and next, and catch overlaps."
-      },
-      "offline": {
-        "title": "Private and offline",
-        "description": "Your convention data stays on this device."
-      },
-      "plus": {
-        "title": "Free and offline",
-        "description": "Everything here works with no account and no network. Optional cloud features may come later."
-      },
-      "next": "Continue"
+      "title": "Pick the panels you want.",
+      "subtitle": "Tap the star to save an event. Then open My plan to see your pick.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Continue",
+      "practiceNote": "Try it here. This sample will not change your conventions.",
+      "viewsNote": "Browse shows the schedule. My plan holds your picks. Now shows what is happening now and next.",
+      "emptyPlan": "Nothing planned yet. Go to Browse and tap the star."
     },
     "getStarted": {
-      "title": "Ready for your next con?",
-      "subtitle": "Find your convention, import a schedule, or explore first.",
+      "title": "A heads-up, when you want it.",
+      "subtitle": "Saving an event and setting a reminder are separate choices.",
       "find": "Find my convention",
       "importSchedule": "Import a schedule",
       "exploreFirst": "Explore first",
-      "localPrivacy": "No account required. Your data stays local."
+      "localPrivacy": "No account required. Your data stays local.",
+      "example": "Example event",
+      "sampleOnly": "Sample only. No notification will be sent.",
+      "permissionNote": "Your phone asks for notification permission when you set a real reminder. You can use ConPaws without notifications."
     }
   },
   "reminders": {
@@ -706,7 +711,10 @@
       "notRequested": "Not requested yet",
       "defaultLead": "Default reminder",
       "defaultLeadDescription": "Pre-selected when you set a reminder on a new event.",
-      "noDefault": "None"
+      "noDefault": "None",
+      "enable": "Enable notifications",
+      "changeError": "Could not update notification permission. Try again.",
+      "defaultLeadError": "Could not save your default reminder. Try again."
     },
     "help": {
       "gettingStarted": "Getting started",
@@ -714,7 +722,28 @@
       "find": "Find my convention",
       "findDescription": "Pick a convention from the ConPaws catalog and download its schedule.",
       "importNow": "Import a schedule",
-      "importNowDescription": "Bring in a Sched link or an .ics file."
+      "importNowDescription": "Bring in a Sched link or an .ics file.",
+      "replay": "Replay walkthrough",
+      "replayDescription": "Practice with temporary sample data"
+    },
+    "preview": {
+      "title": "Preview testing",
+      "add": "Add sample conventions",
+      "description": "Fictional schedules for testing. Your other conventions stay unchanged.",
+      "restore": "Restore sample data",
+      "restoreConfirm": "Changes to sample conventions will be replaced. Your other conventions and settings stay unchanged.",
+      "testReminder": "Test a reminder",
+      "testDescription": "Schedule a real local notification in about five seconds.",
+      "testScheduled": "A local notification was scheduled for about five seconds from now.",
+      "nativeOnly": "Reminder tests require the native app.",
+      "error": "Could not complete the preview action. Try again."
+    },
+    "timeFormat": {
+      "title": "Time format",
+      "system": "Use device setting",
+      "hour12": "12-hour · 7:00 PM",
+      "hour24": "24-hour · 19:00",
+      "saveError": "Could not save your time format. Try again."
     }
   }
 }

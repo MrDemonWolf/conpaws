@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Banner,
   Button,
@@ -50,6 +51,7 @@ export default function FindConventionDetailScreen() {
   const [downloading, setDownloading] = useState(false);
   const [failure, setFailure] = useState<DownloadFailure | null>(null);
   const locale = currentLocale();
+  const insets = useSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
@@ -264,6 +266,17 @@ export default function FindConventionDetailScreen() {
                   </Text>
                   <Text variant="body">{dates}</Text>
                 </View>
+                {edition.venue ? (
+                  <>
+                    <View className="h-px bg-border" />
+                    <View>
+                      <Text variant="caption" className="text-muted-foreground">
+                        {t("catalog.confirm.venue")}
+                      </Text>
+                      <Text variant="body">{edition.venue}</Text>
+                    </View>
+                  </>
+                ) : null}
                 <View className="h-px bg-border" />
                 <View>
                   <Text variant="caption" className="text-muted-foreground">
@@ -280,18 +293,16 @@ export default function FindConventionDetailScreen() {
                   </Text>
                   <Text variant="body">{scheduleLabel}</Text>
                 </View>
-                <View className="h-px bg-border" />
-                <View>
-                  <Text variant="caption" className="text-muted-foreground">
-                    {t("catalog.confirm.source")}
-                  </Text>
-                  <Text variant="body">
-                    {t("catalog.confirm.sourceValue", {
-                      revision: edition.revision,
-                    })}
-                  </Text>
-                </View>
               </Card>
+              <Text
+                variant="caption"
+                className="px-5 pt-3 text-muted-foreground"
+              >
+                {t("catalog.confirm.source")}:{" "}
+                {t("catalog.confirm.sourceValue", {
+                  revision: edition.revision,
+                })}
+              </Text>
               {downloaded ? (
                 <Text
                   variant="caption"
@@ -302,35 +313,6 @@ export default function FindConventionDetailScreen() {
                   })}
                 </Text>
               ) : null}
-              <View className="gap-2 px-4 pt-4">
-                <Button
-                  onPress={canOpenSavedSchedule ? openSchedule : handleDownload}
-                  disabled={!isReady && !downloaded}
-                  loading={downloading}
-                  accessibilityLabel={
-                    downloading
-                      ? t("catalog.confirm.downloading")
-                      : downloadLabel
-                  }
-                >
-                  {downloading
-                    ? t("catalog.confirm.downloading")
-                    : downloadLabel}
-                </Button>
-                {downloading ? (
-                  <Text
-                    variant="caption"
-                    className="text-center text-muted-foreground"
-                  >
-                    {t("catalog.confirm.keepOpen")}
-                  </Text>
-                ) : null}
-                {!isReady && !downloaded ? (
-                  <Button onPress={openImport} variant="outline">
-                    {t("catalog.notListed.import")}
-                  </Button>
-                ) : null}
-              </View>
             </>
           ) : !catalogQuery.error ? (
             <Banner
@@ -342,6 +324,39 @@ export default function FindConventionDetailScreen() {
           ) : null}
         </ScrollView>
       )}
+      {edition && !catalogQuery.isLoading && !conventionQuery.isLoading ? (
+        <View
+          className="gap-2 border-t border-border px-4 pt-3"
+          style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+        >
+          <Button
+            onPress={canOpenSavedSchedule ? openSchedule : handleDownload}
+            disabled={!isReady && !downloaded}
+            loading={downloading}
+            accessibilityLabel={
+              downloading ? t("catalog.confirm.downloading") : downloadLabel
+            }
+          >
+            {downloading ? t("catalog.confirm.downloading") : downloadLabel}
+          </Button>
+          <Text variant="caption" className="text-center text-muted-foreground">
+            {t("catalog.confirm.offlineAvailable")}
+          </Text>
+          {downloading ? (
+            <Text
+              variant="caption"
+              className="text-center text-muted-foreground"
+            >
+              {t("catalog.confirm.keepOpen")}
+            </Text>
+          ) : null}
+          {!isReady && !downloaded ? (
+            <Button onPress={openImport} variant="outline">
+              {t("catalog.notListed.import")}
+            </Button>
+          ) : null}
+        </View>
+      ) : null}
     </View>
   );
 }

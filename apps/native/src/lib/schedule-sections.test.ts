@@ -54,6 +54,26 @@ const gone = event("gone", at(19, 15, 45), at(19, 16, 30), {
 const all = [photo, draw, first, story, market, welcome, farewell, gone];
 
 describe("buildBrowseSections", () => {
+  it("shows only drop-in rows when the shortcut is selected", () => {
+    const filters = {
+      dayKey: null,
+      slotStartMs: null,
+      category: null,
+      query: "",
+    };
+    const selection = selectBrowseEvents(all, filters, TZ);
+    const sections = buildBrowseSections(
+      selection,
+      { dayKey: null, dropInsOnly: true },
+      TZ,
+    );
+    expect(sections.map((section) => section.key)).toEqual(["drop-ins"]);
+    expect(sections[0]?.data.map((row) => row.id)).toEqual(["market"]);
+    expect(
+      buildBrowseSections(selection, { dayKey: null }, TZ).length,
+    ).toBeGreaterThan(1);
+  });
+
   it("makes one section per day in all-days mode, plus drop-ins", () => {
     const selection = selectBrowseEvents(
       all,

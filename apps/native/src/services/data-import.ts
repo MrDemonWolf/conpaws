@@ -361,6 +361,20 @@ export function validateEventRow(
     return { reason: "invalid-date" };
   }
 
+  const visitStartTime = optionalString(row, "visitStartTime");
+  const visitEndTime = optionalString(row, "visitEndTime");
+  if (visitStartTime === undefined || visitEndTime === undefined)
+    return { reason: "malformed" };
+  if (
+    (visitStartTime !== null || visitEndTime !== null) &&
+    (!visitStartTime ||
+      !visitEndTime ||
+      !isUsableInstant(visitStartTime) ||
+      !isUsableInstant(visitEndTime) ||
+      Date.parse(visitEndTime) <= Date.parse(visitStartTime))
+  )
+    return { reason: "invalid-date" };
+
   return {
     row: {
       id,
@@ -374,6 +388,10 @@ export function validateEventRow(
       category,
       type,
       isInSchedule: optionalBoolean(row, "isInSchedule"),
+      visitStartTime: visitStartTime
+        ? new Date(visitStartTime).toISOString()
+        : null,
+      visitEndTime: visitEndTime ? new Date(visitEndTime).toISOString() : null,
       // A restored reminder must be explicitly re-enabled so the OS schedule
       // matches SQLite.
       reminderMinutes: null,
@@ -470,8 +488,8 @@ export function chunkRows<T>(rows: readonly T[], columns: number): T[][] {
   return chunks;
 }
 
-const CONVENTION_COLUMNS = 11;
-const EVENT_COLUMNS = 19;
+const CONVENTION_COLUMNS = 14;
+const EVENT_COLUMNS = 24;
 
 export async function importData(
   envelope: BackupEnvelope,

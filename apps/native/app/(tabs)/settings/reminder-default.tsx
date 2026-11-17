@@ -5,6 +5,7 @@ import { font } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Alert } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 
@@ -68,6 +69,7 @@ export default function ReminderDefaultScreen() {
   const [selected, setSelected] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
+  const [isSaving, setIsSaving] = useState(false);
 
   // The cache is empty on a cold open straight to this screen.
   useEffect(() => {
@@ -75,11 +77,19 @@ export default function ReminderDefaultScreen() {
   }, []);
 
   function handleSelect(next: number | null) {
-    if (next === selected) return;
+    if (next === selected || isSaving) return;
+    const previous = selected;
+    setIsSaving(true);
     setSelected(next);
-    // `setDefaultReminderMinutes` writes the cache first and swallows storage
-    // failures, so there is no rejection to handle and nothing to roll back.
-    void setDefaultReminderMinutes(next);
+    void setDefaultReminderMinutes(next)
+      .catch(() => {
+        setSelected(previous);
+        Alert.alert(
+          t("common.error"),
+          t("settings.notifications.defaultLeadError"),
+        );
+      })
+      .finally(() => setIsSaving(false));
   }
 
   return (
@@ -90,7 +100,7 @@ export default function ReminderDefaultScreen() {
       useViewportSizeMeasurement
     >
       <FieldGroup>
-        <FieldGroup.Section>
+        <FieldGroup.Section disabled={isSaving}>
           {CHOICES.map((minutes) => {
             const isSelected = minutes === selected;
 

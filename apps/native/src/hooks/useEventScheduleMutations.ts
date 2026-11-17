@@ -3,12 +3,16 @@ import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, Linking } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { hasVisit, isValidVisit, plannedEvent } from "@/lib/drop-in-visit";
+import { isDropInEvent } from "@/lib/schedule-browse";
+import { removeDropInVisit } from "@/services/drop-in-visit";
 import { hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
   getNotificationPermissionStatus,
   scheduleEventReminder,
 } from "@/services/notifications";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /** Why a reminder could not be set, so each cause gets its own message. */
 type ReminderFailure =
@@ -74,6 +78,10 @@ export function useEventScheduleMutations({
 
   const toggleScheduleMutation = useMutation({
     mutationFn: async (event: ConventionEvent) => {
+      if (event.isInSchedule && hasVisit(event)) {
+        await removeDropInVisit(event);
+        return;
+      }
       const isInSchedule = !event.isInSchedule;
       if (isInSchedule || event.reminderMinutes === null) {
         await eventsRepo.update(event.id, { isInSchedule });
@@ -91,6 +99,10 @@ export function useEventScheduleMutations({
     },
     onSuccess: (_, event) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
+      if (hasVisit(event) && event.isInSchedule) {
+        queryClient.invalidateQueries({ queryKey: ["schedule"] });
+        void publishWidgetSnapshot().catch(() => false);
+      }
       // `isInSchedule` is the state before the toggle, so the new state is its negation.
       hapticToggle(!event.isInSchedule);
       AccessibilityInfo.announceForAccessibility(
@@ -110,6 +122,25 @@ export function useEventScheduleMutations({
     },
   });
 
+  const removeVisitMutation = useMutation({
+    mutationFn: removeDropInVisit,
+    onSuccess: (_, event) => {
+      queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
+      queryClient.invalidateQueries({ queryKey: ["schedule"] });
+      void publishWidgetSnapshot().catch(() => false);
+      hapticToggle(false);
+      AccessibilityInfo.announceForAccessibility(
+        t("convention.scheduleRemovedAnnouncement", { event: event.title }),
+      );
+    },
+    onError: () => {
+      Alert.alert(
+        t("convention.scheduleUpdateErrorTitle"),
+        t("convention.scheduleUpdateErrorMessage"),
+      );
+    },
+  });
+
   const setReminderMutation = useMutation({
     mutationFn: async ({
       event,
@@ -118,10 +149,16 @@ export function useEventScheduleMutations({
       event: ConventionEvent;
       minutes: number | null;
     }) => {
+      if (
+        minutes !== null &&
+        (isDropInEvent(event) || hasVisit(event)) &&
+        !isValidVisit(event)
+      )
+        throw new ReminderError("unknown");
       const reminderEvent = {
         id: event.id,
         title: event.title,
-        startTime: event.startTime,
+        startTime: plannedEvent(event).startTime,
         room: event.room ?? event.location,
         // Without this the notification payload carries conventionId: null and
         // tapping the reminder navigates nowhere until the next foreground
@@ -137,9 +174,10 @@ export function useEventScheduleMutations({
        * what keeps the row and the OS agreeing.
        */
       async function restorePreviousReminder() {
-        if (event.reminderMinutes === null) return;
+        const previous = plannedEvent(event);
+        if (previous.reminderMinutes === null) return;
         try {
-          await scheduleEventReminder(reminderEvent, event.reminderMinutes, {
+          await scheduleEventReminder(reminderEvent, previous.reminderMinutes, {
             requestPermission: false,
           });
         } catch {
@@ -307,6 +345,7 @@ export function useEventScheduleMutations({
 
   return {
     toggleScheduleMutation,
+    removeVisitMutation,
     setReminderMutation,
     replaceInScheduleMutation,
   };

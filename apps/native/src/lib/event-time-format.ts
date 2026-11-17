@@ -13,7 +13,24 @@
  * never grows unbounded.
  */
 
+import type { TFunction } from "i18next";
 import { conventionDayKey } from "./convention-time";
+
+export function formatEventDuration(minutes: number, t: TFunction): string {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (hours === 0) {
+    return t(
+      minutes === 1
+        ? "convention.panel.durationMinutesOne"
+        : "convention.panel.durationMinutesMany",
+      { count: minutes },
+    );
+  }
+  return rest === 0
+    ? t("convention.panel.durationHours", { hours })
+    : t("convention.panel.durationHoursMinutes", { hours, minutes: rest });
+}
 
 type FormatterKind =
   | "time"

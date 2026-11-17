@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as eventsRepo from "@/db/repositories/events";
+import { plannedEvent } from "@/lib/drop-in-visit";
 import { reportError } from "@/lib/error-reporting";
 import type { ParsedEvent } from "@/lib/ical-parser";
 import { toSourceEvents } from "@/lib/schedule-source";
@@ -35,6 +36,9 @@ export interface ImportResult {
 
 /** The columns `rearmImportedReminders` needs off a stored row. */
 export interface ImportedReminderEvent {
+  endTime?: string | null;
+  visitStartTime?: string | null;
+  visitEndTime?: string | null;
   id: string;
   conventionId: string;
   title: string;
@@ -69,7 +73,20 @@ export async function rearmImportedReminders(
   let cleared = 0;
   let paused = 0;
 
-  for (const event of events) {
+  for (const sourceEvent of events) {
+    const event = plannedEvent({
+      ...sourceEvent,
+      endTime: sourceEvent.endTime ?? null,
+      isInSchedule: true,
+    });
+    if (
+      sourceEvent.reminderMinutes !== null &&
+      event.reminderMinutes === null
+    ) {
+      await cancelEventReminder(event.id);
+      paused++;
+      continue;
+    }
     const minutes = event.reminderMinutes;
     if (minutes === null) continue;
 

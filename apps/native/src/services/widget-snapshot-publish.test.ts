@@ -1,11 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const publishSnapshot = vi.fn(() => true);
+const publishSnapshot = vi.fn((_json: string) => true);
+const publishPhoneWidget = vi.fn();
 const getAll = vi.fn();
 
 vi.mock("expo", () => ({
   requireOptionalNativeModule: () => ({ publishSnapshot }),
 }));
+vi.mock("expo-constants", () => ({ default: { expoConfig: {} } }));
+vi.mock("expo-localization", () => ({
+  getCalendars: () => [{ uses24hourClock: true }],
+}));
+vi.mock("@/lib/appearance-storage", () => ({
+  getAppearancePreference: () => "system",
+}));
+vi.mock("./widget-publication", () => ({ publishPhoneWidget }));
 vi.mock("@/db/repositories/conventions", () => ({ getAll }));
 vi.mock("@/db/repositories/events", () => ({
   getByConventionId: vi.fn(async () => []),
@@ -19,7 +28,21 @@ const { publishWidgetSnapshot } = await import("./widget-snapshot");
 describe("publishWidgetSnapshot", () => {
   beforeEach(() => {
     publishSnapshot.mockClear();
+    publishPhoneWidget.mockClear();
     getAll.mockReset();
+  });
+
+  it("keeps phone presentation out of the Watch and timer snapshot", async () => {
+    getAll.mockResolvedValueOnce([]);
+    await publishWidgetSnapshot();
+    const nativeJSON = publishSnapshot.mock.calls[0]?.[0];
+    expect(nativeJSON).toBeDefined();
+    expect(JSON.parse(nativeJSON ?? "{}")).not.toHaveProperty("presentation");
+    expect(publishPhoneWidget).toHaveBeenCalledWith(
+      expect.objectContaining({
+        presentation: expect.objectContaining({ hour12: false }),
+      }),
+    );
   });
 
   it("never builds two snapshots at once and coalesces mid-flight triggers", async () => {

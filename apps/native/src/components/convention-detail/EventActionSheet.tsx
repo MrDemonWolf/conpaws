@@ -7,13 +7,16 @@ import { Badge, Banner, Button, PRESS_DIM, Text } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
 import { ageBadgeFor } from "@/lib/age-badge";
 import { categoryAccentColor } from "@/lib/category-color";
+import { hasVisit, isValidVisit } from "@/lib/drop-in-visit";
 import {
   eventDurationMinutes,
+  formatEventDuration,
   formatEventEndDateTime,
   scheduleFormatter,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import { getCachedDefaultReminderMinutes } from "@/lib/reminder-default-storage";
+import { isDropInEvent } from "@/lib/schedule-browse";
 import { themeTokens } from "@/lib/theme-tokens";
 
 /**
@@ -43,6 +46,9 @@ interface EventSheetContentProps {
   onSelectReminder: (event: ConventionEvent, minutes: number | null) => void;
   /** Opens the compare sheet for this event. */
   onCompare: (event: ConventionEvent) => void;
+  onPlanVisit: () => void;
+  onRemoveVisit: () => void;
+  visitBusy: boolean;
 }
 
 export function EventSheetContent({
@@ -55,6 +61,9 @@ export function EventSheetContent({
   onToggleSchedule,
   onSelectReminder,
   onCompare,
+  onPlanVisit,
+  onRemoveVisit,
+  visitBusy,
 }: EventSheetContentProps) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<"actions" | "reminder">("actions");
@@ -67,22 +76,7 @@ export function EventSheetContent({
   const ageBadge = ageBadgeFor(event.ageRating);
   const accent = categoryAccentColor(event.category, scheme);
   const duration = eventDurationMinutes(event.startTime, event.endTime);
-  // "45 minutes", "1 h 30 min", "6 h": a six-hour drop-in is not "360 minutes".
-  function formatDuration(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const rest = minutes % 60;
-    if (hours === 0) {
-      return t(
-        minutes === 1
-          ? "convention.panel.durationMinutesOne"
-          : "convention.panel.durationMinutesMany",
-        { count: minutes },
-      );
-    }
-    return rest === 0
-      ? t("convention.panel.durationHours", { hours })
-      : t("convention.panel.durationHoursMinutes", { hours, minutes: rest });
-  }
+  const dropIn = isDropInEvent(event);
   const feedStatusLabel = event.feedStatus
     ? t(
         event.feedStatus === "cancelled"
@@ -126,7 +120,7 @@ export function EventSheetContent({
           ),
         })
       : null,
-    duration !== null ? formatDuration(duration) : null,
+    duration !== null ? formatEventDuration(duration, t) : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -213,31 +207,34 @@ export function EventSheetContent({
               </View>
             </View>
           ) : null}
-          <Pressable
-            onPress={() => setMode("reminder")}
-            accessibilityRole="button"
-            accessibilityLabel={
-              event.reminderMinutes !== null
-                ? t("reminders.changeLeave")
-                : t("reminders.setLeave")
-            }
-            accessibilityHint={t("reminders.pickerDescription", {
-              event: event.title,
-            })}
-            className={`flex-row items-center gap-3 ${PRESS_DIM}`}
-          >
-            <Bell size={20} color={tokens.mutedForeground} />
-            <View className="flex-1">
-              <Text variant="label">
-                {reminderLabel ?? t("convention.panel.noReminder")}
-              </Text>
-              <Text variant="caption" className="text-primary">
-                {event.reminderMinutes !== null
+          {!dropIn ? (
+            <Pressable
+              onPress={() => setMode("reminder")}
+              accessibilityRole="button"
+              accessibilityLabel={
+                event.reminderMinutes !== null
                   ? t("reminders.changeLeave")
-                  : t("reminders.setLeave")}
-              </Text>
-            </View>
-          </Pressable>
+                  : t("reminders.setLeave")
+              }
+              accessibilityHint={t("reminders.pickerDescription", {
+                event: event.title,
+              })}
+              className={`flex-row items-center gap-3 ${PRESS_DIM}`}
+              style={{ minHeight: 48 }}
+            >
+              <Bell size={20} color={tokens.mutedForeground} />
+              <View className="flex-1">
+                <Text variant="label">
+                  {reminderLabel ?? t("convention.panel.noReminder")}
+                </Text>
+                <Text variant="caption" className="text-primary">
+                  {event.reminderMinutes !== null
+                    ? t("reminders.changeLeave")
+                    : t("reminders.setLeave")}
+                </Text>
+              </View>
+            </Pressable>
+          ) : null}
         </View>
 
         <View
@@ -266,10 +263,19 @@ export function EventSheetContent({
         />
       ) : null}
 
+      {hasVisit(event) && !isValidVisit(event) ? (
+        <Banner className="mt-4" body={t("convention.visit.invalid")} />
+      ) : null}
+
       <View className="gap-2 px-4 pt-4">
         <Button
           variant={event.isInSchedule ? "outline" : "default"}
+          disabled={visitBusy}
           onPress={() => {
+            if (dropIn) {
+              onPlanVisit();
+              return;
+            }
             if (!event.isInSchedule && conflicts.length > 0) {
               onCompare(event);
               return;
@@ -280,8 +286,23 @@ export function EventSheetContent({
           accessibilityHint={t("convention.scheduleActionHint")}
           testID="convention-event-primary"
         >
-          {primaryLabel}
+          {dropIn
+            ? t(
+                hasVisit(event)
+                  ? "convention.visit.edit"
+                  : "convention.visit.title",
+              )
+            : primaryLabel}
         </Button>
+        {dropIn && event.isInSchedule ? (
+          <Button
+            variant="outline"
+            disabled={visitBusy}
+            onPress={onRemoveVisit}
+          >
+            {t("convention.visit.remove")}
+          </Button>
+        ) : null}
         <Text variant="caption" className="text-center">
           {t("convention.browse.noSeat")}
         </Text>

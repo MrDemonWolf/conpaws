@@ -60,7 +60,9 @@
         "title": "No se ha encontrado la convención",
         "body": "Puede que se haya retirado del catálogo."
       },
-      "successAnnouncement": "Se ha descargado {{name}}. Elige tu primer panel."
+      "successAnnouncement": "Se ha descargado {{name}}. Elige tu primer panel.",
+      "venue": "Recinto",
+      "offlineAvailable": "Disponible sin conexión tras la descarga"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Mostrar todos los días",
       "dropIn": {
         "title": "Pásate cuando quieras",
-        "subtitle": "Sin hora fija"
+        "subtitle": "Sin hora fija",
+        "filter": "Actividades abiertas · {{count}}",
+        "find": "Buscar una actividad abierta"
       },
       "noSeat": "Guardar un panel no reserva asiento.",
       "optionsOne": "{{count}} opción",
@@ -348,6 +352,14 @@
       "overlapsPlan": "Se solapa con tu plan",
       "overlapWith": "{{minutes}} min con {{title}}",
       "compareBeforeAdding": "Comparar antes de añadir"
+    },
+    "visit": {
+      "title": "Planificar una visita",
+      "edit": "Editar visita",
+      "duration": "Duración de la visita",
+      "windowError": "La visita completa debe estar dentro del horario de apertura.",
+      "invalid": "El horario ha cambiado. Edita tu visita.",
+      "remove": "Quitar visita"
     }
   },
   "errors": {
@@ -379,12 +391,11 @@
     },
     "archive": {
       "title": "Archivo ({{count}})",
-      "show": "Mostrar",
-      "hide": "Ocultar",
       "noCurrent": "No hay próximas convenciones.",
       "success": "Se archivó {{name}}.",
       "errorTitle": "No se pudo archivar la convención",
-      "errorMessage": "No se archivó nada. Inténtalo de nuevo."
+      "errorMessage": "No se archivó nada. Inténtalo de nuevo.",
+      "showConventions": "Mostrar convenciones archivadas"
     },
     "unarchive": {
       "success": "{{name}} restaurada del archivo.",
@@ -392,7 +403,6 @@
       "errorMessage": "No se pudo restaurar la convención. Inténtalo de nuevo."
     },
     "moreActions": "Más acciones para {{name}}",
-    "sortBy": "Ordenar por",
     "sort": {
       "upcoming": "Próximas primero",
       "name": "Nombre"
@@ -403,7 +413,8 @@
       "success": "Se eliminó {{name}}.",
       "errorTitle": "No se pudo eliminar la convención",
       "errorMessage": "No se eliminó nada. Inténtalo de nuevo."
-    }
+    },
+    "sortAndView": "Orden y vista"
   },
   "import": {
     "title": "Importar Horario",
@@ -492,42 +503,36 @@
   "onboarding": {
     "progress": "Paso {{step}} de {{total}}",
     "welcome": {
-      "tagline": "Tu agenda de la convención, disponible sin conexión.",
-      "subtitle": "Organízate aunque falle el Wi-Fi de la convención: tu agenda se queda en tu dispositivo.",
+      "tagline": "Tu convención, lista sin conexión.",
+      "subtitle": "Busca tu convención o importa un archivo .ics o un enlace de Sched.",
       "continue": "Continuar",
-      "skip": "Omitir"
+      "skip": "Omitir",
+      "exampleTitle": "Convención de ejemplo",
+      "connectionNote": "Necesitas conexión para buscar y descargar programas. El programa descargado sigue disponible sin conexión."
     },
     "features": {
-      "title": "Planifica toda la convención",
-      "subtitle": "Todo lo que necesitas cuando falla el Wi-Fi del recinto.",
-      "demo": {
-        "saved": "Mi plan"
-      },
-      "import": {
-        "title": "Importa cualquier agenda",
-        "description": "Añade un archivo .ics o pega un enlace de Sched."
-      },
-      "plan": {
-        "title": "No te pierdas ningún panel",
-        "description": "Crea tu plan, consulta qué está pasando ahora y después, y detecta solapamientos."
-      },
-      "offline": {
-        "title": "Privado y sin conexión",
-        "description": "Los datos de la convención se quedan en este dispositivo."
-      },
-      "plus": {
-        "title": "Gratis y sin conexión",
-        "description": "Todo funciona aquí sin cuenta y sin conexión a internet. Puede que más adelante lleguen funciones opcionales en la nube."
-      },
-      "next": "Continuar"
+      "title": "Elige los paneles que te interesan.",
+      "subtitle": "Toca la estrella para guardar un evento. Después abre Mi plan para ver tu elección.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Continuar",
+      "practiceNote": "Pruébalo aquí. Este ejemplo no cambiará tus convenciones.",
+      "viewsNote": "Programa muestra el programa. Mi plan contiene tus elecciones. Ahora muestra lo que está ocurriendo y lo que viene después.",
+      "emptyPlan": "Aún no hay nada planeado. Ve a Programa y toca la estrella."
     },
     "getStarted": {
       "find": "Encuentra mi convención",
-      "title": "¿Todo listo para tu próxima convención?",
-      "subtitle": "Encuentra tu convención, importa una agenda o explora primero.",
+      "title": "Un aviso, cuando tú quieras.",
+      "subtitle": "Guardar un evento y configurar un recordatorio son decisiones independientes.",
       "importSchedule": "Importar una agenda",
       "exploreFirst": "Explorar primero",
-      "localPrivacy": "No necesitas una cuenta. Tus datos se guardan localmente."
+      "localPrivacy": "No necesitas una cuenta. Tus datos se guardan localmente.",
+      "example": "Evento de ejemplo",
+      "sampleOnly": "Solo es un ejemplo. No se enviará ninguna notificación.",
+      "permissionNote": "El teléfono pedirá permiso para enviar notificaciones cuando configures un recordatorio real. Puedes usar ConPaws sin notificaciones."
     }
   },
   "reminders": {
@@ -706,7 +711,10 @@
       "notRequested": "Aún no solicitado",
       "defaultLead": "Aviso predeterminado",
       "defaultLeadDescription": "Preseleccionado al poner un recordatorio en un evento nuevo.",
-      "noDefault": "Ninguno"
+      "noDefault": "Ninguno",
+      "enable": "Activar notificaciones",
+      "changeError": "No se pudo actualizar el permiso de notificaciones. Inténtalo de nuevo.",
+      "defaultLeadError": "No se pudo guardar tu recordatorio predeterminado. Inténtalo de nuevo."
     },
     "help": {
       "gettingStarted": "Primeros pasos",
@@ -714,7 +722,28 @@
       "importNow": "Importar un programa",
       "importNowDescription": "Añade un enlace de Sched o un archivo .ics.",
       "find": "Encuentra mi convención",
-      "findDescription": "Elige una convención del catálogo de ConPaws y descarga su agenda."
+      "findDescription": "Elige una convención del catálogo de ConPaws y descarga su agenda.",
+      "replay": "Repetir la introducción",
+      "replayDescription": "Practica con datos de ejemplo temporales"
+    },
+    "preview": {
+      "title": "Pruebas de la versión preliminar",
+      "add": "Añadir convenciones de ejemplo",
+      "description": "Programas ficticios para probar. Tus otras convenciones no cambiarán.",
+      "restore": "Restaurar datos de ejemplo",
+      "restoreConfirm": "Se reemplazarán los cambios en las convenciones de ejemplo. Tus otras convenciones y ajustes no cambiarán.",
+      "testReminder": "Probar un recordatorio",
+      "testDescription": "Programar una notificación local real para dentro de unos cinco segundos.",
+      "testScheduled": "Se ha programado una notificación local para dentro de unos cinco segundos.",
+      "nativeOnly": "Las pruebas de recordatorios requieren la aplicación nativa.",
+      "error": "No se pudo completar la acción de prueba. Inténtalo de nuevo."
+    },
+    "timeFormat": {
+      "title": "Formato de hora",
+      "system": "Usar el ajuste del dispositivo",
+      "hour12": "12 horas · 7:00 PM",
+      "hour24": "24 horas · 19:00",
+      "saveError": "No se pudo guardar el formato de hora. Inténtalo de nuevo."
     }
   }
 }

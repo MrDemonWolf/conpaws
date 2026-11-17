@@ -271,7 +271,24 @@ export function getPublicationIssues(input: {
   ) {
     issues.push("Add at least one session or mark the schedule not released.");
   }
+  const clock = new Intl.DateTimeFormat("en-CA", {
+    timeZone: input.convention.timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
   for (const session of input.sessions) {
+    if (
+      !isValidZonedDateTime(session.startsAt, clock) ||
+      !isValidZonedDateTime(session.endsAt, clock)
+    ) {
+      issues.push(
+        `“${session.title}” has a time that does not exist in ${input.convention.timezone}. Check the start and end times.`,
+      );
+    }
     const startsOn = session.startsAt.slice(0, 10);
     const endsOn = session.endsAt.slice(0, 10);
     if (
@@ -364,4 +381,21 @@ function isValidLocalDateTime(value: string) {
   return (
     !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 16) === value
   );
+}
+
+function isValidZonedDateTime(value: string, clock: Intl.DateTimeFormat) {
+  if (!isValidLocalDateTime(value)) return false;
+  const wallTime = Date.parse(`${value}:00.000Z`);
+  const wallClockAt = (instant: number) => {
+    const parts = Object.fromEntries(
+      clock.formatToParts(instant).map((part) => [part.type, part.value]),
+    );
+    return `${parts.year?.padStart(4, "0")}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+  };
+  // Try offsets on both sides of a clock change; repeated times are valid, skipped times are not.
+  return [-86_400_000, 0, 86_400_000].some((dayOffset) => {
+    const sample = wallTime + dayOffset;
+    const zoneOffset = Date.parse(`${wallClockAt(sample)}:00.000Z`) - sample;
+    return wallClockAt(wallTime - zoneOffset) === value;
+  });
 }

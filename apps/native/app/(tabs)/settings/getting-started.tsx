@@ -49,6 +49,17 @@ export default function GettingStartedScreen() {
           >
             {t("settings.help.importNow")}
           </ListItem>
+          <ListItem
+            supportingText={t("settings.help.replayDescription")}
+            onPress={() =>
+              router.push({
+                pathname: "/(onboarding)/welcome",
+                params: { replay: "1" },
+              })
+            }
+          >
+            {t("settings.help.replay")}
+          </ListItem>
           <FieldGroup.SectionFooter>
             <NativeText>{t("convention.scheduleHint.body")}</NativeText>
           </FieldGroup.SectionFooter>

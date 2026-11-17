@@ -1,5 +1,5 @@
 import { FlatList, View } from "react-native";
-import { Row, Text } from "@/components/ui";
+import { Text } from "@/components/ui";
 import { ConventionCard } from "./ConventionCard.android";
 import type { ConventionListProps } from "./ConventionList.types";
 
@@ -14,9 +14,7 @@ export function ConventionList<T extends { id: string }>({
   archivedData,
   archiveExpanded,
   archiveLabel,
-  archiveActionLabel,
   currentEmptyLabel,
-  onToggleArchive,
   getRowContent,
   onOpen,
   onAction,
@@ -42,38 +40,29 @@ export function ConventionList<T extends { id: string }>({
         ) : undefined
       }
       ListFooterComponent={
-        archivedData.length > 0 ? (
+        archiveExpanded && archivedData.length > 0 ? (
           <View className="mt-2 border-t border-border">
-            <Row
-              accessibilityRole="button"
-              accessibilityLabel={`${archiveLabel}, ${archiveActionLabel}`}
-              accessibilityState={{ expanded: archiveExpanded }}
-              onPress={onToggleArchive}
-              className="px-1 py-3"
-              trailing={<Text variant="caption">{archiveActionLabel}</Text>}
-            >
-              <Text variant="label">{archiveLabel}</Text>
-            </Row>
-            {archiveExpanded ? (
-              <View className="border-t border-border">
-                {/* ponytail: convention archives stay small; virtualize if imports become unbounded. */}
-                {archivedData.map((item, index) => {
-                  const row = getRowContent(item);
-                  return (
-                    <View key={item.id}>
-                      <ConventionCard
-                        {...row}
-                        onPress={() => onOpen(item)}
-                        onAction={(action) => onAction(item, action)}
-                      />
-                      {index < archivedData.length - 1 ? (
-                        <View className="ml-1 h-px bg-border" />
-                      ) : null}
-                    </View>
-                  );
-                })}
-              </View>
-            ) : null}
+            <Text variant="label" className="px-1 py-3">
+              {archiveLabel}
+            </Text>
+            <View className="border-t border-border">
+              {/* ponytail: convention archives stay small; virtualize if imports become unbounded. */}
+              {archivedData.map((item, index) => {
+                const row = getRowContent(item);
+                return (
+                  <View key={item.id}>
+                    <ConventionCard
+                      {...row}
+                      onPress={() => onOpen(item)}
+                      onAction={(action) => onAction(item, action)}
+                    />
+                    {index < archivedData.length - 1 ? (
+                      <View className="ml-1 h-px bg-border" />
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
           </View>
         ) : undefined
       }
