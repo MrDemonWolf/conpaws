@@ -65,6 +65,55 @@ describe("widget presentation", () => {
         current: "convention.now.happeningNow:de",
       },
     });
+    // Without the container roles the card colours are derived, not missing.
+    expect(presentation.palette.light).toMatchObject({
+      container: expect.stringMatching(/^#[0-9a-f]{6}$/i),
+      onContainer: "#101112",
+      track: expect.stringMatching(/^#[0-9a-f]{6}$/i),
+    });
+  });
+
+  it("passes the container and track roles without their alpha", () => {
+    const colors = {
+      surfaceContainer: "#F0F1F2FF",
+      onSurface: "#101112FF",
+      onSurfaceVariant: "#404142FF",
+      primary: "#005575FF",
+      primaryContainer: "#C4E7FFFF",
+      onPrimaryContainer: "#001E2CFF",
+      surfaceContainerHighest: "#E0E3E8FF",
+    } as const;
+    const { palette } = buildWidgetPresentation(colors, colors, "light", "en");
+    expect(palette.dark).toEqual({
+      background: "#F0F1F2",
+      foreground: "#101112",
+      secondary: "#404142",
+      accent: "#005575",
+      container: "#C4E7FF",
+      onContainer: "#001E2C",
+      track: "#E0E3E8",
+    });
+  });
+
+  it("derives readable container fallbacks from the theme tokens", () => {
+    const { palette } = buildWidgetPresentation(null, null, "system", "en");
+    // 16% of the brand primary over the plain surface.
+    expect(palette.light.container).toBe("#d6e4e9");
+    expect(palette.dark).toMatchObject({
+      container: "#041d27",
+      onContainer: "#ffffff",
+    });
+  });
+
+  it("reuses translated app phrases as widget templates with named slots", () => {
+    const { labels } = buildWidgetPresentation(null, null, "system", "fr");
+    expect(labels).toMatchObject({
+      until: "convention.plan.until:fr",
+      nextAt: "convention.now.next:fr",
+      inDays: "home.countdown.days:fr",
+      checkedAt: "convention.scheduleUpdate.checkedAt:fr",
+      finishedHint: "schedule.caughtUp.subtitle:fr",
+    });
   });
 });
 

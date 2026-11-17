@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { WidgetEventSnapshot, WidgetSnapshot } from "./widget-snapshot";
 import {
+  buildStoredWidgetProps,
   buildStoredWidgetTimeline,
   buildWidgetTimeline,
 } from "./widget-timeline";
@@ -114,5 +115,24 @@ describe("Expo widget timeline", () => {
       startAtMs: open.startAtMs,
     });
     expect(stored.at(-1)?.props.expired).toBe(true);
+  });
+
+  it("hands Android a snapshot its bridge accepts: no null field anywhere", () => {
+    // Expo's Android bridge refuses the whole props object over one null,
+    // which left the launcher widget on whatever it was last given.
+    function hasNull(value: unknown): boolean {
+      if (value === null || value === undefined) return true;
+      if (typeof value !== "object") return false;
+      return Object.values(value).some(hasNull);
+    }
+    const open = { ...event(0), endAtMs: null, reminderMinutes: null };
+    const stored = buildStoredWidgetProps(snapshot([open]));
+    expect(hasNull(stored)).toBe(false);
+    expect(stored.snapshot.conventions[0].events[0]).toEqual({
+      id: "event-0",
+      title: "Panel 0",
+      startAtMs: open.startAtMs,
+    });
+    expect(stored.snapshot.generatedAtMs).toBe(now);
   });
 });

@@ -4,6 +4,8 @@ import {
   Gauge,
   HStack,
   Image,
+  Label,
+  ProgressView,
   Spacer,
   Text,
   VStack,
@@ -13,16 +15,26 @@ import {
   accessibilityElement,
   accessibilityHint,
   accessibilityLabel,
+  background,
   containerBackground,
   font,
   foregroundStyle,
+  frame,
   gaugeStyle,
+  labelsHidden,
   layoutPriority,
   lineLimit,
+  minimumScaleFactor,
   monospacedDigit,
+  multilineTextAlignment,
+  padding,
+  progressViewStyle,
+  shapes,
+  tint,
   widgetURL,
 } from "@expo/ui/swift-ui/modifiers";
 import { createWidget, type WidgetEnvironment } from "expo-widgets";
+import type { ComponentProps, ReactNode } from "react";
 import type { WidgetEventSnapshot } from "@/services/widget-snapshot";
 import type {
   ConPawsWidgetConfiguration,
@@ -44,23 +56,23 @@ export function ConPawsWidgetLayout(
   const family = environment.widgetFamily ?? "systemSmall";
   const accessory = family.startsWith("accessory");
   const dark = environment.colorScheme === "dark";
+  // Tinted, clear and Lock Screen modes draw everything in one tone, and Expo
+  // UI cannot mark an accent group, so there the hierarchy has to come from
+  // size, weight and shape. Forcing black or white would only fight the tint.
   const monochrome =
     environment.widgetRenderingMode === "vibrant" ||
     environment.widgetRenderingMode === "accented";
-  const accent = monochrome
-    ? dark
-      ? "#FFFFFF"
-      : "#000000"
-    : dark
-      ? "#18B7F2"
-      : "#00618A";
+  const accent = monochrome ? null : dark ? "#18B7F2" : "#00618A";
   const primary = foregroundStyle({ type: "hierarchical", style: "primary" });
   const secondary = foregroundStyle({
     type: "hierarchical",
     style: "secondary",
   });
-  const caption = font({ textStyle: "caption2" });
-  const title = font({ textStyle: "footnote", weight: "semibold" });
+  // The hero time is the only accent-coloured text; everywhere else the brand
+  // shows as a shape (the hero card, the progress bar or the empty glyph).
+  const heroColor = accent ? foregroundStyle(accent) : primary;
+  const accentTint = accent ? [tint(accent)] : [];
+  const eyebrowFont = font({ textStyle: "caption2", weight: "bold" });
   const strings = snapshot.presentation?.strings;
   const fallback = {
     now: "Now",
@@ -106,7 +118,14 @@ export function ConPawsWidgetLayout(
         values[position ? Number(position) - 1 : index++] ?? "",
     );
   }
-  function unit(
+  // Splits a one-value template into the words before and after the value, so
+  // the value can be drawn large while the words stay small, in whatever order
+  // the language puts them.
+  function around(template: string): [string, string] {
+    const parts = format(template, "\u0000").split("\u0000");
+    return [parts[0]?.trim() ?? "", parts.slice(1).join("").trim()];
+  }
+  function unitTemplate(
     kind: "hours" | "days" | "months" | "minutes",
     count: number,
     oblique = false,
@@ -129,10 +148,17 @@ export function ConPawsWidgetLayout(
     const form = one ? "One" : few ? "Few" : "Other";
     const table: WidgetPluralUnit | undefined = strings?.[`${kind}Unit`];
     const key = oblique ? `oblique${form}` : form.toLowerCase();
-    const template =
+    return (
       table?.[key as keyof WidgetPluralUnit] ??
-      `%@ ${kind === "hours" ? (one ? "hour" : "hours") : kind === "days" ? (one ? "day" : "days") : kind === "months" ? (one ? "month" : "months") : one ? "minute" : "minutes"}`;
-    return format(template, String(count));
+      `%@ ${kind === "hours" ? (one ? "hour" : "hours") : kind === "days" ? (one ? "day" : "days") : kind === "months" ? (one ? "month" : "months") : one ? "minute" : "minutes"}`
+    );
+  }
+  function unit(
+    kind: "hours" | "days" | "months" | "minutes",
+    count: number,
+    oblique = false,
+  ): string {
+    return format(unitTemplate(kind, count, oblique), String(count));
   }
   function calendarParts(timestamp: number, timeZone: string): number[] {
     const parts = new Intl.DateTimeFormat("en-US", {
@@ -148,6 +174,11 @@ export function ConPawsWidgetLayout(
   function dayNumber(timestamp: number, timeZone: string): number {
     const [year, month, day] = calendarParts(timestamp, timeZone);
     return Date.UTC(year, month - 1, day) / 86_400_000;
+  }
+  function monthsBetween(timestamp: number, timeZone: string): number {
+    const [year, month, day] = calendarParts(timestamp, timeZone);
+    const [fromYear, fromMonth, fromDay] = calendarParts(now, timeZone);
+    return (year - fromYear) * 12 + month - fromMonth - (day < fromDay ? 1 : 0);
   }
   function countdown(
     timestamp: number,
@@ -169,10 +200,7 @@ export function ConPawsWidgetLayout(
       return compact
         ? format(word("compactDaysFormat"), String(Math.max(0, days)))
         : word(days <= 0 ? "today" : "tomorrow");
-    const [year, month, day] = calendarParts(timestamp, timeZone);
-    const [fromYear, fromMonth, fromDay] = calendarParts(now, timeZone);
-    const months =
-      (year - fromYear) * 12 + month - fromMonth - (day < fromDay ? 1 : 0);
+    const months = monthsBetween(timestamp, timeZone);
     if (days >= 30 && months >= 1)
       return compact
         ? format(word("compactMonthsFormat"), String(months))
@@ -181,17 +209,28 @@ export function ConPawsWidgetLayout(
       ? format(word("compactDaysFormat"), String(days))
       : format(word("inFormat"), unit("days", days, true));
   }
+  // The same thresholds as countdown(), returning the number on its own when
+  // there is a whole day count to make the hero of; under two days the
+  // countdown words ("Tomorrow", "In 5 hours") are the hero instead.
+  function dayCount(
+    timestamp: number,
+    timeZone: string,
+  ): { count: number; kind: "days" | "months" } | null {
+    if (timestamp - now < 86_400_000) return null;
+    const days = dayNumber(timestamp, timeZone) - dayNumber(now, timeZone);
+    if (days <= 1) return null;
+    const months = monthsBetween(timestamp, timeZone);
+    return days >= 30 && months >= 1
+      ? { count: months, kind: "months" }
+      : { count: days, kind: "days" };
+  }
   function end(event: WidgetEventSnapshot): number {
     return event.endAtMs ?? event.startAtMs + 3_600_000;
   }
+  // The room is what changes from panel to panel; the venue is usually the
+  // same for the whole convention, so it is shown only when there is no room.
   function place(event: WidgetEventSnapshot): string {
-    return [
-      ...new Set(
-        [event.room, event.location]
-          .map((value) => value?.trim())
-          .filter(Boolean),
-      ),
-    ].join(" • ");
+    return event.room?.trim() || event.location?.trim() || "";
   }
   const configuration = environment.configuration;
   const candidates = conventions.filter(
@@ -217,6 +256,9 @@ export function ConPawsWidgetLayout(
       : snapshot.timeFormat === "24"
         ? false
         : snapshot.presentation?.hour12;
+  function sameDay(timestamp: number): boolean {
+    return dayNumber(timestamp, zone) === dayNumber(now, zone);
+  }
   function clock(timestamp: number, includeDay = false): string {
     const options: Intl.DateTimeFormatOptions = {
       timeZone: zone,
@@ -224,9 +266,31 @@ export function ConPawsWidgetLayout(
       minute: "2-digit",
       hour12,
     };
-    if (includeDay && dayNumber(timestamp, zone) !== dayNumber(now, zone))
-      options.weekday = "short";
+    if (includeDay && !sameDay(timestamp)) options.weekday = "short";
     return new Intl.DateTimeFormat(locale, options).format(new Date(timestamp));
+  }
+  // A circle has room for the digits and one short line: the digits go large
+  // and the AM/PM marker and any weekday share the small line underneath.
+  function compactClock(timestamp: number): [string, string] {
+    const parts = new Intl.DateTimeFormat(locale, {
+      timeZone: zone,
+      hour: "numeric",
+      minute: "2-digit",
+      hour12,
+    }).formatToParts(new Date(timestamp));
+    const digits = parts
+      .filter((part) => part.type !== "dayPeriod")
+      .map((part) => part.value)
+      .join("")
+      .trim();
+    const period = parts.find((part) => part.type === "dayPeriod")?.value ?? "";
+    const weekday = sameDay(timestamp)
+      ? ""
+      : new Intl.DateTimeFormat(locale, {
+          timeZone: zone,
+          weekday: "short",
+        }).format(new Date(timestamp));
+    return [digits, [weekday, period].filter(Boolean).join(" ")];
   }
   const events = (convention?.events ?? [])
     .slice()
@@ -245,19 +309,34 @@ export function ConPawsWidgetLayout(
     next.reminderMinutes != null &&
     next.reminderMinutes > 0 &&
     now >= next.startAtMs - next.reminderMinutes * 60_000;
-  const status = beforeConvention
-    ? "countdown"
-    : next
-      ? reminderWindow
+  // One hero per widget. A reminder that has fired outranks the panel the
+  // user is sitting in, because it means it is time to move; a panel with a
+  // real end outranks the next one; an open-ended one (a lounge with no end
+  // time) only leads when nothing else is planned.
+  const kind =
+    beforeConvention && convention
+      ? "countdown"
+      : next && reminderWindow
         ? "reminder"
-        : "next"
-      : current
-        ? "current"
-        : convention
-          ? events.length > 0
-            ? "finished"
-            : "noPicks"
-          : "empty";
+        : current && current.endAtMs != null
+          ? "now"
+          : next
+            ? "next"
+            : current
+              ? "open"
+              : convention
+                ? events.length > 0
+                  ? "finished"
+                  : "noPicks"
+                : "empty";
+  const heroEvent =
+    kind === "reminder" || kind === "next"
+      ? next
+      : kind === "now" || kind === "open"
+        ? current
+        : undefined;
+  const following =
+    kind === "reminder" || kind === "next" ? future.slice(1) : future;
   const scheme = snapshot.presentation?.appScheme;
   const link = scheme
     ? convention
@@ -266,39 +345,78 @@ export function ConPawsWidgetLayout(
     : undefined;
   const stale =
     snapshot.generatedAtMs > 0 && now - snapshot.generatedAtMs >= 30 * 60_000;
+  const updated =
+    snapshot.generatedAtMs > 0
+      ? new Intl.DateTimeFormat(locale, {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12,
+        }).format(new Date(snapshot.generatedAtMs))
+      : "";
+  // A faint brand wash rather than flat white or black. It is the container
+  // background, so the system removes it in tinted, clear and StandBy modes.
+  const surface = accessory
+    ? "clear"
+    : {
+        type: "linearGradient" as const,
+        colors: dark ? ["#0A0C0F", "#0B1E2A"] : ["#FFFFFF", "#E6F2F9"],
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 1, y: 1 },
+      };
   const root = [
-    containerBackground(
-      accessory ? "clear" : dark ? "#000000" : "#FFFFFF",
-      "widget",
-    ),
+    containerBackground(surface, "widget"),
     ...(link ? [widgetURL(link)] : []),
   ];
+  const fill = accessory
+    ? []
+    : [
+        frame({
+          maxWidth: Infinity,
+          maxHeight: Infinity,
+          alignment: "topLeading",
+        }),
+      ];
   const emptyTitle = word(
-    status === "empty"
+    kind === "empty"
       ? "noConventionTitle"
-      : status === "noPicks"
+      : kind === "noPicks"
         ? "noPicksTitle"
         : "finishedTitle",
   );
   const emptyHint = word(
-    status === "empty"
+    kind === "empty"
       ? "noConventionHint"
-      : status === "noPicks"
+      : kind === "noPicks"
         ? "noPicksHint"
         : "finishedHint",
   );
+  const emptyGlyph =
+    kind === "empty"
+      ? "calendar.badge.plus"
+      : kind === "noPicks"
+        ? "star"
+        : "checkmark.circle";
   const reminderMinutes = next
     ? Math.max(1, Math.ceil((next.startAtMs - now) / 60_000))
     : 0;
-  const urgency =
-    next && reminderWindow
-      ? `${word("startsIn")} ${format(word("compactMinutesFormat"), String(reminderMinutes))}`
-      : word("upNextCaps");
-  function currentTime(event: WidgetEventSnapshot): string {
-    return event.endAtMs == null
-      ? clock(event.startAtMs)
-      : format(word("untilCapsFormat"), clock(event.endAtMs));
-  }
+  const urgency = `${word("startsIn")} ${format(word("compactMinutesFormat"), String(reminderMinutes))}`;
+  const eyebrowText =
+    kind === "countdown"
+      ? word("comingUpCaps")
+      : kind === "reminder"
+        ? urgency
+        : kind === "now" || kind === "open"
+          ? word("happeningNowCaps")
+          : word("upNextCaps");
+  const heroTime = !heroEvent
+    ? ""
+    : kind === "now"
+      ? clock(end(heroEvent), true)
+      : clock(heroEvent.startAtMs, true);
+  // "UNTIL %@" puts its words before the time in some languages and after it
+  // in others; both halves stay small beside the large time.
+  const [untilBefore, untilAfter] =
+    kind === "now" ? around(word("untilCapsFormat")) : ["", ""];
   function reminderLabel(event: WidgetEventSnapshot): string {
     if (event.reminderMinutes == null) return "";
     return format(
@@ -310,41 +428,84 @@ export function ConPawsWidgetLayout(
       ),
     );
   }
-  const spoken =
-    beforeConvention && convention
+  function sentence(...parts: string[]): string {
+    return parts.filter(Boolean).join(". ");
+  }
+  const spoken = sentence(
+    kind === "countdown" && convention
       ? `${convention.name}, ${countdown(convention.startAtMs, zone)}`
       : next
-        ? `${current ? `${word("happeningNowCaps")}: ${current.title}. ` : ""}${format(word("nextEventA11yFormat"), next.title, clock(next.startAtMs, true))}. ${place(next)}. ${reminderLabel(next)}`
+        ? sentence(
+            current ? `${word("happeningNowCaps")}: ${current.title}` : "",
+            format(
+              word("nextEventA11yFormat"),
+              next.title,
+              clock(next.startAtMs, true),
+            ),
+            place(next),
+            reminderLabel(next),
+          )
         : current
-          ? `${word("happeningNowCaps")}, ${currentTime(current)}, ${current.title}, ${place(current)}. ${word("noLaterSavedEvents")}`
-          : `${emptyTitle}. ${emptyHint}`;
+          ? sentence(
+              [
+                word("happeningNowCaps"),
+                current.endAtMs != null
+                  ? format(word("untilCapsFormat"), clock(current.endAtMs))
+                  : clock(current.startAtMs),
+                current.title,
+                place(current),
+              ]
+                .filter(Boolean)
+                .join(", "),
+              word("noLaterSavedEvents"),
+            )
+          : sentence(emptyTitle, emptyHint),
+    stale ? format(word("planLastUpdatedFormat"), updated) : "",
+  );
   const spokenModifiers = [
     accessibilityElement("ignore"),
     accessibilityLabel(spoken),
     accessibilityHint(stale ? word("staleHint") : ""),
   ];
-  function eventTitle(event: WidgetEventSnapshot, lines = 1) {
-    return (
-      <Text modifiers={[title, primary, lineLimit(lines), layoutPriority(1)]}>
-        {event.title}
-      </Text>
-    );
-  }
-  function eventPlace(event: WidgetEventSnapshot) {
-    return place(event) ? (
-      <Text modifiers={[caption, secondary, lineLimit(1), layoutPriority(-1)]}>
-        {place(event)}
-      </Text>
+
+  function small(text: string) {
+    return text ? (
+      <Text modifiers={[eyebrowFont, secondary, lineLimit(1)]}>{text}</Text>
     ) : null;
   }
-  function timing(text: string) {
+  function pawMark() {
+    return (
+      <Image
+        systemName="pawprint.fill"
+        modifiers={[font({ textStyle: "caption2" }), secondary]}
+      />
+    );
+  }
+  function eyebrowRow(withMark: boolean) {
+    return (
+      <HStack spacing={4}>
+        {kind === "reminder" ? (
+          <Image systemName="bell.fill" modifiers={[eyebrowFont, secondary]} />
+        ) : null}
+        {small(eyebrowText)}
+        <Spacer minLength={4} />
+        {withMark ? pawMark() : null}
+      </HStack>
+    );
+  }
+  function heroText(
+    text: string,
+    textStyle: "largeTitle" | "title" | "title2" | "headline",
+  ) {
     return (
       <Text
         modifiers={[
-          font({ textStyle: "caption", weight: "semibold" }),
+          font({ textStyle, weight: "bold", design: "rounded" }),
           monospacedDigit(),
-          foregroundStyle(accent),
+          heroColor,
           lineLimit(1),
+          // A time that does not fit shrinks rather than losing digits.
+          minimumScaleFactor(0.6),
           layoutPriority(2),
         ]}
       >
@@ -352,92 +513,317 @@ export function ConPawsWidgetLayout(
       </Text>
     );
   }
-  function eyebrow(text: string) {
+  function hero(textStyle: "title" | "title2" | "headline") {
+    return (
+      <HStack alignment="firstTextBaseline" spacing={4}>
+        {small(untilBefore)}
+        {heroText(heroTime, textStyle)}
+        {small(untilAfter)}
+      </HStack>
+    );
+  }
+  function countHero(textStyle: "largeTitle" | "title") {
+    if (!convention) return null;
+    const count = dayCount(convention.startAtMs, zone);
+    if (!count)
+      return heroText(
+        countdown(convention.startAtMs, zone),
+        textStyle === "largeTitle" ? "title2" : "title",
+      );
+    const [before, after] = around(unitTemplate(count.kind, count.count));
+    const unitWords = (text: string) =>
+      text ? (
+        <Text
+          modifiers={[
+            font({ textStyle: "headline" }),
+            secondary,
+            lineLimit(1),
+            layoutPriority(1),
+          ]}
+        >
+          {text}
+        </Text>
+      ) : null;
+    return (
+      <HStack alignment="firstTextBaseline" spacing={4}>
+        {unitWords(before)}
+        {heroText(String(count.count), textStyle)}
+        {unitWords(after)}
+      </HStack>
+    );
+  }
+  function eventTitle(
+    event: WidgetEventSnapshot,
+    lines: number,
+    textStyle: "headline" | "subheadline" | "footnote",
+  ) {
     return (
       <Text
         modifiers={[
-          font({ textStyle: "caption2", weight: "bold" }),
-          foregroundStyle(accent),
-          lineLimit(1),
+          font({ textStyle, weight: "semibold" }),
+          primary,
+          lineLimit(lines),
+          layoutPriority(1),
+        ]}
+      >
+        {event.title}
+      </Text>
+    );
+  }
+  function quiet(text: string, lines = 1) {
+    return text ? (
+      <Text
+        modifiers={[
+          font({ textStyle: "footnote" }),
+          secondary,
+          lineLimit(lines),
+          layoutPriority(-1),
         ]}
       >
         {text}
       </Text>
+    ) : null;
+  }
+  function progress() {
+    // Only a real end gets a bar; an open-ended panel never has one invented.
+    if (kind !== "now" || !current || current.endAtMs == null) return null;
+    return (
+      <ProgressView
+        timerInterval={{
+          lower: new Date(current.startAtMs),
+          upper: new Date(current.endAtMs),
+        }}
+        countsDown={false}
+        modifiers={[progressViewStyle("linear"), labelsHidden(), ...accentTint]}
+      />
     );
   }
-  function footer() {
-    if (!snapshot.generatedAtMs || family === "systemSmall" || accessory)
-      return null;
-    const updated = new Intl.DateTimeFormat(locale, {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12,
-    }).format(new Date(snapshot.generatedAtMs));
+  // Freshness is only worth a line when it is in doubt.
+  function staleLine() {
+    if (!stale) return null;
     return (
-      <HStack
-        spacing={4}
+      <HStack spacing={4}>
+        <Image
+          systemName="arrow.clockwise"
+          modifiers={[font({ textStyle: "caption2" }), secondary]}
+        />
+        <Text
+          modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(2)]}
+        >
+          {word("staleHint")}
+        </Text>
+      </HStack>
+    );
+  }
+  // Agenda rows put the time above the title so a large text size wraps the
+  // title instead of squeezing the time; the room shares the time's line and
+  // gives way first.
+  function row(event: WidgetEventSnapshot, withRoom: boolean) {
+    const room = withRoom ? event.room?.trim() : "";
+    return (
+      <VStack key={event.id} alignment="leading" spacing={1}>
+        <HStack spacing={4}>
+          <Text
+            modifiers={[
+              font({ textStyle: "caption", weight: "semibold" }),
+              monospacedDigit(),
+              secondary,
+              lineLimit(1),
+              layoutPriority(2),
+            ]}
+          >
+            {clock(event.startAtMs, true)}
+          </Text>
+          {room ? (
+            <Text
+              modifiers={[
+                font({ textStyle: "caption" }),
+                secondary,
+                lineLimit(1),
+                layoutPriority(-1),
+              ]}
+            >
+              {`· ${room}`}
+            </Text>
+          ) : null}
+          <Spacer minLength={0} />
+        </HStack>
+        {/* The medium column is narrow but has the height for a second line. */}
+        {eventTitle(
+          event,
+          withRoom ? 1 : 2,
+          withRoom ? "subheadline" : "footnote",
+        )}
+      </VStack>
+    );
+  }
+  function header() {
+    if (!convention) return null;
+    return (
+      <HStack alignment="top" spacing={8}>
+        <VStack alignment="leading" spacing={0}>
+          <Text
+            modifiers={[
+              font({ textStyle: "subheadline", weight: "semibold" }),
+              primary,
+              lineLimit(1),
+            ]}
+          >
+            {convention.name}
+          </Text>
+          <Text
+            modifiers={[
+              font({ textStyle: "caption" }),
+              secondary,
+              lineLimit(1),
+            ]}
+          >
+            {convention.dateRangeLabel}
+          </Text>
+        </VStack>
+        <Spacer minLength={4} />
+        {pawMark()}
+      </HStack>
+    );
+  }
+  function card(children: ReactNode) {
+    return (
+      <VStack
+        alignment="leading"
+        spacing={3}
         modifiers={[
-          caption,
-          secondary,
-          accessibilityElement("ignore"),
-          accessibilityLabel(format(word("planLastUpdatedFormat"), updated)),
-          accessibilityHint(stale ? word("staleHint") : ""),
+          padding({ all: 12 }),
+          frame({ maxWidth: Infinity, alignment: "leading" }),
+          background(
+            accent
+              ? `${accent}1F`
+              : { type: "hierarchical", style: "quaternary" },
+            shapes.roundedRectangle({
+              cornerRadius: 16,
+              roundedCornerStyle: "continuous",
+            }),
+          ),
         ]}
       >
-        <Image systemName="clock.arrow.circlepath" />
-        <Text modifiers={[lineLimit(1), monospacedDigit()]}>{updated}</Text>
-        {stale ? <Image systemName="exclamationmark.triangle" /> : null}
-        <Spacer />
-      </HStack>
+        {children}
+      </VStack>
     );
   }
 
   if (expired || invalid) {
-    const updated = new Intl.DateTimeFormat(locale, {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12,
-    }).format(new Date(snapshot.generatedAtMs));
-    const refresh = `${format(word("planLastUpdatedFormat"), updated)}. ${word("staleHint")}`;
+    const refresh = sentence(
+      updated ? format(word("planLastUpdatedFormat"), updated) : "",
+      word("staleHint"),
+    );
     if (family === "accessoryInline")
       return (
-        <Text modifiers={[...root, accessibilityLabel(refresh)]}>
-          {word("staleHint")}
-        </Text>
+        <Label
+          title={word("staleHint")}
+          systemImage="arrow.clockwise"
+          modifiers={[...root, accessibilityLabel(refresh)]}
+        />
+      );
+    if (family === "accessoryCircular")
+      return (
+        <ZStack
+          modifiers={[
+            ...root,
+            accessibilityElement("ignore"),
+            accessibilityLabel(refresh),
+          ]}
+        >
+          <AccessoryWidgetBackground />
+          <Image
+            systemName="arrow.clockwise"
+            modifiers={[font({ textStyle: "title3", weight: "semibold" })]}
+          />
+        </ZStack>
       );
     return (
       <VStack
-        spacing={3}
+        alignment={accessory ? "leading" : "center"}
+        spacing={4}
         modifiers={[
           ...root,
+          ...(accessory
+            ? []
+            : [
+                frame({
+                  maxWidth: Infinity,
+                  maxHeight: Infinity,
+                  alignment: "center",
+                }),
+              ]),
           accessibilityElement("ignore"),
           accessibilityLabel(refresh),
         ]}
       >
         <Image
           systemName="arrow.clockwise"
-          modifiers={[font({ textStyle: "caption" })]}
+          modifiers={[
+            font({ textStyle: accessory ? "caption" : "title2" }),
+            heroColor,
+          ]}
         />
-        <Text modifiers={[caption, lineLimit(accessory ? 2 : 3)]}>
+        <Text
+          modifiers={[
+            font({ textStyle: accessory ? "footnote" : "headline" }),
+            primary,
+            multilineTextAlignment(accessory ? "leading" : "center"),
+            lineLimit(3),
+          ]}
+        >
           {word("staleHint")}
         </Text>
-        {!accessory ? timing(updated) : null}
+        {!accessory && updated ? (
+          <Text
+            modifiers={[
+              font({ textStyle: "caption" }),
+              secondary,
+              multilineTextAlignment("center"),
+              lineLimit(2),
+            ]}
+          >
+            {format(word("planLastUpdatedFormat"), updated)}
+          </Text>
+        ) : null}
       </VStack>
     );
   }
+
   if (family === "accessoryInline") {
-    const text =
-      beforeConvention && convention
-        ? `${countdown(convention.startAtMs, zone)} · ${convention.name}`
-        : next
-          ? `${reminderWindow ? urgency : clock(next.startAtMs, true)} · ${next.title}`
-          : current
-            ? `${word("happeningNowCaps")} · ${currentTime(current)} · ${current.title}`
-            : emptyTitle;
-    return <Text modifiers={[...root, ...spokenModifiers]}>{text}</Text>;
+    const [symbol, text]: [
+      ComponentProps<typeof Label>["systemImage"],
+      string,
+    ] =
+      kind === "countdown" && convention
+        ? [
+            "calendar",
+            `${countdown(convention.startAtMs, zone)} · ${convention.name}`,
+          ]
+        : kind === "reminder" && next
+          ? ["bell.fill", `${urgency} · ${next.title}`]
+          : kind === "now" && current
+            ? [
+                "clock",
+                `${format(word("untilCapsFormat"), heroTime)} · ${current.title}`,
+              ]
+            : kind === "open" && current
+              ? ["clock", `${word("now")} · ${current.title}`]
+              : next
+                ? ["clock", `${heroTime} · ${next.title}`]
+                : ["pawprint.fill", emptyTitle];
+    return (
+      <Label
+        title={text}
+        systemImage={symbol}
+        modifiers={[...root, ...spokenModifiers]}
+      />
+    );
   }
+
   if (family === "accessoryCircular") {
-    if (beforeConvention && convention) {
+    if (kind === "countdown" && convention) {
       const progress = Math.max(
         0,
         Math.min(1, 1 - (convention.startAtMs - now) / (7 * 86_400_000)),
@@ -448,8 +834,13 @@ export function ConPawsWidgetLayout(
           currentValueLabel={
             <Text
               modifiers={[
-                font({ textStyle: "caption", weight: "semibold" }),
+                font({
+                  textStyle: "caption",
+                  weight: "bold",
+                  design: "rounded",
+                }),
                 lineLimit(1),
+                minimumScaleFactor(0.6),
               ]}
             >
               {countdown(convention.startAtMs, zone, true)}
@@ -465,7 +856,7 @@ export function ConPawsWidgetLayout(
         </Gauge>
       );
     }
-    if (next && reminderWindow) {
+    if (kind === "reminder" && next) {
       const progress = Math.max(
         0,
         Math.min(
@@ -479,7 +870,11 @@ export function ConPawsWidgetLayout(
           currentValueLabel={
             <Text
               modifiers={[
-                font({ textStyle: "title3", weight: "semibold" }),
+                font({
+                  textStyle: "title3",
+                  weight: "bold",
+                  design: "rounded",
+                }),
                 monospacedDigit(),
                 lineLimit(1),
               ]}
@@ -493,213 +888,355 @@ export function ConPawsWidgetLayout(
             gaugeStyle("circularCapacity"),
           ]}
         >
-          <Image systemName="bell" />
+          <Image
+            systemName="bell.fill"
+            modifiers={[font({ textStyle: "caption2" })]}
+          />
         </Gauge>
       );
     }
+    if (kind === "now" && current && current.endAtMs != null) {
+      // The ring fills as the panel runs; the centre is when it ends.
+      const length = Math.max(1, current.endAtMs - current.startAtMs);
+      const [digits] = compactClock(current.endAtMs);
+      return (
+        <Gauge
+          value={Math.max(0, Math.min(1, (now - current.startAtMs) / length))}
+          currentValueLabel={
+            <Text
+              modifiers={[
+                font({
+                  textStyle: "caption",
+                  weight: "bold",
+                  design: "rounded",
+                }),
+                monospacedDigit(),
+                lineLimit(1),
+                minimumScaleFactor(0.6),
+              ]}
+            >
+              {digits}
+            </Text>
+          }
+          modifiers={[
+            ...root,
+            ...spokenModifiers,
+            gaugeStyle("circularCapacity"),
+          ]}
+        >
+          <Text>{current.title}</Text>
+        </Gauge>
+      );
+    }
+    const [digits, detail] = heroEvent
+      ? compactClock(heroEvent.startAtMs)
+      : ["", ""];
     return (
       <ZStack modifiers={[...root, ...spokenModifiers]}>
         <AccessoryWidgetBackground />
-        <VStack spacing={1}>
-          {next ? (
-            <>
-              {eyebrow(word("upNextCaps"))}
-              {timing(clock(next.startAtMs))}
-              <Text modifiers={[font({ textStyle: "title3", weight: "bold" })]}>
-                {(Array.from(next.title.trim())[0] ?? "").toLocaleUpperCase(
-                  locale,
-                )}
+        {heroEvent ? (
+          <VStack spacing={0}>
+            {kind === "open" ? (
+              <Text modifiers={[eyebrowFont, lineLimit(1)]}>
+                {word("compactNow")}
               </Text>
-            </>
-          ) : current ? (
-            <>
-              {eyebrow(word("now"))}
-              {timing(currentTime(current))}
-            </>
-          ) : (
-            <Text modifiers={[caption, lineLimit(3)]}>{emptyTitle}</Text>
-          )}
-        </VStack>
+            ) : (
+              <Image
+                systemName="calendar"
+                modifiers={[font({ textStyle: "caption2" })]}
+              />
+            )}
+            <Text
+              modifiers={[
+                font({
+                  textStyle: "headline",
+                  weight: "bold",
+                  design: "rounded",
+                }),
+                monospacedDigit(),
+                lineLimit(1),
+                minimumScaleFactor(0.5),
+              ]}
+            >
+              {digits}
+            </Text>
+            {detail ? (
+              <Text
+                modifiers={[
+                  font({ textStyle: "caption2" }),
+                  lineLimit(1),
+                  minimumScaleFactor(0.6),
+                ]}
+              >
+                {detail}
+              </Text>
+            ) : null}
+          </VStack>
+        ) : (
+          <Text
+            modifiers={[
+              font({ textStyle: "caption2" }),
+              multilineTextAlignment("center"),
+              lineLimit(3),
+              minimumScaleFactor(0.7),
+            ]}
+          >
+            {emptyTitle}
+          </Text>
+        )}
       </ZStack>
     );
   }
+
   if (family === "accessoryRectangular") {
+    // Three lines: what and when, the title, then where.
+    const lead = kind === "now" ? untilBefore : eyebrowText;
+    const time =
+      kind === "countdown" && convention
+        ? countdown(convention.startAtMs, zone)
+        : heroTime;
     return (
       <VStack
         alignment="leading"
-        spacing={2}
-        modifiers={[...root, ...spokenModifiers]}
+        spacing={1}
+        modifiers={[
+          ...root,
+          ...spokenModifiers,
+          frame({ maxWidth: Infinity, alignment: "leading" }),
+        ]}
       >
-        {beforeConvention && convention ? (
+        {kind === "countdown" || heroEvent ? (
           <>
-            {eyebrow(convention.name)}
-            {timing(countdown(convention.startAtMs, zone))}
-            <Text modifiers={[caption, secondary, lineLimit(1)]}>
-              {convention.dateRangeLabel}
+            <HStack alignment="firstTextBaseline" spacing={4}>
+              {kind === "reminder" ? (
+                <Image
+                  systemName="bell.fill"
+                  modifiers={[eyebrowFont, secondary]}
+                />
+              ) : null}
+              {small(lead)}
+              {heroText(time, "headline")}
+              {small(untilAfter)}
+              <Spacer minLength={0} />
+            </HStack>
+            <Text
+              modifiers={[
+                font({ textStyle: "subheadline", weight: "semibold" }),
+                primary,
+                lineLimit(1),
+                layoutPriority(1),
+              ]}
+            >
+              {heroEvent?.title ?? convention?.name ?? ""}
             </Text>
-          </>
-        ) : next ? (
-          <>
-            {eyebrow(reminderWindow ? urgency : word("upNextCaps"))}
-            {timing(clock(next.startAtMs, true))}
-            {eventTitle(next)}
-            {eventPlace(next)}
-          </>
-        ) : current ? (
-          <>
-            {eyebrow(word("happeningNowCaps"))}
-            {timing(currentTime(current))}
-            {eventTitle(current)}
-            {eventPlace(current)}
+            {quiet(
+              heroEvent ? place(heroEvent) : (convention?.dateRangeLabel ?? ""),
+            )}
           </>
         ) : (
           <>
-            {eyebrow(emptyTitle)}
-            <Text modifiers={[caption, secondary, lineLimit(2)]}>
-              {emptyHint}
-            </Text>
+            <HStack spacing={4}>
+              <Image
+                systemName={emptyGlyph}
+                modifiers={[font({ textStyle: "caption", weight: "semibold" })]}
+              />
+              <Text
+                modifiers={[
+                  font({ textStyle: "subheadline", weight: "semibold" }),
+                  lineLimit(1),
+                ]}
+              >
+                {emptyTitle}
+              </Text>
+            </HStack>
+            {quiet(emptyHint, 2)}
           </>
         )}
       </VStack>
     );
   }
 
-  if (beforeConvention && convention) {
-    return (
-      <VStack
-        alignment="leading"
-        spacing={6}
-        modifiers={[...root, ...spokenModifiers]}
-      >
-        {eyebrow(word("comingUpCaps"))}
-        <Text modifiers={[font({ textStyle: "headline" }), lineLimit(2)]}>
-          {convention.name}
-        </Text>
-        <Spacer minLength={2} />
-        <Text
-          modifiers={[
-            font({ textStyle: "title2", weight: "bold", design: "rounded" }),
-            foregroundStyle(accent),
-            lineLimit(1),
-            layoutPriority(2),
-          ]}
-        >
-          {countdown(convention.startAtMs, zone)}
-        </Text>
-        <Text
-          modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(1)]}
-        >
-          {convention.dateRangeLabel}
-        </Text>
-        {footer()}
+  if (kind === "countdown" && convention) {
+    const plan = future.slice(0, family === "systemLarge" ? 3 : 2);
+    const planBlock = (
+      <VStack alignment="leading" spacing={8} modifiers={fill}>
+        {plan.map((event) => row(event, family === "systemLarge"))}
+        {plan.length === 0 ? quiet(word("noPicksHint"), 3) : null}
       </VStack>
     );
+    if (family === "systemLarge")
+      return (
+        <VStack
+          alignment="leading"
+          spacing={12}
+          modifiers={[...root, ...spokenModifiers, ...fill]}
+        >
+          {header()}
+          {card(
+            <>
+              {small(eyebrowText)}
+              {countHero("largeTitle")}
+            </>,
+          )}
+          {planBlock}
+          {staleLine()}
+        </VStack>
+      );
+    const countdownBlock = (modifiers: ReturnType<typeof font>[]) => (
+      <VStack
+        alignment="leading"
+        spacing={2}
+        modifiers={[...modifiers, ...fill]}
+      >
+        {eyebrowRow(true)}
+        {countHero("largeTitle")}
+        <Spacer minLength={4} />
+        <Text
+          modifiers={[
+            font({ textStyle: "headline" }),
+            primary,
+            lineLimit(2),
+            layoutPriority(1),
+          ]}
+        >
+          {convention.name}
+        </Text>
+        {quiet(convention.dateRangeLabel)}
+        {family === "systemSmall" ? staleLine() : null}
+      </VStack>
+    );
+    if (family === "systemSmall")
+      return countdownBlock([...root, ...spokenModifiers]);
+    return (
+      <HStack
+        alignment="top"
+        spacing={12}
+        modifiers={[...root, ...spokenModifiers, ...fill]}
+      >
+        {countdownBlock([])}
+        <Divider />
+        <VStack alignment="leading" spacing={8} modifiers={fill}>
+          {plan.map((event) => row(event, false))}
+          {plan.length === 0 ? quiet(word("noPicksHint"), 3) : null}
+          <Spacer minLength={0} />
+          {staleLine()}
+        </VStack>
+      </HStack>
+    );
   }
-  if (!next && !current) {
+
+  if (!heroEvent) {
+    const large = family === "systemLarge";
     return (
       <VStack
         alignment="center"
         spacing={6}
-        modifiers={[...root, ...spokenModifiers]}
+        modifiers={[...root, ...spokenModifiers, ...fill]}
       >
+        {large ? header() : null}
         <Spacer minLength={0} />
         <Image
-          systemName="calendar"
-          modifiers={[font({ textStyle: "title2" }), foregroundStyle(accent)]}
+          systemName={emptyGlyph}
+          modifiers={[
+            font({ textStyle: large ? "title" : "title2" }),
+            heroColor,
+          ]}
         />
-        <Text modifiers={[font({ textStyle: "headline" }), lineLimit(2)]}>
+        <Text
+          modifiers={[
+            font({ textStyle: "headline" }),
+            primary,
+            multilineTextAlignment("center"),
+            lineLimit(2),
+            layoutPriority(1),
+          ]}
+        >
           {emptyTitle}
         </Text>
         <Text
-          modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(2)]}
+          modifiers={[
+            font({ textStyle: "footnote" }),
+            secondary,
+            multilineTextAlignment("center"),
+            lineLimit(3),
+          ]}
         >
           {emptyHint}
         </Text>
         <Spacer minLength={0} />
-        {footer()}
+        {staleLine()}
       </VStack>
     );
   }
-  if (!next && current) {
+
+  if (family === "systemLarge") {
+    const rows = following.slice(0, 3);
+    const remainingToday =
+      convention?.remainingTodayCount ??
+      future.filter((event) => sameDay(event.startAtMs)).length;
+    const shownToday = [heroEvent, ...rows].filter(
+      (event) => event.startAtMs > now && sameDay(event.startAtMs),
+    ).length;
+    const more = Math.max(0, remainingToday - shownToday);
     return (
       <VStack
         alignment="leading"
-        spacing={3}
-        modifiers={[...root, ...spokenModifiers]}
+        spacing={12}
+        modifiers={[...root, ...spokenModifiers, ...fill]}
       >
-        {eyebrow(word("happeningNowCaps"))}
-        {timing(currentTime(current))}
-        {eventTitle(current, 2)}
-        {eventPlace(current)}
-        <Text
-          modifiers={[caption, secondary, lineLimit(1), layoutPriority(-1)]}
-        >
-          {word("noLaterSavedEventsShort")}
-        </Text>
-        <Spacer minLength={0} />
-        {footer()}
-      </VStack>
-    );
-  }
-  if (!next) return <Text modifiers={root}>{emptyTitle}</Text>;
-  if (family === "systemSmall") {
-    return (
-      <VStack
-        alignment="leading"
-        spacing={3}
-        modifiers={[...root, ...spokenModifiers]}
-      >
-        {eyebrow(word("upNextCaps"))}
-        {timing(clock(next.startAtMs, true))}
-        {eventTitle(next, 2)}
-        {eventPlace(next)}
-        <Spacer minLength={0} />
-      </VStack>
-    );
-  }
-  return (
-    <VStack
-      alignment="leading"
-      spacing={3}
-      modifiers={[...root, ...spokenModifiers]}
-    >
-      <HStack>
-        <Text modifiers={[caption, foregroundStyle(accent), lineLimit(1)]}>
-          {convention?.name ?? "ConPaws"}
-        </Text>
-        <Spacer />
-        {stale ? <Image systemName="exclamationmark.triangle" /> : null}
-      </HStack>
-      <HStack alignment="top" spacing={12}>
-        {current ? (
-          <VStack alignment="leading" spacing={2}>
-            {eyebrow(word("now"))}
-            {eventTitle(current)}
-            {timing(currentTime(current))}
-          </VStack>
-        ) : null}
-        <VStack alignment="leading" spacing={2}>
-          {eyebrow(reminderWindow ? urgency : word("upNextCaps"))}
-          {timing(clock(next.startAtMs, true))}
-          {eventTitle(next)}
-          {!current ? eventPlace(next) : null}
+        {header()}
+        {card(
+          <>
+            {eyebrowRow(false)}
+            {hero("title")}
+            {eventTitle(heroEvent, 2, "headline")}
+            {quiet(place(heroEvent))}
+            {progress()}
+          </>,
+        )}
+        <VStack alignment="leading" spacing={8}>
+          {rows.map((event) => row(event, true))}
+          {rows.length === 0 ? quiet(word("noLaterSavedEvents"), 2) : null}
+          {more > 0
+            ? quiet(format(word("moreTodayFormat"), String(more)))
+            : null}
         </VStack>
-      </HStack>
-      {family === "systemLarge"
-        ? future.slice(1, 4).map((event) => (
-            <VStack key={event.id} alignment="leading" spacing={2}>
-              <Divider />
-              <HStack spacing={8}>
-                {timing(clock(event.startAtMs, true))}
-                {eventTitle(event)}
-              </HStack>
-              {eventPlace(event)}
-            </VStack>
-          ))
-        : null}
+        {staleLine()}
+      </VStack>
+    );
+  }
+
+  const heroBlock = (modifiers: ReturnType<typeof font>[]) => (
+    <VStack alignment="leading" spacing={3} modifiers={[...modifiers, ...fill]}>
+      {eyebrowRow(true)}
+      {hero("title2")}
+      {eventTitle(heroEvent, 2, "headline")}
       <Spacer minLength={0} />
-      {footer()}
+      {quiet(place(heroEvent))}
+      {progress()}
+      {family === "systemSmall" ? staleLine() : null}
     </VStack>
+  );
+  if (family === "systemSmall") return heroBlock([...root, ...spokenModifiers]);
+  const later = following.slice(0, 2);
+  return (
+    <HStack
+      alignment="top"
+      spacing={12}
+      modifiers={[...root, ...spokenModifiers, ...fill]}
+    >
+      {heroBlock([])}
+      <Divider />
+      <VStack alignment="leading" spacing={8} modifiers={fill}>
+        {later.length > 0 && (kind === "now" || kind === "open")
+          ? small(word("upNextCaps"))
+          : null}
+        {later.map((event) => row(event, false))}
+        {later.length === 0 ? quiet(word("noLaterSavedEventsShort"), 3) : null}
+        <Spacer minLength={0} />
+        {staleLine()}
+      </VStack>
+    </HStack>
   );
 }
 

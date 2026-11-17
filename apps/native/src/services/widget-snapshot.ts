@@ -19,16 +19,52 @@ import { getNativeMaterialColors } from "@/lib/native-material-colors";
 import { themeTokens } from "@/lib/theme-tokens";
 import type { WidgetStrings } from "@/widgets/ConPawsWidget.types";
 
-type WidgetPalette = {
+/**
+ * Paired colour roles for the Android widget. The container roles were added
+ * after widgets were already stored on devices, so they are optional: the
+ * widget derives them from the original four when an older snapshot lacks them.
+ */
+export type WidgetPalette = {
   background: string;
   foreground: string;
   secondary: string;
   accent: string;
+  /** The hero card: Material primaryContainer. */
+  container?: string;
+  /** Text on the hero card: Material onPrimaryContainer. */
+  onContainer?: string;
+  /** Progress track and the stale strip: Material surfaceContainerHighest. */
+  track?: string;
 };
 type WidgetMaterialColors = Pick<
   MaterialColors,
   "surfaceContainer" | "onSurface" | "onSurfaceVariant" | "primary"
->;
+> &
+  Partial<
+    Pick<
+      MaterialColors,
+      "primaryContainer" | "onPrimaryContainer" | "surfaceContainerHighest"
+    >
+  >;
+
+/**
+ * Templates keep their value as a `{name}` slot so the widget fills it in at
+ * render time. Every one reuses a phrase the app already translates; the
+ * Android widget cannot reach i18n and Android has no Swift string tables.
+ * Snapshots stored before these existed fall back to English in the widget.
+ */
+type WidgetLabelKey =
+  | "until"
+  | "nextAt"
+  | "startsInMinutes"
+  | "today"
+  | "tomorrow"
+  | "inDays"
+  | "checkedAt"
+  | "noConvention"
+  | "noConventionHint"
+  | "noEventsHint"
+  | "finishedHint";
 
 export interface WidgetPresentation {
   appearance: AppearancePreference;
@@ -36,7 +72,37 @@ export interface WidgetPresentation {
   hour12?: boolean;
   strings?: WidgetStrings;
   palette: { light: WidgetPalette; dark: WidgetPalette };
-  labels: Record<"next" | "current" | "noEvents" | "finished", string>;
+  labels: Record<"next" | "current" | "noEvents" | "finished", string> &
+    Partial<Record<WidgetLabelKey, string>>;
+}
+
+/** Mixes `amount` of one #RRGGBB colour over another. */
+function blend(top: string, bottom: string, amount: number): string {
+  const channels = (color: string) =>
+    [1, 3, 5].map((index) =>
+      Number.parseInt(color.slice(index, index + 2), 16),
+    );
+  const a = channels(top);
+  const b = channels(bottom);
+  if ([...a, ...b].some((value) => Number.isNaN(value))) return bottom;
+  return `#${a
+    .map((value, index) =>
+      Math.round(value * amount + b[index] * (1 - amount))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+/** Fills the container roles when the seeded Material palette is unavailable. */
+function withContainers(palette: WidgetPalette): Required<WidgetPalette> {
+  return {
+    ...palette,
+    container:
+      palette.container ?? blend(palette.accent, palette.background, 0.16),
+    onContainer: palette.onContainer ?? palette.foreground,
+    track: palette.track ?? blend(palette.foreground, palette.background, 0.12),
+  };
 }
 
 export function buildWidgetPresentation(
@@ -48,39 +114,60 @@ export function buildWidgetPresentation(
   const palette = (colors: WidgetMaterialColors): WidgetPalette => {
     // Expo supplies RRGGBBAA; Android Color.parseColor expects AARRGGBB.
     const opaque = (color: string) => color.slice(0, 7);
-    return {
+    return withContainers({
       background: opaque(colors.surfaceContainer),
       foreground: opaque(colors.onSurface),
       secondary: opaque(colors.onSurfaceVariant),
       accent: opaque(colors.primary),
-    };
+      container: colors.primaryContainer && opaque(colors.primaryContainer),
+      onContainer:
+        colors.onPrimaryContainer && opaque(colors.onPrimaryContainer),
+      track:
+        colors.surfaceContainerHighest &&
+        opaque(colors.surfaceContainerHighest),
+    });
   };
-  const t = (key: string) => i18n.t(key, { lng: localeIdentifier });
+  const t = (key: string, values: Record<string, string> = {}) =>
+    i18n.t(key, { lng: localeIdentifier, ...values });
   return {
     appearance,
     palette: {
       light: light
         ? palette(light)
-        : {
+        : withContainers({
             background: "#ffffff",
             foreground: themeTokens.light.foreground,
             secondary: themeTokens.light.mutedForeground,
             accent: themeTokens.light.primary,
-          },
+          }),
       dark: dark
         ? palette(dark)
-        : {
+        : withContainers({
             background: "#000000",
             foreground: themeTokens.dark.foreground,
             secondary: themeTokens.dark.mutedForeground,
             accent: themeTokens.dark.primary,
-          },
+          }),
     },
     labels: {
       next: t("convention.now.upNext"),
       current: t("convention.now.happeningNow"),
       noEvents: t("schedule.empty.title"),
       finished: t("schedule.caughtUp.title"),
+      until: t("convention.plan.until", { time: "{time}" }),
+      nextAt: t("convention.now.next", { time: "{time}" }),
+      startsInMinutes: t("reminders.notificationBody", {
+        minutes: "{minutes}",
+      }),
+      today: t("home.countdown.today"),
+      tomorrow: t("home.countdown.tomorrow"),
+      // A string count skips i18next's plural lookup and keeps the slot.
+      inDays: t("home.countdown.days", { count: "{count}" }),
+      checkedAt: t("convention.scheduleUpdate.checkedAt", { time: "{time}" }),
+      noConvention: t("home.empty.title"),
+      noConventionHint: t("home.empty.subtitle"),
+      noEventsHint: t("schedule.empty.subtitle"),
+      finishedHint: t("schedule.caughtUp.subtitle", { name: "{name}" }),
     },
   };
 }

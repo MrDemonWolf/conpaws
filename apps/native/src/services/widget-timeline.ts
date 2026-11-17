@@ -149,3 +149,16 @@ export function buildStoredWidgetTimeline(
 ): ReturnType<typeof buildWidgetTimeline> {
   return withoutNulls(buildWidgetTimeline(snapshot));
 }
+
+/**
+ * The single snapshot Android redraws from, as its bridge can take it.
+ *
+ * Expo refuses to convert a props object with a null or undefined field
+ * anywhere in it, and the launcher widget is then left on whatever it was
+ * last given. It gets the same null-free shape as the iOS timeline.
+ */
+export function buildStoredWidgetProps(
+  snapshot: WidgetSnapshot,
+): ConPawsWidgetProps {
+  return withoutNulls({ snapshot });
+}
