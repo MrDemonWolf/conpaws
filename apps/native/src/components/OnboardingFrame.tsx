@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { OnboardingProgress } from "@/components/OnboardingProgress";
-import { SafeView } from "@/components/ui";
+import { ReadableColumn, SafeView } from "@/components/ui";
+import { useContentWidth } from "@/hooks/useContentWidth";
+import { ACTIONS_MAX, ONBOARDING_MAX } from "@/lib/content-width";
 
 export function OnboardingFrame({
   step,
@@ -12,6 +14,10 @@ export function OnboardingFrame({
   children: ReactNode;
   actions: ReactNode;
 }) {
+  // A wide window centres the block vertically as well; on a phone, or a
+  // window too short for it, the content stays top-aligned and scrolls.
+  const { roomy } = useContentWidth();
+
   return (
     <SafeView className="overflow-hidden bg-background">
       <ScrollView
@@ -23,14 +29,20 @@ export function OnboardingFrame({
           paddingHorizontal: 16,
           paddingTop: 12,
           paddingBottom: 8,
+          ...(roomy ? { justifyContent: "center" as const } : null),
         }}
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
       >
-        <OnboardingProgress step={step} />
-        <View className="gap-5 py-6">{children}</View>
+        <ReadableColumn max={ONBOARDING_MAX} gutter={false}>
+          <OnboardingProgress step={step} />
+          <View className="gap-5 py-6">{children}</View>
+        </ReadableColumn>
       </ScrollView>
-      <View className="gap-1 px-4 pt-1 pb-2">{actions}</View>
+      {/* The buttons fill this bar, so capping it narrows them too. */}
+      <ReadableColumn max={ACTIONS_MAX} className="gap-1 px-4 pt-1 pb-2">
+        {actions}
+      </ReadableColumn>
     </SafeView>
   );
 }

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Platform } from "react-native";
 import { FieldRow } from "@/components/ui/FieldRow";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { developerToolsEnabled } from "@/lib/developer-tools";
 import {
@@ -19,6 +20,7 @@ export default function PreviewScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const colorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const queryClient = useQueryClient();
   const variant = Constants.expoConfig?.extra?.appVariant;
   const [testing, setTesting] = useState(false);
@@ -70,7 +72,7 @@ export default function PreviewScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={samples.isPending || testing}>
           <FieldRow
             testID="preview-add-samples"

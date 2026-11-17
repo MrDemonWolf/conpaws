@@ -9,6 +9,7 @@ export { Card } from "./Card";
 export { Chip } from "./Chip";
 export { EmptyState } from "./EmptyState";
 export { Input, usePlaceholderTextColor } from "./Input";
+export { ReadableColumn } from "./ReadableColumn";
 export { PRESS_DIM, Row, TAP_TARGET } from "./Row";
 export { SafeView } from "./SafeView";
 export {

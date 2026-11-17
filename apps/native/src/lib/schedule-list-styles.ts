@@ -1,14 +1,46 @@
 /**
  * Presentation rules shared by the two day-grouped schedule lists.
- *
- * Content styles first: an empty panel has to fill the viewport so its
- * centred message stays centred, and a populated list needs its own bottom
- * padding or the last row of the last day runs under the system navigation
- * bar.
  */
-export const SCHEDULE_EMPTY_CONTENT_STYLE = { flexGrow: 1 } as const;
 
-export const SCHEDULE_LIST_CONTENT_STYLE = { paddingBottom: 24 } as const;
+/**
+ * What a schedule list is showing:
+ * - `list`: rows, which need their own bottom padding or the last row of the
+ *   last day runs under the system navigation bar;
+ * - `empty`: a centred empty panel, which has to fill the viewport to stay
+ *   centred;
+ * - `blank`: a convention with no events at all, whose import / add prompt
+ *   sits centred with extra room above and below.
+ */
+export type ScheduleContentKind = "list" | "empty" | "blank";
+
+/**
+ * The SectionList content style for one kind, laid into the readable column.
+ *
+ * The column is padding on the content container rather than a narrower
+ * wrapper, so the list stays the screen's scroll view: the large title still
+ * lays itself into its inset, the gutters still scroll, and every row, header
+ * and footer moves into the column without the cells changing. `padding` is
+ * `useContentWidth().listPadding`, zero on a phone in portrait.
+ */
+export function scheduleContentStyle(
+  kind: ScheduleContentKind,
+  padding: { paddingHorizontal: number },
+) {
+  switch (kind) {
+    case "list":
+      return { paddingBottom: 24, ...padding };
+    case "empty":
+      return { flexGrow: 1, ...padding };
+    case "blank":
+      return {
+        flexGrow: 1,
+        justifyContent: "center" as const,
+        paddingBottom: 48,
+        paddingTop: 24,
+        ...padding,
+      };
+  }
+}
 
 /**
  * Whether a day-grouped schedule list should bounce vertically.

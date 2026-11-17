@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ScrollView,
+  type StyleProp,
   useWindowDimensions,
   View,
   type ViewProps,
+  type ViewStyle,
 } from "react-native";
 import Animated, {
   cancelAnimation,
@@ -15,6 +17,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { cn } from "@/lib/utils";
 
 /**
@@ -95,8 +98,13 @@ export function Skeleton({ className, style, ...props }: ViewProps) {
 export function SkeletonScreen({
   className,
   children,
+  contentStyle,
   ...props
-}: ViewProps & { children: React.ReactNode }) {
+}: ViewProps & {
+  children: React.ReactNode;
+  /** Padding for the shapes, such as the readable column's. */
+  contentStyle?: StyleProp<ViewStyle>;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -116,6 +124,7 @@ export function SkeletonScreen({
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
         className="flex-1"
+        style={contentStyle}
       >
         {children}
       </View>
@@ -171,14 +180,34 @@ function placeholderKeys(prefix: string, count: number): string[] {
   return Array.from({ length: count }, (_, index) => `${prefix}-${index}`);
 }
 
+/**
+ * The list padding a full-window skeleton needs to sit in the same readable
+ * column as the content that replaces it, so a wide window does not jump when
+ * the data lands. `readable={false}` for a skeleton previewed inside another
+ * view, which the window's column does not describe.
+ */
+function useSkeletonColumn(readable: boolean) {
+  const { listPadding } = useContentWidth();
+  return readable && listPadding.paddingHorizontal > 0
+    ? listPadding
+    : undefined;
+}
+
 /** Mirrors `ConventionCard`: title line, then a date line with a status chip. */
-export function ConventionListSkeleton({ rows }: { rows?: number } = {}) {
+export function ConventionListSkeleton({
+  rows,
+  readable = true,
+}: {
+  rows?: number;
+  readable?: boolean;
+} = {}) {
   // min-h-16 plus the row's own padding.
   const filled = useFillCount(64);
   const count = rows ?? filled;
+  const contentStyle = useSkeletonColumn(readable);
 
   return (
-    <SkeletonScreen>
+    <SkeletonScreen contentStyle={contentStyle}>
       <View className="px-4">
         {placeholderKeys("convention", count).map((key, index) => (
           <View
@@ -210,19 +239,22 @@ export function ConventionListSkeleton({ rows }: { rows?: number } = {}) {
 export function ScheduleSkeleton({
   sections = 2,
   rowsPerSection,
+  readable = true,
   children,
 }: {
   sections?: number;
   rowsPerSection?: number;
+  readable?: boolean;
   children?: React.ReactNode;
 } = {}) {
   // A day header is ~40pt and an event row ~60pt; the rows have to cover
   // whatever the headers do not.
   const filled = useFillCount(60 * sections, 40 * sections);
   const rows = rowsPerSection ?? filled;
+  const contentStyle = useSkeletonColumn(readable);
 
   return (
-    <SkeletonScreen>
+    <SkeletonScreen contentStyle={contentStyle}>
       {children}
       {placeholderKeys("schedule-section", sections).map((sectionKey) => (
         <View key={sectionKey}>

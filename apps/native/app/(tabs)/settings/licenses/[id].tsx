@@ -6,6 +6,8 @@ import { ScrollView, View } from "react-native";
 
 import { Card, EmptyState, Row, Text } from "@/components/ui";
 import licenseManifest from "@/generated/open-source-licenses.json";
+import { useContentWidth } from "@/hooks/useContentWidth";
+import { GUTTER } from "@/lib/content-width";
 import { openExternal } from "@/lib/open-external";
 
 const NOT_FOUND_ICON = Icon.select({
@@ -19,6 +21,16 @@ function safeExternalUrl(value: string) {
 
 export default function LicenseDetailsScreen() {
   const { t } = useTranslation();
+  const { listPadding } = useContentWidth();
+  // Same rule as the licenses list: equal physical padding, and only when a
+  // wide window or a side inset asks for it.
+  const columnPadding =
+    listPadding.paddingHorizontal > 0
+      ? {
+          paddingLeft: GUTTER + listPadding.paddingHorizontal,
+          paddingRight: GUTTER + listPadding.paddingHorizontal,
+        }
+      : undefined;
 
   // One place that catches the two rejections these links actually produce: a
   // second tap while a browser is already up, and a `mailto:` on a device with
@@ -72,6 +84,7 @@ export default function LicenseDetailsScreen() {
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 px-4 pt-4 pb-10"
+      contentContainerStyle={columnPadding}
     >
       <Stack.Screen options={{ title: packageInfo.name }} />
       <Card accessible accessibilityRole="summary" className="gap-1">

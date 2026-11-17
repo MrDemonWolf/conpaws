@@ -21,6 +21,7 @@ import { Button, EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { useContentWidth, useWidthCap } from "@/hooks/useContentWidth";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { ageBadgeFor } from "@/lib/age-badge";
 import {
@@ -30,6 +31,7 @@ import {
   splitMinutes,
 } from "@/lib/agenda-gaps";
 import { categoryAccentColor } from "@/lib/category-color";
+import { ACTIONS_MAX } from "@/lib/content-width";
 import {
   conventionDayKey,
   isValidTimeZone,
@@ -56,8 +58,7 @@ import {
 import { isDropInEvent } from "@/lib/schedule-browse";
 import {
   canScrollSchedule,
-  SCHEDULE_EMPTY_CONTENT_STYLE,
-  SCHEDULE_LIST_CONTENT_STYLE,
+  scheduleContentStyle,
   shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 
@@ -97,6 +98,10 @@ export default function ScheduleScreen() {
   // keeps the heights it measured for cells it has already built; the font
   // scale is part of `extraData` so those cells are rebuilt.
   const { fontScale } = useWindowDimensions();
+  // On a wide window the list lays its rows into a readable column; zero on a
+  // phone in portrait.
+  const { listPadding } = useContentWidth();
+  const cap = useWidthCap();
   const hour12 = useHour12();
   const queryClient = useQueryClient();
 
@@ -210,6 +215,11 @@ export default function ScheduleScreen() {
       };
     });
   }, [days, now]);
+  const contentKind = sections.length === 0 ? "empty" : "list";
+  const contentContainerStyle = useMemo(
+    () => scheduleContentStyle(contentKind, listPadding),
+    [contentKind, listPadding],
+  );
 
   const gapLabel = useCallback(
     (gap: AgendaGap): string => {
@@ -360,11 +370,7 @@ export default function ScheduleScreen() {
         // an object so the identity only changes when one of these does.
         extraData={`${locale}|${hour12}|${showConventionName}|${fontScale}`}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={
-          sections.length === 0
-            ? SCHEDULE_EMPTY_CONTENT_STYLE
-            : SCHEDULE_LIST_CONTENT_STYLE
-        }
+        contentContainerStyle={contentContainerStyle}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
           sections.length > 0 ? (
@@ -392,7 +398,7 @@ export default function ScheduleScreen() {
         renderItem={renderItem}
         ListFooterComponent={
           entries.length > 0 ? (
-            <View className="px-4 py-4">
+            <View className="px-4 py-4" style={cap(ACTIONS_MAX)}>
               <Button
                 variant="outline"
                 onPress={() => {

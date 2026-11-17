@@ -18,8 +18,10 @@ import { Text } from "@/components/ui";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
+import { ABOUT_HERO_MAX } from "@/lib/content-width";
 import { openExternal } from "@/lib/open-external";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
@@ -67,8 +69,9 @@ export default function AboutScreen() {
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
-  const heroWidth = Math.min(520, Math.max(260, width - 64));
+  const heroWidth = Math.min(ABOUT_HERO_MAX, Math.max(260, width - 64));
 
   const isIOS = process.env.EXPO_OS === "ios";
 
@@ -132,7 +135,7 @@ export default function AboutScreen() {
         style={{ flex: 1 }}
         useViewportSizeMeasurement
       >
-        <FieldGroup>
+        <FieldGroup {...readableGroup}>
           {isIOS ? (
             <FieldGroup.Section>
               <Column alignment="center" style={{ paddingVertical: 24 }}>

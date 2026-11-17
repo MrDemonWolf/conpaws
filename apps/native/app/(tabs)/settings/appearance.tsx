@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { FieldRow } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   APPEARANCE_PREFERENCES,
@@ -37,6 +38,7 @@ export default function AppearanceScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const [appearance, setAppearance] = useState<AppearancePreference>(
     getAppearancePreference,
   );
@@ -70,7 +72,7 @@ export default function AppearanceScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={isChanging}>
           {APPEARANCE_PREFERENCES.map((preference) => {
             const isSelected = appearance === preference;

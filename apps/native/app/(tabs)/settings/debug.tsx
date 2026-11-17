@@ -13,6 +13,7 @@ import {
   BLANK_PREVIEW_CONVENTION_ID,
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   getCachedCatalogSourcePreference,
@@ -58,6 +59,7 @@ export default function DebugScreen() {
   const presentationLock = useRef(0);
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const enabled = developerDiagnosticsEnabled(__DEV__, appVariant);
   const version =
@@ -199,7 +201,7 @@ export default function DebugScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section title="Build">
           <ListItem supportingText={`${version} (${buildNumber})`}>
             {variantName} app version

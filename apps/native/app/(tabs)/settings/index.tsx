@@ -19,6 +19,7 @@ import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 // squeezed the Notifications row into one letter per line on Android.
 import { RowSpinner } from "@/components/ui/RowSpinner";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 import {
@@ -88,6 +89,7 @@ export default function SettingsScreen() {
   const { exportData, isLoading: isExporting } = useExportData();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
   const appearance = useSyncExternalStore(
     subscribeAppearancePreference,
@@ -274,7 +276,7 @@ export default function SettingsScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section title={t("settings.app.title")}>
           <ListItem
             leading={<SettingsLeadingIcon name="theme" />}

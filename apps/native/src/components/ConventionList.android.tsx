@@ -1,5 +1,6 @@
 import { FlatList, View } from "react-native";
 import { Text } from "@/components/ui";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { ConventionCard } from "./ConventionCard.android";
 import type { ConventionListProps } from "./ConventionList.types";
 
@@ -19,6 +20,9 @@ export function ConventionList<T extends { id: string }>({
   onOpen,
   onAction,
 }: ConventionListProps<T>) {
+  // Zero on a phone in portrait; the readable column on a wide window, and
+  // the side navigation bar or cutout on a phone in landscape.
+  const { listPadding } = useContentWidth();
   return (
     <FlatList
       className="flex-1 bg-background"
@@ -27,7 +31,7 @@ export function ConventionList<T extends { id: string }>({
       data={data}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{
-        paddingHorizontal: 16,
+        paddingHorizontal: 16 + listPadding.paddingHorizontal,
         paddingBottom: 24,
       }}
       ListEmptyComponent={

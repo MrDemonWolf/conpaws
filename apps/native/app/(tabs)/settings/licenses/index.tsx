@@ -5,6 +5,8 @@ import { AccessibilityInfo, FlatList, View } from "react-native";
 
 import { EmptyState, Row, Text } from "@/components/ui";
 import licenseManifest from "@/generated/open-source-licenses.json";
+import { useContentWidth } from "@/hooks/useContentWidth";
+import { GUTTER } from "@/lib/content-width";
 import { cn } from "@/lib/utils";
 
 type LicensePackage = {
@@ -21,6 +23,18 @@ const packages: LicensePackage[] = licenseManifest.packages.map(
 export default function LicensesScreen() {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
+  const { listPadding } = useContentWidth();
+  // Only a wide window or a side inset adds padding, so a phone in portrait
+  // passes nothing. It is equal left and right padding, which RTL cannot
+  // flip: `px-4` below compiles to `paddingInline`, which React Native maps to
+  // Yoga's horizontal edge, and Yoga ranks left and right above that.
+  const columnPadding =
+    listPadding.paddingHorizontal > 0
+      ? {
+          paddingLeft: GUTTER + listPadding.paddingHorizontal,
+          paddingRight: GUTTER + listPadding.paddingHorizontal,
+        }
+      : undefined;
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredPackages = normalizedQuery
     ? packages.filter(({ name, version, license }) =>
@@ -55,6 +69,7 @@ export default function LicensesScreen() {
       <FlatList
         contentInsetAdjustmentBehavior="automatic"
         contentContainerClassName="px-4 pt-3 pb-8"
+        contentContainerStyle={columnPadding}
         data={filteredPackages}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"

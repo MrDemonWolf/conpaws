@@ -7,7 +7,15 @@ import { NativeDateTimeField } from "@/components/convention-detail/NativeDateTi
 import { FormModalHeader } from "@/components/FormModalHeader";
 import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
 import { ReminderChoices } from "@/components/ReminderChoices";
-import { Banner, Button, Card, Chip, SafeView, Text } from "@/components/ui";
+import {
+  Banner,
+  Button,
+  Card,
+  Chip,
+  ReadableColumn,
+  SafeView,
+  Text,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
@@ -234,120 +242,130 @@ function VisitForm({
       )}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{ padding: 16, gap: 16 }}
+        contentContainerStyle={{ padding: 16 }}
       >
-        <Text variant="h3">{event.title}</Text>
-        <Text variant="caption">
-          {openingFormatter.format(new Date(event.startTime))}–
-          {openingFormatter.format(new Date(event.endTime ?? event.startTime))}{" "}
-          · {timeZone}
-        </Text>
-        {hasVisit(event) && !isValidVisit(event) ? (
-          <Text accessibilityRole="alert">{t("convention.visit.invalid")}</Text>
-        ) : null}
-        <Card className="p-0">
-          <NativeDateTimeField
-            label={t("convention.manualEvent.dateLabel")}
-            value={date}
-            mode="date"
-            locale={locale}
-            testID="visit-date"
-            onChange={setDate}
-          />
-          <NativeDateTimeField
-            label={t("convention.manualEvent.startLabel")}
-            value={time}
-            mode="time"
-            locale={locale}
-            testID="visit-time"
-            onChange={setTime}
-          />
-        </Card>
-        <Text variant="label">{t("convention.visit.duration")}</Text>
-        <View className="flex-row flex-wrap gap-2">
-          {VISIT_DURATIONS.map((minutes) => (
-            <Chip
-              key={minutes}
-              label={formatEventDuration(minutes, t)}
-              selected={durationMinutes === minutes}
-              onPress={() => setDuration(minutes)}
+        {/* A full-screen modal on both platforms, so the window is the
+            container. The gap moved here from the content container with the
+            children, which keeps a phone's layout the same. */}
+        <ReadableColumn gutter={false} style={{ gap: 16 }}>
+          <Text variant="h3">{event.title}</Text>
+          <Text variant="caption">
+            {openingFormatter.format(new Date(event.startTime))}–
+            {openingFormatter.format(
+              new Date(event.endTime ?? event.startTime),
+            )}{" "}
+            · {timeZone}
+          </Text>
+          {hasVisit(event) && !isValidVisit(event) ? (
+            <Text accessibilityRole="alert">
+              {t("convention.visit.invalid")}
+            </Text>
+          ) : null}
+          <Card className="p-0">
+            <NativeDateTimeField
+              label={t("convention.manualEvent.dateLabel")}
+              value={date}
+              mode="date"
+              locale={locale}
+              testID="visit-date"
+              onChange={setDate}
             />
-          ))}
-        </View>
-        <ReminderChoices
-          label={t("reminders.pickerTitle")}
-          value={reminder}
-          options={REMINDER_DEFAULT_OPTIONS}
-          onChange={setReminder}
-          testID="visit-reminder"
-        />
-        {validation.ok ? (
-          <Card>
-            <Text variant="body">
-              {openingFormatter.format(new Date(validation.startTime))} ·{" "}
-              {t("convention.timeRangeTo", {
-                time: formatEventEndTime(
-                  validation.startTime,
-                  validation.endTime,
-                  timeZone,
-                  locale,
-                  hour12,
-                ),
-              })}{" "}
-              · {formatEventDuration(durationMinutes, t)}
-            </Text>
-            <Text variant="caption">
-              {t("convention.now.reminder", {
-                label:
-                  reminder === null
-                    ? t("reminders.none")
-                    : `${reminderDefaultLabel(reminder, t)} · ${formatEventTime(new Date(Date.parse(validation.startTime) - reminder * 60_000).toISOString(), timeZone, locale, hour12)}`,
-              })}
-            </Text>
+            <NativeDateTimeField
+              label={t("convention.manualEvent.startLabel")}
+              value={time}
+              mode="time"
+              locale={locale}
+              testID="visit-time"
+              onChange={setTime}
+            />
           </Card>
-        ) : null}
-        {conflicts.length > 0 ? (
-          <Banner
-            tone="info"
-            title={t("convention.plan.overlap.title")}
-            body={`${t("convention.plan.overlap.body")} ${conflicts.map((row) => row.title).join(", ")}`}
-            testID="visit-overlap-warning"
+          <Text variant="label">{t("convention.visit.duration")}</Text>
+          <View className="flex-row flex-wrap gap-2">
+            {VISIT_DURATIONS.map((minutes) => (
+              <Chip
+                key={minutes}
+                label={formatEventDuration(minutes, t)}
+                selected={durationMinutes === minutes}
+                onPress={() => setDuration(minutes)}
+              />
+            ))}
+          </View>
+          <ReminderChoices
+            label={t("reminders.pickerTitle")}
+            value={reminder}
+            options={REMINDER_DEFAULT_OPTIONS}
+            onChange={setReminder}
+            testID="visit-reminder"
           />
-        ) : null}
-        {!validation.ok ? (
-          <Text accessibilityRole="alert">
-            {t(
-              validation.reason === "time" || validation.reason === "time-zone"
-                ? "convention.manualEvent.errors.startTimeZone"
-                : "convention.visit.windowError",
-            )}
-          </Text>
-        ) : null}
-        {reminderPassed ? (
-          <Text accessibilityRole="alert" testID="visit-reminder-passed">
-            {t("reminders.tooLateMessage")}
-          </Text>
-        ) : error ? (
-          <Text accessibilityRole="alert">{t("reminders.errorMessage")}</Text>
-        ) : null}
-        {hasVisit(event) ? (
-          <Button
-            variant="destructive"
-            disabled={saving}
-            onPress={() =>
-              Alert.alert(t("convention.visit.remove"), event.title, [
-                { text: t("common.cancel"), style: "cancel" },
-                {
-                  text: t("convention.visit.remove"),
-                  style: "destructive",
-                  onPress: () => finish(true),
-                },
-              ])
-            }
-          >
-            {t("convention.visit.remove")}
-          </Button>
-        ) : null}
+          {validation.ok ? (
+            <Card>
+              <Text variant="body">
+                {openingFormatter.format(new Date(validation.startTime))} ·{" "}
+                {t("convention.timeRangeTo", {
+                  time: formatEventEndTime(
+                    validation.startTime,
+                    validation.endTime,
+                    timeZone,
+                    locale,
+                    hour12,
+                  ),
+                })}{" "}
+                · {formatEventDuration(durationMinutes, t)}
+              </Text>
+              <Text variant="caption">
+                {t("convention.now.reminder", {
+                  label:
+                    reminder === null
+                      ? t("reminders.none")
+                      : `${reminderDefaultLabel(reminder, t)} · ${formatEventTime(new Date(Date.parse(validation.startTime) - reminder * 60_000).toISOString(), timeZone, locale, hour12)}`,
+                })}
+              </Text>
+            </Card>
+          ) : null}
+          {conflicts.length > 0 ? (
+            <Banner
+              tone="info"
+              title={t("convention.plan.overlap.title")}
+              body={`${t("convention.plan.overlap.body")} ${conflicts.map((row) => row.title).join(", ")}`}
+              testID="visit-overlap-warning"
+            />
+          ) : null}
+          {!validation.ok ? (
+            <Text accessibilityRole="alert">
+              {t(
+                validation.reason === "time" ||
+                  validation.reason === "time-zone"
+                  ? "convention.manualEvent.errors.startTimeZone"
+                  : "convention.visit.windowError",
+              )}
+            </Text>
+          ) : null}
+          {reminderPassed ? (
+            <Text accessibilityRole="alert" testID="visit-reminder-passed">
+              {t("reminders.tooLateMessage")}
+            </Text>
+          ) : error ? (
+            <Text accessibilityRole="alert">{t("reminders.errorMessage")}</Text>
+          ) : null}
+          {hasVisit(event) ? (
+            <Button
+              variant="destructive"
+              disabled={saving}
+              onPress={() =>
+                Alert.alert(t("convention.visit.remove"), event.title, [
+                  { text: t("common.cancel"), style: "cancel" },
+                  {
+                    text: t("convention.visit.remove"),
+                    style: "destructive",
+                    onPress: () => finish(true),
+                  },
+                ])
+              }
+            >
+              {t("convention.visit.remove")}
+            </Button>
+          ) : null}
+        </ReadableColumn>
       </ScrollView>
     </SafeView>
   );

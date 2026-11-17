@@ -12,6 +12,7 @@ import {
   SkeletonUnderHeader,
   Text,
 } from "@/components/ui";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { catalogEditionSummary } from "@/lib/catalog/adapter";
 import { resolveCatalogSource } from "@/lib/catalog/source-preference";
 import type { CatalogEdition } from "@/lib/catalog/types";
@@ -33,6 +34,18 @@ export default function FindConventionScreen() {
   const [now, setNow] = useState(() => new Date());
   const [search, setSearch] = useState("");
   const [pastExpanded, setPastExpanded] = useState(false);
+  // The first screen a new user reaches from an empty Home: rows, headers,
+  // the banner and the fallback card all move into the readable column on a
+  // wide window. Zero on a phone in portrait.
+  const { listPadding } = useContentWidth();
+  const listContentStyle = useMemo(
+    () => ({ paddingBottom: 24, ...listPadding }),
+    [listPadding],
+  );
+  const errorContentStyle = useMemo(
+    () => ({ flexGrow: 1, paddingVertical: 20, ...listPadding }),
+    [listPadding],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -158,7 +171,7 @@ export default function FindConventionScreen() {
         <ScrollView
           className="flex-1"
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={{ flexGrow: 1, paddingVertical: 20 }}
+          contentContainerStyle={errorContentStyle}
         >
           <EmptyState
             title={errorTitle}
@@ -228,7 +241,7 @@ export default function FindConventionScreen() {
             ) : undefined
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={listContentStyle}
         />
       )}
     </View>

@@ -169,8 +169,17 @@ describe("iOS native stack headers", () => {
     // renders its header in-content, because Stack.Toolbar never reaches
     // headerLeft/headerRight there -- so the native header must stay hidden or
     // the screen shows two titles.
+    // The rule lives beside the form header so the edit and import screens
+    // can tell whether the window or the sheet sets their width.
+    const formSharedSource = readFileSync(
+      path.resolve(__dirname, "../components/FormModalHeader.shared.ts"),
+      "utf8",
+    );
+    expect(formSharedSource).toContain(
+      'export const FORM_PRESENTED_AS_SHEET = process.env.EXPO_OS === "ios"',
+    );
     expect(homeLayoutSource).toContain(
-      'process.env.EXPO_OS === "ios" ? "formSheet" : "modal"',
+      'FORM_PRESENTED_AS_SHEET ? "formSheet" : "modal"',
     );
     expect(homeLayoutSource).toContain(
       'const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios"',

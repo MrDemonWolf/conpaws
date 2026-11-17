@@ -354,10 +354,14 @@ export default function UiSystemScreen() {
                 style={{ width: sheetContentWidth }}
               >
                 <View className="h-[200px]">
-                  <ConventionListSkeleton rows={2} />
+                  <ConventionListSkeleton rows={2} readable={false} />
                 </View>
                 <View className="h-[280px]">
-                  <ScheduleSkeleton sections={1} rowsPerSection={2} />
+                  <ScheduleSkeleton
+                    sections={1}
+                    rowsPerSection={2}
+                    readable={false}
+                  />
                 </View>
               </View>
             </RNHostView>

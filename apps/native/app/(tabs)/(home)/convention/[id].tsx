@@ -59,6 +59,7 @@ import {
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useScheduleRefresh } from "@/hooks/useScheduleRefresh";
@@ -115,8 +116,7 @@ import {
 } from "@/lib/schedule-hint-storage";
 import {
   canScrollSchedule,
-  SCHEDULE_EMPTY_CONTENT_STYLE,
-  SCHEDULE_LIST_CONTENT_STYLE,
+  scheduleContentStyle,
   shouldBounceSchedule,
   showsScheduleHeader,
 } from "@/lib/schedule-list-styles";
@@ -138,13 +138,6 @@ const NOT_FOUND_ICON = Icon.select({
   ios: "questionmark.folder",
   android: FolderOffIcon,
 });
-
-const EMPTY_CONVENTION_CONTENT_STYLE = {
-  flexGrow: 1,
-  justifyContent: "center",
-  paddingBottom: 48,
-  paddingTop: 24,
-} as const;
 
 /** The views, in the order the segmented control shows them. */
 const VIEW_LABEL_KEYS: Record<ScheduleView, string> = {
@@ -175,6 +168,9 @@ export default function ConventionDetailScreen() {
   // cells keep their old heights and clip the larger text. Part of
   // `extraData` below so the cells are rebuilt.
   const { fontScale } = useWindowDimensions();
+  // On a wide window the list lays its rows into a readable column; zero on a
+  // phone in portrait.
+  const { listPadding } = useContentWidth();
   const previewState = resolveConventionPreviewState(
     requestedPreviewState,
     __DEV__,
@@ -460,6 +456,12 @@ export default function ConventionDetailScreen() {
       : view === "mine"
         ? agendaSections
         : nowSelection.sections;
+  const contentKind =
+    sections.length > 0 ? "list" : events.length === 0 ? "blank" : "empty";
+  const contentContainerStyle = useMemo(
+    () => scheduleContentStyle(contentKind, listPadding),
+    [contentKind, listPadding],
+  );
 
   const hasActiveFilters =
     activeCategory !== null ||
@@ -1451,6 +1453,9 @@ export default function ConventionDetailScreen() {
           <Stack.Toolbar.Menu
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("convention.scheduleActions")}
+            // The open menu's header on iOS, and the label an overflow rail
+            // shows for an icon-only item.
+            title={t("convention.scheduleActions")}
           >
             <Stack.Toolbar.MenuAction
               icon={
@@ -1540,13 +1545,7 @@ export default function ConventionDetailScreen() {
         // all change what a cached cell should show.
         extraData={`${locale}|${hour12}|${showProvenance}|${conventionTimeZone}|${highlightedEventId ?? ""}|${fontScale}|${view}|${Math.floor(now / 60_000)}`}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={
-          sections.length === 0
-            ? events.length === 0
-              ? EMPTY_CONVENTION_CONTENT_STYLE
-              : SCHEDULE_EMPTY_CONTENT_STYLE
-            : SCHEDULE_LIST_CONTENT_STYLE
-        }
+        contentContainerStyle={contentContainerStyle}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
           !showsScheduleHeader(view, sections.length, heroProps !== null)

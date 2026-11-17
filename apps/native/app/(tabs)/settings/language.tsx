@@ -9,6 +9,7 @@ import { Alert } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { reportError } from "@/lib/error-reporting";
 import i18n, {
@@ -59,6 +60,7 @@ export default function LanguageScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const [isChanging, setIsChanging] = useState(false);
   const currentLanguage = i18n.language as SupportedLanguage;
 
@@ -92,7 +94,7 @@ export default function LanguageScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={isChanging}>
           {SUPPORTED_LANGUAGES.map((code) => {
             const { nativeName } = LANGUAGE_META[code];

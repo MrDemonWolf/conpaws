@@ -10,6 +10,7 @@ import { Alert } from "react-native";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 
 import { NativeText } from "@/components/ui/NativeText";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
@@ -66,6 +67,7 @@ export default function ReminderDefaultScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const [selected, setSelected] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
@@ -99,7 +101,7 @@ export default function ReminderDefaultScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={isSaving}>
           {CHOICES.map((minutes) => {
             const isSelected = minutes === selected;

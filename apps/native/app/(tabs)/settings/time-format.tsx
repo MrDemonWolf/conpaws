@@ -6,6 +6,7 @@ import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { FieldRow } from "@/components/ui/FieldRow";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   getTimeFormatPreference,
@@ -24,6 +25,7 @@ export default function TimeFormatScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const colorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const selected = useSyncExternalStore(
     subscribeTimeFormat,
     getTimeFormatPreference,
@@ -53,7 +55,7 @@ export default function TimeFormatScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={saving}>
           {CHOICES.map((choice) => (
             <FieldRow

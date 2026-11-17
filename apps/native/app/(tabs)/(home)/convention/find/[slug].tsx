@@ -5,7 +5,7 @@ import {
   useFocusEffect,
   useLocalSearchParams,
 } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,16 +14,19 @@ import {
   Button,
   Card,
   ConventionListSkeleton,
+  ReadableColumn,
   SkeletonUnderHeader,
   Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { runScheduleImport } from "@/hooks/useImportSchedule";
 import {
   CatalogNotFoundError,
   CatalogUnavailableError,
 } from "@/lib/catalog/client";
 import { resolveCatalogSource } from "@/lib/catalog/source-preference";
+import { ACTIONS_MAX } from "@/lib/content-width";
 import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -52,6 +55,13 @@ export default function FindConventionDetailScreen() {
   const [failure, setFailure] = useState<DownloadFailure | null>(null);
   const locale = currentLocale();
   const insets = useSafeAreaInsets();
+  // The card, notes and banners move into the readable column on a wide
+  // window; zero on a phone in portrait.
+  const { listPadding } = useContentWidth();
+  const contentStyle = useMemo(
+    () => ({ paddingTop: 12, paddingBottom: 24, ...listPadding }),
+    [listPadding],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -242,7 +252,7 @@ export default function FindConventionDetailScreen() {
         <ScrollView
           className="flex-1"
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
+          contentContainerStyle={contentStyle}
         >
           {source.kind === "fixture" ? (
             <Text variant="caption" className="px-4 pb-3 text-muted-foreground">
@@ -326,35 +336,42 @@ export default function FindConventionDetailScreen() {
       )}
       {edition && !catalogQuery.isLoading && !conventionQuery.isLoading ? (
         <View
-          className="gap-2 border-t border-border px-4 pt-3"
+          className="border-t border-border px-4 pt-3"
           style={{ paddingBottom: Math.max(insets.bottom, 12) }}
         >
-          <Button
-            onPress={canOpenSavedSchedule ? openSchedule : handleDownload}
-            disabled={!isReady && !downloaded}
-            loading={downloading}
-            accessibilityLabel={
-              downloading ? t("catalog.confirm.downloading") : downloadLabel
-            }
-          >
-            {downloading ? t("catalog.confirm.downloading") : downloadLabel}
-          </Button>
-          <Text variant="caption" className="text-center text-muted-foreground">
-            {t("catalog.confirm.offlineAvailable")}
-          </Text>
-          {downloading ? (
+          {/* The bar's divider spans the window; its buttons stop at an
+              action width. */}
+          <ReadableColumn max={ACTIONS_MAX} gutter={false} className="gap-2">
+            <Button
+              onPress={canOpenSavedSchedule ? openSchedule : handleDownload}
+              disabled={!isReady && !downloaded}
+              loading={downloading}
+              accessibilityLabel={
+                downloading ? t("catalog.confirm.downloading") : downloadLabel
+              }
+            >
+              {downloading ? t("catalog.confirm.downloading") : downloadLabel}
+            </Button>
             <Text
               variant="caption"
               className="text-center text-muted-foreground"
             >
-              {t("catalog.confirm.keepOpen")}
+              {t("catalog.confirm.offlineAvailable")}
             </Text>
-          ) : null}
-          {!isReady && !downloaded ? (
-            <Button onPress={openImport} variant="outline">
-              {t("catalog.notListed.import")}
-            </Button>
-          ) : null}
+            {downloading ? (
+              <Text
+                variant="caption"
+                className="text-center text-muted-foreground"
+              >
+                {t("catalog.confirm.keepOpen")}
+              </Text>
+            ) : null}
+            {!isReady && !downloaded ? (
+              <Button onPress={openImport} variant="outline">
+                {t("catalog.notListed.import")}
+              </Button>
+            ) : null}
+          </ReadableColumn>
         </View>
       ) : null}
     </View>

@@ -29,7 +29,9 @@ import {
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
+import { useWidthCap } from "@/hooks/useContentWidth";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { ACTIONS_MAX } from "@/lib/content-width";
 import {
   type ConventionSort,
   canUnarchive,
@@ -110,8 +112,14 @@ function ConventionEmptyState({
   sampleLabel,
   sampleDescription,
 }: ConventionEmptyStateProps) {
+  // The full-width buttons and caption stop at an action width in a wide
+  // window instead of running across it.
+  const widthCap = useWidthCap();
   return (
-    <View className="flex-1 items-center justify-center gap-1">
+    <View
+      className="flex-1 items-center justify-center gap-1"
+      style={widthCap(ACTIONS_MAX)}
+    >
       <EmptyState
         icon={EMPTY_ICON}
         title={title}
@@ -124,7 +132,10 @@ function ConventionEmptyState({
         actionsInline
         className="w-full flex-none"
       />
-      <Button variant="ghost" onPress={onCreate} className="w-full">
+      {/* Sized to its label: a ghost button has no visible edge, so a
+          full-width one left an invisible tap target across the screen. The
+          inherited 48pt minimum height keeps the touch target. */}
+      <Button variant="ghost" onPress={onCreate} className="self-center">
         {createLabel}
       </Button>
       {onAddSamples ? (
@@ -541,6 +552,9 @@ export default function HomeScreen() {
           <Stack.Toolbar.Menu
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("home.addConvention")}
+            // The open menu's header on iOS, and the label an overflow rail
+            // shows for an icon-only item, as the Sort menu already has.
+            title={t("home.addConvention")}
           >
             <Stack.Toolbar.MenuAction
               icon={

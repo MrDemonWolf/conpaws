@@ -13,6 +13,7 @@ import {
 } from "@expo/ui/swift-ui";
 import {
   accessibilityLabel,
+  alignmentGuide,
   buttonStyle,
   contentShape,
   disabled,
@@ -25,6 +26,9 @@ import {
   shapes,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
+import { I18nManager, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 import type { ConventionListProps } from "./ConventionList.types";
@@ -46,28 +50,59 @@ export function ConventionList<T extends { id: string }>({
   onAction,
 }: ConventionListProps<T>) {
   const colorScheme = useResolvedColorScheme();
+  // A wide window insets every row into the readable column. The List itself
+  // stays full width, so its gutters still scroll and swipe actions still
+  // reach the window edge. SwiftUI already keeps rows out of the horizontal
+  // safe area, so the inset leaves the safe area out; it is 16 on a phone.
+  const { roomy, rowInset } = useContentWidth();
+  const { width } = useWindowDimensions();
+  const safeArea = useSafeAreaInsets();
+  // The insets are physical left and right; Host follows React Native's
+  // layout direction, so map them to leading and trailing the same way.
+  const rtl = I18nManager.getConstants().isRTL;
+  const rowInsets = listRowInsets({
+    top: 0,
+    leading: rtl ? rowInset.right : rowInset.left,
+    bottom: 0,
+    trailing: rtl ? rowInset.left : rowInset.right,
+  });
+  // A plain List draws each separator to the cell's trailing edge whatever
+  // the trailing inset, so in the column it would run on into the gutter.
+  // The guide ends it where the row's content ends. Phones keep the system
+  // separators untouched.
+  const separatorEnd = roomy
+    ? [
+        alignmentGuide(
+          "listRowSeparatorTrailing",
+          Math.max(
+            0,
+            width -
+              safeArea.left -
+              safeArea.right -
+              rowInset.left -
+              rowInset.right,
+          ),
+        ),
+      ]
+    : [];
+  // The label rows had the system's own insets; only a wide window moves them
+  // into the column with the convention rows.
+  const labelRowModifiers = roomy ? [rowInsets, ...separatorEnd] : [];
 
   function renderConvention(item: T, isArchived = false) {
     const row = getRowContent(item);
     return (
-      <SwipeActions
-        key={item.id}
-        modifiers={[
-          listRowInsets({
-            top: 0,
-            leading: 16,
-            bottom: 0,
-            trailing: 16,
-          }),
-        ]}
-      >
+      <SwipeActions key={item.id} modifiers={[rowInsets]}>
         {/*
           The row and its actions button are siblings, not nested. A Button
           inside a Button gives SwiftUI two overlapping tap targets and the
           inner one wins inconsistently, so the row would sometimes open the
           convention and sometimes open the sheet.
         */}
-        <HStack spacing={4} modifiers={[frame({ maxWidth: Infinity })]}>
+        <HStack
+          spacing={4}
+          modifiers={[frame({ maxWidth: Infinity }), ...separatorEnd]}
+        >
           <Button
             onPress={() => onOpen(item)}
             modifiers={[
@@ -236,6 +271,7 @@ export function ConventionList<T extends { id: string }>({
             modifiers={[
               foregroundStyle({ type: "hierarchical", style: "secondary" }),
               padding({ vertical: 12 }),
+              ...labelRowModifiers,
             ]}
           >
             {currentEmptyLabel}
@@ -247,6 +283,7 @@ export function ConventionList<T extends { id: string }>({
             modifiers={[
               font({ textStyle: "headline" }),
               padding({ vertical: 12 }),
+              ...labelRowModifiers,
             ]}
           >
             {archiveLabel}

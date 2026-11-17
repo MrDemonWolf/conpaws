@@ -1,9 +1,41 @@
 import { describe, expect, it } from "vitest";
 import {
   canScrollSchedule,
+  scheduleContentStyle,
   shouldBounceSchedule,
   showsScheduleHeader,
 } from "./schedule-list-styles";
+
+describe("scheduleContentStyle", () => {
+  const none = { paddingHorizontal: 0 };
+
+  it("keeps the phone content styles exactly", () => {
+    // Zero horizontal padding is the React Native default, so a phone in
+    // portrait lays out as it did with the old constants.
+    expect(scheduleContentStyle("list", none)).toEqual({
+      paddingBottom: 24,
+      paddingHorizontal: 0,
+    });
+    expect(scheduleContentStyle("empty", none)).toEqual({
+      flexGrow: 1,
+      paddingHorizontal: 0,
+    });
+    expect(scheduleContentStyle("blank", none)).toEqual({
+      flexGrow: 1,
+      justifyContent: "center",
+      paddingBottom: 48,
+      paddingTop: 24,
+      paddingHorizontal: 0,
+    });
+  });
+
+  it("lays every kind into the readable column", () => {
+    const column = { paddingHorizontal: 61 };
+    for (const kind of ["list", "empty", "blank"] as const) {
+      expect(scheduleContentStyle(kind, column)).toMatchObject(column);
+    }
+  });
+});
 
 describe("shouldBounceSchedule", () => {
   it("keeps empty layouts still at normal text size and reachable at large text", () => {
