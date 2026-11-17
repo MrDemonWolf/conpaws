@@ -161,8 +161,8 @@ export default function AboutScreen() {
             </ListItem>
             {/* A Discord row lived here. discord.gg/conpaws resolves to "Unknown
                 Invite", and a dead link is an App Review rejection risk, so the
-                row is gone until there is a permanent invite. Its strings
-                (settings.about.discordDescription) remain for when it returns. */}
+                row is gone until there is a permanent invite. Add the row and
+                its description string back together. */}
           </FieldGroup.Section>
 
           <FieldGroup.Section title={t("settings.about.resources")}>
