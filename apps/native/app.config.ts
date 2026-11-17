@@ -149,6 +149,30 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           NSPrivacyAccessedAPITypeReasons: ["1C8F.1"],
         },
       ],
+      // Release builds send crash reports to Sentry (src/lib/error-reporting.ts).
+      // Declared here so Xcode's privacy report matches the App Store Connect
+      // label: crash and diagnostic data, not linked to the person, not used for
+      // tracking. Nothing else leaves the device; there is no account.
+      NSPrivacyTracking: false,
+      NSPrivacyCollectedDataTypes: [
+        {
+          NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeCrashData",
+          NSPrivacyCollectedDataTypeLinked: false,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: [
+            "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+          ],
+        },
+        {
+          NSPrivacyCollectedDataType:
+            "NSPrivacyCollectedDataTypeOtherDiagnosticData",
+          NSPrivacyCollectedDataTypeLinked: false,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: [
+            "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+          ],
+        },
+      ],
     },
     config: {
       // ConPaws only talks HTTPS, which is exempt encryption under US export
@@ -299,6 +323,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         locationAlwaysAndWhenInUsePermission: false,
         locationAlwaysPermission: false,
         locationWhenInUsePermission: false,
+        // Also a purpose string for a prompt ConPaws never shows: the plugin
+        // otherwise adds a precise-location dictionary with placeholder text.
+        locationFullAccuracyPermission: false,
         // Not `false`. Deleting this key got build 204 rejected with
         // ITMS-90683: expo-location ships MotionActivityStreamer.swift, which
         // references CoreMotion, and Apple's static analysis requires a purpose

@@ -232,6 +232,7 @@ describe("phone widget target migration", () => {
     expect(settings.CURRENT_PROJECT_VERSION).toBe('"210"');
     expect(settings.MARKETING_VERSION).toBe('"1.0.0"');
     expect(settings.IPHONEOS_DEPLOYMENT_TARGET).toBe("17.0");
+    expect(settings.INFOPLIST_KEY_CFBundleDisplayName).toBe('"ConPaws"');
     expect(
       project.pbxXCBuildConfigurationSection().WATCHRELEASE.buildSettings,
     ).toEqual({

@@ -172,6 +172,9 @@ function syncWidgetBuildSettings(project, config) {
       MARKETING_VERSION: `"${config.ios.version ?? config.version}"`,
       // Match the existing widget's AppIntent minimum; Expo defaults to 16.4.
       IPHONEOS_DEPLOYMENT_TARGET: "17.0",
+      // Expo names the extension after its target, so Settings and the Live
+      // Activities list showed "ExpoWidgetsTarget" instead of the app name.
+      INFOPLIST_KEY_CFBundleDisplayName: '"ConPaws"',
     });
   }
 }
