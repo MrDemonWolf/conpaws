@@ -242,7 +242,7 @@ export function ConPawsWidgetLayout(
     configuration?.mode !== "nextEvent";
   const reminderWindow =
     next &&
-    next.reminderMinutes !== null &&
+    next.reminderMinutes != null &&
     next.reminderMinutes > 0 &&
     now >= next.startAtMs - next.reminderMinutes * 60_000;
   const status = beforeConvention
@@ -295,12 +295,12 @@ export function ConPawsWidgetLayout(
       ? `${word("startsIn")} ${format(word("compactMinutesFormat"), String(reminderMinutes))}`
       : word("upNextCaps");
   function currentTime(event: WidgetEventSnapshot): string {
-    return event.endAtMs === null
+    return event.endAtMs == null
       ? clock(event.startAtMs)
       : format(word("untilCapsFormat"), clock(event.endAtMs));
   }
   function reminderLabel(event: WidgetEventSnapshot): string {
-    if (event.reminderMinutes === null) return "";
+    if (event.reminderMinutes == null) return "";
     return format(
       word("reminderAtFormat"),
       clock(event.startAtMs - event.reminderMinutes * 60_000),

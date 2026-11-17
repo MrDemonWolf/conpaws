@@ -84,6 +84,12 @@ for (const family of [
   assert(swift.includes(`.${family}`), `Missing ${family} widget family`);
 }
 assert(swift.includes("ConPawsWidgetConventionOptionsProvider"));
+for (const identifier of ["ConPawsWidgetIntent", "ConPawsWidgetMode"]) {
+  assert(
+    swift.includes(`static let persistentIdentifier = "${identifier}"`),
+    `Widgets pinned before the Expo migration need the ${identifier} identity`,
+  );
+}
 assert(swift.includes("case automatic"));
 assert(swift.includes("case countdown"));
 assert(swift.includes("case nextEvent"));

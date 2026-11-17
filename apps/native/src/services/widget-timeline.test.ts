@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { WidgetEventSnapshot, WidgetSnapshot } from "./widget-snapshot";
-import { buildWidgetTimeline } from "./widget-timeline";
+import {
+  buildStoredWidgetTimeline,
+  buildWidgetTimeline,
+} from "./widget-timeline";
 
 const now = Date.parse("2026-11-16T12:00:00Z");
 const minute = 60_000;
@@ -90,5 +93,26 @@ describe("Expo widget timeline", () => {
       date.toISOString(),
     );
     expect(dates).toContain("2026-03-09T05:00:00.000Z");
+  });
+
+  it("stores a timeline iOS accepts: no null field anywhere", () => {
+    function hasNull(value: unknown): boolean {
+      if (value === null || value === undefined) return true;
+      if (value instanceof Date || typeof value !== "object") return false;
+      return Object.values(value).some(hasNull);
+    }
+    const open = { ...event(0), endAtMs: null, reminderMinutes: null };
+    expect(hasNull(buildWidgetTimeline(snapshot([open])))).toBe(true);
+
+    const stored = buildStoredWidgetTimeline(snapshot([open]));
+    expect(hasNull(stored)).toBe(false);
+    expect(stored).toHaveLength(buildWidgetTimeline(snapshot([open])).length);
+    expect(stored[0].date).toBeInstanceOf(Date);
+    expect(stored[0].props.snapshot.conventions[0].events[0]).toEqual({
+      id: "event-0",
+      title: "Panel 0",
+      startAtMs: open.startAtMs,
+    });
+    expect(stored.at(-1)?.props.expired).toBe(true);
   });
 });

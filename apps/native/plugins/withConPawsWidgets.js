@@ -82,6 +82,34 @@ gradle.projectsEvaluated {
 `;
 }
 
+// A widget pinned from the retired Swift target stores that target's intent
+// identity. Without it WidgetKit cannot build a timeline for the new type, and
+// the pinned widget stays frozen on its last picture until it is re-added.
+const LEGACY_WIDGET_IDENTITIES = [
+  [
+    "struct ConPawsWidgetConfigurationAppIntent: WidgetConfigurationIntent {",
+    "ConPawsWidgetIntent",
+  ],
+  [
+    "enum ConPawsWidgetModeEnum: String, CaseIterable, AppEnum {",
+    "ConPawsWidgetMode",
+  ],
+];
+
+function patchWidgetIntentIdentity(source) {
+  let patched = source;
+  for (const [declaration, identifier] of LEGACY_WIDGET_IDENTITIES) {
+    const identity = `  static let persistentIdentifier = "${identifier}"`;
+    if (patched.includes(identity)) continue;
+    if (!patched.includes(declaration))
+      throw new Error(
+        "expo-widgets intent source changed; review the pinned widget identity.",
+      );
+    patched = patched.replace(declaration, `${declaration}\n${identity}`);
+  }
+  return patched;
+}
+
 function addWidgetPrivacyManifest(project) {
   const targetUuid = project.findTargetKey("ExpoWidgetsTarget");
   if (!targetUuid) throw new Error("ExpoWidgetsTarget was not generated.");
@@ -165,6 +193,14 @@ module.exports = function withConPawsWidgets(config) {
           "ExpoWidgetsTarget/PrivacyInfo.xcprivacy",
         ),
       );
+      const widgetSource = path.join(
+        config.modRequest.platformProjectRoot,
+        "ExpoWidgetsTarget/ConPawsWidget.swift",
+      );
+      fs.writeFileSync(
+        widgetSource,
+        patchWidgetIntentIdentity(fs.readFileSync(widgetSource, "utf8")),
+      );
       return config;
     },
   ]);
@@ -229,5 +265,6 @@ module.exports.removeLegacyWidgetTarget = removeLegacyWidgetTarget;
 module.exports.patchAndroidProvider = patchAndroidProvider;
 module.exports.patchAndroidWidgetInfo = patchAndroidWidgetInfo;
 module.exports.patchAndroidBuildGradle = patchAndroidBuildGradle;
+module.exports.patchWidgetIntentIdentity = patchWidgetIntentIdentity;
 module.exports.addWidgetPrivacyManifest = addWidgetPrivacyManifest;
 module.exports.syncWidgetBuildSettings = syncWidgetBuildSettings;

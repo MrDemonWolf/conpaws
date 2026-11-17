@@ -1,6 +1,6 @@
 import ConPawsWidget from "@/widgets/ConPawsWidget";
 import type { WidgetSnapshot } from "./widget-snapshot";
-import { buildWidgetTimeline } from "./widget-timeline";
+import { buildStoredWidgetTimeline } from "./widget-timeline";
 
 export function publishPhoneWidget(snapshot: WidgetSnapshot): void {
   ConPawsWidget.setConfigurationParameterEnum("convention", [
@@ -10,5 +10,5 @@ export function publishPhoneWidget(snapshot: WidgetSnapshot): void {
     },
     ...snapshot.conventions.map(({ id, name }) => ({ name, value: id })),
   ]);
-  ConPawsWidget.updateTimeline(buildWidgetTimeline(snapshot));
+  ConPawsWidget.updateTimeline(buildStoredWidgetTimeline(snapshot));
 }

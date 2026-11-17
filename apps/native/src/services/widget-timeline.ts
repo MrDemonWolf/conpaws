@@ -1,4 +1,5 @@
 import { conventionDayKey, fromConventionTime } from "@/lib/convention-time";
+import { withoutNulls } from "@/lib/property-list";
 import type { ConPawsWidgetProps } from "@/widgets/ConPawsWidget.types";
 import type { WidgetEventSnapshot, WidgetSnapshot } from "./widget-snapshot";
 
@@ -134,4 +135,17 @@ export function buildWidgetTimeline(snapshot: WidgetSnapshot): Array<{
     props: { snapshot: { ...snapshot, conventions: [] }, expired: true },
   });
   return timeline;
+}
+
+/**
+ * The timeline as iOS can store it.
+ *
+ * iOS refuses a timeline with a null anywhere in it and keeps the widget on
+ * its empty first-run state, so the stored copy carries no nulls and the
+ * renderer reads a missing field as it would a null one.
+ */
+export function buildStoredWidgetTimeline(
+  snapshot: WidgetSnapshot,
+): ReturnType<typeof buildWidgetTimeline> {
+  return withoutNulls(buildWidgetTimeline(snapshot));
 }

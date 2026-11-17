@@ -17,6 +17,7 @@ import withConPawsWidgets, {
   patchAndroidBuildGradle,
   patchAndroidProvider,
   patchAndroidWidgetInfo,
+  patchWidgetIntentIdentity,
   removeLegacyWidgetTarget,
   syncWidgetBuildSettings,
 } from "./withConPawsWidgets.js";
@@ -90,6 +91,15 @@ function projectFixture() {
   });
 }
 
+const generatedWidgetSwift = `struct ConPawsWidgetConfigurationAppIntent: WidgetConfigurationIntent {
+  static var title: LocalizedStringResource = "ConPaws Configuration"
+}
+
+enum ConPawsWidgetModeEnum: String, CaseIterable, AppEnum {
+  case automatic
+}
+`;
+
 describe("phone widget target migration", () => {
   it("copies the shared widget privacy manifest without a retired target folder", async () => {
     const projectRoot = mkdtempSync(
@@ -111,6 +121,10 @@ describe("phone widget target migration", () => {
         build(projectFixture().toJSON()),
       );
       writeFileSync(path.join(sourceFolder, "PrivacyInfo.xcprivacy"), manifest);
+      writeFileSync(
+        path.join(widgetFolder, "ConPawsWidget.swift"),
+        generatedWidgetSwift,
+      );
       const config = withConPawsWidgets({
         ios: { bundleIdentifier: "com.mrdemonwolf.conpaws" },
       });
@@ -121,6 +135,9 @@ describe("phone widget target migration", () => {
       expect(
         readFileSync(path.join(widgetFolder, "PrivacyInfo.xcprivacy")),
       ).toEqual(manifest);
+      expect(
+        readFileSync(path.join(widgetFolder, "ConPawsWidget.swift"), "utf8"),
+      ).toContain('static let persistentIdentifier = "ConPawsWidgetIntent"');
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -202,6 +219,29 @@ describe("phone widget target migration", () => {
     ).toEqual({
       PRODUCT_BUNDLE_IDENTIFIER: "com.mrdemonwolf.conpaws.watchkitapp",
     });
+  });
+});
+
+describe("pinned widget identity", () => {
+  it("keeps the retired Swift widget's intent and display identities", () => {
+    const patched = patchWidgetIntentIdentity(generatedWidgetSwift);
+    expect(patched).toContain(
+      `struct ConPawsWidgetConfigurationAppIntent: WidgetConfigurationIntent {
+  static let persistentIdentifier = "ConPawsWidgetIntent"`,
+    );
+    expect(patched).toContain(
+      `enum ConPawsWidgetModeEnum: String, CaseIterable, AppEnum {
+  static let persistentIdentifier = "ConPawsWidgetMode"`,
+    );
+    expect(patchWidgetIntentIdentity(patched)).toBe(patched);
+  });
+
+  it("fails closed if the generated intent source changes", () => {
+    expect(() =>
+      patchWidgetIntentIdentity(
+        "struct OtherIntent: WidgetConfigurationIntent {",
+      ),
+    ).toThrow(/intent source changed/);
   });
 });
 

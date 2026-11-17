@@ -14,6 +14,7 @@ import {
   vi,
 } from "vitest";
 import type { WidgetSnapshot } from "@/services/widget-snapshot";
+import { buildStoredWidgetTimeline } from "@/services/widget-timeline";
 import createAppConfig from "../../app.config";
 import type {
   ConPawsWidgetConfiguration,
@@ -239,6 +240,55 @@ function texts(node: unknown): string[] {
 }
 
 describe("isolated Expo widget renderers", () => {
+  it.each([
+    "systemSmall",
+    "systemMedium",
+    "systemLarge",
+    "accessoryCircular",
+    "accessoryRectangular",
+    "accessoryInline",
+  ])(
+    "renders the stored iOS timeline, which has no null fields: %s",
+    (family) => {
+      const source = snapshot();
+      // Under way, no end and no reminder: every field iOS cannot store is gone.
+      source.conventions[0].events = [
+        {
+          id: "open",
+          title: "Open Lounge",
+          startAtMs: NOW - 600_000,
+          endAtMs: null,
+          location: null,
+          room: null,
+          reminderMinutes: null,
+          ageRating: null,
+        },
+        {
+          id: "next",
+          title: "Closing",
+          startAtMs: NOW + 1_800_000,
+          endAtMs: null,
+          location: null,
+          room: null,
+          reminderMinutes: null,
+          ageRating: null,
+        },
+      ];
+      const [entry] = buildStoredWidgetTimeline(source);
+      expect(entry.props.snapshot.conventions[0].events[0]).not.toHaveProperty(
+        "endAtMs",
+      );
+      const visible = texts(render("ios", entry.props, family)).join(" ");
+      expect(visible).not.toMatch(/Invalid|NaN|undefined|null/);
+      // The circular family only has room for a time and an initial.
+      expect(visible).toMatch(
+        family === "accessoryCircular"
+          ? /12:30/
+          : /Open Lounge|Closing|Sample Con/,
+      );
+    },
+  );
+
   it("uses the app-config Automatic choice and an unset native selection", () => {
     for (const convention of [
       defaultConfiguration.convention,
