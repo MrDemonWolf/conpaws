@@ -15,14 +15,16 @@
  * Android stops at a checked, upload-signed bundle: the first Google Play
  * release must be uploaded by hand, and scripted Play uploads belong to the
  * release workflow, which holds the service account. Add --dry-run to iOS to
- * sign without uploading, and --yes to skip the confirmation.
+ * sign without uploading, --yes to skip the confirmation, and --archive to
+ * upload an archive this script made earlier from the same commit.
  *
- * Guards, from apps/native/AGENTS.md: a committed tree; native projects that
- * agree with BUILD_NUMBER; the expected variant in the prebuild and in the
- * built artifact (preview builds never leave the internal group); an iOS
- * build number above any this Mac already uploaded; and once
- * NATIVE_RELEASE_ENABLED is on, refusal, because CI then owns uploads and
- * build numbers. Run it from apps/native or through the root aliases.
+ * Guards, from apps/native/AGENTS.md: a committed tree, re-checked right
+ * before the upload; native projects that agree with BUILD_NUMBER; the
+ * expected variant in the prebuild and in the built artifact (preview builds
+ * never leave the internal group); an iOS build number above any already
+ * uploaded from this Mac, dry runs included; and once NATIVE_RELEASE_ENABLED
+ * is on (repo or organization), refusal, because CI then owns uploads and
+ * build numbers. Anything that cannot be checked refuses.
  */
 
 import { spawnSync } from "node:child_process";
@@ -32,18 +34,21 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   writeFileSync,
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import readline from "node:readline/promises";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const REPO_SLUG = "MrDemonWolf/conpaws";
 const TEAM = "HBB7T99U79";
 const PACKAGE = "com.mrdemonwolf.conpaws";
 const ARCHIVES = path.join(os.homedir(), "Library/Developer/Xcode/Archives");
+const SIDECAR = "ConPawsShip.json";
 const APPLE_BUNDLES = [
   "",
   "PlugIns/ExpoWidgetsTarget.appex",
@@ -63,11 +68,13 @@ export const TRACKS = {
     testflight: {
       variant: "preview",
       internalOnly: true,
+      alias: "ship:testflight",
       label: "TestFlight, internal testers only",
     },
     public: {
       variant: "production",
       internalOnly: false,
+      alias: "ship:testflight:public",
       label:
         "App Store Connect: internal and external TestFlight groups, and App Store review",
     },
@@ -105,7 +112,8 @@ export function parseArgs(argv) {
     if (arg === "--track") options.track = rest[++index];
     else if (arg === "--dry-run") options.dryRun = true;
     else if (arg === "--yes") options.yes = true;
-    else if (arg === "--archive") options.archive = rest[++index];
+    else if (arg === "--archive")
+      options.archive = path.resolve(rest[++index] ?? "");
     else throw new Error(`Unknown option ${arg}.`);
   }
   options.track ??= platform === "ios" ? "testflight" : "internal";
@@ -123,44 +131,55 @@ export function parseArgs(argv) {
   return { ...options, trackConfig };
 }
 
+const GENERATED =
+  /^apps\/native\/targets\/(watch|watch-widget)\/Assets\.xcassets\//;
+
 /**
- * Uncommitted paths that matter. Prebuild regenerates the Watch targets'
- * asset catalogs (icon and accent colours) from the build variant, so they
- * differ from the committed copies after every preview or production
- * prebuild. They are derived output, not source changes, and do not count.
+ * Uncommitted paths that matter, from `git status --porcelain=v1 -z`.
+ * Prebuild regenerates the Watch targets' asset catalogs (icon and accent
+ * colours) from the build variant, so they differ from the committed copies
+ * after every preview or production prebuild; those are derived output. A
+ * rename or copy counts unless both of its paths are in those catalogs.
  */
-export function meaningfulChanges(porcelain) {
-  return porcelain
-    .split("\n")
-    .filter((line) => line.trim() !== "")
-    .filter(
-      (line) =>
-        !/(^|\/)apps\/native\/targets\/[^/]+\/Assets\.xcassets\//.test(
-          line.slice(3),
-        ),
-    );
+export function meaningfulChanges(porcelainZ) {
+  const tokens = porcelainZ.split("\0");
+  const changes = [];
+  for (let index = 0; index < tokens.length; index++) {
+    const entry = tokens[index];
+    if (!entry) continue;
+    const status = entry.slice(0, 2);
+    const paths = [entry.slice(3)];
+    if (/[RC]/.test(status)) paths.push(tokens[++index] ?? "");
+    if (!paths.every((file) => GENERATED.test(file))) changes.push(entry);
+  }
+  return changes;
 }
 
 /**
- * Release CI state from `gh variable list --json name,value`. A missing
- * variable is the normal "off" state; anything gh cannot answer counts as
+ * Release CI state from the repository and organization variable listings
+ * (`vars.NATIVE_RELEASE_ENABLED` in the workflow resolves both). A missing
+ * variable is the normal "off" state; anything that cannot be read counts as
  * unknown, and unknown refuses, because a wrong guess costs a build number.
  */
-export function releaseCiState({ ok, stdout, stderr }) {
-  if (!ok) return { active: null, reason: (stderr || "gh failed").trim() };
-  try {
-    const variable = JSON.parse(stdout).find(
-      (item) => item.name === "NATIVE_RELEASE_ENABLED",
-    );
-    return { active: variable?.value === "true", reason: "" };
-  } catch {
-    return { active: null, reason: "gh returned something that is not JSON" };
+export function releaseCiState(...listings) {
+  let active = false;
+  for (const { ok, stdout, stderr } of listings) {
+    if (!ok) return { active: null, reason: (stderr || "gh failed").trim() };
+    try {
+      const variable = JSON.parse(stdout).find(
+        (item) => item.name === "NATIVE_RELEASE_ENABLED",
+      );
+      if (variable?.value === "true") active = true;
+    } catch {
+      return { active: null, reason: "gh returned something that is not JSON" };
+    }
   }
+  return { active, reason: "" };
 }
 
 /** Every reason not to build or upload, worded as what to do about it. */
 export function guardProblems({
-  dirty,
+  tree,
   releaseCi,
   expectedVariant,
   generatedVariant,
@@ -175,7 +194,8 @@ export function guardProblems({
     problems.push(
       "Release CI is on (NATIVE_RELEASE_ENABLED=true). Store builds now go through Actions > Native release, which owns the build numbers.",
     );
-  if (dirty)
+  if (!tree.ok) problems.push(`Could not read git status (${tree.reason}).`);
+  else if (tree.changes.length)
     problems.push(
       "The working tree has changes. Commit them first, so the build matches a commit.",
     );
@@ -190,13 +210,38 @@ export function guardProblems({
   return problems;
 }
 
-/** The highest `uploadedBuildNumber` in an archive Info.plist rendered as XML. */
+/** Refuses an iOS build number App Store Connect already holds from this Mac. */
+export function uploadNumberProblem({ build, uploaded }) {
+  return build <= uploaded
+    ? `Build ${uploaded} was already uploaded from this Mac, so ${build} would be rejected. Bump: cd apps/native && bun run build-number:bump, commit, then prebuild.`
+    : null;
+}
+
+/** Every `uploadedBuildNumber` in an archive Info.plist rendered as XML. */
 export function uploadedBuildNumbers(xml) {
   return [
     ...xml.matchAll(
       /<key>uploadedBuildNumber<\/key>\s*<string>(\d+)<\/string>/g,
     ),
   ].map(([, value]) => Number(value));
+}
+
+/** Ties a reused archive to this script, the current commit and the track. */
+export function sidecarProblems({ sidecar, sha, variant, build }) {
+  if (!sidecar)
+    return [
+      `The archive has no ${SIDECAR}: only archives made by this script can be reused with --archive.`,
+    ];
+  const problems = [];
+  if (sidecar.sha !== sha)
+    problems.push(
+      `The archive was made from ${sidecar.sha}, not the current commit ${sha}.`,
+    );
+  if (sidecar.variant !== variant)
+    problems.push(`The archive is a ${sidecar.variant} build, not ${variant}.`);
+  if (Number(sidecar.build) !== Number(build))
+    problems.push(`The archive is build ${sidecar.build}, not ${build}.`);
+  return problems;
 }
 
 export function buildExportOptions({ track, dryRun }) {
@@ -260,11 +305,12 @@ export function archiveProblems({
   return problems;
 }
 
-/** Checks an Android bundle's bundled Expo config and signing certificate. */
+/** Checks an Android bundle's Expo config, signing key and native app ID. */
 export function bundleProblems({
   expoConfig,
   certificateSha256,
   expectedVariant,
+  gradle,
 }) {
   const problems = [];
   if (expoConfig?.extra?.appVariant !== expectedVariant)
@@ -275,11 +321,25 @@ export function bundleProblems({
     problems.push(
       `The bundle's package is "${expoConfig?.android?.package}", expected "${PACKAGE}".`,
     );
+  if (
+    !new RegExp(`applicationId ['"]${PACKAGE.replaceAll(".", "\\.")}['"]`).test(
+      gradle ?? "",
+    )
+  )
+    problems.push(
+      `android/app/build.gradle does not build ${PACKAGE} (a development prebuild?). Run: cd apps/native && APP_VARIANT=${expectedVariant} bun run prebuild`,
+    );
   if (certificateSha256 !== UPLOAD_CERT_SHA256)
     problems.push(
       "The bundle is not signed with the ConPaws upload key. Prebuild must pick up ~/.keystores/conpaws-signing.properties.",
     );
   return problems;
+}
+
+/** Local calendar day, matching how Xcode names its Archives folders. */
+export function localDay(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 // ---- Effects --------------------------------------------------------------
@@ -326,14 +386,32 @@ function buildNumber() {
   return Number(match[1]);
 }
 
+function headSha() {
+  return run("git", ["rev-parse", "--short", "HEAD"], {
+    quiet: true,
+  }).stdout.trim();
+}
+
+function treeState() {
+  const status = run("git", ["status", "--porcelain=v1", "-z"], {
+    quiet: true,
+  });
+  return status.ok
+    ? { ok: true, changes: meaningfulChanges(status.stdout) }
+    : {
+        ok: false,
+        reason: status.stderr.trim() || "git status failed",
+        changes: [],
+      };
+}
+
 function highestUploadedIosBuild() {
   if (!existsSync(ARCHIVES)) return 0;
   let highest = 0;
   for (const day of readdirSync(ARCHIVES)) {
-    const folder = path.join(ARCHIVES, day);
     let entries = [];
     try {
-      entries = readdirSync(folder);
+      entries = readdirSync(path.join(ARCHIVES, day));
     } catch {
       continue;
     }
@@ -342,8 +420,16 @@ function highestUploadedIosBuild() {
     )) {
       const xml = run(
         "plutil",
-        ["-convert", "xml1", "-o", "-", path.join(folder, name, "Info.plist")],
-        { quiet: true },
+        [
+          "-convert",
+          "xml1",
+          "-o",
+          "-",
+          path.join(ARCHIVES, day, name, "Info.plist"),
+        ],
+        {
+          quiet: true,
+        },
       );
       if (xml.ok)
         highest = Math.max(highest, ...uploadedBuildNumbers(xml.stdout));
@@ -354,33 +440,49 @@ function highestUploadedIosBuild() {
 
 function preflight(options) {
   const variant = options.trackConfig.variant;
+  const check = run("node", ["scripts/build-number.mjs", "--check"], {
+    quiet: true,
+    env: buildEnv(variant),
+  });
   const problems = guardProblems({
-    dirty:
-      meaningfulChanges(
-        run("git", ["status", "--porcelain"], { quiet: true }).stdout,
-      ).length > 0,
+    tree: treeState(),
     releaseCi: releaseCiState(
-      run("gh", ["variable", "list", "--json", "name,value"], { quiet: true }),
+      run(
+        "gh",
+        ["variable", "list", "--repo", REPO_SLUG, "--json", "name,value"],
+        { quiet: true },
+      ),
+      run(
+        "gh",
+        [
+          "api",
+          `repos/${REPO_SLUG}/actions/organization-variables`,
+          "--jq",
+          ".variables",
+        ],
+        {
+          quiet: true,
+        },
+      ),
     ),
     expectedVariant: variant,
     generatedVariant:
       options.platform === "ios"
         ? readPlist(path.join(APP, "ios/ConPaws/Info.plist"))
             ?.ConPawsBuildVariant
-        : variant, // Android checks the variant inside the built bundle instead.
-    buildNumberCheck: (() => {
-      const check = run("node", ["scripts/build-number.mjs", "--check"], {
-        quiet: true,
-        env: buildEnv(variant),
-      });
-      return { ok: check.ok, message: check.stderr || check.stdout };
-    })(),
+        : variant, // Android checks build.gradle and the built bundle instead.
+    buildNumberCheck: { ok: check.ok, message: check.stderr || check.stdout },
   });
-  if (options.platform === "ios" && !options.dryRun) {
-    const uploaded = highestUploadedIosBuild();
-    if (buildNumber() <= uploaded)
+  if (options.platform === "ios") {
+    // Dry runs too: a dry run should prove the number is still usable.
+    const numberProblem = uploadNumberProblem({
+      build: buildNumber(),
+      uploaded: highestUploadedIosBuild(),
+    });
+    if (numberProblem) problems.push(numberProblem);
+    if (!options.dryRun && !options.yes && !process.stdin.isTTY)
       problems.push(
-        `Build ${uploaded} was already uploaded from this Mac, so ${buildNumber()} would be rejected. Bump: cd apps/native && bun run build-number:bump, commit, then prebuild.`,
+        "Not a terminal, so the upload cannot be confirmed. Re-run in a terminal, or add --yes.",
       );
   }
   return problems;
@@ -388,12 +490,6 @@ function preflight(options) {
 
 async function confirm(question, yes) {
   if (yes) return true;
-  if (!process.stdin.isTTY) {
-    console.error(
-      "Not a terminal. Re-run with --yes to upload without asking.",
-    );
-    return false;
-  }
   const prompt = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -411,16 +507,26 @@ function fail(lines) {
 async function shipIos(options) {
   const { trackConfig: track } = options;
   const build = buildNumber();
-  const sha = run("git", ["rev-parse", "--short", "HEAD"], {
-    quiet: true,
-  }).stdout.trim();
+  const sha = headSha();
   let archive = options.archive;
-  if (!archive) {
-    const day = new Date().toISOString().slice(0, 10);
-    const stamp = new Date().toTimeString().slice(0, 5).replace(":", "");
+  if (archive) {
+    let sidecar = null;
+    try {
+      sidecar = JSON.parse(readFileSync(path.join(archive, SIDECAR), "utf8"));
+    } catch {}
+    const problems = sidecarProblems({
+      sidecar,
+      sha,
+      variant: track.variant,
+      build,
+    });
+    if (problems.length) fail(problems);
+  } else {
+    const now = new Date();
+    const stamp = `${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
     archive = path.join(
       ARCHIVES,
-      day,
+      localDay(now),
       `ConPaws ${build} ${track.variant} ${sha} ${stamp}.xcarchive`,
     );
     mkdirSync(path.dirname(archive), { recursive: true });
@@ -445,6 +551,10 @@ async function shipIos(options) {
       { env: buildEnv(track.variant) },
     );
     if (!archived.ok) fail("The archive failed; see the Xcode output above.");
+    writeFileSync(
+      path.join(archive, SIDECAR),
+      `${JSON.stringify({ sha, variant: track.variant, build }, null, 2)}\n`,
+    );
   }
   const appPath = path.join(archive, "Products/Applications/ConPaws.app");
   const bundles = APPLE_BUNDLES.map((relative) =>
@@ -468,14 +578,21 @@ async function shipIos(options) {
     `✓ Archive checked: ConPaws ${version} (${build}), ${track.variant}, 4 targets.`,
   );
 
-  if (
-    !options.dryRun &&
-    !(await confirm(
-      `Upload ConPaws ${version} (${build}) ${track.variant} to ${track.label}?`,
-      options.yes,
-    ))
-  )
-    fail("Not uploaded.");
+  if (!options.dryRun) {
+    // The archive takes minutes; make sure nothing moved under it.
+    const tree = treeState();
+    if (!tree.ok || tree.changes.length || headSha() !== sha)
+      fail(
+        "The working tree or commit changed while archiving. Commit, then run again.",
+      );
+    if (
+      !(await confirm(
+        `Upload ConPaws ${version} (${build}) ${track.variant} to ${track.label}?`,
+        options.yes,
+      ))
+    )
+      fail("Not uploaded.");
+  }
   const work = path.join(os.tmpdir(), `conpaws-export-${process.pid}`);
   mkdirSync(work, { recursive: true });
   const exportOptions = path.join(work, "ExportOptions.plist");
@@ -503,19 +620,17 @@ async function shipIos(options) {
       : `✓ Uploaded to ${track.label}. Apple processes it in about 10-30 minutes.`,
   );
   console.log(`Archive (keep it; its dSYMs symbolicate crashes): ${archive}`);
-  console.log(
-    `To upload this archive later: node scripts/ship-store.mjs ios --track ${options.track} --archive "${archive}"`,
-  );
+  if (options.dryRun)
+    console.log(
+      `To upload this archive: bun ${track.alias} --archive "${archive}"`,
+    );
 }
 
 function shipAndroid(options) {
   const { trackConfig: track } = options;
   const build = buildNumber();
-  const sha = run("git", ["rev-parse", "--short", "HEAD"], {
-    quiet: true,
-  }).stdout.trim();
   console.log(
-    `Building the Android bundle ${build} (${track.variant}, ${sha})…`,
+    `Building the Android bundle ${build} (${track.variant}, ${headSha()})…`,
   );
   const built = run(
     "./gradlew",
@@ -540,11 +655,11 @@ function shipAndroid(options) {
   const printed = run("keytool", ["-printcert", "-jarfile", aab], {
     quiet: true,
   }).stdout;
-  const certificateSha256 = printed.match(/SHA256:\s*([0-9A-F:]+)/)?.[1];
   const problems = bundleProblems({
     expoConfig,
-    certificateSha256,
+    certificateSha256: printed.match(/SHA256:\s*([0-9A-F:]+)/)?.[1],
     expectedVariant: track.variant,
+    gradle: readFileSync(path.join(APP, "android/app/build.gradle"), "utf8"),
   });
   if (problems.length) fail(problems);
   const version = expoConfig.version;
@@ -561,7 +676,7 @@ function shipAndroid(options) {
   console.log(`Upload it by hand to ${track.label}: ${track.console}`);
   console.log(`File: ${named}`);
   console.log(
-    "Google rejects a versionCode at or below the last one it accepted, on any track.",
+    "Google Play accepts each versionCode once across all tracks, so a preview and a production bundle need different build numbers.",
   );
 }
 
@@ -581,9 +696,7 @@ async function main() {
   else shipAndroid(options);
 }
 
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+const invoked = process.argv[1] ? realpathSync(process.argv[1]) : "";
+if (invoked === realpathSync(fileURLToPath(import.meta.url))) {
   main().catch((error) => fail(error.message));
 }
