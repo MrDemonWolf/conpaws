@@ -20,12 +20,19 @@ dependencies {
 }
 
 // Pure model/parser checks run on the JVM without Android or test libraries.
+// CI calls widgetModelCheck; it also runs the tracked-event checks.
 afterEvaluate {
-  tasks.register('widgetModelCheck', JavaExec) {
+  def checkClasspath = files("${buildDir}/tmp/kotlin-classes/debug", "${buildDir}/tmp/kotlin-classes/debugUnitTest") + configurations.debugUnitTestRuntimeClasspath.incoming.artifactView {
+    attributes.attribute(org.gradle.api.attributes.Attribute.of("artifactType", String), "jar")
+  }.files
+  def trackedEventCheck = tasks.register('trackedEventModelCheck', JavaExec) {
     dependsOn 'compileDebugUnitTestKotlin'
-    classpath = files("${buildDir}/tmp/kotlin-classes/debug", "${buildDir}/tmp/kotlin-classes/debugUnitTest") + configurations.debugUnitTestRuntimeClasspath.incoming.artifactView {
-      attributes.attribute(org.gradle.api.attributes.Attribute.of("artifactType", String), "jar")
-    }.files
+    classpath = checkClasspath
+    mainClass = 'expo.modules.conpawswidgets.ConPawsTrackedEventChecks'
+  }
+  tasks.register('widgetModelCheck', JavaExec) {
+    dependsOn 'compileDebugUnitTestKotlin', trackedEventCheck
+    classpath = checkClasspath
     mainClass = 'expo.modules.conpawswidgets.ConPawsWidgetModelChecks'
   }
 }

@@ -745,5 +745,39 @@
       "hour24": "24 ore · 19:00",
       "saveError": "Impossibile salvare il formato dell’ora. Riprova."
     }
+  },
+  "tracking": {
+    "track": "Segui evento",
+    "stop": "Smetti di seguire",
+    "badge": "Seguito",
+    "trackHint": "Mostra orario e sala di questo evento fuori dall’app finché non termina.",
+    "bannerTitle": "Stai seguendo {{title}}",
+    "stopAccessibility": "Smetti di seguire {{title}}",
+    "startedAnnouncement": "Ora stai seguendo {{title}}.",
+    "stoppedAnnouncement": "Hai smesso di seguire {{title}}.",
+    "replace": {
+      "title": "Seguire invece questo evento?",
+      "message": "ConPaws segue un solo evento alla volta. {{next}} sostituirà {{current}}.",
+      "confirm": "Segui questo"
+    },
+    "live": {
+      "startsIn": "Inizia tra",
+      "endsIn": "Finisce tra",
+      "now": "Ora",
+      "ended": "Terminato",
+      "stop": "Stop"
+    },
+    "permission": {
+      "notificationsTitle": "Le notifiche sono disattivate",
+      "notificationsMessage": "ConPaws ha bisogno dell’autorizzazione per inviare notifiche e mostrare l’evento che stai seguendo. Attiva le notifiche nelle Impostazioni, poi segui di nuovo l’evento.",
+      "liveActivitiesTitle": "Le Attività Live sono disattivate",
+      "liveActivitiesMessage": "Attiva le Attività Live per ConPaws nelle Impostazioni per vedere questo evento nella schermata di blocco."
+    },
+    "errorTitle": "Evento non seguito",
+    "errorMessage": "ConPaws non è riuscito a iniziare a seguire questo evento. Riprova.",
+    "channel": {
+      "name": "Evento seguito",
+      "description": "Mostra l’evento che hai scelto di seguire, con un pulsante Stop."
+    }
   }
 }

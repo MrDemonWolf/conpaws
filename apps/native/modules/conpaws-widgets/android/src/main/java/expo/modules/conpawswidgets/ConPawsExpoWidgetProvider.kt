@@ -19,11 +19,7 @@ open class ConPawsExpoWidgetProvider : ExpoWidgetsAppWidgetProvider("ConPawsWidg
     if (intent.action == "expo.modules.widgets.ACTION_WIDGET_INTERACTION" &&
       intent.getStringExtra("expo.modules.widgets.extra.SOURCE") == "ConPawsWidget" &&
       intent.getStringExtra("expo.modules.widgets.extra.TARGET") == "__expo_widgets_target_0") {
-      val launch = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
-      launch.action = "${context.packageName}.quick-action"
-      launch.putExtra(ConPawsQuickActionsStore.ACTION_ID, "schedule")
-      launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-      val pending = PendingIntent.getActivity(context, 7301, launch, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+      val pending = ConPawsAppLaunch.quickActionPendingIntent(context, "schedule", 7301) ?: return
       val options = if (Build.VERSION.SDK_INT >= 34) ActivityOptions.makeBasic().apply {
         if (Build.VERSION.SDK_INT >= 36) setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS)
         else {

@@ -182,6 +182,26 @@ export async function runScheduleImport({
     reportError(error, { scope: "schedule-import.reminders" });
   }
 
+  // A tracked event the feed dropped or tombstoned stops now, next to the
+  // reminder cancel above. The feed cannot say "cancelled" here, so both count
+  // as removed. Loaded lazily so this module, which the import tests load in
+  // plain Node, does not pull in the native presenters until it is needed.
+  const droppedEventIds = [
+    ...result.removedEventIds,
+    ...result.tombstonedEventIds,
+  ];
+  if (droppedEventIds.length > 0) {
+    try {
+      const { stopTrackingIfAffected } = await import(
+        "@/services/tracked-event"
+      );
+      await stopTrackingIfAffected({ eventIds: droppedEventIds }, "removed");
+    } catch (error) {
+      // The rows are already written; the next reconcile reads them and stops.
+      reportError(error, { scope: "schedule-import.tracked-event" });
+    }
+  }
+
   return {
     added: result.added,
     updated: result.updated,

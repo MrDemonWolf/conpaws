@@ -680,6 +680,40 @@
       "saveError": "无法保存时间格式，请重试。"
     }
   },
+  "tracking": {
+    "track": "追踪活动",
+    "stop": "停止追踪",
+    "badge": "追踪中",
+    "trackHint": "在活动结束前，在应用外持续显示这个活动的时间和地点。",
+    "bannerTitle": "正在追踪{{title}}",
+    "stopAccessibility": "停止追踪{{title}}",
+    "startedAnnouncement": "已开始追踪{{title}}。",
+    "stoppedAnnouncement": "已停止追踪{{title}}。",
+    "replace": {
+      "title": "改为追踪这个活动？",
+      "message": "ConPaws 一次只追踪一个活动。{{next}}将替换{{current}}。",
+      "confirm": "改为追踪"
+    },
+    "live": {
+      "startsIn": "距开始",
+      "endsIn": "距结束",
+      "now": "进行中",
+      "ended": "已结束",
+      "stop": "停止"
+    },
+    "permission": {
+      "notificationsTitle": "通知已关闭",
+      "notificationsMessage": "ConPaws 需要通知权限，才能显示你正在追踪的活动。请在“设置”中开启通知，然后重新追踪这个活动。",
+      "liveActivitiesTitle": "实时活动已关闭",
+      "liveActivitiesMessage": "请在“设置”中为 ConPaws 开启实时活动，以便在锁定屏幕上查看这个活动。"
+    },
+    "errorTitle": "未能追踪活动",
+    "errorMessage": "ConPaws 无法开始追踪这个活动。请重试。",
+    "channel": {
+      "name": "追踪的活动",
+      "description": "显示你选择追踪的那个活动，并附带“停止”按钮。"
+    }
+  },
   "catalog": {
     "title": "查找我的展会",
     "searchPlaceholder": "按名称或城市搜索",

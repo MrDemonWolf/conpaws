@@ -16,6 +16,7 @@ import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";
+import { TrackedEventBanner } from "@/components/TrackedEventBanner";
 import { Button, EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
@@ -379,6 +380,7 @@ export default function ScheduleScreen() {
               {/* Widget deep links land here, so this is where a user with
                   notifications revoked most needs to hear reminders are
                   paused. */}
+              <TrackedEventBanner />
               <ReminderNoticeBanner
                 notice={reminderNotice}
                 overflow={reminderOverflow}

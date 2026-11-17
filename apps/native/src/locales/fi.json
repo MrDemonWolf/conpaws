@@ -745,5 +745,39 @@
       "hour24": "24 tuntia · 19:00",
       "saveError": "Ajan esitysmuotoa ei voitu tallentaa. Yritä uudelleen."
     }
+  },
+  "tracking": {
+    "track": "Seuraa tapahtumaa",
+    "stop": "Lopeta seuraaminen",
+    "badge": "Seurataan",
+    "trackHint": "Pitää tapahtuman ajan ja salin näkyvissä sovelluksen ulkopuolella, kunnes se päättyy.",
+    "bannerTitle": "Seurataan: {{title}}",
+    "stopAccessibility": "Lopeta tapahtuman {{title}} seuraaminen",
+    "startedAnnouncement": "Seurataan nyt: {{title}}.",
+    "stoppedAnnouncement": "Seuraaminen lopetettu: {{title}}.",
+    "replace": {
+      "title": "Seurataanko tätä tapahtumaa?",
+      "message": "ConPaws seuraa yhtä tapahtumaa kerrallaan. {{next}} korvaa tapahtuman {{current}}.",
+      "confirm": "Seuraa tätä"
+    },
+    "live": {
+      "startsIn": "Alkuun",
+      "endsIn": "Loppuun",
+      "now": "Nyt",
+      "ended": "Päättynyt",
+      "stop": "Lopeta"
+    },
+    "permission": {
+      "notificationsTitle": "Ilmoitukset ovat pois päältä",
+      "notificationsMessage": "ConPaws tarvitsee luvan ilmoitusten lähettämiseen, jotta se voi näyttää seuraamasi tapahtuman. Ota ilmoitukset käyttöön Asetuksissa ja seuraa tapahtumaa uudelleen.",
+      "liveActivitiesTitle": "Live-toiminnot ovat pois päältä",
+      "liveActivitiesMessage": "Ota ConPawsin Live-toiminnot käyttöön Asetuksissa, niin näet tapahtuman lukitusnäytöllä."
+    },
+    "errorTitle": "Tapahtumaa ei seurata",
+    "errorMessage": "ConPaws ei voinut aloittaa tämän tapahtuman seuraamista. Yritä uudelleen.",
+    "channel": {
+      "name": "Seurattu tapahtuma",
+      "description": "Näyttää seurattavaksi valitsemasi tapahtuman ja Lopeta-painikkeen."
+    }
   }
 }

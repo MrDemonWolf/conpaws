@@ -47,6 +47,7 @@ import { AgendaRow } from "@/components/schedule/AgendaRow";
 import { DropInRow } from "@/components/schedule/DropInRow";
 import type { NowHeroCardProps } from "@/components/schedule/NowHeroCard";
 import type { ScheduleView } from "@/components/schedule/ScheduleViewSwitcher.types";
+import { TrackedEventBanner } from "@/components/TrackedEventBanner";
 import {
   Banner,
   EmptyState,
@@ -956,6 +957,7 @@ export default function ConventionDetailScreen() {
           }}
         />
       ) : null}
+      <TrackedEventBanner conventionId={id} />
       <ReminderNoticeBanner
         notice={reminderNotice}
         overflow={reminderOverflow}

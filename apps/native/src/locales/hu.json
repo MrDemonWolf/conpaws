@@ -745,5 +745,39 @@
       "hour24": "24 órás · 19:00",
       "saveError": "Nem sikerült menteni az időformátumot. Próbáld újra."
     }
+  },
+  "tracking": {
+    "track": "Esemény követése",
+    "stop": "Követés leállítása",
+    "badge": "Követve",
+    "trackHint": "Az alkalmazáson kívül is mutatja az esemény idejét és termét, amíg véget nem ér.",
+    "bannerTitle": "Követve: {{title}}",
+    "stopAccessibility": "Követés leállítása: {{title}}",
+    "startedAnnouncement": "Mostantól követed: {{title}}.",
+    "stoppedAnnouncement": "Követés leállítva: {{title}}.",
+    "replace": {
+      "title": "Inkább ezt az eseményt követnéd?",
+      "message": "A ConPaws egyszerre egy eseményt követ. {{next}} lép ennek a helyére: {{current}}.",
+      "confirm": "Inkább ezt"
+    },
+    "live": {
+      "startsIn": "Kezdésig",
+      "endsIn": "Végéig",
+      "now": "Most",
+      "ended": "Véget ért",
+      "stop": "Leállítás"
+    },
+    "permission": {
+      "notificationsTitle": "Az értesítések ki vannak kapcsolva",
+      "notificationsMessage": "A ConPawsnak értesítési engedélyre van szüksége, hogy megmutassa a követett eseményt. Kapcsold be az értesítéseket a Beállításokban, majd kövesd újra az eseményt.",
+      "liveActivitiesTitle": "Az Élő tevékenységek ki vannak kapcsolva",
+      "liveActivitiesMessage": "Kapcsold be a ConPaws Élő tevékenységeit a Beállításokban, hogy ez az esemény megjelenjen a zárolási képernyőn."
+    },
+    "errorTitle": "Az esemény követése nem indult el",
+    "errorMessage": "A ConPaws nem tudta elkezdeni az esemény követését. Próbáld újra.",
+    "channel": {
+      "name": "Követett esemény",
+      "description": "Megmutatja az egy eseményt, amelyet követni választottál, egy Leállítás gombbal."
+    }
   }
 }

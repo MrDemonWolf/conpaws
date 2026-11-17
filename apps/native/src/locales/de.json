@@ -745,5 +745,39 @@
       "hour24": "24 Stunden · 19:00",
       "saveError": "Dein Zeitformat konnte nicht gespeichert werden. Versuche es erneut."
     }
+  },
+  "tracking": {
+    "track": "Event verfolgen",
+    "stop": "Nicht mehr verfolgen",
+    "badge": "Verfolgt",
+    "trackHint": "Zeigt Uhrzeit und Raum dieses Events außerhalb der App an, bis es endet.",
+    "bannerTitle": "{{title}} wird verfolgt",
+    "stopAccessibility": "{{title}} nicht mehr verfolgen",
+    "startedAnnouncement": "{{title}} wird jetzt verfolgt.",
+    "stoppedAnnouncement": "{{title}} wird nicht mehr verfolgt.",
+    "replace": {
+      "title": "Stattdessen dieses Event verfolgen?",
+      "message": "ConPaws verfolgt immer nur ein Event. {{next}} ersetzt {{current}}.",
+      "confirm": "Stattdessen verfolgen"
+    },
+    "live": {
+      "startsIn": "Beginnt in",
+      "endsIn": "Endet in",
+      "now": "Jetzt",
+      "ended": "Beendet",
+      "stop": "Stopp"
+    },
+    "permission": {
+      "notificationsTitle": "Mitteilungen sind aus",
+      "notificationsMessage": "ConPaws benötigt die Berechtigung für Mitteilungen, um das verfolgte Event anzuzeigen. Aktiviere sie in den Einstellungen und verfolge das Event dann erneut.",
+      "liveActivitiesTitle": "Live-Aktivitäten sind aus",
+      "liveActivitiesMessage": "Aktiviere Live-Aktivitäten für ConPaws in den Einstellungen, um dieses Event auf dem Sperrbildschirm zu sehen."
+    },
+    "errorTitle": "Event nicht verfolgt",
+    "errorMessage": "ConPaws konnte das Verfolgen dieses Events nicht starten. Versuche es erneut.",
+    "channel": {
+      "name": "Verfolgtes Event",
+      "description": "Zeigt das eine Event, das du verfolgst, mit einer Stopp-Taste."
+    }
   }
 }

@@ -7,5 +7,6 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".ConPawsTrackedEventReceiver" android:exported="false" />
     </application>
 </manifest>

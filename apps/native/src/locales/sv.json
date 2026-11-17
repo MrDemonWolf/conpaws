@@ -680,6 +680,40 @@
       "saveError": "Kunde inte spara tidsformatet. Försök igen."
     }
   },
+  "tracking": {
+    "track": "Följ evenemang",
+    "stop": "Sluta följa",
+    "badge": "Följs",
+    "trackHint": "Visar tid och lokal för det här evenemanget utanför appen tills det är slut.",
+    "bannerTitle": "Följer {{title}}",
+    "stopAccessibility": "Sluta följa {{title}}",
+    "startedAnnouncement": "Följer nu {{title}}.",
+    "stoppedAnnouncement": "Slutade följa {{title}}.",
+    "replace": {
+      "title": "Följa det här evenemanget i stället?",
+      "message": "ConPaws följer ett evenemang i taget. {{next}} ersätter {{current}}.",
+      "confirm": "Följ i stället"
+    },
+    "live": {
+      "startsIn": "Börjar om",
+      "endsIn": "Slutar om",
+      "now": "Nu",
+      "ended": "Slut",
+      "stop": "Stoppa"
+    },
+    "permission": {
+      "notificationsTitle": "Notiser är avstängda",
+      "notificationsMessage": "ConPaws behöver tillåtelse att skicka notiser för att visa evenemanget du följer. Slå på notiser i Inställningar och följ sedan evenemanget igen.",
+      "liveActivitiesTitle": "Live-aktiviteter är avstängda",
+      "liveActivitiesMessage": "Slå på Live-aktiviteter för ConPaws i Inställningar för att se evenemanget på låsskärmen."
+    },
+    "errorTitle": "Evenemanget följs inte",
+    "errorMessage": "ConPaws kunde inte börja följa det här evenemanget. Försök igen.",
+    "channel": {
+      "name": "Följt evenemang",
+      "description": "Visar det evenemang du valt att följa, med en stoppknapp."
+    }
+  },
   "catalog": {
     "title": "Hitta ditt konvent",
     "searchPlaceholder": "Sök efter namn eller stad",

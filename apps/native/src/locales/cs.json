@@ -762,5 +762,39 @@
       "hour24": "24hodinový · 19:00",
       "saveError": "Nepodařilo se uložit formát času. Zkus to znovu."
     }
+  },
+  "tracking": {
+    "track": "Sledovat událost",
+    "stop": "Přestat sledovat",
+    "badge": "Sledováno",
+    "trackHint": "Zobrazuje čas a místnost této události mimo aplikaci, dokud neskončí.",
+    "bannerTitle": "Sledujete: {{title}}",
+    "stopAccessibility": "Přestat sledovat {{title}}",
+    "startedAnnouncement": "Nyní sledujete: {{title}}.",
+    "stoppedAnnouncement": "Sledování skončilo: {{title}}.",
+    "replace": {
+      "title": "Sledovat místo toho tuto událost?",
+      "message": "ConPaws sleduje vždy jen jednu událost. {{next}} nahradí {{current}}.",
+      "confirm": "Sledovat tuto"
+    },
+    "live": {
+      "startsIn": "Začíná za",
+      "endsIn": "Končí za",
+      "now": "Teď",
+      "ended": "Skončilo",
+      "stop": "Zastavit"
+    },
+    "permission": {
+      "notificationsTitle": "Oznámení jsou vypnutá",
+      "notificationsMessage": "ConPaws potřebuje oprávnění k oznámením, aby mohl zobrazit sledovanou událost. Zapněte oznámení v Nastavení a pak událost sledujte znovu.",
+      "liveActivitiesTitle": "Živé aktivity jsou vypnuté",
+      "liveActivitiesMessage": "Zapněte živé aktivity pro ConPaws v Nastavení, abyste tuto událost viděli na zamčené obrazovce."
+    },
+    "errorTitle": "Událost se nesleduje",
+    "errorMessage": "ConPaws nedokázal začít sledovat tuto událost. Zkuste to znovu.",
+    "channel": {
+      "name": "Sledovaná událost",
+      "description": "Zobrazuje jednu událost, kterou jste se rozhodli sledovat, s tlačítkem Zastavit."
+    }
   }
 }

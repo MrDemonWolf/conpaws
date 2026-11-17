@@ -745,5 +745,39 @@
       "hour24": "24-hour · 19:00",
       "saveError": "Could not save your time format. Try again."
     }
+  },
+  "tracking": {
+    "track": "Track event",
+    "stop": "Stop tracking",
+    "badge": "Tracking",
+    "trackHint": "Keeps this event's time and room visible outside the app until it ends.",
+    "bannerTitle": "Tracking {{title}}",
+    "stopAccessibility": "Stop tracking {{title}}",
+    "startedAnnouncement": "Now tracking {{title}}.",
+    "stoppedAnnouncement": "Stopped tracking {{title}}.",
+    "replace": {
+      "title": "Track this event instead?",
+      "message": "ConPaws tracks one event at a time. {{next}} will replace {{current}}.",
+      "confirm": "Track instead"
+    },
+    "live": {
+      "startsIn": "Starts in",
+      "endsIn": "Ends in",
+      "now": "Now",
+      "ended": "Ended",
+      "stop": "Stop"
+    },
+    "permission": {
+      "notificationsTitle": "Notifications are off",
+      "notificationsMessage": "ConPaws needs notification permission to show the event you're tracking. Turn it on in Settings, then track the event again.",
+      "liveActivitiesTitle": "Live Activities are off",
+      "liveActivitiesMessage": "Turn on Live Activities for ConPaws in Settings to see this event on your Lock Screen."
+    },
+    "errorTitle": "Event not tracked",
+    "errorMessage": "ConPaws could not start tracking this event. Try again.",
+    "channel": {
+      "name": "Tracked event",
+      "description": "Shows the one event you chose to track, with a Stop button."
+    }
   }
 }

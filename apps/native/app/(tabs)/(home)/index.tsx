@@ -43,6 +43,7 @@ import {
   conventionRowActions,
 } from "@/lib/convention-row-actions";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { reportError } from "@/lib/error-reporting";
 import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -52,6 +53,7 @@ import {
 import { addPreviewConventions } from "@/lib/preview-convention";
 import { clearScheduleRefreshState } from "@/lib/schedule-refresh-storage";
 import { cancelConventionReminders } from "@/services/notifications";
+import { stopTrackingIfAffected } from "@/services/tracked-event";
 
 const EMPTY_ICON = Icon.select({
   ios: "calendar.badge.plus",
@@ -205,6 +207,11 @@ export default function HomeScreen() {
         .invalidateQueries({ queryKey: ["conventions"] })
         .catch(() => undefined);
       await cancelConventionReminders(eventIds);
+      // The convention is already gone, so a failure here must not skip the
+      // bookkeeping below; the next reconcile finds no row and stops it.
+      await stopTrackingIfAffected({ conventionId: id }, "deleted").catch(
+        (error) => reportError(error, { scope: "trackedEvent.deleted" }),
+      );
       // The feed bookkeeping is keyed by convention id, so without this a
       // deleted convention leaves its "last checked" behind for a future id
       // to inherit.
@@ -223,6 +230,11 @@ export default function HomeScreen() {
       const eventIds = await eventsRepo.getIdsByConventionId(id);
       await conventionsRepo.archive(id);
       await cancelConventionReminders(eventIds);
+      // Archived already succeeded; reporting rather than throwing keeps the
+      // "could not archive" alert honest. The next reconcile sees archivedAt.
+      await stopTrackingIfAffected({ conventionId: id }, "archived").catch(
+        (error) => reportError(error, { scope: "trackedEvent.archived" }),
+      );
     },
     onSuccess: async (_, id) => {
       const convention = conventions.find((item) => item.id === id);

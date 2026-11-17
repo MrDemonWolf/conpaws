@@ -22,6 +22,7 @@ import {
   type ConventionPreviewState,
   developerDiagnosticsEnabled,
 } from "@/lib/developer-tools";
+import { reportError } from "@/lib/error-reporting";
 import { resetOnboarding } from "@/lib/onboarding-storage";
 import {
   resetPresentationLock,
@@ -41,6 +42,7 @@ import {
   type PermissionStatus,
   scheduleTestNotification,
 } from "@/services/notifications";
+import { reconcileTrackedEvent } from "@/services/tracked-event";
 
 export default function DebugScreen() {
   const queryClient = useQueryClient();
@@ -123,6 +125,11 @@ export default function DebugScreen() {
       if (!installed) {
         resetPresentationLock(presentationLock);
       } else {
+        // Preview event ids are reused with reset content, so a tracked
+        // preview event can come back unsaved or moved under the same id.
+        void reconcileTrackedEvent().catch((error) => {
+          reportError(error, { scope: "debug.reconcileTrackedEvent" });
+        });
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["conventions"] }),
           queryClient.invalidateQueries({ queryKey: ["convention"] }),

@@ -2,7 +2,10 @@
   "platforms": ["apple", "android"],
   "apple": {
     "modules": ["ConPawsWidgetsModule", "ConPawsQuickActionsModule"],
-    "appDelegateSubscribers": ["ConPawsQuickActionsSubscriber"]
+    "appDelegateSubscribers": [
+      "ConPawsQuickActionsSubscriber",
+      "ConPawsTrackedEventSubscriber"
+    ]
   },
   "android": {
     "modules": [

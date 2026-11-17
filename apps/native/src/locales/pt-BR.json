@@ -680,6 +680,40 @@
       "saveError": "Não foi possível salvar o formato de hora. Tente novamente."
     }
   },
+  "tracking": {
+    "track": "Acompanhar evento",
+    "stop": "Parar de acompanhar",
+    "badge": "Acompanhando",
+    "trackHint": "Mantém o horário e a sala deste evento visíveis fora do app até ele terminar.",
+    "bannerTitle": "Acompanhando {{title}}",
+    "stopAccessibility": "Parar de acompanhar {{title}}",
+    "startedAnnouncement": "Agora acompanhando {{title}}.",
+    "stoppedAnnouncement": "Parou de acompanhar {{title}}.",
+    "replace": {
+      "title": "Acompanhar este evento?",
+      "message": "O ConPaws acompanha um evento por vez. {{next}} vai substituir {{current}}.",
+      "confirm": "Acompanhar este"
+    },
+    "live": {
+      "startsIn": "Começa em",
+      "endsIn": "Termina em",
+      "now": "Agora",
+      "ended": "Encerrado",
+      "stop": "Parar"
+    },
+    "permission": {
+      "notificationsTitle": "As notificações estão desativadas",
+      "notificationsMessage": "O ConPaws precisa de permissão para enviar notificações e mostrar o evento que você está acompanhando. Ative-as em Configurações e acompanhe o evento novamente.",
+      "liveActivitiesTitle": "As Atividades ao Vivo estão desativadas",
+      "liveActivitiesMessage": "Ative as Atividades ao Vivo do ConPaws em Configurações para ver este evento na Tela Bloqueada."
+    },
+    "errorTitle": "Evento não acompanhado",
+    "errorMessage": "O ConPaws não conseguiu começar a acompanhar este evento. Tente novamente.",
+    "channel": {
+      "name": "Evento acompanhado",
+      "description": "Mostra o evento que você escolheu acompanhar, com um botão Parar."
+    }
+  },
   "catalog": {
     "title": "Encontre sua convenção",
     "searchPlaceholder": "Busque por nome ou cidade",

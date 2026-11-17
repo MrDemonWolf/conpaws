@@ -745,5 +745,39 @@
       "hour24": "24 timer · 19:00",
       "saveError": "Tidsformatet kunne ikke gemmes. Prøv igen."
     }
+  },
+  "tracking": {
+    "track": "Følg begivenhed",
+    "stop": "Stop med at følge",
+    "badge": "Følges",
+    "trackHint": "Viser tid og lokale for denne begivenhed uden for appen, indtil den slutter.",
+    "bannerTitle": "Følger {{title}}",
+    "stopAccessibility": "Stop med at følge {{title}}",
+    "startedAnnouncement": "Følger nu {{title}}.",
+    "stoppedAnnouncement": "Følger ikke længere {{title}}.",
+    "replace": {
+      "title": "Følg denne begivenhed i stedet?",
+      "message": "ConPaws følger én begivenhed ad gangen. {{next}} erstatter {{current}}.",
+      "confirm": "Følg i stedet"
+    },
+    "live": {
+      "startsIn": "Starter om",
+      "endsIn": "Slutter om",
+      "now": "Nu",
+      "ended": "Slut",
+      "stop": "Stop"
+    },
+    "permission": {
+      "notificationsTitle": "Notifikationer er slået fra",
+      "notificationsMessage": "ConPaws skal have tilladelse til at sende notifikationer for at vise den begivenhed, du følger. Slå notifikationer til i Indstillinger, og følg begivenheden igen.",
+      "liveActivitiesTitle": "Live-aktiviteter er slået fra",
+      "liveActivitiesMessage": "Slå Live-aktiviteter til for ConPaws i Indstillinger for at se begivenheden på låseskærmen."
+    },
+    "errorTitle": "Begivenheden følges ikke",
+    "errorMessage": "ConPaws kunne ikke begynde at følge denne begivenhed. Prøv igen.",
+    "channel": {
+      "name": "Fulgt begivenhed",
+      "description": "Viser den ene begivenhed, du har valgt at følge, med en Stop-knap."
+    }
   }
 }

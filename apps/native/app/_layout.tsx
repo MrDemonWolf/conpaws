@@ -124,6 +124,7 @@ import {
   subscribeToQuickActions,
   updateQuickActionLabels,
 } from "@/services/quick-actions";
+import { initTrackedEvent } from "@/services/tracked-event";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
@@ -315,6 +316,15 @@ function RootLayout() {
     void publishWidgetSnapshot().catch((error) => {
       reportError(error, { scope: "bootstrap.publishWidgetSnapshot" });
     });
+  }, [ready, translationsReady, databaseInitError]);
+
+  // Same gate as the reminder and widget launch work: tracking reads event
+  // rows and translated labels. Reconciling is already driven from
+  // publishWidgetSnapshot, so this only loads the selection and listens for a
+  // Stop pressed on the Live Activity or notification while the app is alive.
+  useEffect(() => {
+    if (!ready || !translationsReady || databaseInitError) return;
+    return initTrackedEvent();
   }, [ready, translationsReady, databaseInitError]);
 
   useEffect(() => {

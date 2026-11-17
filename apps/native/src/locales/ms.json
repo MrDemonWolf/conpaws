@@ -680,6 +680,40 @@
       "saveError": "Tidak dapat menyimpan format masa. Cuba lagi."
     }
   },
+  "tracking": {
+    "track": "Jejak acara",
+    "stop": "Berhenti menjejak",
+    "badge": "Dijejak",
+    "trackHint": "Memaparkan masa dan bilik acara ini di luar aplikasi sehingga ia tamat.",
+    "bannerTitle": "Menjejak {{title}}",
+    "stopAccessibility": "Berhenti menjejak {{title}}",
+    "startedAnnouncement": "Kini menjejak {{title}}.",
+    "stoppedAnnouncement": "Berhenti menjejak {{title}}.",
+    "replace": {
+      "title": "Jejak acara ini sebaliknya?",
+      "message": "ConPaws menjejak satu acara pada satu masa. {{next}} akan menggantikan {{current}}.",
+      "confirm": "Jejak yang ini"
+    },
+    "live": {
+      "startsIn": "Bermula dalam",
+      "endsIn": "Tamat dalam",
+      "now": "Sekarang",
+      "ended": "Tamat",
+      "stop": "Henti"
+    },
+    "permission": {
+      "notificationsTitle": "Pemberitahuan dimatikan",
+      "notificationsMessage": "ConPaws memerlukan kebenaran untuk menghantar pemberitahuan supaya dapat memaparkan acara yang anda jejak. Hidupkan pemberitahuan dalam Tetapan, kemudian jejak acara itu semula.",
+      "liveActivitiesTitle": "Aktiviti Langsung dimatikan",
+      "liveActivitiesMessage": "Hidupkan Aktiviti Langsung untuk ConPaws dalam Tetapan untuk melihat acara ini pada Skrin Kunci anda."
+    },
+    "errorTitle": "Acara tidak dijejak",
+    "errorMessage": "ConPaws tidak dapat mula menjejak acara ini. Cuba lagi.",
+    "channel": {
+      "name": "Acara dijejak",
+      "description": "Memaparkan satu acara yang anda pilih untuk dijejak, dengan butang Henti."
+    }
+  },
   "catalog": {
     "title": "Cari konvensyen saya",
     "searchPlaceholder": "Cari mengikut nama atau bandar",

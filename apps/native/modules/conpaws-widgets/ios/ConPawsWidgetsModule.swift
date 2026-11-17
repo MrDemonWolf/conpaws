@@ -106,6 +106,12 @@ public class ConPawsWidgetsModule: Module {
       ConPawsQuickActions.consume()
     }
 
+    // Set natively when the tracked event's Live Activity Stop button is
+    // pressed, even with the app closed; JS reads it on its next reconcile.
+    Function("consumePendingTrackedEventStop") { () -> Bool in
+      ConPawsTrackedEventStop.consumePending()
+    }
+
     Function("getWidgetStrings") { (localeIdentifier: String) -> [String: Any]? in
       let strings = ConPawsStrings.resolve(localeIdentifier)
       guard let data = try? JSONEncoder().encode(strings) else { return nil }

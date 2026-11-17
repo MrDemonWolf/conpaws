@@ -298,8 +298,36 @@ export function publishWidgetSnapshot(): Promise<boolean> {
   return pendingRepublish;
 }
 
+/**
+ * Every point that republishes the widgets (launch, foreground, mutations,
+ * imports, refreshes, language and clock changes) is also when a tracked event
+ * may have ended, been unsaved or need new labels. It runs whether or not the
+ * publication worked, so a widget fault cannot leave a finished event tracked,
+ * and fire-and-forget so the publication's result and timing stay its own.
+ */
+function reconcileTrackedEventAfterPublish(): void {
+  void import("./tracked-event")
+    .then(({ reconcileTrackedEvent }) => reconcileTrackedEvent())
+    .catch((error: unknown) =>
+      import("@/lib/error-reporting").then(({ reportError }) =>
+        reportError(error, { scope: "tracked-event.reconcile" }),
+      ),
+    )
+    .catch(() => undefined);
+}
+
 async function buildAndPublishSnapshot(): Promise<boolean> {
   if (!nativeWidgetModule) return false;
+  try {
+    return await buildSnapshotAndPublish(nativeWidgetModule);
+  } finally {
+    reconcileTrackedEventAfterPublish();
+  }
+}
+
+async function buildSnapshotAndPublish(
+  nativeWidgetModule: NativeWidgetModule,
+): Promise<boolean> {
   const conventions = await conventionsRepo.getAll();
   const eventEntries = await Promise.all(
     conventions.map(

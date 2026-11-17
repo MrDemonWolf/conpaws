@@ -680,6 +680,40 @@
       "saveError": "Je tijdnotatie kon niet worden opgeslagen. Probeer het opnieuw."
     }
   },
+  "tracking": {
+    "track": "Evenement volgen",
+    "stop": "Stoppen met volgen",
+    "badge": "Gevolgd",
+    "trackHint": "Houdt de tijd en zaal van dit evenement buiten de app zichtbaar tot het afloopt.",
+    "bannerTitle": "{{title}} wordt gevolgd",
+    "stopAccessibility": "Stoppen met volgen van {{title}}",
+    "startedAnnouncement": "{{title}} wordt nu gevolgd.",
+    "stoppedAnnouncement": "{{title}} wordt niet meer gevolgd.",
+    "replace": {
+      "title": "Dit evenement volgen?",
+      "message": "ConPaws volgt één evenement tegelijk. {{next}} vervangt {{current}}.",
+      "confirm": "Dit volgen"
+    },
+    "live": {
+      "startsIn": "Begint over",
+      "endsIn": "Eindigt over",
+      "now": "Nu",
+      "ended": "Afgelopen",
+      "stop": "Stop"
+    },
+    "permission": {
+      "notificationsTitle": "Meldingen staan uit",
+      "notificationsMessage": "ConPaws heeft toestemming nodig om meldingen te sturen, zodat je het gevolgde evenement kunt zien. Zet meldingen aan in Instellingen en volg het evenement opnieuw.",
+      "liveActivitiesTitle": "Live Activities staan uit",
+      "liveActivitiesMessage": "Zet Live Activities voor ConPaws aan in Instellingen om dit evenement op je toegangsscherm te zien."
+    },
+    "errorTitle": "Evenement niet gevolgd",
+    "errorMessage": "ConPaws kon dit evenement niet gaan volgen. Probeer het opnieuw.",
+    "channel": {
+      "name": "Gevolgd evenement",
+      "description": "Toont het ene evenement dat je volgt, met een stopknop."
+    }
+  },
   "catalog": {
     "title": "Mijn conventie vinden",
     "searchPlaceholder": "Zoek op naam of stad",

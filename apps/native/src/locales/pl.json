@@ -694,6 +694,40 @@
       "saveError": "Nie udało się zapisać formatu czasu. Spróbuj ponownie."
     }
   },
+  "tracking": {
+    "track": "Śledź wydarzenie",
+    "stop": "Przestań śledzić",
+    "badge": "Śledzone",
+    "trackHint": "Pokazuje godzinę i salę tego wydarzenia poza aplikacją, dopóki się nie skończy.",
+    "bannerTitle": "Śledzisz: {{title}}",
+    "stopAccessibility": "Przestań śledzić: {{title}}",
+    "startedAnnouncement": "Śledzisz teraz: {{title}}.",
+    "stoppedAnnouncement": "Zakończono śledzenie: {{title}}.",
+    "replace": {
+      "title": "Śledzić zamiast tego to wydarzenie?",
+      "message": "ConPaws śledzi jedno wydarzenie naraz. {{next}} zastąpi {{current}}.",
+      "confirm": "Śledź to"
+    },
+    "live": {
+      "startsIn": "Zaczyna się za",
+      "endsIn": "Kończy się za",
+      "now": "Teraz",
+      "ended": "Zakończone",
+      "stop": "Zatrzymaj"
+    },
+    "permission": {
+      "notificationsTitle": "Powiadomienia są wyłączone",
+      "notificationsMessage": "ConPaws potrzebuje uprawnień do wysyłania powiadomień, aby pokazać śledzone wydarzenie. Włącz powiadomienia w Ustawieniach, a potem ponownie zacznij śledzić wydarzenie.",
+      "liveActivitiesTitle": "Aktywności na żywo są wyłączone",
+      "liveActivitiesMessage": "Włącz Aktywności na żywo dla ConPaws w Ustawieniach, aby widzieć to wydarzenie na ekranie blokady."
+    },
+    "errorTitle": "Nie śledzisz wydarzenia",
+    "errorMessage": "ConPaws nie mógł zacząć śledzić tego wydarzenia. Spróbuj ponownie.",
+    "channel": {
+      "name": "Śledzone wydarzenie",
+      "description": "Pokazuje jedno wybrane przez Ciebie wydarzenie z przyciskiem Zatrzymaj."
+    }
+  },
   "catalog": {
     "title": "Znajdź mój konwent",
     "searchPlaceholder": "Szukaj po nazwie lub mieście",

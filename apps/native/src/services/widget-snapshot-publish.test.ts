@@ -15,6 +15,10 @@ vi.mock("@/lib/appearance-storage", () => ({
   getAppearancePreference: () => "system",
 }));
 vi.mock("./widget-publication", () => ({ publishPhoneWidget }));
+const reconcileTrackedEvent = vi.fn(async () => {});
+vi.mock("./tracked-event", () => ({ reconcileTrackedEvent }));
+const reportError = vi.fn();
+vi.mock("@/lib/error-reporting", () => ({ reportError }));
 vi.mock("@/db/repositories/conventions", () => ({ getAll }));
 vi.mock("@/db/repositories/events", () => ({
   getByConventionId: vi.fn(async () => []),
@@ -81,6 +85,31 @@ describe("publishWidgetSnapshot", () => {
     expect(maxInFlight).toBe(1);
     expect(getAll).toHaveBeenCalledTimes(2);
     expect(publishSnapshot).toHaveBeenCalledTimes(2);
+  });
+
+  it("reconciles the tracked event without waiting on it or failing with it", async () => {
+    reconcileTrackedEvent.mockClear();
+    reconcileTrackedEvent.mockImplementationOnce(
+      () => new Promise<void>((_resolve, reject) => reject(new Error("db"))),
+    );
+    getAll.mockResolvedValueOnce([]);
+    await expect(publishWidgetSnapshot()).resolves.toBe(true);
+    await vi.waitFor(() =>
+      expect(reportError).toHaveBeenCalledWith(expect.any(Error), {
+        scope: "tracked-event.reconcile",
+      }),
+    );
+    expect(reconcileTrackedEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it("still reconciles the tracked event when the publication fails", async () => {
+    // A widget fault must not leave a finished or cancelled event tracked.
+    reconcileTrackedEvent.mockClear();
+    getAll.mockRejectedValueOnce(new Error("database is closed"));
+    await expect(publishWidgetSnapshot()).rejects.toThrow("database is closed");
+    await vi.waitFor(() =>
+      expect(reconcileTrackedEvent).toHaveBeenCalledTimes(1),
+    );
   });
 
   it("recovers after a failed build", async () => {

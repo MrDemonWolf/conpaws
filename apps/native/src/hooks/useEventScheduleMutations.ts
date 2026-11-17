@@ -4,6 +4,7 @@ import { AccessibilityInfo, Alert, Linking } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { hasVisit, isValidVisit, plannedEvent } from "@/lib/drop-in-visit";
+import { reportError } from "@/lib/error-reporting";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { removeDropInVisit } from "@/services/drop-in-visit";
 import { hapticToggle } from "@/services/haptics";
@@ -12,6 +13,7 @@ import {
   getNotificationPermissionStatus,
   scheduleEventReminder,
 } from "@/services/notifications";
+import { stopTrackingIfAffected } from "@/services/tracked-event";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /** Why a reminder could not be set, so each cause gets its own message. */
@@ -28,6 +30,22 @@ class ReminderError extends Error {
   constructor(failure: ReminderFailure) {
     super(failure);
     this.failure = failure;
+  }
+}
+
+/**
+ * An event taken off the schedule stops being tracked straight away, rather
+ * than at the next reconcile. The schedule write has already succeeded by the
+ * time this runs, so a failure here is reported instead of failing the
+ * mutation; the reconcile that follows every successful mutation still
+ * catches it, because the row now reads as unsaved.
+ */
+async function stopTrackingUnsaved(eventIds: readonly string[]) {
+  if (eventIds.length === 0) return;
+  try {
+    await stopTrackingIfAffected({ eventIds }, "unsaved");
+  } catch (error) {
+    reportError(error, { scope: "trackedEvent.unsaved" });
   }
 }
 
@@ -80,11 +98,13 @@ export function useEventScheduleMutations({
     mutationFn: async (event: ConventionEvent) => {
       if (event.isInSchedule && hasVisit(event)) {
         await removeDropInVisit(event);
+        await stopTrackingUnsaved([event.id]);
         return;
       }
       const isInSchedule = !event.isInSchedule;
       if (isInSchedule || event.reminderMinutes === null) {
         await eventsRepo.update(event.id, { isInSchedule });
+        if (!isInSchedule) await stopTrackingUnsaved([event.id]);
         return;
       }
 
@@ -96,6 +116,7 @@ export function useEventScheduleMutations({
         isInSchedule,
         reminderMinutes: null,
       });
+      await stopTrackingUnsaved([event.id]);
     },
     onSuccess: (_, event) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
@@ -123,7 +144,10 @@ export function useEventScheduleMutations({
   });
 
   const removeVisitMutation = useMutation({
-    mutationFn: removeDropInVisit,
+    mutationFn: async (event: ConventionEvent) => {
+      await removeDropInVisit(event);
+      await stopTrackingUnsaved([event.id]);
+    },
     onSuccess: (_, event) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });
       queryClient.invalidateQueries({ queryKey: ["schedule"] });
@@ -318,6 +342,7 @@ export function useEventScheduleMutations({
         ...add.map((event) => ({ id: event.id, isInSchedule: true })),
         ...remove.map((event) => ({ id: event.id, isInSchedule: false })),
       ]);
+      await stopTrackingUnsaved(remove.map((event) => event.id));
     },
     onSuccess: (_, { add, remove }) => {
       queryClient.invalidateQueries({ queryKey: ["events", conventionId] });

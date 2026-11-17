@@ -680,6 +680,40 @@
       "saveError": "時刻の表示形式を保存できませんでした。もう一度お試しください。"
     }
   },
+  "tracking": {
+    "track": "イベントを追跡",
+    "stop": "追跡を停止",
+    "badge": "追跡中",
+    "trackHint": "このイベントが終わるまで、時刻と会場をアプリの外にも表示します。",
+    "bannerTitle": "{{title}}を追跡中",
+    "stopAccessibility": "{{title}}の追跡を停止",
+    "startedAnnouncement": "{{title}}の追跡を開始しました。",
+    "stoppedAnnouncement": "{{title}}の追跡を停止しました。",
+    "replace": {
+      "title": "このイベントに切り替えますか？",
+      "message": "ConPawsで追跡できるイベントは一度に1つです。{{current}}の代わりに{{next}}を追跡します。",
+      "confirm": "切り替える"
+    },
+    "live": {
+      "startsIn": "開始まで",
+      "endsIn": "終了まで",
+      "now": "開催中",
+      "ended": "終了",
+      "stop": "停止"
+    },
+    "permission": {
+      "notificationsTitle": "通知がオフになっています",
+      "notificationsMessage": "追跡中のイベントを表示するには、ConPawsに通知の許可が必要です。設定で通知をオンにしてから、もう一度イベントを追跡してください。",
+      "liveActivitiesTitle": "ライブアクティビティがオフになっています",
+      "liveActivitiesMessage": "このイベントをロック画面に表示するには、設定でConPawsのライブアクティビティをオンにしてください。"
+    },
+    "errorTitle": "イベントを追跡できませんでした",
+    "errorMessage": "ConPawsはこのイベントの追跡を開始できませんでした。もう一度お試しください。",
+    "channel": {
+      "name": "追跡中のイベント",
+      "description": "追跡するよう選んだイベントを1つ、停止ボタン付きで表示します。"
+    }
+  },
   "catalog": {
     "title": "コンベンションを探す",
     "searchPlaceholder": "名前または都市で検索",

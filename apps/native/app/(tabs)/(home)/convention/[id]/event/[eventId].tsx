@@ -9,6 +9,7 @@ import {
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
+import { useTrackedEvent } from "@/hooks/useTrackedEvent";
 import {
   compareCandidates,
   overlapMinutesBetween,
@@ -45,6 +46,7 @@ export default function EventSheetRoute() {
 
   const { toggleScheduleMutation, setReminderMutation, removeVisitMutation } =
     useEventScheduleMutations({ conventionId: id });
+  const trackedEvent = useTrackedEvent();
 
   const conflicts = useMemo<EventSheetConflict[]>(() => {
     if (!event) return [];
@@ -93,6 +95,17 @@ export default function EventSheetRoute() {
         removeVisitMutation.mutate(event, { onSuccess: () => router.back() })
       }
       visitBusy={removeVisitMutation.isPending}
+      tracking={{
+        state: trackedEvent.trackedEventId === event.id ? "this" : "none",
+        trackable: trackedEvent.isTrackable(event, convention),
+        busy: trackedEvent.busy,
+        onTrack: () => {
+          if (convention) void trackedEvent.track(event, convention);
+        },
+        onStop: () => {
+          void trackedEvent.stop();
+        },
+      }}
       onToggleSchedule={(item) => toggleScheduleMutation.mutate(item)}
       onSelectReminder={(item, minutes) =>
         setReminderMutation.mutate({ event: item, minutes })

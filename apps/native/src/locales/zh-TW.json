@@ -680,6 +680,40 @@
       "saveError": "無法儲存時間格式，請重試。"
     }
   },
+  "tracking": {
+    "track": "追蹤活動",
+    "stop": "停止追蹤",
+    "badge": "追蹤中",
+    "trackHint": "在活動結束前，於 App 外持續顯示這個活動的時間和地點。",
+    "bannerTitle": "正在追蹤{{title}}",
+    "stopAccessibility": "停止追蹤{{title}}",
+    "startedAnnouncement": "已開始追蹤{{title}}。",
+    "stoppedAnnouncement": "已停止追蹤{{title}}。",
+    "replace": {
+      "title": "改為追蹤這個活動？",
+      "message": "ConPaws 一次只追蹤一個活動。{{next}}將取代{{current}}。",
+      "confirm": "改為追蹤"
+    },
+    "live": {
+      "startsIn": "距離開始",
+      "endsIn": "距離結束",
+      "now": "進行中",
+      "ended": "已結束",
+      "stop": "停止"
+    },
+    "permission": {
+      "notificationsTitle": "通知已關閉",
+      "notificationsMessage": "ConPaws 需要通知權限，才能顯示你正在追蹤的活動。請在「設定」中開啟通知，然後重新追蹤這個活動。",
+      "liveActivitiesTitle": "即時動態已關閉",
+      "liveActivitiesMessage": "請在「設定」中為 ConPaws 開啟即時動態，以便在鎖定畫面上查看這個活動。"
+    },
+    "errorTitle": "無法追蹤活動",
+    "errorMessage": "ConPaws 無法開始追蹤這個活動。請再試一次。",
+    "channel": {
+      "name": "追蹤的活動",
+      "description": "顯示你選擇追蹤的那個活動，並附上「停止」按鈕。"
+    }
+  },
   "catalog": {
     "title": "尋找我的展會",
     "searchPlaceholder": "依名稱或城市搜尋",

@@ -49,6 +49,21 @@ interface EventSheetContentProps {
   onPlanVisit: () => void;
   onRemoveVisit: () => void;
   visitBusy: boolean;
+  /**
+   * Track event. Omitted, the sheet offers nothing. Neither action closes the
+   * sheet: the button flipping between Track and Stop, and the badge, are the
+   * confirmation the user is looking at.
+   */
+  tracking?: EventSheetTracking;
+}
+
+export interface EventSheetTracking {
+  /** "this" when the sheet's event is the tracked one. */
+  state: "none" | "this";
+  trackable: boolean;
+  busy: boolean;
+  onTrack: () => void;
+  onStop: () => void;
 }
 
 export function EventSheetContent({
@@ -64,6 +79,7 @@ export function EventSheetContent({
   onPlanVisit,
   onRemoveVisit,
   visitBusy,
+  tracking,
 }: EventSheetContentProps) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<"actions" | "reminder">("actions");
@@ -172,6 +188,9 @@ export function EventSheetContent({
           ) : null}
           {feedStatusLabel ? (
             <Badge variant="ended" emphasis="strong" label={feedStatusLabel} />
+          ) : null}
+          {tracking?.state === "this" ? (
+            <Badge variant="info" label={t("tracking.badge")} />
           ) : null}
         </View>
         <Text variant="h2" accessibilityRole="header" selectable>
@@ -301,6 +320,26 @@ export function EventSheetContent({
             onPress={onRemoveVisit}
           >
             {t("convention.visit.remove")}
+          </Button>
+        ) : null}
+        {tracking?.state === "this" ? (
+          <Button
+            variant="outline"
+            loading={tracking.busy}
+            onPress={tracking.onStop}
+            testID="convention-event-stop-tracking"
+          >
+            {t("tracking.stop")}
+          </Button>
+        ) : tracking?.state === "none" && tracking.trackable ? (
+          <Button
+            variant="outline"
+            loading={tracking.busy}
+            onPress={tracking.onTrack}
+            accessibilityHint={t("tracking.trackHint")}
+            testID="convention-event-track"
+          >
+            {t("tracking.track")}
           </Button>
         ) : null}
         <Text variant="caption" className="text-center">

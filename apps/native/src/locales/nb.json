@@ -680,6 +680,40 @@
       "saveError": "Kunne ikke lagre tidsformatet. Prøv igjen."
     }
   },
+  "tracking": {
+    "track": "Følg hendelse",
+    "stop": "Slutt å følge",
+    "badge": "Følges",
+    "trackHint": "Viser tid og rom for denne hendelsen utenfor appen til den er over.",
+    "bannerTitle": "Følger {{title}}",
+    "stopAccessibility": "Slutt å følge {{title}}",
+    "startedAnnouncement": "Følger nå {{title}}.",
+    "stoppedAnnouncement": "Følger ikke lenger {{title}}.",
+    "replace": {
+      "title": "Følge denne hendelsen i stedet?",
+      "message": "ConPaws følger én hendelse om gangen. {{next}} erstatter {{current}}.",
+      "confirm": "Følg i stedet"
+    },
+    "live": {
+      "startsIn": "Starter om",
+      "endsIn": "Slutter om",
+      "now": "Nå",
+      "ended": "Over",
+      "stop": "Stopp"
+    },
+    "permission": {
+      "notificationsTitle": "Varslinger er slått av",
+      "notificationsMessage": "ConPaws trenger tillatelse til å sende varsler for å vise hendelsen du følger. Slå på varsler i Innstillinger, og følg hendelsen på nytt.",
+      "liveActivitiesTitle": "Live-aktiviteter er slått av",
+      "liveActivitiesMessage": "Slå på Live-aktiviteter for ConPaws i Innstillinger for å se hendelsen på låseskjermen."
+    },
+    "errorTitle": "Hendelsen følges ikke",
+    "errorMessage": "ConPaws kunne ikke begynne å følge denne hendelsen. Prøv igjen.",
+    "channel": {
+      "name": "Fulgt hendelse",
+      "description": "Viser den ene hendelsen du har valgt å følge, med en Stopp-knapp."
+    }
+  },
   "catalog": {
     "title": "Finn konventet mitt",
     "searchPlaceholder": "Søk etter navn eller by",
