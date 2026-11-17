@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "还剩 {{count}} 分钟",
       "minutesLeftMany": "还剩 {{count}} 分钟",
+      "durationLeft": "还剩 {{duration}}",
       "minutesUntilOne": "{{count}} 分钟后开始",
       "minutesUntilMany": "{{count}} 分钟后开始",
+      "durationUntil": "{{duration}}后开始",
       "alsoNowOne": "同时进行的收藏活动：另有 {{count}} 场",
       "alsoNowMany": "同时进行的收藏活动：另有 {{count}} 场"
     },

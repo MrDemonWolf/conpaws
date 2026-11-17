@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "{{count}} min igjen",
       "minutesLeftMany": "{{count}} min igjen",
+      "durationLeft": "{{duration}} igjen",
       "minutesUntilOne": "Starter om {{count}} min",
       "minutesUntilMany": "Starter om {{count}} min",
+      "durationUntil": "Starter om {{duration}}",
       "alsoNowOne": "Også lagret akkurat nå: {{count}} til",
       "alsoNowMany": "Også lagret akkurat nå: {{count}} til"
     },

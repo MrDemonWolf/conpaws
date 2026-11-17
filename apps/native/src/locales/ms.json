@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "{{count}} min lagi",
       "minutesLeftMany": "{{count}} min lagi",
+      "durationLeft": "{{duration}} lagi",
       "minutesUntilOne": "Bermula dalam {{count}} min",
       "minutesUntilMany": "Bermula dalam {{count}} min",
+      "durationUntil": "Bermula dalam {{duration}}",
       "alsoNowOne": "Turut disimpan sekarang: {{count}} lagi",
       "alsoNowMany": "Turut disimpan sekarang: {{count}} lagi"
     },

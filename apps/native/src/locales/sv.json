@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "{{count}} min kvar",
       "minutesLeftMany": "{{count}} min kvar",
+      "durationLeft": "{{duration}} kvar",
       "minutesUntilOne": "Börjar om {{count}} min",
       "minutesUntilMany": "Börjar om {{count}} min",
+      "durationUntil": "Börjar om {{duration}}",
       "alsoNowOne": "Även sparad just nu: {{count}} till",
       "alsoNowMany": "Även sparade just nu: {{count}} till"
     },

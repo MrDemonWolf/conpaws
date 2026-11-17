@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "{{count}}분 남음",
       "minutesLeftMany": "{{count}}분 남음",
+      "durationLeft": "{{duration}} 남음",
       "minutesUntilOne": "{{count}}분 후 시작",
       "minutesUntilMany": "{{count}}분 후 시작",
+      "durationUntil": "{{duration}} 후 시작",
       "alsoNowOne": "지금 진행 중인 저장 패널: {{count}}개 더",
       "alsoNowMany": "지금 진행 중인 저장 패널: {{count}}개 더"
     },

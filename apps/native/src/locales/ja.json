@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "残り{{count}}分",
       "minutesLeftMany": "残り{{count}}分",
+      "durationLeft": "残り{{duration}}",
       "minutesUntilOne": "{{count}}分後に開始",
       "minutesUntilMany": "{{count}}分後に開始",
+      "durationUntil": "{{duration}}後に開始",
       "alsoNowOne": "今開催中の保存済みパネル: ほか{{count}}件",
       "alsoNowMany": "今開催中の保存済みパネル: ほか{{count}}件"
     },

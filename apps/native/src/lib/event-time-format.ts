@@ -32,6 +32,37 @@ export function formatEventDuration(minutes: number, t: TFunction): string {
     : t("convention.panel.durationHoursMinutes", { hours, minutes: rest });
 }
 
+/**
+ * The Now card's countdown line: "12 min until it starts" or "12 min left",
+ * and from an hour out "7 h 33 min until it starts". Minutes alone read as
+ * "453 min" for a panel later in the day.
+ */
+export function formatMinutesUntilStart(minutes: number, t: TFunction): string {
+  if (minutes >= 60)
+    return t("convention.now.durationUntil", {
+      duration: formatEventDuration(minutes, t),
+    });
+  return t(
+    minutes === 1
+      ? "convention.now.minutesUntilOne"
+      : "convention.now.minutesUntilMany",
+    { count: minutes },
+  );
+}
+
+export function formatMinutesLeft(minutes: number, t: TFunction): string {
+  if (minutes >= 60)
+    return t("convention.now.durationLeft", {
+      duration: formatEventDuration(minutes, t),
+    });
+  return t(
+    minutes === 1
+      ? "convention.now.minutesLeftOne"
+      : "convention.now.minutesLeftMany",
+    { count: minutes },
+  );
+}
+
 type FormatterKind =
   | "time"
   | "shortTime"

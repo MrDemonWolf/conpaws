@@ -317,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min rimasto",
       "minutesLeftMany": "{{count}} min rimasti",
+      "durationLeft": "{{duration}} rimasti",
       "minutesUntilOne": "Inizia tra {{count}} min",
       "minutesUntilMany": "Inizia tra {{count}} min",
+      "durationUntil": "Inizia tra {{duration}}",
       "alsoNowOne": "Salvato anche adesso: {{count}} altro",
       "alsoNowMany": "Salvati anche adesso: {{count}} altri"
     },

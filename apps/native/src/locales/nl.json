@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "Nog {{count}} min",
       "minutesLeftMany": "Nog {{count}} min",
+      "durationLeft": "Nog {{duration}}",
       "minutesUntilOne": "Begint over {{count}} min",
       "minutesUntilMany": "Begint over {{count}} min",
+      "durationUntil": "Begint over {{duration}}",
       "alsoNowOne": "Ook nu bewaard: {{count}} meer",
       "alsoNowMany": "Ook nu bewaard: {{count}} meer"
     },

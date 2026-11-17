@@ -317,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min tilbage",
       "minutesLeftMany": "{{count}} min tilbage",
+      "durationLeft": "{{duration}} tilbage",
       "minutesUntilOne": "Starter om {{count}} min",
       "minutesUntilMany": "Starter om {{count}} min",
+      "durationUntil": "Starter om {{duration}}",
       "alsoNowOne": "Også gemt lige nu: {{count}} mere",
       "alsoNowMany": "Også gemt lige nu: {{count}} mere"
     },

@@ -317,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min jäljellä",
       "minutesLeftMany": "{{count}} min jäljellä",
+      "durationLeft": "{{duration}} jäljellä",
       "minutesUntilOne": "Alkaa {{count}} min kuluttua",
       "minutesUntilMany": "Alkaa {{count}} min kuluttua",
+      "durationUntil": "Alkaa {{duration}} kuluttua",
       "alsoNowOne": "Myös tallennettu juuri nyt: {{count}} muu",
       "alsoNowMany": "Myös tallennettu juuri nyt: {{count}} muuta"
     },

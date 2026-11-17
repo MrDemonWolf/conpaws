@@ -261,8 +261,10 @@
       },
       "minutesLeftOne": "Осталась {{count}} мин",
       "minutesLeftMany": "Осталось {{count}} мин",
+      "durationLeft": "Осталось {{duration}}",
       "minutesUntilOne": "Начнётся через {{count}} мин",
       "minutesUntilMany": "Начнётся через {{count}} мин",
+      "durationUntil": "Начнётся через {{duration}}",
       "alsoNowOne": "Сейчас также идёт: ещё {{count}}",
       "alsoNowMany": "Сейчас также идут: ещё {{count}}"
     },

@@ -261,8 +261,10 @@
       },
       "minutesLeftOne": "Залишилася {{count}} хв",
       "minutesLeftMany": "Залишилося {{count}} хв",
+      "durationLeft": "Залишилося {{duration}}",
       "minutesUntilOne": "Почнеться за {{count}} хв",
       "minutesUntilMany": "Почнеться за {{count}} хв",
+      "durationUntil": "Почнеться за {{duration}}",
       "alsoNowOne": "Зараз також триває: ще {{count}}",
       "alsoNowMany": "Зараз також тривають: ще {{count}}"
     },

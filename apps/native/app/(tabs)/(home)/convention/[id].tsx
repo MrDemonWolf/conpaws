@@ -85,6 +85,8 @@ import {
   formatEventEndTime,
   formatEventTime,
   formatHourLabel,
+  formatMinutesLeft,
+  formatMinutesUntilStart,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -586,20 +588,9 @@ export default function ConventionDetailScreen() {
     listJump,
   ]);
 
-  const minutesLeftLabel = (count: number) =>
-    t(
-      count === 1
-        ? "convention.now.minutesLeftOne"
-        : "convention.now.minutesLeftMany",
-      { count },
-    );
+  const minutesLeftLabel = (count: number) => formatMinutesLeft(count, t);
   const minutesUntilLabel = (count: number) =>
-    t(
-      count === 1
-        ? "convention.now.minutesUntilOne"
-        : "convention.now.minutesUntilMany",
-      { count },
-    );
+    formatMinutesUntilStart(count, t);
 
   const gapLabel = useCallback(
     (gap: AgendaGap): string => {

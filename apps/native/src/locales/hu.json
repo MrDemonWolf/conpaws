@@ -317,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} perc van hátra",
       "minutesLeftMany": "{{count}} perc van hátra",
+      "durationLeft": "{{duration}} van hátra",
       "minutesUntilOne": "{{count}} perc múlva kezdődik",
       "minutesUntilMany": "{{count}} perc múlva kezdődik",
+      "durationUntil": "{{duration}} múlva kezdődik",
       "alsoNowOne": "Szintén mentve most: {{count}} további",
       "alsoNowMany": "Szintén mentve most: {{count}} további"
     },

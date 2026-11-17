@@ -251,8 +251,10 @@
       },
       "minutesLeftOne": "還剩 {{count}} 分鐘",
       "minutesLeftMany": "還剩 {{count}} 分鐘",
+      "durationLeft": "還剩 {{duration}}",
       "minutesUntilOne": "{{count}} 分鐘後開始",
       "minutesUntilMany": "{{count}} 分鐘後開始",
+      "durationUntil": "{{duration}}後開始",
       "alsoNowOne": "同時進行的收藏活動：另有 {{count}} 場",
       "alsoNowMany": "同時進行的收藏活動：另有 {{count}} 場"
     },

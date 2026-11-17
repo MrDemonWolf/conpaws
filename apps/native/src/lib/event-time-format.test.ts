@@ -10,6 +10,8 @@ import {
   formatEventEndDateTime,
   formatEventEndTime,
   formatEventTime,
+  formatMinutesLeft,
+  formatMinutesUntilStart,
   scheduleFormatter,
 } from "./event-time-format";
 
@@ -271,5 +273,36 @@ describe("formatEventDuration", () => {
     expect(formatEventDuration(60, i18n.t)).toBe("1 h");
     expect(formatEventDuration(90, i18n.t)).toBe("1 h 30 min");
     expect(formatEventDuration(120, i18n.t)).toBe("2 h");
+  });
+});
+
+describe("Now card countdown lines", () => {
+  it("switches to hours from an hour out, so a later panel never reads as 453 min", async () => {
+    const i18n = createInstance();
+    await i18n.init({ lng: "en", resources: { en: { translation: en } } });
+    expect(formatMinutesUntilStart(1, i18n.t)).toBe("1 min until it starts");
+    expect(formatMinutesUntilStart(59, i18n.t)).toBe("59 min until it starts");
+    expect(formatMinutesUntilStart(60, i18n.t)).toBe("1 h until it starts");
+    expect(formatMinutesUntilStart(453, i18n.t)).toBe(
+      "7 h 33 min until it starts",
+    );
+    expect(formatMinutesLeft(12, i18n.t)).toBe("12 min left");
+    expect(formatMinutesLeft(150, i18n.t)).toBe("2 h 30 min left");
+  });
+
+  it("keeps the duration placeholder in every language", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const path = await import("node:path");
+    const dir = path.resolve(__dirname, "../locales");
+    for (const file of readdirSync(dir).filter((name) =>
+      name.endsWith(".json"),
+    )) {
+      const now = JSON.parse(readFileSync(path.join(dir, file), "utf8"))
+        .convention.now;
+      for (const key of ["durationUntil", "durationLeft"]) {
+        expect(now[key], `${file} ${key}`).toContain("{{duration}}");
+        expect(now[key], `${file} ${key}`).not.toContain("{{count}}");
+      }
+    }
   });
 });

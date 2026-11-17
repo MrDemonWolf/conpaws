@@ -257,9 +257,11 @@
       },
       "minutesLeftOne": "Została {{count}} min",
       "minutesLeftMany": "Zostało {{count}} min",
+      "durationLeft": "Zostało {{duration}}",
       "minutesLeftMany_few": "Zostały {{count}} min",
       "minutesUntilOne": "Zaczyna się za {{count}} min",
       "minutesUntilMany": "Zaczyna się za {{count}} min",
+      "durationUntil": "Zaczyna się za {{duration}}",
       "alsoNowOne": "Teraz zapisany też: {{count}} inny",
       "alsoNowMany": "Teraz zapisanych też: {{count}} innych",
       "alsoNowMany_few": "Teraz zapisane też: {{count}} inne"

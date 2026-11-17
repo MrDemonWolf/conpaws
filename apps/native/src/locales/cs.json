@@ -326,8 +326,10 @@
       },
       "minutesLeftOne": "Zbývá {{count}} min",
       "minutesLeftMany": "Zbývá {{count}} min",
+      "durationLeft": "Zbývá {{duration}}",
       "minutesUntilOne": "Začíná za {{count}} min",
       "minutesUntilMany": "Začíná za {{count}} min",
+      "durationUntil": "Začíná za {{duration}}",
       "alsoNowOne": "Právě teď také uloženo: {{count}} další",
       "alsoNowMany": "Právě teď také uloženo: {{count}} dalších",
       "alsoNowMany_few": "Právě teď také uloženo: {{count}} další"
