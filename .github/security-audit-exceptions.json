@@ -130,6 +130,16 @@
       "owner": "Nathanial Henniges",
       "reachability": "Expo build tooling only: app/runtime code does not import xmldom or parse external XML. The required @bacons/apple-targets toolchain still pins @expo/plist 0.0.18 and xmldom 0.7.13; revisit this exception when that upstream dependency chain can be upgraded.",
       "upstream": "https://github.com/advisories/GHSA-x6wf-f3px-wcqx"
+    },
+    {
+      "package": "picomatch",
+      "id": "GHSA-fc5q-39xc-vjpf",
+      "severity": "high",
+      "vulnerableVersions": "<=4.0.7",
+      "expires": "2026-12-18",
+      "owner": "Nathanial Henniges",
+      "reachability": "Not reachable: the ReDoS needs an attacker-supplied glob pattern such as +(*). Every picomatch or micromatch caller here is build, dev, test or deploy tooling whose patterns come from repository config: Expo CLI, Metro config, expo-doctor and resolve-workspace-root; React Native codegen and SPM scripts; Vite, Vitest, tsx, tinyglobby and fdir; jest-util; the shadcn CLI via dotenvx; and the CI-only alchemy deploy CLI. No app, Worker or admin source imports a glob library, and the native runtime packages do not require one. Next.js vendors its own picomatch, but `next build` compiles the image patterns from developer config into fixed regex strings, so requests supply only the URL being matched. The apps/web Worker bundle contains no picomatch. No fixed release exists yet (4.0.7 is the latest); remove this exception once a patched picomatch is published and the lockfile resolves it.",
+      "upstream": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf"
     }
   ]
 }
