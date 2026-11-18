@@ -678,9 +678,8 @@ describe("createAscClient", () => {
     const client = createAscClient({
       credentials,
       fetchImpl: async (_url, init) => {
-        header = String(
-          (init?.headers as Record<string, string>).Authorization,
-        );
+        const headers = (init?.headers ?? {}) as Record<string, string>;
+        header = String(headers.Authorization);
         return reply(200, "{}");
       },
     });
