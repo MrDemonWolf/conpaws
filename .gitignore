@@ -83,3 +83,7 @@ coverage
 .cache
 tmp
 temp
+
+# App Store Connect API keys and their local config live in ~/.appstoreconnect, never here
+AuthKey_*
+.appstoreconnect/
