@@ -29,7 +29,9 @@ import {
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
+import { useWidthCap } from "@/hooks/useContentWidth";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { ACTIONS_MAX } from "@/lib/content-width";
 import {
   type ConventionSort,
   canUnarchive,
@@ -43,6 +45,7 @@ import {
   conventionRowActions,
 } from "@/lib/convention-row-actions";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { reportError } from "@/lib/error-reporting";
 import { formatConventionDate } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -52,6 +55,7 @@ import {
 import { addPreviewConventions } from "@/lib/preview-convention";
 import { clearScheduleRefreshState } from "@/lib/schedule-refresh-storage";
 import { cancelConventionReminders } from "@/services/notifications";
+import { stopTrackingIfAffected } from "@/services/tracked-event";
 
 const EMPTY_ICON = Icon.select({
   ios: "calendar.badge.plus",
@@ -90,6 +94,8 @@ interface ConventionEmptyStateProps {
   onImport: () => void;
   onAddSamples?: () => void;
   addingSamples: boolean;
+  sampleLabel: string;
+  sampleDescription: string;
 }
 
 function ConventionEmptyState({
@@ -103,9 +109,17 @@ function ConventionEmptyState({
   onImport,
   onAddSamples,
   addingSamples,
+  sampleLabel,
+  sampleDescription,
 }: ConventionEmptyStateProps) {
+  // The full-width buttons and caption stop at an action width in a wide
+  // window instead of running across it.
+  const widthCap = useWidthCap();
   return (
-    <View className="flex-1 items-center justify-center gap-1">
+    <View
+      className="flex-1 items-center justify-center gap-1"
+      style={widthCap(ACTIONS_MAX)}
+    >
       <EmptyState
         icon={EMPTY_ICON}
         title={title}
@@ -118,7 +132,10 @@ function ConventionEmptyState({
         actionsInline
         className="w-full flex-none"
       />
-      <Button variant="ghost" onPress={onCreate} className="w-full">
+      {/* Sized to its label: a ghost button has no visible edge, so a
+          full-width one left an invisible tap target across the screen. The
+          inherited 48pt minimum height keeps the touch target. */}
+      <Button variant="ghost" onPress={onCreate} className="self-center">
         {createLabel}
       </Button>
       {onAddSamples ? (
@@ -129,11 +146,10 @@ function ConventionEmptyState({
             loading={addingSamples}
             testID="home-add-sample-conventions"
           >
-            Add sample conventions
+            {sampleLabel}
           </Button>
           <Text variant="caption" className="text-center text-muted-foreground">
-            Fictional schedules for testing. Your saved conventions stay
-            unchanged.
+            {sampleDescription}
           </Text>
         </View>
       ) : null}
@@ -202,6 +218,11 @@ export default function HomeScreen() {
         .invalidateQueries({ queryKey: ["conventions"] })
         .catch(() => undefined);
       await cancelConventionReminders(eventIds);
+      // The convention is already gone, so a failure here must not skip the
+      // bookkeeping below; the next reconcile finds no row and stops it.
+      await stopTrackingIfAffected({ conventionId: id }, "deleted").catch(
+        (error) => reportError(error, { scope: "trackedEvent.deleted" }),
+      );
       // The feed bookkeeping is keyed by convention id, so without this a
       // deleted convention leaves its "last checked" behind for a future id
       // to inherit.
@@ -220,6 +241,11 @@ export default function HomeScreen() {
       const eventIds = await eventsRepo.getIdsByConventionId(id);
       await conventionsRepo.archive(id);
       await cancelConventionReminders(eventIds);
+      // Archived already succeeded; reporting rather than throwing keeps the
+      // "could not archive" alert honest. The next reconcile sees archivedAt.
+      await stopTrackingIfAffected({ conventionId: id }, "archived").catch(
+        (error) => reportError(error, { scope: "trackedEvent.archived" }),
+      );
     },
     onSuccess: async (_, id) => {
       const convention = conventions.find((item) => item.id === id);
@@ -270,10 +296,7 @@ export default function HomeScreen() {
     },
     onError: () => {
       resetPresentationLock(presentationLock);
-      Alert.alert(
-        "Samples could not be added",
-        "Try again. Your saved conventions were not replaced.",
-      );
+      Alert.alert(t("common.error"), t("settings.preview.error"));
     },
   });
 
@@ -469,6 +492,8 @@ export default function HomeScreen() {
           onImport={handleImportConvention}
           onAddSamples={showSamples ? handleAddSamples : undefined}
           addingSamples={sampleMutation.isPending}
+          sampleLabel={t("settings.preview.add")}
+          sampleDescription={t("settings.preview.description")}
         />
       </ScrollView>
     ) : (
@@ -479,11 +504,7 @@ export default function HomeScreen() {
         archiveLabel={t("home.archive.title", {
           count: archivedConventions.length,
         })}
-        archiveActionLabel={t(
-          archiveExpanded ? "home.archive.hide" : "home.archive.show",
-        )}
         currentEmptyLabel={t("home.archive.noCurrent")}
-        onToggleArchive={() => setArchiveExpanded((expanded) => !expanded)}
         deleteLabel={t("common.delete")}
         onDelete={(item) => handleConventionAction(item, "delete")}
         archiveItemLabel={t("common.archive")}
@@ -506,8 +527,8 @@ export default function HomeScreen() {
             icon={
               process.env.EXPO_OS === "ios" ? "arrow.up.arrow.down" : SortIcon
             }
-            accessibilityLabel={t("home.sortBy")}
-            title={t("home.sortBy")}
+            accessibilityLabel={t("home.sortAndView")}
+            title={t("home.sortAndView")}
           >
             <Stack.Toolbar.MenuAction
               isOn={sort === "upcoming"}
@@ -521,10 +542,19 @@ export default function HomeScreen() {
             >
               {t("home.sort.name")}
             </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              isOn={archiveExpanded}
+              onPress={() => setArchiveExpanded((expanded) => !expanded)}
+            >
+              {t("home.archive.showConventions")}
+            </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
           <Stack.Toolbar.Menu
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("home.addConvention")}
+            // The open menu's header on iOS, and the label an overflow rail
+            // shows for an icon-only item, as the Sort menu already has.
+            title={t("home.addConvention")}
           >
             <Stack.Toolbar.MenuAction
               icon={
@@ -560,8 +590,8 @@ export default function HomeScreen() {
                 disabled={sampleMutation.isPending}
               >
                 {sampleMutation.isPending
-                  ? "Adding samples…"
-                  : "Add sample conventions"}
+                  ? t("common.loading")
+                  : t("settings.preview.add")}
               </Stack.Toolbar.MenuAction>
             ) : null}
           </Stack.Toolbar.Menu>

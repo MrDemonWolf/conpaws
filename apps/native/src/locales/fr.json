@@ -60,7 +60,9 @@
         "title": "Convention introuvable",
         "body": "Elle a peut-être été retirée du catalogue."
       },
-      "successAnnouncement": "{{name}} téléchargée. Choisissez votre première activité."
+      "successAnnouncement": "{{name}} téléchargée. Choisissez votre première activité.",
+      "venue": "Lieu",
+      "offlineAvailable": "Disponible hors ligne après téléchargement"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Afficher tous les jours",
       "dropIn": {
         "title": "Passe quand tu veux",
-        "subtitle": "Sans horaire fixe"
+        "subtitle": "Sans horaire fixe",
+        "filter": "Accès libre · {{count}}",
+        "find": "Trouver une activité en accès libre"
       },
       "noSeat": "Enregistrer un panel ne réserve pas de place.",
       "optionsOne": "{{count}} option",
@@ -313,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min restante",
       "minutesLeftMany": "{{count}} min restantes",
+      "durationLeft": "{{duration}} restantes",
       "minutesUntilOne": "Commence dans {{count}} min",
       "minutesUntilMany": "Commence dans {{count}} min",
+      "durationUntil": "Commence dans {{duration}}",
       "alsoNowOne": "Aussi en ce moment : {{count}} autre",
       "alsoNowMany": "Aussi en ce moment : {{count}} autres"
     },
@@ -348,6 +354,14 @@
       "overlapsPlan": "Chevauche ton plan",
       "overlapWith": "{{minutes}} min avec {{title}}",
       "compareBeforeAdding": "Comparer avant d’ajouter"
+    },
+    "visit": {
+      "title": "Planifier une visite",
+      "edit": "Modifier la visite",
+      "duration": "Durée de la visite",
+      "windowError": "Toute la visite doit se dérouler pendant les heures d’ouverture.",
+      "invalid": "Les horaires ont changé. Modifiez votre visite.",
+      "remove": "Retirer la visite"
     }
   },
   "errors": {
@@ -379,12 +393,11 @@
     },
     "archive": {
       "title": "Archives ({{count}})",
-      "show": "Afficher",
-      "hide": "Masquer",
       "noCurrent": "Aucune convention à venir.",
       "success": "{{name}} a été archivée.",
       "errorTitle": "Impossible d’archiver la convention",
-      "errorMessage": "Rien n’a été archivé. Réessayez."
+      "errorMessage": "Rien n’a été archivé. Réessayez.",
+      "showConventions": "Afficher les conventions archivées"
     },
     "unarchive": {
       "success": "{{name}} restaurée depuis les archives.",
@@ -392,7 +405,6 @@
       "errorMessage": "La convention n'a pas pu être restaurée. Réessayez."
     },
     "moreActions": "Plus d’actions pour {{name}}",
-    "sortBy": "Trier par",
     "sort": {
       "upcoming": "À venir en premier",
       "name": "Nom"
@@ -403,7 +415,8 @@
       "success": "{{name}} a été supprimée.",
       "errorTitle": "Impossible de supprimer la convention",
       "errorMessage": "Rien n’a été supprimé. Réessayez."
-    }
+    },
+    "sortAndView": "Tri et affichage"
   },
   "import": {
     "title": "Importer le Programme",
@@ -492,42 +505,36 @@
   "onboarding": {
     "progress": "Étape {{step}} sur {{total}}",
     "welcome": {
-      "tagline": "Votre programme de convention, disponible hors ligne.",
-      "subtitle": "Organisez-vous malgré un mauvais Wi-Fi : votre programme reste sur votre appareil.",
+      "tagline": "Ta convention, disponible hors ligne.",
+      "subtitle": "Trouve ta convention ou importe un fichier .ics ou un lien Sched.",
       "continue": "Continuer",
-      "skip": "Passer"
+      "skip": "Passer",
+      "exampleTitle": "Exemple de convention",
+      "connectionNote": "Une connexion est nécessaire pour trouver et télécharger les programmes. Le programme téléchargé reste disponible hors ligne."
     },
     "features": {
-      "title": "Planifiez toute la convention",
-      "subtitle": "Tout ce qu’il vous faut quand le Wi-Fi du lieu abandonne.",
-      "demo": {
-        "saved": "Mon plan"
-      },
-      "import": {
-        "title": "Importez n’importe quel programme",
-        "description": "Ajoutez un fichier .ics ou collez un lien Sched."
-      },
-      "plan": {
-        "title": "Ne manquez aucun panel",
-        "description": "Créez votre plan, voyez ce qui se passe maintenant et ensuite, et repérez les chevauchements."
-      },
-      "offline": {
-        "title": "Privé et hors ligne",
-        "description": "Vos données de convention restent sur cet appareil."
-      },
-      "plus": {
-        "title": "Gratuit et hors ligne",
-        "description": "Tout fonctionne ici sans compte et sans réseau. Des fonctions cloud facultatives arriveront peut-être plus tard."
-      },
-      "next": "Continuer"
+      "title": "Choisis les panels qui te plaisent.",
+      "subtitle": "Touche l’étoile pour enregistrer un événement. Ouvre ensuite Mon plan pour voir ton choix.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Continuer",
+      "practiceNote": "Essaie ici. Cet exemple ne modifiera pas tes conventions.",
+      "viewsNote": "Programme affiche le programme. Mon plan contient tes choix. Maintenant affiche les événements en cours et à venir.",
+      "emptyPlan": "Rien de prévu. Va dans Programme et touche l’étoile."
     },
     "getStarted": {
       "find": "Trouver ma convention",
-      "title": "Prêt pour votre prochaine convention ?",
-      "subtitle": "Trouvez votre convention, importez un programme ou explorez d’abord ConPaws.",
+      "title": "Un rappel, si tu le souhaites.",
+      "subtitle": "Enregistrer un événement et définir un rappel sont deux choix distincts.",
       "importSchedule": "Importer un programme",
       "exploreFirst": "Explorer d’abord",
-      "localPrivacy": "Aucun compte requis. Vos données restent en local."
+      "localPrivacy": "Aucun compte requis. Vos données restent en local.",
+      "example": "Exemple d’événement",
+      "sampleOnly": "Exemple uniquement. Aucune notification ne sera envoyée.",
+      "permissionNote": "Ton téléphone demande l’autorisation d’envoyer des notifications quand tu définis un vrai rappel. Tu peux utiliser ConPaws sans notifications."
     }
   },
   "reminders": {
@@ -681,7 +688,6 @@
       "support": "Assistance",
       "helpCenter": "Centre d'aide",
       "email": "E-mail",
-      "discordDescription": "Rejoindre la communauté",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -706,7 +712,10 @@
       "notRequested": "Pas encore demandée",
       "defaultLead": "Rappel par défaut",
       "defaultLeadDescription": "Présélectionné quand vous créez un rappel sur un nouvel événement.",
-      "noDefault": "Aucun"
+      "noDefault": "Aucun",
+      "enable": "Activer les notifications",
+      "changeError": "Impossible de modifier l’autorisation des notifications. Réessaie.",
+      "defaultLeadError": "Impossible d’enregistrer ton rappel par défaut. Réessaie."
     },
     "help": {
       "gettingStarted": "Premiers pas",
@@ -714,7 +723,62 @@
       "importNow": "Importer un programme",
       "importNowDescription": "Ajoutez un lien Sched ou un fichier .ics.",
       "find": "Trouver ma convention",
-      "findDescription": "Choisissez une convention dans le catalogue ConPaws et téléchargez son programme."
+      "findDescription": "Choisissez une convention dans le catalogue ConPaws et téléchargez son programme.",
+      "replay": "Revoir la présentation",
+      "replayDescription": "S’entraîner avec des exemples temporaires"
+    },
+    "preview": {
+      "title": "Tests de la version de prévisualisation",
+      "add": "Ajouter des conventions d’exemple",
+      "description": "Des programmes fictifs pour les tests. Tes autres conventions restent inchangées.",
+      "restore": "Restaurer les données d’exemple",
+      "restoreConfirm": "Les modifications des conventions d’exemple seront remplacées. Tes autres conventions et réglages restent inchangés.",
+      "testReminder": "Tester un rappel",
+      "testDescription": "Programmer une vraie notification locale dans environ cinq secondes.",
+      "testScheduled": "Une notification locale a été programmée dans environ cinq secondes.",
+      "nativeOnly": "Les tests de rappel nécessitent l’application native.",
+      "error": "Impossible de terminer cette action de prévisualisation. Réessaie."
+    },
+    "timeFormat": {
+      "title": "Format de l’heure",
+      "system": "Utiliser le réglage de l’appareil",
+      "hour12": "12 heures · 7:00 PM",
+      "hour24": "24 heures · 19:00",
+      "saveError": "Impossible d’enregistrer le format de l’heure. Réessaie."
+    }
+  },
+  "tracking": {
+    "track": "Suivre l’événement",
+    "stop": "Arrêter le suivi",
+    "badge": "Suivi",
+    "trackHint": "Affiche l’heure et la salle de cet événement en dehors de l’app jusqu’à sa fin.",
+    "bannerTitle": "Suivi de {{title}}",
+    "stopAccessibility": "Arrêter le suivi de {{title}}",
+    "startedAnnouncement": "Suivi de {{title}} activé.",
+    "stoppedAnnouncement": "Suivi de {{title}} arrêté.",
+    "replace": {
+      "title": "Suivre plutôt cet événement ?",
+      "message": "ConPaws suit un seul événement à la fois. {{next}} remplacera {{current}}.",
+      "confirm": "Suivre plutôt"
+    },
+    "live": {
+      "startsIn": "Commence dans",
+      "endsIn": "Se termine dans",
+      "now": "Maintenant",
+      "ended": "Terminé",
+      "stop": "Arrêter"
+    },
+    "permission": {
+      "notificationsTitle": "Les notifications sont désactivées",
+      "notificationsMessage": "ConPaws a besoin de l’autorisation d’envoyer des notifications pour afficher l’événement que vous suivez. Activez-les dans Réglages, puis suivez de nouveau l’événement.",
+      "liveActivitiesTitle": "Les Activités en direct sont désactivées",
+      "liveActivitiesMessage": "Activez les Activités en direct pour ConPaws dans Réglages pour voir cet événement sur l’écran verrouillé."
+    },
+    "errorTitle": "Événement non suivi",
+    "errorMessage": "ConPaws n’a pas pu commencer à suivre cet événement. Réessayez.",
+    "channel": {
+      "name": "Événement suivi",
+      "description": "Affiche l’événement que vous avez choisi de suivre, avec un bouton Arrêter."
     }
   }
 }

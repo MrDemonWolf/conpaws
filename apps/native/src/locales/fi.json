@@ -60,7 +60,9 @@
         "title": "Conia ei löytynyt",
         "body": "Se on ehkä poistettu katalogista."
       },
-      "successAnnouncement": "{{name}} ladattu. Valitse ensimmäinen paneelisi."
+      "successAnnouncement": "{{name}} ladattu. Valitse ensimmäinen paneelisi.",
+      "venue": "Tapahtumapaikka",
+      "offlineAvailable": "Käytettävissä ilman verkkoa lataamisen jälkeen"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Näytä kaikki päivät",
       "dropIn": {
         "title": "Piipahda milloin vain",
-        "subtitle": "Ei kiinteää aikaa"
+        "subtitle": "Ei kiinteää aikaa",
+        "filter": "Vapaa osallistuminen · {{count}}",
+        "find": "Etsi vapaa ohjelma"
       },
       "noSeat": "Paneelin tallentaminen ei varaa paikkaa.",
       "optionsOne": "{{count}} vaihtoehto",
@@ -313,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min jäljellä",
       "minutesLeftMany": "{{count}} min jäljellä",
+      "durationLeft": "{{duration}} jäljellä",
       "minutesUntilOne": "Alkaa {{count}} min kuluttua",
       "minutesUntilMany": "Alkaa {{count}} min kuluttua",
+      "durationUntil": "Alkaa {{duration}} kuluttua",
       "alsoNowOne": "Myös tallennettu juuri nyt: {{count}} muu",
       "alsoNowMany": "Myös tallennettu juuri nyt: {{count}} muuta"
     },
@@ -348,6 +354,14 @@
       "overlapsPlan": "Päällekkäin suunnitelmasi kanssa",
       "overlapWith": "{{minutes}} min paneelin {{title}} kanssa",
       "compareBeforeAdding": "Vertaa ennen lisäämistä"
+    },
+    "visit": {
+      "title": "Suunnittele käynti",
+      "edit": "Muokkaa käyntiä",
+      "duration": "Käynnin kesto",
+      "windowError": "Koko käynnin on mahduttava aukioloaikaan.",
+      "invalid": "Aukioloajat muuttuivat. Muokkaa käyntiäsi.",
+      "remove": "Poista käynti"
     }
   },
   "errors": {
@@ -379,12 +393,11 @@
     },
     "archive": {
       "title": "Arkisto ({{count}})",
-      "show": "Näytä",
-      "hide": "Piilota",
       "noCurrent": "Ei tulevia coneja.",
       "success": "{{name}} arkistoitiin.",
       "errorTitle": "Conia ei voitu arkistoida",
-      "errorMessage": "Mitään ei arkistoitu. Yritä uudelleen."
+      "errorMessage": "Mitään ei arkistoitu. Yritä uudelleen.",
+      "showConventions": "Näytä arkistoidut conit"
     },
     "unarchive": {
       "success": "{{name}} palautettiin arkistosta.",
@@ -392,7 +405,6 @@
       "errorMessage": "Conia ei voitu palauttaa. Yritä uudelleen."
     },
     "moreActions": "Lisää toimintoja conille {{name}}",
-    "sortBy": "Järjestä",
     "sort": {
       "upcoming": "Tulevat ensin",
       "name": "Nimi"
@@ -403,7 +415,8 @@
       "success": "{{name}} poistettiin.",
       "errorTitle": "Conia ei voitu poistaa",
       "errorMessage": "Mitään ei poistettu. Yritä uudelleen."
-    }
+    },
+    "sortAndView": "Lajittelu ja näkymä"
   },
   "import": {
     "title": "Tuo ohjelma",
@@ -492,42 +505,36 @@
   "onboarding": {
     "progress": "Vaihe {{step}}/{{total}}",
     "welcome": {
-      "tagline": "Conisi ohjelma, valmiina myös offline-tilassa.",
-      "subtitle": "Suunnittele conin surkeasta wifistä huolimatta. Ohjelmasi pysyy laitteellasi.",
+      "tagline": "Conisi, valmiina myös ilman verkkoa.",
+      "subtitle": "Etsi conisi tai tuo .ics-tiedosto tai Sched-linkki.",
       "continue": "Jatka",
-      "skip": "Ohita"
+      "skip": "Ohita",
+      "exampleTitle": "Esimerkkicon",
+      "connectionNote": "Ohjelmien etsiminen ja lataaminen vaatii verkkoyhteyden. Ladattu ohjelma on käytettävissä myös ilman verkkoa."
     },
     "features": {
-      "title": "Suunnittele koko coni",
-      "subtitle": "Kaikki mitä tarvitset, kun tapahtumapaikan wifi luovuttaa.",
-      "demo": {
-        "saved": "Oma suunnitelma"
-      },
-      "import": {
-        "title": "Tuo mikä tahansa ohjelma",
-        "description": "Lisää .ics-tiedosto tai liitä Sched-linkki."
-      },
-      "plan": {
-        "title": "Älä missaa yhtään paneelia",
-        "description": "Kokoa suunnitelmasi, katso mitä tapahtuu nyt ja seuraavaksi, ja huomaa päällekkäisyydet."
-      },
-      "offline": {
-        "title": "Yksityinen ja offline",
-        "description": "Conisi tiedot pysyvät tällä laitteella."
-      },
-      "plus": {
-        "title": "Ilmainen ja offline",
-        "description": "Kaikki täällä toimii ilman tiliä ja ilman verkkoa. Valinnaisia pilvitoimintoja voi tulla myöhemmin."
-      },
-      "next": "Jatka"
+      "title": "Valitse haluamasi paneelit.",
+      "subtitle": "Tallenna tapahtuma napauttamalla tähteä. Avaa sitten Oma suunnitelma nähdäksesi valintasi.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Jatka",
+      "practiceNote": "Kokeile tässä. Tämä esimerkki ei muuta conejasi.",
+      "viewsNote": "Ohjelma näyttää ohjelman. Oma suunnitelma sisältää valintasi. Nyt näyttää käynnissä olevat ja seuraavat tapahtumat.",
+      "emptyPlan": "Ei vielä suunnitelmia. Avaa Ohjelma ja napauta tähteä."
     },
     "getStarted": {
       "find": "Löydä conini",
-      "title": "Valmiina seuraavaan coniin?",
-      "subtitle": "Löydä conisi, tuo ohjelma tai tutustu ensin.",
+      "title": "Muistutus silloin, kun haluat.",
+      "subtitle": "Tapahtuman tallentaminen ja muistutuksen asettaminen ovat erillisiä valintoja.",
       "importSchedule": "Tuo ohjelma",
       "exploreFirst": "Tutustu ensin",
-      "localPrivacy": "Tiliä ei tarvita. Tietosi pysyvät paikallisina."
+      "localPrivacy": "Tiliä ei tarvita. Tietosi pysyvät paikallisina.",
+      "example": "Esimerkkitapahtuma",
+      "sampleOnly": "Vain esimerkki. Ilmoitusta ei lähetetä.",
+      "permissionNote": "Puhelin pyytää ilmoituslupaa, kun asetat oikean muistutuksen. Voit käyttää ConPawsia ilman ilmoituksia."
     }
   },
   "reminders": {
@@ -681,7 +688,6 @@
       "support": "Tuki",
       "helpCenter": "Ohjekeskus",
       "email": "Sähköposti",
-      "discordDescription": "Liity yhteisöön",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -706,7 +712,10 @@
       "notRequested": "Ei vielä pyydetty",
       "defaultLead": "Oletusmuistutus",
       "defaultLeadDescription": "Esivalittu, kun asetat muistutuksen uudelle tapahtumalle.",
-      "noDefault": "Ei mitään"
+      "noDefault": "Ei mitään",
+      "enable": "Ota ilmoitukset käyttöön",
+      "changeError": "Ilmoituslupaa ei voitu päivittää. Yritä uudelleen.",
+      "defaultLeadError": "Oletusmuistutusta ei voitu tallentaa. Yritä uudelleen."
     },
     "help": {
       "gettingStarted": "Näin pääset alkuun",
@@ -714,7 +723,62 @@
       "importNow": "Tuo ohjelma",
       "importNowDescription": "Lisää Sched-linkki tai .ics-tiedosto.",
       "find": "Löydä conini",
-      "findDescription": "Valitse con ConPaws-katalogista ja lataa sen ohjelma."
+      "findDescription": "Valitse con ConPaws-katalogista ja lataa sen ohjelma.",
+      "replay": "Katso esittely uudelleen",
+      "replayDescription": "Harjoittele väliaikaisilla esimerkkitiedoilla"
+    },
+    "preview": {
+      "title": "Esiversion testaus",
+      "add": "Lisää esimerkkiconeja",
+      "description": "Kuvitteellisia ohjelmia testausta varten. Muut conisi pysyvät ennallaan.",
+      "restore": "Palauta esimerkkitiedot",
+      "restoreConfirm": "Esimerkkiconeihin tehdyt muutokset korvataan. Muut conisi ja asetuksesi pysyvät ennallaan.",
+      "testReminder": "Testaa muistutusta",
+      "testDescription": "Ajasta oikea paikallinen ilmoitus noin viiden sekunnin päähän.",
+      "testScheduled": "Paikallinen ilmoitus on ajastettu noin viiden sekunnin päähän.",
+      "nativeOnly": "Muistutusten testaus vaatii natiivisovelluksen.",
+      "error": "Testitoimintoa ei voitu suorittaa. Yritä uudelleen."
+    },
+    "timeFormat": {
+      "title": "Ajan esitysmuoto",
+      "system": "Käytä laitteen asetusta",
+      "hour12": "12 tuntia · 7:00 PM",
+      "hour24": "24 tuntia · 19:00",
+      "saveError": "Ajan esitysmuotoa ei voitu tallentaa. Yritä uudelleen."
+    }
+  },
+  "tracking": {
+    "track": "Seuraa tapahtumaa",
+    "stop": "Lopeta seuraaminen",
+    "badge": "Seurataan",
+    "trackHint": "Pitää tapahtuman ajan ja salin näkyvissä sovelluksen ulkopuolella, kunnes se päättyy.",
+    "bannerTitle": "Seurataan: {{title}}",
+    "stopAccessibility": "Lopeta tapahtuman {{title}} seuraaminen",
+    "startedAnnouncement": "Seurataan nyt: {{title}}.",
+    "stoppedAnnouncement": "Seuraaminen lopetettu: {{title}}.",
+    "replace": {
+      "title": "Seurataanko tätä tapahtumaa?",
+      "message": "ConPaws seuraa yhtä tapahtumaa kerrallaan. {{next}} korvaa tapahtuman {{current}}.",
+      "confirm": "Seuraa tätä"
+    },
+    "live": {
+      "startsIn": "Alkuun",
+      "endsIn": "Loppuun",
+      "now": "Nyt",
+      "ended": "Päättynyt",
+      "stop": "Lopeta"
+    },
+    "permission": {
+      "notificationsTitle": "Ilmoitukset ovat pois päältä",
+      "notificationsMessage": "ConPaws tarvitsee luvan ilmoitusten lähettämiseen, jotta se voi näyttää seuraamasi tapahtuman. Ota ilmoitukset käyttöön Asetuksissa ja seuraa tapahtumaa uudelleen.",
+      "liveActivitiesTitle": "Live-toiminnot ovat pois päältä",
+      "liveActivitiesMessage": "Ota ConPawsin Live-toiminnot käyttöön Asetuksissa, niin näet tapahtuman lukitusnäytöllä."
+    },
+    "errorTitle": "Tapahtumaa ei seurata",
+    "errorMessage": "ConPaws ei voinut aloittaa tämän tapahtuman seuraamista. Yritä uudelleen.",
+    "channel": {
+      "name": "Seurattu tapahtuma",
+      "description": "Näyttää seurattavaksi valitsemasi tapahtuman ja Lopeta-painikkeen."
     }
   }
 }

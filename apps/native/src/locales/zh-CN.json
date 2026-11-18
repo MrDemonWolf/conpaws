@@ -171,7 +171,9 @@
       "allDaysCta": "显示全部日期",
       "dropIn": {
         "title": "随时可来",
-        "subtitle": "不限时段"
+        "subtitle": "不限时段",
+        "filter": "自由参加 · {{count}}",
+        "find": "查找自由参加活动"
       },
       "noSeat": "收藏活动不等于预留座位。",
       "optionsOne": "{{count}} 个选择",
@@ -249,8 +251,10 @@
       },
       "minutesLeftOne": "还剩 {{count}} 分钟",
       "minutesLeftMany": "还剩 {{count}} 分钟",
+      "durationLeft": "还剩 {{duration}}",
       "minutesUntilOne": "{{count}} 分钟后开始",
       "minutesUntilMany": "{{count}} 分钟后开始",
+      "durationUntil": "{{duration}}后开始",
       "alsoNowOne": "同时进行的收藏活动：另有 {{count}} 场",
       "alsoNowMany": "同时进行的收藏活动：另有 {{count}} 场"
     },
@@ -284,6 +288,14 @@
       "overlapsPlan": "与你的计划重叠",
       "overlapWith": "与{{title}}重叠 {{minutes}} 分钟",
       "compareBeforeAdding": "加入前先比较"
+    },
+    "visit": {
+      "title": "计划到访",
+      "edit": "编辑到访计划",
+      "duration": "停留时长",
+      "windowError": "整个到访时段必须在开放时间内。",
+      "invalid": "开放时间已更改，请编辑到访计划。",
+      "remove": "移除到访计划"
     }
   },
   "errors": {
@@ -314,12 +326,11 @@
     },
     "archive": {
       "title": "归档（{{count}}）",
-      "show": "显示",
-      "hide": "隐藏",
       "noCurrent": "没有即将开始的展会。",
       "success": "已归档{{name}}。",
       "errorTitle": "无法归档展会",
-      "errorMessage": "没有任何内容被归档。请重试。"
+      "errorMessage": "没有任何内容被归档。请重试。",
+      "showConventions": "显示已归档的展会"
     },
     "unarchive": {
       "success": "已从归档中恢复{{name}}。",
@@ -327,7 +338,6 @@
       "errorMessage": "无法恢复该展会。请重试。"
     },
     "moreActions": "{{name}}的更多操作",
-    "sortBy": "排序方式",
     "sort": {
       "upcoming": "即将开始优先",
       "name": "名称"
@@ -339,7 +349,8 @@
       "errorTitle": "无法删除展会",
       "errorMessage": "没有任何内容被删除。请重试。"
     },
-    "find": "查找我的展会"
+    "find": "查找我的展会",
+    "sortAndView": "排序和显示"
   },
   "import": {
     "title": "导入日程",
@@ -428,42 +439,36 @@
   "onboarding": {
     "progress": "第 {{step}} 步，共 {{total}} 步",
     "welcome": {
-      "tagline": "你的展会日程，离线也能用。",
-      "subtitle": "再糟糕的会场 Wi-Fi 也不怕。你的日程就存在设备上。",
+      "tagline": "你的漫展，离线也能用。",
+      "subtitle": "查找漫展，或导入 .ics 文件或 Sched 链接。",
       "continue": "继续",
-      "skip": "跳过"
+      "skip": "跳过",
+      "exampleTitle": "漫展示例",
+      "connectionNote": "查找和下载日程需要网络连接。下载后的日程可离线使用。"
     },
     "features": {
-      "title": "规划整个展会",
-      "subtitle": "会场 Wi-Fi 罢工时，你需要的一切都在。",
-      "demo": {
-        "saved": "我的计划"
-      },
-      "import": {
-        "title": "导入任何日程",
-        "description": "添加 .ics 文件，或粘贴 Sched 链接。"
-      },
-      "plan": {
-        "title": "不错过任何活动",
-        "description": "制定你的计划，查看正在进行和接下来的活动，及时发现时间冲突。"
-      },
-      "offline": {
-        "title": "私密且离线",
-        "description": "你的展会数据只保存在此设备上。"
-      },
-      "plus": {
-        "title": "免费且可离线使用",
-        "description": "这里的一切都不需要账号、不需要网络即可使用。可选的云端功能可能会在日后推出。"
-      },
-      "next": "继续"
+      "title": "挑选你想参加的活动。",
+      "subtitle": "点击星标保存活动，然后打开“我的计划”查看你的选择。",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "继续",
+      "practiceNote": "在这里试一试。此示例不会更改你的漫展。",
+      "viewsNote": "“节目”显示日程，“我的计划”保存你的选择，“此刻”显示正在进行和即将开始的活动。",
+      "emptyPlan": "还没有计划。打开“节目”并点击星标。"
     },
     "getStarted": {
-      "title": "准备好迎接下一场展会了吗？",
-      "subtitle": "查找展会、导入日程，或先探索 ConPaws。",
+      "title": "需要时，再来个提醒。",
+      "subtitle": "保存活动和设置提醒是两个独立的选择。",
       "importSchedule": "导入日程",
       "exploreFirst": "先看看",
       "localPrivacy": "无需账号。你的数据保存在本地。",
-      "find": "查找我的展会"
+      "find": "查找我的展会",
+      "example": "活动示例",
+      "sampleOnly": "仅供演示，不会发送通知。",
+      "permissionNote": "设置真正的提醒时，手机才会请求通知权限。不启用通知也能使用 ConPaws。"
     }
   },
   "reminders": {
@@ -617,7 +622,6 @@
       "support": "支持",
       "helpCenter": "帮助中心",
       "email": "邮箱",
-      "discordDescription": "加入社区",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -642,7 +646,10 @@
       "notRequested": "尚未请求",
       "defaultLead": "默认提醒",
       "defaultLeadDescription": "给新活动设置提醒时的预选项。",
-      "noDefault": "无"
+      "noDefault": "无",
+      "enable": "启用通知",
+      "changeError": "无法更新通知权限，请重试。",
+      "defaultLeadError": "无法保存默认提醒，请重试。"
     },
     "help": {
       "gettingStarted": "开始使用",
@@ -650,7 +657,62 @@
       "importNow": "导入日程",
       "importNowDescription": "添加 Sched 链接或 .ics 文件。",
       "findDescription": "从 ConPaws 目录中选择展会并下载日程。",
-      "find": "查找我的展会"
+      "find": "查找我的展会",
+      "replay": "重新查看引导",
+      "replayDescription": "使用临时示例数据练习"
+    },
+    "preview": {
+      "title": "预览版测试",
+      "add": "添加示例展会",
+      "description": "用于测试的虚构日程。其他展会不会改变。",
+      "restore": "恢复示例数据",
+      "restoreConfirm": "对示例展会的更改将被替换。其他展会和设置不会改变。",
+      "testReminder": "测试提醒",
+      "testDescription": "安排约五秒后发送一条真实的本地通知。",
+      "testScheduled": "已安排约五秒后发送一条本地通知。",
+      "nativeOnly": "提醒测试需要原生应用。",
+      "error": "无法完成预览操作，请重试。"
+    },
+    "timeFormat": {
+      "title": "时间格式",
+      "system": "使用设备设置",
+      "hour12": "12小时制 · 下午7:00",
+      "hour24": "24小时制 · 19:00",
+      "saveError": "无法保存时间格式，请重试。"
+    }
+  },
+  "tracking": {
+    "track": "追踪活动",
+    "stop": "停止追踪",
+    "badge": "追踪中",
+    "trackHint": "在活动结束前，在应用外持续显示这个活动的时间和地点。",
+    "bannerTitle": "正在追踪{{title}}",
+    "stopAccessibility": "停止追踪{{title}}",
+    "startedAnnouncement": "已开始追踪{{title}}。",
+    "stoppedAnnouncement": "已停止追踪{{title}}。",
+    "replace": {
+      "title": "改为追踪这个活动？",
+      "message": "ConPaws 一次只追踪一个活动。{{next}}将替换{{current}}。",
+      "confirm": "改为追踪"
+    },
+    "live": {
+      "startsIn": "距开始",
+      "endsIn": "距结束",
+      "now": "进行中",
+      "ended": "已结束",
+      "stop": "停止"
+    },
+    "permission": {
+      "notificationsTitle": "通知已关闭",
+      "notificationsMessage": "ConPaws 需要通知权限，才能显示你正在追踪的活动。请在“设置”中开启通知，然后重新追踪这个活动。",
+      "liveActivitiesTitle": "实时活动已关闭",
+      "liveActivitiesMessage": "请在“设置”中为 ConPaws 开启实时活动，以便在锁定屏幕上查看这个活动。"
+    },
+    "errorTitle": "未能追踪活动",
+    "errorMessage": "ConPaws 无法开始追踪这个活动。请重试。",
+    "channel": {
+      "name": "追踪的活动",
+      "description": "显示你选择追踪的那个活动，并附带“停止”按钮。"
     }
   },
   "catalog": {
@@ -714,7 +776,9 @@
         "title": "未找到展会",
         "body": "它可能已取消发布。"
       },
-      "successAnnouncement": "已下载 {{name}}。请选择你的第一个活动。"
+      "successAnnouncement": "已下载 {{name}}。请选择你的第一个活动。",
+      "venue": "场地",
+      "offlineAvailable": "下载后可离线使用"
     }
   }
 }

@@ -3,6 +3,7 @@ import i18n from "i18next";
 import { Platform } from "react-native";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
+import { plannedEvent } from "@/lib/drop-in-visit";
 
 const REMINDER_CHANNEL_ID = "event-reminders";
 const REMINDER_IDENTIFIER_PREFIX = "reminder-";
@@ -36,23 +37,40 @@ export function setupNotificationHandler(): void {
   });
 }
 
-export async function requestNotificationPermission(): Promise<PermissionStatus> {
-  await ensureReminderChannel();
-
-  const { status: existing } = await ExpoNotifications.getPermissionsAsync();
-  if (existing === "granted") return "granted";
-
-  const { status } = await ExpoNotifications.requestPermissionsAsync();
-  return status as PermissionStatus;
-}
-
-export async function getNotificationPermissionStatus(): Promise<PermissionStatus> {
-  const { status, canAskAgain } = await ExpoNotifications.getPermissionsAsync();
+function notificationPermissionStatus({
+  status,
+  canAskAgain,
+  ios,
+}: ExpoNotifications.NotificationPermissionsStatus): PermissionStatus {
+  switch (ios?.status) {
+    case ExpoNotifications.IosAuthorizationStatus.AUTHORIZED:
+    case ExpoNotifications.IosAuthorizationStatus.PROVISIONAL:
+    case ExpoNotifications.IosAuthorizationStatus.EPHEMERAL:
+      return "granted";
+    case ExpoNotifications.IosAuthorizationStatus.DENIED:
+      return "denied";
+    case ExpoNotifications.IosAuthorizationStatus.NOT_DETERMINED:
+      return "undetermined";
+  }
   // Android 13+ reports POST_NOTIFICATIONS as "denied" before the app has ever
   // asked; only canAskAgain tells that apart from a real refusal. Treating it
   // as denied would send the user to system settings instead of the prompt.
   if (status === "denied" && canAskAgain) return "undetermined";
   return status as PermissionStatus;
+}
+
+export async function requestNotificationPermission(): Promise<PermissionStatus> {
+  await ensureReminderChannel();
+  if ((await getNotificationPermissionStatus()) === "granted") return "granted";
+  return notificationPermissionStatus(
+    await ExpoNotifications.requestPermissionsAsync(),
+  );
+}
+
+export async function getNotificationPermissionStatus(): Promise<PermissionStatus> {
+  return notificationPermissionStatus(
+    await ExpoNotifications.getPermissionsAsync(),
+  );
 }
 
 export async function scheduleTestNotification(): Promise<string | null> {
@@ -96,6 +114,9 @@ export async function cancelTestNotifications(): Promise<number> {
 }
 
 interface EventForReminder {
+  endTime?: string | null;
+  visitStartTime?: string | null;
+  visitEndTime?: string | null;
   id: string;
   title: string;
   startTime: string; // ISO string
@@ -178,10 +199,15 @@ async function scheduleReminderRequest(
 }
 
 export async function scheduleEventReminder(
-  event: EventForReminder,
+  sourceEvent: EventForReminder,
   minutesBefore: number,
   options: ScheduleReminderOptions = {},
 ): Promise<string | null> {
+  const event = plannedEvent({
+    ...sourceEvent,
+    endTime: sourceEvent.endTime ?? null,
+    isInSchedule: true,
+  });
   const notificationId = `${REMINDER_IDENTIFIER_PREFIX}${event.id}`;
 
   // Always clear a stale request before an early return or replacement.
@@ -191,6 +217,7 @@ export async function scheduleEventReminder(
     // May not exist.
   }
 
+  if (!event.isInSchedule) return null;
   const permission =
     options.requestPermission === false
       ? await getNotificationPermissionStatus()
@@ -237,7 +264,7 @@ export interface ReminderReconciliationResult {
 }
 
 export async function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
-  const events = await eventsRepo.getAllWithReminders();
+  const events = (await eventsRepo.getAllWithReminders()).map(plannedEvent);
   const archivedConventionIds = new Set(
     (await conventionsRepo.getAll())
       .filter((convention) => convention.archivedAt !== null)
@@ -245,6 +272,7 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
   );
   const armableEvents = events.filter(
     (event) =>
+      event.reminderMinutes !== null &&
       event.feedStatus === null &&
       !archivedConventionIds.has(event.conventionId),
   );
@@ -292,7 +320,7 @@ export async function reconcileEventReminders(): Promise<ReminderReconciliationR
 
     if (triggerMs <= Date.now()) {
       await cancelEventReminder(event.id);
-      await eventsRepo.update(event.id, { reminderMinutes: null });
+      await eventsRepo.clearPassedReminder(event.id);
       cleared++;
       continue;
     }

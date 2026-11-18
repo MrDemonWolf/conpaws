@@ -1,17 +1,25 @@
-import { router } from "expo-router";
-import { CalendarPlus, ShieldCheck } from "lucide-react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, View } from "react-native";
 import { OnboardingButton } from "@/components/OnboardingButton";
-import { OnboardingProgress } from "@/components/OnboardingProgress";
-import { Card, SafeView, Text } from "@/components/ui";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { OnboardingFrame } from "@/components/OnboardingFrame";
+import { ReminderChoices } from "@/components/ReminderChoices";
+import { Card, Text } from "@/components/ui";
+import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
+import { formatEventTime } from "@/lib/event-time-format";
+import { currentLocale } from "@/lib/i18n";
 import { markOnboardingComplete } from "@/lib/onboarding-storage";
-import { themeTokens } from "@/lib/theme-tokens";
+import { REMINDER_DEFAULT_OPTIONS } from "@/lib/reminder-default-storage";
+
+const preview = buildConPawsPreviewFixture();
+const event = preview.events[0];
+if (!event) throw new Error("The onboarding preview needs a sample event.");
 
 export default function GetStartedScreen() {
   const { t } = useTranslation();
-  const iconColor = themeTokens[useResolvedColorScheme()].primary;
+  const { replay } = useLocalSearchParams<{ replay?: string }>();
+  const [reminder, setReminder] = useState<number | null>(null);
+  const locale = currentLocale();
 
   async function finishOnboarding(
     destination:
@@ -19,86 +27,79 @@ export default function GetStartedScreen() {
       | "/convention/new/import"
       | "/(tabs)/(home)",
   ) {
+    if (replay === "1" && destination === "/(tabs)/(home)") {
+      router.dismissTo("/(tabs)/settings/getting-started");
+      return;
+    }
     await markOnboardingComplete();
     router.replace(destination);
   }
 
   return (
-    <SafeView className="overflow-hidden bg-background">
-      <ScrollView
-        className="flex-1"
-        alwaysBounceVertical={false}
-        bounces={false}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingHorizontal: 16,
-          paddingTop: 12,
-          paddingBottom: 8,
-        }}
-        overScrollMode="never"
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="flex-1">
-          <OnboardingProgress step={3} />
-          <View className="flex-1 items-center justify-center gap-5 py-6">
-            <View
-              accessible={false}
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-              className="h-20 w-20 items-center justify-center rounded-2xl bg-card"
-            >
-              <CalendarPlus size={34} color={iconColor} />
-            </View>
-            <View className="max-w-sm items-center gap-2">
-              <Text variant="h2" className="text-center">
-                {t("onboarding.getStarted.title")}
-              </Text>
-              <Text
-                variant="body"
-                className="text-center text-muted-foreground"
-              >
-                {t("onboarding.getStarted.subtitle")}
-              </Text>
-            </View>
-            <Card
-              accessible
-              accessibilityLabel={t("onboarding.getStarted.localPrivacy")}
-              className="w-full max-w-sm flex-row items-center gap-3"
-            >
-              <View
-                accessible={false}
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                className="h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10"
-              >
-                <ShieldCheck size={22} color={iconColor} />
-              </View>
-              <Text variant="caption" className="flex-1 text-muted-foreground">
-                {t("onboarding.getStarted.localPrivacy")}
-              </Text>
-            </Card>
-          </View>
-        </View>
-      </ScrollView>
-      <View className="gap-1 px-4 pt-1 pb-2">
-        <OnboardingButton
-          label={t("onboarding.getStarted.find")}
-          onPress={() => finishOnboarding("/convention/find")}
-          testID="onboarding-get-started-find"
+    <OnboardingFrame
+      step={3}
+      actions={
+        <>
+          <OnboardingButton
+            label={t("onboarding.getStarted.find")}
+            onPress={() => finishOnboarding("/convention/find")}
+            testID="onboarding-get-started-find"
+          />
+          <OnboardingButton
+            label={t("onboarding.getStarted.importSchedule")}
+            variant="text"
+            onPress={() => finishOnboarding("/convention/new/import")}
+            testID="onboarding-get-started-import"
+          />
+          <OnboardingButton
+            label={t("onboarding.getStarted.exploreFirst")}
+            variant="text"
+            onPress={() => finishOnboarding("/(tabs)/(home)")}
+            testID="onboarding-get-started-explore"
+          />
+        </>
+      }
+    >
+      <Text variant="h1" accessibilityRole="header">
+        {t("onboarding.getStarted.title")}
+      </Text>
+      <Text variant="body" className="text-muted-foreground">
+        {t("onboarding.getStarted.subtitle")}
+      </Text>
+      <Card className="gap-3">
+        <Text variant="caption" className="text-muted-foreground">
+          {t("onboarding.getStarted.example")}
+        </Text>
+        <Text variant="label">{event.title}</Text>
+        <Text variant="caption" className="text-muted-foreground">
+          {[
+            formatEventTime(
+              event.startTime,
+              preview.convention.timeZone ?? "UTC",
+              locale,
+            ),
+            event.room,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </Text>
+        <ReminderChoices
+          label={t("reminders.pickerTitle")}
+          value={reminder}
+          options={REMINDER_DEFAULT_OPTIONS}
+          onChange={setReminder}
+          testID="onboarding-sample-reminder"
         />
-        <OnboardingButton
-          label={t("onboarding.getStarted.importSchedule")}
-          variant="text"
-          onPress={() => finishOnboarding("/convention/new/import")}
-          testID="onboarding-get-started-import"
-        />
-        <OnboardingButton
-          label={t("onboarding.getStarted.exploreFirst")}
-          variant="text"
-          onPress={() => finishOnboarding("/(tabs)/(home)")}
-          testID="onboarding-get-started-explore"
-        />
-      </View>
-    </SafeView>
+        <Text variant="caption" className="text-muted-foreground">
+          {t("onboarding.getStarted.sampleOnly")}
+        </Text>
+      </Card>
+      <Text variant="caption" className="text-muted-foreground">
+        {t("onboarding.getStarted.permissionNote")}
+      </Text>
+      <Text variant="caption" className="text-muted-foreground">
+        {t("onboarding.getStarted.localPrivacy")}
+      </Text>
+    </OnboardingFrame>
   );
 }

@@ -13,7 +13,7 @@ import {
   TimeChipRow,
   type TimeChipSlot,
 } from "@/components/schedule/TimeChipRow";
-import { EmptyState, Text } from "@/components/ui";
+import { Chip, EmptyState, Text } from "@/components/ui";
 
 export interface ConventionScheduleHeaderProps {
   view: ScheduleView;
@@ -37,6 +37,11 @@ export interface ConventionScheduleHeaderProps {
     selectedStartMs: number | null;
     allTimesLabel: string;
     onSelect: (startMs: number | null) => void;
+  } | null;
+  dropIns: {
+    label: string;
+    selected: boolean;
+    onPress: () => void;
   } | null;
   summary: {
     heading: string;
@@ -71,6 +76,7 @@ export const ConventionScheduleHeader = memo(function ConventionScheduleHeader({
   notices,
   dayStrip,
   timeChips,
+  dropIns,
   summary,
   hero,
   nowNotice,
@@ -87,6 +93,11 @@ export const ConventionScheduleHeader = memo(function ConventionScheduleHeader({
       {notices}
       {dayStrip ? <DayStrip {...dayStrip} /> : null}
       {timeChips ? <TimeChipRow {...timeChips} /> : null}
+      {dropIns ? (
+        <View className="items-start px-4">
+          <Chip {...dropIns} testID="browse-drop-ins" />
+        </View>
+      ) : null}
       {summary ? <BrowseSummaryHeader {...summary} /> : null}
       {hero ? <NowHeroCard {...hero} /> : null}
       {nowNotice ? (

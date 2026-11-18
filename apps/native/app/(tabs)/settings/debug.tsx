@@ -13,6 +13,7 @@ import {
   BLANK_PREVIEW_CONVENTION_ID,
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   getCachedCatalogSourcePreference,
@@ -20,8 +21,9 @@ import {
 } from "@/lib/catalog/source-preference";
 import {
   type ConventionPreviewState,
-  developerToolsEnabled,
+  developerDiagnosticsEnabled,
 } from "@/lib/developer-tools";
+import { reportError } from "@/lib/error-reporting";
 import { resetOnboarding } from "@/lib/onboarding-storage";
 import {
   resetPresentationLock,
@@ -41,6 +43,7 @@ import {
   type PermissionStatus,
   scheduleTestNotification,
 } from "@/services/notifications";
+import { reconcileTrackedEvent } from "@/services/tracked-event";
 
 export default function DebugScreen() {
   const queryClient = useQueryClient();
@@ -56,8 +59,9 @@ export default function DebugScreen() {
   const presentationLock = useRef(0);
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const appVariant = Constants.expoConfig?.extra?.appVariant;
-  const enabled = developerToolsEnabled(__DEV__, appVariant);
+  const enabled = developerDiagnosticsEnabled(__DEV__, appVariant);
   const version =
     Application.nativeApplicationVersion ??
     Constants.expoConfig?.version ??
@@ -123,6 +127,11 @@ export default function DebugScreen() {
       if (!installed) {
         resetPresentationLock(presentationLock);
       } else {
+        // Preview event ids are reused with reset content, so a tracked
+        // preview event can come back unsaved or moved under the same id.
+        void reconcileTrackedEvent().catch((error) => {
+          reportError(error, { scope: "debug.reconcileTrackedEvent" });
+        });
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["conventions"] }),
           queryClient.invalidateQueries({ queryKey: ["convention"] }),
@@ -192,7 +201,7 @@ export default function DebugScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section title="Build">
           <ListItem supportingText={`${version} (${buildNumber})`}>
             {variantName} app version

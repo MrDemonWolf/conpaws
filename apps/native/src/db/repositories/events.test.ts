@@ -5,6 +5,7 @@ import {
   type SourceEventInput,
   type SourceOccurrenceIdentity,
   type SourceSnapshot,
+  setScheduleMembership,
   upsertBySourceUid,
 } from "./events";
 
@@ -594,9 +595,11 @@ describe("upsertBySourceUid transaction", () => {
     mockDb.transaction.mockReset();
   });
 
-  it("never writes isInSchedule or reminderMinutes when updating a matched row", async () => {
+  it("preserves saved membership, reminders and personal visit times when updating a matched row", async () => {
     const starred = storedEvent({
       id: "starred",
+      visitStartTime: "2026-06-12T16:30:00.000Z",
+      visitEndTime: "2026-06-12T17:00:00.000Z",
       isInSchedule: true,
       reminderMinutes: 30,
       sourceUid: "panel-1",
@@ -642,6 +645,64 @@ describe("upsertBySourceUid transaction", () => {
     // the reconciliation tests above would stay green.
     expect(Object.keys(payload)).not.toContain("isInSchedule");
     expect(Object.keys(payload)).not.toContain("reminderMinutes");
+    expect(Object.keys(payload)).not.toContain("visitStartTime");
+    expect(Object.keys(payload)).not.toContain("visitEndTime");
+  });
+
+  it("leaves a row the feed republished unchanged untouched, updatedAt included", async () => {
+    const unchanged = storedEvent({
+      id: "unchanged",
+      sourceUid: "panel-1",
+      title: "Same panel",
+      room: "Room A",
+      startTime: "2026-06-12T16:00:00.000Z",
+      endTime: "2026-06-12T17:00:00.000Z",
+    });
+    const tombstoned = storedEvent({
+      id: "tombstoned",
+      sourceUid: "panel-2",
+      title: "Back again",
+      room: "Room A",
+      startTime: "2026-06-12T18:00:00.000Z",
+      endTime: "2026-06-12T19:00:00.000Z",
+      feedStatus: "removed",
+    });
+    const recorder = recordingTx([unchanged, tombstoned]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+    const republished = (row: ConventionEvent) =>
+      sourceEvent({
+        sourceUid: row.sourceUid,
+        legacySourceUid: null,
+        title: row.title,
+        room: row.room,
+        startTime: row.startTime,
+        endTime: row.endTime,
+      });
+    const identity = (row: ConventionEvent) =>
+      occurrence({
+        sourceUid: row.sourceUid ?? "",
+        legacySourceUid: null,
+        startTime: row.startTime,
+        recurrenceTime: null,
+        title: row.title,
+      });
+
+    const result = await upsertBySourceUid(
+      [republished(unchanged), republished(tombstoned)],
+      "convention-1",
+      snapshot([identity(unchanged), identity(tombstoned)], [], true),
+    );
+
+    // Still counted as matched, but only the row whose mark clears is written.
+    expect(result.updated).toBe(2);
+    expect(recorder.updates).toHaveLength(1);
+    expect(recorder.updates[0]).toMatchObject({
+      title: "Back again",
+      feedStatus: null,
+      updatedAt: expect.any(String),
+    });
   });
 
   it("does not carry legacySourceUid into an inserted row", async () => {
@@ -679,4 +740,25 @@ describe("upsertBySourceUid transaction", () => {
     expect(result.removedEventIds).toEqual(["gone"]);
     expect(recorder.deletes()).toBe(1);
   });
+});
+
+it("clears visit and reminder intent only for rows removed by a compare choice", async () => {
+  const recorder = recordingTx([]);
+  mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+    body(recorder.tx),
+  );
+  await setScheduleMembership([
+    { id: "visit", isInSchedule: false },
+    { id: "timed", isInSchedule: true },
+  ]);
+  expect(recorder.updates).toHaveLength(2);
+  expect(recorder.updates[0]).toMatchObject({
+    isInSchedule: false,
+    reminderMinutes: null,
+    visitStartTime: null,
+    visitEndTime: null,
+  });
+  expect(recorder.updates[1]).toMatchObject({ isInSchedule: true });
+  expect(recorder.updates[1]).not.toHaveProperty("visitStartTime");
+  expect(recorder.updates[1]).not.toHaveProperty("reminderMinutes");
 });

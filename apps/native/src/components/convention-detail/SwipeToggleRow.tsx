@@ -81,7 +81,12 @@ export function SwipeToggleRow({
         onToggle();
       }}
     >
-      {children}
+      {/* Gesture Handler 3 lays both action pills full size underneath the
+          row and relies on the row to hide them. Event rows are transparent
+          over the list, so without this surface the pills showed through on
+          every row and covered the start times. Grouped and highlighted rows
+          still paint their own tint on top. */}
+      <View className="bg-background">{children}</View>
     </ReanimatedSwipeable>
   );
 }

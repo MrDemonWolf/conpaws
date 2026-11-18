@@ -50,7 +50,7 @@ describe.each([
   });
 });
 
-it("keeps the widget bridge Apple-only when registering Android shortcuts", () => {
+it("registers widgets and shortcuts independently on both platforms", () => {
   const config = JSON.parse(
     readFileSync(resolve(nativeRoot, "expo-module.config.json"), "utf8"),
   );
@@ -58,5 +58,6 @@ it("keeps the widget bridge Apple-only when registering Android shortcuts", () =
   expect(config.apple.modules).toContain("ConPawsQuickActionsModule");
   expect(config.android.modules).toEqual([
     "expo.modules.conpawswidgets.ConPawsQuickActionsModule",
+    "expo.modules.conpawswidgets.ConPawsWidgetsModule",
   ]);
 });

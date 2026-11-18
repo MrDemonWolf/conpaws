@@ -71,7 +71,7 @@
       }
     },
     {
-      "includes": ["AGENTS.md"],
+      "includes": ["**/AGENTS.md"],
       "formatter": { "enabled": false }
     }
   ]

@@ -86,6 +86,7 @@ import {
   loadAppearancePreference,
 } from "@/lib/appearance-storage";
 import { primeCatalogSourcePreference } from "@/lib/catalog/source-preference";
+import { loadTimeFormatPreference } from "@/lib/device-clock";
 import {
   DatabaseUnavailableScreen,
   ScreenErrorFallback,
@@ -123,6 +124,8 @@ import {
   subscribeToQuickActions,
   updateQuickActionLabels,
 } from "@/services/quick-actions";
+import { initTrackedEvent } from "@/services/tracked-event";
+import { initWatchCommands } from "@/services/watch-commands";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 setupNotificationHandler();
@@ -210,6 +213,9 @@ async function runLaunchBootstrap(): Promise<boolean> {
 
   // Primes the cache the reminder picker reads synchronously.
   await getDefaultReminderMinutes().catch(() => null);
+  await loadTimeFormatPreference().catch((error) => {
+    reportError(error, { scope: "bootstrap.timeFormat" });
+  });
   await primeCatalogSourcePreference().catch(() => undefined);
   // Same reason: the Settings switch and the schedule check both read this
   // synchronously, and a switch that flips a frame after it renders reads as
@@ -301,7 +307,7 @@ function RootLayout() {
   // Neither of these affects what is painted, so they run after the first
   // frame instead of holding the splash open.
   useEffect(() => {
-    if (!ready || databaseInitError) return;
+    if (!ready || !translationsReady || databaseInitError) return;
 
     void reconcileEventReminders()
       .then(recordReminderReconciliation)
@@ -311,7 +317,34 @@ function RootLayout() {
     void publishWidgetSnapshot().catch((error) => {
       reportError(error, { scope: "bootstrap.publishWidgetSnapshot" });
     });
-  }, [ready, databaseInitError]);
+  }, [ready, translationsReady, databaseInitError]);
+
+  // Same gate as the reminder and widget launch work: tracking reads event
+  // rows and translated labels. Reconciling is already driven from
+  // publishWidgetSnapshot, so this only loads the selection and listens for a
+  // Stop pressed on the Live Activity or notification while the app is alive.
+  useEffect(() => {
+    if (!ready || !translationsReady || databaseInitError) return;
+    return initTrackedEvent();
+  }, [ready, translationsReady, databaseInitError]);
+
+  // Save and remove taps from the Apple Watch, queued natively until the
+  // database is usable. Same gate as tracking: applying one writes event rows
+  // and can stop the tracked event.
+  useEffect(() => {
+    if (!ready || !translationsReady || databaseInitError) return;
+    return initWatchCommands({
+      refreshCaches: (conventionIds) =>
+        Promise.allSettled([
+          ...conventionIds.map((conventionId) =>
+            queryClient.invalidateQueries({
+              queryKey: ["events", conventionId],
+            }),
+          ),
+          queryClient.invalidateQueries({ queryKey: ["schedule"] }),
+        ]),
+    });
+  }, [ready, translationsReady, databaseInitError]);
 
   useEffect(() => {
     addReportBreadcrumb(pathname, { scope: "navigation" });

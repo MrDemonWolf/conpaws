@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -169,8 +169,17 @@ describe("iOS native stack headers", () => {
     // renders its header in-content, because Stack.Toolbar never reaches
     // headerLeft/headerRight there -- so the native header must stay hidden or
     // the screen shows two titles.
+    // The rule lives beside the form header so the edit and import screens
+    // can tell whether the window or the sheet sets their width.
+    const formSharedSource = readFileSync(
+      path.resolve(__dirname, "../components/FormModalHeader.shared.ts"),
+      "utf8",
+    );
+    expect(formSharedSource).toContain(
+      'export const FORM_PRESENTED_AS_SHEET = process.env.EXPO_OS === "ios"',
+    );
     expect(homeLayoutSource).toContain(
-      'process.env.EXPO_OS === "ios" ? "formSheet" : "modal"',
+      'FORM_PRESENTED_AS_SHEET ? "formSheet" : "modal"',
     );
     expect(homeLayoutSource).toContain(
       'const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios"',
@@ -253,5 +262,31 @@ describe("Windowed lists redraw when their formatting inputs change", () => {
   ])("%s rebuilds its cells when the font scale changes", (_name, source) => {
     expect(source).toContain("useWindowDimensions");
     expect(source).toMatch(/extraData=\{`[^`]*\$\{fontScale\}/);
+  });
+});
+
+describe("Expo Router stack headers", () => {
+  it("titles every screen whose native header is shown", () => {
+    // Without a title, iOS shows the route path ("convention/[id]/event/…")
+    // in the header. A screen may instead set its title at runtime.
+    const appRoot = path.resolve(__dirname, "../../app");
+    const layouts = (readdirSync(appRoot, { recursive: true }) as string[])
+      .filter((file) => path.basename(file) === "_layout.tsx")
+      .map((file) => path.join(appRoot, file));
+    const untitled: string[] = [];
+    for (const layout of layouts) {
+      const source = readFileSync(layout, "utf8");
+      for (const [, name, options] of source.matchAll(
+        /<Stack\.Screen\s+name="([^"]+)"([\s\S]*?)\/>/g,
+      )) {
+        if (/headerShown:\s*false|title:/.test(options)) continue;
+        const route = path.join(path.dirname(layout), `${name}.tsx`);
+        const runtime = existsSync(route) ? readFileSync(route, "utf8") : "";
+        if (/<Stack\.Screen[\s\S]*?title:/.test(runtime)) continue;
+        untitled.push(path.relative(appRoot, route));
+      }
+    }
+    expect(layouts.length).toBeGreaterThan(1);
+    expect(untitled).toEqual([]);
   });
 });

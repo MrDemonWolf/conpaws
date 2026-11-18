@@ -58,7 +58,7 @@ describe("app variants", () => {
     );
     expect(config.ios?.icon).toBe(expected.iosIcon);
     expect(config.extra?.eas.build.experimental.ios.appExtensions).toEqual(
-      ["widget", "ConPawsWatch", "ConPawsWatchWidgetExtension"].map(
+      ["ExpoWidgetsTarget", "ConPawsWatch", "ConPawsWatchWidgetExtension"].map(
         (targetName, index) => ({
           targetName,
           bundleIdentifier: `${expected.bundleId}${

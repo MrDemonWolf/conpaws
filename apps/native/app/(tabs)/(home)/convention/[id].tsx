@@ -47,17 +47,19 @@ import { AgendaRow } from "@/components/schedule/AgendaRow";
 import { DropInRow } from "@/components/schedule/DropInRow";
 import type { NowHeroCardProps } from "@/components/schedule/NowHeroCard";
 import type { ScheduleView } from "@/components/schedule/ScheduleViewSwitcher.types";
+import { TrackedEventBanner } from "@/components/TrackedEventBanner";
 import {
   Banner,
   EmptyState,
   SafeView,
   ScheduleSkeleton,
+  Skeleton,
   Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
-import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useScheduleRefresh } from "@/hooks/useScheduleRefresh";
@@ -71,7 +73,8 @@ import {
   overlappingEventIds,
 } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
-import { deviceHour12 } from "@/lib/device-clock";
+import { useHour12 } from "@/lib/device-clock";
+import { hasVisit, plannedEvent } from "@/lib/drop-in-visit";
 import { shouldShowProvenance } from "@/lib/event-indicators";
 import {
   formatClockParts,
@@ -83,6 +86,8 @@ import {
   formatEventEndTime,
   formatEventTime,
   formatHourLabel,
+  formatMinutesLeft,
+  formatMinutesUntilStart,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -95,6 +100,7 @@ import {
 } from "@/lib/reminder-notice";
 import {
   type BrowseFilters,
+  browseStateForEvent,
   conventionDayKeys,
   dayCounts,
   defaultBrowseDay,
@@ -109,9 +115,10 @@ import {
   isScheduleHintDismissed,
 } from "@/lib/schedule-hint-storage";
 import {
-  SCHEDULE_EMPTY_CONTENT_STYLE,
-  SCHEDULE_LIST_CONTENT_STYLE,
+  canScrollSchedule,
+  scheduleContentStyle,
   shouldBounceSchedule,
+  showsScheduleHeader,
 } from "@/lib/schedule-list-styles";
 import {
   buildAgendaSections,
@@ -120,6 +127,7 @@ import {
   type ScheduleRow,
   type ScheduleSection,
 } from "@/lib/schedule-sections";
+import { createSectionListJump } from "@/lib/section-list-jump";
 import { localizedTimeZoneName } from "@/lib/time-zone-name";
 import { hapticSuccess } from "@/services/haptics";
 
@@ -130,13 +138,6 @@ const NOT_FOUND_ICON = Icon.select({
   ios: "questionmark.folder",
   android: FolderOffIcon,
 });
-
-const EMPTY_CONVENTION_CONTENT_STYLE = {
-  flexGrow: 1,
-  justifyContent: "center",
-  paddingBottom: 48,
-  paddingTop: 24,
-} as const;
 
 /** The views, in the order the segmented control shows them. */
 const VIEW_LABEL_KEYS: Record<ScheduleView, string> = {
@@ -150,21 +151,26 @@ export default function ConventionDetailScreen() {
     id,
     previewState: requestedPreviewState,
     highlightEventId,
+    dropIns: requestedDropIns,
   } = useLocalSearchParams<{
     id: string;
     previewState?: string;
     /** From a notification tap: scroll to and briefly highlight this event. */
     highlightEventId?: string;
+    dropIns?: string;
   }>();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const locale = currentLocale();
-  const hour12 = deviceHour12();
+  const hour12 = useHour12();
   const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
   // A Dynamic Type change reaches a running app, but already-measured list
   // cells keep their old heights and clip the larger text. Part of
   // `extraData` below so the cells are rebuilt.
   const { fontScale } = useWindowDimensions();
+  // On a wide window the list lays its rows into a readable column; zero on a
+  // phone in portrait.
+  const { listPadding } = useContentWidth();
   const previewState = resolveConventionPreviewState(
     requestedPreviewState,
     __DEV__,
@@ -175,6 +181,16 @@ export default function ConventionDetailScreen() {
   const [view, setView] = useState<ScheduleView>("all");
   const [browse, setBrowse] = useScheduleBrowseState(id ?? "");
   const [searchQuery, setSearchQuery] = useState("");
+  const [dropInsOnly, setDropInsOnly] = useState(requestedDropIns === "1");
+
+  useEffect(() => {
+    if (requestedDropIns === "1") {
+      setDropInsOnly(true);
+      setView("all");
+      setSearchQuery("");
+      setBrowse({ dayKey: ALL_DAYS, slotStartMs: null, category: null });
+    }
+  }, [requestedDropIns, setBrowse]);
   const [manualEventVisible, setManualEventVisible] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const notificationPermission = useNotificationPermission();
@@ -199,10 +215,28 @@ export default function ConventionDetailScreen() {
   );
 
   const listRef = useRef<SectionList<Row, Section>>(null);
+  const listJump = useMemo(
+    () =>
+      createSectionListJump({
+        toLocation: (location) => listRef.current?.scrollToLocation(location),
+        toOffset: (y) =>
+          listRef.current
+            ?.getScrollResponder()
+            ?.scrollTo({ y, animated: false }),
+      }),
+    [],
+  );
+  useEffect(() => () => listJump.cancel(), [listJump]);
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(
     null,
   );
-  const scrolledToHighlight = useRef(false);
+  const scrolledToHighlight = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!highlightedEventId) return;
+    const timer = setTimeout(() => setHighlightedEventId(null), 2500);
+    return () => clearTimeout(timer);
+  }, [highlightedEventId]);
 
   function openImportSchedule() {
     if (!tryAcquirePresentationLock(presentationLock)) return;
@@ -301,7 +335,7 @@ export default function ConventionDetailScreen() {
   );
 
   const scheduledEvents = useMemo(
-    () => events.filter((event) => event.isInSchedule),
+    () => events.map(plannedEvent).filter((event) => event.isInSchedule),
     [events],
   );
   /**
@@ -395,8 +429,13 @@ export default function ConventionDetailScreen() {
     [events, filters, conventionTimeZone],
   );
   const browseSections = useMemo(
-    () => buildBrowseSections(selection, filters, conventionTimeZone),
-    [selection, filters, conventionTimeZone],
+    () =>
+      buildBrowseSections(
+        selection,
+        { ...filters, dropInsOnly },
+        conventionTimeZone,
+      ),
+    [selection, filters, dropInsOnly, conventionTimeZone],
   );
   const agendaSections = useMemo(
     () =>
@@ -417,12 +456,19 @@ export default function ConventionDetailScreen() {
       : view === "mine"
         ? agendaSections
         : nowSelection.sections;
+  const contentKind =
+    sections.length > 0 ? "list" : events.length === 0 ? "blank" : "empty";
+  const contentContainerStyle = useMemo(
+    () => scheduleContentStyle(contentKind, listPadding),
+    [contentKind, listPadding],
+  );
 
   const hasActiveFilters =
     activeCategory !== null ||
     slotStartMs !== null ||
-    searchQuery.trim().length > 0;
-  const hasClearableFilters = activeCategory !== null || slotStartMs !== null;
+    searchQuery.trim().length > 0 ||
+    dropInsOnly;
+  const hasClearableFilters = hasActiveFilters;
 
   const currentConventionDay = conventionDayKey(new Date(), conventionTimeZone);
   const manualEventDefaultDate =
@@ -441,8 +487,11 @@ export default function ConventionDetailScreen() {
 
   // Stable so the memoised rows only re-render when their inputs change.
   const toggleSchedule = useCallback(
-    (event: ConventionEvent) => toggleScheduleMutation.mutate(event),
-    [toggleScheduleMutation.mutate],
+    (event: ConventionEvent) =>
+      toggleScheduleMutation.mutate(
+        events.find((row) => row.id === event.id) ?? event,
+      ),
+    [events, toggleScheduleMutation.mutate],
   );
 
   /**
@@ -452,8 +501,12 @@ export default function ConventionDetailScreen() {
    */
   const handleStarPress = useCallback(
     (event: ConventionEvent) => {
+      if (isDropInEvent(event) || hasVisit(event)) {
+        openEventActions(event);
+        return;
+      }
       if (!event.isInSchedule) {
-        const set = compareCandidates(events, event.id);
+        const set = compareCandidates(events.map(plannedEvent), event.id);
         if (set && set.conflicts.length > 0) {
           openCompare(event.id);
           return;
@@ -461,32 +514,49 @@ export default function ConventionDetailScreen() {
       }
       toggleSchedule(event);
     },
-    [events, openCompare, toggleSchedule],
+    [events, openCompare, openEventActions, toggleSchedule],
   );
 
   const clearFilters = useCallback(() => {
+    setSearchQuery("");
+    setDropInsOnly(false);
     setBrowse({ category: null, slotStartMs: null });
   }, [setBrowse]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Changed filters invalidate a pending scroll target.
+  useEffect(() => {
+    listJump.cancel();
+  }, [listJump, filters, dropInsOnly, view]);
 
   // Scroll once to the event a notification tap named, then let the pulse
   // fade. Runs after the sections exist; a stale or deleted event id is
   // silently ignored. The browse state is reset first so the row is on
   // screen whatever was filtered before the tap.
   useEffect(() => {
-    if (!highlightEventId || scrolledToHighlight.current) return;
+    if (!highlightEventId || scrolledToHighlight.current === highlightEventId)
+      return;
     const target = events.find((event) => event.id === highlightEventId);
     if (!target) return;
     if (view !== "all") {
       setView("all");
       return;
     }
-    const targetDay = conventionDayKey(target.startTime, conventionTimeZone);
+    if (dropInsOnly && !isDropInEvent(target)) {
+      setDropInsOnly(false);
+      return;
+    }
+    const { query, ...targetBrowse } = browseStateForEvent(
+      target,
+      conventionTimeZone,
+    );
     if (
-      (effectiveDay !== null && effectiveDay !== targetDay) ||
+      (effectiveDay !== null && effectiveDay !== targetBrowse.dayKey) ||
       slotStartMs !== null ||
-      activeCategory !== null
+      activeCategory !== null ||
+      searchQuery !== query
     ) {
-      setBrowse({ dayKey: targetDay, slotStartMs: null, category: null });
+      setSearchQuery(query);
+      setBrowse(targetBrowse);
       return;
     }
     for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
@@ -494,16 +564,15 @@ export default function ConventionDetailScreen() {
         (row) => row.id === highlightEventId,
       );
       if (itemIndex >= 0) {
-        scrolledToHighlight.current = true;
+        scrolledToHighlight.current = highlightEventId;
         setHighlightedEventId(highlightEventId);
-        listRef.current?.scrollToLocation({
+        listJump.jump({
           sectionIndex,
           itemIndex,
           animated: true,
           viewPosition: 0.3,
         });
-        const timer = setTimeout(() => setHighlightedEventId(null), 2500);
-        return () => clearTimeout(timer);
+        return;
       }
     }
   }, [
@@ -514,24 +583,16 @@ export default function ConventionDetailScreen() {
     effectiveDay,
     slotStartMs,
     activeCategory,
+    searchQuery,
+    dropInsOnly,
     conventionTimeZone,
     setBrowse,
+    listJump,
   ]);
 
-  const minutesLeftLabel = (count: number) =>
-    t(
-      count === 1
-        ? "convention.now.minutesLeftOne"
-        : "convention.now.minutesLeftMany",
-      { count },
-    );
+  const minutesLeftLabel = (count: number) => formatMinutesLeft(count, t);
   const minutesUntilLabel = (count: number) =>
-    t(
-      count === 1
-        ? "convention.now.minutesUntilOne"
-        : "convention.now.minutesUntilMany",
-      { count },
-    );
+    formatMinutesUntilStart(count, t);
 
   const gapLabel = useCallback(
     (gap: AgendaGap): string => {
@@ -772,8 +833,6 @@ export default function ConventionDetailScreen() {
     previewState === "loading" ||
     (previewState !== "error" && (conventionLoading || eventsLoading));
 
-  const showLoading = useDelayedLoading(isLoading);
-
   if (isLoading) {
     return (
       <>
@@ -783,11 +842,13 @@ export default function ConventionDetailScreen() {
           }}
         />
         <SafeView>
-          {showLoading ? (
-            <ScheduleSkeleton />
-          ) : (
-            <View className="flex-1 bg-background" />
-          )}
+          <ScheduleSkeleton>
+            <View className="gap-4 px-4 pt-3 pb-2">
+              <Skeleton className="h-10 rounded-xl" />
+              <Skeleton className="h-14 w-4/5" />
+              <Skeleton className="h-12" />
+            </View>
+          </ScheduleSkeleton>
         </SafeView>
       </>
     );
@@ -890,6 +951,7 @@ export default function ConventionDetailScreen() {
           }}
         />
       ) : null}
+      <TrackedEventBanner conventionId={id} />
       <ReminderNoticeBanner
         notice={reminderNotice}
         overflow={reminderOverflow}
@@ -1004,14 +1066,22 @@ export default function ConventionDetailScreen() {
         : t("convention.browse.headingDay", {
             day: formatDayKeyWeekday(effectiveDay, locale),
           });
-  const browseCount = selection.rows.length;
+  const browseDayCount = dropInsOnly
+    ? new Set(
+        selection.dropIns.map((event) =>
+          conventionDayKey(event.startTime, conventionTimeZone),
+        ),
+      ).size
+    : selection.dayCount;
+  const browseCount =
+    (dropInsOnly ? 0 : selection.rows.length) + selection.dropIns.length;
   const summary: ConventionScheduleHeaderProps["summary"] =
     view === "all" && events.length > 0
       ? {
           heading: summaryHeading,
           countLabel:
             effectiveDay === null
-              ? `${t(browseCount === 1 ? "convention.browse.optionsOne" : "convention.browse.optionsMany", { count: browseCount })} · ${t(selection.dayCount === 1 ? "convention.browse.daysOne" : "convention.browse.daysMany", { count: selection.dayCount })}`
+              ? `${t(browseCount === 1 ? "convention.browse.optionsOne" : "convention.browse.optionsMany", { count: browseCount })} · ${t(browseDayCount === 1 ? "convention.browse.daysOne" : "convention.browse.daysMany", { count: browseDayCount })}`
               : t(
                   browseCount === 1
                     ? "convention.browse.optionsOne"
@@ -1019,7 +1089,7 @@ export default function ConventionDetailScreen() {
                   { count: browseCount },
                 ),
           totalLabel:
-            browseCount !== selection.total
+            !dropInsOnly && browseCount !== selection.total
               ? t("convention.browse.total", { count: selection.total })
               : undefined,
           hint: activeCategory
@@ -1243,6 +1313,19 @@ export default function ConventionDetailScreen() {
       notices={scheduleNotices}
       dayStrip={dayStrip}
       timeChips={timeChips}
+      dropIns={
+        view === "all" && events.length > 0
+          ? {
+              label: dropInsOnly
+                ? t("convention.allCategories")
+                : t("convention.browse.dropIn.filter", {
+                    count: selection.dropIns.length,
+                  }),
+              selected: dropInsOnly,
+              onPress: () => setDropInsOnly((selected) => !selected),
+            }
+          : null
+      }
       summary={summary}
       hero={heroProps}
       nowNotice={nowNotice}
@@ -1258,6 +1341,12 @@ export default function ConventionDetailScreen() {
       }
     />
   );
+
+  // The Now hero card is the whole Now view when no other panel fits this
+  // hour. It lives in the list header, so the list must keep that header and
+  // scroll like a populated one.
+  const nowHeroOnly =
+    view === "now" && heroProps !== null && sections.length === 0;
 
   const emptyComponent =
     view === "all" ? (
@@ -1300,7 +1389,6 @@ export default function ConventionDetailScreen() {
     ) : view === "mine" ? (
       scheduledEvents.length === 0 ? (
         <EmptyState
-          compact
           icon={EMPTY_SCHEDULE_ICON}
           title={t("convention.plan.emptyConvention.title")}
           subtitle={t("convention.plan.emptyConvention.body")}
@@ -1309,7 +1397,6 @@ export default function ConventionDetailScreen() {
         />
       ) : (
         <EmptyState
-          compact
           icon={EMPTY_SCHEDULE_ICON}
           title={t("convention.plan.empty.title")}
           subtitle={t("convention.plan.empty.body")}
@@ -1317,6 +1404,14 @@ export default function ConventionDetailScreen() {
           onCta={() => setView("all")}
         />
       )
+    ) : nowNotice ? (
+      <EmptyState
+        icon={nowNotice.icon}
+        title={nowNotice.title}
+        subtitle={nowNotice.subtitle}
+        ctaLabel={nowNotice.ctaLabel ?? t("convention.plan.empty.cta")}
+        onCta={nowNotice.onCta ?? (() => setView("all"))}
+      />
     ) : null;
 
   return (
@@ -1328,7 +1423,7 @@ export default function ConventionDetailScreen() {
           headerLargeTitleShadowVisible: false,
         }}
       />
-      {events.length > 0 ? (
+      {events.length > 0 && (view === "all" || sections.length > 0) ? (
         <Stack.SearchBar
           autoCapitalize="none"
           hideWhenScrolling
@@ -1358,6 +1453,9 @@ export default function ConventionDetailScreen() {
           <Stack.Toolbar.Menu
             icon={process.env.EXPO_OS === "ios" ? "plus" : AddIcon}
             accessibilityLabel={t("convention.scheduleActions")}
+            // The open menu's header on iOS, and the label an overflow rail
+            // shows for an icon-only item.
+            title={t("convention.scheduleActions")}
           >
             <Stack.Toolbar.MenuAction
               icon={
@@ -1430,20 +1528,15 @@ export default function ConventionDetailScreen() {
       </Stack.Toolbar>
       <SectionList
         ref={listRef}
-        // scrollToLocation on unmeasured rows throws; retry once after layout.
-        onScrollToIndexFailed={(info) => {
-          setTimeout(() => {
-            listRef.current?.scrollToLocation({
-              sectionIndex: 0,
-              itemIndex: info.index,
-              animated: true,
-            });
-          }, 250);
-        }}
+        onScrollToIndexFailed={listJump.onFailure}
         // Bounce only when there is a schedule to show. Empty states must
         // not rubber-band, but the iOS large title needs a scrollable list
         // to lay itself into, so a populated list has to bounce.
-        alwaysBounceVertical={shouldBounceSchedule(sections)}
+        alwaysBounceVertical={shouldBounceSchedule(sections, nowHeroOnly)}
+        scrollEnabled={canScrollSchedule(
+          sections.length > 0 || view === "all" || nowHeroOnly,
+          fontScale,
+        )}
         sections={sections}
         keyExtractor={(row) => row.id}
         // Rows close over values that are not part of `sections`, and
@@ -1452,18 +1545,14 @@ export default function ConventionDetailScreen() {
         // all change what a cached cell should show.
         extraData={`${locale}|${hour12}|${showProvenance}|${conventionTimeZone}|${highlightedEventId ?? ""}|${fontScale}|${view}|${Math.floor(now / 60_000)}`}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={
-          sections.length === 0
-            ? events.length === 0
-              ? EMPTY_CONVENTION_CONTENT_STYLE
-              : SCHEDULE_EMPTY_CONTENT_STYLE
-            : SCHEDULE_LIST_CONTENT_STYLE
-        }
+        contentContainerStyle={contentContainerStyle}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
-          events.length > 0 || scheduleRefresh.summary !== null
-            ? listHeader
-            : undefined
+          !showsScheduleHeader(view, sections.length, heroProps !== null)
+            ? undefined
+            : events.length > 0 || scheduleRefresh.summary !== null
+              ? listHeader
+              : undefined
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}

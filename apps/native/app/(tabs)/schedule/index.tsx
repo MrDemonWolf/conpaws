@@ -16,11 +16,12 @@ import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";
-import { EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
+import { TrackedEventBanner } from "@/components/TrackedEventBanner";
+import { Button, EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
-import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useContentWidth, useWidthCap } from "@/hooks/useContentWidth";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { ageBadgeFor } from "@/lib/age-badge";
 import {
@@ -30,12 +31,14 @@ import {
   splitMinutes,
 } from "@/lib/agenda-gaps";
 import { categoryAccentColor } from "@/lib/category-color";
+import { ACTIONS_MAX } from "@/lib/content-width";
 import {
   conventionDayKey,
   isValidTimeZone,
   overlappingEventIds,
 } from "@/lib/convention-time";
-import { deviceHour12 } from "@/lib/device-clock";
+import { useHour12 } from "@/lib/device-clock";
+import { plannedEvent } from "@/lib/drop-in-visit";
 import {
   formatClockParts,
   formatDayKeyLabel,
@@ -54,8 +57,8 @@ import {
 } from "@/lib/reminder-notice";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import {
-  SCHEDULE_EMPTY_CONTENT_STYLE,
-  SCHEDULE_LIST_CONTENT_STYLE,
+  canScrollSchedule,
+  scheduleContentStyle,
   shouldBounceSchedule,
 } from "@/lib/schedule-list-styles";
 
@@ -95,7 +98,11 @@ export default function ScheduleScreen() {
   // keeps the heights it measured for cells it has already built; the font
   // scale is part of `extraData` so those cells are rebuilt.
   const { fontScale } = useWindowDimensions();
-  const hour12 = deviceHour12();
+  // On a wide window the list lays its rows into a readable column; zero on a
+  // phone in portrait.
+  const { listPadding } = useContentWidth();
+  const cap = useWidthCap();
+  const hour12 = useHour12();
   const queryClient = useQueryClient();
 
   const {
@@ -107,7 +114,6 @@ export default function ScheduleScreen() {
     queryKey: ["schedule"],
     queryFn: eventsRepo.getAllInSchedule,
   });
-  const showLoading = useDelayedLoading(isLoading);
   const { data: linkedConvention } = useQuery({
     queryKey: ["convention", conventionId],
     queryFn: () => conventionsRepo.getById(conventionId ?? ""),
@@ -116,12 +122,14 @@ export default function ScheduleScreen() {
 
   // Stars are toggled from the convention screen and its sheets, so the
   // pooled list is stale by definition every time it comes back into view.
-  // `now` refreshes alongside it so "earlier today" stays honest.
+  // Keep time current while this tab stays open, too.
   const [now, setNow] = useState(() => new Date());
   useFocusEffect(
     useCallback(() => {
       setNow(new Date());
       queryClient.invalidateQueries({ queryKey: ["schedule"] });
+      const interval = setInterval(() => setNow(new Date()), 30_000);
+      return () => clearInterval(interval);
     }, [queryClient]),
   );
 
@@ -129,6 +137,8 @@ export default function ScheduleScreen() {
     const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
 
     return (rows ?? [])
+      .map((row) => ({ ...row, event: plannedEvent(row.event) }))
+      .filter((row) => row.event.isInSchedule)
       .filter((row) => !conventionId || row.event.conventionId === conventionId)
       .map((row) => ({
         id: row.event.id,
@@ -205,6 +215,11 @@ export default function ScheduleScreen() {
       };
     });
   }, [days, now]);
+  const contentKind = sections.length === 0 ? "empty" : "list";
+  const contentContainerStyle = useMemo(
+    () => scheduleContentStyle(contentKind, listPadding),
+    [contentKind, listPadding],
+  );
 
   const gapLabel = useCallback(
     (gap: AgendaGap): string => {
@@ -321,11 +336,7 @@ export default function ScheduleScreen() {
   );
 
   if (isLoading) {
-    return showLoading ? (
-      <ScheduleSkeleton />
-    ) : (
-      <View className="flex-1 bg-background" />
-    );
+    return <ScheduleSkeleton />;
   }
 
   if (isError) {
@@ -350,6 +361,7 @@ export default function ScheduleScreen() {
         // rubber-band, but a populated list has to scroll or the iOS large
         // title has no content inset to lay itself into.
         alwaysBounceVertical={shouldBounceSchedule(sections)}
+        scrollEnabled={canScrollSchedule(sections.length > 0, fontScale)}
         sections={sections}
         keyExtractor={(row) => row.id}
         // Day headers and row times are formatted at render from values that
@@ -358,11 +370,7 @@ export default function ScheduleScreen() {
         // an object so the identity only changes when one of these does.
         extraData={`${locale}|${hour12}|${showConventionName}|${fontScale}`}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={
-          sections.length === 0
-            ? SCHEDULE_EMPTY_CONTENT_STYLE
-            : SCHEDULE_LIST_CONTENT_STYLE
-        }
+        contentContainerStyle={contentContainerStyle}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
           sections.length > 0 ? (
@@ -378,6 +386,7 @@ export default function ScheduleScreen() {
               {/* Widget deep links land here, so this is where a user with
                   notifications revoked most needs to hear reminders are
                   paused. */}
+              <TrackedEventBanner />
               <ReminderNoticeBanner
                 notice={reminderNotice}
                 overflow={reminderOverflow}
@@ -387,6 +396,30 @@ export default function ScheduleScreen() {
         }
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
+        ListFooterComponent={
+          entries.length > 0 ? (
+            <View className="px-4 py-4" style={cap(ACTIONS_MAX)}>
+              <Button
+                variant="outline"
+                onPress={() => {
+                  const conventionIds = new Set(
+                    entries.map((entry) => entry.conventionId),
+                  );
+                  if (conventionIds.size === 1) {
+                    router.push({
+                      pathname: "/convention/[id]",
+                      params: { id: entries[0].conventionId, dropIns: "1" },
+                    });
+                  } else {
+                    router.navigate("/(tabs)/(home)");
+                  }
+                }}
+              >
+                {t("convention.browse.dropIn.find")}
+              </Button>
+            </View>
+          ) : undefined
+        }
         ListEmptyComponent={
           caughtUpEntry ? (
             <EmptyState

@@ -38,7 +38,7 @@ describe("database bootstrap", () => {
     const version = database.prepare("PRAGMA user_version").get();
 
     expect(eventCount).toEqual({ count: 0 });
-    expect(version).toEqual({ user_version: 7 });
+    expect(version).toEqual({ user_version: 8 });
     database.close();
   });
 
@@ -103,7 +103,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 7,
+      user_version: 8,
     });
     expect(
       database
@@ -130,7 +130,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 7,
+      user_version: 8,
     });
     expect(
       database
@@ -168,7 +168,7 @@ describe("database bootstrap", () => {
       initializeDatabase(migrationAdapter(database));
 
       expect(database.prepare("PRAGMA user_version").get()).toEqual({
-        user_version: 7,
+        user_version: 8,
       });
       expect(
         database
@@ -198,7 +198,7 @@ describe("database bootstrap", () => {
     initializeDatabase(migrationAdapter(database));
 
     expect(database.prepare("PRAGMA user_version").get()).toEqual({
-      user_version: 7,
+      user_version: 8,
     });
     expect(
       database
@@ -229,4 +229,30 @@ describe("database bootstrap", () => {
       expect(migration).toMatch(/ADD COLUMN/);
     }
   });
+});
+
+it("repairs an interrupted v8 visit migration and preserves event hours", () => {
+  const database = new DatabaseSync(":memory:");
+  initializeDatabase(migrationAdapter(database));
+  database.exec(
+    `INSERT INTO conventions (id,name,start_date,end_date) VALUES ('c','Con','2026-11-01','2026-11-01'); INSERT INTO convention_events (id,convention_id,title,start_time,end_time) VALUES ('e','c','Market','2026-11-01T04:00:00Z','2026-11-01T12:00:00Z'); ALTER TABLE convention_events DROP COLUMN visit_end_time; PRAGMA user_version = 7;`,
+  );
+  initializeDatabase(migrationAdapter(database));
+  initializeDatabase(migrationAdapter(database));
+  expect(
+    database
+      .prepare(
+        "SELECT start_time,end_time,visit_start_time,visit_end_time FROM convention_events",
+      )
+      .get(),
+  ).toEqual({
+    start_time: "2026-11-01T04:00:00Z",
+    end_time: "2026-11-01T12:00:00Z",
+    visit_start_time: null,
+    visit_end_time: null,
+  });
+  expect(database.prepare("PRAGMA user_version").get()).toEqual({
+    user_version: 8,
+  });
+  database.close();
 });

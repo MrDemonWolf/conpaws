@@ -195,7 +195,7 @@ describe("selectBrowseEvents", () => {
       "farewell",
     ]);
     expect(result.dropIns.map((row) => row.id)).toEqual(["market"]);
-    expect(result.total).toBe(7);
+    expect(result.total).toBe(8);
     expect(result.dayCount).toBe(3);
   });
 
@@ -243,7 +243,38 @@ describe("selectBrowseEvents", () => {
       TZ,
     );
     expect(result.rows.map((row) => row.id)).toEqual(["draw"]);
-    expect(result.total).toBe(3);
+    expect(result.total).toBe(4);
+  });
+
+  it("counts drop-ins in visible days and totals without applying the timed hour filter", () => {
+    const result = selectBrowseEvents(
+      [market],
+      { ...all, slotStartMs: Date.parse(at(19, 20)) },
+      TZ,
+    );
+    expect(result.rows).toEqual([]);
+    expect(result.dropIns).toEqual([market]);
+    expect(result.total).toBe(1);
+    expect(result.dayCount).toBe(1);
+
+    const searched = selectBrowseEvents(
+      panels,
+      { ...all, query: "exhibit" },
+      TZ,
+    );
+    expect(searched.rows).toEqual([]);
+    expect(searched.dropIns).toEqual([market]);
+    expect(searched.total).toBe(8);
+    expect(searched.dayCount).toBe(1);
+
+    const filtered = selectBrowseEvents(
+      [market],
+      { ...all, category: "Fursuiting" },
+      TZ,
+    );
+    expect(filtered.dropIns).toEqual([]);
+    expect(filtered.total).toBe(1);
+    expect(filtered.dayCount).toBe(0);
   });
 
   it("searches descriptions and rooms", () => {
@@ -305,6 +336,20 @@ describe("helpers", () => {
       dayKey: "2026-09-19",
       slotStartMs: null,
       category: null,
+      query: "",
     });
+  });
+
+  it("reveals a notification target hidden by the previous filters and search", () => {
+    const previous = {
+      dayKey: "2026-09-18",
+      slotStartMs: hourSlotStartMs(at(18, 10), TZ),
+      category: "Writing",
+      query: "unrelated",
+    };
+    expect(selectBrowseEvents(panels, previous, TZ).rows).toEqual([]);
+
+    const reset = { ...previous, ...browseStateForEvent(photo, TZ) };
+    expect(selectBrowseEvents(panels, reset, TZ).rows).toContain(photo);
   });
 });

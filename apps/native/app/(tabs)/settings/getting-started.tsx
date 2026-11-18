@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 
 /**
@@ -16,6 +17,7 @@ export default function GettingStartedScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
 
   return (
     <Host
@@ -24,7 +26,7 @@ export default function GettingStartedScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section title={t("import.help.title")}>
           <ListItem supportingText={t("import.help.sched")}>
             {t("import.help.schedTitle")}
@@ -48,6 +50,17 @@ export default function GettingStartedScreen() {
             onPress={() => router.push("/convention/new/import")}
           >
             {t("settings.help.importNow")}
+          </ListItem>
+          <ListItem
+            supportingText={t("settings.help.replayDescription")}
+            onPress={() =>
+              router.push({
+                pathname: "/(onboarding)/welcome",
+                params: { replay: "1" },
+              })
+            }
+          >
+            {t("settings.help.replay")}
           </ListItem>
           <FieldGroup.SectionFooter>
             <NativeText>{t("convention.scheduleHint.body")}</NativeText>

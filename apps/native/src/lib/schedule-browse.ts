@@ -227,9 +227,9 @@ export interface BrowseSelection<T extends BrowseEvent> {
   rows: T[];
   /** Drop-in programming for the selected day(s), after category and search. */
   dropIns: T[];
-  /** Timed events matching day and slot only -- the "12 total" in a heading. */
+  /** Timed events matching day/slot plus drop-ins on that day, before search/category. */
   total: number;
-  /** Distinct days among `rows`, for the all-days heading. */
+  /** Distinct days among all visible options, for the all-days heading. */
   dayCount: number;
 }
 
@@ -270,21 +270,25 @@ export function selectBrowseEvents<T extends BrowseEvent>(
     .filter((event) => inCategory(event) && matchesSearch(event, query))
     .sort(compareByStart);
 
-  const dropIns = valid
-    .filter(
-      (event) =>
-        isDropInEvent(event) &&
-        onDay(event) &&
-        inCategory(event) &&
-        matchesSearch(event, query),
-    )
+  const dropInsOnDay = valid.filter(
+    (event) => isDropInEvent(event) && onDay(event),
+  );
+  const dropIns = dropInsOnDay
+    .filter((event) => inCategory(event) && matchesSearch(event, query))
     .sort(compareByStart);
 
   const days = new Set(
-    rows.map((event) => conventionDayKey(event.startTime, timeZone)),
+    [...rows, ...dropIns].map((event) =>
+      conventionDayKey(event.startTime, timeZone),
+    ),
   );
 
-  return { rows, dropIns, total: byDayAndSlot.length, dayCount: days.size };
+  return {
+    rows,
+    dropIns,
+    total: byDayAndSlot.length + dropInsOnDay.length,
+    dayCount: days.size,
+  };
 }
 
 /**
@@ -310,15 +314,16 @@ export function conflictingSavedIds(
 
 /**
  * The browse state that guarantees an event is on screen -- its own day, all
- * times, no category -- so a deep link can scroll to it.
+ * times, no category or search -- so a deep link can scroll to it.
  */
 export function browseStateForEvent(
   event: Pick<BrowseEvent, "startTime">,
   timeZone: string,
-): { dayKey: string; slotStartMs: null; category: null } {
+): { dayKey: string; slotStartMs: null; category: null; query: "" } {
   return {
     dayKey: conventionDayKey(event.startTime, timeZone),
     slotStartMs: null,
     category: null,
+    query: "",
   };
 }

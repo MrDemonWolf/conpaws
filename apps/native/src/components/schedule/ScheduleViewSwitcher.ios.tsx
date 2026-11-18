@@ -5,7 +5,9 @@ import {
   tag,
 } from "@expo/ui/swift-ui/modifiers";
 import { useWindowDimensions, View } from "react-native";
+import { useWidthCap } from "@/hooks/useContentWidth";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { SEGMENTED_MAX } from "@/lib/content-width";
 import { themeTokens } from "@/lib/theme-tokens";
 import {
   SCHEDULE_VIEWS,
@@ -25,13 +27,15 @@ const STACK_AT_FONT_SCALE = 1.6;
 export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
   const { fontScale } = useWindowDimensions();
   const resolvedColorScheme = useResolvedColorScheme();
+  // Three short labels stretched across a wide window read as one bar.
+  const segmentedCap = useWidthCap()(SEGMENTED_MAX);
   if (fontScale >= STACK_AT_FONT_SCALE) {
     return <ScheduleViewSwitcherStacked {...props} />;
   }
 
   const { view, onChange, labels, accessibilityLabel } = props;
   return (
-    <View className="px-4">
+    <View className="px-4" style={segmentedCap}>
       <Host
         colorScheme={resolvedColorScheme}
         seedColor={themeTokens[resolvedColorScheme].primary}

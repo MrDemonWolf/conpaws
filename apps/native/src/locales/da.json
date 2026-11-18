@@ -60,7 +60,9 @@
         "title": "Konvent ikke fundet",
         "body": "Det kan være blevet fjernet fra kataloget."
       },
-      "successAnnouncement": "{{name}} er downloadet. Vælg dit første programpunkt."
+      "successAnnouncement": "{{name}} er downloadet. Vælg dit første programpunkt.",
+      "venue": "Sted",
+      "offlineAvailable": "Tilgængeligt offline efter download"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Vis alle dage",
       "dropIn": {
         "title": "Kig forbi når som helst",
-        "subtitle": "Ingen fast tid"
+        "subtitle": "Ingen fast tid",
+        "filter": "Drop-in · {{count}}",
+        "find": "Find en drop-in-aktivitet"
       },
       "noSeat": "At gemme et panel reserverer ikke en plads.",
       "optionsOne": "{{count}} mulighed",
@@ -313,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min tilbage",
       "minutesLeftMany": "{{count}} min tilbage",
+      "durationLeft": "{{duration}} tilbage",
       "minutesUntilOne": "Starter om {{count}} min",
       "minutesUntilMany": "Starter om {{count}} min",
+      "durationUntil": "Starter om {{duration}}",
       "alsoNowOne": "Også gemt lige nu: {{count}} mere",
       "alsoNowMany": "Også gemt lige nu: {{count}} mere"
     },
@@ -348,6 +354,14 @@
       "overlapsPlan": "Overlapper din plan",
       "overlapWith": "{{minutes}} min med {{title}}",
       "compareBeforeAdding": "Sammenlign før du tilføjer"
+    },
+    "visit": {
+      "title": "Planlæg et besøg",
+      "edit": "Rediger besøg",
+      "duration": "Besøgets varighed",
+      "windowError": "Hele besøget skal ligge inden for åbningstiden.",
+      "invalid": "Åbningstiden er ændret. Rediger dit besøg.",
+      "remove": "Fjern besøg"
     }
   },
   "errors": {
@@ -379,12 +393,11 @@
     },
     "archive": {
       "title": "Arkiv ({{count}})",
-      "show": "Vis",
-      "hide": "Skjul",
       "noCurrent": "Ingen kommende konventer.",
       "success": "{{name}} er arkiveret.",
       "errorTitle": "Konventet kunne ikke arkiveres",
-      "errorMessage": "Intet blev arkiveret. Prøv igen."
+      "errorMessage": "Intet blev arkiveret. Prøv igen.",
+      "showConventions": "Vis arkiverede conventions"
     },
     "unarchive": {
       "success": "{{name}} er gendannet fra arkivet.",
@@ -392,7 +405,6 @@
       "errorMessage": "Konventet kunne ikke gendannes. Prøv igen."
     },
     "moreActions": "Flere handlinger for {{name}}",
-    "sortBy": "Sortér efter",
     "sort": {
       "upcoming": "Kommende først",
       "name": "Navn"
@@ -403,7 +415,8 @@
       "success": "{{name}} er slettet.",
       "errorTitle": "Konventet kunne ikke slettes",
       "errorMessage": "Intet blev slettet. Prøv igen."
-    }
+    },
+    "sortAndView": "Sortering og visning"
   },
   "import": {
     "title": "Importér program",
@@ -492,42 +505,36 @@
   "onboarding": {
     "progress": "Trin {{step}} af {{total}}",
     "welcome": {
-      "tagline": "Dit konventprogram, klar offline.",
-      "subtitle": "Planlæg uden om dårligt konvent-wi-fi. Dit program bliver på din enhed.",
+      "tagline": "Din con, klar offline.",
+      "subtitle": "Find din con, eller importér en .ics-fil eller et Sched-link.",
       "continue": "Fortsæt",
-      "skip": "Spring over"
+      "skip": "Spring over",
+      "exampleTitle": "Eksempel på en con",
+      "connectionNote": "Du skal have forbindelse for at finde og hente programmer. Dit hentede program er stadig tilgængeligt offline."
     },
     "features": {
-      "title": "Planlæg hele konventet",
-      "subtitle": "Alt, hvad du skal bruge, når stedets wi-fi giver op.",
-      "demo": {
-        "saved": "Min plan"
-      },
-      "import": {
-        "title": "Importér ethvert program",
-        "description": "Tilføj en .ics-fil, eller indsæt et Sched-link."
-      },
-      "plan": {
-        "title": "Gå aldrig glip af et panel",
-        "description": "Lav din plan, se hvad der sker nu og bagefter, og opdag overlap."
-      },
-      "offline": {
-        "title": "Privat og offline",
-        "description": "Dine konventdata bliver på denne enhed."
-      },
-      "plus": {
-        "title": "Gratis og offline",
-        "description": "Alt her virker uden konto og uden netværk. Valgfrie skyfunktioner kommer måske senere."
-      },
-      "next": "Fortsæt"
+      "title": "Vælg de paneler, du vil se.",
+      "subtitle": "Tryk på stjernen for at gemme et arrangement. Åbn derefter Min plan for at se dit valg.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Fortsæt",
+      "practiceNote": "Prøv det her. Dette eksempel ændrer ikke dine cons.",
+      "viewsNote": "Program viser programmet. Min plan indeholder dine valg. Nu viser aktuelle og kommende arrangementer.",
+      "emptyPlan": "Intet planlagt endnu. Gå til Program, og tryk på stjernen."
     },
     "getStarted": {
       "find": "Find mit konvent",
-      "title": "Klar til dit næste konvent?",
-      "subtitle": "Find dit konvent, importér et program, eller udforsk først.",
+      "title": "Et varsel, når du ønsker det.",
+      "subtitle": "At gemme et arrangement og indstille en påmindelse er to forskellige valg.",
       "importSchedule": "Importér et program",
       "exploreFirst": "Udforsk først",
-      "localPrivacy": "Ingen konto påkrævet. Dine data bliver lokale."
+      "localPrivacy": "Ingen konto påkrævet. Dine data bliver lokale.",
+      "example": "Eksempel på et arrangement",
+      "sampleOnly": "Kun et eksempel. Der sendes ingen notifikation.",
+      "permissionNote": "Telefonen beder om tilladelse til notifikationer, når du indstiller en rigtig påmindelse. Du kan bruge ConPaws uden notifikationer."
     }
   },
   "reminders": {
@@ -681,7 +688,6 @@
       "support": "Support",
       "helpCenter": "Hjælpecenter",
       "email": "E-mail",
-      "discordDescription": "Bliv en del af fællesskabet",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -706,7 +712,10 @@
       "notRequested": "Ikke anmodet om endnu",
       "defaultLead": "Standardpåmindelse",
       "defaultLeadDescription": "Forvalgt, når du sætter en påmindelse på en ny begivenhed.",
-      "noDefault": "Ingen"
+      "noDefault": "Ingen",
+      "enable": "Aktivér notifikationer",
+      "changeError": "Tilladelsen til notifikationer kunne ikke opdateres. Prøv igen.",
+      "defaultLeadError": "Standardpåmindelsen kunne ikke gemmes. Prøv igen."
     },
     "help": {
       "gettingStarted": "Kom godt i gang",
@@ -714,7 +723,62 @@
       "importNow": "Importér et program",
       "importNowDescription": "Hent et Sched-link eller en .ics-fil ind.",
       "find": "Find mit konvent",
-      "findDescription": "Vælg et konvent i ConPaws-kataloget, og download programmet."
+      "findDescription": "Vælg et konvent i ConPaws-kataloget, og download programmet.",
+      "replay": "Se introduktionen igen",
+      "replayDescription": "Øv dig med midlertidige eksempeldata"
+    },
+    "preview": {
+      "title": "Test af forhåndsversion",
+      "add": "Tilføj eksempelconventions",
+      "description": "Fiktive programmer til test. Dine andre conventions forbliver uændrede.",
+      "restore": "Gendan eksempeldata",
+      "restoreConfirm": "Ændringer i eksempelconventions erstattes. Dine andre conventions og indstillinger forbliver uændrede.",
+      "testReminder": "Test en påmindelse",
+      "testDescription": "Planlæg en rigtig lokal notifikation om cirka fem sekunder.",
+      "testScheduled": "En lokal notifikation er planlagt om cirka fem sekunder.",
+      "nativeOnly": "Påmindelsestest kræver den native app.",
+      "error": "Testhandlingen kunne ikke fuldføres. Prøv igen."
+    },
+    "timeFormat": {
+      "title": "Tidsformat",
+      "system": "Brug enhedens indstilling",
+      "hour12": "12 timer · 7:00 PM",
+      "hour24": "24 timer · 19:00",
+      "saveError": "Tidsformatet kunne ikke gemmes. Prøv igen."
+    }
+  },
+  "tracking": {
+    "track": "Følg begivenhed",
+    "stop": "Stop med at følge",
+    "badge": "Følges",
+    "trackHint": "Viser tid og lokale for denne begivenhed uden for appen, indtil den slutter.",
+    "bannerTitle": "Følger {{title}}",
+    "stopAccessibility": "Stop med at følge {{title}}",
+    "startedAnnouncement": "Følger nu {{title}}.",
+    "stoppedAnnouncement": "Følger ikke længere {{title}}.",
+    "replace": {
+      "title": "Følg denne begivenhed i stedet?",
+      "message": "ConPaws følger én begivenhed ad gangen. {{next}} erstatter {{current}}.",
+      "confirm": "Følg i stedet"
+    },
+    "live": {
+      "startsIn": "Starter om",
+      "endsIn": "Slutter om",
+      "now": "Nu",
+      "ended": "Slut",
+      "stop": "Stop"
+    },
+    "permission": {
+      "notificationsTitle": "Notifikationer er slået fra",
+      "notificationsMessage": "ConPaws skal have tilladelse til at sende notifikationer for at vise den begivenhed, du følger. Slå notifikationer til i Indstillinger, og følg begivenheden igen.",
+      "liveActivitiesTitle": "Live-aktiviteter er slået fra",
+      "liveActivitiesMessage": "Slå Live-aktiviteter til for ConPaws i Indstillinger for at se begivenheden på låseskærmen."
+    },
+    "errorTitle": "Begivenheden følges ikke",
+    "errorMessage": "ConPaws kunne ikke begynde at følge denne begivenhed. Prøv igen.",
+    "channel": {
+      "name": "Fulgt begivenhed",
+      "description": "Viser den ene begivenhed, du har valgt at følge, med en Stop-knap."
     }
   }
 }

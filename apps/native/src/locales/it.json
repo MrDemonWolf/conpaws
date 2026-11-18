@@ -60,7 +60,9 @@
         "title": "Convention non trovata",
         "body": "Potrebbe essere stata rimossa dal catalogo."
       },
-      "successAnnouncement": "{{name}} scaricata. Scegli il tuo primo panel."
+      "successAnnouncement": "{{name}} scaricata. Scegli il tuo primo panel.",
+      "venue": "Sede",
+      "offlineAvailable": "Disponibile offline dopo il download"
     }
   },
   "common": {
@@ -235,7 +237,9 @@
       "allDaysCta": "Mostra tutti i giorni",
       "dropIn": {
         "title": "Passa quando vuoi",
-        "subtitle": "Senza orario fisso"
+        "subtitle": "Senza orario fisso",
+        "filter": "Attività libere · {{count}}",
+        "find": "Trova un’attività libera"
       },
       "noSeat": "Salvare un panel non riserva un posto.",
       "optionsOne": "{{count}} opzione",
@@ -313,8 +317,10 @@
       },
       "minutesLeftOne": "{{count}} min rimasto",
       "minutesLeftMany": "{{count}} min rimasti",
+      "durationLeft": "{{duration}} rimasti",
       "minutesUntilOne": "Inizia tra {{count}} min",
       "minutesUntilMany": "Inizia tra {{count}} min",
+      "durationUntil": "Inizia tra {{duration}}",
       "alsoNowOne": "Salvato anche adesso: {{count}} altro",
       "alsoNowMany": "Salvati anche adesso: {{count}} altri"
     },
@@ -348,6 +354,14 @@
       "overlapsPlan": "Si sovrappone al tuo piano",
       "overlapWith": "{{minutes}} min con {{title}}",
       "compareBeforeAdding": "Confronta prima di aggiungere"
+    },
+    "visit": {
+      "title": "Pianifica una visita",
+      "edit": "Modifica visita",
+      "duration": "Durata della visita",
+      "windowError": "L’intera visita deve rientrare negli orari di apertura.",
+      "invalid": "Gli orari sono cambiati. Modifica la visita.",
+      "remove": "Rimuovi visita"
     }
   },
   "errors": {
@@ -379,12 +393,11 @@
     },
     "archive": {
       "title": "Archivio ({{count}})",
-      "show": "Mostra",
-      "hide": "Nascondi",
       "noCurrent": "Nessuna convention in arrivo.",
       "success": "{{name}} archiviata.",
       "errorTitle": "Impossibile archiviare la convention",
-      "errorMessage": "Non è stato archiviato nulla. Riprova."
+      "errorMessage": "Non è stato archiviato nulla. Riprova.",
+      "showConventions": "Mostra le convention archiviate"
     },
     "unarchive": {
       "success": "{{name}} ripristinata dall'archivio.",
@@ -392,7 +405,6 @@
       "errorMessage": "Non è stato possibile ripristinare la convention. Riprova."
     },
     "moreActions": "Altre azioni per {{name}}",
-    "sortBy": "Ordina per",
     "sort": {
       "upcoming": "Prima le più vicine",
       "name": "Nome"
@@ -403,7 +415,8 @@
       "success": "{{name}} eliminata.",
       "errorTitle": "Impossibile eliminare la convention",
       "errorMessage": "Non è stato eliminato nulla. Riprova."
-    }
+    },
+    "sortAndView": "Ordina e visualizza"
   },
   "import": {
     "title": "Importa programma",
@@ -492,42 +505,36 @@
   "onboarding": {
     "progress": "Passaggio {{step}} di {{total}}",
     "welcome": {
-      "tagline": "Il programma della tua convention, pronto anche offline.",
-      "subtitle": "Organizzati anche con il Wi-Fi scadente della convention. Il tuo programma resta sul tuo dispositivo.",
+      "tagline": "La tua convention, pronta anche offline.",
+      "subtitle": "Trova la tua convention o importa un file .ics o un link Sched.",
       "continue": "Continua",
-      "skip": "Salta"
+      "skip": "Salta",
+      "exampleTitle": "Convention di esempio",
+      "connectionNote": "Serve una connessione per trovare e scaricare i programmi. Il programma scaricato resta disponibile offline."
     },
     "features": {
-      "title": "Pianifica tutta la convention",
-      "subtitle": "Tutto ciò che ti serve quando il Wi-Fi della sede si arrende.",
-      "demo": {
-        "saved": "Il mio piano"
-      },
-      "import": {
-        "title": "Importa qualsiasi programma",
-        "description": "Aggiungi un file .ics o incolla un link Sched."
-      },
-      "plan": {
-        "title": "Non perderti nessun panel",
-        "description": "Crea il tuo piano, guarda cosa succede ora e dopo e individua le sovrapposizioni."
-      },
-      "offline": {
-        "title": "Privato e offline",
-        "description": "I dati della convention restano su questo dispositivo."
-      },
-      "plus": {
-        "title": "Gratis e offline",
-        "description": "Tutto qui funziona senza account e senza rete. Funzioni cloud opzionali potrebbero arrivare più avanti."
-      },
-      "next": "Continua"
+      "title": "Scegli i panel che ti interessano.",
+      "subtitle": "Tocca la stella per salvare un evento. Poi apri Il mio piano per vedere la tua scelta.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Continua",
+      "practiceNote": "Prova qui. Questo esempio non modifica le tue convention.",
+      "viewsNote": "Programma mostra il programma. Il mio piano contiene le tue scelte. Adesso mostra gli eventi in corso e i prossimi.",
+      "emptyPlan": "Non hai ancora pianificato nulla. Vai su Programma e tocca la stella."
     },
     "getStarted": {
       "find": "Trova la mia convention",
-      "title": "Pronto per la tua prossima convention?",
-      "subtitle": "Trova la tua convention, importa un programma o esplora ConPaws.",
+      "title": "Un avviso, quando lo vuoi.",
+      "subtitle": "Salvare un evento e impostare un promemoria sono scelte separate.",
       "importSchedule": "Importa un programma",
       "exploreFirst": "Esplora prima",
-      "localPrivacy": "Nessun account richiesto. I tuoi dati restano in locale."
+      "localPrivacy": "Nessun account richiesto. I tuoi dati restano in locale.",
+      "example": "Evento di esempio",
+      "sampleOnly": "Solo un esempio. Non verrà inviata alcuna notifica.",
+      "permissionNote": "Il telefono chiede il permesso di inviare notifiche quando imposti un vero promemoria. Puoi usare ConPaws senza notifiche."
     }
   },
   "reminders": {
@@ -681,7 +688,6 @@
       "support": "Supporto",
       "helpCenter": "Centro assistenza",
       "email": "E-mail",
-      "discordDescription": "Unisciti alla community",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -706,7 +712,10 @@
       "notRequested": "Non ancora richiesto",
       "defaultLead": "Promemoria predefinito",
       "defaultLeadDescription": "Preselezionato quando imposti un promemoria su un nuovo evento.",
-      "noDefault": "Nessuno"
+      "noDefault": "Nessuno",
+      "enable": "Attiva le notifiche",
+      "changeError": "Impossibile aggiornare il permesso per le notifiche. Riprova.",
+      "defaultLeadError": "Impossibile salvare il promemoria predefinito. Riprova."
     },
     "help": {
       "gettingStarted": "Primi passi",
@@ -714,7 +723,62 @@
       "importNow": "Importa un programma",
       "importNowDescription": "Aggiungi un link Sched o un file .ics.",
       "find": "Trova la mia convention",
-      "findDescription": "Scegli una convention dal catalogo ConPaws e scarica il suo programma."
+      "findDescription": "Scegli una convention dal catalogo ConPaws e scarica il suo programma.",
+      "replay": "Rivedi la presentazione",
+      "replayDescription": "Fai pratica con dati di esempio temporanei"
+    },
+    "preview": {
+      "title": "Test della versione di anteprima",
+      "add": "Aggiungi convention di esempio",
+      "description": "Programmi fittizi per i test. Le altre convention rimangono invariate.",
+      "restore": "Ripristina i dati di esempio",
+      "restoreConfirm": "Le modifiche alle convention di esempio verranno sostituite. Le altre convention e impostazioni rimangono invariate.",
+      "testReminder": "Prova un promemoria",
+      "testDescription": "Programma una vera notifica locale tra circa cinque secondi.",
+      "testScheduled": "È stata programmata una notifica locale tra circa cinque secondi.",
+      "nativeOnly": "I test dei promemoria richiedono l’app nativa.",
+      "error": "Impossibile completare l’azione di anteprima. Riprova."
+    },
+    "timeFormat": {
+      "title": "Formato dell’ora",
+      "system": "Usa l’impostazione del dispositivo",
+      "hour12": "12 ore · 7:00 PM",
+      "hour24": "24 ore · 19:00",
+      "saveError": "Impossibile salvare il formato dell’ora. Riprova."
+    }
+  },
+  "tracking": {
+    "track": "Segui evento",
+    "stop": "Smetti di seguire",
+    "badge": "Seguito",
+    "trackHint": "Mostra orario e sala di questo evento fuori dall’app finché non termina.",
+    "bannerTitle": "Stai seguendo {{title}}",
+    "stopAccessibility": "Smetti di seguire {{title}}",
+    "startedAnnouncement": "Ora stai seguendo {{title}}.",
+    "stoppedAnnouncement": "Hai smesso di seguire {{title}}.",
+    "replace": {
+      "title": "Seguire invece questo evento?",
+      "message": "ConPaws segue un solo evento alla volta. {{next}} sostituirà {{current}}.",
+      "confirm": "Segui questo"
+    },
+    "live": {
+      "startsIn": "Inizia tra",
+      "endsIn": "Finisce tra",
+      "now": "Ora",
+      "ended": "Terminato",
+      "stop": "Stop"
+    },
+    "permission": {
+      "notificationsTitle": "Le notifiche sono disattivate",
+      "notificationsMessage": "ConPaws ha bisogno dell’autorizzazione per inviare notifiche e mostrare l’evento che stai seguendo. Attiva le notifiche nelle Impostazioni, poi segui di nuovo l’evento.",
+      "liveActivitiesTitle": "Le Attività Live sono disattivate",
+      "liveActivitiesMessage": "Attiva le Attività Live per ConPaws nelle Impostazioni per vedere questo evento nella schermata di blocco."
+    },
+    "errorTitle": "Evento non seguito",
+    "errorMessage": "ConPaws non è riuscito a iniziare a seguire questo evento. Riprova.",
+    "channel": {
+      "name": "Evento seguito",
+      "description": "Mostra l’evento che hai scelto di seguire, con un pulsante Stop."
     }
   }
 }

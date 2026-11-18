@@ -9,18 +9,17 @@ import {
 import Constants from "expo-constants";
 import { type Href, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ActivityIndicator,
-  Alert,
-  Linking,
-  useWindowDimensions,
-} from "react-native";
+import { Alert, Linking, useWindowDimensions } from "react-native";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
+// Platform-split: Compose rows cannot measure a React Native spinner, which
+// squeezed the Notifications row into one letter per line on Android.
+import { RowSpinner } from "@/components/ui/RowSpinner";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 import {
@@ -28,7 +27,14 @@ import {
   subscribeAppearancePreference,
 } from "@/lib/appearance-storage";
 import { importOutcomeMessage } from "@/lib/data-import-messages";
-import { developerToolsEnabled } from "@/lib/developer-tools";
+import {
+  developerDiagnosticsEnabled,
+  developerToolsEnabled,
+} from "@/lib/developer-tools";
+import {
+  getTimeFormatPreference,
+  subscribeTimeFormat,
+} from "@/lib/device-clock";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
 import { openExternal } from "@/lib/open-external";
@@ -47,6 +53,7 @@ import {
 import { useExportData } from "@/services/data-export";
 import { type ImportOutcome, useImportData } from "@/services/data-import";
 import { getHapticsEnabled } from "@/services/haptics";
+import { requestNotificationPermission } from "@/services/notifications";
 
 const CHEVRON = Icon.select({
   ios: "chevron.right",
@@ -82,6 +89,7 @@ export default function SettingsScreen() {
   const { exportData, isLoading: isExporting } = useExportData();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
   const appearance = useSyncExternalStore(
     subscribeAppearancePreference,
@@ -89,9 +97,13 @@ export default function SettingsScreen() {
     getAppearancePreference,
   );
 
-  const showDeveloperTools = developerToolsEnabled(
-    __DEV__,
-    Constants.expoConfig?.extra?.appVariant,
+  const appVariant = Constants.expoConfig?.extra?.appVariant;
+  const showPreviewTesting = developerToolsEnabled(__DEV__, appVariant);
+  const showDeveloperTools = developerDiagnosticsEnabled(__DEV__, appVariant);
+  const timeFormat = useSyncExternalStore(
+    subscribeTimeFormat,
+    getTimeFormatPreference,
+    getTimeFormatPreference,
   );
 
   const [haptics, setHaptics] = useState(getHapticsEnabled);
@@ -182,7 +194,31 @@ export default function SettingsScreen() {
     onOutcome: handleImportOutcome,
   });
 
-  const notificationPermission = useNotificationPermission();
+  const detectedPermission = useNotificationPermission();
+  const [notificationPermission, setNotificationPermission] =
+    useState(detectedPermission);
+  const [requestingPermission, setRequestingPermission] = useState(false);
+  useEffect(
+    () => setNotificationPermission(detectedPermission),
+    [detectedPermission],
+  );
+
+  async function handlePermission() {
+    if (requestingPermission || notificationPermission === null) return;
+    setRequestingPermission(true);
+    try {
+      if (notificationPermission === "undetermined") {
+        setNotificationPermission(await requestNotificationPermission());
+      } else {
+        await Linking.openSettings();
+      }
+    } catch {
+      Alert.alert(t("common.error"), t("settings.notifications.changeError"));
+    } finally {
+      setRequestingPermission(false);
+    }
+  }
+  const [savingDefault, setSavingDefault] = useState(false);
   const [defaultLead, setDefaultLead] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
@@ -200,8 +236,19 @@ export default function SettingsScreen() {
       selectedValue={String(defaultLead ?? "")}
       onValueChange={(value) => {
         const parsed = value === "" ? null : Number(value);
+        if (savingDefault) return;
+        const previous = defaultLead;
+        setSavingDefault(true);
         setDefaultLead(parsed);
-        void setDefaultReminderMinutes(parsed);
+        void setDefaultReminderMinutes(parsed)
+          .catch(() => {
+            setDefaultLead(previous);
+            Alert.alert(
+              t("common.error"),
+              t("settings.notifications.defaultLeadError"),
+            );
+          })
+          .finally(() => setSavingDefault(false));
       }}
       appearance="menu"
     >
@@ -229,7 +276,7 @@ export default function SettingsScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section title={t("settings.app.title")}>
           <ListItem
             leading={<SettingsLeadingIcon name="theme" />}
@@ -250,6 +297,15 @@ export default function SettingsScreen() {
           >
             {t("settings.app.language")}
           </ListItem>
+          <ListItem
+            supportingText={t(
+              `settings.timeFormat.${timeFormat === "12" ? "hour12" : timeFormat === "24" ? "hour24" : "system"}`,
+            )}
+            trailing={<NavigationIndicator />}
+            onPress={() => router.push("/settings/time-format" as Href)}
+          >
+            {t("settings.timeFormat.title")}
+          </ListItem>
           <NativeSwitch
             testID="haptics-switch"
             label={t("settings.app.haptics")}
@@ -264,7 +320,10 @@ export default function SettingsScreen() {
           />
         </FieldGroup.Section>
 
-        <FieldGroup.Section title={t("settings.notifications.title")}>
+        <FieldGroup.Section
+          title={t("settings.notifications.title")}
+          disabled={requestingPermission || savingDefault}
+        >
           <ListItem
             leading={<SettingsLeadingIcon name="notifications" />}
             supportingText={
@@ -274,12 +333,24 @@ export default function SettingsScreen() {
                   ? t("settings.notifications.disabled")
                   : t("settings.notifications.notRequested")
             }
-            trailing={<ExternalIndicator />}
-            onPress={() => {
-              void Linking.openSettings();
-            }}
+            trailing={
+              notificationPermission === null || requestingPermission ? (
+                <RowSpinner />
+              ) : (
+                <ExternalIndicator />
+              )
+            }
+            onPress={
+              notificationPermission === null || requestingPermission
+                ? undefined
+                : () => void handlePermission()
+            }
           >
-            {t("settings.notifications.permission")}
+            {t(
+              notificationPermission === "undetermined"
+                ? "settings.notifications.enable"
+                : "settings.notifications.permission",
+            )}
           </ListItem>
           {/* The same choice, offered differently per platform. On iOS the
               SwiftUI menu is compact and belongs in the trailing slot. On
@@ -326,9 +397,7 @@ export default function SettingsScreen() {
                 ? t("settings.data.exporting")
                 : t("settings.data.exportDescription")
             }
-            trailing={
-              isExporting ? <ActivityIndicator size="small" /> : undefined
-            }
+            trailing={isExporting ? <RowSpinner /> : undefined}
             onPress={isExporting ? undefined : handleExport}
           >
             {t("settings.data.exportData")}
@@ -340,9 +409,7 @@ export default function SettingsScreen() {
                 ? t("settings.data.importing")
                 : t("settings.data.importDescription")
             }
-            trailing={
-              isImporting ? <ActivityIndicator size="small" /> : undefined
-            }
+            trailing={isImporting ? <RowSpinner /> : undefined}
             onPress={isImporting ? undefined : () => importData()}
           >
             {t("settings.data.importData")}
@@ -381,6 +448,18 @@ export default function SettingsScreen() {
             {t("settings.legal.termsOfService")}
           </ListItem>
         </FieldGroup.Section>
+
+        {showPreviewTesting ? (
+          <FieldGroup.Section title={t("settings.preview.title")}>
+            <ListItem
+              supportingText={t("settings.preview.description")}
+              trailing={<NavigationIndicator />}
+              onPress={() => router.push("/settings/preview" as Href)}
+            >
+              {t("settings.preview.title")}
+            </ListItem>
+          </FieldGroup.Section>
+        ) : null}
 
         {showDeveloperTools ? (
           <FieldGroup.Section title="Developer">

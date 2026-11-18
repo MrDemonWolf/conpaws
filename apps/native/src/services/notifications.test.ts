@@ -5,6 +5,8 @@ import {
   cancelTestNotifications,
   getNotificationPermissionStatus,
   reconcileEventReminders,
+  requestNotificationPermission,
+  scheduleEventReminder,
   scheduleTestNotification,
 } from "./notifications";
 
@@ -21,6 +23,7 @@ const notificationMocks = vi.hoisted(() => ({
 const eventRepoMocks = vi.hoisted(() => ({
   getAllWithReminders: vi.fn(),
   update: vi.fn(),
+  clearPassedReminder: vi.fn(),
 }));
 const conventionRepoMocks = vi.hoisted(() => ({ getAll: vi.fn() }));
 const i18nMock = vi.hoisted(() => ({
@@ -30,6 +33,13 @@ const i18nMock = vi.hoisted(() => ({
 
 vi.mock("expo-notifications", () => ({
   ...notificationMocks,
+  IosAuthorizationStatus: {
+    NOT_DETERMINED: 0,
+    DENIED: 1,
+    AUTHORIZED: 2,
+    PROVISIONAL: 3,
+    EPHEMERAL: 4,
+  },
   AndroidImportance: { HIGH: 4 },
   SchedulableTriggerInputTypes: {
     DATE: "date",
@@ -94,6 +104,38 @@ describe("startup reminder reconciliation", () => {
     vi.useRealTimers();
   });
 
+  it("schedules personal visit reminders and suppresses changed hours or legacy drop-ins", async () => {
+    const visit = reminderEvent({
+      startTime: "2026-08-17T13:00:00Z",
+      endTime: "2026-08-17T21:00:00Z",
+      visitStartTime: "2026-08-17T16:00:00Z",
+      visitEndTime: "2026-08-17T16:30:00Z",
+    });
+    await scheduleEventReminder(visit, 15);
+    expect(
+      notificationMocks.scheduleNotificationAsync,
+    ).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        trigger: expect.objectContaining({
+          date: new Date("2026-08-17T15:45:00Z"),
+        }),
+      }),
+    );
+    notificationMocks.scheduleNotificationAsync.mockClear();
+    const invalid = { ...visit, endTime: "2026-08-17T15:00:00Z" };
+    expect(await scheduleEventReminder(invalid, 15)).toBeNull();
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([
+      invalid,
+      { ...visit, visitStartTime: null, visitEndTime: null, id: "legacy" },
+    ]);
+    await reconcileEventReminders();
+    expect(notificationMocks.scheduleNotificationAsync).not.toHaveBeenCalled();
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
+    expect(
+      notificationMocks.cancelScheduledNotificationAsync,
+    ).toHaveBeenCalledWith("reminder-legacy");
+  });
+
   it("reschedules future reminders and removes stale identifiers without prompting", async () => {
     eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
     notificationMocks.getAllScheduledNotificationsAsync.mockResolvedValue([
@@ -128,6 +170,24 @@ describe("startup reminder reconciliation", () => {
       staleCancelled: 1,
     });
   });
+
+  it.each([3, 4])(
+    "re-arms reminders with iOS authorization %s",
+    async (status) => {
+      eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
+      notificationMocks.getPermissionsAsync.mockResolvedValue({
+        status: "undetermined",
+        ios: { status },
+      });
+
+      const result = await reconcileEventReminders();
+
+      expect(result.rescheduled).toBe(1);
+      expect(result.paused).toBe(0);
+      expect(notificationMocks.requestPermissionsAsync).not.toHaveBeenCalled();
+      expect(eventRepoMocks.update).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     ["cancelled feed event", reminderEvent({ feedStatus: "cancelled" })],
@@ -241,9 +301,10 @@ describe("startup reminder reconciliation", () => {
 
     expect(notificationMocks.requestPermissionsAsync).not.toHaveBeenCalled();
     expect(notificationMocks.scheduleNotificationAsync).not.toHaveBeenCalled();
-    expect(eventRepoMocks.update).toHaveBeenCalledWith("event-1", {
-      reminderMinutes: null,
-    });
+    // Housekeeping, so the row's updatedAt still says when the user last
+    // changed it; a Watch tap is compared against that.
+    expect(eventRepoMocks.clearPassedReminder).toHaveBeenCalledWith("event-1");
+    expect(eventRepoMocks.update).not.toHaveBeenCalled();
     expect(result.cleared).toBe(1);
   });
 
@@ -357,6 +418,45 @@ describe("convention reminder cleanup", () => {
 });
 
 describe("getNotificationPermissionStatus", () => {
+  it.each([
+    [0, "undetermined"],
+    [1, "denied"],
+    [2, "granted"],
+    [3, "granted"],
+    [4, "granted"],
+  ])("interprets iOS authorization %s as %s", async (status, expected) => {
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "undetermined",
+      canAskAgain: true,
+      ios: { status },
+    });
+    await expect(getNotificationPermissionStatus()).resolves.toBe(expected);
+  });
+
+  it("does not prompt again when iOS already permits quiet delivery", async () => {
+    notificationMocks.requestPermissionsAsync.mockClear();
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "undetermined",
+      ios: { status: 3 },
+    });
+
+    await expect(requestNotificationPermission()).resolves.toBe("granted");
+    expect(notificationMocks.requestPermissionsAsync).not.toHaveBeenCalled();
+  });
+
+  it("interprets iOS authorization returned by the permission request", async () => {
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "undetermined",
+      ios: { status: 0 },
+    });
+    notificationMocks.requestPermissionsAsync.mockResolvedValue({
+      status: "undetermined",
+      ios: { status: 3 },
+    });
+
+    await expect(requestNotificationPermission()).resolves.toBe("granted");
+  });
+
   it("reads Android's pre-prompt denied state as undetermined", async () => {
     notificationMocks.getPermissionsAsync.mockResolvedValue({
       status: "denied",

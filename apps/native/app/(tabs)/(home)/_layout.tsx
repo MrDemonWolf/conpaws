@@ -1,7 +1,11 @@
 import { Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
+import { useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FORM_PRESENTED_AS_SHEET } from "@/components/FormModalHeader.shared";
 import { ScreenErrorFallback } from "@/lib/error-fallback";
+import { peekDetent } from "@/lib/sheet-detents";
 
 export const unstable_settings = {
   anchor: "index",
@@ -11,7 +15,7 @@ export const unstable_settings = {
 // Android re-lays-out when the keyboard opens, which clipped the form's header
 // row down to unreadable slivers of Cancel and Save. Full-screen is also the
 // Material 3 full-screen-dialog pattern.
-const FORM_PRESENTATION = process.env.EXPO_OS === "ios" ? "formSheet" : "modal";
+const FORM_PRESENTATION = FORM_PRESENTED_AS_SHEET ? "formSheet" : "modal";
 
 // Android forms retain their in-content FormModalHeader for the keyboard-safe
 // modal layout; showing a native header too would duplicate its controls.
@@ -20,6 +24,26 @@ const FORM_HEADER_SHOWN = process.env.EXPO_OS === "ios";
 export default function HomeLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  // The scrolling sheets open at a phone fraction on a narrow window and at a
+  // height in points on a wide one, so an iPad does not open them with a large
+  // empty band under the content. Read on every render so a rotation or a
+  // window resize recomputes them.
+  const { width, height } = useWindowDimensions();
+  const { top: topInset } = useSafeAreaInsets();
+  const eventPeek = peekDetent({
+    width,
+    height,
+    topInset,
+    phoneFraction: 0.7,
+    targetPt: 670,
+  });
+  const comparePeek = peekDetent({
+    width,
+    height,
+    topInset,
+    phoneFraction: 0.75,
+    targetPt: 720,
+  });
 
   return (
     <Stack
@@ -53,15 +77,7 @@ export default function HomeLayout() {
           title: t("convention.new"),
           headerLargeTitleEnabled: false,
           headerShown: FORM_HEADER_SHOWN,
-          presentation: FORM_PRESENTATION,
-          sheetAllowedDetents: [0.55, 0.85],
-          // Opens tall. At 0.55 a form with several fields showed roughly its
-          // first two, so the sheet arrived already needing to be dragged --
-          // and the reader has to discover that before they can even read what
-          // they are filling in. The short detent stays available for peeking
-          // at the list behind.
-          sheetInitialDetentIndex: 1,
-          sheetGrabberVisible: true,
+          presentation: "fullScreenModal",
         }}
       />
       <Stack.Screen
@@ -91,9 +107,20 @@ export default function HomeLayout() {
           // The sheet scrolls (the whole description is shown), so it takes
           // fractional detents; fitToContents cannot measure a ScrollView.
           presentation: "formSheet",
-          sheetAllowedDetents: [0.7, 1],
+          sheetAllowedDetents: [eventPeek, 1],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="convention/[id]/event/[eventId]/visit"
+        options={{
+          // The iOS form uses this native header. Without a title, iOS shows
+          // the route path ("convention/[id]/event/…") in its place.
+          title: t("convention.visit.title"),
+          headerLargeTitleEnabled: false,
+          headerShown: FORM_HEADER_SHOWN,
+          presentation: "fullScreenModal",
         }}
       />
       <Stack.Screen
@@ -105,7 +132,7 @@ export default function HomeLayout() {
           // modals cannot occur. The cards scroll, so fractional detents
           // rather than fitToContents.
           presentation: "formSheet",
-          sheetAllowedDetents: [0.75, 1],
+          sheetAllowedDetents: [comparePeek, 1],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
         }}

@@ -2,7 +2,9 @@ import { Host, Icon, type IconName, Button as NativeButton } from "@expo/ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
 import { Platform, View } from "react-native";
+import { useWidthCap } from "@/hooks/useContentWidth";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { EMPTY_STATE_MAX } from "@/lib/content-width";
 import { cn } from "@/lib/utils";
 import { Button } from "./Button";
 import { Text } from "./Text";
@@ -52,6 +54,9 @@ export function EmptyState({
 }: EmptyStateProps) {
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  // A centred message keeps a readable line length in a wide window. The
+  // compact variant sits in a list row, which the list already narrows.
+  const widthCap = useWidthCap();
 
   return (
     <View
@@ -60,6 +65,7 @@ export function EmptyState({
         compact && "mx-4 flex-none items-stretch justify-start px-5 py-6",
         className,
       )}
+      style={compact ? undefined : widthCap(EMPTY_STATE_MAX)}
       testID={testID}
     >
       {icon ? (

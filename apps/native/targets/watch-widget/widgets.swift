@@ -19,8 +19,11 @@ private struct ConPawsWatchEntry: TimelineEntry {
       && ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: date)
   }
 
-  var staleAccessibilityHint: String {
-    guard isStale else { return "" }
+  /// The stale sentence VoiceOver appends to every state's label, or nil
+  /// while the data is fresh. Visually, staleness is one symbol in the
+  /// eyebrow: the two lines it used to add overflowed a three-line card.
+  var staleNotice: String? {
+    guard isStale else { return nil }
     return strings.text(strings.staleA11yFormat, relativeUpdatedText)
   }
 
@@ -52,7 +55,8 @@ private struct ConPawsWatchEntry: TimelineEntry {
           location: "Convention Center",
           room: "Main Ballroom",
           reminderMinutes: nil,
-          ageRating: nil
+          ageRating: nil,
+          summary: nil
         ),
         ConPawsEventSnapshot(
           id: "preview-next",
@@ -62,9 +66,11 @@ private struct ConPawsWatchEntry: TimelineEntry {
           location: "Convention Center",
           room: "Hall A",
           reminderMinutes: 30,
-          ageRating: nil
+          ageRating: nil,
+          summary: nil
         ),
-      ]
+      ],
+      options: nil
     )
     return ConPawsWatchEntry(
       date: now,
@@ -146,14 +152,10 @@ private struct ConPawsWatchProvider: TimelineProvider {
 private struct ConPawsWatchEntryView: View {
   let entry: ConPawsWatchEntry
 
-  private var schedule: WidgetScheduleProjection {
-    WidgetScheduleProjection(snapshot: entry.snapshot, now: entry.date)
-  }
-
   var body: some View {
-    VStack(alignment: .leading, spacing: 1) {
-      Group {
-        switch schedule.state {
+    let schedule = WidgetScheduleProjection(snapshot: entry.snapshot, now: entry.date)
+    Group {
+      switch schedule.state {
       case let .comingUp(convention):
         ComingUpWidgetView(
           convention: convention,
@@ -177,43 +179,42 @@ private struct ConPawsWatchEntryView: View {
           strings: entry.strings
         )
       case let .current(event, convention):
-        let until = WidgetFormat.time(
-          ConPawsScheduleResolver.effectiveEnd(of: event),
-          in: convention,
-          locale: entry.snapshot.locale
-        )
-        VStack(alignment: .leading, spacing: 2) {
-          WatchEyebrow(title: "\(entry.strings.happeningNowCaps) · \(entry.strings.text(entry.strings.untilCapsFormat, until))")
-          Text(event.title).font(.headline).lineLimit(2)
-          Text(entry.strings.noLaterSavedEventsShort).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-        }
+        CurrentWidgetView(event: event, convention: convention, strings: entry.strings)
       case .finished:
         StatusWidgetView(title: entry.strings.finishedComplication, detail: entry.strings.finishedTitle)
       case .noPicks:
         StatusWidgetView(title: entry.strings.noPicksComplication, detail: entry.strings.noPicksTitle)
       case .noConvention:
         StatusWidgetView(title: entry.strings.noConventionComplication, detail: entry.strings.openOnIphone)
-        }
-      }
-      if entry.isStale {
-        Text(entry.strings.text(entry.strings.lastUpdatedFormat, entry.relativeUpdatedText))
-          .font(.caption2)
-          .lineLimit(1)
-        Text("\(entry.strings.staleHintShort) · \(entry.strings.openOnIphone)")
-          .font(.caption2)
-          .lineLimit(1)
       }
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    // Every state is at most three lines, pinned to the top: centered, an
+    // overflowing card clipped its eyebrow, which is the line carrying the
+    // countdown.
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .environment(\.locale, entry.snapshot.locale)
-    .accessibilityHint(Text(entry.staleAccessibilityHint))
+    .environment(\.staleNotice, entry.staleNotice)
   }
+}
+
+private extension EnvironmentValues {
+  /// The complication's stale sentence, or nil while the data is fresh. The
+  /// eyebrow draws a symbol for it and each state appends it to its label.
+  @Entry var staleNotice: String? = nil
+}
+
+/// A state's VoiceOver summary with the stale sentence after it.
+private func spokenSummary(_ summary: String, stale: String?) -> String {
+  guard let stale else { return summary }
+  let endsSentence = summary.last.map { ".。!?！？".contains($0) } ?? true
+  return endsSentence ? "\(summary) \(stale)" : "\(summary). \(stale)"
 }
 
 /// Mark + one line of context: the complication's shared first line, matching
 /// the iPhone Lock Screen rectangular grammar. A reminder uses a bell in place
-/// of the brand mark.
+/// of the brand mark. A stale plan adds a trailing symbol rather than lines.
 private struct WatchEyebrow: View {
+  @Environment(\.staleNotice) private var staleNotice
   let title: String
   var symbol: String?
 
@@ -224,10 +225,17 @@ private struct WatchEyebrow: View {
           .font(.caption2.bold())
           .accessibilityHidden(true)
       } else {
-        ConPawsMark(size: 11)
+        // 16 pt: the compass ring blurs below that.
+        ConPawsMark(size: 16)
       }
       Text(title)
         .lineLimit(1)
+      if staleNotice != nil {
+        Spacer(minLength: 2)
+        Image(systemName: "exclamationmark.arrow.circlepath")
+          .foregroundStyle(.secondary)
+          .accessibilityHidden(true)
+      }
     }
     .font(.caption2.bold())
     .foregroundStyle(Color.accentColor)
@@ -235,7 +243,32 @@ private struct WatchEyebrow: View {
   }
 }
 
+/// "2:00 PM · Hall A" as two Text views, so the room can be privacy-sensitive
+/// on its own: wrist-down the watch face hides it, like the app does, and
+/// keeps the time. The time wins the width; the room truncates first.
+private struct WidgetDetailLine: View {
+  let time: String
+  let place: String?
+
+  var body: some View {
+    HStack(spacing: 3) {
+      Text(time)
+        .layoutPriority(1)
+      if let place {
+        Text(verbatim: "·")
+          .accessibilityHidden(true)
+        Text(place)
+          .privacySensitive()
+      }
+    }
+    .font(.caption2)
+    .foregroundStyle(.secondary)
+    .lineLimit(1)
+  }
+}
+
 private struct ComingUpWidgetView: View {
+  @Environment(\.staleNotice) private var staleNotice
   let convention: ConPawsConventionSnapshot
   let now: Date
   let strings: ConPawsStrings
@@ -260,17 +293,20 @@ private struct ComingUpWidgetView: View {
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
-      strings.text(
-        strings.comingUpA11yFormat,
-        convention.name,
-        strings.remaining(
-          WidgetFormat.countdownDuration(
-            from: now,
-            to: convention.startDate,
-            in: convention.timeZone,
-            strings: strings
+      spokenSummary(
+        strings.text(
+          strings.comingUpA11yFormat,
+          convention.name,
+          strings.remaining(
+            WidgetFormat.countdownDuration(
+              from: now,
+              to: convention.startDate,
+              in: convention.timeZone,
+              strings: strings
+            )
           )
-        )
+        ),
+        stale: staleNotice
       )
     )
   }
@@ -278,6 +314,8 @@ private struct ComingUpWidgetView: View {
 
 private struct LeaveWidgetView: View {
   @Environment(\.locale) private var locale
+  @Environment(\.staleNotice) private var staleNotice
+  @Environment(\.redactionReasons) private var redactionReasons
   let current: ConPawsEventSnapshot?
   let next: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
@@ -285,42 +323,31 @@ private struct LeaveWidgetView: View {
   let strings: ConPawsStrings
 
   var body: some View {
+    // Three lines: countdown, where to go, when. The running event and the
+    // reminder (which has already fired by the time this state exists) are
+    // spoken, not drawn.
     VStack(alignment: .leading, spacing: 1) {
-      WatchEyebrow(
-        title: ConPawsCountdown.leaveLead(
-          from: now,
-          to: next.startDate,
-          timeZone: convention.timeZone,
-          strings: strings
-        ),
-        symbol: "bell"
-      )
-      .monospacedDigit()
+      WatchEyebrow(title: lead, symbol: "bell")
+        .monospacedDigit()
 
-      if let current {
-        Text(current.title).font(.caption2).lineLimit(1)
-        Text("\(strings.upNextCaps) · \(next.title)").font(.headline).lineLimit(1)
-      } else {
-        Text(next.title).font(.headline).lineLimit(1)
-      }
+      Text(next.title)
+        .font(.headline)
+        .lineLimit(1)
+        .privacySensitive()
 
-      if let location = WidgetFormat.location(next) {
-        Text("\(nextTime) · \(location)")
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
-      } else {
-        Text(nextTime)
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
-      }
-      if let reminder = WidgetFormat.reminderAt(next, in: convention, locale: locale, strings: strings) {
-        Text(reminder).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-      }
+      WidgetDetailLine(time: nextTime, place: next.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(accessibilitySummary)
+    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+  }
+
+  private var lead: String {
+    ConPawsCountdown.leaveLead(
+      from: now,
+      to: next.startDate,
+      timeZone: convention.timeZone,
+      strings: strings
+    )
   }
 
   private var nextTime: String {
@@ -334,32 +361,35 @@ private struct LeaveWidgetView: View {
   }
 
   private var accessibilitySummary: String {
+    // A redacted face must not be read aloud either: the label replaces the
+    // children, so `privacySensitive` on them never reaches VoiceOver. Speak
+    // only what stays drawn, the lead and the clock time.
+    if redactionReasons.contains(.privacy) {
+      return "\(lead), \(nextTime)."
+    }
     let countdown = WidgetFormat.countdownDuration(
       from: now,
       to: next.startDate,
       in: convention.timeZone,
       strings: strings
     )
-    let summary: String
     if let current {
-      summary = strings.text(
+      return strings.text(
         strings.startsWithCurrentA11yFormat,
         countdown,
         current.title,
         next.title,
         nextTime
       )
-    } else {
-      summary = strings.text(strings.startsA11yFormat, countdown, next.title, nextTime)
     }
-    let reminder = WidgetFormat.reminderAt(next, in: convention, locale: locale, strings: strings)
-      .map { ". \($0)" } ?? ""
-    return summary + reminder
+    return strings.text(strings.startsA11yFormat, countdown, next.title, nextTime)
   }
 }
 
 private struct NextWidgetView: View {
   @Environment(\.locale) private var locale
+  @Environment(\.staleNotice) private var staleNotice
+  @Environment(\.redactionReasons) private var redactionReasons
   let current: ConPawsEventSnapshot?
   let event: ConPawsEventSnapshot
   let convention: ConPawsConventionSnapshot
@@ -367,33 +397,19 @@ private struct NextWidgetView: View {
   let strings: ConPawsStrings
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 2) {
-      if let current {
-        WatchEyebrow(title: strings.happeningNowCaps)
-        Text(current.title).font(.headline).lineLimit(1)
-        Text("\(strings.upNextCaps) · \(event.title)").font(.caption2).lineLimit(1)
-      } else {
-        WatchEyebrow(title: strings.upNextCaps)
-        Text(event.title).font(.headline).lineLimit(1)
-      }
-
-      if let location = WidgetFormat.location(event) {
-        Text("\(startTime) · \(location)")
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
-      } else {
-        Text(startTime)
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
-      }
-      if let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings) {
-        Text(reminder).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-      }
+    // Three lines about the next event. The running event and the pending
+    // reminder are spoken, not drawn: as extra lines they pushed the card
+    // past what accessoryRectangular holds.
+    VStack(alignment: .leading, spacing: 1) {
+      WatchEyebrow(title: strings.upNextCaps)
+      Text(event.title)
+        .font(.headline)
+        .lineLimit(1)
+        .privacySensitive()
+      WidgetDetailLine(time: startTime, place: event.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(accessibilitySummary)
+    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
   }
 
   private var startTime: String {
@@ -407,16 +423,58 @@ private struct NextWidgetView: View {
   }
 
   private var accessibilitySummary: String {
-    let next = strings.text(strings.nextEventA11yFormat, event.title, startTime)
-    let currentText = current.map { "\(strings.happeningNowCaps), \($0.title). " } ?? ""
-    let place = WidgetFormat.location(event).map { ", \($0)" } ?? ""
     let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
       .map { ". \($0)" } ?? ""
+    // Redacted: no titles or rooms, as on screen (see LeaveWidgetView).
+    if redactionReasons.contains(.privacy) {
+      return "\(strings.upNextCaps), \(startTime)\(reminder)."
+    }
+    let next = strings.text(strings.nextEventA11yFormat, event.title, startTime)
+    let currentText = current.map { "\(strings.happeningNowCaps), \($0.title). " } ?? ""
+    let place = event.place.map { ", \($0)" } ?? ""
     return "\(currentText)\(next)\(place)\(reminder)."
   }
 }
 
+private struct CurrentWidgetView: View {
+  @Environment(\.locale) private var locale
+  @Environment(\.staleNotice) private var staleNotice
+  @Environment(\.redactionReasons) private var redactionReasons
+  let event: ConPawsEventSnapshot
+  let convention: ConPawsConventionSnapshot
+  let strings: ConPawsStrings
+
+  var body: some View {
+    // The time range moves down to the detail line, so the eyebrow no longer
+    // truncates "HAPPENING NOW · UNTIL 10:30 AM".
+    VStack(alignment: .leading, spacing: 1) {
+      WatchEyebrow(title: strings.happeningNowCaps)
+      Text(event.title)
+        .font(.headline)
+        .lineLimit(1)
+        .privacySensitive()
+      WidgetDetailLine(time: timeRange, place: event.shortPlace)
+    }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+  }
+
+  private var timeRange: String {
+    WidgetFormat.timeRange(event, in: convention, locale: locale)
+  }
+
+  private var accessibilitySummary: String {
+    // Redacted: no title or room, as on screen (see LeaveWidgetView).
+    if redactionReasons.contains(.privacy) {
+      return "\(strings.happeningNowCaps), \(timeRange). \(strings.noLaterSavedEventsShort)."
+    }
+    let place = event.place.map { ", \($0)" } ?? ""
+    return "\(strings.happeningNowCaps), \(event.title), \(timeRange)\(place). \(strings.noLaterSavedEventsShort)."
+  }
+}
+
 private struct StatusWidgetView: View {
+  @Environment(\.staleNotice) private var staleNotice
   let title: String
   let detail: String
 
@@ -428,7 +486,8 @@ private struct StatusWidgetView: View {
         .foregroundStyle(.secondary)
         .lineLimit(2)
     }
-    .accessibilityElement(children: .combine)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(spokenSummary("\(title), \(detail)", stale: staleNotice))
   }
 }
 
@@ -451,7 +510,10 @@ struct ConPawsWatchWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: ConPawsWatchProvider()) { entry in
       ConPawsWatchEntryView(entry: entry)
-        .containerBackground(Color.black, for: .widget)
+        // The target's own $widgetBackground, through the symbol Xcode
+        // generates for it, so a renamed asset fails the build instead of
+        // falling back silently.
+        .containerBackground(Color(.widgetBackground), for: .widget)
     }
     // System-drawn, like the iPhone widget's gallery entry: the Smart Stack
     // resolves these against the watch's language, not the app's, so they need
@@ -619,6 +681,19 @@ private enum WidgetFormat {
     return strings.reminderAt(time(reminderDate, in: convention, locale: locale), minutes: minutes)
   }
 
+  /// "9:00–10:30 AM", or the start alone when the end is unknown. A copy of
+  /// the watch app's WatchFormat.timeRange until both share one formatter.
+  static func timeRange(
+    _ event: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale
+  ) -> String {
+    guard let end = event.endDate else {
+      return time(event.startDate, in: convention, locale: locale)
+    }
+    return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
+  }
+
   static func nextEventTime(
     _ date: Date,
     relativeTo now: Date,
@@ -645,13 +720,6 @@ private enum WidgetFormat {
     return "\(formatter.string(from: date)) · \(timeLabel)"
   }
 
-  static func location(_ event: ConPawsEventSnapshot) -> String? {
-    let values = [event.room, event.location]
-      .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .filter { !$0.isEmpty }
-    if values.count == 2, values[0] == values[1] { return values[0] }
-    return values.isEmpty ? nil : values.joined(separator: " • ")
-  }
 
   /// How long the wait is, spoken as two units.
   ///

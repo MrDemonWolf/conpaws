@@ -10,15 +10,16 @@ describe("localizedTimeZoneName", () => {
 
   it("uses the city when the runtime only offers an offset", () => {
     const format = Intl.DateTimeFormat;
-    vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
-      // biome-ignore lint/complexity/useArrowFunction: Vitest 5 constructor mocks must be constructable.
-      function (locale, options) {
-        return {
-          formatToParts: () => [{ type: "timeZoneName", value: "GMT-5" }],
-          resolvedOptions: () => new format(locale, options).resolvedOptions(),
-        } as unknown as Intl.DateTimeFormat;
-      },
-    );
+    vi.spyOn(Intl, "DateTimeFormat").mockImplementation(function (
+      this: Intl.DateTimeFormat,
+      locale,
+      options,
+    ) {
+      this.formatToParts = () => [{ type: "timeZoneName", value: "GMT-5" }];
+      this.resolvedOptions = () =>
+        new format(locale, options).resolvedOptions();
+      return this;
+    });
     try {
       expect(localizedTimeZoneName("America/New_York", "en-US")).toBe(
         "New York",

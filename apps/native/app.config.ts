@@ -61,7 +61,7 @@ const getScheme = (): string => {
  * https://app.notion.com/p/408d61481c7b8197a680fcb3c271e969
  * Local development can still use `bun run ship:prep`.
  */
-const BUILD_NUMBER = 210;
+const BUILD_NUMBER = 213;
 
 const getVariantPng = (name: string): string =>
   `./assets/images/${name}${APP_VARIANT === "development" ? "-development" : ""}.png`;
@@ -85,7 +85,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           ios: {
             appExtensions: [
               {
-                targetName: "widget",
+                targetName: "ExpoWidgetsTarget",
                 bundleIdentifier: `${getBundleId()}.widgets`,
                 entitlements: {
                   "com.apple.security.application-groups": [
@@ -147,6 +147,30 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         {
           NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategoryUserDefaults",
           NSPrivacyAccessedAPITypeReasons: ["1C8F.1"],
+        },
+      ],
+      // Release builds send crash reports to Sentry (src/lib/error-reporting.ts).
+      // Declared here so Xcode's privacy report matches the App Store Connect
+      // label: crash and diagnostic data, not linked to the person, not used for
+      // tracking. Nothing else leaves the device; there is no account.
+      NSPrivacyTracking: false,
+      NSPrivacyCollectedDataTypes: [
+        {
+          NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeCrashData",
+          NSPrivacyCollectedDataTypeLinked: false,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: [
+            "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+          ],
+        },
+        {
+          NSPrivacyCollectedDataType:
+            "NSPrivacyCollectedDataTypeOtherDiagnosticData",
+          NSPrivacyCollectedDataTypeLinked: false,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: [
+            "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+          ],
         },
       ],
     },
@@ -223,7 +247,65 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     "expo-router",
-    "@bacons/apple-targets",
+    // Run before generators so its post-generation mods preserve the existing identities.
+    "./plugins/withConPawsWidgets.js",
+    ["@bacons/apple-targets", { match: "{watch,watch-widget}" }],
+    [
+      "expo-widgets",
+      {
+        bundleIdentifier: `${getBundleId()}.widgets`,
+        groupIdentifier: `group.${getBundleId()}`,
+        enableAndroid: true,
+        enablePushNotifications: false,
+        widgets: [
+          {
+            name: "ConPawsWidget",
+            displayName: "ConPaws",
+            description: "Convention countdowns and your next planned event.",
+            ios: {
+              supportedFamilies: [
+                "systemSmall",
+                "systemMedium",
+                "systemLarge",
+                "accessoryCircular",
+                "accessoryRectangular",
+                "accessoryInline",
+              ],
+              initialLayout: "./src/widgets/ConPawsWidget.ios.tsx",
+              configuration: {
+                title: "ConPaws",
+                parameters: {
+                  convention: {
+                    title: "Convention",
+                    type: "enum",
+                    dynamic: true,
+                    default: "current",
+                    values: [{ name: "Automatic", value: "current" }],
+                  },
+                  mode: {
+                    title: "Display",
+                    type: "enum",
+                    default: "automatic",
+                    values: [
+                      { name: "Automatic", value: "automatic" },
+                      { name: "Convention Countdown", value: "countdown" },
+                      { name: "Next Event", value: "nextEvent" },
+                    ],
+                  },
+                },
+              },
+            },
+            android: {
+              initialLayout: "./src/widgets/ConPawsWidget.android.tsx",
+              targetCellWidth: 4,
+              targetCellHeight: 3,
+              minHeight: 220,
+              resizeMode: "both",
+            },
+          },
+        ],
+      },
+    ],
     "expo-sqlite",
     // expo-location is autolinked, so this entry exists only to pass props. Left
     // at its defaults the plugin writes four purpose strings into Info.plist --
@@ -241,6 +323,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         locationAlwaysAndWhenInUsePermission: false,
         locationAlwaysPermission: false,
         locationWhenInUsePermission: false,
+        // Also a purpose string for a prompt ConPaws never shows: the plugin
+        // otherwise adds a precise-location dictionary with placeholder text.
+        locationFullAccuracyPermission: false,
         // Not `false`. Deleting this key got build 204 rejected with
         // ITMS-90683: expo-location ships MotionActivityStreamer.swift, which
         // references CoreMotion, and Apple's static analysis requires a purpose

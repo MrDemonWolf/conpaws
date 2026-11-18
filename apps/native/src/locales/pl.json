@@ -175,7 +175,9 @@
       "allDaysCta": "Pokaż wszystkie dni",
       "dropIn": {
         "title": "Wpadnij o dowolnej porze",
-        "subtitle": "Bez ustalonej godziny"
+        "subtitle": "Bez ustalonej godziny",
+        "filter": "Otwarte atrakcje · {{count}}",
+        "find": "Znajdź otwartą atrakcję"
       },
       "noSeat": "Zapisanie panelu nie rezerwuje miejsca.",
       "optionsOne": "{{count}} opcja",
@@ -255,9 +257,11 @@
       },
       "minutesLeftOne": "Została {{count}} min",
       "minutesLeftMany": "Zostało {{count}} min",
+      "durationLeft": "Zostało {{duration}}",
       "minutesLeftMany_few": "Zostały {{count}} min",
       "minutesUntilOne": "Zaczyna się za {{count}} min",
       "minutesUntilMany": "Zaczyna się za {{count}} min",
+      "durationUntil": "Zaczyna się za {{duration}}",
       "alsoNowOne": "Teraz zapisany też: {{count}} inny",
       "alsoNowMany": "Teraz zapisanych też: {{count}} innych",
       "alsoNowMany_few": "Teraz zapisane też: {{count}} inne"
@@ -294,6 +298,14 @@
       "overlapsPlan": "Nakłada się na Twój plan",
       "overlapWith": "{{minutes}} min z {{title}}",
       "compareBeforeAdding": "Porównaj przed dodaniem"
+    },
+    "visit": {
+      "title": "Zaplanuj wizytę",
+      "edit": "Edytuj wizytę",
+      "duration": "Długość wizyty",
+      "windowError": "Cała wizyta musi mieścić się w godzinach otwarcia.",
+      "invalid": "Godziny otwarcia się zmieniły. Edytuj wizytę.",
+      "remove": "Usuń wizytę"
     }
   },
   "errors": {
@@ -324,12 +336,11 @@
     },
     "archive": {
       "title": "Archiwum ({{count}})",
-      "show": "Pokaż",
-      "hide": "Ukryj",
       "noCurrent": "Brak nadchodzących konwentów.",
       "success": "Zarchiwizowano {{name}}.",
       "errorTitle": "Nie udało się zarchiwizować konwentu",
-      "errorMessage": "Nic nie zarchiwizowano. Spróbuj ponownie."
+      "errorMessage": "Nic nie zarchiwizowano. Spróbuj ponownie.",
+      "showConventions": "Pokaż zarchiwizowane konwenty"
     },
     "unarchive": {
       "success": "Przywrócono {{name}} z archiwum.",
@@ -337,7 +348,6 @@
       "errorMessage": "Nie udało się przywrócić konwentu. Spróbuj ponownie."
     },
     "moreActions": "Więcej działań dla {{name}}",
-    "sortBy": "Sortuj według",
     "sort": {
       "upcoming": "Nadchodzące najpierw",
       "name": "Nazwa"
@@ -349,7 +359,8 @@
       "errorTitle": "Nie udało się usunąć konwentu",
       "errorMessage": "Nic nie zostało usunięte. Spróbuj ponownie."
     },
-    "find": "Znajdź mój konwent"
+    "find": "Znajdź mój konwent",
+    "sortAndView": "Sortowanie i widok"
   },
   "import": {
     "title": "Importuj Harmonogram",
@@ -438,42 +449,36 @@
   "onboarding": {
     "progress": "Krok {{step}} z {{total}}",
     "welcome": {
-      "tagline": "Program konwentu zawsze pod ręką, także offline.",
-      "subtitle": "Planuj mimo słabego Wi-Fi na konwencie. Harmonogram zostaje na twoim urządzeniu.",
+      "tagline": "Twój konwent, gotowy offline.",
+      "subtitle": "Znajdź swój konwent lub zaimportuj plik .ics albo link do Sched.",
       "continue": "Dalej",
-      "skip": "Pomiń"
+      "skip": "Pomiń",
+      "exampleTitle": "Przykładowy konwent",
+      "connectionNote": "Do wyszukiwania i pobierania programów potrzebujesz połączenia. Pobrany program pozostaje dostępny offline."
     },
     "features": {
-      "title": "Zaplanuj cały konwent",
-      "subtitle": "Wszystko, czego potrzebujesz, gdy Wi-Fi na miejscu przestaje działać.",
-      "demo": {
-        "saved": "Mój plan"
-      },
-      "import": {
-        "title": "Importuj dowolny harmonogram",
-        "description": "Dodaj plik .ics lub wklej link z Sched."
-      },
-      "plan": {
-        "title": "Nie przegap żadnego panelu",
-        "description": "Ułóż swój plan, sprawdzaj, co dzieje się teraz i co będzie dalej, oraz wychwytuj kolizje."
-      },
-      "offline": {
-        "title": "Prywatnie i offline",
-        "description": "Dane konwentu zostają na tym urządzeniu."
-      },
-      "plus": {
-        "title": "Za darmo i offline",
-        "description": "Wszystko tutaj działa bez konta i bez sieci. Opcjonalne funkcje w chmurze mogą pojawić się później."
-      },
-      "next": "Dalej"
+      "title": "Wybierz interesujące cię panele.",
+      "subtitle": "Dotknij gwiazdki, aby zapisać wydarzenie. Potem otwórz Mój plan, aby zobaczyć swój wybór.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Dalej",
+      "practiceNote": "Wypróbuj tutaj. Ten przykład nie zmieni twoich konwentów.",
+      "viewsNote": "Program pokazuje program. Mój plan zawiera twoje wybory. Teraz pokazuje trwające i najbliższe wydarzenia.",
+      "emptyPlan": "Jeszcze nic nie planujesz. Otwórz Program i dotknij gwiazdki."
     },
     "getStarted": {
-      "title": "Wszystko gotowe na kolejny konwent?",
-      "subtitle": "Znajdź swój konwent, zaimportuj program albo najpierw rozejrzyj się w ConPaws.",
+      "title": "Przypomnienie, kiedy chcesz.",
+      "subtitle": "Zapisanie wydarzenia i ustawienie przypomnienia to osobne decyzje.",
       "importSchedule": "Importuj harmonogram",
       "exploreFirst": "Najpierw poznaj aplikację",
       "localPrivacy": "Konto nie jest potrzebne. Twoje dane pozostają lokalne.",
-      "find": "Znajdź mój konwent"
+      "find": "Znajdź mój konwent",
+      "example": "Przykładowe wydarzenie",
+      "sampleOnly": "To tylko przykład. Żadne powiadomienie nie zostanie wysłane.",
+      "permissionNote": "Telefon poprosi o zgodę na powiadomienia, gdy ustawisz prawdziwe przypomnienie. Możesz korzystać z ConPaws bez powiadomień."
     }
   },
   "reminders": {
@@ -631,7 +636,6 @@
       "support": "Pomoc",
       "helpCenter": "Centrum pomocy",
       "email": "E-mail",
-      "discordDescription": "Dołącz do społeczności",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -656,7 +660,10 @@
       "notRequested": "Jeszcze nie poproszono",
       "defaultLead": "Domyślne przypomnienie",
       "defaultLeadDescription": "Wstępnie wybrane przy ustawianiu przypomnienia dla nowego wydarzenia.",
-      "noDefault": "Brak"
+      "noDefault": "Brak",
+      "enable": "Włącz powiadomienia",
+      "changeError": "Nie udało się zaktualizować uprawnienia do powiadomień. Spróbuj ponownie.",
+      "defaultLeadError": "Nie udało się zapisać domyślnego przypomnienia. Spróbuj ponownie."
     },
     "help": {
       "gettingStarted": "Pierwsze kroki",
@@ -664,7 +671,62 @@
       "importNow": "Importuj plan",
       "importNowDescription": "Dodaj link Sched lub plik .ics.",
       "findDescription": "Wybierz konwent z katalogu ConPaws i pobierz jego program.",
-      "find": "Znajdź mój konwent"
+      "find": "Znajdź mój konwent",
+      "replay": "Powtórz samouczek",
+      "replayDescription": "Ćwicz na tymczasowych danych przykładowych"
+    },
+    "preview": {
+      "title": "Testowanie wersji podglądowej",
+      "add": "Dodaj przykładowe konwenty",
+      "description": "Fikcyjne programy do testowania. Pozostałe konwenty pozostaną bez zmian.",
+      "restore": "Przywróć przykładowe dane",
+      "restoreConfirm": "Zmiany w przykładowych konwentach zostaną zastąpione. Pozostałe konwenty i ustawienia pozostaną bez zmian.",
+      "testReminder": "Przetestuj przypomnienie",
+      "testDescription": "Zaplanuj rzeczywiste lokalne powiadomienie za około pięć sekund.",
+      "testScheduled": "Lokalne powiadomienie zostało zaplanowane za około pięć sekund.",
+      "nativeOnly": "Testy przypomnień wymagają aplikacji natywnej.",
+      "error": "Nie udało się wykonać akcji testowej. Spróbuj ponownie."
+    },
+    "timeFormat": {
+      "title": "Format czasu",
+      "system": "Użyj ustawienia urządzenia",
+      "hour12": "12-godzinny · 7:00 PM",
+      "hour24": "24-godzinny · 19:00",
+      "saveError": "Nie udało się zapisać formatu czasu. Spróbuj ponownie."
+    }
+  },
+  "tracking": {
+    "track": "Śledź wydarzenie",
+    "stop": "Przestań śledzić",
+    "badge": "Śledzone",
+    "trackHint": "Pokazuje godzinę i salę tego wydarzenia poza aplikacją, dopóki się nie skończy.",
+    "bannerTitle": "Śledzisz: {{title}}",
+    "stopAccessibility": "Przestań śledzić: {{title}}",
+    "startedAnnouncement": "Śledzisz teraz: {{title}}.",
+    "stoppedAnnouncement": "Zakończono śledzenie: {{title}}.",
+    "replace": {
+      "title": "Śledzić zamiast tego to wydarzenie?",
+      "message": "ConPaws śledzi jedno wydarzenie naraz. {{next}} zastąpi {{current}}.",
+      "confirm": "Śledź to"
+    },
+    "live": {
+      "startsIn": "Zaczyna się za",
+      "endsIn": "Kończy się za",
+      "now": "Teraz",
+      "ended": "Zakończone",
+      "stop": "Zatrzymaj"
+    },
+    "permission": {
+      "notificationsTitle": "Powiadomienia są wyłączone",
+      "notificationsMessage": "ConPaws potrzebuje uprawnień do wysyłania powiadomień, aby pokazać śledzone wydarzenie. Włącz powiadomienia w Ustawieniach, a potem ponownie zacznij śledzić wydarzenie.",
+      "liveActivitiesTitle": "Aktywności na żywo są wyłączone",
+      "liveActivitiesMessage": "Włącz Aktywności na żywo dla ConPaws w Ustawieniach, aby widzieć to wydarzenie na ekranie blokady."
+    },
+    "errorTitle": "Nie śledzisz wydarzenia",
+    "errorMessage": "ConPaws nie mógł zacząć śledzić tego wydarzenia. Spróbuj ponownie.",
+    "channel": {
+      "name": "Śledzone wydarzenie",
+      "description": "Pokazuje jedno wybrane przez Ciebie wydarzenie z przyciskiem Zatrzymaj."
     }
   },
   "catalog": {
@@ -730,7 +792,9 @@
       },
       "successAnnouncement": "Pobrano {{name}}. Wybierz swój pierwszy panel.",
       "scheduleReady_few": "{{count}} wydarzenia · Gotowe do pobrania",
-      "scheduleReady_many": "{{count}} wydarzeń · Gotowe do pobrania"
+      "scheduleReady_many": "{{count}} wydarzeń · Gotowe do pobrania",
+      "venue": "Miejsce",
+      "offlineAvailable": "Dostępne offline po pobraniu"
     }
   }
 }

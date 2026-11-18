@@ -1,7 +1,7 @@
 import { Collapsible, FieldGroup, Host, ListItem, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQueryClient } from "@tanstack/react-query";
-import { addDays, format, startOfDay } from "date-fns";
+import { addDays, format, max, startOfDay } from "date-fns";
 import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack } from "expo-router";
@@ -19,6 +19,7 @@ import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
 import { SafeView } from "@/components/ui";
 import { NativeText } from "@/components/ui/NativeText";
 import * as conventionsRepo from "@/db/repositories/conventions";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
@@ -40,6 +41,7 @@ export default function CreateConventionScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const locale = currentLocale();
   const { colors } = useTheme();
   const seedColor = colors.primary;
@@ -230,7 +232,7 @@ export default function CreateConventionScreen() {
         style={{ flex: 1 }}
         useViewportSizeMeasurement
       >
-        <FieldGroup>
+        <FieldGroup {...readableGroup}>
           <FieldGroup.Section>
             <ListItem
               supportingText={
@@ -283,9 +285,7 @@ export default function CreateConventionScreen() {
               locale={locale}
               timeZoneName={validTimeZone}
               colorScheme={resolvedColorScheme}
-              onChange={(value) =>
-                setEndDate(value < startDate ? startDate : value)
-              }
+              onChange={(value) => setEndDate(max([value, startDate]))}
             />
             <Collapsible
               label={t("common.advanced")}

@@ -123,7 +123,7 @@ beforeEach(() => {
 });
 
 describe("downloadCatalogEdition", () => {
-  it("creates once, then updates the existing convention by catalog slug", async () => {
+  it("keeps catalog dates when a newer partial schedule only covers one day", async () => {
     const { deps, calls, conventions } = harness();
     const source = {
       kind: "fixture" as const,
@@ -132,7 +132,13 @@ describe("downloadCatalogEdition", () => {
     };
 
     const first = await downloadCatalogEdition({ edition, source }, deps);
-    const second = await downloadCatalogEdition({ edition, source }, deps);
+    const second = await downloadCatalogEdition(
+      {
+        edition: { ...edition, revision: 3, scheduleStatus: "partial" },
+        source,
+      },
+      deps,
+    );
 
     expect(first).toMatchObject({
       ok: true,
@@ -146,12 +152,20 @@ describe("downloadCatalogEdition", () => {
     });
     expect(conventions.size).toBe(1);
     expect(calls.create).toHaveBeenCalledTimes(1);
+    expect(calls.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        startDate: edition.startsOn,
+        endDate: edition.endsOn,
+      }),
+    );
     expect(calls.importEvents).toHaveBeenCalledTimes(2);
     expect(calls.update).toHaveBeenCalledWith(
       "local-1",
       expect.objectContaining({
         catalogSlug: edition.slug,
-        catalogRevision: 2,
+        catalogRevision: 3,
+        startDate: edition.startsOn,
+        endDate: edition.endsOn,
       }),
     );
     expect(setScheduleAllCategories).toHaveBeenCalledWith("local-1", true);

@@ -171,7 +171,9 @@
       "allDaysCta": "Vis alle dager",
       "dropIn": {
         "title": "Stikk innom når som helst",
-        "subtitle": "Ingen fast tid"
+        "subtitle": "Ingen fast tid",
+        "filter": "Drop-in · {{count}}",
+        "find": "Finn en drop-in-aktivitet"
       },
       "noSeat": "Å lagre et panel reserverer ikke plass.",
       "optionsOne": "{{count}} alternativ",
@@ -249,8 +251,10 @@
       },
       "minutesLeftOne": "{{count}} min igjen",
       "minutesLeftMany": "{{count}} min igjen",
+      "durationLeft": "{{duration}} igjen",
       "minutesUntilOne": "Starter om {{count}} min",
       "minutesUntilMany": "Starter om {{count}} min",
+      "durationUntil": "Starter om {{duration}}",
       "alsoNowOne": "Også lagret akkurat nå: {{count}} til",
       "alsoNowMany": "Også lagret akkurat nå: {{count}} til"
     },
@@ -284,6 +288,14 @@
       "overlapsPlan": "Overlapper med planen din",
       "overlapWith": "{{minutes}} min med {{title}}",
       "compareBeforeAdding": "Sammenlign før du legger til"
+    },
+    "visit": {
+      "title": "Planlegg et besøk",
+      "edit": "Rediger besøk",
+      "duration": "Besøkets varighet",
+      "windowError": "Hele besøket må være innenfor åpningstiden.",
+      "invalid": "Åpningstiden er endret. Rediger besøket ditt.",
+      "remove": "Fjern besøk"
     }
   },
   "errors": {
@@ -314,12 +326,11 @@
     },
     "archive": {
       "title": "Arkiv ({{count}})",
-      "show": "Vis",
-      "hide": "Skjul",
       "noCurrent": "Ingen kommende konventer.",
       "success": "{{name}} er arkivert.",
       "errorTitle": "Kunne ikke arkivere konventet",
-      "errorMessage": "Ingenting ble arkivert. Prøv igjen."
+      "errorMessage": "Ingenting ble arkivert. Prøv igjen.",
+      "showConventions": "Vis arkiverte treff"
     },
     "unarchive": {
       "success": "{{name}} er gjenopprettet fra arkivet.",
@@ -327,7 +338,6 @@
       "errorMessage": "Konventet kunne ikke gjenopprettes. Prøv igjen."
     },
     "moreActions": "Flere handlinger for {{name}}",
-    "sortBy": "Sorter etter",
     "sort": {
       "upcoming": "Kommende først",
       "name": "Navn"
@@ -339,7 +349,8 @@
       "errorTitle": "Kunne ikke slette konventet",
       "errorMessage": "Ingenting ble slettet. Prøv igjen."
     },
-    "find": "Finn konventet mitt"
+    "find": "Finn konventet mitt",
+    "sortAndView": "Sortering og visning"
   },
   "import": {
     "title": "Importer program",
@@ -428,42 +439,36 @@
   "onboarding": {
     "progress": "Trinn {{step}} av {{total}}",
     "welcome": {
-      "tagline": "Konventprogrammet ditt, klart uten nett.",
-      "subtitle": "Planlegg utenom dårlig konvent-wifi. Programmet ditt blir på enheten din.",
+      "tagline": "Din con, klar uten nett.",
+      "subtitle": "Finn din con, eller importer en .ics-fil eller en Sched-lenke.",
       "continue": "Fortsett",
-      "skip": "Hopp over"
+      "skip": "Hopp over",
+      "exampleTitle": "Eksempel på en con",
+      "connectionNote": "Du trenger nett for å finne og laste ned programmer. Det nedlastede programmet er fortsatt tilgjengelig uten nett."
     },
     "features": {
-      "title": "Planlegg hele konventet",
-      "subtitle": "Alt du trenger når wifien på stedet gir opp.",
-      "demo": {
-        "saved": "Min plan"
-      },
-      "import": {
-        "title": "Importer hvilket som helst program",
-        "description": "Legg til en .ics-fil, eller lim inn en Sched-lenke."
-      },
-      "plan": {
-        "title": "Gå aldri glipp av et panel",
-        "description": "Lag din egen plan, se hva som skjer nå og hva som skjer deretter, og fang opp overlapp."
-      },
-      "offline": {
-        "title": "Privat og uten nett",
-        "description": "Konventdataene dine blir på denne enheten."
-      },
-      "plus": {
-        "title": "Gratis og offline",
-        "description": "Alt her fungerer uten konto og uten nettverk. Valgfrie skyfunksjoner kommer kanskje senere."
-      },
-      "next": "Fortsett"
+      "title": "Velg panelene du vil se.",
+      "subtitle": "Trykk på stjernen for å lagre et arrangement. Åpne deretter Min plan for å se valget ditt.",
+      "demo": {},
+      "import": {},
+      "plan": {},
+      "offline": {},
+      "plus": {},
+      "next": "Fortsett",
+      "practiceNote": "Prøv her. Dette eksemplet endrer ikke dine cons.",
+      "viewsNote": "Program viser programmet. Min plan inneholder valgene dine. Nå viser aktuelle og kommende arrangementer.",
+      "emptyPlan": "Ingenting planlagt ennå. Gå til Program og trykk på stjernen."
     },
     "getStarted": {
-      "title": "Klar for ditt neste konvent?",
-      "subtitle": "Finn konventet ditt, importer et program eller utforsk først.",
+      "title": "Et varsel, når du ønsker det.",
+      "subtitle": "Å lagre et arrangement og stille inn en påminnelse er to separate valg.",
       "importSchedule": "Importer et program",
       "exploreFirst": "Utforsk først",
       "localPrivacy": "Ingen konto kreves. Dataene dine lagres lokalt.",
-      "find": "Finn konventet mitt"
+      "find": "Finn konventet mitt",
+      "example": "Eksempel på et arrangement",
+      "sampleOnly": "Bare et eksempel. Ingen varsling blir sendt.",
+      "permissionNote": "Telefonen ber om tillatelse til varsler når du stiller inn en ekte påminnelse. Du kan bruke ConPaws uten varsler."
     }
   },
   "reminders": {
@@ -617,7 +622,6 @@
       "support": "Støtte",
       "helpCenter": "Hjelpesenter",
       "email": "E-post",
-      "discordDescription": "Bli med i fellesskapet",
       "copyright": "ConPaws by MrDemonWolf, Inc."
     },
     "licenses": {
@@ -642,7 +646,10 @@
       "notRequested": "Ikke spurt om ennå",
       "defaultLead": "Standardpåminnelse",
       "defaultLeadDescription": "Forhåndsvalgt når du setter en påminnelse på en ny hendelse.",
-      "noDefault": "Ingen"
+      "noDefault": "Ingen",
+      "enable": "Aktiver varsler",
+      "changeError": "Kunne ikke oppdatere varslingstillatelsen. Prøv igjen.",
+      "defaultLeadError": "Kunne ikke lagre standardpåminnelsen. Prøv igjen."
     },
     "help": {
       "gettingStarted": "Kom i gang",
@@ -650,7 +657,62 @@
       "importNow": "Importer et program",
       "importNowDescription": "Hent inn en Sched-lenke eller en .ics-fil.",
       "findDescription": "Velg et konvent fra ConPaws-katalogen og last ned programmet.",
-      "find": "Finn konventet mitt"
+      "find": "Finn konventet mitt",
+      "replay": "Se gjennomgangen igjen",
+      "replayDescription": "Øv med midlertidige eksempeldata"
+    },
+    "preview": {
+      "title": "Test av forhåndsversjon",
+      "add": "Legg til eksempeltreff",
+      "description": "Fiktive programmer for testing. De andre treffene dine forblir uendret.",
+      "restore": "Gjenopprett eksempeldata",
+      "restoreConfirm": "Endringer i eksempeltreff blir erstattet. De andre treffene og innstillingene dine forblir uendret.",
+      "testReminder": "Test en påminnelse",
+      "testDescription": "Planlegg et ekte lokalt varsel om omtrent fem sekunder.",
+      "testScheduled": "Et lokalt varsel er planlagt om omtrent fem sekunder.",
+      "nativeOnly": "Påminnelsestester krever den innebygde appen.",
+      "error": "Kunne ikke fullføre testhandlingen. Prøv igjen."
+    },
+    "timeFormat": {
+      "title": "Tidsformat",
+      "system": "Bruk enhetens innstilling",
+      "hour12": "12 timer · 7:00 PM",
+      "hour24": "24 timer · 19:00",
+      "saveError": "Kunne ikke lagre tidsformatet. Prøv igjen."
+    }
+  },
+  "tracking": {
+    "track": "Følg hendelse",
+    "stop": "Slutt å følge",
+    "badge": "Følges",
+    "trackHint": "Viser tid og rom for denne hendelsen utenfor appen til den er over.",
+    "bannerTitle": "Følger {{title}}",
+    "stopAccessibility": "Slutt å følge {{title}}",
+    "startedAnnouncement": "Følger nå {{title}}.",
+    "stoppedAnnouncement": "Følger ikke lenger {{title}}.",
+    "replace": {
+      "title": "Følge denne hendelsen i stedet?",
+      "message": "ConPaws følger én hendelse om gangen. {{next}} erstatter {{current}}.",
+      "confirm": "Følg i stedet"
+    },
+    "live": {
+      "startsIn": "Starter om",
+      "endsIn": "Slutter om",
+      "now": "Nå",
+      "ended": "Over",
+      "stop": "Stopp"
+    },
+    "permission": {
+      "notificationsTitle": "Varslinger er slått av",
+      "notificationsMessage": "ConPaws trenger tillatelse til å sende varsler for å vise hendelsen du følger. Slå på varsler i Innstillinger, og følg hendelsen på nytt.",
+      "liveActivitiesTitle": "Live-aktiviteter er slått av",
+      "liveActivitiesMessage": "Slå på Live-aktiviteter for ConPaws i Innstillinger for å se hendelsen på låseskjermen."
+    },
+    "errorTitle": "Hendelsen følges ikke",
+    "errorMessage": "ConPaws kunne ikke begynne å følge denne hendelsen. Prøv igjen.",
+    "channel": {
+      "name": "Fulgt hendelse",
+      "description": "Viser den ene hendelsen du har valgt å følge, med en Stopp-knapp."
     }
   },
   "catalog": {
@@ -714,7 +776,9 @@
         "title": "Fant ikke konventet",
         "body": "Det kan ha blitt avpublisert."
       },
-      "successAnnouncement": "{{name}} er lastet ned. Velg ditt første panel."
+      "successAnnouncement": "{{name}} er lastet ned. Velg ditt første panel.",
+      "venue": "Sted",
+      "offlineAvailable": "Tilgjengelig uten nett etter nedlasting"
     }
   }
 }

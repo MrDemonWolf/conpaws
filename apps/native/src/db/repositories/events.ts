@@ -485,30 +485,44 @@ export async function upsertBySourceUid(
       .all();
     const plan = planSourceReconciliation(existing, events, snapshot);
     const now = new Date().toISOString();
+    const existingById = new Map(existing.map((row) => [row.id, row]));
 
     for (const { existingId, event } of plan.updates) {
+      const fields = {
+        title: event.title,
+        description: event.description,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        location: event.location,
+        room: event.room,
+        category: event.category,
+        type: event.type,
+        sourceUid: event.sourceUid,
+        sourceUrl: event.sourceUrl,
+        isAgeRestricted: event.isAgeRestricted,
+        ageRating: event.ageRating,
+        contentWarning: event.contentWarning,
+        // The feed is publishing this event again, so any mark it collected
+        // while missing is stale. Feeds churn their identifiers routinely;
+        // clearing here is what makes a tombstone recoverable instead of a
+        // one-way door.
+        feedStatus: null,
+      };
+      // A row the feed republished unchanged keeps its updatedAt, so that
+      // stays the time something about this event actually changed. A Watch
+      // tap older than it is ignored (watch-commands.ts), and a refresh that
+      // changed some other panel must not discard it.
+      const current = existingById.get(existingId);
+      if (
+        current &&
+        Object.entries(fields).every(
+          ([key, value]) =>
+            (current[key as keyof typeof fields] ?? null) === (value ?? null),
+        )
+      )
+        continue;
       tx.update(conventionEvents)
-        .set({
-          title: event.title,
-          description: event.description,
-          startTime: event.startTime,
-          endTime: event.endTime,
-          location: event.location,
-          room: event.room,
-          category: event.category,
-          type: event.type,
-          sourceUid: event.sourceUid,
-          sourceUrl: event.sourceUrl,
-          isAgeRestricted: event.isAgeRestricted,
-          ageRating: event.ageRating,
-          contentWarning: event.contentWarning,
-          // The feed is publishing this event again, so any mark it collected
-          // while missing is stale. Feeds churn their identifiers routinely;
-          // clearing here is what makes a tombstone recoverable instead of a
-          // one-way door.
-          feedStatus: null,
-          updatedAt: now,
-        })
+        .set({ ...fields, updatedAt: now })
         .where(eq(conventionEvents.id, existingId))
         .run();
     }
@@ -585,6 +599,19 @@ export async function update(
 }
 
 /**
+ * Forgets a reminder whose moment has passed. Housekeeping rather than a
+ * change anyone made, so `updatedAt` is left alone: a Watch "remove" tapped
+ * when the reminder fired must not read as older than the row it removes
+ * just because the phone tidied the reminder away first.
+ */
+export async function clearPassedReminder(id: string): Promise<void> {
+  await db
+    .update(conventionEvents)
+    .set({ reminderMinutes: null })
+    .where(eq(conventionEvents.id, id));
+}
+
+/**
  * Saves and unsaves several events at once, in one transaction, for the
  * compare sheet. Unsaved rows also lose their reminder minutes: a reminder
  * for a panel the user just dropped would announce a plan they no longer
@@ -595,16 +622,22 @@ export async function setScheduleMembership(
 ): Promise<void> {
   if (changes.length === 0) return;
   const updatedAt = new Date().toISOString();
-  await db.transaction(async (tx) => {
+  await db.transaction((tx) => {
     for (const change of changes) {
-      await tx
-        .update(conventionEvents)
+      tx.update(conventionEvents)
         .set(
           change.isInSchedule
             ? { isInSchedule: true, updatedAt }
-            : { isInSchedule: false, reminderMinutes: null, updatedAt },
+            : {
+                isInSchedule: false,
+                reminderMinutes: null,
+                visitStartTime: null,
+                visitEndTime: null,
+                updatedAt,
+              },
         )
-        .where(eq(conventionEvents.id, change.id));
+        .where(eq(conventionEvents.id, change.id))
+        .run();
     }
   });
 }

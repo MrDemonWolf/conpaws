@@ -2,13 +2,21 @@ import Constants from "expo-constants";
 import { Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
-import { developerToolsEnabled } from "@/lib/developer-tools";
+import {
+  developerDiagnosticsEnabled,
+  developerToolsEnabled,
+} from "@/lib/developer-tools";
 import { ScreenErrorFallback } from "@/lib/error-fallback";
 
 export default function SettingsLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const showDeveloperTools = developerToolsEnabled(
+  const showPreviewTesting = developerToolsEnabled(
+    __DEV__,
+    Constants.expoConfig?.extra?.appVariant,
+  );
+
+  const showDeveloperTools = developerDiagnosticsEnabled(
     __DEV__,
     Constants.expoConfig?.extra?.appVariant,
   );
@@ -65,6 +73,22 @@ export default function SettingsLayout() {
         name="appearance"
         options={{ title: t("settings.app.theme"), ...hostedScreenOptions }}
       />
+      <Stack.Screen
+        name="time-format"
+        options={{
+          title: t("settings.timeFormat.title"),
+          ...hostedScreenOptions,
+        }}
+      />
+      <Stack.Protected guard={showPreviewTesting}>
+        <Stack.Screen
+          name="preview"
+          options={{
+            title: t("settings.preview.title"),
+            ...hostedScreenOptions,
+          }}
+        />
+      </Stack.Protected>
       <Stack.Screen
         name="reminder-default"
         options={{

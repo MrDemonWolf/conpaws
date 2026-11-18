@@ -4,6 +4,38 @@
   <dict>
     <key>CFBundleDisplayName</key>
     <string>ConPaws</string>
+    <!-- The app's 23 languages, as the phone app declares them through
+         expo-localization. Every word this app draws comes from
+         ConPawsStrings in the app's language; this is for the little the
+         system draws (a dialog's Cancel, a spinner's VoiceOver label), which
+         otherwise stays English. supported-locales.test.ts keeps the list in
+         step with src/lib/supported-locales.ts. -->
+    <key>CFBundleLocalizations</key>
+    <array>
+      <string>en</string>
+      <string>es-419</string>
+      <string>es-ES</string>
+      <string>pt-BR</string>
+      <string>pt-PT</string>
+      <string>ja</string>
+      <string>zh-TW</string>
+      <string>zh-CN</string>
+      <string>ko</string>
+      <string>de</string>
+      <string>fr</string>
+      <string>pl</string>
+      <string>it</string>
+      <string>nl</string>
+      <string>ms</string>
+      <string>sv</string>
+      <string>da</string>
+      <string>nb</string>
+      <string>fi</string>
+      <string>cs</string>
+      <string>hu</string>
+      <string>uk</string>
+      <string>ru</string>
+    </array>
     <!-- Marks this as a modern single-target watch app. Without it watchOS
          looks for a legacy WKWatchKitApp extension pair and refuses to
          install with "cannot be installed at this time". -->
@@ -13,7 +45,10 @@
     <false/>
     <!-- A leave-countdown app that dismisses to the watch face on wrist-down
          defeats its own purpose; opting in keeps the countdown glanceable.
-         content.swift dims via isLuminanceReduced. -->
+         content.swift marks only event titles, rooms, age ratings and
+         descriptions privacySensitive, so the system redacts those
+         wrist-down while the countdown and clock times stay readable, and
+         card fills drop when isLuminanceReduced. -->
     <key>WKSupportsAlwaysOnDisplay</key>
     <true/>
   </dict>

@@ -26,6 +26,23 @@ describe("supported locales", () => {
     expect(readConfigLocales()).toEqual([...SUPPORTED_LANGUAGES]);
   });
 
+  it("matches the Watch app's CFBundleLocalizations", () => {
+    // The Watch target's Info.plist is written by hand, not by Expo, so the
+    // system text it draws (a dialog's Cancel, a spinner's label) follows
+    // the same languages only while this list is kept in step.
+    const plist = readFileSync(
+      path.join(__dirname, "../../targets/watch/Info.plist"),
+      "utf8",
+    );
+    const array = plist.match(
+      /<key>CFBundleLocalizations<\/key>\s*<array>([\s\S]*?)<\/array>/,
+    );
+    if (!array) throw new Error("No CFBundleLocalizations in the Watch plist");
+    expect(
+      [...array[1].matchAll(/<string>([^<]+)<\/string>/g)].map((m) => m[1]),
+    ).toEqual([...SUPPORTED_LANGUAGES]);
+  });
+
   it("has a locale JSON file for every entry", () => {
     for (const locale of SUPPORTED_LANGUAGES) {
       const file = path.join(__dirname, `../locales/${locale}.json`);

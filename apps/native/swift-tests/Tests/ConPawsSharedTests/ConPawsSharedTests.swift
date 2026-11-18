@@ -3,6 +3,68 @@ import Testing
 @testable import ConPawsShared
 
 struct ConPawsSharedTests {
+  @Test(arguments: ConPawsLanguage.allCases)
+  func canonicalWidgetStringsCrossTheBridge(language: ConPawsLanguage) throws {
+    let strings = ConPawsStrings.resolve(language.rawValue)
+    let data = try JSONEncoder().encode(strings)
+    let decoded = try JSONDecoder().decode(ConPawsStrings.self, from: data)
+    #expect(decoded.language == language)
+    #expect(decoded.upNextCaps == strings.upNextCaps)
+    #expect(!decoded.hoursUnit.other.isEmpty)
+  }
+  @Test(arguments: [
+    [" room ", " venue ", "room • venue"],
+    [" room ", "room", "room"],
+    [" \n", "", ""],
+    ["", " venue ", "venue"]
+  ])
+  func roomLeadsThePlaceLabel(values: [String]) {
+    let event = ConPawsEventSnapshot(
+      id: "panel", title: "Panel", startAtMs: 0, endAtMs: nil,
+      location: values[1], room: values[0], reminderMinutes: nil, ageRating: nil, summary: nil
+    )
+    #expect(event.place == (values[2].isEmpty ? nil : values[2]))
+  }
+
+  @Test(arguments: [
+    ("Studio B", "Center", "Studio B"),
+    (nil, "Center", "Center"),
+    ("  ", "Center", "Center"),
+    (" Hall A \n", nil, "Hall A"),
+    (nil, nil, nil),
+  ] as [(String?, String?, String?)])
+  func shortPlaceIsRoomFirst(room: String?, location: String?, expected: String?) {
+    let event = ConPawsEventSnapshot(
+      id: "panel", title: "Panel", startAtMs: 0, endAtMs: nil,
+      location: location, room: room, reminderMinutes: nil, ageRating: nil, summary: nil
+    )
+    #expect(event.shortPlace == expected)
+  }
+
+  // Inclusive at the edge: the watch app ticks on minute boundaries, so the
+  // tick that opens a 60-minute window lands on exactly 3,600 seconds.
+  @Test(arguments: [
+    (-60.0, false), (0, false), (1, true), (3_599, true), (3_600, true), (3_601, false),
+  ])
+  func liveTimerIncludesTheEdgeOfItsWindow(secondsLeft: TimeInterval, expected: Bool) {
+    let now = Date(timeIntervalSince1970: 1_767_225_600)
+    let target = now.addingTimeInterval(secondsLeft)
+    #expect(ConPawsCountdown.showsLiveTimer(from: now, to: target, within: 3_600) == expected)
+  }
+
+  @Test func unknownEventEndsDoNotBecomePublishedEndTimes() throws {
+    let decoder = JSONDecoder()
+    let withoutEnd = #"{"id":"panel","title":"Panel","startAtMs":50400000}"#
+    let withEnd = #"{"id":"panel","title":"Panel","startAtMs":50400000,"endAtMs":54000000}"#
+    let unknown = try decoder.decode(ConPawsEventSnapshot.self, from: Data(withoutEnd.utf8))
+    let known = try decoder.decode(ConPawsEventSnapshot.self, from: Data(withEnd.utf8))
+    let locale = Locale(identifier: "en-US-u-hc-h23")
+    let zone = TimeZone(secondsFromGMT: 0)!
+    #expect(unknown.currentTimingLabel(timeZone: zone, locale: locale, strings: .english) == "14:00")
+    #expect(known.currentTimingLabel(timeZone: zone, locale: locale, strings: .english) == "UNTIL 15:00")
+    #expect(ConPawsScheduleResolver.effectiveEnd(of: unknown).timeIntervalSince1970 == 54_000)
+  }
+
   @Test(arguments: [1, 2, 5, 11, 12, 21, 22, 25, 111, 112])
   func pluralForms(count: Int) {
     let expected: [ConPawsLanguage: ConPawsPluralForm] = [
@@ -78,5 +140,34 @@ struct ConPawsSharedTests {
     let filtered = decoded.filteringInvalidRecords()
     #expect(filtered.conventions.count == 1)
     #expect(filtered.conventions[0].events.map(\.id) == ["good"])
+    #expect(decoded.timeFormat == nil)
+  }
+
+  @Test(arguments: [1, 2])
+  func olderSnapshotsKeepTheDeviceClock(schema: Int) throws {
+    let json = """
+      {"schemaVersion":\(schema),"generatedAtMs":1,"localeIdentifier":"en","conventions":[]}
+      """
+    let decoded = try JSONDecoder().decode(ConPawsSnapshot.self, from: Data(json.utf8))
+    #expect(decoded.timeFormat == nil)
+    #expect(decoded.filteringInvalidRecords().timeFormat == nil)
+  }
+
+  @Test(arguments: ["12", "24"])
+  func snapshotPreservesClockChoice(format: String) throws {
+    let json = """
+      {"schemaVersion":2,"generatedAtMs":1,"localeIdentifier":"en-US","conventions":[],"timeFormat":"\(format)"}
+      """
+    let decoded = try JSONDecoder().decode(ConPawsSnapshot.self, from: Data(json.utf8))
+    let filtered = decoded.filteringInvalidRecords()
+    #expect(filtered.timeFormat == format)
+    #expect(filtered.locale.hourCycle == (format == "12" ? .oneToTwelve : .zeroToTwentyThree))
+    let formatter = DateFormatter()
+    formatter.locale = filtered.locale
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    formatter.timeStyle = .short
+    let time = formatter.string(from: Date(timeIntervalSince1970: 19 * 60 * 60))
+    #expect(time.contains(format == "12" ? "7:00" : "19:00"))
+    #expect((try JSONDecoder().decode(ConPawsSnapshot.self, from: JSONEncoder().encode(filtered))).timeFormat == format)
   }
 }

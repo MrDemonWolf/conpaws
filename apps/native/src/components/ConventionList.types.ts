@@ -23,9 +23,7 @@ export interface ConventionListProps<T extends { id: string }> {
   archivedData: T[];
   archiveExpanded: boolean;
   archiveLabel: string;
-  archiveActionLabel: string;
   currentEmptyLabel: string;
-  onToggleArchive: () => void;
   getRowContent: (item: T) => ConventionRowContent;
   onOpen: (item: T) => void;
   onAction: (item: T, action: ConventionRowActionId) => void;

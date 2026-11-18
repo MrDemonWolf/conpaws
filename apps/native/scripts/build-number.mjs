@@ -22,6 +22,7 @@
  * reached 208 while the shipped build was 203.
  */
 
+import { realpathSync } from "node:fs";
 import { access, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -322,7 +323,11 @@ async function check() {
   console.log(`Build number ${expected}, native projects agree.`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Real paths, so a symlinked invocation still runs instead of silently exiting 0.
+if (
+  process.argv[1] &&
+  realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+) {
   if (process.argv.includes("--ci") || process.argv.includes("--set")) {
     const next = process.argv.includes("--ci")
       ? ciBuildNumber(

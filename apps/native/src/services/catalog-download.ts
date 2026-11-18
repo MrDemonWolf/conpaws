@@ -14,9 +14,7 @@ import {
 } from "@/lib/sched-extractor";
 import { setScheduleAllCategories } from "@/lib/schedule-refresh-storage";
 import {
-  buildImportedConventionPatch,
   commitScheduleImport,
-  deriveImportedConventionDates,
   type ScheduleImportCommitDeps,
 } from "@/services/schedule-import-commit";
 
@@ -89,23 +87,17 @@ export async function downloadCatalogEdition(
       scheduleUrl,
     });
     const existing = await deps.getByCatalogSlug(edition.slug);
-    const dates = deriveImportedConventionDates(
-      parsedEvents,
-      currentEdition.timezone,
-      new Date(),
-    );
+    const draft = editionToDraft(currentEdition);
     const outcome = await commitScheduleImport(
       {
         conventionId: existing?.id ?? "new",
-        draft: existing ? null : editionToDraft(currentEdition),
+        draft: existing ? null : draft,
         parsedEvents,
         sourceSnapshot,
         patch: {
-          ...buildImportedConventionPatch({
-            dates,
-            sourceUrl: null,
-            timeZone: currentEdition.timezone,
-          }),
+          startDate: draft.startDate,
+          endDate: draft.endDate,
+          status: draft.status,
           catalogSlug: currentEdition.slug,
           catalogRevision: currentEdition.revision,
           timeZone: currentEdition.timezone,

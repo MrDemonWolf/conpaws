@@ -9,12 +9,14 @@ import {
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
+import { useTrackedEvent } from "@/hooks/useTrackedEvent";
 import {
   compareCandidates,
   overlapMinutesBetween,
 } from "@/lib/compare-candidates";
 import { isValidTimeZone } from "@/lib/convention-time";
-import { deviceHour12 } from "@/lib/device-clock";
+import { useHour12 } from "@/lib/device-clock";
+import { plannedEvent } from "@/lib/drop-in-visit";
 
 /**
  * The event sheet, as a pushed formSheet route (registered in the (home)
@@ -27,7 +29,7 @@ export default function EventSheetRoute() {
     id: string;
     eventId: string;
   }>();
-  const hour12 = deviceHour12();
+  const hour12 = useHour12();
 
   const { data: convention } = useQuery({
     queryKey: ["convention", id],
@@ -42,16 +44,18 @@ export default function EventSheetRoute() {
   });
   const event = events.find((item) => item.id === eventId) ?? null;
 
-  const { toggleScheduleMutation, setReminderMutation } =
+  const { toggleScheduleMutation, setReminderMutation, removeVisitMutation } =
     useEventScheduleMutations({ conventionId: id });
+  const trackedEvent = useTrackedEvent();
 
   const conflicts = useMemo<EventSheetConflict[]>(() => {
     if (!event) return [];
-    const set = compareCandidates(events, event.id);
+    const candidate = plannedEvent(event);
+    const set = compareCandidates(events.map(plannedEvent), event.id);
     if (!set) return [];
     return set.conflicts.map((conflict) => ({
       title: conflict.title,
-      minutes: overlapMinutesBetween(event, conflict),
+      minutes: overlapMinutesBetween(candidate, conflict),
     }));
   }, [events, event]);
 
@@ -81,6 +85,27 @@ export default function EventSheetRoute() {
       }
       conflicts={conflicts}
       onClose={() => router.back()}
+      onPlanVisit={() =>
+        router.replace({
+          pathname: "/convention/[id]/event/[eventId]/visit",
+          params: { id, eventId },
+        })
+      }
+      onRemoveVisit={() =>
+        removeVisitMutation.mutate(event, { onSuccess: () => router.back() })
+      }
+      visitBusy={removeVisitMutation.isPending}
+      tracking={{
+        state: trackedEvent.trackedEventId === event.id ? "this" : "none",
+        trackable: trackedEvent.isTrackable(event, convention),
+        busy: trackedEvent.busy,
+        onTrack: () => {
+          if (convention) void trackedEvent.track(event, convention);
+        },
+        onStop: () => {
+          void trackedEvent.stop();
+        },
+      }}
       onToggleSchedule={(item) => toggleScheduleMutation.mutate(item)}
       onSelectReminder={(item, minutes) =>
         setReminderMutation.mutate({ event: item, minutes })

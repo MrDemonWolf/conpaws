@@ -1,7 +1,6 @@
 import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
 import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import DescriptionIcon from "@expo/material-symbols/description.xml";
-import ForumIcon from "@expo/material-symbols/forum.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
@@ -18,8 +17,10 @@ import { Text } from "@/components/ui";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
+import { ABOUT_HERO_MAX } from "@/lib/content-width";
 import { openExternal } from "@/lib/open-external";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
@@ -29,7 +30,6 @@ const CHEVRON_ICON = Icon.select({
 });
 const WEBSITE_ICON = Icon.select({ ios: "globe", android: PublicIcon });
 const EMAIL_ICON = Icon.select({ ios: "envelope", android: MailIcon });
-const COMMUNITY_ICON = Icon.select({ ios: "person.3", android: ForumIcon });
 const HELP_ICON = Icon.select({
   ios: "questionmark.circle",
   android: HelpIcon,
@@ -67,8 +67,9 @@ export default function AboutScreen() {
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
-  const heroWidth = Math.min(520, Math.max(260, width - 64));
+  const heroWidth = Math.min(ABOUT_HERO_MAX, Math.max(260, width - 64));
 
   const isIOS = process.env.EXPO_OS === "ios";
 
@@ -132,7 +133,7 @@ export default function AboutScreen() {
         style={{ flex: 1 }}
         useViewportSizeMeasurement
       >
-        <FieldGroup>
+        <FieldGroup {...readableGroup}>
           {isIOS ? (
             <FieldGroup.Section>
               <Column alignment="center" style={{ paddingVertical: 24 }}>
@@ -158,14 +159,10 @@ export default function AboutScreen() {
             >
               {t("settings.about.email")}
             </ListItem>
-            <ListItem
-              leading={<NativeIcon name={COMMUNITY_ICON} />}
-              supportingText={t("settings.about.discordDescription")}
-              trailing={<ExternalIndicator />}
-              onPress={() => openLink("https://discord.gg/conpaws")}
-            >
-              Discord
-            </ListItem>
+            {/* A Discord row lived here. discord.gg/conpaws resolves to "Unknown
+                Invite", and a dead link is an App Review rejection risk, so the
+                row is gone until there is a permanent invite. Add the row and
+                its description string back together. */}
           </FieldGroup.Section>
 
           <FieldGroup.Section title={t("settings.about.resources")}>

@@ -128,7 +128,7 @@ describe("describeDrift", () => {
 
 describe("describeAppleTargetDrift", () => {
   const companions = [
-    ["widget", "com.mrdemonwolf.conpaws.widgets"],
+    ["ExpoWidgetsTarget", "com.mrdemonwolf.conpaws.widgets"],
     ["ConPawsWatch", "com.mrdemonwolf.conpaws.watchkitapp"],
     [
       "ConPawsWatchWidgetExtension",

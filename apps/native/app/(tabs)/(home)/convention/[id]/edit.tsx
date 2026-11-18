@@ -1,7 +1,7 @@
 import { Collapsible, FieldGroup, Host, ListItem, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, parseISO } from "date-fns";
+import { format, max, parseISO } from "date-fns";
 import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -15,11 +15,15 @@ import {
   TimeZonePickerModal,
 } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
-import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
+import {
+  FORM_PRESENTED_AS_SHEET,
+  FORM_SAFE_EDGES,
+} from "@/components/FormModalHeader.shared";
 import { FormSkeleton, SafeView } from "@/components/ui";
 import { NativeText } from "@/components/ui/NativeText";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
@@ -53,6 +57,11 @@ export default function EditConventionScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const resolvedColorScheme = useResolvedColorScheme();
+  // A form sheet on iOS, where the sheet sets the width; a full-screen
+  // modal on Android, where the window does.
+  const readableGroup = useReadableFieldGroup({
+    inSheet: FORM_PRESENTED_AS_SHEET,
+  });
   const locale = currentLocale();
   const { colors } = useTheme();
   const seedColor = colors.primary;
@@ -279,7 +288,7 @@ export default function EditConventionScreen() {
         style={{ flex: 1 }}
         useViewportSizeMeasurement
       >
-        <FieldGroup>
+        <FieldGroup {...readableGroup}>
           <FieldGroup.Section>
             <ListItem
               supportingText={
@@ -347,9 +356,7 @@ export default function EditConventionScreen() {
               locale={locale}
               timeZoneName={validation.errors.timeZone ? undefined : timeZone}
               colorScheme={resolvedColorScheme}
-              onChange={(value) =>
-                setEndDate(value < startDate ? startDate : value)
-              }
+              onChange={(value) => setEndDate(max([value, startDate]))}
             />
             {validation.warnings.longSpan ? (
               <FieldGroup.SectionFooter>

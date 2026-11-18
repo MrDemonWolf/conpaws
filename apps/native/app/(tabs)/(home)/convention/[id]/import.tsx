@@ -21,13 +21,17 @@ import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert } from "react-native";
 import { TimeZonePickerModal } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
-import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
+import {
+  FORM_PRESENTED_AS_SHEET,
+  FORM_SAFE_EDGES,
+} from "@/components/FormModalHeader.shared";
 import { SafeView } from "@/components/ui";
 import { NativeText } from "@/components/ui/NativeText";
 import { RowSpinner } from "@/components/ui/RowSpinner";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useImportSchedule } from "@/hooks/useImportSchedule";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { isValidTimeZone } from "@/lib/convention-time";
@@ -110,6 +114,11 @@ export default function ImportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
   const resolvedColorScheme = useResolvedColorScheme();
+  // A form sheet on iOS, where the sheet sets the width; a full-screen
+  // modal on Android, where the window does.
+  const readableGroup = useReadableFieldGroup({
+    inSheet: FORM_PRESENTED_AS_SHEET,
+  });
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const queryClient = useQueryClient();
@@ -772,7 +781,7 @@ export default function ImportScreen() {
         style={{ flex: 1 }}
         useViewportSizeMeasurement
       >
-        <FieldGroup>
+        <FieldGroup {...readableGroup}>
           {/* Both sources stay visible. Choosing between two options used to
               sit behind a menu picker, which cost two taps to reveal what the
               screen could simply show. */}

@@ -9,7 +9,9 @@ import { Alert } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
+import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { reportError } from "@/lib/error-reporting";
 import i18n, {
   changeLanguage,
   LANGUAGE_META,
@@ -18,6 +20,7 @@ import i18n, {
 } from "@/lib/i18n";
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import { reconcileEventReminders } from "@/services/notifications";
+import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 
@@ -57,6 +60,7 @@ export default function LanguageScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
+  const readableGroup = useReadableFieldGroup();
   const [isChanging, setIsChanging] = useState(false);
   const currentLanguage = i18n.language as SupportedLanguage;
 
@@ -66,6 +70,9 @@ export default function LanguageScreen() {
     setIsChanging(true);
     try {
       await changeLanguage(code);
+      await publishWidgetSnapshot().catch((error) => {
+        reportError(error, { scope: "settings.language.widgetSnapshot" });
+      });
       // A pending reminder carries the title and body that were composed when
       // it was scheduled, so its text stays in the old language until
       // something rewrites the OS request. Reconciling here is what makes
@@ -87,7 +94,7 @@ export default function LanguageScreen() {
       style={{ flex: 1 }}
       useViewportSizeMeasurement
     >
-      <FieldGroup>
+      <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={isChanging}>
           {SUPPORTED_LANGUAGES.map((code) => {
             const { nativeName } = LANGUAGE_META[code];
