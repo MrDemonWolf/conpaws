@@ -69,7 +69,7 @@ are fine as written.
 
 ## Shared architecture and toolchains
 
-- **Website and admin (`apps/web`, `apps/admin`):** Next.js **16.4.3, pinned exactly**, with `@opennextjs/cloudflare` **1.20.14, pinned exactly**. OpenNext 1.20.7 fixed the Next 16.3 prefetch loop; the current adapter supports Next 16.4. Keep Cache Components disabled until OpenNext's Cloudflare support is confirmed for this app. Keep Next and `@next/mdx` versions aligned.
+- **Website and admin (`apps/web`, `apps/admin`):** Next.js **16.4.5, pinned exactly**, with `@opennextjs/cloudflare` **1.20.14, pinned exactly**. OpenNext 1.20.7 fixed the Next 16.3 prefetch loop; the current adapter supports Next 16.4. Keep Cache Components disabled until OpenNext's Cloudflare support is confirmed for this app. Keep Next and `@next/mdx` versions aligned.
 - **Language:** TypeScript strict mode
 - **Lint/format:** Biome (`biome.json` at repo root) — there is no ESLint config in this repo
 - **Monorepo:** bun workspaces + Turborepo (`turbo.json`); CI runs from the root, not per-app
