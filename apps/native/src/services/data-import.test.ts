@@ -27,10 +27,18 @@ vi.mock("expo-file-system", () => ({
   },
 }));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
+const setScheduleAllCategories = vi.hoisted(() =>
+  vi.fn(async (_conventionId: string, _allCategories: boolean) => {}),
+);
+vi.mock("@/lib/schedule-refresh-storage", () => ({
+  setScheduleAllCategories,
+}));
 
+import { conventions } from "@/db/schema";
 import {
   type BackupEnvelope,
   chunkRows,
+  type ExistingEventSchedule,
   importData,
   MAX_BACKUP_BYTES,
   MAX_BACKUP_ROWS,
@@ -371,6 +379,191 @@ describe("backup import planning", () => {
   });
 });
 
+describe("restoring a catalog convention the device already has", () => {
+  const catalogConvention = (id: string) =>
+    conventionRow({
+      id,
+      icalUrl: null,
+      catalogSlug: "testcon-2026",
+      catalogRevision: 3,
+    });
+
+  function existingEvent(
+    overrides: Partial<ExistingEventSchedule> = {},
+  ): ExistingEventSchedule {
+    return {
+      id: "b-opening",
+      sourceUid: "opening-event",
+      isInSchedule: false,
+      visitStartTime: null,
+      visitEndTime: null,
+      ...overrides,
+    };
+  }
+
+  it("merges into the downloaded copy instead of adding a second convention", () => {
+    const plan = planDataImport(
+      envelope(
+        [catalogConvention("A")],
+        [
+          eventRow({
+            id: "a-opening",
+            conventionId: "A",
+            sourceUid: "opening-event",
+            isInSchedule: true,
+          }),
+          eventRow({
+            id: "a-dropped",
+            conventionId: "A",
+            sourceUid: "dropped-panel",
+            isInSchedule: true,
+          }),
+        ],
+      ),
+      new Set(["B"]),
+      new Set(["b-opening"]),
+      NOW,
+      {
+        conventionIdBySlug: new Map([["testcon-2026", "B"]]),
+        eventsOf: (conventionId) =>
+          conventionId === "B" ? [existingEvent()] : [],
+      },
+    );
+
+    expect(plan.conventions).toEqual([]);
+    // The saved panel the device copy already lists takes the star; the one it
+    // does not list comes back under the device copy, never under "A".
+    expect(plan.eventUpdates).toEqual([
+      { id: "b-opening", isInSchedule: true },
+    ]);
+    expect(plan.events.map((event) => [event.id, event.conventionId])).toEqual([
+      ["a-dropped", "B"],
+    ]);
+    expect(plan.result).toMatchObject({
+      conventionsAdded: 0,
+      eventsAdded: 1,
+      skipped: 2,
+      reasons: { duplicate: 2 },
+    });
+    expect(plan.catalogConventionIds).toEqual(["B"]);
+  });
+
+  it("adds what the backup knows without undoing what the device knows", () => {
+    const visit = {
+      visitStartTime: "2026-08-21T15:30:00.000Z",
+      visitEndTime: "2026-08-21T16:00:00.000Z",
+    };
+    const plan = planDataImport(
+      envelope(
+        [catalogConvention("A")],
+        [
+          // Unsaved in the backup, saved on the device: stays saved.
+          eventRow({
+            id: "a-1",
+            conventionId: "A",
+            sourceUid: "uid-1",
+            isInSchedule: false,
+          }),
+          // A visit the device copy lacks is carried over.
+          eventRow({
+            id: "a-2",
+            conventionId: "A",
+            sourceUid: "uid-2",
+            isInSchedule: true,
+            endTime: "2026-08-21T23:00:00.000Z",
+            ...visit,
+          }),
+          // The device's own visit wins over the backup's.
+          eventRow({
+            id: "a-3",
+            conventionId: "A",
+            sourceUid: "uid-3",
+            isInSchedule: true,
+            endTime: "2026-08-21T23:00:00.000Z",
+            ...visit,
+          }),
+        ],
+      ),
+      new Set(["B"]),
+      new Set(),
+      NOW,
+      {
+        conventionIdBySlug: new Map([["testcon-2026", "B"]]),
+        eventsOf: () => [
+          existingEvent({ id: "b-1", sourceUid: "uid-1", isInSchedule: true }),
+          existingEvent({ id: "b-2", sourceUid: "uid-2" }),
+          existingEvent({
+            id: "b-3",
+            sourceUid: "uid-3",
+            isInSchedule: true,
+            visitStartTime: "2026-08-21T17:00:00.000Z",
+            visitEndTime: "2026-08-21T17:30:00.000Z",
+          }),
+        ],
+      },
+    );
+
+    expect(plan.events).toEqual([]);
+    expect(plan.eventUpdates).toEqual([
+      { id: "b-2", isInSchedule: true, ...visit },
+    ]);
+    expect(plan.result.reasons.duplicate).toBe(4);
+  });
+
+  it("collapses two copies of one catalog convention inside the same backup", () => {
+    const plan = planDataImport(
+      envelope(
+        [catalogConvention("A1"), catalogConvention("A2")],
+        [
+          // The duplicate copy's event comes first, so the merge cannot depend
+          // on the order events were written to the file.
+          eventRow({
+            id: "a2-opening",
+            conventionId: "A2",
+            sourceUid: "opening-event",
+            isInSchedule: true,
+          }),
+          eventRow({
+            id: "a1-opening",
+            conventionId: "A1",
+            sourceUid: "opening-event",
+            isInSchedule: false,
+          }),
+        ],
+      ),
+      new Set(),
+      new Set(),
+      NOW,
+    );
+
+    expect(plan.conventions.map((convention) => convention.id)).toEqual(["A1"]);
+    expect(plan.events).toHaveLength(1);
+    expect(plan.events[0]).toMatchObject({
+      id: "a1-opening",
+      conventionId: "A1",
+      isInSchedule: true,
+    });
+    expect(plan.eventUpdates).toEqual([]);
+    expect(plan.result.reasons.duplicate).toBe(2);
+    expect(plan.catalogConventionIds).toEqual(["A1"]);
+  });
+
+  it("restores a convention without a catalog slug the ordinary way", () => {
+    const plan = planDataImport(
+      envelope([conventionRow({ id: "feed-1" })], [eventRow()]),
+      new Set(["feed-2"]),
+      new Set(),
+      NOW,
+      { conventionIdBySlug: new Map([["testcon-2026", "B"]]) },
+    );
+
+    expect(plan.conventions.map((convention) => convention.id)).toEqual([
+      "feed-1",
+    ]);
+    expect(plan.catalogConventionIds).toEqual([]);
+  });
+});
+
 describe("insert batching", () => {
   it("keeps every chunk under the bound-parameter ceiling", () => {
     const rows = new Array(200).fill(0).map((_, i) => i);
@@ -436,6 +629,138 @@ describe("insert batching", () => {
     });
     expect(existingRows).toHaveLength(1);
     expect(tx.insert).not.toHaveBeenCalled();
+  });
+
+  it("lets a restored catalog convention keep receiving schedule updates", async () => {
+    const existingRows: unknown[][] = [[], []];
+    const tx = {
+      select: () => ({
+        from: () => ({
+          limit: () => ({ all: () => existingRows.shift() }),
+        }),
+      }),
+      insert: () => ({ values: () => ({ run: vi.fn() }) }),
+    };
+    database.transaction.mockImplementation((callback) => callback(tx));
+    setScheduleAllCategories.mockClear();
+
+    const outcome = await importData(
+      envelope(
+        [
+          conventionRow({
+            id: "cat-1",
+            icalUrl: null,
+            catalogSlug: "testcon-2026",
+            catalogRevision: 3,
+          }),
+          conventionRow({ id: "feed-1" }),
+        ],
+        [],
+      ),
+    );
+
+    expect(outcome).toMatchObject({ ok: true, conventionsAdded: 2 });
+    // Catalog downloads always take every session, so restoring that flag is
+    // safe. A feed's category choice is not in the backup, so it stays off.
+    expect(setScheduleAllCategories).toHaveBeenCalledWith("cat-1", true);
+    expect(setScheduleAllCategories).not.toHaveBeenCalledWith(
+      "feed-1",
+      expect.anything(),
+    );
+  });
+
+  it("restores into the earliest copy of a catalog convention already on the device", async () => {
+    const existingRows: unknown[][] = [
+      [
+        {
+          id: "B",
+          catalogSlug: "testcon-2026",
+          createdAt: "2026-03-01T00:00:00.000Z",
+        },
+        {
+          id: "C",
+          catalogSlug: "testcon-2026",
+          createdAt: "2026-02-01T00:00:00.000Z",
+        },
+      ],
+      [{ id: "c-opening" }],
+    ];
+    const deviceEvents = [
+      {
+        id: "c-opening",
+        conventionId: "C",
+        sourceUid: "opening-event",
+        isInSchedule: false,
+        visitStartTime: null,
+        visitEndTime: null,
+      },
+    ];
+    const conventionInserts: unknown[] = [];
+    const eventInserts: { id: string; conventionId: string }[] = [];
+    const updates: Record<string, unknown>[] = [];
+    const tx = {
+      select: () => ({
+        from: () => ({
+          limit: () => ({ all: () => existingRows.shift() }),
+          where: () => ({ all: () => deviceEvents }),
+        }),
+      }),
+      insert: (table: unknown) => ({
+        values: (rows: never[]) => ({
+          run: () =>
+            (table === conventions ? conventionInserts : eventInserts).push(
+              ...rows,
+            ),
+        }),
+      }),
+      update: () => ({
+        set: (patch: Record<string, unknown>) => ({
+          where: () => ({ run: () => updates.push(patch) }),
+        }),
+      }),
+    };
+    database.transaction.mockImplementation((callback) => callback(tx));
+    setScheduleAllCategories.mockClear();
+
+    const outcome = await importData(
+      envelope(
+        [
+          conventionRow({
+            id: "A",
+            icalUrl: null,
+            catalogSlug: "testcon-2026",
+            catalogRevision: 3,
+          }),
+        ],
+        [
+          eventRow({
+            id: "a-opening",
+            conventionId: "A",
+            sourceUid: "opening-event",
+            isInSchedule: true,
+          }),
+          eventRow({
+            id: "a-dropped",
+            conventionId: "A",
+            sourceUid: "dropped-panel",
+          }),
+        ],
+      ),
+    );
+
+    expect(outcome).toMatchObject({
+      ok: true,
+      conventionsAdded: 0,
+      eventsAdded: 1,
+    });
+    expect(conventionInserts).toEqual([]);
+    expect(eventInserts.map((event) => [event.id, event.conventionId])).toEqual(
+      [["a-dropped", "C"]],
+    );
+    expect(updates).toEqual([
+      { isInSchedule: true, updatedAt: expect.any(String) },
+    ]);
+    expect(setScheduleAllCategories).toHaveBeenCalledWith("C", true);
   });
 });
 

@@ -35,10 +35,15 @@ export async function getById(id: string): Promise<Convention | undefined> {
 export async function getByCatalogSlug(
   slug: string,
 ): Promise<Convention | undefined> {
+  // A device can hold two copies of a slug (restores used to add one beside a
+  // fresh download). Picking the earliest, as backup restore does, keeps Find
+  // updating the copy that restores merge into.
   const results = await db
     .select()
     .from(conventions)
-    .where(eq(conventions.catalogSlug, slug));
+    .where(eq(conventions.catalogSlug, slug))
+    .orderBy(conventions.createdAt, conventions.id)
+    .limit(1);
   return results[0];
 }
 
