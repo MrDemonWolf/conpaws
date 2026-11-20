@@ -275,12 +275,14 @@ function ManualEventModalContent({
               />
             </View>
             {includeEndTime ? (
+              // No minimumDate: the iOS time-only picker cannot change its day,
+              // so bounding it by the start blocked every overnight end.
+              // updateManualEventEnd rolls an earlier clock to the next day.
               <NativeDateTimeField
                 label={t("convention.manualEvent.endLabel")}
                 value={times.endTime}
                 mode="time"
                 locale={locale}
-                minimumDate={times.startTime}
                 testID="manual-event-end-picker"
                 onChange={(value) => {
                   setTimes((current) => updateManualEventEnd(current, value));
