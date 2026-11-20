@@ -65,6 +65,59 @@ describe("parseArgs", () => {
       /only applies to ios/,
     );
   });
+
+  it("parses the TestFlight distribution flags", () => {
+    expect(
+      parseArgs([
+        "ios",
+        "--track",
+        "public",
+        "--beta",
+        "both",
+        "--notes-file",
+        "notes.txt",
+      ]),
+    ).toMatchObject({
+      beta: "both",
+      notesFile: expect.stringMatching(/^\/.*notes\.txt$/),
+    });
+    expect(
+      parseArgs([
+        "ios",
+        "--track",
+        "public",
+        "--distribute-only",
+        "--archive",
+        "a.xcarchive",
+        "--beta",
+        "public",
+        "--notes",
+        "n",
+      ]),
+    ).toMatchObject({ distributeOnly: true, notes: "n" });
+  });
+
+  it("rejects distribution flags that cannot work", () => {
+    expect(() => parseArgs(["ios", "--beta", "everyone"])).toThrow(
+      /private, public or both/,
+    );
+    expect(() => parseArgs(["android", "--beta", "private"])).toThrow(
+      /only apply to ios/,
+    );
+    expect(() => parseArgs(["ios", "--beta"])).toThrow(/needs a value/);
+    expect(() => parseArgs(["ios", "--notes", "--yes"])).toThrow(
+      /needs a value/,
+    );
+    expect(() =>
+      parseArgs(["ios", "--notes", "a", "--notes-file", "b"]),
+    ).toThrow(/not both/);
+    expect(() =>
+      parseArgs(["ios", "--distribute-only", "--beta", "private"]),
+    ).toThrow(/needs --archive/);
+    expect(() => parseArgs(["ios", "--dry-run", "--beta", "private"])).toThrow(
+      /dry run/,
+    );
+  });
 });
 
 describe("meaningfulChanges", () => {

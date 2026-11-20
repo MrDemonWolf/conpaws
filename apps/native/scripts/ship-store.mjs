@@ -10,13 +10,22 @@
  *   bun ship:android:public      Android production bundle (open testing / production)
  *
  * iOS uploads with Apple's own `xcodebuild -exportArchive` (destination
- * upload) through the account signed in to Xcode; the team's cloud-managed
- * distribution certificate signs it, so no key or .p12 lives on this Mac.
- * Android stops at a checked, upload-signed bundle: the first Google Play
- * release must be uploaded by hand, and scripted Play uploads belong to the
- * release workflow, which holds the service account. Add --dry-run to iOS to
- * sign without uploading, --yes to skip the confirmation, and --archive to
- * upload an archive this script made earlier from the same commit.
+ * upload); the team's cloud-managed distribution certificate signs it, so no
+ * .p12 lives on this Mac. With an App Store Connect API key (see
+ * app-store-connect.mjs) xcodebuild authenticates with the key instead of the
+ * account signed in to Xcode, and --beta sends the processed build on:
+ *
+ *   --beta private   internal TestFlight groups (Private Beta)
+ *   --beta public    external groups (External Beta) + Beta App Review
+ *   --beta both      both of the above
+ *   --notes "…" / --notes-file path   What to Test (required for public)
+ *   --distribute-only --archive path  skip the upload, only distribute
+ *
+ * Android stops at a checked, upload-signed bundle; scripted Play uploads
+ * belong to the release workflow, which holds the service account. Add
+ * --dry-run to iOS to sign without uploading, --yes to skip the confirmation,
+ * and --archive to upload an archive this script made earlier from the same
+ * commit.
  *
  * Guards, from apps/native/AGENTS.md: a committed tree, re-checked right
  * before the upload; native projects that agree with BUILD_NUMBER; the
@@ -35,6 +44,7 @@ import {
   readdirSync,
   readFileSync,
   realpathSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import os from "node:os";
@@ -42,6 +52,15 @@ import path from "node:path";
 import process from "node:process";
 import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
+import {
+  ascCredentials,
+  BETA_AUDIENCES,
+  betaProblems,
+  createAscClient,
+  distributeTestFlightBuild,
+  highestAscBuild,
+  xcodeAuthArgs,
+} from "./app-store-connect.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO_SLUG = "MrDemonWolf/conpaws";
@@ -95,7 +114,7 @@ export const TRACKS = {
   },
 };
 
-/** `ios|android [--track t] [--dry-run] [--yes] [--archive path]` */
+/** `ios|android [--track t] [--dry-run] [--yes] [--archive path] [--beta b] [--notes t | --notes-file f] [--distribute-only]` */
 export function parseArgs(argv) {
   const [platform, ...rest] = argv;
   if (!TRACKS[platform])
@@ -106,14 +125,29 @@ export function parseArgs(argv) {
     dryRun: false,
     yes: false,
     archive: undefined,
+    beta: undefined,
+    notes: undefined,
+    notesFile: undefined,
+    distributeOnly: false,
+  };
+  const value = (index, flag) => {
+    const next = rest[index];
+    if (next === undefined || next.startsWith("--"))
+      throw new Error(`${flag} needs a value.`);
+    return next;
   };
   for (let index = 0; index < rest.length; index++) {
     const arg = rest[index];
-    if (arg === "--track") options.track = rest[++index];
+    if (arg === "--track") options.track = value(++index, arg);
     else if (arg === "--dry-run") options.dryRun = true;
     else if (arg === "--yes") options.yes = true;
     else if (arg === "--archive")
-      options.archive = path.resolve(rest[++index] ?? "");
+      options.archive = path.resolve(value(++index, arg));
+    else if (arg === "--beta") options.beta = value(++index, arg);
+    else if (arg === "--notes") options.notes = value(++index, arg);
+    else if (arg === "--notes-file")
+      options.notesFile = path.resolve(value(++index, arg));
+    else if (arg === "--distribute-only") options.distributeOnly = true;
     else throw new Error(`Unknown option ${arg}.`);
   }
   options.track ??= platform === "ios" ? "testflight" : "internal";
@@ -128,6 +162,28 @@ export function parseArgs(argv) {
     throw new Error(
       "Android never uploads from here, so --dry-run does not apply.",
     );
+  if (
+    platform !== "ios" &&
+    (options.beta ||
+      options.notes ||
+      options.notesFile ||
+      options.distributeOnly)
+  )
+    throw new Error("--beta, --notes and --distribute-only only apply to ios.");
+  if (options.beta && !BETA_AUDIENCES[options.beta])
+    throw new Error(
+      `Unknown --beta "${options.beta}". Use private, public or both.`,
+    );
+  if (options.notes !== undefined && options.notesFile)
+    throw new Error("Use --notes or --notes-file, not both.");
+  if (options.distributeOnly && (!options.archive || !options.beta))
+    throw new Error(
+      "--distribute-only needs --archive (the uploaded archive) and --beta.",
+    );
+  if (options.distributeOnly && options.dryRun)
+    throw new Error("--distribute-only and --dry-run cannot be combined.");
+  if (options.beta && options.dryRun)
+    throw new Error("A dry run uploads nothing, so --beta does not apply.");
   return { ...options, trackConfig };
 }
 
@@ -438,7 +494,7 @@ function highestUploadedIosBuild() {
   return highest;
 }
 
-function preflight(options) {
+async function preflight(options) {
   const variant = options.trackConfig.variant;
   const check = run("node", ["scripts/build-number.mjs", "--check"], {
     quiet: true,
@@ -474,12 +530,57 @@ function preflight(options) {
     buildNumberCheck: { ok: check.ok, message: check.stderr || check.stdout },
   });
   if (options.platform === "ios") {
-    // Dry runs too: a dry run should prove the number is still usable.
-    const numberProblem = uploadNumberProblem({
-      build: buildNumber(),
-      uploaded: highestUploadedIosBuild(),
-    });
-    if (numberProblem) problems.push(numberProblem);
+    try {
+      options.credentials = ascCredentials({
+        env: process.env,
+        home: os.homedir(),
+      });
+    } catch (error) {
+      problems.push(error.message);
+    }
+    if (options.beta && !options.credentials && !problems.length)
+      problems.push(
+        "--beta needs an App Store Connect API key: ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8 plus ~/.appstoreconnect/conpaws.json with keyId and issuerId.",
+      );
+    if (options.notesFile) {
+      try {
+        options.notes = readFileSync(options.notesFile, "utf8").trim();
+      } catch {
+        problems.push(`Cannot read --notes-file ${options.notesFile}.`);
+      }
+    }
+    problems.push(
+      ...betaProblems({
+        beta: options.beta,
+        track: options.trackConfig,
+        notes: options.notes,
+      }),
+    );
+    if (!options.distributeOnly) {
+      // Dry runs too: a dry run should prove the number is still usable.
+      // App Store Connect knows uploads from every Mac and the Organizer.
+      let uploaded = highestUploadedIosBuild();
+      if (options.credentials) {
+        try {
+          uploaded = Math.max(
+            uploaded,
+            await highestAscBuild({
+              client: createAscClient({ credentials: options.credentials }),
+              bundleId: PACKAGE,
+            }),
+          );
+        } catch (error) {
+          problems.push(
+            `Could not read uploaded builds from App Store Connect: ${error.message}`,
+          );
+        }
+      }
+      const numberProblem = uploadNumberProblem({
+        build: buildNumber(),
+        uploaded,
+      });
+      if (numberProblem) problems.push(numberProblem);
+    }
     if (!options.dryRun && !options.yes && !process.stdin.isTTY)
       problems.push(
         "Not a terminal, so the upload cannot be confirmed. Re-run in a terminal, or add --yes.",
@@ -545,6 +646,7 @@ async function shipIos(options) {
         "-archivePath",
         archive,
         "-allowProvisioningUpdates",
+        ...xcodeAuthArgs(options.credentials),
         "-quiet",
         "archive",
       ],
@@ -578,6 +680,45 @@ async function shipIos(options) {
     `✓ Archive checked: ConPaws ${version} (${build}), ${track.variant}, 4 targets.`,
   );
 
+  const audiences = options.beta
+    ? [
+        BETA_AUDIENCES[options.beta].internal &&
+          "internal testers (Private Beta)",
+        BETA_AUDIENCES[options.beta].external &&
+          "external testers (External Beta, after Beta App Review)",
+      ]
+        .filter(Boolean)
+        .join(" and ")
+    : "";
+  // Keep the notes with the archive so a retry can reuse them.
+  const notesFile = options.notes
+    ? path.join(archive, "WhatToTest.txt")
+    : undefined;
+  if (notesFile) writeFileSync(notesFile, `${options.notes}\n`);
+  const distribute = async (notBefore) => {
+    await distributeTestFlightBuild({
+      client: createAscClient({ credentials: options.credentials }),
+      bundleId: PACKAGE,
+      version,
+      build,
+      beta: options.beta,
+      notes: options.notes,
+      notBefore,
+    });
+  };
+  if (options.distributeOnly) {
+    if (
+      !(await confirm(
+        `Send the uploaded ConPaws ${version} (${build}) ${track.variant} to ${audiences}?`,
+        options.yes,
+      ))
+    )
+      fail("Nothing sent.");
+    // The upload came after the archive; an older build with this number is not it.
+    await distribute(statSync(path.join(archive, SIDECAR)).mtimeMs);
+    return;
+  }
+
   if (!options.dryRun) {
     // The archive takes minutes; make sure nothing moved under it.
     const tree = treeState();
@@ -587,12 +728,13 @@ async function shipIos(options) {
       );
     if (
       !(await confirm(
-        `Upload ConPaws ${version} (${build}) ${track.variant} to ${track.label}?`,
+        `Upload ConPaws ${version} (${build}) ${track.variant} to ${track.label}${audiences ? `, then send it to ${audiences}` : ""}?`,
         options.yes,
       ))
     )
       fail("Not uploaded.");
   }
+  const uploadStarted = Date.now();
   const work = path.join(os.tmpdir(), `conpaws-export-${process.pid}`);
   mkdirSync(work, { recursive: true });
   const exportOptions = path.join(work, "ExportOptions.plist");
@@ -609,10 +751,13 @@ async function shipIos(options) {
     "-exportOptionsPlist",
     exportOptions,
     "-allowProvisioningUpdates",
+    ...xcodeAuthArgs(options.credentials),
   ]);
   if (!exported.ok)
     fail(
-      'Export failed. "PLA Update available" means the Account Holder must accept the latest agreement at developer.apple.com/account, then refresh Xcode > Settings > Accounts.',
+      options.credentials
+        ? 'Export failed with the App Store Connect API key. Check the key still exists (Users and Access > Integrations) and has the Admin role; "PLA Update available" means the Account Holder must accept the latest agreement at developer.apple.com/account.'
+        : 'Export failed. "PLA Update available" means the Account Holder must accept the latest agreement at developer.apple.com/account. "Credentials Error" means Xcode > Settings > Accounts needs a fresh sign-in, or add an App Store Connect API key (see scripts/app-store-connect.mjs).',
     );
   console.log(
     options.dryRun
@@ -624,6 +769,16 @@ async function shipIos(options) {
     console.log(
       `To upload this archive: bun ${track.alias} --archive "${archive}"`,
     );
+  if (!options.dryRun && options.beta) {
+    try {
+      await distribute(uploadStarted);
+    } catch (error) {
+      fail([
+        `Uploaded, but distribution failed: ${error.message}`,
+        `Retry without uploading again: bun ${track.alias} --distribute-only --archive "${archive}" --beta ${options.beta}${notesFile ? ` --notes-file "${notesFile}"` : ""}`,
+      ]);
+    }
+  }
 }
 
 function shipAndroid(options) {
@@ -687,10 +842,10 @@ async function main() {
   } catch (error) {
     fail([
       error.message,
-      "Usage: node scripts/ship-store.mjs ios|android [--track …] [--dry-run] [--yes] [--archive path]",
+      "Usage: node scripts/ship-store.mjs ios|android [--track …] [--dry-run] [--yes] [--archive path] [--beta private|public|both] [--notes text | --notes-file path] [--distribute-only]",
     ]);
   }
-  const problems = preflight(options);
+  const problems = await preflight(options);
   if (problems.length) fail(problems);
   if (options.platform === "ios") await shipIos(options);
   else shipAndroid(options);
