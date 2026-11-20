@@ -86,8 +86,7 @@ import {
   formatEventEndTime,
   formatEventTime,
   formatHourLabel,
-  formatMinutesLeft,
-  formatMinutesUntilStart,
+  formatNowHeroTimes,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -589,10 +588,6 @@ export default function ConventionDetailScreen() {
     setBrowse,
     listJump,
   ]);
-
-  const minutesLeftLabel = (count: number) => formatMinutesLeft(count, t);
-  const minutesUntilLabel = (count: number) =>
-    formatMinutesUntilStart(count, t);
 
   const gapLabel = useCallback(
     (gap: AgendaGap): string => {
@@ -1115,70 +1110,17 @@ export default function ConventionDetailScreen() {
               : "convention.now.upNext",
           ),
           title: heroEvent.title,
-          timeLine: heroEvent.endTime
-            ? t("convention.eventTimeRange", {
-                start: formatEventTime(
-                  heroEvent.startTime,
-                  conventionTimeZone,
-                  locale,
-                  hour12,
-                ),
-                end: formatEventEndTime(
-                  heroEvent.startTime,
-                  heroEvent.endTime,
-                  conventionTimeZone,
-                  locale,
-                  hour12,
-                ),
-              })
-            : formatEventTime(
-                heroEvent.startTime,
-                conventionTimeZone,
-                locale,
-                hour12,
-              ),
-          callout:
-            hero.kind === "current"
-              ? heroEvent.endTime
-                ? {
-                    label: t("convention.now.until"),
-                    value: formatEventEndTime(
-                      heroEvent.startTime,
-                      heroEvent.endTime,
-                      conventionTimeZone,
-                      locale,
-                      hour12,
-                    ),
-                    sub: minutesLeftLabel(
-                      Math.max(
-                        0,
-                        Math.round(
-                          (Date.parse(heroEvent.endTime) - now) / 60_000,
-                        ),
-                      ),
-                    ),
-                  }
-                : {
-                    label: t("convention.now.until"),
-                    value: t("convention.now.unknownEnd"),
-                  }
-              : {
-                  label: t("convention.now.startsAt"),
-                  value: formatEventTime(
-                    heroEvent.startTime,
-                    conventionTimeZone,
-                    locale,
-                    hour12,
-                  ),
-                  sub: minutesUntilLabel(
-                    Math.max(
-                      0,
-                      Math.round(
-                        (Date.parse(heroEvent.startTime) - now) / 60_000,
-                      ),
-                    ),
-                  ),
-                },
+          ...formatNowHeroTimes({
+            kind: hero.kind,
+            onAnotherDay: hero.onAnotherDay,
+            startTime: heroEvent.startTime,
+            endTime: heroEvent.endTime,
+            nowMs: now,
+            timeZone: conventionTimeZone,
+            locale,
+            hour12,
+            t,
+          }),
           room: heroEvent.room ?? heroEvent.location ?? undefined,
           venue:
             heroEvent.room && heroEvent.location
