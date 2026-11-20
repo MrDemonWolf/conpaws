@@ -129,14 +129,38 @@ function hasUnreportedChanges(
 
 /**
  * Whether a convention has a schedule source this refresh can re-read: a
- * catalog download (`catalogSlug`) or a saved feed (`icalUrl`). The convention
- * screen's "Check for Changes" item reads it too, so the menu and the service
- * cannot disagree about which conventions can be checked.
+ * catalog download (`catalogSlug`) or a saved feed (`icalUrl`).
  */
 export function hasScheduleSource(
   convention: Pick<Convention, "catalogSlug" | "icalUrl">,
 ): boolean {
   return Boolean(convention.catalogSlug || convention.icalUrl);
+}
+
+/**
+ * Whether a check the user presses for can run: every gate the refresh
+ * applies except the automatic check's switch and interval, which a press
+ * skips. The convention screen's "Check for Changes" item reads it, and the
+ * refresh starts with it, so the menu never offers a check that is always
+ * skipped. Asking only for a source showed the item on ended, archived and
+ * category-filtered conventions, and pressing it answered with nothing.
+ */
+export async function canCheckSchedule(
+  convention: Pick<
+    Convention,
+    "id" | "catalogSlug" | "icalUrl" | "status" | "archivedAt"
+  >,
+): Promise<boolean> {
+  if (!hasScheduleSource(convention)) return false;
+  // An ended or archived convention's feed is not news, and a convention the
+  // user filed away should not be reaching the network.
+  if (convention.status === "ended" || convention.archivedAt !== null) {
+    return false;
+  }
+  // Without the full category set on the last import there is no record of
+  // what the user chose to leave out, and applying the feed wholesale would
+  // quietly reinstate it. See `getScheduleAllCategories`.
+  return getScheduleAllCategories(convention.id);
 }
 
 export interface ScheduleRefreshDeps {
@@ -167,12 +191,7 @@ export async function refreshConventionSchedule(
 ): Promise<ScheduleRefreshResult> {
   const { force = false, now = Date.now(), signal } = options;
 
-  if (!hasScheduleSource(convention)) return { status: "skipped" };
-  // An ended or archived convention's feed is not news, and a convention the
-  // user filed away should not be reaching the network.
-  if (convention.status === "ended" || convention.archivedAt !== null) {
-    return { status: "skipped" };
-  }
+  if (!(await canCheckSchedule(convention))) return { status: "skipped" };
   if (!force && !(await getScheduleAutoCheck())) return { status: "skipped" };
 
   if (!force) {
@@ -180,13 +199,6 @@ export async function refreshConventionSchedule(
     if (checkedAt !== null && now - checkedAt < SCHEDULE_CHECK_INTERVAL_MS) {
       return { status: "skipped" };
     }
-  }
-
-  // Without the full category set on the last import there is no record of
-  // what the user chose to leave out, and applying the feed wholesale would
-  // quietly reinstate it. See `getScheduleAllCategories`.
-  if (!(await getScheduleAllCategories(convention.id))) {
-    return { status: "skipped" };
   }
 
   try {

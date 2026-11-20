@@ -50,6 +50,7 @@ vi.mock("@/lib/schedule-refresh-storage", () => storage);
 
 import { buildIcsFromEcpEvents, normalizeEcpUids } from "@/lib/ecp-feed";
 import {
+  canCheckSchedule,
   hasScheduleSource,
   refreshConventionSchedule,
 } from "./schedule-refresh";
@@ -221,6 +222,55 @@ describe("hasScheduleSource", () => {
     expect(
       hasScheduleSource(convention({ icalUrl: null, catalogSlug: null })),
     ).toBe(false);
+  });
+});
+
+describe("canCheckSchedule", () => {
+  // The convention screen offers "Check for Changes" only where this says
+  // yes. Asking for a source alone showed the item on an ended catalog
+  // download, an archived convention and a feed imported with categories left
+  // out. The refresh skips all three, so the press got no answer at all.
+  it.each([
+    ["has no schedule source", { icalUrl: null, catalogSlug: null }, true],
+    [
+      "is a catalog download that has ended",
+      { icalUrl: null, catalogSlug: "sample-con", status: "ended" as const },
+      true,
+    ],
+    ["is archived", { archivedAt: "2026-09-07T00:00:00.000Z" }, true],
+    ["was imported with categories left out", {}, false],
+  ])(
+    "refuses a convention that %s, and so does a pressed refresh",
+    async (_label, overrides, allCategories) => {
+      storage.getScheduleAllCategories.mockResolvedValue(allCategories);
+      const target = convention(overrides);
+
+      expect(await canCheckSchedule(target)).toBe(false);
+      expect(
+        await refreshConventionSchedule(target, deps, {
+          force: true,
+          now: NOW,
+        }),
+      ).toEqual({ status: "skipped" });
+      expect(fetchScheduleIcs).not.toHaveBeenCalled();
+      expect(catalogSchedule).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ["a saved feed", {}],
+    ["a catalog download", { icalUrl: null, catalogSlug: "sample-con" }],
+  ])("accepts a current convention with %s", async (_label, overrides) => {
+    expect(await canCheckSchedule(convention(overrides))).toBe(true);
+  });
+
+  // The menu has nothing to do with the automatic check's switch or its
+  // interval: a press skips the interval, and works with the switch off.
+  it("ignores the automatic-check setting and the interval", async () => {
+    storage.getScheduleAutoCheck.mockResolvedValue(false);
+    storage.getScheduleCheckedAt.mockResolvedValue(NOW - 60_000);
+
+    expect(await canCheckSchedule(convention())).toBe(true);
   });
 });
 

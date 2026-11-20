@@ -24,6 +24,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import type { SearchBarCommands } from "react-native-screens";
 import {
   BlankConventionState,
   EMPTY_SCHEDULE_ICON,
@@ -129,7 +130,6 @@ import {
 import { createSectionListJump } from "@/lib/section-list-jump";
 import { localizedTimeZoneName } from "@/lib/time-zone-name";
 import { hapticSuccess } from "@/services/haptics";
-import { hasScheduleSource } from "@/services/schedule-refresh";
 
 type Row = ScheduleRow<ConventionEvent>;
 type Section = ScheduleSection<ConventionEvent>;
@@ -151,12 +151,22 @@ export default function ConventionDetailScreen() {
     id,
     previewState: requestedPreviewState,
     highlightEventId,
+    highlightAt,
     dropIns: requestedDropIns,
   } = useLocalSearchParams<{
     id: string;
     previewState?: string;
-    /** From a notification tap: scroll to and briefly highlight this event. */
+    /**
+     * From a reminder or Schedule tab tap: scroll to and briefly highlight
+     * this event.
+     */
     highlightEventId?: string;
+    /**
+     * When that tap happened. A push to this convention while it is on top
+     * of the Home stack reuses the screen, so a second tap on the same panel
+     * would otherwise arrive with identical params and do nothing.
+     */
+    highlightAt?: string;
     dropIns?: string;
   }>();
   const { t } = useTranslation();
@@ -182,15 +192,24 @@ export default function ConventionDetailScreen() {
   const [browse, setBrowse] = useScheduleBrowseState(id ?? "");
   const [searchQuery, setSearchQuery] = useState("");
   const [dropInsOnly, setDropInsOnly] = useState(requestedDropIns === "1");
+  const searchBarRef = useRef<SearchBarCommands>(null);
+
+  // The native field has no value prop, so resetting `searchQuery` alone left
+  // the old text in it over an unfiltered list, and the next keystroke
+  // filtered on that text plus the new letter. Every reset goes through here.
+  const clearSearch = useCallback(() => {
+    searchBarRef.current?.clearText();
+    setSearchQuery("");
+  }, []);
 
   useEffect(() => {
     if (requestedDropIns === "1") {
       setDropInsOnly(true);
       setView("all");
-      setSearchQuery("");
+      clearSearch();
       setBrowse({ dayKey: ALL_DAYS, slotStartMs: null, category: null });
     }
-  }, [requestedDropIns, setBrowse]);
+  }, [requestedDropIns, setBrowse, clearSearch]);
   const [manualEventVisible, setManualEventVisible] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const notificationPermission = useNotificationPermission();
@@ -230,7 +249,12 @@ export default function ConventionDetailScreen() {
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(
     null,
   );
+  // The highlight request last handled: the event and when it was asked for,
+  // so the same event asked for again is handled again.
   const scrolledToHighlight = useRef<string | null>(null);
+  const highlightRequest = highlightEventId
+    ? `${highlightEventId}:${highlightAt ?? ""}`
+    : null;
 
   useEffect(() => {
     if (!highlightedEventId) return;
@@ -518,22 +542,22 @@ export default function ConventionDetailScreen() {
   );
 
   const clearFilters = useCallback(() => {
-    setSearchQuery("");
+    clearSearch();
     setDropInsOnly(false);
     setBrowse({ category: null, slotStartMs: null });
-  }, [setBrowse]);
+  }, [setBrowse, clearSearch]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Changed filters invalidate a pending scroll target.
   useEffect(() => {
     listJump.cancel();
   }, [listJump, filters, dropInsOnly, view]);
 
-  // Scroll once to the event a notification tap named, then let the pulse
-  // fade. Runs after the sections exist; a stale or deleted event id is
-  // silently ignored. The browse state is reset first so the row is on
-  // screen whatever was filtered before the tap.
+  // Scroll once per tap to the event a reminder or Schedule tab tap named,
+  // then let the pulse fade. Runs after the sections exist; a stale or
+  // deleted event id is silently ignored. The browse state is reset first so
+  // the row is on screen whatever was filtered before the tap.
   useEffect(() => {
-    if (!highlightEventId || scrolledToHighlight.current === highlightEventId)
+    if (!highlightEventId || scrolledToHighlight.current === highlightRequest)
       return;
     const target = events.find((event) => event.id === highlightEventId);
     if (!target) return;
@@ -555,7 +579,8 @@ export default function ConventionDetailScreen() {
       activeCategory !== null ||
       searchQuery !== query
     ) {
-      setSearchQuery(query);
+      // `query` is always "": the target's own day shows unsearched.
+      clearSearch();
       setBrowse(targetBrowse);
       return;
     }
@@ -564,7 +589,7 @@ export default function ConventionDetailScreen() {
         (row) => row.id === highlightEventId,
       );
       if (itemIndex >= 0) {
-        scrolledToHighlight.current = highlightEventId;
+        scrolledToHighlight.current = highlightRequest;
         setHighlightedEventId(highlightEventId);
         listJump.jump({
           sectionIndex,
@@ -577,6 +602,7 @@ export default function ConventionDetailScreen() {
     }
   }, [
     highlightEventId,
+    highlightRequest,
     events,
     sections,
     view,
@@ -587,6 +613,7 @@ export default function ConventionDetailScreen() {
     dropInsOnly,
     conventionTimeZone,
     setBrowse,
+    clearSearch,
     listJump,
   ]);
 
@@ -1383,6 +1410,7 @@ export default function ConventionDetailScreen() {
           any view switches to Browse. */}
       {events.length > 0 ? (
         <Stack.SearchBar
+          ref={searchBarRef}
           autoCapitalize="none"
           hideWhenScrolling
           placement={process.env.EXPO_OS === "ios" ? "stacked" : "automatic"}
@@ -1435,7 +1463,7 @@ export default function ConventionDetailScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
-            {hasScheduleSource(convention) ? (
+            {scheduleRefresh.canCheck ? (
               <Stack.Toolbar.MenuAction
                 icon={
                   process.env.EXPO_OS === "ios"

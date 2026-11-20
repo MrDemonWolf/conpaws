@@ -512,8 +512,14 @@ function RootLayout() {
         pathname: "/convention/[id]",
         // highlightEventId scrolls the schedule to the event that fired —
         // landing on the convention with no focus made the tap feel broken.
+        // highlightAt makes each tap a new request, so it still scrolls when
+        // that convention is already open on the same event.
         params: eventId
-          ? { id: conventionId, highlightEventId: eventId }
+          ? {
+              id: conventionId,
+              highlightEventId: eventId,
+              highlightAt: String(Date.now()),
+            }
           : { id: conventionId },
       });
     }

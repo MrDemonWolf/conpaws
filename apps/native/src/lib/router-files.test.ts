@@ -23,6 +23,14 @@ const scheduleScreenSource = readFileSync(
   path.resolve(__dirname, "../../app/(tabs)/schedule/index.tsx"),
   "utf8",
 );
+const rootLayoutSource = readFileSync(
+  path.resolve(__dirname, "../../app/_layout.tsx"),
+  "utf8",
+);
+const scheduleRefreshHookSource = readFileSync(
+  path.resolve(__dirname, "../hooks/useScheduleRefresh.ts"),
+  "utf8",
+);
 
 describe("Expo Router convention routes", () => {
   it("uses one detail route with its nested import screen", () => {
@@ -139,14 +147,73 @@ describe("Expo Router convention routes", () => {
     );
   });
 
+  // The bar is uncontrolled: it has no value prop, so setting `searchQuery`
+  // alone left the old text in the native field. A Schedule tab tap reuses
+  // this screen, so "dealer" stayed in the field over an unfiltered list and
+  // the next keystroke filtered on "dealerx". Only the native Cancel button,
+  // which has already emptied the field, may reset the query on its own.
+  it("clears the native search field wherever it resets the query", () => {
+    expect(conventionDetailSource).toMatch(
+      /<Stack\.SearchBar\s+ref=\{searchBarRef\}/,
+    );
+    const resets = [
+      ...conventionDetailSource.matchAll(/setSearchQuery\((?!event\b)[^)]*\)/g),
+    ];
+    expect(resets.length).toBeGreaterThan(0);
+    for (const reset of resets) {
+      const before = conventionDetailSource.slice(
+        Math.max(0, (reset.index ?? 0) - 60),
+        reset.index,
+      );
+      expect(
+        before.includes("searchBarRef.current?.clearText();") ||
+          before.includes("onCancelButtonPress={() =>"),
+        `${reset[0]} without clearing the field`,
+      ).toBe(true);
+    }
+  });
+
+  // A push to the convention already on top of the Home stack reuses the
+  // screen. With the same panel the params came out identical, so the effect
+  // never re-ran (and its guard would have stopped it anyway): a second tap on
+  // the same panel left the user wherever they had scrolled, with no pulse.
+  it("handles each highlight request once, keyed on when it was made", () => {
+    expect(conventionDetailSource).toMatch(/highlightAt\?: string;/);
+    expect(conventionDetailSource).toMatch(
+      /const highlightRequest = highlightEventId\s*\?\s*`\$\{highlightEventId\}:\$\{highlightAt \?\? ""\}`\s*:\s*null;/,
+    );
+    expect(conventionDetailSource).toContain(
+      "scrolledToHighlight.current === highlightRequest",
+    );
+    expect(conventionDetailSource).toContain(
+      "scrolledToHighlight.current = highlightRequest;",
+    );
+    expect(conventionDetailSource).not.toContain(
+      "scrolledToHighlight.current === highlightEventId",
+    );
+  });
+
+  it("makes every reminder tap a new highlight request", () => {
+    expect(rootLayoutSource).toMatch(
+      /\{\s*id: conventionId,\s*highlightEventId: eventId,\s*highlightAt: String\(Date\.now\(\)\),?\s*\}/,
+    );
+  });
+
   // Catalog conventions have no icalUrl but the refresh checks them through
   // their catalogSlug. Gating the menu on icalUrl alone left them without a
-  // pressed check, and so without the failure banner and its Retry.
-  it("offers Check for Changes for every convention the refresh can check", () => {
+  // pressed check, and so without the failure banner and its Retry. Gating it
+  // on a source alone went too far the other way: an ended or archived
+  // convention, or one imported with categories left out, showed the item and
+  // the refresh skipped every press, so it answered with nothing at all.
+  it("offers Check for Changes exactly where the refresh can check", () => {
     expect(conventionDetailSource).toMatch(
-      /\{hasScheduleSource\(convention\) \? \(\s*<Stack\.Toolbar\.MenuAction\s+icon=\{[^}]*\}\s*onPress=\{scheduleRefresh\.checkNow\}/,
+      /\{scheduleRefresh\.canCheck \? \(\s*<Stack\.Toolbar\.MenuAction\s+icon=\{[^}]*\}\s*onPress=\{scheduleRefresh\.checkNow\}/,
+    );
+    expect(conventionDetailSource).not.toContain(
+      "{hasScheduleSource(convention) ? (",
     );
     expect(conventionDetailSource).not.toContain("{convention?.icalUrl ? (");
+    expect(scheduleRefreshHookSource).toContain("canCheckSchedule(convention)");
   });
 });
 
@@ -326,6 +393,15 @@ describe("Schedule tab", () => {
     );
     expect(scheduleScreenSource).not.toMatch(
       /router\.push\(`\/convention\/\$\{entry\.conventionId\}`\)/,
+    );
+  });
+
+  // Tapping the same panel twice gave the reused convention screen identical
+  // params, so the second tap only switched tabs. See the convention test
+  // "handles each highlight request once".
+  it("makes every Schedule tab tap a new highlight request", () => {
+    expect(scheduleScreenSource).toMatch(
+      /params: \{\s*id: entry\.conventionId,\s*highlightEventId: event\.id,\s*highlightAt: String\(Date\.now\(\)\),?\s*\}/,
     );
   });
 });
