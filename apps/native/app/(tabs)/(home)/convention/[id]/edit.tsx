@@ -11,8 +11,8 @@ import { useTranslation } from "react-i18next";
 import { Alert, Keyboard, View } from "react-native";
 import tzLookup from "tz-lookup";
 import {
-  ConventionDateField,
   TimeZonePickerModal,
+  useConventionDateField,
 } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
 import {
@@ -156,6 +156,25 @@ export default function EditConventionScreen() {
     // invalid state the user did not ask for.
     if (endDate < value) setEndDate(value);
   }
+
+  const dateTimeZone = validation.errors.timeZone ? undefined : timeZone;
+  const startDateField = useConventionDateField({
+    title: t("convention.startDate"),
+    value: startDate,
+    locale,
+    timeZoneName: dateTimeZone,
+    colorScheme: resolvedColorScheme,
+    onChange: updateStartDate,
+  });
+  const endDateField = useConventionDateField({
+    title: t("convention.endDate"),
+    value: endDate,
+    minimumDate: startDate,
+    locale,
+    timeZoneName: dateTimeZone,
+    colorScheme: resolvedColorScheme,
+    onChange: (value) => setEndDate(max([value, startDate])),
+  });
 
   function confirmDeviceTimeZoneFallback(): Promise<string | null> {
     return new Promise((resolve) => {
@@ -370,23 +389,8 @@ export default function EditConventionScreen() {
               </FieldGroup.SectionFooter>
             ) : null}
 
-            <ConventionDateField
-              title={t("convention.startDate")}
-              value={startDate}
-              locale={locale}
-              timeZoneName={validation.errors.timeZone ? undefined : timeZone}
-              colorScheme={resolvedColorScheme}
-              onChange={updateStartDate}
-            />
-            <ConventionDateField
-              title={t("convention.endDate")}
-              value={endDate}
-              minimumDate={startDate}
-              locale={locale}
-              timeZoneName={validation.errors.timeZone ? undefined : timeZone}
-              colorScheme={resolvedColorScheme}
-              onChange={(value) => setEndDate(max([value, startDate]))}
-            />
+            {startDateField.row}
+            {endDateField.row}
             {validation.warnings.longSpan ? (
               <FieldGroup.SectionFooter>
                 <NativeText>
@@ -423,6 +427,8 @@ export default function EditConventionScreen() {
           </FieldGroup.Section>
         </FieldGroup>
       </Host>
+      {startDateField.dialog}
+      {endDateField.dialog}
 
       <TimeZonePickerModal
         visible={timeZonePickerVisible}

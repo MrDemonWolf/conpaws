@@ -11,8 +11,8 @@ import { useTranslation } from "react-i18next";
 import { Alert, Keyboard } from "react-native";
 import tzLookup from "tz-lookup";
 import {
-  ConventionDateField,
   TimeZonePickerModal,
+  useConventionDateField,
 } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
 import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
@@ -192,6 +192,23 @@ export default function CreateConventionScreen() {
   }
 
   const validTimeZone = isValidTimeZone(timeZone) ? timeZone : undefined;
+  const startDateField = useConventionDateField({
+    title: t("convention.startDate"),
+    value: startDate,
+    locale,
+    timeZoneName: validTimeZone,
+    colorScheme: resolvedColorScheme,
+    onChange: updateStartDate,
+  });
+  const endDateField = useConventionDateField({
+    title: t("convention.endDate"),
+    value: endDate,
+    minimumDate: startDate,
+    locale,
+    timeZoneName: validTimeZone,
+    colorScheme: resolvedColorScheme,
+    onChange: (value) => setEndDate(max([value, startDate])),
+  });
   const canCreate =
     !saving && name.trim().length > 0 && isValidTimeZone(timeZone);
 
@@ -281,23 +298,8 @@ export default function CreateConventionScreen() {
                 <NativeText>{t("convention.locationTimeZoneNote")}</NativeText>
               </FieldGroup.SectionFooter>
             ) : null}
-            <ConventionDateField
-              title={t("convention.startDate")}
-              value={startDate}
-              locale={locale}
-              timeZoneName={validTimeZone}
-              colorScheme={resolvedColorScheme}
-              onChange={updateStartDate}
-            />
-            <ConventionDateField
-              title={t("convention.endDate")}
-              value={endDate}
-              minimumDate={startDate}
-              locale={locale}
-              timeZoneName={validTimeZone}
-              colorScheme={resolvedColorScheme}
-              onChange={(value) => setEndDate(max([value, startDate]))}
-            />
+            {startDateField.row}
+            {endDateField.row}
             <Collapsible
               label={t("common.advanced")}
               isOpen={advancedOpen}
@@ -320,6 +322,8 @@ export default function CreateConventionScreen() {
           </FieldGroup.Section>
         </FieldGroup>
       </Host>
+      {startDateField.dialog}
+      {endDateField.dialog}
 
       <TimeZonePickerModal
         visible={timeZonePickerVisible}

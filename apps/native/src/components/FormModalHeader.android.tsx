@@ -3,6 +3,7 @@ import { useTheme } from "expo-router/react-navigation";
 import { useWindowDimensions, View } from "react-native";
 import { Text } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { formTitleOnOwnRow } from "./FormModalHeader.shared";
 import type { FormModalHeaderProps } from "./FormModalHeader.types";
 
 /**
@@ -29,7 +30,7 @@ export function FormModalHeader({
   const { colors } = useTheme();
   const { width, fontScale } = useWindowDimensions();
   // A full-width title keeps large text and long translations clear of actions.
-  const expandedTitle = fontScale >= 1.4 || width < 360;
+  const expandedTitle = formTitleOnOwnRow(width, fontScale);
 
   return (
     <View className="border-b border-border px-3 py-2">
