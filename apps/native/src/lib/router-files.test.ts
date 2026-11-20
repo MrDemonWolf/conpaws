@@ -118,6 +118,36 @@ describe("Expo Router convention routes", () => {
     expect(isDirty).toMatch(/\bwriting\b/);
     expect(editSource).toMatch(/setWriting,/);
   });
+
+  // A Plan day with nothing saved used to drop the whole list header, so the
+  // day strip vanished with it even when other days held saved panels.
+  it("keeps the Plan header while any panel is saved", () => {
+    expect(conventionDetailSource).toMatch(
+      /showsScheduleHeader\(\s*view,\s*sections\.length,\s*heroProps !== null,\s*scheduledEvents\.length > 0,?\s*\)/,
+    );
+  });
+
+  // Unmounting the search bar on an empty Plan or Now view dropped the native
+  // field (iOS builds a fresh, empty one on remount) while `searchQuery` kept
+  // filtering Browse, so panels looked missing with nothing in the field.
+  it("keeps the search field mounted while the convention has events, so its text cannot drift from the query", () => {
+    expect(conventionDetailSource).toMatch(
+      /\{events\.length > 0 \? \(\s*<Stack\.SearchBar/,
+    );
+    expect(conventionDetailSource).not.toMatch(
+      /sections\.length > 0\) \?\s*\(\s*<Stack\.SearchBar/,
+    );
+  });
+
+  // Catalog conventions have no icalUrl but the refresh checks them through
+  // their catalogSlug. Gating the menu on icalUrl alone left them without a
+  // pressed check, and so without the failure banner and its Retry.
+  it("offers Check for Changes for every convention the refresh can check", () => {
+    expect(conventionDetailSource).toMatch(
+      /\{hasScheduleSource\(convention\) \? \(\s*<Stack\.Toolbar\.MenuAction\s+icon=\{[^}]*\}\s*onPress=\{scheduleRefresh\.checkNow\}/,
+    );
+    expect(conventionDetailSource).not.toContain("{convention?.icalUrl ? (");
+  });
 });
 
 describe("Routes that track whether they are still open", () => {
@@ -284,6 +314,18 @@ describe("Schedule tab", () => {
     expect(scheduleScreenSource).toContain("collapsable={false}");
     expect(scheduleScreenSource).toContain(
       'contentInsetAdjustmentBehavior="automatic"',
+    );
+  });
+
+  // A bare push opened the convention on whatever day Browse was last on, so
+  // the tapped panel was usually off screen. The highlight resets the filters
+  // to the panel's day, scrolls to it and pulses the row.
+  it("opens a Schedule tab row on its own panel", () => {
+    expect(scheduleScreenSource).toMatch(
+      /pathname: "\/convention\/\[id\]",\s*params: \{\s*id: entry\.conventionId,\s*highlightEventId: event\.id/,
+    );
+    expect(scheduleScreenSource).not.toMatch(
+      /router\.push\(`\/convention\/\$\{entry\.conventionId\}`\)/,
     );
   });
 });

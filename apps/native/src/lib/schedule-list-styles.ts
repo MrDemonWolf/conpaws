@@ -72,13 +72,23 @@ export function shouldBounceSchedule(
  * empty, even when no other panel fits the current hour: the card lives in
  * this header and stands in for the empty state. Hiding the header there hid
  * the card and the switcher with it and left a blank screen.
+ *
+ * A Plan view is only empty when nothing is saved anywhere. A day with no
+ * saves while other days have some keeps the header: the day strip is the
+ * way to those days, and hiding it left My plan with no way to change day.
  */
 export function showsScheduleHeader(
   view: "all" | "mine" | "now",
   rowCount: number,
   hasNowHero: boolean,
+  hasSavedEvents = false,
 ): boolean {
-  return view === "all" || rowCount > 0 || (view === "now" && hasNowHero);
+  return (
+    view === "all" ||
+    rowCount > 0 ||
+    (view === "now" && hasNowHero) ||
+    (view === "mine" && hasSavedEvents)
+  );
 }
 
 /** Keep normal empty screens still while letting enlarged text remain reachable. */

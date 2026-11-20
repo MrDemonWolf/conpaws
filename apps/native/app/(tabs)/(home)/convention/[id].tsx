@@ -129,6 +129,7 @@ import {
 import { createSectionListJump } from "@/lib/section-list-jump";
 import { localizedTimeZoneName } from "@/lib/time-zone-name";
 import { hapticSuccess } from "@/services/haptics";
+import { hasScheduleSource } from "@/services/schedule-refresh";
 
 type Row = ScheduleRow<ConventionEvent>;
 type Section = ScheduleSection<ConventionEvent>;
@@ -1289,6 +1290,15 @@ export default function ConventionDetailScreen() {
   // scroll like a populated one.
   const nowHeroOnly =
     view === "now" && heroProps !== null && sections.length === 0;
+  // Whatever keeps the header also keeps the list scrollable, as Browse's
+  // empty day already is: the header's notices and day strip can outgrow the
+  // screen, and the empty state below them has to stay reachable.
+  const showsHeader = showsScheduleHeader(
+    view,
+    sections.length,
+    heroProps !== null,
+    scheduledEvents.length > 0,
+  );
 
   const emptyComponent =
     view === "all" ? (
@@ -1338,7 +1348,9 @@ export default function ConventionDetailScreen() {
           onCta={() => setView("all")}
         />
       ) : (
+        // Other days hold saves, so this sits under the day strip.
         <EmptyState
+          compact
           icon={EMPTY_SCHEDULE_ICON}
           title={t("convention.plan.empty.title")}
           subtitle={t("convention.plan.empty.body")}
@@ -1365,7 +1377,11 @@ export default function ConventionDetailScreen() {
           headerLargeTitleShadowVisible: false,
         }}
       />
-      {events.length > 0 && (view === "all" || sections.length > 0) ? (
+      {/* Mounted whenever there is something to search. Unmounting it on an
+          empty Plan or Now view dropped the native field (iOS remounts a new,
+          empty one) while `searchQuery` kept filtering Browse. Typing from
+          any view switches to Browse. */}
+      {events.length > 0 ? (
         <Stack.SearchBar
           autoCapitalize="none"
           hideWhenScrolling
@@ -1419,7 +1435,7 @@ export default function ConventionDetailScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
-            {convention?.icalUrl ? (
+            {hasScheduleSource(convention) ? (
               <Stack.Toolbar.MenuAction
                 icon={
                   process.env.EXPO_OS === "ios"
@@ -1475,10 +1491,7 @@ export default function ConventionDetailScreen() {
         // not rubber-band, but the iOS large title needs a scrollable list
         // to lay itself into, so a populated list has to bounce.
         alwaysBounceVertical={shouldBounceSchedule(sections, nowHeroOnly)}
-        scrollEnabled={canScrollSchedule(
-          sections.length > 0 || view === "all" || nowHeroOnly,
-          fontScale,
-        )}
+        scrollEnabled={canScrollSchedule(showsHeader, fontScale)}
         sections={sections}
         keyExtractor={(row) => row.id}
         // Rows close over values that are not part of `sections`, and
@@ -1490,7 +1503,7 @@ export default function ConventionDetailScreen() {
         contentContainerStyle={contentContainerStyle}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
-          !showsScheduleHeader(view, sections.length, heroProps !== null)
+          !showsHeader
             ? undefined
             : events.length > 0 || scheduleRefresh.summary !== null
               ? listHeader

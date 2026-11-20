@@ -48,7 +48,10 @@ vi.mock("@/services/widget-snapshot", () => ({ publishWidgetSnapshot }));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
 vi.mock("@/lib/schedule-refresh-storage", () => storage);
 
-import { refreshConventionSchedule } from "./schedule-refresh";
+import {
+  hasScheduleSource,
+  refreshConventionSchedule,
+} from "./schedule-refresh";
 
 const NOW = Date.parse("2026-09-03T18:00:00.000Z");
 
@@ -165,6 +168,31 @@ beforeEach(() => {
     ],
   });
   updateConvention.mockResolvedValue(undefined);
+});
+
+describe("hasScheduleSource", () => {
+  // The convention screen's "Check for Changes" item and the refresh's first
+  // gate read this one predicate. The menu used to ask for icalUrl alone, so a
+  // catalog download, which has a catalogSlug and no icalUrl, had no pressed
+  // check even though the refresh handles it.
+  it("counts a catalog slug or a saved feed URL as a source", () => {
+    expect(
+      hasScheduleSource(
+        convention({ icalUrl: null, catalogSlug: "sample-con" }),
+      ),
+    ).toBe(true);
+    expect(
+      hasScheduleSource(
+        convention({
+          icalUrl: "https://x.example/feed.ics",
+          catalogSlug: null,
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      hasScheduleSource(convention({ icalUrl: null, catalogSlug: null })),
+    ).toBe(false);
+  });
 });
 
 describe("refreshConventionSchedule gates", () => {

@@ -127,6 +127,18 @@ function hasUnreportedChanges(
   );
 }
 
+/**
+ * Whether a convention has a schedule source this refresh can re-read: a
+ * catalog download (`catalogSlug`) or a saved feed (`icalUrl`). The convention
+ * screen's "Check for Changes" item reads it too, so the menu and the service
+ * cannot disagree about which conventions can be checked.
+ */
+export function hasScheduleSource(
+  convention: Pick<Convention, "catalogSlug" | "icalUrl">,
+): boolean {
+  return Boolean(convention.catalogSlug || convention.icalUrl);
+}
+
 export interface ScheduleRefreshDeps {
   /** Invalidates the react-query keys the schedule screens read. */
   refreshCaches: (conventionId: string) => Promise<unknown>;
@@ -155,8 +167,7 @@ export async function refreshConventionSchedule(
 ): Promise<ScheduleRefreshResult> {
   const { force = false, now = Date.now(), signal } = options;
 
-  if (!convention.catalogSlug && !convention.icalUrl)
-    return { status: "skipped" };
+  if (!hasScheduleSource(convention)) return { status: "skipped" };
   // An ended or archived convention's feed is not news, and a convention the
   // user filed away should not be reaching the network.
   if (convention.status === "ended" || convention.archivedAt !== null) {
