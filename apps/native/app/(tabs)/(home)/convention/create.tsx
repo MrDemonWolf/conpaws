@@ -23,6 +23,7 @@ import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
+  canInferTimeZoneFromLocation,
   inferTimeZoneFromLocation,
   normalizeLocationName,
 } from "@/lib/convention-location";
@@ -46,6 +47,10 @@ export default function CreateConventionScreen() {
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+  // Only iOS can turn the location into a zone. Elsewhere the zone row is the
+  // only way to set it, so Advanced starts open and the location footer that
+  // promises automatic detection is left out.
+  const canInferTimeZone = canInferTimeZoneFromLocation();
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [timeZone, setTimeZone] = useState(deviceTimeZone);
@@ -56,7 +61,7 @@ export default function CreateConventionScreen() {
   );
   const [saving, setSaving] = useState(false);
   const isMounted = useRef(true);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   const timeZones = useMemo(
     () =>
@@ -105,7 +110,9 @@ export default function CreateConventionScreen() {
 
   async function resolveTimeZoneForSave(): Promise<string | null> {
     const normalizedLocation = normalizeLocationName(location);
-    if (!normalizedLocation || timeZoneManuallySet) return timeZone.trim();
+    if (!normalizedLocation || timeZoneManuallySet || !canInferTimeZone) {
+      return timeZone.trim();
+    }
 
     const inferred = await inferTimeZoneFromLocation(
       normalizedLocation,
@@ -266,10 +273,12 @@ export default function CreateConventionScreen() {
             </ListItem>
             {/* The location silently drives a geocode on save that sets the
                 time zone and can take seconds — say so instead of looking
-                like a cosmetic field. */}
-            <FieldGroup.SectionFooter>
-              <NativeText>{t("convention.locationTimeZoneNote")}</NativeText>
-            </FieldGroup.SectionFooter>
+                like a cosmetic field. Only where that geocode can run. */}
+            {canInferTimeZone ? (
+              <FieldGroup.SectionFooter>
+                <NativeText>{t("convention.locationTimeZoneNote")}</NativeText>
+              </FieldGroup.SectionFooter>
+            ) : null}
             <ConventionDateField
               title={t("convention.startDate")}
               value={startDate}

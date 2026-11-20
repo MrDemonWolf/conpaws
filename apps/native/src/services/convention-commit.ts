@@ -103,3 +103,67 @@ export async function commitConventionUpdate(
 
   return { ok: true, conventionId };
 }
+
+/** A flag that outlives renders, so a second tap sees the first one's claim. */
+export interface SaveLock {
+  current: boolean;
+}
+
+export interface ConventionEditSaveSteps {
+  /**
+   * Settles the zone to save with. It may geocode for seconds or ask the
+   * user; null means they went to pick a zone by hand, so nothing is written.
+   */
+  resolveTimeZone: () => Promise<string | null>;
+  /** Writes the edit with that zone; null means the values no longer validate. */
+  commit: (timeZone: string) => Promise<ConventionCommitOutcome | null>;
+  /** False once the form has closed. */
+  isMounted: () => boolean;
+  setSaving: (saving: boolean) => void;
+  onWriteFailed: () => void;
+  /** Closes the form; called at most once, and only while it is still open. */
+  leave: () => void;
+}
+
+/**
+ * Runs the edit form's Save: resolve the zone, write, then leave.
+ *
+ * The form is locked before the zone is resolved, not after. Resolving a
+ * changed location's zone is a geocode that can take seconds, and a form left
+ * live across it let a second Save write twice and call back() twice -- the
+ * second one popping the convention screen too. A form closed mid-way (Cancel
+ * and Discard, or a swipe down) writes nothing it has not already started
+ * writing, and never navigates from a screen that is already gone.
+ */
+export async function saveConventionEdit(
+  lock: SaveLock,
+  steps: ConventionEditSaveSteps,
+): Promise<void> {
+  if (lock.current) return;
+  lock.current = true;
+  steps.setSaving(true);
+
+  const unlock = () => {
+    lock.current = false;
+    if (steps.isMounted()) steps.setSaving(false);
+  };
+
+  const timeZone = await steps.resolveTimeZone();
+  if (!timeZone) {
+    unlock();
+    return;
+  }
+  if (!steps.isMounted()) return;
+
+  const outcome = await steps.commit(timeZone);
+  if (!outcome) {
+    unlock();
+    return;
+  }
+  if (!outcome.ok) {
+    unlock();
+    steps.onWriteFailed();
+    return;
+  }
+  if (steps.isMounted()) steps.leave();
+}

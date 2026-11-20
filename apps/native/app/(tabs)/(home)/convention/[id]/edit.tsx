@@ -6,7 +6,7 @@ import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Keyboard, View } from "react-native";
 import tzLookup from "tz-lookup";
@@ -33,6 +33,7 @@ import {
   validateConventionForm,
 } from "@/lib/convention-form";
 import {
+  canInferTimeZoneFromLocation,
   decideTimeZoneForLocationEdit,
   inferTimeZoneFromLocation,
   normalizeLocationName,
@@ -43,7 +44,10 @@ import {
 } from "@/lib/convention-time";
 import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
-import { commitConventionUpdate } from "@/services/convention-commit";
+import {
+  commitConventionUpdate,
+  saveConventionEdit,
+} from "@/services/convention-commit";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
@@ -66,6 +70,10 @@ export default function EditConventionScreen() {
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+  // Only iOS can turn the location into a zone. Elsewhere a location edit
+  // keeps the stored zone, and Advanced starts open so the zone row is the
+  // visible way to change it.
+  const canInferTimeZone = canInferTimeZoneFromLocation();
 
   const { data: convention, isLoading } = useQuery({
     queryKey: ["convention", id],
@@ -80,7 +88,11 @@ export default function EditConventionScreen() {
   const [startDate, setStartDate] = useState(() => new Date());
   const [endDate, setEndDate] = useState(() => new Date());
   const [saving, setSaving] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  // `saving` only reaches the buttons on the next render; the ref stops a
+  // second tap that lands before then.
+  const saveLock = useRef(false);
+  const isMounted = useRef(true);
+  const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   // Seed the form from storage exactly once. Re-seeding on every query settle
   // would silently discard whatever the user is part-way through typing.
@@ -88,6 +100,13 @@ export default function EditConventionScreen() {
   // holds real values: @expo/ui's TextInput reads defaultValue at mount only,
   // so a field mounted before the query resolves stays empty forever.
   const [seeded, setSeeded] = useState(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!convention || seeded) return;
@@ -167,6 +186,7 @@ export default function EditConventionScreen() {
       location: normalizedLocation,
       originalLocation,
       manuallySet: timeZoneManuallySet,
+      canInfer: canInferTimeZone,
     });
     if (decision.action === "keep") {
       return timeZone.trim() || deviceTimeZone;
@@ -181,59 +201,60 @@ export default function EditConventionScreen() {
       setTimeZone(inferred);
       return inferred;
     }
+    // Asking over a form that has already closed would offer to save it.
+    if (!isMounted.current) return null;
     return confirmDeviceTimeZoneFallback();
   }
 
   async function handleSave() {
     if (!convention || !validation.valid || unchanged) return;
+    const conventionId = convention.id;
 
-    const resolvedTimeZone = await resolveTimeZoneForSave();
-    if (!resolvedTimeZone) return;
-    const resolvedValidation = validateConventionForm({
-      ...values,
-      timeZone: resolvedTimeZone,
+    await saveConventionEdit(saveLock, {
+      resolveTimeZone: resolveTimeZoneForSave,
+      commit: async (resolvedTimeZone) => {
+        const resolvedValidation = validateConventionForm({
+          ...values,
+          timeZone: resolvedTimeZone,
+        });
+        if (!resolvedValidation.valid) return null;
+        const { cleaned } = resolvedValidation;
+        const today = conventionDayKey(new Date(), cleaned.timeZone);
+
+        return commitConventionUpdate(
+          conventionId,
+          {
+            name: cleaned.name,
+            startDate: cleaned.startDate,
+            endDate: cleaned.endDate,
+            timeZone: cleaned.timeZone,
+            location: cleaned.location || null,
+            // Dates may have moved across today, so the stored status has to
+            // be recomputed rather than left as it was.
+            status: conventionStatusForDay(
+              cleaned.startDate,
+              cleaned.endDate,
+              today,
+            ),
+          },
+          {
+            update: conventionsRepo.update,
+            refreshCaches: (id) =>
+              Promise.allSettled([
+                queryClient.invalidateQueries({ queryKey: ["convention", id] }),
+                queryClient.invalidateQueries({ queryKey: ["conventions"] }),
+              ]),
+            publishSnapshot: publishWidgetSnapshot,
+            haptic: hapticSuccess,
+          },
+        );
+      },
+      isMounted: () => isMounted.current,
+      setSaving,
+      onWriteFailed: () =>
+        Alert.alert(t("common.error"), t("convention.updateError")),
+      leave: () => router.back(),
     });
-    if (!resolvedValidation.valid) return;
-    const { cleaned } = resolvedValidation;
-    const today = conventionDayKey(new Date(), cleaned.timeZone);
-
-    setSaving(true);
-    const outcome = await commitConventionUpdate(
-      convention.id,
-      {
-        name: cleaned.name,
-        startDate: cleaned.startDate,
-        endDate: cleaned.endDate,
-        timeZone: cleaned.timeZone,
-        location: cleaned.location || null,
-        // Dates may have moved across today, so the stored status has to be
-        // recomputed rather than left as it was.
-        status: conventionStatusForDay(
-          cleaned.startDate,
-          cleaned.endDate,
-          today,
-        ),
-      },
-      {
-        update: conventionsRepo.update,
-        refreshCaches: (conventionId) =>
-          Promise.allSettled([
-            queryClient.invalidateQueries({
-              queryKey: ["convention", conventionId],
-            }),
-            queryClient.invalidateQueries({ queryKey: ["conventions"] }),
-          ]),
-        publishSnapshot: publishWidgetSnapshot,
-        haptic: hapticSuccess,
-      },
-    );
-
-    if (!outcome.ok) {
-      Alert.alert(t("common.error"), t("convention.updateError"));
-      setSaving(false);
-      return;
-    }
-    router.back();
   }
 
   const canSave = !saving && validation.valid && !unchanged;
@@ -257,7 +278,7 @@ export default function EditConventionScreen() {
       {process.env.EXPO_OS === "ios" ? (
         <>
           <Stack.Toolbar placement="left">
-            <Stack.Toolbar.Button onPress={handleCancel}>
+            <Stack.Toolbar.Button onPress={handleCancel} disabled={saving}>
               {t("common.cancel")}
             </Stack.Toolbar.Button>
           </Stack.Toolbar>
@@ -275,7 +296,9 @@ export default function EditConventionScreen() {
         <FormModalHeader
           title={t("convention.edit")}
           cancelLabel={t("common.cancel")}
-          onCancel={handleCancel}
+          // FormModalHeader has no disabled state for Cancel, so the press is
+          // dropped while saving, as on the create form.
+          onCancel={saving ? () => undefined : handleCancel}
           confirmLabel={t("common.save")}
           onConfirm={handleSave}
           confirmDisabled={!canSave}

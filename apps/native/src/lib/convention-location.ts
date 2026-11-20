@@ -66,6 +66,22 @@ export function timeZoneFromCoordinates(
 export const GEOCODE_TIMEOUT_MS = 10_000;
 
 /**
+ * Whether this platform can turn a typed place into a time zone at all.
+ *
+ * Only iOS can. expo-location's Android geocoder refuses to run without a
+ * foreground location permission, and the app removes that permission from
+ * its manifest; its web geocoder always throws. Trying anyway failed every
+ * save with a location and then offered the device's zone, which is wrong for
+ * a convention somewhere else -- so those platforms skip the geocode and keep
+ * the zone shown in the form.
+ */
+export function canInferTimeZoneFromLocation(
+  os: string | undefined = process.env.EXPO_OS,
+): boolean {
+  return os === "ios";
+}
+
+/**
  * Geocodes a typed place, then finishes the coordinate-to-zone step offline.
  *
  * Giving up returns null, which is the same answer as a place the geocoder
@@ -106,6 +122,11 @@ export interface LocationEditOptions {
   originalLocation: string;
   /** True once the user has picked a zone by hand. */
   manuallySet: boolean;
+  /**
+   * False where the platform cannot geocode (see
+   * `canInferTimeZoneFromLocation`). Omitted means it can.
+   */
+  canInfer?: boolean;
 }
 
 export type LocationEditDecision =
@@ -124,13 +145,17 @@ export type LocationEditDecision =
  * why the day now starts an hour early.
  *
  * So a cleared location keeps whatever zone is already set. Only a location
- * that changed to a real place is worth geocoding.
+ * that changed to a real place is worth geocoding, and only where the
+ * geocoder can run: elsewhere the attempt always fails and its fallback offers
+ * to overwrite the stored zone with the device's.
  */
 export function decideTimeZoneForLocationEdit({
   location,
   originalLocation,
   manuallySet,
+  canInfer = true,
 }: LocationEditOptions): LocationEditDecision {
+  if (!canInfer) return { action: "keep" };
   if (manuallySet) return { action: "keep" };
   if (location === originalLocation) return { action: "keep" };
   if (!location) return { action: "keep" };

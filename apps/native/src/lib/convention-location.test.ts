@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  canInferTimeZoneFromLocation,
   decideTimeZoneForLocationEdit,
   inferTimeZoneFromLocation,
   isValidCoordinates,
@@ -99,6 +100,16 @@ describe("inferTimeZoneFromLocation", () => {
   });
 });
 
+describe("canInferTimeZoneFromLocation", () => {
+  // expo-location refuses to geocode on Android without a location permission,
+  // and the app's manifest removes that permission. Every Android save with a
+  // location therefore failed and offered to use the device's zone instead.
+  it("only offers detection where the geocoder can run", () => {
+    expect(canInferTimeZoneFromLocation("ios")).toBe(true);
+    expect(canInferTimeZoneFromLocation("android")).toBe(false);
+  });
+});
+
 describe("normalizeLocationName", () => {
   it("tidies spacing around commas without reformatting the name", () => {
     expect(normalizeLocationName("  Pittsburgh ,  PA ")).toBe("Pittsburgh, PA");
@@ -149,6 +160,30 @@ describe("decideTimeZoneForLocationEdit", () => {
         location: "Pittsburgh, PA",
         originalLocation: "",
         manuallySet: false,
+      }),
+    ).toEqual({ action: "infer" });
+  });
+
+  // On Android the geocode always fails, so inferring there only ever offered
+  // to overwrite the stored zone with the device's -- a location typo fix
+  // could move every event on the schedule.
+  it("keeps the stored zone when this platform cannot geocode", () => {
+    expect(
+      decideTimeZoneForLocationEdit({
+        location: "Pittsburgh, PA",
+        originalLocation: "Pittsburg",
+        manuallySet: false,
+        canInfer: false,
+      }),
+    ).toEqual({ action: "keep" });
+  });
+
+  it("still re-infers a changed location where the geocoder can run", () => {
+    expect(
+      decideTimeZoneForLocationEdit({
+        ...base,
+        location: "Pittsburgh, PA",
+        canInfer: true,
       }),
     ).toEqual({ action: "infer" });
   });
