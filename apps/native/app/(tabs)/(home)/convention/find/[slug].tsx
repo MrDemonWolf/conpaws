@@ -25,6 +25,7 @@ import {
   CatalogNotFoundError,
   CatalogUnavailableError,
 } from "@/lib/catalog/client";
+import { catalogListQueryOptions } from "@/lib/catalog/query-options";
 import { resolveCatalogSource } from "@/lib/catalog/source-preference";
 import { ACTIONS_MAX } from "@/lib/content-width";
 import { formatConventionDate } from "@/lib/event-time-format";
@@ -40,7 +41,6 @@ import { downloadCatalogEdition } from "@/services/catalog-download";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
-const CATALOG_STALE_TIME_MS = 5 * 60 * 1000;
 type DownloadFailure = Extract<CatalogDownloadResult, { ok: false }>["reason"];
 
 export default function FindConventionDetailScreen() {
@@ -77,11 +77,7 @@ export default function FindConventionDetailScreen() {
     [],
   );
 
-  const catalogQuery = useQuery({
-    queryKey: ["catalog", source.kind],
-    queryFn: ({ signal }) => source.list(signal),
-    staleTime: CATALOG_STALE_TIME_MS,
-  });
+  const catalogQuery = useQuery(catalogListQueryOptions(source));
   const edition = catalogQuery.data?.find((item) => item.slug === slug);
   const conventionQuery = useQuery({
     queryKey: ["conventionByCatalogSlug", slug],
