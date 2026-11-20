@@ -1,6 +1,6 @@
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
-import type { Convention } from "@/db/schema";
+import type { Convention, ConventionEvent } from "@/db/schema";
 import {
   type ImportResult,
   runScheduleImport,
@@ -25,7 +25,7 @@ import {
   SCHEDULE_CHECK_INTERVAL_MS,
   setScheduleCheckedAt,
 } from "@/lib/schedule-refresh-storage";
-import { toSourceSnapshot } from "@/lib/schedule-source";
+import { toSourceEvents, toSourceSnapshot } from "@/lib/schedule-source";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /**
@@ -59,6 +59,67 @@ export type ScheduleRefreshResult =
   | { status: "untrusted"; checkedAt: number }
   /** Offline, timed out, moved, or unparseable. Silent by construction. */
   | { status: "failed" };
+
+/**
+ * Columns a feed can correct without moving anything: wording and labels.
+ * Time and place belong to the change summary, identity and the tombstone mark
+ * to the planner.
+ */
+const CONTENT_COLUMNS = [
+  "title",
+  "description",
+  "category",
+  "sourceUrl",
+  "isAgeRestricted",
+  "ageRating",
+  "contentWarning",
+] as const;
+
+const NOTHING_TO_REPORT: ScheduleChangeSummary = {
+  moved: 0,
+  gone: 0,
+  savedMoved: 0,
+  savedGone: 0,
+};
+
+/**
+ * Whether the feed holds something to write that the change summary does not
+ * count: a panel it has gained, or a stored one whose wording or labels it
+ * corrected. Neither is news worth a notice, but both are the convention's
+ * current schedule. Without this, a feed whose only change was fifteen new
+ * panels was stamped "checked" and kept them out until an unrelated panel
+ * happened to move.
+ *
+ * A convention holding no feed rows at all answers no: with nothing to overlap
+ * there is no evidence this is the right feed, the same caution
+ * `summarizeScheduleChanges` applies before it trusts one.
+ */
+function hasUnreportedChanges(
+  stored: readonly ConventionEvent[],
+  feed: ReturnType<typeof toSourceEvents>,
+): boolean {
+  const feedByUid = new Map(feed.map((event) => [event.sourceUid, event]));
+  const storedUids = new Set<string>();
+  for (const row of stored) {
+    if (row.sourceUid === null) continue;
+    storedUids.add(row.sourceUid);
+    const match = feedByUid.get(row.sourceUid);
+    // The same `?? null` reading `upsertBySourceUid` uses to skip an
+    // unchanged row, so a difference this sees is one the write rewrites.
+    if (
+      match &&
+      CONTENT_COLUMNS.some(
+        (column) => (row[column] ?? null) !== (match[column] ?? null),
+      )
+    ) {
+      return true;
+    }
+  }
+  if (storedUids.size === 0) return false;
+  return feed.some(
+    (event) => event.sourceUid != null && !storedUids.has(event.sourceUid),
+  );
+}
 
 export interface ScheduleRefreshDeps {
   /** Invalidates the react-query keys the schedule screens read. */
@@ -204,7 +265,15 @@ export async function refreshConventionSchedule(
       return { status: "untrusted", checkedAt: now };
     }
 
-    if (outcome.status === "unchanged") {
+    // "Unchanged" here means nothing stored moved or went. New panels and
+    // corrected wording still go through the import, as a quiet `applied`.
+    if (
+      outcome.status === "unchanged" &&
+      !hasUnreportedChanges(
+        stored,
+        toSourceEvents(parsed.events, convention.id),
+      )
+    ) {
       await setScheduleCheckedAt(convention.id, now);
       return { status: "unchanged", checkedAt: now };
     }
@@ -238,7 +307,7 @@ export async function refreshConventionSchedule(
       status: "applied",
       checkedAt: now,
       summary: {
-        ...outcome.summary,
+        ...(outcome.status === "changed" ? outcome.summary : NOTHING_TO_REPORT),
         // The planner is the authority on what actually went. It resolves
         // series identities the flat comparison cannot see, so its count is
         // the one the user is shown.

@@ -76,10 +76,18 @@ function storedRow(overrides: Record<string, unknown> = {}) {
   return {
     id: "event-1",
     sourceUid: "panel-1",
+    title: "Panel",
+    description: null,
     startTime: "2026-09-03T20:00:00.000Z",
     endTime: "2026-09-03T21:00:00.000Z",
     room: "Room A",
     location: "Main Hall",
+    category: null,
+    sourceUrl: null,
+    isAgeRestricted: false,
+    ageRating: null,
+    contentWarning: false,
+    feedStatus: null,
     isInSchedule: true,
     ...overrides,
   };
@@ -98,6 +106,13 @@ function parsedFeed(overrides: Record<string, unknown> = {}) {
         legacySourceUid: null,
         recurrenceTime: null,
         title: "Panel",
+        description: null,
+        category: null,
+        categories: [],
+        ageRating: null,
+        isAgeRestricted: false,
+        contentWarning: false,
+        isAllDay: false,
         sourceUrl: null,
       },
     ],
@@ -297,6 +312,86 @@ describe("refreshConventionSchedule outcomes", () => {
 
     expect(result).toEqual({ status: "unchanged", checkedAt: NOW });
     expect(storage.setScheduleCheckedAt).toHaveBeenCalledWith("con-1", NOW);
+    expect(runScheduleImport).not.toHaveBeenCalled();
+  });
+
+  it("applies panels the feed has gained, quietly", async () => {
+    // Nothing stored moved or went, so the summary has nothing to report. The
+    // new panel still has to reach the schedule rather than wait for some
+    // unrelated panel to move.
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [
+          parsedFeed().events[0],
+          {
+            ...parsedFeed().events[0],
+            sourceUid: "panel-2",
+            title: "New panel",
+            startTime: new Date("2026-09-03T22:00:00.000Z"),
+            endTime: new Date("2026-09-03T23:00:00.000Z"),
+          },
+        ],
+      }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    // `applied` with nothing saved to report: the caches refresh, no notice.
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: { moved: 0, gone: 0, savedMoved: 0, savedGone: 0 },
+    });
+    expect(runScheduleImport).toHaveBeenCalledTimes(1);
+    expect(runScheduleImport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conventionId: "con-1",
+        parsedEvents: expect.arrayContaining([
+          expect.objectContaining({ sourceUid: "panel-2" }),
+        ]),
+      }),
+    );
+    expect(storage.setScheduleCheckedAt).toHaveBeenCalledWith("con-1", NOW);
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
+    expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
+  it.each([
+    ["a corrected title", { title: "Panel: Fursuit Basics" }],
+    ["a new description", { description: "Bring a water bottle." }],
+    ["a new content warning", { contentWarning: true }],
+  ])("applies %s quietly", async (_label, edit) => {
+    // Time and place are all the notice counts, so wording and label fixes
+    // are never news — but they are still the convention's current schedule.
+    parseIcs.mockReturnValue(
+      parsedFeed({ events: [{ ...parsedFeed().events[0], ...edit }] }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: { moved: 0, gone: 0, savedMoved: 0, savedGone: 0 },
+    });
+    expect(runScheduleImport).toHaveBeenCalledTimes(1);
+    expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
+  it("does not pour a feed into a convention that holds none of its rows", async () => {
+    // With nothing to overlap there is no evidence this is the right feed,
+    // the same caution the change summary applies before it trusts one.
+    getByConventionId.mockResolvedValue([
+      storedRow({ id: "hand-added", sourceUid: null }),
+    ]);
+
+    expect(
+      await refreshConventionSchedule(convention(), deps, { now: NOW }),
+    ).toEqual({ status: "unchanged", checkedAt: NOW });
     expect(runScheduleImport).not.toHaveBeenCalled();
   });
 
