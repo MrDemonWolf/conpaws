@@ -37,8 +37,19 @@ function migratedStore() {
   });
   const store = drizzle(async (query, params) => {
     const statement = database.prepare(query);
-    statement.setReturnArrays(true);
-    return { rows: statement.all(...(params as SQLInputValue[])) as never[] };
+    const values = params as SQLInputValue[];
+    // setReturnArrays arrived in Node 23.11; CI pins Node 22 (.node-version).
+    // On Node 22 rebuild the arrays from the row objects, which keep column
+    // order. The queries tested here never repeat a column name.
+    if (typeof statement.setReturnArrays === "function") {
+      statement.setReturnArrays(true);
+      return { rows: statement.all(...values) as never[] };
+    }
+    return {
+      rows: statement
+        .all(...values)
+        .map((row) => Object.values(row as Record<string, unknown>)) as never[],
+    };
   });
   return { database, store };
 }
