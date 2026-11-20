@@ -43,8 +43,10 @@ import {
   parseIcs,
   UnsupportedRecurrenceError,
 } from "@/lib/ical-parser";
+import { runImportOnce } from "@/lib/import-lock";
 import {
   canApplyScheduleImport,
+  importNeedsTimeZone,
   parseIcsPreferringFeedTimeZone,
 } from "@/lib/import-policy";
 import {
@@ -133,6 +135,9 @@ export default function ImportScreen() {
   // fetch no longer runs on to its 30s timeout behind a reader who has gone.
   const inFlightFetch = useRef<AbortController | null>(null);
   const isMounted = useRef(true);
+  // A ref, not state: a second tap on Import can land before React commits
+  // the disabled button. See runImportOnce.
+  const importLock = useRef(false);
   const urlInput = useNativeState("");
 
   const { data: existingConvention } = useQuery({
@@ -155,6 +160,7 @@ export default function ImportScreen() {
     Constants.expoConfig?.extra?.appVariant,
   );
   const [preview, setPreview] = useState<PreviewState | null>(null);
+  const [importing, setImporting] = useState(false);
   const [pendingCalendar, setPendingCalendar] =
     useState<PendingCalendar | null>(null);
   const [timeZone, setTimeZone] = useState("");
@@ -282,7 +288,9 @@ export default function ImportScreen() {
       return;
     }
 
-    if (result.requiresTimeZone) {
+    // Also asked for a Sched feed on a new convention: it only declares UTC,
+    // which says nothing about where the convention is.
+    if (importNeedsTimeZone(result, fallbackTimeZone)) {
       setPendingCalendar({ name, icsContent, sourceUrl });
       setTimeZoneValue(fallbackTimeZone ?? "");
       setError({
@@ -473,14 +481,28 @@ export default function ImportScreen() {
 
   async function handleImport() {
     if (!preview || !id) return;
+    await runImportOnce(importLock, async () => {
+      setImporting(true);
+      try {
+        return await applyImport(preview, id);
+      } finally {
+        if (isMounted.current) setImporting(false);
+      }
+    });
+  }
 
+  /** Resolves true once the schedule has been written. */
+  async function applyImport(
+    preview: PreviewState,
+    id: string,
+  ): Promise<boolean> {
     const selectedTimeZone = timeZone.trim();
     if (!isValidTimeZone(selectedTimeZone)) {
       Alert.alert(
         t("import.alerts.invalidTimeZoneTitle"),
         t("import.alerts.invalidTimeZoneMessage"),
       );
-      return;
+      return false;
     }
 
     let reparsed: ReturnType<typeof parseIcs>;
@@ -497,7 +519,7 @@ export default function ImportScreen() {
             })
           : t("import.alerts.parseNotApplied"),
       );
-      return;
+      return false;
     }
 
     const eventsToImport =
@@ -521,7 +543,7 @@ export default function ImportScreen() {
         t("import.alerts.nothingTitle"),
         t("import.alerts.nothingMessage"),
       );
-      return;
+      return false;
     }
 
     const isEmptyAuthoritativeUpdate =
@@ -540,11 +562,13 @@ export default function ImportScreen() {
           t("import.alerts.updateNotAppliedTitle"),
           t("import.alerts.updateNotAppliedMessage"),
         );
-        return;
+        return false;
       }
 
-      if (!(await confirmEmptyScheduleUpdate(removalCount))) return;
+      if (!(await confirmEmptyScheduleUpdate(removalCount))) return false;
     }
+    // The sheet may have been dismissed while this waited; write nothing then.
+    if (!isMounted.current) return false;
 
     const dates = deriveImportedConventionDates(
       reparsed.events,
@@ -612,9 +636,9 @@ export default function ImportScreen() {
     );
 
     if (!outcome.ok) {
-      if (!isMounted.current) return;
+      if (!isMounted.current) return false;
       Alert.alert(t("import.alerts.failedTitle"), t("import.errors.generic"));
-      return;
+      return false;
     }
 
     const { createdConventionId, conventionDetailsUpdated, result } = outcome;
@@ -634,7 +658,7 @@ export default function ImportScreen() {
     // The write finished, but the sheet may be gone. An alert fired from a
     // screen the user already closed arrives out of nowhere and its Done
     // button navigates them somewhere they did not ask to go.
-    if (!isMounted.current) return;
+    if (!isMounted.current) return true;
 
     Alert.alert(
       t("import.alerts.successTitle"),
@@ -661,6 +685,7 @@ export default function ImportScreen() {
         },
       ],
     );
+    return true;
   }
 
   const selectedCount = preview
@@ -714,16 +739,20 @@ export default function ImportScreen() {
     }
   };
 
+  // From the tap on Import, not just the mutation: a new convention is
+  // created before the mutation starts, and the button showed nothing then.
+  const importBusy = importing || importMutation.isPending;
+
   // A built preview represents real work -- parsing plus per-event selection.
   // A running import counts too: dismissing the sheet mid-write leaves the
   // batch insert to finish against a screen that no longer exists.
   const { confirmDiscard: handleCancel } = useUnsavedChangesGuard({
-    isDirty: importMutation.isPending || !!preview,
+    isDirty: importBusy || !!preview,
     onDiscard: closeImport,
   });
 
-  const controlsDisabled = loading || importMutation.isPending;
-  const importActionLabel = importMutation.isPending
+  const controlsDisabled = loading || importBusy;
+  const importActionLabel = importBusy
     ? isEmptyAuthoritativeUpdate
       ? t("import.applying")
       : t("import.importing")
@@ -759,7 +788,7 @@ export default function ImportScreen() {
             // Only the database write is uninterruptible. A URL fetch can run
             // for the full 30s timeout, and disabling Cancel through it left
             // the one wait long enough to need an escape without one.
-            disabled={importMutation.isPending}
+            disabled={importBusy}
           >
             {t("common.cancel")}
           </Stack.Toolbar.Button>
@@ -771,7 +800,7 @@ export default function ImportScreen() {
           // FormModalHeader has no disabled state for Cancel, so the press
           // is dropped instead. Dropped only during the write — a fetch stays
           // cancellable, see the toolbar note above.
-          onCancel={importMutation.isPending ? () => undefined : handleCancel}
+          onCancel={importBusy ? () => undefined : handleCancel}
         />
       )}
 
@@ -979,7 +1008,7 @@ export default function ImportScreen() {
                           : "import.categoryEvents",
                         { name: category.name, count: category.count },
                       )}
-                      disabled={importMutation.isPending}
+                      disabled={importBusy}
                       testID={`category-${category.name}`}
                     />
                   ))}
@@ -991,7 +1020,7 @@ export default function ImportScreen() {
                   label={importActionLabel}
                   onPress={handleImport}
                   disabled={
-                    importMutation.isPending ||
+                    importBusy ||
                     !canApplyPreview ||
                     !isValidTimeZone(timeZone.trim())
                   }

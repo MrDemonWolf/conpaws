@@ -61,6 +61,29 @@ describe("Expo Router convention routes", () => {
       'contentInsetAdjustmentBehavior="automatic"',
     );
   });
+
+  // @expo/ui's Button disables only natively and still calls onPress, so a
+  // second tap on Import that lands before React commits `disabled` ran a
+  // whole second import: two conventions holding the same schedule.
+  it("lets the Import button start only one import", () => {
+    const importSource = readFileSync(
+      path.join(conventionRoute, "import.tsx"),
+      "utf8",
+    );
+    const handleImport = importSource.slice(
+      importSource.indexOf("async function handleImport"),
+      importSource.indexOf("parseIcs(", importSource.indexOf("handleImport")),
+    );
+
+    expect(handleImport).toMatch(/runImportOnce\(importLock,/);
+    expect(importSource).toMatch(
+      /const importBusy = importing \|\| importMutation\.isPending;/,
+    );
+    expect(importSource).toMatch(
+      /onPress=\{handleImport\}\s*disabled=\{\s*importBusy \|\|/,
+    );
+    expect(importSource).not.toMatch(/disabled=\{importMutation\.isPending\}/);
+  });
 });
 
 describe("iOS native stack headers", () => {
