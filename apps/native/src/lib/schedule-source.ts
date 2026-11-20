@@ -2,6 +2,7 @@ import type {
   SourceEventInput,
   SourceSnapshot,
 } from "@/db/repositories/events";
+import { ecpUidForExportUid } from "@/lib/ecp-feed";
 import type { ParsedEvent, ParseResult } from "@/lib/ical-parser";
 
 /**
@@ -96,9 +97,14 @@ export function toSourceSnapshot(
  * untrusted on every pass, and an import marked each saved row removed and
  * added an unsaved copy beside it.
  *
+ * Rows an earlier build stored under an Events Calendar export's own UID are
+ * the same case, read from the stored side so it holds whether the feed came
+ * from the normalized export or the REST expansion: see `ecpUidForExportUid`.
+ *
  * Adopted only when unambiguous: exactly one feed event claims the old
  * identity, a stored row holds it, no stored row holds the event's current
- * identity yet, and the feed does not publish the old one as its own.
+ * identity yet, and the feed does not publish the old one as its own. An
+ * export UID is also passed over when another stored one shares its post id.
  */
 export function adoptPreviousSourceUids(
   storedSourceUids: ReadonlySet<string>,
@@ -108,24 +114,40 @@ export function adoptPreviousSourceUids(
   }>,
   publishedSourceUids: ReadonlySet<string>,
 ): Map<string, string> {
+  // A post's current identity to the one stored export UID behind it, or null
+  // once two share a post id, as a recurring post's occurrences do.
+  const exportUidByEcpUid = new Map<string, string | null>();
+  for (const stored of storedSourceUids) {
+    const ecpUid = ecpUidForExportUid(stored);
+    if (ecpUid === null) continue;
+    exportUidByEcpUid.set(
+      ecpUid,
+      exportUidByEcpUid.has(ecpUid) ? null : stored,
+    );
+  }
+
   // Old identity to the event claiming it, or null once two events claim it.
   const claims = new Map<string, string | null>();
-  for (const { sourceUid, previousSourceUid: previous } of feed) {
+  const claim = (sourceUid: string, previous: string | null | undefined) => {
     if (
-      !sourceUid ||
       !previous ||
       previous === sourceUid ||
       !storedSourceUids.has(previous) ||
       storedSourceUids.has(sourceUid) ||
       publishedSourceUids.has(previous)
     ) {
-      continue;
+      return;
     }
     const claimed = claims.get(previous);
     claims.set(
       previous,
       claimed === undefined || claimed === sourceUid ? sourceUid : null,
     );
+  };
+  for (const { sourceUid, previousSourceUid } of feed) {
+    if (!sourceUid) continue;
+    claim(sourceUid, previousSourceUid);
+    claim(sourceUid, exportUidByEcpUid.get(sourceUid));
   }
 
   const adopted = new Map<string, string>();

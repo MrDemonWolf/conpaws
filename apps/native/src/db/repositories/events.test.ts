@@ -1,6 +1,7 @@
 import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { buildIcsFromEcpEvents, normalizeEcpUids } from "@/lib/ecp-feed";
 import { parseIcs } from "@/lib/ical-parser";
 import { toSourceEvents, toSourceSnapshot } from "@/lib/schedule-source";
 import { initializeDatabase } from "../bootstrap";
@@ -146,6 +147,70 @@ function alarmKeyedRow(): ConventionEvent {
     isInSchedule: true,
     reminderMinutes: 15,
   });
+}
+
+/** An Events Calendar `?ical=1` export, which names each post by its times. */
+const ECP_EXPORT_ICS = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "PRODID:-//Example Con - ECPv6.17.3.1//NONSGML v1.0//EN",
+  "X-WR-TIMEZONE:America/Chicago",
+  "BEGIN:VEVENT",
+  "UID:8154-1788454800-1788458400@examplecon.org",
+  "DTSTART:20260903T170000Z",
+  "DTEND:20260903T180000Z",
+  "SUMMARY:Opening Ceremonies",
+  "LOCATION:Main Stage",
+  "END:VEVENT",
+  "BEGIN:VEVENT",
+  "UID:6569-1788462000-1788465600@examplecon.org",
+  "DTSTART:20260903T190000Z",
+  "DTEND:20260903T200000Z",
+  "SUMMARY:Fursuit Parade",
+  "LOCATION:Main Stage",
+  "END:VEVENT",
+  "END:VCALENDAR",
+].join("\r\n");
+
+/** The same two posts as the REST expansion renders them. */
+const ECP_REST_ICS = buildIcsFromEcpEvents([
+  {
+    id: 8154,
+    title: "Opening Ceremonies",
+    utc_start_date: "2026-09-03 17:00:00",
+    utc_end_date: "2026-09-03 18:00:00",
+    timezone: "America/Chicago",
+    venue: { venue: "Main Stage" },
+  },
+  {
+    id: 6569,
+    title: "Fursuit Parade",
+    utc_start_date: "2026-09-03 19:00:00",
+    utc_end_date: "2026-09-03 20:00:00",
+    timezone: "America/Chicago",
+    venue: { venue: "Main Stage" },
+  },
+]);
+
+/**
+ * That export as builds before UID normalization stored it, under the
+ * export's own UIDs. The opening is saved with a reminder; the parade is not.
+ */
+function ecpExportKeyedRows(): ConventionEvent[] {
+  return parseIcs(ECP_EXPORT_ICS).events.map((event) =>
+    storedEvent({
+      id: event.sourceUid.split("-")[0],
+      sourceUid: event.sourceUid,
+      title: event.title,
+      startTime: event.startTime.toISOString(),
+      endTime: event.endTime?.toISOString() ?? null,
+      location: event.location,
+      room: event.room,
+      category: event.category,
+      isInSchedule: event.title === "Opening Ceremonies",
+      reminderMinutes: event.title === "Opening Ceremonies" ? 15 : null,
+    }),
+  );
 }
 
 function snapshot(
@@ -702,6 +767,59 @@ END:VCALENDAR`,
     ]);
   });
 
+  it.each([
+    ["the normalized export", normalizeEcpUids(ECP_EXPORT_ICS)],
+    ["the REST expansion", ECP_REST_ICS],
+  ])(
+    "re-files rows stored under Events Calendar export UIDs on a URL re-import of %s",
+    (_body, ics) => {
+      // Without the export UID as each post's previous identity, an
+      // authoritative re-import marked the saved panel removed, deleted the
+      // other and inserted both again as unsaved copies.
+      const parsed = parseIcs(ics);
+
+      const plan = planSourceReconciliation(
+        ecpExportKeyedRows(),
+        toSourceEvents(parsed.events, "convention-1"),
+        toSourceSnapshot(parsed, true),
+      );
+
+      expect(plan.tombstones).toEqual([]);
+      expect(plan.removals).toEqual([]);
+      expect(plan.inserts).toEqual([]);
+      expect(plan.updates).toEqual([
+        {
+          existingId: "6569",
+          event: expect.objectContaining({ sourceUid: "6569@conpaws.ecp" }),
+        },
+        {
+          existingId: "8154",
+          event: expect.objectContaining({ sourceUid: "8154@conpaws.ecp" }),
+        },
+      ]);
+    },
+  );
+
+  it("re-files rows stored under Events Calendar export UIDs when the same file is picked again", () => {
+    // A file import adds what it does not recognise, so every post used to
+    // land a second time beside its stored row.
+    const parsed = parseIcs(normalizeEcpUids(ECP_EXPORT_ICS));
+
+    const plan = planSourceReconciliation(
+      ecpExportKeyedRows(),
+      toSourceEvents(parsed.events, "convention-1"),
+      toSourceSnapshot(parsed, false),
+    );
+
+    expect(plan.inserts).toEqual([]);
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals).toEqual([]);
+    expect(plan.updates.map((update) => update.existingId)).toEqual([
+      "6569",
+      "8154",
+    ]);
+  });
+
   it("keeps absent source rows when the snapshot is partial", () => {
     const feedEvent = storedEvent({ id: "feed" });
     const manual = storedEvent({ id: "manual", sourceUid: null });
@@ -919,6 +1037,37 @@ describe("upsertBySourceUid transaction", () => {
         feedStatus: null,
       }),
     ]);
+  });
+
+  it("re-files saved Events Calendar export rows in place: no tombstone, no insert", async () => {
+    const recorder = recordingTx(ecpExportKeyedRows());
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+    const parsed = parseIcs(normalizeEcpUids(ECP_EXPORT_ICS));
+
+    const result = await upsertBySourceUid(
+      toSourceEvents(parsed.events, "convention-1"),
+      "convention-1",
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(result).toMatchObject({
+      added: 0,
+      updated: 2,
+      removedEventIds: [],
+      tombstonedEventIds: [],
+    });
+    expect(recorder.inserts).toEqual([]);
+    // Only the identity moves; the star and reminder stay on the same rows.
+    expect(recorder.updates).toEqual([
+      expect.objectContaining({ sourceUid: "6569@conpaws.ecp" }),
+      expect.objectContaining({ sourceUid: "8154@conpaws.ecp" }),
+    ]);
+    for (const payload of recorder.updates) {
+      expect(Object.keys(payload)).not.toContain("isInSchedule");
+      expect(Object.keys(payload)).not.toContain("reminderMinutes");
+    }
   });
 
   it("does not carry previousSourceUid into an inserted row", async () => {

@@ -96,9 +96,9 @@ const NOTHING_TO_REPORT: ScheduleChangeSummary = {
  * there is no evidence this is the right feed, the same caution
  * `summarizeScheduleChanges` applies before it trusts one.
  *
- * A row an earlier build stored under an alarm's UID answers yes through the
- * last check: the event's own UID is not stored yet, and the write re-files
- * the row under it.
+ * A row an earlier build stored under an alarm's UID or an Events Calendar
+ * export's UID answers yes through the last check: the event's current UID is
+ * not stored yet, and the write re-files the row under it.
  */
 function hasUnreportedChanges(
   stored: readonly ConventionEvent[],

@@ -292,6 +292,53 @@ describe("summarizeScheduleChanges", () => {
     });
   });
 
+  it("matches rows an earlier build stored under an Events Calendar export's UIDs", () => {
+    // Earlier builds kept the export's own `<post id>-<start>-<end>@<host>`
+    // whenever the REST expansion did not win. The feed now names each post
+    // `<post id>@conpaws.ecp`, so without reading the export UID as the
+    // previous identity nothing overlaps and the feed is never applied again.
+    const stored = [
+      occurrence({
+        sourceUid: "8154-1788454800-1788458400@examplecon.org",
+        isInSchedule: true,
+      }),
+      occurrence({ sourceUid: "6569-1788462000-1788465600@examplecon.org" }),
+    ];
+    const feed = [
+      occurrence({ sourceUid: "8154@conpaws.ecp", room: "Room B" }),
+      occurrence({ sourceUid: "6569@conpaws.ecp" }),
+    ];
+
+    expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
+      status: "changed",
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+  });
+
+  it("leaves export UIDs alone when two of them share a post id", () => {
+    // A recurring post's occurrences: nothing says which one the feed's single
+    // event is, so neither is claimed.
+    const stored = [
+      occurrence({ sourceUid: "8154-1788454800-1788458400@examplecon.org" }),
+      occurrence({ sourceUid: "8154-1788541200-1788544800@examplecon.org" }),
+    ];
+
+    expect(
+      summarizeScheduleChanges(
+        stored,
+        [occurrence({ sourceUid: "8154@conpaws.ecp" })],
+        [],
+      ),
+    ).toEqual({ status: "untrusted", reason: "no-overlap" });
+  });
+
   it("does not call an all-day event that gained its span moved", () => {
     // Earlier builds stored every all-day event with no end. The feed did not
     // change; ConPaws now reads the whole day, which files it as a drop-in.

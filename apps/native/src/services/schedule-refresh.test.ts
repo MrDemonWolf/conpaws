@@ -48,12 +48,41 @@ vi.mock("@/services/widget-snapshot", () => ({ publishWidgetSnapshot }));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
 vi.mock("@/lib/schedule-refresh-storage", () => storage);
 
+import { buildIcsFromEcpEvents, normalizeEcpUids } from "@/lib/ecp-feed";
 import {
   hasScheduleSource,
   refreshConventionSchedule,
 } from "./schedule-refresh";
 
 const NOW = Date.parse("2026-09-03T18:00:00.000Z");
+
+/** An Events Calendar `?ical=1` export, which names each post by its times. */
+const ECP_EXPORT_ICS = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "PRODID:-//Example Con - ECPv6.17.3.1//NONSGML v1.0//EN",
+  "X-WR-TIMEZONE:America/Chicago",
+  "BEGIN:VEVENT",
+  "UID:8154-1788454800-1788458400@examplecon.org",
+  "DTSTART:20260903T200000Z",
+  "DTEND:20260903T210000Z",
+  "SUMMARY:Opening Ceremonies",
+  "LOCATION:Main Stage",
+  "END:VEVENT",
+  "END:VCALENDAR",
+].join("\r\n");
+
+/** The same post as the REST expansion renders it. */
+const ECP_REST_ICS = buildIcsFromEcpEvents([
+  {
+    id: 8154,
+    title: "Opening Ceremonies",
+    utc_start_date: "2026-09-03 20:00:00",
+    utc_end_date: "2026-09-03 21:00:00",
+    timezone: "America/Chicago",
+    venue: { venue: "Main Stage" },
+  },
+]);
 
 function convention(overrides: Partial<Convention> = {}): Convention {
   return {
@@ -481,6 +510,63 @@ describe("refreshConventionSchedule outcomes", () => {
       }),
     );
   });
+
+  it.each([
+    ["the normalized export", normalizeEcpUids(ECP_EXPORT_ICS)],
+    ["the REST expansion", ECP_REST_ICS],
+  ])(
+    "keeps applying an Events Calendar feed stored under export UIDs when it reads %s",
+    async (_body, ics) => {
+      // Earlier builds stored the export's own UIDs whenever the REST expansion
+      // did not win. Both bodies now name each post `<post id>@conpaws.ecp`, so
+      // without the export UID as its previous identity nothing overlaps and
+      // every check, pressed or not, comes back untrusted.
+      const { parseIcs: realParseIcs } =
+        await vi.importActual<typeof import("@/lib/ical-parser")>(
+          "@/lib/ical-parser",
+        );
+      parseIcs.mockImplementation(realParseIcs);
+      getByConventionId.mockResolvedValue(
+        realParseIcs(ECP_EXPORT_ICS).events.map((event) =>
+          storedRow({
+            sourceUid: event.sourceUid,
+            title: event.title,
+            startTime: event.startTime.toISOString(),
+            endTime: event.endTime?.toISOString() ?? null,
+            room: event.room,
+            location: event.location,
+          }),
+        ),
+      );
+      fetchScheduleIcs.mockResolvedValue({ icsContent: ics });
+
+      const result = await refreshConventionSchedule(convention(), deps, {
+        now: NOW,
+      });
+
+      expect(result).toEqual({
+        status: "applied",
+        checkedAt: NOW,
+        summary: {
+          moved: 0,
+          gone: 0,
+          savedMoved: 0,
+          savedGone: 0,
+          nowDropIn: 0,
+          savedNowDropIn: 0,
+        },
+      });
+      expect(runScheduleImport).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceSnapshot: expect.objectContaining({
+            activeOccurrences: [
+              expect.objectContaining({ sourceUid: "8154@conpaws.ecp" }),
+            ],
+          }),
+        }),
+      );
+    },
+  );
 
   it("tells the user a saved all-day event is now a drop-in, not that it moved", async () => {
     // Earlier builds stored all-day events with no end. The unchanged feed now

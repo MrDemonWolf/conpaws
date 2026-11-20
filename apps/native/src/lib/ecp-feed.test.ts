@@ -10,6 +10,7 @@ import {
   buildIcsFromEcpEvents,
   type EcpEvent,
   ecpRestEndpoint,
+  ecpUidForExportUid,
   fetchEcpFullSchedule,
   isEventsCalendarFeed,
   normalizeEcpUids,
@@ -91,6 +92,23 @@ describe("normalizeEcpUids", () => {
     ]);
     expect(normalizeEcpUids(ics)).toBe(ics);
     expect(parseIcs(normalizeEcpUids(ics)).events).toHaveLength(2);
+  });
+});
+
+describe("ecpUidForExportUid", () => {
+  it("gives a stored export UID the identity the feed now uses", () => {
+    expect(ecpUidForExportUid("8154-1788454800-1788717600@example.org")).toBe(
+      parseIcs(buildIcsFromEcpEvents([event({ id: 8154 })])).events[0]
+        .sourceUid,
+    );
+  });
+
+  it("leaves other UIDs and one occurrence of a series alone", () => {
+    expect(ecpUidForExportUid("8154@conpaws.ecp")).toBeNull();
+    expect(ecpUidForExportUid("sched-8154@sched.com")).toBeNull();
+    expect(
+      ecpUidForExportUid("8154-1788454800-1788717600@example.org|20260903"),
+    ).toBeNull();
   });
 });
 

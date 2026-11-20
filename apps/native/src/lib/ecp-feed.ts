@@ -176,6 +176,9 @@ const ECP_UID_LINE = /^UID:(\d+)-\d+-\d+@[^\r\n]*(?:\r?\n[ \t][^\r\n]*)*/gim;
  * Returns the body untouched when it is not an ECP export, or when one post id
  * sits behind two different UIDs: merging those would make the parser keep
  * only the first, and losing an event is worse than a renamed one.
+ *
+ * Rows earlier builds stored under the export UID are matched to the new one
+ * by `adoptPreviousSourceUids`, through `ecpUidForExportUid`.
  */
 export function normalizeEcpUids(raw: string): string {
   if (!isEventsCalendarFeed(raw)) return raw;
@@ -187,8 +190,30 @@ export function normalizeEcpUids(raw: string): string {
   }
   return raw.replace(
     ECP_UID_LINE,
-    (_line, postId: string) => `UID:${postId}@conpaws.ecp`,
+    (_line, postId: string) => `UID:${ecpEventUid(postId)}`,
   );
+}
+
+/** The identity the REST expansion and `normalizeEcpUids` give a post. */
+function ecpEventUid(postId: string | number): string {
+  return `${postId}@conpaws.ecp`;
+}
+
+/**
+ * A whole stored export UID, `<post id>-<start>-<end>@<host>`. A `|` marks one
+ * occurrence of a recurring event, which is not the post itself.
+ */
+const ECP_EXPORT_UID = /^(\d+)-\d+-\d+@[^|]*$/;
+
+/**
+ * The identity a stored export UID now has, or null for any other UID.
+ *
+ * Builds before `normalizeEcpUids` kept the export's own UID whenever the REST
+ * expansion did not win, so those rows need this to be recognised.
+ */
+export function ecpUidForExportUid(uid: string): string | null {
+  const postId = ECP_EXPORT_UID.exec(uid)?.[1];
+  return postId === undefined ? null : ecpEventUid(postId);
 }
 
 /**
@@ -348,7 +373,7 @@ export function buildIcsFromEcpEvents(
     if (!start) continue;
 
     push("BEGIN:VEVENT");
-    push(`UID:${event.id}@conpaws.ecp`);
+    push(`UID:${ecpEventUid(event.id)}`);
     push(`DTSTAMP:${toIcsUtc(event.modified_utc) ?? start}`);
     push(`DTSTART:${start}`);
     if (end) push(`DTEND:${end}`);
