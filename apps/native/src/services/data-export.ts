@@ -128,7 +128,10 @@ export async function triggerExport(): Promise<void> {
 
   const day = new Date().toISOString().slice(0, 10);
   const file = new File(Paths.cache, `${EXPORT_FILENAME_PREFIX}${day}.json`);
-  file.write(json);
+  // File.write is asynchronous since expo-file-system 58. Wait for it so the
+  // share sheet never opens on a missing or partial file, and a failed write
+  // (for example low storage) reaches the caller's error alert.
+  await file.write(json);
 
   await Sharing.shareAsync(file.uri, {
     mimeType: "application/json",

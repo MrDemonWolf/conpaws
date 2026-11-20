@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getPage, getByConventionIdPage, shareAsync } = vi.hoisted(() => ({
-  getPage: vi.fn(),
-  getByConventionIdPage: vi.fn(),
-  shareAsync: vi.fn(),
-}));
+const { getPage, getByConventionIdPage, shareAsync, write, hapticSuccess } =
+  vi.hoisted(() => ({
+    getPage: vi.fn(),
+    getByConventionIdPage: vi.fn(),
+    shareAsync: vi.fn(),
+    write: vi.fn(),
+    hapticSuccess: vi.fn(),
+  }));
 vi.mock("@/db/repositories/conventions", () => ({ getPage }));
 vi.mock("@/db/repositories/events", () => ({ getByConventionIdPage }));
 vi.mock("expo-sharing", () => ({
@@ -19,11 +22,11 @@ vi.mock("expo-file-system", () => ({
     }
   },
   File: class {
-    write = vi.fn();
+    write = write;
   },
   Paths: { cache: "cache" },
 }));
-vi.mock("@/services/haptics", () => ({ hapticSuccess: vi.fn() }));
+vi.mock("@/services/haptics", () => ({ hapticSuccess }));
 
 import { exportAllData, triggerExport } from "./data-export";
 
@@ -34,11 +37,45 @@ describe("triggerExport", () => {
     getByConventionIdPage.mockResolvedValue([
       { description: "x".repeat(8 * 1024 * 1024) },
     ]);
+    // expo-file-system 58 made File.write asynchronous.
+    write.mockResolvedValue(undefined);
   });
 
   it("refuses a backup larger than the restore limit", async () => {
     await expect(triggerExport()).rejects.toThrow(/maximum restorable backup/);
     expect(shareAsync).not.toHaveBeenCalled();
+  });
+
+  it("waits for the backup file write before opening the share sheet", async () => {
+    getByConventionIdPage.mockResolvedValue([{ id: "event-1" }]);
+    let finishWrite = () => {};
+    write.mockReturnValue(
+      new Promise<void>((resolve) => {
+        finishWrite = resolve;
+      }),
+    );
+
+    const exporting = triggerExport();
+    await vi.waitFor(() => expect(write).toHaveBeenCalledTimes(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(shareAsync).not.toHaveBeenCalled();
+    expect(hapticSuccess).not.toHaveBeenCalled();
+
+    finishWrite();
+    await exporting;
+
+    expect(shareAsync).toHaveBeenCalledTimes(1);
+    expect(hapticSuccess).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects without sharing when the backup file write fails", async () => {
+    getByConventionIdPage.mockResolvedValue([{ id: "event-1" }]);
+    write.mockRejectedValue(new Error("ENOSPC"));
+
+    await expect(triggerExport()).rejects.toThrow("ENOSPC");
+    expect(shareAsync).not.toHaveBeenCalled();
+    expect(hapticSuccess).not.toHaveBeenCalled();
   });
 
   it("pages through convention and event rows when exporting", async () => {
