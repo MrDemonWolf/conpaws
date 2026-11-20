@@ -80,6 +80,8 @@ const NOTHING_TO_REPORT: ScheduleChangeSummary = {
   gone: 0,
   savedMoved: 0,
   savedGone: 0,
+  nowDropIn: 0,
+  savedNowDropIn: 0,
 };
 
 /**
@@ -93,6 +95,10 @@ const NOTHING_TO_REPORT: ScheduleChangeSummary = {
  * A convention holding no feed rows at all answers no: with nothing to overlap
  * there is no evidence this is the right feed, the same caution
  * `summarizeScheduleChanges` applies before it trusts one.
+ *
+ * A row an earlier build stored under an alarm's UID answers yes through the
+ * last check: the event's own UID is not stored yet, and the write re-files
+ * the row under it.
  */
 function hasUnreportedChanges(
   stored: readonly ConventionEvent[],
@@ -223,10 +229,9 @@ export async function refreshConventionSchedule(
         status: "applied",
         checkedAt: now,
         summary: {
-          moved: outcome.status === "changed" ? outcome.summary.moved : 0,
-          gone: outcome.status === "changed" ? outcome.summary.gone : 0,
-          savedMoved:
-            outcome.status === "changed" ? outcome.summary.savedMoved : 0,
+          ...(outcome.status === "changed"
+            ? outcome.summary
+            : NOTHING_TO_REPORT),
           savedGone: result.tombstoned,
         },
       };
@@ -254,6 +259,8 @@ export async function refreshConventionSchedule(
         location: event.location,
         isInSchedule: false,
         feedStatus: null,
+        isAllDay: event.isAllDay,
+        previousSourceUid: event.previousSourceUid,
       })),
       parsed.cancelledSourceUids,
     );

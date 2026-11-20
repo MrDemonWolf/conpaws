@@ -1,6 +1,8 @@
 import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { parseIcs } from "@/lib/ical-parser";
+import { toSourceEvents, toSourceSnapshot } from "@/lib/schedule-source";
 import { initializeDatabase } from "../bootstrap";
 import type { ConventionEvent } from "../schema";
 import {
@@ -106,6 +108,44 @@ function occurrence(
     sourceUrl: null,
     ...overrides,
   };
+}
+
+/** An Apple-style export: the event's VALARM carries a UID of its own. */
+const APPLE_ALARM_ICS = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:event-uid-1
+DTSTART:20260612T160000Z
+DTEND:20260612T170000Z
+SUMMARY:Opening Ceremonies
+DESCRIPTION:Welcome
+BEGIN:VALARM
+UID:alarm-uid-1
+X-WR-ALARMUID:alarm-uid-1
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+/**
+ * That event as an earlier build stored it: the last UID and DESCRIPTION in
+ * the block, the alarm's, replaced the event's own.
+ */
+function alarmKeyedRow(): ConventionEvent {
+  return storedEvent({
+    id: "saved",
+    sourceUid: "alarm-uid-1",
+    title: "Opening Ceremonies",
+    description: "Reminder",
+    startTime: "2026-06-12T16:00:00.000Z",
+    endTime: "2026-06-12T17:00:00.000Z",
+    room: null,
+    category: null,
+    isInSchedule: true,
+    reminderMinutes: 15,
+  });
 }
 
 function snapshot(
@@ -559,6 +599,109 @@ describe("source snapshot reconciliation", () => {
     });
   });
 
+  it("re-files a saved row an earlier build stored under an alarm's UID", () => {
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      toSourceEvents(parsed.events, "convention-1"),
+      toSourceSnapshot(parsed, true),
+    );
+
+    // Not a removal and a fresh unsaved copy: the same row, re-filed under
+    // the event's own UID with its own description, star and reminder kept.
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals).toEqual([]);
+    expect(plan.inserts).toEqual([]);
+    expect(plan.updates).toEqual([
+      {
+        existingId: "saved",
+        event: expect.objectContaining({
+          sourceUid: "event-uid-1",
+          description: "Welcome",
+        }),
+      },
+    ]);
+  });
+
+  it("re-files it from the imported rows when the snapshot omits the previous identity", () => {
+    // The import screen builds its snapshot field by field.
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+    const full = toSourceSnapshot(parsed, true);
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      toSourceEvents(parsed.events, "convention-1"),
+      {
+        ...full,
+        activeOccurrences: full.activeOccurrences.map(
+          ({ previousSourceUid: _, ...identity }) => identity,
+        ),
+      },
+    );
+
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.inserts).toEqual([]);
+    expect(plan.updates).toEqual([
+      {
+        existingId: "saved",
+        event: expect.objectContaining({ sourceUid: "event-uid-1" }),
+      },
+    ]);
+  });
+
+  it("moves only the identity of an unselected event stored under an alarm's UID", () => {
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      [],
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(plan.identityUpdates).toEqual([
+      { existingId: "saved", sourceUid: "event-uid-1" },
+    ]);
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals).toEqual([]);
+    expect(plan.inserts).toEqual([]);
+  });
+
+  it("does not hand one alarm UID to two events that both claim it", () => {
+    // A feed reusing one alarm UID everywhere gives no way to tell which
+    // event the stored row was, so it is treated as an unknown row.
+    const parsed = parseIcs(
+      APPLE_ALARM_ICS.replace(
+        "END:VCALENDAR",
+        `BEGIN:VEVENT
+UID:event-uid-2
+DTSTART:20260612T180000Z
+SUMMARY:Second Panel
+BEGIN:VALARM
+UID:alarm-uid-1
+ACTION:DISPLAY
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR`,
+      ),
+      { timeZone: "UTC" },
+    );
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      toSourceEvents(parsed.events, "convention-1"),
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(plan.updates).toEqual([]);
+    expect(plan.identityUpdates).toEqual([]);
+    expect(plan.inserts).toHaveLength(2);
+    expect(plan.tombstones).toEqual([
+      { existingId: "saved", status: "removed" },
+    ]);
+  });
+
   it("keeps absent source rows when the snapshot is partial", () => {
     const feedEvent = storedEvent({ id: "feed" });
     const manual = storedEvent({ id: "manual", sourceUid: null });
@@ -747,6 +890,57 @@ describe("upsertBySourceUid transaction", () => {
     expect(Object.keys(recorder.inserts[0])).not.toContain("legacySourceUid");
     expect(recorder.inserts[0].sourceUid).toBe("brand-new");
     expect(recorder.inserts[0].id).toEqual(expect.any(String));
+  });
+
+  it("re-files a saved alarm-keyed row in place: no tombstone, no insert", async () => {
+    const recorder = recordingTx([alarmKeyedRow()]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+
+    const result = await upsertBySourceUid(
+      toSourceEvents(parsed.events, "convention-1"),
+      "convention-1",
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(result).toMatchObject({
+      added: 0,
+      updated: 1,
+      removedEventIds: [],
+      tombstonedEventIds: [],
+    });
+    expect(recorder.inserts).toEqual([]);
+    expect(recorder.updates).toEqual([
+      expect.objectContaining({
+        sourceUid: "event-uid-1",
+        description: "Welcome",
+        feedStatus: null,
+      }),
+    ]);
+  });
+
+  it("does not carry previousSourceUid into an inserted row", async () => {
+    const recorder = recordingTx([]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+
+    await upsertBySourceUid(
+      [
+        sourceEvent({
+          sourceUid: "brand-new",
+          legacySourceUid: null,
+          previousSourceUid: "alarm-uid",
+        }),
+      ],
+      "convention-1",
+      snapshot(),
+    );
+
+    expect(recorder.inserts).toHaveLength(1);
+    expect(Object.keys(recorder.inserts[0])).not.toContain("previousSourceUid");
   });
 
   it("deletes exactly the rows the plan removed", async () => {

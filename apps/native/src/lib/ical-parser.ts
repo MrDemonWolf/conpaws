@@ -28,6 +28,12 @@ export interface ParsedEvent {
   ageRating: AgeRating | null;
   sourceUid: string;
   legacySourceUid: string | null;
+  /**
+   * The identity an earlier build stored this event under, when it differs
+   * from `sourceUid`. Builds that still read nested VALARM lines let an
+   * alarm's own UID (Apple and iCloud exports carry one) replace the event's.
+   */
+  previousSourceUid: string | null;
   recurrenceTime: Date | null;
   sourceUrl: string | null;
   isAgeRestricted: boolean;
@@ -376,12 +382,17 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
   // not the event. Their lines are left out of the block, or the last one read
   // would replace the event's own value.
   const eventBlocks: string[][] = [];
+  // Earlier builds did read those lines, so the last UID anywhere in the block
+  // is the one they stored. Kept per block to recognise those rows.
+  const previousUids: (string | null)[] = [];
   let currentBlock: string[] | null = null;
+  let previousUid: string | null = null;
   let nestedDepth = 0;
 
   for (const line of lines) {
     if (line === "BEGIN:VEVENT") {
       currentBlock = [];
+      previousUid = null;
       nestedDepth = 0;
     } else if (line === "END:VEVENT") {
       // Closes the event even when a sub-component was left unterminated.
@@ -393,9 +404,12 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
           );
         }
         eventBlocks.push(currentBlock);
+        previousUids.push(previousUid);
         currentBlock = null;
       }
     } else if (currentBlock !== null) {
+      // Case-sensitive, matching the property lookup those builds used.
+      if (extractPropName(line) === "UID") previousUid = extractValue(line);
       const propName = extractPropName(line).toUpperCase();
       if (propName === "BEGIN") {
         nestedDepth++;
@@ -506,7 +520,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     return !cancelledSourceUids.has(sourceUid) && !cancelledSourceUids.has(uid);
   });
 
-  for (const block of eventBlocks) {
+  for (const [blockIndex, block] of eventBlocks.entries()) {
     // Null-prototype maps: a feed is free to name a property __proto__, and on
     // a plain object literal that assignment would reach Object.prototype
     // instead of landing as a key.
@@ -559,6 +573,16 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
 
     if (seenUids.has(dedupeKey)) continue;
     seenUids.add(dedupeKey);
+
+    const previousUid = previousUids[blockIndex] ?? uid;
+    const previousKey = recurrenceId
+      ? `${previousUid}|${recurrenceId}`
+      : previousUid;
+    // Those builds refused a longer UID, so no stored row can hold one.
+    const previousSourceUid =
+      previousKey !== dedupeKey && previousKey.length <= MAX_FIELD_CHARS
+        ? previousKey
+        : null;
 
     const rawSummary = props.SUMMARY ?? "";
     const title = decodeHtmlEntities(unescapeText(rawSummary)).trim();
@@ -668,6 +692,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       sourceUid: dedupeKey,
       recurrenceTime,
       legacySourceUid: recurrenceId ? uid : null,
+      previousSourceUid,
       sourceUrl,
       isAgeRestricted,
       contentWarning,

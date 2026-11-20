@@ -12,6 +12,8 @@
  * hash changes on every fetch and would produce a notice that never clears.
  */
 
+import { adoptPreviousSourceUids } from "./schedule-source";
+
 /** The columns a change check reads, from either side of the comparison. */
 export interface ScheduleOccurrence {
   /** Null marks a hand-added event, which no feed can speak for. */
@@ -22,6 +24,10 @@ export interface ScheduleOccurrence {
   location: string | null;
   isInSchedule: boolean;
   feedStatus?: string | null;
+  /** Feed side only: an all-day event, whose end is the end of its last day. */
+  isAllDay?: boolean;
+  /** Feed side only: see `ParsedEvent.previousSourceUid`. */
+  previousSourceUid?: string | null;
 }
 
 export interface ScheduleChangeSummary {
@@ -33,6 +39,16 @@ export interface ScheduleChangeSummary {
   savedMoved: number;
   /** Of `gone`, the ones the user saved. */
   savedGone: number;
+  /**
+   * All-day events stored with no end by builds that dropped it. The feed did
+   * not move them; their whole day now arrives, which files them as drop-ins.
+   */
+  nowDropIn: number;
+  /**
+   * Of `nowDropIn`, the ones the user saved. A drop-in needs a visit to sit in
+   * the plan, so these leave it until the user picks one.
+   */
+  savedNowDropIn: number;
 }
 
 /**
@@ -58,6 +74,16 @@ export const MASS_REMOVAL_FRACTION = 0.2;
 /** And an absolute ceiling, for a small schedule where a fifth is one event. */
 export const MASS_REMOVAL_SAVED_LIMIT = 10;
 
+/** A stored all-day row with no end, which the feed now gives its whole day. */
+function gainedAllDaySpan(
+  stored: ScheduleOccurrence,
+  feed: ScheduleOccurrence,
+): boolean {
+  return (
+    feed.isAllDay === true && stored.endTime === null && feed.endTime !== null
+  );
+}
+
 function movedFrom(
   stored: ScheduleOccurrence,
   feed: ScheduleOccurrence,
@@ -67,7 +93,7 @@ function movedFrom(
   // counting titles would train the user to ignore the notice.
   return (
     stored.startTime !== feed.startTime ||
-    stored.endTime !== feed.endTime ||
+    (stored.endTime !== feed.endTime && !gainedAllDaySpan(stored, feed)) ||
     stored.room !== feed.room ||
     stored.location !== feed.location
   );
@@ -109,20 +135,32 @@ export function summarizeScheduleChanges(
     if (event.sourceUid !== null) activeByUid.set(event.sourceUid, event);
   }
   const cancelledUids = new Set(feedCancelledUids);
+  const adoptedUids = adoptPreviousSourceUids(
+    new Set(sourced.map((event) => event.sourceUid)),
+    feedActive,
+    new Set([...activeByUid.keys(), ...cancelledUids]),
+  );
 
   let overlap = 0;
   let moved = 0;
   let gone = 0;
   let savedMoved = 0;
   let savedGone = 0;
+  let nowDropIn = 0;
+  let savedNowDropIn = 0;
 
   for (const event of sourced) {
-    const match = activeByUid.get(event.sourceUid);
+    const match = activeByUid.get(
+      adoptedUids.get(event.sourceUid) ?? event.sourceUid,
+    );
     if (match) {
       overlap++;
       if (event.feedStatus != null || movedFrom(event, match)) {
         moved++;
         if (event.isInSchedule) savedMoved++;
+      } else if (gainedAllDaySpan(event, match)) {
+        nowDropIn++;
+        if (event.isInSchedule) savedNowDropIn++;
       }
       continue;
     }
@@ -144,11 +182,20 @@ export function summarizeScheduleChanges(
     return { status: "untrusted", reason: "mass-removal" };
   }
 
-  if (moved === 0 && gone === 0) return { status: "unchanged" };
-  return { status: "changed", summary: { moved, gone, savedMoved, savedGone } };
+  if (moved === 0 && gone === 0 && nowDropIn === 0) {
+    return { status: "unchanged" };
+  }
+  return {
+    status: "changed",
+    summary: { moved, gone, savedMoved, savedGone, nowDropIn, savedNowDropIn },
+  };
 }
 
 /** Whether a summary is worth putting on screen at all. */
 export function hasSavedChanges(summary: ScheduleChangeSummary): boolean {
-  return summary.savedMoved > 0 || summary.savedGone > 0;
+  return (
+    summary.savedMoved > 0 ||
+    summary.savedGone > 0 ||
+    summary.savedNowDropIn > 0
+  );
 }

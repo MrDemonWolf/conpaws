@@ -577,12 +577,13 @@ END:VCALENDAR`;
   });
 
   it("ends a one-day all-day event at local midnight across a DST change", () => {
-    // 1 November 2026 is when New York falls back, so the day is 25 hours.
+    // 1 November 2026 is when New York falls back, so the day is 25 hours:
+    // midnight EDT to midnight EST. Adding 24 hours would stop at 11 PM.
     const ics = `BEGIN:VCALENDAR
 VERSION:2.0
 X-WR-TIMEZONE:America/New_York
 BEGIN:VEVENT
-DTSTART;VALUE=DATE:20261031
+DTSTART;VALUE=DATE:20261101
 SUMMARY:Costume Day
 UID:costume-day
 END:VEVENT
@@ -590,8 +591,8 @@ END:VCALENDAR`;
 
     const [ev] = parseIcs(ics).events;
 
-    expect(ev.startTime.toISOString()).toBe("2026-10-31T04:00:00.000Z");
-    expect(ev.endTime?.toISOString()).toBe("2026-11-01T04:00:00.000Z");
+    expect(ev.startTime.toISOString()).toBe("2026-11-01T04:00:00.000Z");
+    expect(ev.endTime?.toISOString()).toBe("2026-11-02T05:00:00.000Z");
   });
 
   it("counts an all-day DURATION in convention days", () => {
@@ -774,6 +775,55 @@ END:VCALENDAR`;
 
     expect(ev.sourceUid).toBe("event-uid-1");
     expect(ev.description).toBe("Welcome");
+  });
+
+  it("remembers the alarm UID an earlier build filed the event under", () => {
+    // Before alarm lines were skipped, the last UID in the block won, so a
+    // device that imported this feed then holds the event as alarm-uid-1.
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:event-uid-1
+DTSTART:20260612T160000Z
+SUMMARY:Opening Ceremonies
+BEGIN:VALARM
+UID:alarm-uid-1
+X-WR-ALARMUID:alarm-uid-1
+ACTION:DISPLAY
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:series-1
+RECURRENCE-ID:20260613T160000Z
+DTSTART:20260613T170000Z
+SUMMARY:Moved Meetup
+BEGIN:VALARM
+UID:alarm-uid-2
+ACTION:DISPLAY
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:plain-1
+DTSTART:20260614T160000Z
+SUMMARY:No Alarm UID
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(findEvent(result, "event-uid-1").previousSourceUid).toBe(
+      "alarm-uid-1",
+    );
+    expect(
+      findEvent(result, "series-1|20260613T160000Z").previousSourceUid,
+    ).toBe("alarm-uid-2|20260613T160000Z");
+    expect(findEvent(result, "plain-1").previousSourceUid).toBeNull();
   });
 
   it("keeps the event's title and description over an email alarm's", () => {

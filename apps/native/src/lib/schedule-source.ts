@@ -40,6 +40,7 @@ export function toSourceEvents(
     reminderMinutes: null,
     sourceUid: event.sourceUid,
     legacySourceUid: event.legacySourceUid,
+    previousSourceUid: event.previousSourceUid,
     sourceUrl: event.sourceUrl,
     isAgeRestricted: event.isAgeRestricted,
     ageRating: event.ageRating,
@@ -68,6 +69,7 @@ export function toSourceSnapshot(
     activeOccurrences: parsed.events.map((event) => ({
       sourceUid: event.sourceUid,
       legacySourceUid: event.legacySourceUid,
+      previousSourceUid: event.previousSourceUid,
       startTime: event.startTime.toISOString(),
       recurrenceTime: event.recurrenceTime?.toISOString() ?? null,
       title: event.title,
@@ -82,4 +84,53 @@ export function toSourceSnapshot(
       sourceUrl: event.sourceUrl,
     })),
   };
+}
+
+/**
+ * Stored identities an earlier build gave a feed event, mapped to the one the
+ * feed gives it now. The change check and the import planner both read
+ * stored rows through this, so they agree on which row is which event.
+ *
+ * Without it, rows saved under an Apple alarm's UID (see
+ * `ParsedEvent.previousSourceUid`) matched nothing: the check called the feed
+ * untrusted on every pass, and an import marked each saved row removed and
+ * added an unsaved copy beside it.
+ *
+ * Adopted only when unambiguous: exactly one feed event claims the old
+ * identity, a stored row holds it, no stored row holds the event's current
+ * identity yet, and the feed does not publish the old one as its own.
+ */
+export function adoptPreviousSourceUids(
+  storedSourceUids: ReadonlySet<string>,
+  feed: Iterable<{
+    sourceUid: string | null;
+    previousSourceUid?: string | null;
+  }>,
+  publishedSourceUids: ReadonlySet<string>,
+): Map<string, string> {
+  // Old identity to the event claiming it, or null once two events claim it.
+  const claims = new Map<string, string | null>();
+  for (const { sourceUid, previousSourceUid: previous } of feed) {
+    if (
+      !sourceUid ||
+      !previous ||
+      previous === sourceUid ||
+      !storedSourceUids.has(previous) ||
+      storedSourceUids.has(sourceUid) ||
+      publishedSourceUids.has(previous)
+    ) {
+      continue;
+    }
+    const claimed = claims.get(previous);
+    claims.set(
+      previous,
+      claimed === undefined || claimed === sourceUid ? sourceUid : null,
+    );
+  }
+
+  const adopted = new Map<string, string>();
+  for (const [previous, current] of claims) {
+    if (current !== null) adopted.set(previous, current);
+  }
+  return adopted;
 }

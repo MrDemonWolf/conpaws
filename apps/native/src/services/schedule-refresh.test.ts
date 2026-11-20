@@ -289,7 +289,14 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(result).toEqual({
       status: "applied",
       checkedAt: NOW,
-      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
     expect(runScheduleImport).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -342,7 +349,14 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(result).toEqual({
       status: "applied",
       checkedAt: NOW,
-      summary: { moved: 0, gone: 0, savedMoved: 0, savedGone: 0 },
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
     expect(runScheduleImport).toHaveBeenCalledTimes(1);
     expect(runScheduleImport).toHaveBeenCalledWith(
@@ -376,10 +390,115 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(result).toEqual({
       status: "applied",
       checkedAt: NOW,
-      summary: { moved: 0, gone: 0, savedMoved: 0, savedGone: 0 },
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
     expect(runScheduleImport).toHaveBeenCalledTimes(1);
     expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
+  it("keeps applying a feed whose rows an earlier build filed under alarm UIDs", async () => {
+    // Apple exports give each VALARM its own UID, which earlier builds stored
+    // in place of the event's. Without the previous identity nothing overlaps
+    // and every later check comes back untrusted, so the feed stops updating.
+    getByConventionId.mockResolvedValue([
+      storedRow({ sourceUid: "alarm-uid-1" }),
+    ]);
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [
+          {
+            ...parsedFeed().events[0],
+            sourceUid: "event-uid-1",
+            previousSourceUid: "alarm-uid-1",
+          },
+        ],
+      }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    // Nothing moved, so nothing to report, but the write runs and re-files
+    // the saved row under the event's own UID.
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+    expect(runScheduleImport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sourceSnapshot: expect.objectContaining({
+          activeOccurrences: [
+            expect.objectContaining({
+              sourceUid: "event-uid-1",
+              previousSourceUid: "alarm-uid-1",
+            }),
+          ],
+        }),
+      }),
+    );
+  });
+
+  it("tells the user a saved all-day event is now a drop-in, not that it moved", async () => {
+    // Earlier builds stored all-day events with no end. The unchanged feed now
+    // reads as the whole day, which is a drop-in that needs a visit to stay in
+    // the plan, so that is what the notice says.
+    const allDay = {
+      sourceUid: "costume-day",
+      startTime: "2026-09-05T05:00:00.000Z",
+      room: "Room A",
+      location: "Main Hall",
+    };
+    getByConventionId.mockResolvedValue([
+      storedRow({ ...allDay, endTime: null }),
+    ]);
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [
+          {
+            ...parsedFeed().events[0],
+            ...allDay,
+            startTime: new Date(allDay.startTime),
+            endTime: new Date("2026-09-06T05:00:00.000Z"),
+            isAllDay: true,
+          },
+        ],
+      }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 1,
+        savedNowDropIn: 1,
+      },
+    });
+    // The end time is still written, so the row files like a fresh import.
+    expect(runScheduleImport).toHaveBeenCalledTimes(1);
   });
 
   it("does not pour a feed into a convention that holds none of its rows", async () => {
@@ -414,7 +533,14 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(result).toEqual({
       status: "applied",
       checkedAt: NOW,
-      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
     expect(runScheduleImport).toHaveBeenCalledTimes(1);
     expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);

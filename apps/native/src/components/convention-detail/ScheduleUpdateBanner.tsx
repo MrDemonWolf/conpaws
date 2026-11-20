@@ -25,12 +25,13 @@ export function ScheduleUpdateBanner({
   onDismiss,
 }: ScheduleUpdateBannerProps) {
   const { t } = useTranslation();
-  const { savedMoved, savedGone } = summary;
-  if (savedMoved === 0 && savedGone === 0) return null;
+  const { savedMoved, savedGone, savedNowDropIn } = summary;
+  if (savedMoved === 0 && savedGone === 0 && savedNowDropIn === 0) return null;
 
   // Gone outranks moved: a panel that is not happening changes the day more
   // than one that shifted rooms, and leading with it puts the sharper fact
-  // first for someone scanning while walking.
+  // first for someone scanning while walking. An all-day event that is now a
+  // drop-in did not change at all, so it comes last.
   const title =
     savedGone > 0
       ? t(
@@ -39,18 +40,25 @@ export function ScheduleUpdateBanner({
             : "convention.scheduleUpdate.goneMany",
           { count: savedGone },
         )
-      : t(
-          savedMoved === 1
-            ? "convention.scheduleUpdate.movedOne"
-            : "convention.scheduleUpdate.movedMany",
-          { count: savedMoved },
-        );
+      : savedMoved > 0
+        ? t(
+            savedMoved === 1
+              ? "convention.scheduleUpdate.movedOne"
+              : "convention.scheduleUpdate.movedMany",
+            { count: savedMoved },
+          )
+        : t(
+            savedNowDropIn === 1
+              ? "convention.scheduleUpdate.dropInOne"
+              : "convention.scheduleUpdate.dropInMany",
+            { count: savedNowDropIn },
+          );
 
   // One/Many rather than an i18next plural, matching movedOne/goneOne above.
   // This read `alsoMoved`, which is not a key in any catalog -- so whenever a
   // refresh both moved and dropped saved panels, the banner body rendered the
   // literal string "convention.scheduleUpdate.alsoMoved".
-  const body =
+  const changeBody =
     savedGone > 0 && savedMoved > 0
       ? t(
           savedMoved === 1
@@ -58,7 +66,17 @@ export function ScheduleUpdateBanner({
             : "convention.scheduleUpdate.alsoMovedMany",
           { count: savedMoved },
         )
-      : t("convention.scheduleUpdate.body");
+      : savedGone > 0 || savedMoved > 0
+        ? t("convention.scheduleUpdate.body")
+        : null;
+  // A saved all-day event left the plan until a visit is picked, which is
+  // the one thing here the reader has to act on, so it is always said.
+  const body = [
+    changeBody,
+    savedNowDropIn > 0 ? t("convention.scheduleUpdate.dropInBody") : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <Banner
