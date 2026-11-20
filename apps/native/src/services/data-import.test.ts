@@ -425,20 +425,26 @@ describe("restoring a catalog convention the device already has", () => {
       NOW,
       {
         conventionIdBySlug: new Map([["testcon-2026", "B"]]),
+        catalogRevisionBySlug: new Map([["testcon-2026", 3]]),
         eventsOf: (conventionId) =>
           conventionId === "B" ? [existingEvent()] : [],
       },
     );
 
     expect(plan.conventions).toEqual([]);
-    // The saved panel the device copy already lists takes the star; the one it
-    // does not list comes back under the device copy, never under "A".
+    // The saved panel the device copy already lists takes the star. The one
+    // it does not list was dropped from the catalog, so it comes back under
+    // the device copy (never under "A") marked removed, keeping its star.
     expect(plan.eventUpdates).toEqual([
       { id: "b-opening", isInSchedule: true },
     ]);
-    expect(plan.events.map((event) => [event.id, event.conventionId])).toEqual([
-      ["a-dropped", "B"],
-    ]);
+    expect(
+      plan.events.map((event) => [
+        event.id,
+        event.conventionId,
+        event.feedStatus,
+      ]),
+    ).toEqual([["a-dropped", "B", "removed"]]);
     expect(plan.result).toMatchObject({
       conventionsAdded: 0,
       eventsAdded: 1,
@@ -508,6 +514,146 @@ describe("restoring a catalog convention the device already has", () => {
       { id: "b-2", isInSchedule: true, ...visit },
     ]);
     expect(plan.result.reasons.duplicate).toBe(4);
+  });
+
+  it.each([
+    ["a newer", 4],
+    ["the same", 3],
+    ["an unknown", null],
+  ])(
+    "does not bring back live a panel the device copy at %s catalog revision dropped",
+    (_label, deviceRevision) => {
+      const plan = planDataImport(
+        envelope(
+          [catalogConvention("A")],
+          [
+            eventRow({
+              id: "a-dropped-unsaved",
+              conventionId: "A",
+              sourceUid: "dropped-unsaved",
+              isInSchedule: false,
+            }),
+            eventRow({
+              id: "a-dropped-saved",
+              conventionId: "A",
+              sourceUid: "dropped-saved",
+              isInSchedule: true,
+            }),
+            // Not from the catalog, so no revision can have dropped it.
+            eventRow({
+              id: "a-own",
+              conventionId: "A",
+              sourceUid: null,
+              isInSchedule: true,
+            }),
+          ],
+        ),
+        new Set(["B"]),
+        new Set(),
+        NOW,
+        {
+          conventionIdBySlug: new Map([["testcon-2026", "B"]]),
+          catalogRevisionBySlug: new Map([["testcon-2026", deviceRevision]]),
+          eventsOf: () => [existingEvent()],
+        },
+      );
+
+      // The unsaved panel is left out. The saved one keeps its star as the
+      // tombstone a catalog refresh leaves, so it never shows as live, arms
+      // no reminder and does not count as a removal at the next revision.
+      expect(
+        plan.events.map((event) => [
+          event.id,
+          event.conventionId,
+          event.feedStatus,
+          event.isInSchedule,
+          event.reminderMinutes,
+        ]),
+      ).toEqual([
+        ["a-dropped-saved", "B", "removed", true, null],
+        ["a-own", "B", null, true, null],
+      ]);
+      expect(plan.result).toMatchObject({
+        eventsAdded: 2,
+        skipped: 2,
+        reasons: { duplicate: 2 },
+      });
+    },
+  );
+
+  it("brings back live a panel from a backup newer than the device copy", () => {
+    const plan = planDataImport(
+      envelope(
+        [
+          conventionRow({
+            id: "A",
+            icalUrl: null,
+            catalogSlug: "testcon-2026",
+            catalogRevision: 5,
+          }),
+        ],
+        [
+          eventRow({
+            id: "a-added",
+            conventionId: "A",
+            sourceUid: "added-panel",
+            isInSchedule: false,
+          }),
+        ],
+      ),
+      new Set(["B"]),
+      new Set(),
+      NOW,
+      {
+        conventionIdBySlug: new Map([["testcon-2026", "B"]]),
+        catalogRevisionBySlug: new Map([["testcon-2026", 4]]),
+        eventsOf: () => [existingEvent()],
+      },
+    );
+
+    // Revision 5 added it after the device copy's revision 4. The device copy
+    // keeps revision 4, so the next refresh reconciles it with the catalog.
+    expect(
+      plan.events.map((event) => [
+        event.id,
+        event.conventionId,
+        event.feedStatus,
+      ]),
+    ).toEqual([["a-added", "B", null]]);
+  });
+
+  it("leaves out a panel an older copy in the same backup lists and the newer one dropped", () => {
+    const plan = planDataImport(
+      envelope(
+        [
+          conventionRow({
+            id: "A1",
+            icalUrl: null,
+            catalogSlug: "testcon-2026",
+            catalogRevision: 4,
+          }),
+          catalogConvention("A2"),
+        ],
+        [
+          eventRow({
+            id: "a1-opening",
+            conventionId: "A1",
+            sourceUid: "opening-event",
+          }),
+          eventRow({
+            id: "a2-dropped",
+            conventionId: "A2",
+            sourceUid: "dropped-panel",
+            isInSchedule: false,
+          }),
+        ],
+      ),
+      new Set(),
+      new Set(),
+      NOW,
+    );
+
+    expect(plan.events.map((event) => event.id)).toEqual(["a1-opening"]);
   });
 
   it("collapses two copies of one catalog convention inside the same backup", () => {
@@ -669,99 +815,128 @@ describe("insert batching", () => {
     );
   });
 
-  it("restores into the earliest copy of a catalog convention already on the device", async () => {
-    const existingRows: unknown[][] = [
-      [
-        {
-          id: "B",
-          catalogSlug: "testcon-2026",
-          createdAt: "2026-03-01T00:00:00.000Z",
-        },
-        {
-          id: "C",
-          catalogSlug: "testcon-2026",
-          createdAt: "2026-02-01T00:00:00.000Z",
-        },
-      ],
-      [{ id: "c-opening" }],
-    ];
-    const deviceEvents = [
-      {
-        id: "c-opening",
-        conventionId: "C",
-        sourceUid: "opening-event",
-        isInSchedule: false,
-        visitStartTime: null,
-        visitEndTime: null,
-      },
-    ];
-    const conventionInserts: unknown[] = [];
-    const eventInserts: { id: string; conventionId: string }[] = [];
-    const updates: Record<string, unknown>[] = [];
-    const tx = {
-      select: () => ({
-        from: () => ({
-          limit: () => ({ all: () => existingRows.shift() }),
-          where: () => ({ all: () => deviceEvents }),
-        }),
-      }),
-      insert: (table: unknown) => ({
-        values: (rows: never[]) => ({
-          run: () =>
-            (table === conventions ? conventionInserts : eventInserts).push(
-              ...rows,
-            ),
-        }),
-      }),
-      update: () => ({
-        set: (patch: Record<string, unknown>) => ({
-          where: () => ({ run: () => updates.push(patch) }),
-        }),
-      }),
-    };
-    database.transaction.mockImplementation((callback) => callback(tx));
-    setScheduleAllCategories.mockClear();
-
-    const outcome = await importData(
-      envelope(
+  it.each([
+    {
+      label: "older than the backup's",
+      earliest: 2,
+      later: 4,
+      feedStatus: null,
+    },
+    {
+      label: "newer than the backup's",
+      earliest: 4,
+      later: 2,
+      feedStatus: "removed",
+    },
+  ])(
+    "restores into the earliest copy of a catalog convention already on the device, judged by that copy's revision ($label)",
+    async ({ earliest, later, feedStatus }) => {
+      const existingRows: unknown[][] = [
         [
-          conventionRow({
-            id: "A",
-            icalUrl: null,
+          {
+            id: "B",
             catalogSlug: "testcon-2026",
-            catalogRevision: 3,
-          }),
+            catalogRevision: later,
+            createdAt: "2026-03-01T00:00:00.000Z",
+          },
+          {
+            id: "C",
+            catalogSlug: "testcon-2026",
+            catalogRevision: earliest,
+            createdAt: "2026-02-01T00:00:00.000Z",
+          },
         ],
-        [
-          eventRow({
-            id: "a-opening",
-            conventionId: "A",
-            sourceUid: "opening-event",
-            isInSchedule: true,
+        [{ id: "c-opening" }],
+      ];
+      const deviceEvents = [
+        {
+          id: "c-opening",
+          conventionId: "C",
+          sourceUid: "opening-event",
+          isInSchedule: false,
+          visitStartTime: null,
+          visitEndTime: null,
+        },
+      ];
+      const conventionInserts: unknown[] = [];
+      const eventInserts: {
+        id: string;
+        conventionId: string;
+        feedStatus: string | null;
+      }[] = [];
+      const updates: Record<string, unknown>[] = [];
+      const tx = {
+        select: () => ({
+          from: () => ({
+            limit: () => ({ all: () => existingRows.shift() }),
+            where: () => ({ all: () => deviceEvents }),
           }),
-          eventRow({
-            id: "a-dropped",
-            conventionId: "A",
-            sourceUid: "dropped-panel",
+        }),
+        insert: (table: unknown) => ({
+          values: (rows: never[]) => ({
+            run: () =>
+              (table === conventions ? conventionInserts : eventInserts).push(
+                ...rows,
+              ),
           }),
-        ],
-      ),
-    );
+        }),
+        update: () => ({
+          set: (patch: Record<string, unknown>) => ({
+            where: () => ({ run: () => updates.push(patch) }),
+          }),
+        }),
+      };
+      database.transaction.mockImplementation((callback) => callback(tx));
+      setScheduleAllCategories.mockClear();
 
-    expect(outcome).toMatchObject({
-      ok: true,
-      conventionsAdded: 0,
-      eventsAdded: 1,
-    });
-    expect(conventionInserts).toEqual([]);
-    expect(eventInserts.map((event) => [event.id, event.conventionId])).toEqual(
-      [["a-dropped", "C"]],
-    );
-    expect(updates).toEqual([
-      { isInSchedule: true, updatedAt: expect.any(String) },
-    ]);
-    expect(setScheduleAllCategories).toHaveBeenCalledWith("C", true);
-  });
+      const outcome = await importData(
+        envelope(
+          [
+            conventionRow({
+              id: "A",
+              icalUrl: null,
+              catalogSlug: "testcon-2026",
+              catalogRevision: 3,
+            }),
+          ],
+          [
+            eventRow({
+              id: "a-opening",
+              conventionId: "A",
+              sourceUid: "opening-event",
+              isInSchedule: true,
+            }),
+            eventRow({
+              id: "a-dropped",
+              conventionId: "A",
+              sourceUid: "dropped-panel",
+              isInSchedule: true,
+            }),
+          ],
+        ),
+      );
+
+      expect(outcome).toMatchObject({
+        ok: true,
+        conventionsAdded: 0,
+        eventsAdded: 1,
+      });
+      expect(conventionInserts).toEqual([]);
+      // The saved panel C does not list is live only when the backup's revision
+      // could have added it after C's. Otherwise C's revision dropped it.
+      expect(
+        eventInserts.map((event) => [
+          event.id,
+          event.conventionId,
+          event.feedStatus,
+        ]),
+      ).toEqual([["a-dropped", "C", feedStatus]]);
+      expect(updates).toEqual([
+        { isInSchedule: true, updatedAt: expect.any(String) },
+      ]);
+      expect(setScheduleAllCategories).toHaveBeenCalledWith("C", true);
+    },
+  );
 });
 
 describe("convention row validation", () => {

@@ -429,6 +429,11 @@ export interface ExistingEventSchedule {
 export interface ExistingCatalogCopies {
   /** The device's convention for each catalog slug. */
   conventionIdBySlug: ReadonlyMap<string, string>;
+  /**
+   * The catalog revision that convention holds. A slug missing here counts
+   * as an unknown revision; see `isLaterRevision`.
+   */
+  catalogRevisionBySlug?: ReadonlyMap<string, number | null>;
   /** That convention's events, read only when a backup row merges into it. */
   eventsOf?: (conventionId: string) => readonly ExistingEventSchedule[];
 }
@@ -475,6 +480,21 @@ function savedStateToCarry(
   return patch;
 }
 
+/**
+ * Whether a backup copy of a catalog convention holds a later revision than
+ * the copy it merges into. Only then can a panel the owner lacks be one the
+ * catalog added since. A catalog download takes every session, so at the same
+ * or an earlier revision the owner's catalog had dropped it. An unknown
+ * revision proves nothing; the next catalog refresh re-adds any panel the
+ * catalog still lists.
+ */
+function isLaterRevision(
+  copy: number | null,
+  owner: number | null | undefined,
+): boolean {
+  return copy !== null && owner != null && copy > owner;
+}
+
 export function planDataImport(
   envelope: BackupEnvelope,
   existingConventionIds: ReadonlySet<string>,
@@ -490,8 +510,10 @@ export function planDataImport(
   // Where every copy of a catalog slug lands: the device's convention, else
   // the first one in this file.
   const catalogOwners = new Map(existingCatalog.conventionIdBySlug);
-  // A backup convention that is another copy of one of those, and its owner.
-  const mergedInto = new Map<string, string>();
+  const ownerRevisions = new Map(existingCatalog.catalogRevisionBySlug);
+  // A backup convention that is another copy of one of those, its owner, and
+  // whether the copy holds a later catalog revision than the owner.
+  const mergedInto = new Map<string, { owner: string; later: boolean }>();
   const catalogConventionIds = new Set<string>();
 
   for (const candidate of envelope.conventions) {
@@ -511,15 +533,22 @@ export function planDataImport(
       catalogConventionIds.add(owner ?? row.id);
       if (owner !== undefined) {
         reasons.duplicate++;
-        mergedInto.set(row.id, owner);
+        mergedInto.set(row.id, {
+          owner,
+          later: isLaterRevision(
+            row.catalogRevision,
+            ownerRevisions.get(row.catalogSlug),
+          ),
+        });
         continue;
       }
       catalogOwners.set(row.catalogSlug, row.id);
+      ownerRevisions.set(row.catalogSlug, row.catalogRevision);
     }
     conventionsToInsert.push(row);
   }
 
-  const mergedEvents: ConventionEvent[] = [];
+  const mergedEvents: { row: ConventionEvent; fromLaterCopy: boolean }[] = [];
   for (const candidate of envelope.events) {
     const validated = validateEventRow(candidate, now);
     if ("reason" in validated) {
@@ -536,16 +565,20 @@ export function planDataImport(
       continue;
     }
     knownEventIds.add(row.id);
-    const owner = mergedInto.get(row.conventionId);
-    if (owner === undefined) eventsToInsert.push(row);
-    else mergedEvents.push({ ...row, conventionId: owner });
+    const merge = mergedInto.get(row.conventionId);
+    if (merge === undefined) eventsToInsert.push(row);
+    else
+      mergedEvents.push({
+        row: { ...row, conventionId: merge.owner },
+        fromLaterCopy: merge.later,
+      });
   }
 
   // Merged once every other row is planned, so a copy's events find the
   // owner's in whatever order the file lists them. A match keeps the owner's
   // row and only gains the backup's star or visit.
   type MergeTarget = { state: SavedState; deviceId?: string };
-  const owners = new Set(mergedInto.values());
+  const owners = new Set([...mergedInto.values()].map(({ owner }) => owner));
   const targetsByOwner = new Map<string, Map<string, MergeTarget>>();
   for (const owner of owners) {
     const targets = new Map<string, MergeTarget>();
@@ -565,12 +598,25 @@ export function planDataImport(
   }
 
   const eventUpdates = new Map<string, EventScheduleUpdate>();
-  for (const row of mergedEvents) {
+  for (const { row, fromLaterCopy } of mergedEvents) {
     const targets = targetsByOwner.get(row.conventionId);
     const target = row.sourceUid ? targets?.get(row.sourceUid) : undefined;
     if (!target) {
-      eventsToInsert.push(row);
-      if (targets && row.sourceUid) targets.set(row.sourceUid, { state: row });
+      // A catalog panel the owner's revision dropped. Restored live, it would
+      // stay until the catalog's next revision, which would then count it as
+      // a removal. A saved one comes back as the tombstone a catalog refresh
+      // leaves; an unsaved one is left out, as the refresh leaves it out.
+      const dropped = Boolean(row.sourceUid) && !fromLaterCopy;
+      if (dropped && !row.isInSchedule) {
+        reasons.duplicate++;
+        continue;
+      }
+      const restored: ConventionEvent = dropped
+        ? { ...row, feedStatus: row.feedStatus ?? "removed" }
+        : row;
+      eventsToInsert.push(restored);
+      if (targets && restored.sourceUid)
+        targets.set(restored.sourceUid, { state: restored });
       continue;
     }
     reasons.duplicate++;
@@ -621,13 +667,20 @@ const EVENT_COLUMNS = 24;
 
 /**
  * Each slug's earliest-created convention, the same row `getByCatalogSlug`
- * returns, so a restore merges into the copy that Find keeps updating.
+ * returns, so a restore merges into the copy that Find keeps updating, and
+ * the catalog revision that copy holds.
  */
 function earliestCopyBySlug(
-  rows: readonly Pick<Convention, "id" | "catalogSlug" | "createdAt">[],
-): Map<string, string> {
-  const earliest = new Map<string, { id: string; createdAt: string }>();
-  for (const { id, catalogSlug, createdAt } of rows) {
+  rows: readonly Pick<
+    Convention,
+    "id" | "catalogSlug" | "catalogRevision" | "createdAt"
+  >[],
+): Omit<ExistingCatalogCopies, "eventsOf"> {
+  const earliest = new Map<
+    string,
+    Pick<Convention, "id" | "catalogRevision" | "createdAt">
+  >();
+  for (const { id, catalogSlug, catalogRevision, createdAt } of rows) {
     if (!catalogSlug) continue;
     const current = earliest.get(catalogSlug);
     if (
@@ -635,10 +688,16 @@ function earliestCopyBySlug(
       createdAt < current.createdAt ||
       (createdAt === current.createdAt && id < current.id)
     ) {
-      earliest.set(catalogSlug, { id, createdAt });
+      earliest.set(catalogSlug, { id, catalogRevision, createdAt });
     }
   }
-  return new Map([...earliest].map(([slug, { id }]) => [slug, id]));
+  const copies = [...earliest];
+  return {
+    conventionIdBySlug: new Map(copies.map(([slug, { id }]) => [slug, id])),
+    catalogRevisionBySlug: new Map(
+      copies.map(([slug, { catalogRevision }]) => [slug, catalogRevision]),
+    ),
+  };
 }
 
 export async function importData(
@@ -652,6 +711,7 @@ export async function importData(
         .select({
           id: conventions.id,
           catalogSlug: conventions.catalogSlug,
+          catalogRevision: conventions.catalogRevision,
           createdAt: conventions.createdAt,
         })
         .from(conventions)
@@ -688,7 +748,7 @@ export async function importData(
         existingEventIds,
         now,
         {
-          conventionIdBySlug: earliestCopyBySlug(existingConventions),
+          ...earliestCopyBySlug(existingConventions),
           eventsOf: (conventionId) =>
             tx
               .select({
