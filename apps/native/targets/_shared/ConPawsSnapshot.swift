@@ -291,6 +291,23 @@ enum ConPawsSnapshotStore {
 
   static let snapshotKey = "conpaws.widget.snapshot.v1"
 
+  /// How far ahead of the watch's own clock a stored snapshot may be stamped
+  /// before it reads as the work of a phone with a bad clock.
+  static let rewindToleranceMs: Double = 3_600 * 1_000
+
+  /// Whether a snapshot stamped `candidateMs` replaces the stored one.
+  ///
+  /// Newer wins, strictly. WatchConnectivity hands over the newest schedule
+  /// as application context and then every queued user info, oldest first,
+  /// so an older stamp is a late delivery and never shows, however much older
+  /// it is; an equal one is the other copy of the stored snapshot. The one
+  /// exception is a stored stamp more than `rewindToleranceMs` ahead of this
+  /// watch's clock, which only a phone with a bad RTC writes: anything
+  /// replaces it, since nothing newer ever would.
+  static func shouldReplace(storedMs: Double, candidateMs: Double, nowMs: Double) -> Bool {
+    candidateMs > storedMs || storedMs > nowMs + rewindToleranceMs
+  }
+
   static func appGroupIdentifier(bundleIdentifier: String? = Bundle.main.bundleIdentifier) -> String {
     let bundle = bundleIdentifier ?? "com.mrdemonwolf.conpaws"
     let mainBundle = bundle

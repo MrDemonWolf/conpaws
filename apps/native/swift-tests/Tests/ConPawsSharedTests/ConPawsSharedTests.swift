@@ -153,6 +153,66 @@ struct ConPawsSharedTests {
     #expect(decoded.filteringInvalidRecords().timeFormat == nil)
   }
 
+  // The watch's clock in ms, as `generatedAtMs` carries the phone's.
+  private static let nowMs: Double = 1_000_000_000_000
+  private static let minuteMs: Double = 60_000
+  private static let hourMs: Double = 3_600_000
+
+  // Stamps in minutes from the watch's now.
+  @Test(arguments: [
+    // Newer wins.
+    (-1, 0, true),
+    // A copy of the stored snapshot (application context and user info both
+    // carry it) is applied once, not twice.
+    (0, 0, false),
+    // A late delivery of an older schedule never replaces a newer one, however
+    // much older it is.
+    (0, -1, false),
+    (0, -120, false),
+    (0, -43_200, false),
+    // A stored stamp ahead of this watch's clock came from a phone with a bad
+    // RTC: anything replaces it, or nothing ever would again.
+    (4_320, 0, true),
+    (120, -1, true),
+    // A phone clock a little fast is not a bad one.
+    (30, 0, false),
+  ] as [(Double, Double, Bool)])
+  func newerSnapshotWins(storedMinutes: Double, candidateMinutes: Double, expected: Bool) {
+    let replaces = ConPawsSnapshotStore.shouldReplace(
+      storedMs: Self.nowMs + storedMinutes * Self.minuteMs,
+      candidateMs: Self.nowMs + candidateMinutes * Self.minuteMs,
+      nowMs: Self.nowMs
+    )
+    #expect(replaces == expected)
+  }
+
+  @Test func anySnapshotReplacesAnEmptyStore() {
+    #expect(
+      ConPawsSnapshotStore.shouldReplace(
+        storedMs: ConPawsSnapshot.empty.generatedAtMs, candidateMs: Self.nowMs, nowMs: Self.nowMs
+      )
+    )
+  }
+
+  // The Watch app, closed for an afternoon, receives the newest schedule as
+  // application context and then every queued user info, oldest first. None
+  // of the older ones may show, even for a moment.
+  @Test func aReplayedBacklogNeverRewindsTheSchedule() {
+    let stamps = stride(from: 0.0, through: 4 * Self.hourMs, by: 20 * 60_000)
+      .map { Self.nowMs - 4 * Self.hourMs + $0 }
+    var storedMs = stamps.last!
+    var applied: [Double] = []
+    for candidateMs in stamps
+    where ConPawsSnapshotStore.shouldReplace(
+      storedMs: storedMs, candidateMs: candidateMs, nowMs: Self.nowMs
+    ) {
+      applied.append(candidateMs)
+      storedMs = candidateMs
+    }
+    #expect(applied.isEmpty)
+    #expect(storedMs == Self.nowMs)
+  }
+
   @Test(arguments: ["12", "24"])
   func snapshotPreservesClockChoice(format: String) throws {
     let json = """
