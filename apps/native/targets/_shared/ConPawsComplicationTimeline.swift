@@ -17,7 +17,10 @@ struct ConPawsComplicationProjection {
   let now: Date
   let resolved: ConPawsScheduleState
   let generatedAtMs: Double
-  let hasConventions: Bool
+  /// Every convention the resolver chose among, not only the one shown.
+  let conventions: [ConPawsConventionSnapshot]
+
+  var hasConventions: Bool { !conventions.isEmpty }
 
   var convention: ConPawsConventionSnapshot? {
     switch resolved {
@@ -98,7 +101,6 @@ struct ConPawsComplicationProjection {
       .next(let current, let upcoming, let convention):
       candidates.append(upcoming.startDate)
       candidates.append(upcoming.startDate.addingTimeInterval(-lift))
-      candidates.append(convention.endDate)
       if let current { candidates.append(ConPawsScheduleResolver.effectiveEnd(of: current)) }
       if let minutes = upcoming.reminderMinutes, minutes > 0 {
         candidates.append(upcoming.startDate.addingTimeInterval(-Double(minutes) * 60))
@@ -116,21 +118,28 @@ struct ConPawsComplicationProjection {
       {
         candidates.append(midnight)
       }
-    case .current(let event, let convention):
+    case .current(let event, _):
       candidates.append(ConPawsScheduleResolver.effectiveEnd(of: event))
-      candidates.append(convention.endDate)
-    case .finished(let convention), .noPicks(let convention):
-      candidates.append(convention.endDate)
-    case .noConvention:
+    case .finished, .noPicks, .noConvention:
       break
     }
-    return candidates.filter { $0 > now.addingTimeInterval(1) }.min()
+    // Which convention the card follows can change wherever any of them
+    // starts or stops counting as active, not only the one shown: one with
+    // saved panels takes over from one without when it starts, and the next
+    // one takes over just after the shown one ends.
+    for convention in conventions {
+      candidates.append(convention.startDate)
+      candidates.append(convention.pastActiveDate)
+    }
+    // Strictly after `now`: the moment past an end is a millisecond away when
+    // the walk stands on the end itself.
+    return candidates.filter { $0 > now }.min()
   }
 
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
     generatedAtMs = snapshot.generatedAtMs
-    hasConventions = !snapshot.conventions.isEmpty
+    conventions = snapshot.conventions
     resolved = ConPawsScheduleResolver.resolve(
       snapshot: snapshot,
       selectedConventionID: nil,
@@ -232,7 +241,12 @@ enum ConPawsComplicationTimeline {
 
 private extension ConPawsConventionSnapshot {
   var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
+  /// The first moment the resolver no longer counts this convention as active
+  /// or upcoming, a millisecond past the last one: an entry at the end itself
+  /// still draws this convention.
+  var pastActiveDate: Date {
+    Date(timeIntervalSince1970: (ConPawsScheduleResolver.lastActiveMs(of: self) + 1) / 1_000)
+  }
   var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
 }
 

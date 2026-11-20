@@ -82,10 +82,60 @@ struct ComplicationTimelineTests {
     #expect(plan.allSatisfy { $0.relevantUntil == nil })
   }
 
+  // MARK: Several conventions
+
+  /// The resolver keeps a convention through its end, inclusive, so the next
+  /// one takes over a moment after it. An entry at the end itself still drew
+  /// the ended convention, and nothing redrew the card for six hours. The
+  /// first convention's last hour-long panel starts this many minutes after
+  /// its end (nil: no panels): long before, running until the end, so the
+  /// plan stands on the end itself, or starting after it, which keeps the
+  /// convention until that start.
+  @Test(arguments: [nil, -180, -60, 30] as [Int?])
+  func theNextConventionTakesOverTheMomentTheFirstOneEnds(panelAfterEnd: Int?) throws {
+    let end = local(23, 18)
+    let panels = panelAfterEnd.map { minutes in
+      let start = end.addingTimeInterval(TimeInterval(minutes * 60))
+      return [event("closing", from: start, until: start.addingTimeInterval(3_600))]
+    }
+    let first = convention("first", from: local(20, 8), until: end, events: panels ?? [])
+    let later = convention("later", from: local(27, 8), until: local(29, 18))
+    let value = snapshot(conventions: [first, later], generatedAt: local(23, 16, 59))
+    let now = local(23, 17)
+    let takeover = end.addingTimeInterval(TimeInterval(max(panelAfterEnd ?? 0, 0) * 60 + 60))
+    #expect(frame(value, at: takeover).hasPrefix("coming later"))
+    let shown = try #require(plannedDates(value, now: now).last { $0 <= takeover })
+    #expect(frame(value, at: shown) == frame(value, at: takeover))
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// A convention with saved panels outranks one without as soon as it
+  /// starts, so its start is a change even while the other one is shown.
+  @Test func aConventionWithPicksTakesOverFromOneWithoutAtItsStart() throws {
+    let empty = convention("empty", from: local(20, 8), until: local(25, 18))
+    let picked = convention(
+      "picked",
+      from: local(22, 9),
+      until: local(24, 18),
+      events: [event("panel", from: local(22, 14), until: local(22, 15))]
+    )
+    let value = snapshot(conventions: [empty, picked], generatedAt: local(22, 8))
+    let now = local(22, 8)
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: now)
+    let dates = plan.map(\.date)
+    for moment in [local(22, 9), local(22, 13, 45), local(22, 14, 10)] {
+      #expect(frame(value, at: moment).contains("picked"))
+      let shown = try #require(dates.last { $0 <= moment })
+      #expect(frame(value, at: shown) == frame(value, at: moment), "stale card at \(moment)")
+    }
+    // The later convention's panel lifts the card in the Smart Stack too.
+    let halfHourBefore = try #require(plan.first { $0.date == local(22, 13, 30) })
+    #expect(halfHourBefore.relevantUntil == local(22, 14, 30))
+    expectNoStaleCard(value, now: now)
+  }
+
   // MARK: Completeness
 
-  /// Every minute between two entries reads exactly like the earlier entry:
-  /// what the card would show had it been redrawn then.
   @Test(arguments: [0, 13 * 60 + 45, 22 * 60 + 40])
   func noEntryLeavesAStaleCardOnScreen(minutesIntoDay: Int) {
     let events = [
@@ -98,28 +148,37 @@ struct ComplicationTimelineTests {
       event("opening", from: local(22, 10), until: local(22, 11)),
     ]
     let now = local(21, 0).addingTimeInterval(TimeInterval(minutesIntoDay * 60))
-    let value = snapshot(events, generatedAt: now)
-    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: now)
-    let dates = plan.map(\.date)
-    #expect(dates == dates.sorted())
-    #expect(Set(dates).count == dates.count)
-    guard let last = dates.last else { return }
-
-    var moment = now
-    while moment < last {
-      let shown = dates.last { $0 <= moment } ?? now
-      #expect(
-        frame(value, at: moment) == frame(value, at: shown),
-        "stale card at \(moment) from the \(shown) entry"
-      )
-      moment.addTimeInterval(60)
-    }
+    expectNoStaleCard(snapshot(events, generatedAt: now), now: now)
   }
 
   // MARK: Fixtures
 
   private func plannedDates(_ snapshot: ConPawsSnapshot, now: Date) -> [Date] {
     ConPawsComplicationTimeline.plan(snapshot: snapshot, now: now).map(\.date)
+  }
+
+  /// Every minute between two entries reads exactly like the earlier entry:
+  /// what the card would show had it been redrawn then.
+  private func expectNoStaleCard(
+    _ snapshot: ConPawsSnapshot,
+    now: Date,
+    sourceLocation: SourceLocation = #_sourceLocation
+  ) {
+    let dates = plannedDates(snapshot, now: now)
+    #expect(dates == dates.sorted(), sourceLocation: sourceLocation)
+    #expect(Set(dates).count == dates.count, sourceLocation: sourceLocation)
+    guard let last = dates.last else { return }
+
+    var moment = now
+    while moment < last {
+      let shown = dates.last { $0 <= moment } ?? now
+      #expect(
+        frame(snapshot, at: moment) == frame(snapshot, at: shown),
+        "stale card at \(moment) from the \(shown) entry",
+        sourceLocation: sourceLocation
+      )
+      moment.addTimeInterval(60)
+    }
   }
 
   /// Nov 2026 in Chicago, the convention's own clock.
@@ -149,22 +208,22 @@ struct ComplicationTimelineTests {
     let shown: String = switch projection.state {
     case .comingUp(let convention):
       "coming \(convention.id)"
-    case .leave(let current, let next, _):
-      "leave \(current?.id ?? "-") \(next.id) +\(day(next)) "
+    case .leave(let current, let next, let convention):
+      "leave \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next)) "
         + ConPawsCountdown.leaveLead(
           from: date,
           to: Date(timeIntervalSince1970: next.startAtMs / 1_000),
           timeZone: zone,
           strings: strings
         )
-    case .next(let current, let next, _):
-      "next \(current?.id ?? "-") \(next.id) +\(day(next))"
-    case .current(let event, _):
-      "current \(event.id)"
-    case .finished:
-      "finished"
-    case .noPicks:
-      "no picks"
+    case .next(let current, let next, let convention):
+      "next \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next))"
+    case .current(let event, let convention):
+      "current \(convention.id) \(event.id)"
+    case .finished(let convention):
+      "finished \(convention.id)"
+    case .noPicks(let convention):
+      "no picks \(convention.id)"
     case .noConvention:
       "no convention"
     }
@@ -172,22 +231,39 @@ struct ComplicationTimelineTests {
   }
 
   private func snapshot(_ events: [ConPawsEventSnapshot], generatedAt: Date) -> ConPawsSnapshot {
+    snapshot(
+      conventions: [convention("con", from: local(20, 8), until: local(23, 18), events: events)],
+      generatedAt: generatedAt
+    )
+  }
+
+  private func snapshot(
+    conventions: [ConPawsConventionSnapshot],
+    generatedAt: Date
+  ) -> ConPawsSnapshot {
     ConPawsSnapshot(
       schemaVersion: 2,
       generatedAtMs: generatedAt.timeIntervalSince1970 * 1_000,
       localeIdentifier: "en",
-      conventions: [
-        ConPawsConventionSnapshot(
-          id: "con",
-          name: "Convention",
-          startAtMs: local(20, 8).timeIntervalSince1970 * 1_000,
-          endAtMs: local(23, 18).timeIntervalSince1970 * 1_000,
-          timeZoneIdentifier: zone.identifier,
-          dateRangeLabel: "",
-          events: events,
-          options: nil
-        ),
-      ]
+      conventions: conventions
+    )
+  }
+
+  private func convention(
+    _ id: String,
+    from start: Date,
+    until end: Date,
+    events: [ConPawsEventSnapshot] = []
+  ) -> ConPawsConventionSnapshot {
+    ConPawsConventionSnapshot(
+      id: id,
+      name: id,
+      startAtMs: start.timeIntervalSince1970 * 1_000,
+      endAtMs: end.timeIntervalSince1970 * 1_000,
+      timeZoneIdentifier: zone.identifier,
+      dateRangeLabel: "",
+      events: events,
+      options: nil
     )
   }
 
