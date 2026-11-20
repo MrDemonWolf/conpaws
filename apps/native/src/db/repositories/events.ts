@@ -1,4 +1,5 @@
-import { eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull } from "drizzle-orm";
+import { adoptPreviousSourceUids } from "@/lib/schedule-source";
 import { db } from "../index";
 import {
   type ConventionEvent,
@@ -80,11 +81,15 @@ export type SourceEventInput = Omit<
   "id" | "createdAt" | "updatedAt"
 > & {
   legacySourceUid?: string | null;
+  /** See `ParsedEvent.previousSourceUid`. Matching only, never stored. */
+  previousSourceUid?: string | null;
 };
 
 export interface SourceOccurrenceIdentity {
   sourceUid: string;
   legacySourceUid: string | null;
+  /** See `ParsedEvent.previousSourceUid`. */
+  previousSourceUid?: string | null;
   startTime: string | null;
   recurrenceTime: string | null;
   title: string | null;
@@ -231,6 +236,21 @@ export function planSourceReconciliation(
         event.sourceUid !== null,
     )
     .sort(byStartTimeThenId);
+  // A row an earlier build stored under another identity is planned as the
+  // event it stands for. Its stored `sourceUid` is left as it is, so a match
+  // still writes the current identity over it.
+  const adoptedUids = adoptPreviousSourceUids(
+    new Set(sourceRows.map((event) => event.sourceUid)),
+    Array.from(activeByUid.values(), (identity) => ({
+      sourceUid: identity.sourceUid,
+      previousSourceUid:
+        identity.previousSourceUid ??
+        selectedByUid.get(identity.sourceUid)?.previousSourceUid,
+    })),
+    new Set([...activeByUid.keys(), ...cancelledByUid.keys()]),
+  );
+  const plannedUid = (event: (typeof sourceRows)[number]): string =>
+    adoptedUids.get(event.sourceUid) ?? event.sourceUid;
   const sourceRowsByUid = new Map<string, typeof sourceRows>();
   const sourceRowsBySeries = new Map<string, typeof sourceRows>();
   function addIndexedRow(
@@ -243,15 +263,12 @@ export function planSourceReconciliation(
     else index.set(key, [event]);
   }
   for (const event of sourceRows) {
-    addIndexedRow(sourceRowsByUid, event.sourceUid, event);
-    addIndexedRow(sourceRowsBySeries, event.sourceUid, event);
-    for (let separator = event.sourceUid.indexOf("|"); separator >= 0; ) {
-      addIndexedRow(
-        sourceRowsBySeries,
-        event.sourceUid.slice(0, separator),
-        event,
-      );
-      separator = event.sourceUid.indexOf("|", separator + 1);
+    const uid = plannedUid(event);
+    addIndexedRow(sourceRowsByUid, uid, event);
+    addIndexedRow(sourceRowsBySeries, uid, event);
+    for (let separator = uid.indexOf("|"); separator >= 0; ) {
+      addIndexedRow(sourceRowsBySeries, uid.slice(0, separator), event);
+      separator = uid.indexOf("|", separator + 1);
     }
   }
   const inserts: SourceEventInput[] = [];
@@ -315,7 +332,7 @@ export function planSourceReconciliation(
     const assignments = new Map<string, ConventionEvent>();
     const claimedIds = new Set<string>();
     const bareRows = groupExisting.filter(
-      (event) => event.sourceUid === group.baseUid,
+      (event) => plannedUid(event) === group.baseUid,
     );
     let ambiguous = false;
 
@@ -333,7 +350,7 @@ export function planSourceReconciliation(
       if (identity.sourceUid === group.baseUid) continue;
       const exactRows = groupExisting.filter(
         (event) =>
-          event.sourceUid === identity.sourceUid && !claimedIds.has(event.id),
+          plannedUid(event) === identity.sourceUid && !claimedIds.has(event.id),
       );
       if (exactRows.length === 1) {
         assignments.set(identity.sourceUid, exactRows[0]);
@@ -458,7 +475,9 @@ export function planSourceReconciliation(
       ) {
         continue;
       }
-      if (!activeSourceUids.has(event.sourceUid)) addRemoval(event, "removed");
+      if (!activeSourceUids.has(plannedUid(event))) {
+        addRemoval(event, "removed");
+      }
     }
   }
 
@@ -547,7 +566,11 @@ export async function upsertBySourceUid(
         .run();
     }
     for (const event of plan.inserts) {
-      const { legacySourceUid: _, ...row } = event;
+      const {
+        legacySourceUid: _legacy,
+        previousSourceUid: _previous,
+        ...row
+      } = event;
       tx.insert(conventionEvents)
         .values({
           ...row,
@@ -664,6 +687,10 @@ export interface SavedEventRow {
  * Joined rather than fetched per convention: the tab needs the convention's
  * name and time zone on each row, and the whole point is that the user has
  * more than one convention saved.
+ *
+ * An archived convention is off the plan: archiving cancels its reminders and
+ * refuses tracking, so its saved events stay out of the tab as well. Their
+ * stars and reminder choices are kept for Unarchive.
  */
 export async function getAllInSchedule(): Promise<SavedEventRow[]> {
   const rows = await db
@@ -674,7 +701,12 @@ export async function getAllInSchedule(): Promise<SavedEventRow[]> {
     })
     .from(conventionEvents)
     .innerJoin(conventions, eq(conventionEvents.conventionId, conventions.id))
-    .where(eq(conventionEvents.isInSchedule, true));
+    .where(
+      and(
+        eq(conventionEvents.isInSchedule, true),
+        isNull(conventions.archivedAt),
+      ),
+    );
 
   return rows;
 }

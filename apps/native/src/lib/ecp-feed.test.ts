@@ -10,8 +10,10 @@ import {
   buildIcsFromEcpEvents,
   type EcpEvent,
   ecpRestEndpoint,
+  ecpUidForExportUid,
   fetchEcpFullSchedule,
   isEventsCalendarFeed,
+  normalizeEcpUids,
 } from "./ecp-feed";
 import { parseIcs } from "./ical-parser";
 
@@ -38,6 +40,75 @@ describe("isEventsCalendarFeed", () => {
     expect(
       isEventsCalendarFeed("BEGIN:VCALENDAR\r\nPRODID:-//sched.com//EN\r\n"),
     ).toBe(false);
+  });
+});
+
+describe("normalizeEcpUids", () => {
+  const calendar = (prodId: string, uids: string[]) =>
+    [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      `PRODID:${prodId}`,
+      "X-WR-TIMEZONE:America/Indiana/Indianapolis",
+      ...uids.flatMap((uid, index) => [
+        "BEGIN:VEVENT",
+        uid,
+        `DTSTART:2026090${index + 1}T150000Z`,
+        `SUMMARY:Panel ${index + 1}`,
+        "END:VEVENT",
+      ]),
+      "END:VCALENDAR",
+    ].join("\r\n");
+  const ECP = "-//Example - ECPv6.17.3.1//NONSGML v1.0//EN";
+
+  it("names export events the way the REST expansion does", () => {
+    const ics = normalizeEcpUids(
+      calendar(ECP, [
+        "UID:8154-1788454800-1788717600@example.org",
+        // A long host folds the UID onto a continuation line.
+        `UID:6569-1788462000-1788465600@${"a".repeat(40)}\r\n .example.org`,
+      ]),
+    );
+
+    expect(parseIcs(ics).events.map((event) => event.sourceUid)).toEqual([
+      "8154@conpaws.ecp",
+      "6569@conpaws.ecp",
+    ]);
+    expect(
+      parseIcs(buildIcsFromEcpEvents([event({ id: 8154 })])).events[0]
+        .sourceUid,
+    ).toBe("8154@conpaws.ecp");
+  });
+
+  it("leaves a feed from another generator alone", () => {
+    const ics = calendar("-//sched.com//EN", ["UID:8154-1-2@example.org"]);
+    expect(normalizeEcpUids(ics)).toBe(ics);
+  });
+
+  it("keeps every event when one post id has two UIDs", () => {
+    const ics = calendar(ECP, [
+      "UID:8154-1788454800-1788458400@example.org",
+      "UID:8154-1788541200-1788544800@example.org",
+    ]);
+    expect(normalizeEcpUids(ics)).toBe(ics);
+    expect(parseIcs(normalizeEcpUids(ics)).events).toHaveLength(2);
+  });
+});
+
+describe("ecpUidForExportUid", () => {
+  it("gives a stored export UID the identity the feed now uses", () => {
+    expect(ecpUidForExportUid("8154-1788454800-1788717600@example.org")).toBe(
+      parseIcs(buildIcsFromEcpEvents([event({ id: 8154 })])).events[0]
+        .sourceUid,
+    );
+  });
+
+  it("leaves other UIDs and one occurrence of a series alone", () => {
+    expect(ecpUidForExportUid("8154@conpaws.ecp")).toBeNull();
+    expect(ecpUidForExportUid("sched-8154@sched.com")).toBeNull();
+    expect(
+      ecpUidForExportUid("8154-1788454800-1788717600@example.org|20260903"),
+    ).toBeNull();
   });
 });
 

@@ -1,8 +1,19 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   canApplyScheduleImport,
+  importNeedsTimeZone,
+  isIcsFileName,
+  isUtcAlias,
   parseIcsPreferringFeedTimeZone,
 } from "./import-policy";
+
+// Sched exports declare X-WR-TIMEZONE:UTC and write every time in Z form.
+const schedSmallCon = readFileSync(
+  path.resolve(__dirname, "../../../../test-data/sched-small-con.ics"),
+  "utf8",
+);
 
 const emptyImport = {
   conventionId: "convention-1",
@@ -64,6 +75,22 @@ describe("schedule import policy", () => {
   });
 });
 
+describe("isIcsFileName", () => {
+  it("accepts an .ics file whatever the extension case", () => {
+    // File providers keep the name's own casing, and plenty of exporters
+    // write SCHEDULE.ICS.
+    for (const name of ["a.ics", "Schedule.ICS", "a.Ics"]) {
+      expect(isIcsFileName(name)).toBe(true);
+    }
+  });
+
+  it("still refuses a file that is not an .ics", () => {
+    for (const name of ["a.ics.txt", "a.txt", "ics", "a.icsx"]) {
+      expect(isIcsFileName(name)).toBe(false);
+    }
+  });
+});
+
 describe("parseIcsPreferringFeedTimeZone", () => {
   function calendar(lines: string[]): string {
     return [
@@ -115,5 +142,92 @@ describe("parseIcsPreferringFeedTimeZone", () => {
     expect(result.timezone).toBeNull();
     expect(result.requiresTimeZone).toBe(true);
     expect(result.events).toEqual([]);
+  });
+
+  it("keeps the convention's saved zone when a Sched feed only declares UTC", () => {
+    const result = parseIcsPreferringFeedTimeZone(
+      schedSmallCon,
+      "America/Chicago",
+    );
+
+    expect(result.timezone).toBe("America/Chicago");
+    expect(result.requiresTimeZone).toBe(false);
+    // Z timestamps are absolute, so the instant does not move with the zone.
+    expect(result.events[0].startTime.toISOString()).toBe(
+      "2025-08-14T22:00:00.000Z",
+    );
+  });
+
+  it("still reports UTC for a Sched feed when nothing is saved", () => {
+    const result = parseIcsPreferringFeedTimeZone(schedSmallCon);
+
+    expect(result.timezone).toBe("UTC");
+    expect(result.requiresTimeZone).toBe(false);
+  });
+});
+
+describe("isUtcAlias", () => {
+  it("recognises the names a feed uses for UTC", () => {
+    for (const zone of ["UTC", "Etc/UTC", "GMT", "etc/gmt", " Zulu "]) {
+      expect(isUtcAlias(zone)).toBe(true);
+    }
+  });
+
+  it("does not treat a real place or a fixed offset as UTC", () => {
+    for (const zone of ["Europe/London", "Etc/GMT+5", "", null, undefined]) {
+      expect(isUtcAlias(zone)).toBe(false);
+    }
+  });
+});
+
+describe("importNeedsTimeZone", () => {
+  it("asks for a zone when a new convention's feed only declares UTC", () => {
+    const result = parseIcsPreferringFeedTimeZone(schedSmallCon);
+
+    expect(importNeedsTimeZone(result)).toBe(true);
+  });
+
+  it("does not ask again once a zone has been supplied", () => {
+    // A zone the user chose on the prompt comes back as the fallback, and
+    // choosing UTC there must not loop back to the same prompt.
+    for (const fallback of ["America/Chicago", "UTC"]) {
+      const result = parseIcsPreferringFeedTimeZone(schedSmallCon, fallback);
+      expect(importNeedsTimeZone(result, fallback)).toBe(false);
+    }
+  });
+
+  it("trusts a feed that names a real zone", () => {
+    const result = parseIcsPreferringFeedTimeZone(
+      [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "X-WR-TIMEZONE:America/Indiana/Indianapolis",
+        "BEGIN:VEVENT",
+        "UID:tz-002",
+        "SUMMARY:Zone Probe",
+        "DTSTART:20260903T170000",
+        "END:VEVENT",
+        "END:VCALENDAR",
+      ].join("\r\n"),
+    );
+
+    expect(importNeedsTimeZone(result)).toBe(false);
+  });
+
+  it("asks when the calendar declares no zone at all", () => {
+    const result = parseIcsPreferringFeedTimeZone(
+      [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "BEGIN:VEVENT",
+        "UID:tz-003",
+        "SUMMARY:Zone Probe",
+        "DTSTART:20260903T170000",
+        "END:VEVENT",
+        "END:VCALENDAR",
+      ].join("\r\n"),
+    );
+
+    expect(importNeedsTimeZone(result)).toBe(true);
   });
 });

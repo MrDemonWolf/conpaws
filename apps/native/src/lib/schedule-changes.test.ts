@@ -66,7 +66,14 @@ describe("summarizeScheduleChanges", () => {
 
     expect(outcome).toEqual({
       status: "changed",
-      summary: { moved: 3, gone: 0, savedMoved: 0, savedGone: 0 },
+      summary: {
+        moved: 3,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
   });
 
@@ -98,7 +105,14 @@ describe("summarizeScheduleChanges", () => {
 
     expect(outcome).toEqual({
       status: "changed",
-      summary: { moved: 2, gone: 1, savedMoved: 1, savedGone: 1 },
+      summary: {
+        moved: 2,
+        gone: 1,
+        savedMoved: 1,
+        savedGone: 1,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
   });
 
@@ -113,7 +127,14 @@ describe("summarizeScheduleChanges", () => {
 
     expect(outcome).toEqual({
       status: "changed",
-      summary: { moved: 0, gone: 1, savedMoved: 0, savedGone: 1 },
+      summary: {
+        moved: 0,
+        gone: 1,
+        savedMoved: 0,
+        savedGone: 1,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
   });
 
@@ -136,7 +157,14 @@ describe("summarizeScheduleChanges", () => {
       ),
     ).toEqual({
       status: "changed",
-      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
   });
 
@@ -173,7 +201,14 @@ describe("summarizeScheduleChanges", () => {
     // broken, not for a convention trimming its programme.
     expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
       status: "changed",
-      summary: { moved: 0, gone: 4, savedMoved: 0, savedGone: 0 },
+      summary: {
+        moved: 0,
+        gone: 4,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
   });
 
@@ -201,6 +236,186 @@ describe("summarizeScheduleChanges", () => {
     });
   });
 
+  it("matches rows an earlier build filed under an alarm's UID", () => {
+    // Apple exports give each VALARM its own UID, which earlier builds kept in
+    // place of the event's. Every stored row is keyed that way, so without the
+    // previous identity nothing overlaps and the feed is never applied again.
+    const stored = [
+      occurrence({ sourceUid: "alarm-a", isInSchedule: true }),
+      occurrence({ sourceUid: "alarm-b", isInSchedule: true }),
+    ];
+    const feed = [
+      occurrence({ sourceUid: "event-a", previousSourceUid: "alarm-a" }),
+      occurrence({
+        sourceUid: "event-b",
+        previousSourceUid: "alarm-b",
+        room: "Room B",
+      }),
+    ];
+
+    expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
+      status: "changed",
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+  });
+
+  it("leaves a previous identity alone once a row holds the current one", () => {
+    // A file re-import already added the event under its own UID, so the old
+    // row is a leftover, not this event.
+    const stored = [
+      occurrence({ sourceUid: "alarm-a", isInSchedule: true }),
+      occurrence({ sourceUid: "event-a" }),
+      ...feedOf(10, 100),
+    ];
+    const feed = [
+      occurrence({ sourceUid: "event-a", previousSourceUid: "alarm-a" }),
+      ...feedOf(10, 100),
+    ];
+
+    expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
+      status: "changed",
+      summary: {
+        moved: 0,
+        gone: 1,
+        savedMoved: 0,
+        savedGone: 1,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+  });
+
+  it("matches rows an earlier build stored under an Events Calendar export's UIDs", () => {
+    // Earlier builds kept the export's own `<post id>-<start>-<end>@<host>`
+    // whenever the REST expansion did not win. The feed now names each post
+    // `<post id>@conpaws.ecp`, so without reading the export UID as the
+    // previous identity nothing overlaps and the feed is never applied again.
+    const stored = [
+      occurrence({
+        sourceUid: "8154-1788454800-1788458400@examplecon.org",
+        isInSchedule: true,
+      }),
+      occurrence({ sourceUid: "6569-1788462000-1788465600@examplecon.org" }),
+    ];
+    const feed = [
+      occurrence({ sourceUid: "8154@conpaws.ecp", room: "Room B" }),
+      occurrence({ sourceUid: "6569@conpaws.ecp" }),
+    ];
+
+    expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
+      status: "changed",
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+  });
+
+  it("leaves export UIDs alone when two of them share a post id", () => {
+    // A recurring post's occurrences: nothing says which one the feed's single
+    // event is, so neither is claimed.
+    const stored = [
+      occurrence({ sourceUid: "8154-1788454800-1788458400@examplecon.org" }),
+      occurrence({ sourceUid: "8154-1788541200-1788544800@examplecon.org" }),
+    ];
+
+    expect(
+      summarizeScheduleChanges(
+        stored,
+        [occurrence({ sourceUid: "8154@conpaws.ecp" })],
+        [],
+      ),
+    ).toEqual({ status: "untrusted", reason: "no-overlap" });
+  });
+
+  it("does not call an all-day event that gained its span moved", () => {
+    // Earlier builds stored every all-day event with no end. The feed did not
+    // change; ConPaws now reads the whole day, which files it as a drop-in.
+    const stored = [
+      occurrence({
+        sourceUid: "costume-day",
+        startTime: "2026-09-05T05:00:00.000Z",
+        endTime: null,
+        isInSchedule: true,
+      }),
+      occurrence({
+        sourceUid: "art-show",
+        startTime: "2026-09-05T05:00:00.000Z",
+        endTime: null,
+      }),
+      occurrence({ sourceUid: "panel-2" }),
+    ];
+    const feed = [
+      occurrence({
+        sourceUid: "costume-day",
+        startTime: "2026-09-05T05:00:00.000Z",
+        endTime: "2026-09-06T05:00:00.000Z",
+        isAllDay: true,
+      }),
+      occurrence({
+        sourceUid: "art-show",
+        startTime: "2026-09-05T05:00:00.000Z",
+        endTime: "2026-09-06T05:00:00.000Z",
+        isAllDay: true,
+      }),
+      occurrence({ sourceUid: "panel-2" }),
+    ];
+
+    expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
+      status: "changed",
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 2,
+        savedNowDropIn: 1,
+      },
+    });
+  });
+
+  it("still counts an all-day event that also moved as moved", () => {
+    const stored = [
+      occurrence({
+        sourceUid: "costume-day",
+        startTime: "2026-09-05T05:00:00.000Z",
+        endTime: null,
+        isInSchedule: true,
+      }),
+    ];
+    const feed = [
+      occurrence({
+        sourceUid: "costume-day",
+        startTime: "2026-09-06T05:00:00.000Z",
+        endTime: "2026-09-07T05:00:00.000Z",
+        isAllDay: true,
+      }),
+    ];
+
+    expect(summarizeScheduleChanges(stored, feed, [])).toEqual({
+      status: "changed",
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+  });
+
   it("never lets a hand-added event look like a removal", () => {
     const stored = [
       ...feedOf(10),
@@ -214,15 +429,27 @@ describe("summarizeScheduleChanges", () => {
 });
 
 describe("hasSavedChanges", () => {
+  const nothing = {
+    moved: 0,
+    gone: 0,
+    savedMoved: 0,
+    savedGone: 0,
+    nowDropIn: 0,
+    savedNowDropIn: 0,
+  };
+
   it("is true only when something the user saved is affected", () => {
     expect(
-      hasSavedChanges({ moved: 9, gone: 3, savedMoved: 0, savedGone: 0 }),
+      hasSavedChanges({ ...nothing, moved: 9, gone: 3, nowDropIn: 2 }),
     ).toBe(false);
+    expect(hasSavedChanges({ ...nothing, moved: 1, savedMoved: 1 })).toBe(true);
+    expect(hasSavedChanges({ ...nothing, gone: 1, savedGone: 1 })).toBe(true);
+  });
+
+  it("is true for a saved all-day event that is now a drop-in", () => {
+    // It has left the user's plan until they pick a visit, so they are told.
     expect(
-      hasSavedChanges({ moved: 1, gone: 0, savedMoved: 1, savedGone: 0 }),
-    ).toBe(true);
-    expect(
-      hasSavedChanges({ moved: 0, gone: 1, savedMoved: 0, savedGone: 1 }),
+      hasSavedChanges({ ...nothing, nowDropIn: 1, savedNowDropIn: 1 }),
     ).toBe(true);
   });
 });

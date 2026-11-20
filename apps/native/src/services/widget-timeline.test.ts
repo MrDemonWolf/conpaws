@@ -87,6 +87,40 @@ describe("Expo widget timeline", () => {
     expect(timeline.at(-1)?.props.snapshot.conventions).toEqual([]);
   });
 
+  it.each([15, 30])(
+    "keeps the full 48 h for a con plan of 8 panels a day with %i-minute reminders",
+    (reminderMinutes) => {
+      // Minute-by-minute reminder counts used to spend the entry budget, so an
+      // ordinary con day fell back to the refresh state after about 11 hours.
+      const events = [0, 1, 2].flatMap((day) =>
+        Array.from({ length: 8 }, (_, slot) => ({
+          ...event(
+            day * 8 + slot,
+            now + hour + day * 24 * hour + slot * 90 * minute,
+          ),
+          reminderMinutes,
+        })),
+      );
+      const timeline = buildWidgetTimeline(snapshot(events));
+      const dates = timeline.map(({ date }) => date.getTime());
+      expect(timeline.length).toBeLessThanOrEqual(256);
+      expect(timeline.at(-1)?.date.getTime()).toBe(now + 48 * hour);
+      expect(timeline.at(-1)?.props.expired).toBe(true);
+      for (const panel of events.filter(
+        ({ startAtMs }) => startAtMs < now + 48 * hour,
+      )) {
+        expect(dates).toContain(panel.startAtMs);
+        expect(dates).toContain(panel.endAtMs);
+        expect(dates).toContain(panel.startAtMs - reminderMinutes * minute);
+      }
+      // The nearest reminder still counts down a minute at a time.
+      const first = events[0];
+      for (let left = 1; left < reminderMinutes; left++)
+        expect(dates).toContain(first.startAtMs - left * minute);
+      expect(dates).toEqual([...new Set(dates)].sort((a, b) => a - b));
+    },
+  );
+
   it("adds convention-local midnight across the spring DST transition", () => {
     const input = snapshot();
     input.generatedAtMs = Date.parse("2026-03-08T06:30:00Z");

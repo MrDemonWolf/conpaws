@@ -345,6 +345,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           ios: SUPPORTED_LOCALES,
           android: SUPPORTED_LOCALES,
         },
+        // No shipped locale is right to left, so a Hebrew or Arabic device
+        // falls back to English. Left on, Android mirrored that English layout
+        // while iOS kept it left to right. Revisit when an RTL locale ships.
+        supportsRTL: false,
       },
     ],
     [

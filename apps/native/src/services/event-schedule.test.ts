@@ -9,7 +9,10 @@ const reportError = vi.fn();
 
 vi.mock("@/db/repositories/events", () => ({ update }));
 vi.mock("./drop-in-visit", () => ({ removeDropInVisit }));
-vi.mock("./notifications", () => ({ cancelEventReminder }));
+vi.mock("./notifications", () => ({
+  cancelEventReminder,
+  withReminderLock: (work: () => Promise<unknown>) => work(),
+}));
 vi.mock("./tracked-event", () => ({ stopTrackingIfAffected }));
 vi.mock("@/lib/error-reporting", () => ({ reportError }));
 

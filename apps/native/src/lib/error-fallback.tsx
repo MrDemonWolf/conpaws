@@ -47,7 +47,8 @@ function FallbackScreen({
       <Text variant="body" className="text-center text-muted-foreground">
         {message}
       </Text>
-      <Button className="min-h-12 px-6" onPress={onAction}>
+      {/* Button keeps its own 48 floor; min-h-12 replaced it with 42. */}
+      <Button className="px-6" onPress={onAction}>
         {actionLabel}
       </Button>
     </View>

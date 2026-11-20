@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Convention } from "../schema";
-import { create } from "./conventions";
+import { type Convention, conventions } from "../schema";
+import { create, getByCatalogSlug } from "./conventions";
 
 const { mockDb } = vi.hoisted(() => ({
   mockDb: { insert: vi.fn(), select: vi.fn() },
@@ -67,5 +67,22 @@ describe("conventions.create", () => {
         timeZone: "America/Chicago",
       }),
     ).rejects.toThrow(/could not be read back after insert/);
+  });
+});
+
+describe("conventions.getByCatalogSlug", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("picks the earliest-created copy, so Find and backup restore agree", async () => {
+    const row = storedConvention({ catalogSlug: "testcon-2026" });
+    const limit = vi.fn().mockResolvedValue([row]);
+    const orderBy = vi.fn().mockReturnValue({ limit });
+    mockDb.select.mockReturnValue({
+      from: () => ({ where: () => ({ orderBy }) }),
+    });
+
+    await expect(getByCatalogSlug("testcon-2026")).resolves.toEqual(row);
+    expect(orderBy).toHaveBeenCalledWith(conventions.createdAt, conventions.id);
+    expect(limit).toHaveBeenCalledWith(1);
   });
 });

@@ -12,6 +12,7 @@ import {
   formatEventTime,
   formatMinutesLeft,
   formatMinutesUntilStart,
+  formatNowHeroTimes,
   scheduleFormatter,
 } from "./event-time-format";
 
@@ -288,6 +289,101 @@ describe("Now card countdown lines", () => {
     );
     expect(formatMinutesLeft(12, i18n.t)).toBe("12 min left");
     expect(formatMinutesLeft(150, i18n.t)).toBe("2 h 30 min left");
+  });
+
+  describe("formatNowHeroTimes", () => {
+    const ZONE = "America/New_York";
+    // Sunday, September 20, 10:00 to 11:00 AM in New York.
+    const SUNDAY_START = "2026-09-20T14:00:00.000Z";
+    const SUNDAY_END = "2026-09-20T15:00:00.000Z";
+    const SUNDAY = formatEventDayLabel(SUNDAY_START, ZONE, "en");
+
+    const heroTimes = async (
+      overrides: Partial<Parameters<typeof formatNowHeroTimes>[0]>,
+    ) => {
+      const i18n = createInstance();
+      await i18n.init({ lng: "en", resources: { en: { translation: en } } });
+      return formatNowHeroTimes({
+        kind: "next",
+        onAnotherDay: false,
+        startTime: SUNDAY_START,
+        endTime: SUNDAY_END,
+        nowMs: Date.parse(SUNDAY_START),
+        timeZone: ZONE,
+        locale: "en",
+        hour12: true,
+        t: i18n.t,
+        ...overrides,
+      });
+    };
+
+    it("names the day, not a 72 h countdown, for a pick three days before the con", async () => {
+      // Thursday 3:30 AM in New York: 4,350 minutes before the pick.
+      const times = await heroTimes({
+        onAnotherDay: true,
+        nowMs: Date.parse("2026-09-17T07:30:00.000Z"),
+      });
+
+      expect(SUNDAY).toBe("Sunday, September 20");
+      expect(times.timeLine).toBe(`${SUNDAY} · 10:00 AM to 11:00 AM`);
+      expect(times.callout).toEqual({
+        label: "Starts at",
+        value: "10:00 AM",
+        sub: SUNDAY,
+      });
+      expect(JSON.stringify(times)).not.toMatch(/72 h|until it starts/);
+    });
+
+    it("names the day for tomorrow's pick when nothing is saved for today", async () => {
+      // Saturday 2 PM: "Starts at 10:00 AM" alone reads as four hours ago.
+      const times = await heroTimes({
+        onAnotherDay: true,
+        nowMs: Date.parse("2026-09-19T18:00:00.000Z"),
+      });
+
+      expect(times.timeLine).toContain(SUNDAY);
+      expect(times.callout.sub).toBe(SUNDAY);
+      expect(JSON.stringify(times)).not.toMatch(/20 h/);
+    });
+
+    it("keeps the countdown and leaves the day out for a pick later today", async () => {
+      const times = await heroTimes({
+        nowMs: Date.parse(SUNDAY_START) - 453 * 60_000,
+      });
+
+      expect(times.timeLine).toBe("10:00 AM to 11:00 AM");
+      expect(times.callout).toEqual({
+        label: "Starts at",
+        value: "10:00 AM",
+        sub: "7 h 33 min until it starts",
+      });
+    });
+
+    it("counts down to the end of a running pick, even one that began yesterday", async () => {
+      const times = await heroTimes({
+        kind: "current",
+        onAnotherDay: true,
+        startTime: "2026-09-20T02:00:00.000Z",
+        nowMs: Date.parse(SUNDAY_END) - 150 * 60_000,
+      });
+
+      expect(times.timeLine).toBe("10:00 PM to Sun 11:00 AM");
+      expect(times.callout).toEqual({
+        label: "Until",
+        value: "Sun 11:00 AM",
+        sub: "2 h 30 min left",
+      });
+    });
+
+    it("says the end is unpublished for a running pick without one", async () => {
+      const times = await heroTimes({ kind: "current", endTime: null });
+
+      expect(times.timeLine).toBe("10:00 AM");
+      expect(times.callout).toEqual({
+        label: "Until",
+        value: "End time not published",
+      });
+    });
   });
 
   it("keeps the duration placeholder in every language", async () => {

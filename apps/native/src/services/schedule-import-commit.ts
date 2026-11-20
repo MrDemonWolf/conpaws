@@ -172,9 +172,11 @@ export async function commitScheduleImport(
         reportError(error, { scope: "schedule-import-commit.update-details" });
         conventionDetailsUpdated = false;
       }
-      if (conventionDetailsUpdated) {
-        await deps.publishSnapshot().catch(() => false);
-      }
+    }
+    // A created convention is published too. A catalog download runs outside
+    // any mutation, so nothing else would put it on the widget or Watch.
+    if (conventionDetailsUpdated) {
+      await deps.publishSnapshot().catch(() => false);
     }
 
     await deps.refreshCaches(conventionId);

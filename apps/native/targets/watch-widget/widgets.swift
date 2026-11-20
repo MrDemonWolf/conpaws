@@ -6,8 +6,8 @@ private struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
   /// Raises this card in the Smart Stack around the moments it matters —
-  /// event starts and leave windows. Without a relevance the stack never
-  /// surfaces the complication on its own.
+  /// convention and saved-panel starts, reminder or not. Without a relevance
+  /// the stack never surfaces the complication on its own.
   var relevance: TimelineEntryRelevance?
 
   /// The app's language, not the watch's. The snapshot carries it precisely so
@@ -100,51 +100,20 @@ private struct ConPawsWatchProvider: TimelineProvider {
     in context: Context,
     completion: @escaping (Timeline<ConPawsWatchEntry>) -> Void
   ) {
-    let now = Date()
     let snapshot = ConPawsSnapshotStore.load()
-    let projection = WidgetScheduleProjection(snapshot: snapshot, now: now)
-
-    // Pre-build an entry for every wording change rather than relying on the
-    // system waking this extension on time. Complications get an even smaller
-    // refresh budget than Home Screen widgets, so a frozen label is likelier
-    // here, not less.
-    // Within 30 minutes of the countdown target (an event start or a leave
-    // moment) the card is at its most useful; score it accordingly so the
-    // Smart Stack rotates it up.
-    func relevance(at date: Date) -> TimelineEntryRelevance? {
-      guard let target = projection.countdownTarget else { return nil }
-      let minutesOut = target.timeIntervalSince(date) / 60
-      guard minutesOut > -30, minutesOut < 30 else { return nil }
-      return TimelineEntryRelevance(score: 100, duration: 30 * 60)
-    }
-
-    var entries = [
-      ConPawsWatchEntry(date: now, snapshot: snapshot, relevance: relevance(at: now))
-    ]
-    if let target = projection.countdownTarget, let zone = projection.timeZone {
-      // The leave countdown reads in whole minutes, so it ticks per minute;
-      // every other countdown rides the shared hourly ladder.
-      let points = projection.isLeaveState
-        ? ConPawsCountdown.leaveChangePoints(from: now, to: target)
-        : ConPawsCountdown.changePoints(from: now, to: target, timeZone: zone)
-      for date in points {
-        entries.append(
-          ConPawsWatchEntry(date: date, snapshot: snapshot, relevance: relevance(at: date))
-        )
-      }
-    }
-    if let staleBoundary = projection.staleBoundary,
-      !entries.contains(where: { $0.date == staleBoundary })
-    {
-      entries.append(ConPawsWatchEntry(date: staleBoundary, snapshot: snapshot, relevance: nil))
-    }
-    if entries.count == 1 {
-      entries.append(
-        ConPawsWatchEntry(date: projection.nextRefresh, snapshot: snapshot, relevance: nil)
+    // An entry for every moment the card reads differently, planned in
+    // targets/_shared so swift-tests covers it. Around a convention or saved
+    // panel start the card is at its most useful; the score makes the Smart
+    // Stack rotate it up.
+    let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: .now).map { planned in
+      ConPawsWatchEntry(
+        date: planned.date,
+        snapshot: snapshot,
+        relevance: planned.relevantUntil.map {
+          TimelineEntryRelevance(score: 100, duration: $0.timeIntervalSince(planned.date))
+        }
       )
     }
-
-    entries.sort { $0.date < $1.date }
     completion(Timeline(entries: entries, policy: .atEnd))
   }
 }
@@ -153,7 +122,7 @@ private struct ConPawsWatchEntryView: View {
   let entry: ConPawsWatchEntry
 
   var body: some View {
-    let schedule = WidgetScheduleProjection(snapshot: entry.snapshot, now: entry.date)
+    let schedule = ConPawsComplicationProjection(snapshot: entry.snapshot, now: entry.date)
     Group {
       switch schedule.state {
       case let .comingUp(convention):
@@ -521,138 +490,6 @@ struct ConPawsWatchWidget: Widget {
     .configurationDisplayName("ConPaws Schedule")
     .description("See your next event, schedule reminder, or convention countdown.")
     .supportedFamilies([.accessoryRectangular])
-  }
-}
-
-private struct WidgetScheduleProjection {
-  enum State {
-    case comingUp(ConPawsConventionSnapshot)
-    case leave(ConPawsEventSnapshot?, ConPawsEventSnapshot, ConPawsConventionSnapshot)
-    case next(ConPawsEventSnapshot?, ConPawsEventSnapshot, ConPawsConventionSnapshot)
-    case current(ConPawsEventSnapshot, ConPawsConventionSnapshot)
-    case finished(ConPawsConventionSnapshot)
-    case noPicks(ConPawsConventionSnapshot)
-    case noConvention
-  }
-
-  let now: Date
-  let resolved: ConPawsScheduleState
-  let generatedAtMs: Double
-  let hasConventions: Bool
-
-  var convention: ConPawsConventionSnapshot? {
-    switch resolved {
-    case .noConvention: nil
-    case .countdown(let value), .finished(let value), .noPicks(let value): value
-    case .next(let value, _, _), .currentOnly(let value, _): value
-    }
-  }
-
-  var activeEvent: ConPawsEventSnapshot? {
-    switch resolved {
-    case .next(_, let current, _): current
-    case .currentOnly(_, let event): event
-    case .noConvention, .countdown, .finished, .noPicks: nil
-    }
-  }
-
-  var nextEvent: ConPawsEventSnapshot? {
-    if case .next(_, _, let upcoming) = resolved { return upcoming }
-    return nil
-  }
-
-  var state: State {
-    switch resolved {
-    case .noConvention:
-      .noConvention
-    case .countdown(let convention):
-      .comingUp(convention)
-    case .next(let convention, let current, let upcoming):
-      ConPawsScheduleResolver.isInReminderWindow(upcoming, now: now)
-        ? .leave(current, upcoming, convention)
-        : .next(current, upcoming, convention)
-    case .currentOnly(let convention, let event):
-      .current(event, convention)
-    case .finished(let convention):
-      .finished(convention)
-    case .noPicks(let convention):
-      .noPicks(convention)
-    }
-  }
-
-  var timeZone: TimeZone? { convention?.timeZone }
-
-  var countdownTarget: Date? {
-    switch state {
-    case .comingUp(let convention): convention.startDate
-    case .leave(_, let upcoming, _): upcoming.startDate
-    case .next, .current, .finished, .noPicks, .noConvention: nil
-    }
-  }
-
-  var isLeaveState: Bool {
-    if case .leave = state { return true }
-    return false
-  }
-
-  var staleBoundary: Date? {
-    guard hasConventions, !ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now) else {
-      return nil
-    }
-    let date = Date(timeIntervalSince1970: generatedAtMs / 1_000)
-      .addingTimeInterval(ConPawsSnapshotAge.staleAfter)
-    return date > now ? date : nil
-  }
-
-  var nextRefresh: Date {
-    var candidates: [Date] = []
-    switch state {
-    case .comingUp(let convention):
-      let remaining = convention.startDate.timeIntervalSince(now)
-      candidates.append(convention.startDate)
-      if remaining >= 30 * 86_400 {
-        var calendar = Calendar.autoupdatingCurrent
-        calendar.timeZone = convention.timeZone
-        if let midnight = calendar.nextDate(
-          after: now,
-          matching: DateComponents(hour: 0, minute: 0, second: 0),
-          matchingPolicy: .nextTime
-        ) {
-          candidates.append(midnight)
-        }
-      } else if remaining >= 86_400 {
-        candidates.append(now.addingTimeInterval(3_600))
-      }
-    case .leave(let current, let upcoming, let convention),
-      .next(let current, let upcoming, let convention):
-      candidates.append(upcoming.startDate)
-      candidates.append(convention.endDate)
-      if let current { candidates.append(ConPawsScheduleResolver.effectiveEnd(of: current)) }
-      if let minutes = upcoming.reminderMinutes, minutes > 0 {
-        candidates.append(upcoming.startDate.addingTimeInterval(-Double(minutes) * 60))
-      }
-    case .current(let event, let convention):
-      candidates.append(ConPawsScheduleResolver.effectiveEnd(of: event))
-      candidates.append(convention.endDate)
-    case .finished(let convention), .noPicks(let convention):
-      candidates.append(convention.endDate)
-    case .noConvention:
-      break
-    }
-    return candidates.filter { $0 > now.addingTimeInterval(1) }.min()
-      ?? now.addingTimeInterval(21_600)
-  }
-
-  init(snapshot: ConPawsSnapshot, now: Date) {
-    self.now = now
-    generatedAtMs = snapshot.generatedAtMs
-    hasConventions = !snapshot.conventions.isEmpty
-    resolved = ConPawsScheduleResolver.resolve(
-      snapshot: snapshot,
-      selectedConventionID: nil,
-      skipCountdown: false,
-      now: now
-    )
   }
 }
 

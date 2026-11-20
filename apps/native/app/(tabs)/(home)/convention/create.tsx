@@ -11,8 +11,8 @@ import { useTranslation } from "react-i18next";
 import { Alert, Keyboard } from "react-native";
 import tzLookup from "tz-lookup";
 import {
-  ConventionDateField,
   TimeZonePickerModal,
+  useConventionDateField,
 } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
 import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
@@ -23,6 +23,12 @@ import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
+  CONVENTION_NAME_MAX_LENGTH,
+  conventionFormFooter,
+  validateConventionForm,
+} from "@/lib/convention-form";
+import {
+  canInferTimeZoneFromLocation,
   inferTimeZoneFromLocation,
   normalizeLocationName,
 } from "@/lib/convention-location";
@@ -46,6 +52,10 @@ export default function CreateConventionScreen() {
   const { colors } = useTheme();
   const seedColor = colors.primary;
   const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+  // Only iOS can turn the location into a zone. Elsewhere the zone row is the
+  // only way to set it, so Advanced starts open and the location footer that
+  // promises automatic detection is left out.
+  const canInferTimeZone = canInferTimeZoneFromLocation();
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [timeZone, setTimeZone] = useState(deviceTimeZone);
@@ -55,8 +65,11 @@ export default function CreateConventionScreen() {
     addDays(startOfDay(new Date()), 1),
   );
   const [saving, setSaving] = useState(false);
+  // `saving` only reaches the Add button on the next render; the ref stops a
+  // second tap that lands before then, as on the edit form.
+  const createLock = useRef(false);
   const isMounted = useRef(true);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   const timeZones = useMemo(
     () =>
@@ -66,12 +79,25 @@ export default function CreateConventionScreen() {
       ),
     [deviceTimeZone],
   );
-  useEffect(
-    () => () => {
+  // Set on every run, not just cleared: Fast Refresh keeps refs but re-runs
+  // this effect, and a flag left false made every Add tap write nothing.
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
       isMounted.current = false;
-    },
-    [],
-  );
+    };
+  }, []);
+
+  // The edit form's rules, so nothing can be created that Edit would then
+  // refuse to save (an over-long pasted name blocked every later change).
+  const values = {
+    name,
+    startDate: format(startDate, "yyyy-MM-dd"),
+    endDate: format(endDate, "yyyy-MM-dd"),
+    timeZone,
+    location,
+  };
+  const validation = validateConventionForm(values);
 
   function updateStartDate(value: Date) {
     setStartDate(value);
@@ -105,7 +131,9 @@ export default function CreateConventionScreen() {
 
   async function resolveTimeZoneForSave(): Promise<string | null> {
     const normalizedLocation = normalizeLocationName(location);
-    if (!normalizedLocation || timeZoneManuallySet) return timeZone.trim();
+    if (!normalizedLocation || timeZoneManuallySet || !canInferTimeZone) {
+      return timeZone.trim();
+    }
 
     const inferred = await inferTimeZoneFromLocation(
       normalizedLocation,
@@ -120,25 +148,37 @@ export default function CreateConventionScreen() {
   }
 
   async function handleCreate() {
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      Alert.alert(t("common.error"), t("convention.nameRequired"));
+    if (createLock.current) return;
+    if (validation.errors.name) {
+      Alert.alert(
+        t("common.error"),
+        validation.errors.name === "nameTooLong"
+          ? t("convention.nameTooLong", { max: CONVENTION_NAME_MAX_LENGTH })
+          : t("convention.nameRequired"),
+      );
       return;
     }
-    if (!isValidTimeZone(timeZone.trim())) {
+    if (validation.errors.timeZone) {
       Alert.alert(t("common.error"), t("convention.timeZoneInvalid"));
       return;
     }
+    if (!validation.valid) return;
 
-    // Set before the geocode, not after it. Resolving a time zone from a
+    // Locked before the geocode, not after it. Resolving a time zone from a
     // location is a throttled network call that can take seconds, and leaving
     // the form live across that window let a second Save tap create a second
-    // convention.
+    // convention. The lock frees only when nothing was written, so a failed
+    // attempt can be retried and a tap queued behind a landed one cannot add
+    // the convention twice.
+    createLock.current = true;
     setSaving(true);
+    const unlock = () => {
+      createLock.current = false;
+      setSaving(false);
+    };
     const resolvedTimeZone = await resolveTimeZoneForSave();
     if (!resolvedTimeZone) {
-      setSaving(false);
+      unlock();
       return;
     }
     // The user may have left while the geocode was in flight. Writing a
@@ -146,19 +186,33 @@ export default function CreateConventionScreen() {
     // worse than doing nothing.
     if (!isMounted.current) return;
 
-    const startDateKey = format(startDate, "yyyy-MM-dd");
-    const endDateKey = format(endDate, "yyyy-MM-dd");
-    const today = conventionDayKey(new Date(), resolvedTimeZone);
+    // A geocoded zone the device cannot use would leave a convention that
+    // Edit refuses to save, so the settled zone is checked like a picked one.
+    const resolvedValidation = validateConventionForm({
+      ...values,
+      timeZone: resolvedTimeZone,
+    });
+    if (!resolvedValidation.valid) {
+      Alert.alert(t("common.error"), t("convention.timeZoneInvalid"));
+      unlock();
+      return;
+    }
+    const { cleaned } = resolvedValidation;
+    const today = conventionDayKey(new Date(), cleaned.timeZone);
 
     const outcome = await commitNewConvention(
       {
-        name: trimmedName,
-        startDate: startDateKey,
-        endDate: endDateKey,
-        timeZone: resolvedTimeZone,
-        location: normalizeLocationName(location) || null,
+        name: cleaned.name,
+        startDate: cleaned.startDate,
+        endDate: cleaned.endDate,
+        timeZone: cleaned.timeZone,
+        location: cleaned.location || null,
         icalUrl: null,
-        status: conventionStatusForDay(startDateKey, endDateKey, today),
+        status: conventionStatusForDay(
+          cleaned.startDate,
+          cleaned.endDate,
+          today,
+        ),
       },
       {
         create: conventionsRepo.create,
@@ -175,7 +229,7 @@ export default function CreateConventionScreen() {
 
     if (!outcome.ok) {
       Alert.alert(t("common.error"), t("convention.createError"));
-      setSaving(false);
+      unlock();
       return;
     }
     if (!isMounted.current) return;
@@ -183,8 +237,24 @@ export default function CreateConventionScreen() {
   }
 
   const validTimeZone = isValidTimeZone(timeZone) ? timeZone : undefined;
-  const canCreate =
-    !saving && name.trim().length > 0 && isValidTimeZone(timeZone);
+  const startDateField = useConventionDateField({
+    title: t("convention.startDate"),
+    value: startDate,
+    locale,
+    timeZoneName: validTimeZone,
+    colorScheme: resolvedColorScheme,
+    onChange: updateStartDate,
+  });
+  const endDateField = useConventionDateField({
+    title: t("convention.endDate"),
+    value: endDate,
+    minimumDate: startDate,
+    locale,
+    timeZoneName: validTimeZone,
+    colorScheme: resolvedColorScheme,
+    onChange: (value) => setEndDate(max([value, startDate])),
+  });
+  const canCreate = !saving && validation.valid;
 
   // Any typed input counts as dirty; the untouched dates are defaults, not input.
   const isDirty =
@@ -264,29 +334,8 @@ export default function CreateConventionScreen() {
             >
               {t("convention.location")}
             </ListItem>
-            {/* The location silently drives a geocode on save that sets the
-                time zone and can take seconds — say so instead of looking
-                like a cosmetic field. */}
-            <FieldGroup.SectionFooter>
-              <NativeText>{t("convention.locationTimeZoneNote")}</NativeText>
-            </FieldGroup.SectionFooter>
-            <ConventionDateField
-              title={t("convention.startDate")}
-              value={startDate}
-              locale={locale}
-              timeZoneName={validTimeZone}
-              colorScheme={resolvedColorScheme}
-              onChange={updateStartDate}
-            />
-            <ConventionDateField
-              title={t("convention.endDate")}
-              value={endDate}
-              minimumDate={startDate}
-              locale={locale}
-              timeZoneName={validTimeZone}
-              colorScheme={resolvedColorScheme}
-              onChange={(value) => setEndDate(max([value, startDate]))}
-            />
+            {startDateField.row}
+            {endDateField.row}
             <Collapsible
               label={t("common.advanced")}
               isOpen={advancedOpen}
@@ -303,12 +352,22 @@ export default function CreateConventionScreen() {
                 {t("convention.timeZone")}
               </ListItem>
             </Collapsible>
+            {/* @expo/ui keeps only a section's last footer, so this one
+                carries every note: the name limit, so Add greys out with the
+                reason shown, and, where the save geocodes the location into a
+                zone (which can take seconds), a note saying so. */}
             <FieldGroup.SectionFooter>
-              <NativeText>{t("convention.timeZoneAdvancedHelp")}</NativeText>
+              <NativeText>
+                {conventionFormFooter(validation, t, {
+                  locationSetsTimeZone: canInferTimeZone,
+                })}
+              </NativeText>
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>
         </FieldGroup>
       </Host>
+      {startDateField.dialog}
+      {endDateField.dialog}
 
       <TimeZonePickerModal
         visible={timeZonePickerVisible}

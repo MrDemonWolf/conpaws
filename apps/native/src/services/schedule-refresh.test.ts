@@ -48,9 +48,42 @@ vi.mock("@/services/widget-snapshot", () => ({ publishWidgetSnapshot }));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
 vi.mock("@/lib/schedule-refresh-storage", () => storage);
 
-import { refreshConventionSchedule } from "./schedule-refresh";
+import { buildIcsFromEcpEvents, normalizeEcpUids } from "@/lib/ecp-feed";
+import {
+  canCheckSchedule,
+  hasScheduleSource,
+  refreshConventionSchedule,
+} from "./schedule-refresh";
 
 const NOW = Date.parse("2026-09-03T18:00:00.000Z");
+
+/** An Events Calendar `?ical=1` export, which names each post by its times. */
+const ECP_EXPORT_ICS = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "PRODID:-//Example Con - ECPv6.17.3.1//NONSGML v1.0//EN",
+  "X-WR-TIMEZONE:America/Chicago",
+  "BEGIN:VEVENT",
+  "UID:8154-1788454800-1788458400@examplecon.org",
+  "DTSTART:20260903T200000Z",
+  "DTEND:20260903T210000Z",
+  "SUMMARY:Opening Ceremonies",
+  "LOCATION:Main Stage",
+  "END:VEVENT",
+  "END:VCALENDAR",
+].join("\r\n");
+
+/** The same post as the REST expansion renders it. */
+const ECP_REST_ICS = buildIcsFromEcpEvents([
+  {
+    id: 8154,
+    title: "Opening Ceremonies",
+    utc_start_date: "2026-09-03 20:00:00",
+    utc_end_date: "2026-09-03 21:00:00",
+    timezone: "America/Chicago",
+    venue: { venue: "Main Stage" },
+  },
+]);
 
 function convention(overrides: Partial<Convention> = {}): Convention {
   return {
@@ -76,10 +109,18 @@ function storedRow(overrides: Record<string, unknown> = {}) {
   return {
     id: "event-1",
     sourceUid: "panel-1",
+    title: "Panel",
+    description: null,
     startTime: "2026-09-03T20:00:00.000Z",
     endTime: "2026-09-03T21:00:00.000Z",
     room: "Room A",
     location: "Main Hall",
+    category: null,
+    sourceUrl: null,
+    isAgeRestricted: false,
+    ageRating: null,
+    contentWarning: false,
+    feedStatus: null,
     isInSchedule: true,
     ...overrides,
   };
@@ -98,6 +139,13 @@ function parsedFeed(overrides: Record<string, unknown> = {}) {
         legacySourceUid: null,
         recurrenceTime: null,
         title: "Panel",
+        description: null,
+        category: null,
+        categories: [],
+        ageRating: null,
+        isAgeRestricted: false,
+        contentWarning: false,
+        isAllDay: false,
         sourceUrl: null,
       },
     ],
@@ -150,6 +198,80 @@ beforeEach(() => {
     ],
   });
   updateConvention.mockResolvedValue(undefined);
+});
+
+describe("hasScheduleSource", () => {
+  // The convention screen's "Check for Changes" item and the refresh's first
+  // gate read this one predicate. The menu used to ask for icalUrl alone, so a
+  // catalog download, which has a catalogSlug and no icalUrl, had no pressed
+  // check even though the refresh handles it.
+  it("counts a catalog slug or a saved feed URL as a source", () => {
+    expect(
+      hasScheduleSource(
+        convention({ icalUrl: null, catalogSlug: "sample-con" }),
+      ),
+    ).toBe(true);
+    expect(
+      hasScheduleSource(
+        convention({
+          icalUrl: "https://x.example/feed.ics",
+          catalogSlug: null,
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      hasScheduleSource(convention({ icalUrl: null, catalogSlug: null })),
+    ).toBe(false);
+  });
+});
+
+describe("canCheckSchedule", () => {
+  // The convention screen offers "Check for Changes" only where this says
+  // yes. Asking for a source alone showed the item on an ended catalog
+  // download, an archived convention and a feed imported with categories left
+  // out. The refresh skips all three, so the press got no answer at all.
+  it.each([
+    ["has no schedule source", { icalUrl: null, catalogSlug: null }, true],
+    [
+      "is a catalog download that has ended",
+      { icalUrl: null, catalogSlug: "sample-con", status: "ended" as const },
+      true,
+    ],
+    ["is archived", { archivedAt: "2026-09-07T00:00:00.000Z" }, true],
+    ["was imported with categories left out", {}, false],
+  ])(
+    "refuses a convention that %s, and so does a pressed refresh",
+    async (_label, overrides, allCategories) => {
+      storage.getScheduleAllCategories.mockResolvedValue(allCategories);
+      const target = convention(overrides);
+
+      expect(await canCheckSchedule(target)).toBe(false);
+      expect(
+        await refreshConventionSchedule(target, deps, {
+          force: true,
+          now: NOW,
+        }),
+      ).toEqual({ status: "skipped" });
+      expect(fetchScheduleIcs).not.toHaveBeenCalled();
+      expect(catalogSchedule).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ["a saved feed", {}],
+    ["a catalog download", { icalUrl: null, catalogSlug: "sample-con" }],
+  ])("accepts a current convention with %s", async (_label, overrides) => {
+    expect(await canCheckSchedule(convention(overrides))).toBe(true);
+  });
+
+  // The menu has nothing to do with the automatic check's switch or its
+  // interval: a press skips the interval, and works with the switch off.
+  it("ignores the automatic-check setting and the interval", async () => {
+    storage.getScheduleAutoCheck.mockResolvedValue(false);
+    storage.getScheduleCheckedAt.mockResolvedValue(NOW - 60_000);
+
+    expect(await canCheckSchedule(convention())).toBe(true);
+  });
 });
 
 describe("refreshConventionSchedule gates", () => {
@@ -274,7 +396,14 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(result).toEqual({
       status: "applied",
       checkedAt: NOW,
-      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
     expect(runScheduleImport).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -300,6 +429,255 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(runScheduleImport).not.toHaveBeenCalled();
   });
 
+  it("applies panels the feed has gained, quietly", async () => {
+    // Nothing stored moved or went, so the summary has nothing to report. The
+    // new panel still has to reach the schedule rather than wait for some
+    // unrelated panel to move.
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [
+          parsedFeed().events[0],
+          {
+            ...parsedFeed().events[0],
+            sourceUid: "panel-2",
+            title: "New panel",
+            startTime: new Date("2026-09-03T22:00:00.000Z"),
+            endTime: new Date("2026-09-03T23:00:00.000Z"),
+          },
+        ],
+      }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    // `applied` with nothing saved to report: the caches refresh, no notice.
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+    expect(runScheduleImport).toHaveBeenCalledTimes(1);
+    expect(runScheduleImport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conventionId: "con-1",
+        parsedEvents: expect.arrayContaining([
+          expect.objectContaining({ sourceUid: "panel-2" }),
+        ]),
+      }),
+    );
+    expect(storage.setScheduleCheckedAt).toHaveBeenCalledWith("con-1", NOW);
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
+    expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
+  it.each([
+    ["a corrected title", { title: "Panel: Fursuit Basics" }],
+    ["a new description", { description: "Bring a water bottle." }],
+    ["a new content warning", { contentWarning: true }],
+  ])("applies %s quietly", async (_label, edit) => {
+    // Time and place are all the notice counts, so wording and label fixes
+    // are never news — but they are still the convention's current schedule.
+    parseIcs.mockReturnValue(
+      parsedFeed({ events: [{ ...parsedFeed().events[0], ...edit }] }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+    expect(runScheduleImport).toHaveBeenCalledTimes(1);
+    expect(deps.refreshCaches).toHaveBeenCalledWith("con-1");
+  });
+
+  it("keeps applying a feed whose rows an earlier build filed under alarm UIDs", async () => {
+    // Apple exports give each VALARM its own UID, which earlier builds stored
+    // in place of the event's. Without the previous identity nothing overlaps
+    // and every later check comes back untrusted, so the feed stops updating.
+    getByConventionId.mockResolvedValue([
+      storedRow({ sourceUid: "alarm-uid-1" }),
+    ]);
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [
+          {
+            ...parsedFeed().events[0],
+            sourceUid: "event-uid-1",
+            previousSourceUid: "alarm-uid-1",
+          },
+        ],
+      }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    // Nothing moved, so nothing to report, but the write runs and re-files
+    // the saved row under the event's own UID.
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
+    });
+    expect(runScheduleImport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sourceSnapshot: expect.objectContaining({
+          activeOccurrences: [
+            expect.objectContaining({
+              sourceUid: "event-uid-1",
+              previousSourceUid: "alarm-uid-1",
+            }),
+          ],
+        }),
+      }),
+    );
+  });
+
+  it.each([
+    ["the normalized export", normalizeEcpUids(ECP_EXPORT_ICS)],
+    ["the REST expansion", ECP_REST_ICS],
+  ])(
+    "keeps applying an Events Calendar feed stored under export UIDs when it reads %s",
+    async (_body, ics) => {
+      // Earlier builds stored the export's own UIDs whenever the REST expansion
+      // did not win. Both bodies now name each post `<post id>@conpaws.ecp`, so
+      // without the export UID as its previous identity nothing overlaps and
+      // every check, pressed or not, comes back untrusted.
+      const { parseIcs: realParseIcs } =
+        await vi.importActual<typeof import("@/lib/ical-parser")>(
+          "@/lib/ical-parser",
+        );
+      parseIcs.mockImplementation(realParseIcs);
+      getByConventionId.mockResolvedValue(
+        realParseIcs(ECP_EXPORT_ICS).events.map((event) =>
+          storedRow({
+            sourceUid: event.sourceUid,
+            title: event.title,
+            startTime: event.startTime.toISOString(),
+            endTime: event.endTime?.toISOString() ?? null,
+            room: event.room,
+            location: event.location,
+          }),
+        ),
+      );
+      fetchScheduleIcs.mockResolvedValue({ icsContent: ics });
+
+      const result = await refreshConventionSchedule(convention(), deps, {
+        now: NOW,
+      });
+
+      expect(result).toEqual({
+        status: "applied",
+        checkedAt: NOW,
+        summary: {
+          moved: 0,
+          gone: 0,
+          savedMoved: 0,
+          savedGone: 0,
+          nowDropIn: 0,
+          savedNowDropIn: 0,
+        },
+      });
+      expect(runScheduleImport).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceSnapshot: expect.objectContaining({
+            activeOccurrences: [
+              expect.objectContaining({ sourceUid: "8154@conpaws.ecp" }),
+            ],
+          }),
+        }),
+      );
+    },
+  );
+
+  it("tells the user a saved all-day event is now a drop-in, not that it moved", async () => {
+    // Earlier builds stored all-day events with no end. The unchanged feed now
+    // reads as the whole day, which is a drop-in that needs a visit to stay in
+    // the plan, so that is what the notice says.
+    const allDay = {
+      sourceUid: "costume-day",
+      startTime: "2026-09-05T05:00:00.000Z",
+      room: "Room A",
+      location: "Main Hall",
+    };
+    getByConventionId.mockResolvedValue([
+      storedRow({ ...allDay, endTime: null }),
+    ]);
+    parseIcs.mockReturnValue(
+      parsedFeed({
+        events: [
+          {
+            ...parsedFeed().events[0],
+            ...allDay,
+            startTime: new Date(allDay.startTime),
+            endTime: new Date("2026-09-06T05:00:00.000Z"),
+            isAllDay: true,
+          },
+        ],
+      }),
+    );
+
+    const result = await refreshConventionSchedule(convention(), deps, {
+      now: NOW,
+    });
+
+    expect(result).toEqual({
+      status: "applied",
+      checkedAt: NOW,
+      summary: {
+        moved: 0,
+        gone: 0,
+        savedMoved: 0,
+        savedGone: 0,
+        nowDropIn: 1,
+        savedNowDropIn: 1,
+      },
+    });
+    // The end time is still written, so the row files like a fresh import.
+    expect(runScheduleImport).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not pour a feed into a convention that holds none of its rows", async () => {
+    // With nothing to overlap there is no evidence this is the right feed,
+    // the same caution the change summary applies before it trusts one.
+    getByConventionId.mockResolvedValue([
+      storedRow({ id: "hand-added", sourceUid: null }),
+    ]);
+
+    expect(
+      await refreshConventionSchedule(convention(), deps, { now: NOW }),
+    ).toEqual({ status: "unchanged", checkedAt: NOW });
+    expect(runScheduleImport).not.toHaveBeenCalled();
+  });
+
   it("applies a moved panel and refreshes what reads it", async () => {
     parseIcs.mockReturnValue(
       parsedFeed({
@@ -319,7 +697,14 @@ describe("refreshConventionSchedule outcomes", () => {
     expect(result).toEqual({
       status: "applied",
       checkedAt: NOW,
-      summary: { moved: 1, gone: 0, savedMoved: 1, savedGone: 0 },
+      summary: {
+        moved: 1,
+        gone: 0,
+        savedMoved: 1,
+        savedGone: 0,
+        nowDropIn: 0,
+        savedNowDropIn: 0,
+      },
     });
     expect(runScheduleImport).toHaveBeenCalledTimes(1);
     expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);

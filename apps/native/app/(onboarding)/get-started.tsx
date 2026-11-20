@@ -8,6 +8,10 @@ import { Card, Text } from "@/components/ui";
 import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
 import { formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
+import {
+  type OnboardingDestination,
+  onboardingExit,
+} from "@/lib/onboarding-exit";
 import { markOnboardingComplete } from "@/lib/onboarding-storage";
 import { REMINDER_DEFAULT_OPTIONS } from "@/lib/reminder-default-storage";
 
@@ -21,18 +25,11 @@ export default function GetStartedScreen() {
   const [reminder, setReminder] = useState<number | null>(null);
   const locale = currentLocale();
 
-  async function finishOnboarding(
-    destination:
-      | "/convention/find"
-      | "/convention/new/import"
-      | "/(tabs)/(home)",
-  ) {
-    if (replay === "1" && destination === "/(tabs)/(home)") {
-      router.dismissTo("/(tabs)/settings/getting-started");
-      return;
-    }
-    await markOnboardingComplete();
-    router.replace(destination);
+  async function finishOnboarding(destination: OnboardingDestination) {
+    const exit = onboardingExit(replay, destination);
+    if (exit.markComplete) await markOnboardingComplete();
+    if (exit.method === "dismissTo") router.dismissTo(exit.href);
+    else router.replace(exit.href);
   }
 
   return (

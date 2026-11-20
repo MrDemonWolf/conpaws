@@ -230,6 +230,82 @@ export function formatEventDayLabel(
   );
 }
 
+export interface NowHeroTimes {
+  /** "10:00 AM to 11:00 AM" */
+  timeLine: string;
+  callout: { label: string; value: string; sub?: string };
+}
+
+/**
+ * The time line and callout on the Now card. A running hero counts down to
+ * its end; an upcoming one counts down to its start.
+ *
+ * An upcoming hero on a later convention day (a pre-con pick, or tomorrow's
+ * first pick when nothing was saved for today) names its day instead: a bare
+ * "Starts at 10:00 AM" read as a panel that began hours ago, beside a
+ * countdown like "72 h 30 min until it starts".
+ */
+export function formatNowHeroTimes({
+  kind,
+  onAnotherDay,
+  startTime,
+  endTime,
+  nowMs,
+  timeZone,
+  locale,
+  hour12,
+  t,
+}: {
+  kind: "current" | "next";
+  onAnotherDay: boolean;
+  startTime: string;
+  endTime: string | null;
+  nowMs: number;
+  timeZone: string;
+  locale: string;
+  hour12?: boolean;
+  t: TFunction;
+}): NowHeroTimes {
+  const start = formatEventTime(startTime, timeZone, locale, hour12);
+  const end = endTime
+    ? formatEventEndTime(startTime, endTime, timeZone, locale, hour12)
+    : "";
+  const range = endTime
+    ? t("convention.eventTimeRange", { start, end })
+    : start;
+  const laterDay =
+    kind === "next" && onAnotherDay
+      ? formatEventDayLabel(startTime, timeZone, locale)
+      : null;
+  const timeLine = laterDay ? `${laterDay} · ${range}` : range;
+  const minutesTo = (iso: string) =>
+    Math.max(0, Math.round((Date.parse(iso) - nowMs) / 60_000));
+
+  if (kind === "current") {
+    return {
+      timeLine,
+      callout: endTime
+        ? {
+            label: t("convention.now.until"),
+            value: end,
+            sub: formatMinutesLeft(minutesTo(endTime), t),
+          }
+        : {
+            label: t("convention.now.until"),
+            value: t("convention.now.unknownEnd"),
+          },
+    };
+  }
+  return {
+    timeLine,
+    callout: {
+      label: t("convention.now.startsAt"),
+      value: start,
+      sub: laterDay ?? formatMinutesUntilStart(minutesTo(startTime), t),
+    },
+  };
+}
+
 /**
  * The day heading for a plain calendar date.
  *

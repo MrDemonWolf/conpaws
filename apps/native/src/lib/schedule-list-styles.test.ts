@@ -77,4 +77,15 @@ describe("showsScheduleHeader", () => {
     expect(showsScheduleHeader("mine", 2, false)).toBe(true);
     expect(showsScheduleHeader("now", 1, false)).toBe(true);
   });
+
+  it("keeps the day strip on an empty Plan day when other days have saves", () => {
+    // My plan opens on Browse's day. With only Saturday saved, Friday's plan
+    // is empty, and hiding the header took the switcher and the day strip
+    // with it: no way to reach Saturday or All from My plan.
+    expect(showsScheduleHeader("mine", 0, false, true)).toBe(true);
+    // A plan with nothing saved anywhere still gets the centred empty state.
+    expect(showsScheduleHeader("mine", 0, false, false)).toBe(false);
+    // Saves elsewhere do not stand in for an empty Now view.
+    expect(showsScheduleHeader("now", 0, false, true)).toBe(false);
+  });
 });

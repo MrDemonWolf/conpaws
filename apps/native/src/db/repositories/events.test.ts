@@ -1,6 +1,13 @@
+import { DatabaseSync, type SQLInputValue } from "node:sqlite";
+import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { buildIcsFromEcpEvents, normalizeEcpUids } from "@/lib/ecp-feed";
+import { parseIcs } from "@/lib/ical-parser";
+import { toSourceEvents, toSourceSnapshot } from "@/lib/schedule-source";
+import { initializeDatabase } from "../bootstrap";
 import type { ConventionEvent } from "../schema";
 import {
+  getAllInSchedule,
   planSourceReconciliation,
   type SourceEventInput,
   type SourceOccurrenceIdentity,
@@ -10,10 +17,42 @@ import {
 } from "./events";
 
 const { mockDb } = vi.hoisted(() => ({
-  mockDb: { transaction: vi.fn() },
+  mockDb: { transaction: vi.fn(), select: vi.fn() },
 }));
 
 vi.mock("../index", () => ({ db: mockDb }));
+
+/**
+ * A migrated in-memory store behind a read-only Drizzle proxy, for reads whose
+ * filter is the thing under test: the real query runs against the real schema.
+ */
+function migratedStore() {
+  const database = new DatabaseSync(":memory:");
+  initializeDatabase({
+    execSync: (source: string) => {
+      database.exec(source);
+    },
+    getFirstSync: <T>(source: string): T | null =>
+      (database.prepare(source).get() as T | undefined) ?? null,
+  });
+  const store = drizzle(async (query, params) => {
+    const statement = database.prepare(query);
+    const values = params as SQLInputValue[];
+    // setReturnArrays arrived in Node 23.11; CI pins Node 22 (.node-version).
+    // On Node 22 rebuild the arrays from the row objects, which keep column
+    // order. The queries tested here never repeat a column name.
+    if (typeof statement.setReturnArrays === "function") {
+      statement.setReturnArrays(true);
+      return { rows: statement.all(...values) as never[] };
+    }
+    return {
+      rows: statement
+        .all(...values)
+        .map((row) => Object.values(row as Record<string, unknown>)) as never[],
+    };
+  });
+  return { database, store };
+}
 
 function storedEvent(
   overrides: Partial<ConventionEvent> = {},
@@ -81,6 +120,108 @@ function occurrence(
     sourceUrl: null,
     ...overrides,
   };
+}
+
+/** An Apple-style export: the event's VALARM carries a UID of its own. */
+const APPLE_ALARM_ICS = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:event-uid-1
+DTSTART:20260612T160000Z
+DTEND:20260612T170000Z
+SUMMARY:Opening Ceremonies
+DESCRIPTION:Welcome
+BEGIN:VALARM
+UID:alarm-uid-1
+X-WR-ALARMUID:alarm-uid-1
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+/**
+ * That event as an earlier build stored it: the last UID and DESCRIPTION in
+ * the block, the alarm's, replaced the event's own.
+ */
+function alarmKeyedRow(): ConventionEvent {
+  return storedEvent({
+    id: "saved",
+    sourceUid: "alarm-uid-1",
+    title: "Opening Ceremonies",
+    description: "Reminder",
+    startTime: "2026-06-12T16:00:00.000Z",
+    endTime: "2026-06-12T17:00:00.000Z",
+    room: null,
+    category: null,
+    isInSchedule: true,
+    reminderMinutes: 15,
+  });
+}
+
+/** An Events Calendar `?ical=1` export, which names each post by its times. */
+const ECP_EXPORT_ICS = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "PRODID:-//Example Con - ECPv6.17.3.1//NONSGML v1.0//EN",
+  "X-WR-TIMEZONE:America/Chicago",
+  "BEGIN:VEVENT",
+  "UID:8154-1788454800-1788458400@examplecon.org",
+  "DTSTART:20260903T170000Z",
+  "DTEND:20260903T180000Z",
+  "SUMMARY:Opening Ceremonies",
+  "LOCATION:Main Stage",
+  "END:VEVENT",
+  "BEGIN:VEVENT",
+  "UID:6569-1788462000-1788465600@examplecon.org",
+  "DTSTART:20260903T190000Z",
+  "DTEND:20260903T200000Z",
+  "SUMMARY:Fursuit Parade",
+  "LOCATION:Main Stage",
+  "END:VEVENT",
+  "END:VCALENDAR",
+].join("\r\n");
+
+/** The same two posts as the REST expansion renders them. */
+const ECP_REST_ICS = buildIcsFromEcpEvents([
+  {
+    id: 8154,
+    title: "Opening Ceremonies",
+    utc_start_date: "2026-09-03 17:00:00",
+    utc_end_date: "2026-09-03 18:00:00",
+    timezone: "America/Chicago",
+    venue: { venue: "Main Stage" },
+  },
+  {
+    id: 6569,
+    title: "Fursuit Parade",
+    utc_start_date: "2026-09-03 19:00:00",
+    utc_end_date: "2026-09-03 20:00:00",
+    timezone: "America/Chicago",
+    venue: { venue: "Main Stage" },
+  },
+]);
+
+/**
+ * That export as builds before UID normalization stored it, under the
+ * export's own UIDs. The opening is saved with a reminder; the parade is not.
+ */
+function ecpExportKeyedRows(): ConventionEvent[] {
+  return parseIcs(ECP_EXPORT_ICS).events.map((event) =>
+    storedEvent({
+      id: event.sourceUid.split("-")[0],
+      sourceUid: event.sourceUid,
+      title: event.title,
+      startTime: event.startTime.toISOString(),
+      endTime: event.endTime?.toISOString() ?? null,
+      location: event.location,
+      room: event.room,
+      category: event.category,
+      isInSchedule: event.title === "Opening Ceremonies",
+      reminderMinutes: event.title === "Opening Ceremonies" ? 15 : null,
+    }),
+  );
 }
 
 function snapshot(
@@ -534,6 +675,162 @@ describe("source snapshot reconciliation", () => {
     });
   });
 
+  it("re-files a saved row an earlier build stored under an alarm's UID", () => {
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      toSourceEvents(parsed.events, "convention-1"),
+      toSourceSnapshot(parsed, true),
+    );
+
+    // Not a removal and a fresh unsaved copy: the same row, re-filed under
+    // the event's own UID with its own description, star and reminder kept.
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals).toEqual([]);
+    expect(plan.inserts).toEqual([]);
+    expect(plan.updates).toEqual([
+      {
+        existingId: "saved",
+        event: expect.objectContaining({
+          sourceUid: "event-uid-1",
+          description: "Welcome",
+        }),
+      },
+    ]);
+  });
+
+  it("re-files it from the imported rows when the snapshot omits the previous identity", () => {
+    // The import screen builds its snapshot field by field.
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+    const full = toSourceSnapshot(parsed, true);
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      toSourceEvents(parsed.events, "convention-1"),
+      {
+        ...full,
+        activeOccurrences: full.activeOccurrences.map(
+          ({ previousSourceUid: _, ...identity }) => identity,
+        ),
+      },
+    );
+
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.inserts).toEqual([]);
+    expect(plan.updates).toEqual([
+      {
+        existingId: "saved",
+        event: expect.objectContaining({ sourceUid: "event-uid-1" }),
+      },
+    ]);
+  });
+
+  it("moves only the identity of an unselected event stored under an alarm's UID", () => {
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      [],
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(plan.identityUpdates).toEqual([
+      { existingId: "saved", sourceUid: "event-uid-1" },
+    ]);
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals).toEqual([]);
+    expect(plan.inserts).toEqual([]);
+  });
+
+  it("does not hand one alarm UID to two events that both claim it", () => {
+    // A feed reusing one alarm UID everywhere gives no way to tell which
+    // event the stored row was, so it is treated as an unknown row.
+    const parsed = parseIcs(
+      APPLE_ALARM_ICS.replace(
+        "END:VCALENDAR",
+        `BEGIN:VEVENT
+UID:event-uid-2
+DTSTART:20260612T180000Z
+SUMMARY:Second Panel
+BEGIN:VALARM
+UID:alarm-uid-1
+ACTION:DISPLAY
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR`,
+      ),
+      { timeZone: "UTC" },
+    );
+
+    const plan = planSourceReconciliation(
+      [alarmKeyedRow()],
+      toSourceEvents(parsed.events, "convention-1"),
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(plan.updates).toEqual([]);
+    expect(plan.identityUpdates).toEqual([]);
+    expect(plan.inserts).toHaveLength(2);
+    expect(plan.tombstones).toEqual([
+      { existingId: "saved", status: "removed" },
+    ]);
+  });
+
+  it.each([
+    ["the normalized export", normalizeEcpUids(ECP_EXPORT_ICS)],
+    ["the REST expansion", ECP_REST_ICS],
+  ])(
+    "re-files rows stored under Events Calendar export UIDs on a URL re-import of %s",
+    (_body, ics) => {
+      // Without the export UID as each post's previous identity, an
+      // authoritative re-import marked the saved panel removed, deleted the
+      // other and inserted both again as unsaved copies.
+      const parsed = parseIcs(ics);
+
+      const plan = planSourceReconciliation(
+        ecpExportKeyedRows(),
+        toSourceEvents(parsed.events, "convention-1"),
+        toSourceSnapshot(parsed, true),
+      );
+
+      expect(plan.tombstones).toEqual([]);
+      expect(plan.removals).toEqual([]);
+      expect(plan.inserts).toEqual([]);
+      expect(plan.updates).toEqual([
+        {
+          existingId: "6569",
+          event: expect.objectContaining({ sourceUid: "6569@conpaws.ecp" }),
+        },
+        {
+          existingId: "8154",
+          event: expect.objectContaining({ sourceUid: "8154@conpaws.ecp" }),
+        },
+      ]);
+    },
+  );
+
+  it("re-files rows stored under Events Calendar export UIDs when the same file is picked again", () => {
+    // A file import adds what it does not recognise, so every post used to
+    // land a second time beside its stored row.
+    const parsed = parseIcs(normalizeEcpUids(ECP_EXPORT_ICS));
+
+    const plan = planSourceReconciliation(
+      ecpExportKeyedRows(),
+      toSourceEvents(parsed.events, "convention-1"),
+      toSourceSnapshot(parsed, false),
+    );
+
+    expect(plan.inserts).toEqual([]);
+    expect(plan.tombstones).toEqual([]);
+    expect(plan.removals).toEqual([]);
+    expect(plan.updates.map((update) => update.existingId)).toEqual([
+      "6569",
+      "8154",
+    ]);
+  });
+
   it("keeps absent source rows when the snapshot is partial", () => {
     const feedEvent = storedEvent({ id: "feed" });
     const manual = storedEvent({ id: "manual", sourceUid: null });
@@ -724,6 +1021,88 @@ describe("upsertBySourceUid transaction", () => {
     expect(recorder.inserts[0].id).toEqual(expect.any(String));
   });
 
+  it("re-files a saved alarm-keyed row in place: no tombstone, no insert", async () => {
+    const recorder = recordingTx([alarmKeyedRow()]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+    const parsed = parseIcs(APPLE_ALARM_ICS, { timeZone: "UTC" });
+
+    const result = await upsertBySourceUid(
+      toSourceEvents(parsed.events, "convention-1"),
+      "convention-1",
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(result).toMatchObject({
+      added: 0,
+      updated: 1,
+      removedEventIds: [],
+      tombstonedEventIds: [],
+    });
+    expect(recorder.inserts).toEqual([]);
+    expect(recorder.updates).toEqual([
+      expect.objectContaining({
+        sourceUid: "event-uid-1",
+        description: "Welcome",
+        feedStatus: null,
+      }),
+    ]);
+  });
+
+  it("re-files saved Events Calendar export rows in place: no tombstone, no insert", async () => {
+    const recorder = recordingTx(ecpExportKeyedRows());
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+    const parsed = parseIcs(normalizeEcpUids(ECP_EXPORT_ICS));
+
+    const result = await upsertBySourceUid(
+      toSourceEvents(parsed.events, "convention-1"),
+      "convention-1",
+      toSourceSnapshot(parsed, true),
+    );
+
+    expect(result).toMatchObject({
+      added: 0,
+      updated: 2,
+      removedEventIds: [],
+      tombstonedEventIds: [],
+    });
+    expect(recorder.inserts).toEqual([]);
+    // Only the identity moves; the star and reminder stay on the same rows.
+    expect(recorder.updates).toEqual([
+      expect.objectContaining({ sourceUid: "6569@conpaws.ecp" }),
+      expect.objectContaining({ sourceUid: "8154@conpaws.ecp" }),
+    ]);
+    for (const payload of recorder.updates) {
+      expect(Object.keys(payload)).not.toContain("isInSchedule");
+      expect(Object.keys(payload)).not.toContain("reminderMinutes");
+    }
+  });
+
+  it("does not carry previousSourceUid into an inserted row", async () => {
+    const recorder = recordingTx([]);
+    mockDb.transaction.mockImplementation((body: (tx: unknown) => unknown) =>
+      body(recorder.tx),
+    );
+
+    await upsertBySourceUid(
+      [
+        sourceEvent({
+          sourceUid: "brand-new",
+          legacySourceUid: null,
+          previousSourceUid: "alarm-uid",
+        }),
+      ],
+      "convention-1",
+      snapshot(),
+    );
+
+    expect(recorder.inserts).toHaveLength(1);
+    expect(Object.keys(recorder.inserts[0])).not.toContain("previousSourceUid");
+  });
+
   it("deletes exactly the rows the plan removed", async () => {
     const gone = storedEvent({
       id: "gone",
@@ -739,6 +1118,38 @@ describe("upsertBySourceUid transaction", () => {
 
     expect(result.removedEventIds).toEqual(["gone"]);
     expect(recorder.deletes()).toBe(1);
+  });
+});
+
+describe("getAllInSchedule", () => {
+  it("leaves out saved events from an archived convention", async () => {
+    const { database, store } = migratedStore();
+    database.exec(`
+      INSERT INTO conventions (id, name, start_date, end_date, archived_at)
+      VALUES
+        ('attending', 'Attending Con', '2026-12-01', '2026-12-03', NULL),
+        ('archived', 'Archived Con', '2026-12-10', '2026-12-12',
+          '2026-11-20T00:00:00.000Z');
+      INSERT INTO convention_events
+        (id, convention_id, title, start_time, is_in_schedule, reminder_minutes)
+      VALUES
+        ('kept', 'attending', 'Kept', '2026-12-01T15:00:00Z', 1, 15),
+        ('unsaved', 'attending', 'Unsaved', '2026-12-01T16:00:00Z', 0, NULL),
+        ('hidden', 'archived', 'Hidden', '2026-12-10T15:00:00Z', 1, 15);
+    `);
+    mockDb.select.mockImplementation(store.select.bind(store));
+
+    const rows = await getAllInSchedule();
+
+    // Archiving cancels the reminders and refuses tracking, so the archived
+    // convention's saved panels must leave the Schedule tab too, or it lists
+    // a plan with reminder chips that will never fire.
+    expect(rows.map((row) => row.event.id)).toEqual(["kept"]);
+    expect(rows[0]).toMatchObject({
+      conventionName: "Attending Con",
+      event: { isInSchedule: true, reminderMinutes: 15 },
+    });
+    database.close();
   });
 });
 

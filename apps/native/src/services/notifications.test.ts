@@ -5,9 +5,11 @@ import {
   cancelTestNotifications,
   getNotificationPermissionStatus,
   reconcileEventReminders,
+  reminderBodyKey,
   requestNotificationPermission,
   scheduleEventReminder,
   scheduleTestNotification,
+  withReminderLock,
 } from "./notifications";
 
 const notificationMocks = vi.hoisted(() => ({
@@ -326,6 +328,70 @@ describe("startup reminder reconciliation", () => {
     );
   });
 
+  /** Each scheduled reminder's body and trigger, keyed by its identifier. */
+  function scheduledReminders() {
+    return Object.fromEntries(
+      notificationMocks.scheduleNotificationAsync.mock.calls.map(
+        ([request]) => [
+          request.identifier,
+          [request.content.body, request.trigger.date],
+        ],
+      ),
+    );
+  }
+
+  it("says an at-event-time reminder is starting now, not in 0 min", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([
+      reminderEvent({ reminderMinutes: 0 }),
+      reminderEvent({
+        id: "event-2",
+        reminderMinutes: 0,
+        room: null,
+        location: null,
+      }),
+    ]);
+
+    await reconcileEventReminders();
+
+    const start = new Date("2026-08-17T13:00:00Z");
+    expect(scheduledReminders()).toEqual({
+      "reminder-event-1": ["Starting now · Main Stage", start],
+      "reminder-event-2": ["Starting now", start],
+    });
+  });
+
+  it("picks the starting-now strings for an at-event-time reminder", async () => {
+    i18nMock.isInitialized = true;
+    i18nMock.t.mockImplementation((key: string) => key);
+    const roomless = { room: null, location: null };
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([
+      reminderEvent({ reminderMinutes: 0 }),
+      reminderEvent({ id: "event-2", reminderMinutes: 0, ...roomless }),
+      reminderEvent({ id: "event-3", reminderMinutes: 15, ...roomless }),
+    ]);
+
+    await reconcileEventReminders();
+
+    expect(scheduledReminders()).toEqual({
+      "reminder-event-1": [
+        "reminders.notificationBodyNowWithRoom",
+        expect.any(Date),
+      ],
+      "reminder-event-2": ["reminders.notificationBodyNow", expect.any(Date)],
+      "reminder-event-3": ["reminders.notificationBody", expect.any(Date)],
+    });
+    // The reminder picker builds its own copy of the text; it must choose the
+    // same way.
+    expect(reminderBodyKey(0, "Main Stage")).toBe(
+      "reminders.notificationBodyNowWithRoom",
+    );
+    expect(reminderBodyKey(0, null)).toBe("reminders.notificationBodyNow");
+    expect(reminderBodyKey(5, "Main Stage")).toBe(
+      "reminders.notificationBodyWithRoom",
+    );
+    expect(reminderBodyKey(5, null)).toBe("reminders.notificationBody");
+  });
+
   it("uses the active app language when a reminder is rebuilt", async () => {
     i18nMock.isInitialized = true;
     i18nMock.t.mockImplementation((key: string) =>
@@ -414,6 +480,34 @@ describe("convention reminder cleanup", () => {
     expect(
       notificationMocks.cancelScheduledNotificationAsync,
     ).toHaveBeenCalledWith("reminder-event-2");
+  });
+});
+
+describe("withReminderLock", () => {
+  it("runs reminder work one at a time and carries on after a failure", async () => {
+    const steps: string[] = [];
+    let releaseFirst!: () => void;
+    const first = withReminderLock(async () => {
+      steps.push("first:start");
+      await new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      steps.push("first:end");
+      throw new Error("native call failed");
+    });
+    const second = withReminderLock(async () => {
+      steps.push("second");
+      return "done";
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(steps).toEqual(["first:start"]);
+
+    releaseFirst();
+    await expect(first).rejects.toThrow("native call failed");
+    await expect(second).resolves.toBe("done");
+    expect(steps).toEqual(["first:start", "first:end", "second"]);
   });
 });
 

@@ -111,8 +111,14 @@ export function Banner({
           accessibilityLabel={dismissLabel}
           // Dismissing hides this sentence, never the marks on the rows. The
           // record of what happened stays where the reader will look for it.
-          hitSlop={12}
-          className={PRESS_DIM}
+          // A real 48 box rather than hitSlop round a 17pt glyph: scanners
+          // measure the view, and slop past the banner is not hit-tested on
+          // Android. The negative margins cancel the banner's py-2.5 and
+          // px-3, so the box reaches its edges instead of growing it.
+          className={cn(
+            "-my-2.5 -me-3 size-[48px] items-center justify-center",
+            PRESS_DIM,
+          )}
         >
           <X size={17} color={iconColor} />
         </Pressable>

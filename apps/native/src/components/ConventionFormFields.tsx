@@ -1,9 +1,9 @@
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
+// See components/ui/FieldRow.tsx — one Material surface per row.
 
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { DatePicker as SwiftDatePicker } from "@expo/ui/swift-ui";
 import { datePickerStyle } from "@expo/ui/swift-ui/modifiers";
-import { useMemo, useState } from "react";
+import { type ReactElement, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Modal, Pressable, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -36,7 +36,20 @@ export interface ConventionDateFieldProps {
   onChange: (value: Date) => void;
 }
 
-export function ConventionDateField({
+export interface ConventionDateFieldParts {
+  /** A direct child of `FieldGroup.Section`. */
+  row: ReactElement;
+  /** Rendered after the form's `Host`, outside the section. Android only. */
+  dialog: ReactElement | null;
+}
+
+/**
+ * A hook, not a component, so the section gets the row element itself. On
+ * Android `FieldGroup.Section` keeps a row as-is only when it is the
+ * universal `ListItem`; a component that renders one, or a fragment pairing
+ * it with its picker, is wrapped in a second Compose `ListItem`.
+ */
+export function useConventionDateField({
   title,
   value,
   minimumDate,
@@ -44,48 +57,52 @@ export function ConventionDateField({
   timeZoneName,
   colorScheme,
   onChange,
-}: ConventionDateFieldProps) {
+}: ConventionDateFieldProps): ConventionDateFieldParts {
   const [dialogVisible, setDialogVisible] = useState(false);
 
   if (process.env.EXPO_OS === "ios") {
-    return (
-      <SwiftDatePicker
-        title={title}
-        selection={value}
-        range={{ start: minimumDate }}
-        displayedComponents={["date"]}
-        onDateChange={onChange}
-        modifiers={[datePickerStyle("compact")]}
-      />
-    );
+    return {
+      row: (
+        <SwiftDatePicker
+          title={title}
+          selection={value}
+          range={{ start: minimumDate }}
+          displayedComponents={["date"]}
+          onDateChange={onChange}
+          modifiers={[datePickerStyle("compact")]}
+        />
+      ),
+      dialog: null,
+    };
   }
 
-  return (
-    <>
+  return {
+    row: (
       <ListItem
         onPress={() => setDialogVisible(true)}
         supportingText={formatMediumDate(value, locale)}
       >
         {title}
       </ListItem>
-      {dialogVisible ? (
-        <DateTimePicker
-          value={value}
-          mode="date"
-          minimumDate={minimumDate}
-          locale={locale}
-          timeZoneName={timeZoneName}
-          themeVariant={colorScheme}
-          presentation="dialog"
-          onValueChange={(_, nextValue) => {
-            onChange(nextValue);
-            setDialogVisible(false);
-          }}
-          onDismiss={() => setDialogVisible(false)}
-        />
-      ) : null}
-    </>
-  );
+    ),
+    // The picker brings its own Host, so it stays out of the form's.
+    dialog: dialogVisible ? (
+      <DateTimePicker
+        value={value}
+        mode="date"
+        minimumDate={minimumDate}
+        locale={locale}
+        timeZoneName={timeZoneName}
+        themeVariant={colorScheme}
+        presentation="dialog"
+        onValueChange={(_, nextValue) => {
+          onChange(nextValue);
+          setDialogVisible(false);
+        }}
+        onDismiss={() => setDialogVisible(false)}
+      />
+    ) : null,
+  };
 }
 
 export interface TimeZonePickerModalProps {
@@ -149,7 +166,7 @@ export function TimeZonePickerModal({
               onPress={handleClose}
               className={cn(
                 TAP_TARGET,
-                "min-w-12 items-end justify-center",
+                "min-w-[48px] items-end justify-center",
                 PRESS_DIM,
               )}
             >

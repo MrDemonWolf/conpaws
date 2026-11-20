@@ -127,11 +127,9 @@ export function EmptyState({
       >
         {ctaLabel && onCta ? (
           compact ? (
-            <Button
-              className="min-h-12 w-full"
-              onPress={onCta}
-              testID={ctaTestID}
-            >
+            // No min-h class on these Buttons: tailwind-merge would let it
+            // replace Button's own 48 floor, and min-h-12 renders 42.
+            <Button className="w-full" onPress={onCta} testID={ctaTestID}>
               {ctaLabel}
             </Button>
           ) : Platform.OS === "ios" ? (
@@ -154,7 +152,7 @@ export function EmptyState({
             // the Host does not override it. The plain button sizes to its
             // own content, which is what centring needs.
             <Button
-              className="min-h-12 self-center px-6"
+              className="self-center px-6"
               onPress={onCta}
               testID={ctaTestID}
             >
@@ -165,7 +163,7 @@ export function EmptyState({
         {secondaryCtaLabel && onSecondaryCta ? (
           compact ? (
             <Button
-              className="min-h-12 w-full"
+              className="w-full"
               onPress={onSecondaryCta}
               testID={secondaryCtaTestID}
               variant={secondaryCtaVariant === "outlined" ? "outline" : "ghost"}
@@ -184,7 +182,7 @@ export function EmptyState({
             </Host>
           ) : (
             <Button
-              className="min-h-12 self-center px-6"
+              className="self-center px-6"
               onPress={onSecondaryCta}
               testID={secondaryCtaTestID}
               // Honor the requested variant — hardcoding ghost made the

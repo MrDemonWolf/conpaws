@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Modal, Pressable, ScrollView, Switch, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  Switch,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { NativeDateTimeField } from "@/components/convention-detail/NativeDateTimeField";
+import { formTitleOnOwnRow } from "@/components/FormModalHeader.shared";
 import {
   Card,
   Input,
@@ -66,6 +74,8 @@ function ManualEventModalContent({
 }: ManualEventModalProps) {
   const { t } = useTranslation();
   const locale = currentLocale();
+  const { width, fontScale } = useWindowDimensions();
+  const titleOnOwnRow = formTitleOnOwnRow(width, fontScale);
   const [values, setValues] = useState<ManualEventTextValues>(
     EMPTY_MANUAL_EVENT_TEXT,
   );
@@ -162,42 +172,58 @@ function ManualEventModalContent({
       }}
     >
       <SafeView>
-        <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-          <Pressable
-            onPress={requestClose}
-            disabled={saving}
-            accessibilityRole="button"
-            accessibilityLabel={t("convention.manualEvent.cancelLabel")}
-            // Matches Save opposite it. Without this VoiceOver offered Cancel
-            // as available all through a save that had already disabled it.
-            accessibilityState={{ disabled: saving }}
-            className={cn(
-              TAP_TARGET,
-              "min-w-12 justify-center pr-3 disabled:opacity-50",
-              PRESS_DIM,
-            )}
-          >
-            <Text className="text-primary">{t("common.cancel")}</Text>
-          </Pressable>
-          <Text variant="h3" accessibilityRole="header">
-            {t("convention.addEvent")}
-          </Text>
-          <Pressable
-            onPress={handleSave}
-            disabled={saving}
-            accessibilityRole="button"
-            accessibilityLabel={t("convention.manualEvent.saveLabel")}
-            accessibilityState={{ disabled: saving, busy: saving }}
-            className={cn(
-              TAP_TARGET,
-              "min-w-12 justify-center pl-3 disabled:opacity-50",
-              PRESS_DIM,
-            )}
-          >
-            <Text className="text-primary font-semibold">
-              {saving ? t("convention.manualEvent.saving") : t("common.save")}
+        {/* The title shrinks and wraps between Cancel and Save, and moves to
+            its own row at large text, like the Android form header. A title
+            that did neither pushed Save off screen in French or Dutch. */}
+        <View className="border-b border-border px-4 py-3">
+          <View className="flex-row flex-wrap items-center gap-2">
+            <Pressable
+              onPress={requestClose}
+              disabled={saving}
+              accessibilityRole="button"
+              accessibilityLabel={t("convention.manualEvent.cancelLabel")}
+              // Matches Save opposite it. Without this VoiceOver offered Cancel
+              // as available all through a save that had already disabled it.
+              accessibilityState={{ disabled: saving }}
+              className={cn(
+                TAP_TARGET,
+                "min-w-[48px] shrink-0 justify-center pr-3 disabled:opacity-50",
+                PRESS_DIM,
+              )}
+            >
+              <Text className="text-primary">{t("common.cancel")}</Text>
+            </Pressable>
+            {!titleOnOwnRow ? (
+              <Text
+                variant="h3"
+                accessibilityRole="header"
+                className="min-w-0 flex-1 text-center"
+              >
+                {t("convention.addEvent")}
+              </Text>
+            ) : null}
+            <Pressable
+              onPress={handleSave}
+              disabled={saving}
+              accessibilityRole="button"
+              accessibilityLabel={t("convention.manualEvent.saveLabel")}
+              accessibilityState={{ disabled: saving, busy: saving }}
+              className={cn(
+                TAP_TARGET,
+                "ml-auto min-w-[48px] shrink-0 justify-center pl-3 disabled:opacity-50",
+                PRESS_DIM,
+              )}
+            >
+              <Text className="text-primary font-semibold">
+                {saving ? t("convention.manualEvent.saving") : t("common.save")}
+              </Text>
+            </Pressable>
+          </View>
+          {titleOnOwnRow ? (
+            <Text variant="h3" accessibilityRole="header" className="pt-2">
+              {t("convention.addEvent")}
             </Text>
-          </Pressable>
+          ) : null}
         </View>
 
         <ScrollView
@@ -275,12 +301,14 @@ function ManualEventModalContent({
               />
             </View>
             {includeEndTime ? (
+              // No minimumDate: the iOS time-only picker cannot change its day,
+              // so bounding it by the start blocked every overnight end.
+              // updateManualEventEnd rolls an earlier clock to the next day.
               <NativeDateTimeField
                 label={t("convention.manualEvent.endLabel")}
                 value={times.endTime}
                 mode="time"
                 locale={locale}
-                minimumDate={times.startTime}
                 testID="manual-event-end-picker"
                 onChange={(value) => {
                   setTimes((current) => updateManualEventEnd(current, value));

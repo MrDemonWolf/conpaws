@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const publishSnapshot = vi.fn((_json: string) => true);
+const getWidgetStrings = vi.fn(
+  (_locale: string): Record<string, unknown> | null => null,
+);
 const publishPhoneWidget = vi.fn();
 const getAll = vi.fn();
 
 vi.mock("expo", () => ({
-  requireOptionalNativeModule: () => ({ publishSnapshot }),
+  requireOptionalNativeModule: () => ({ publishSnapshot, getWidgetStrings }),
 }));
 vi.mock("expo-constants", () => ({ default: { expoConfig: {} } }));
 vi.mock("expo-localization", () => ({
@@ -46,6 +49,34 @@ describe("publishWidgetSnapshot", () => {
         presentation: expect.objectContaining({ hour12: false }),
       }),
     );
+  });
+
+  it("hands the phone widget only the strings it reads, not the whole Watch table", async () => {
+    // Every iOS timeline entry carries this table, so the Watch's share of it
+    // used up the entry budget and expired the widget early.
+    const minutesUnit = {
+      one: "%@ minute",
+      few: "%@ minutes",
+      other: "%@ minutes",
+      obliqueOne: "%@ minute",
+      obliqueFew: "%@ minutes",
+      obliqueOther: "%@ minutes",
+    };
+    getWidgetStrings.mockReturnValueOnce({
+      language: "en",
+      upNextCaps: "UP NEXT",
+      minutesUnit,
+      savedCaps: "SAVED",
+      watchRemoveFormat: "Remove %@ from your plan",
+    });
+    getAll.mockResolvedValueOnce([]);
+    await publishWidgetSnapshot();
+    expect(getWidgetStrings).toHaveBeenCalledWith("en");
+    expect(publishPhoneWidget.mock.calls[0]?.[0].presentation.strings).toEqual({
+      language: "en",
+      upNextCaps: "UP NEXT",
+      minutesUnit,
+    });
   });
 
   it("gives only the iOS Watch payload descriptions and options", async () => {

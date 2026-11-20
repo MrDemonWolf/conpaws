@@ -28,6 +28,12 @@ export interface ParsedEvent {
   ageRating: AgeRating | null;
   sourceUid: string;
   legacySourceUid: string | null;
+  /**
+   * The identity an earlier build stored this event under, when it differs
+   * from `sourceUid`. Builds that still read nested VALARM lines let an
+   * alarm's own UID (Apple and iCloud exports carry one) replace the event's.
+   */
+  previousSourceUid: string | null;
   recurrenceTime: Date | null;
   sourceUrl: string | null;
   isAgeRestricted: boolean;
@@ -206,6 +212,40 @@ function parseDateTime(value: string, timeZone: string | null): Date | null {
 }
 
 /**
+ * Where an all-day event ends. DTEND is exclusive, so a Friday-to-Sunday
+ * weekend arrives with Monday's date, and with neither DTEND nor DURATION the
+ * event lasts one day (RFC 5545 §3.6.1). Days are counted on the convention's
+ * calendar rather than as 24-hour blocks, so a span across a DST change still
+ * ends at local midnight. Keeping the real span is what lets the schedule file
+ * a weekend-long room under drop-ins instead of a one-hour slot at midnight.
+ */
+function allDayEndTime(
+  date: { year: number; month: number; day: number },
+  startTime: Date,
+  parsedEnd: Date | null,
+  duration: RegExpMatchArray | null,
+  timeZone: string,
+): Date {
+  if (parsedEnd && parsedEnd.getTime() > startTime.getTime()) return parsedEnd;
+  if (duration) {
+    const days = Number(duration[1] ?? 0) * 7 + Number(duration[2] ?? 0);
+    const timeMs =
+      (Number(duration[3] ?? 0) * 3_600 +
+        Number(duration[4] ?? 0) * 60 +
+        Number(duration[5] ?? 0)) *
+      1_000;
+    const end = new Date(
+      fromConventionTime(
+        { ...date, day: date.day + days },
+        timeZone,
+      ).getTime() + timeMs,
+    );
+    if (end.getTime() > startTime.getTime()) return end;
+  }
+  return fromConventionTime({ ...date, day: date.day + 1 }, timeZone);
+}
+
+/**
  * Split a feed's LOCATION into a venue and a room.
  *
  * Two separators, because the two export shapes we see use different ones:
@@ -337,14 +377,26 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       isValidTimeZone,
     ) ?? null;
 
-  // Split into VEVENT blocks
+  // Split into VEVENT blocks. A VEVENT can hold sub-components, usually a
+  // VALARM, whose UID, SUMMARY, DESCRIPTION and DURATION belong to the alarm,
+  // not the event. Their lines are left out of the block, or the last one read
+  // would replace the event's own value.
   const eventBlocks: string[][] = [];
+  // Earlier builds did read those lines, so the last UID anywhere in the block
+  // is the one they stored. Kept per block to recognise those rows.
+  const previousUids: (string | null)[] = [];
   let currentBlock: string[] | null = null;
+  let previousUid: string | null = null;
+  let nestedDepth = 0;
 
   for (const line of lines) {
     if (line === "BEGIN:VEVENT") {
       currentBlock = [];
+      previousUid = null;
+      nestedDepth = 0;
     } else if (line === "END:VEVENT") {
+      // Closes the event even when a sub-component was left unterminated.
+      nestedDepth = 0;
       if (currentBlock) {
         if (eventBlocks.length >= MAX_ICS_EVENTS) {
           throw new CalendarTooLargeError(
@@ -352,10 +404,20 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
           );
         }
         eventBlocks.push(currentBlock);
+        previousUids.push(previousUid);
         currentBlock = null;
       }
     } else if (currentBlock !== null) {
-      currentBlock.push(line);
+      // Case-sensitive, matching the property lookup those builds used.
+      if (extractPropName(line) === "UID") previousUid = extractValue(line);
+      const propName = extractPropName(line).toUpperCase();
+      if (propName === "BEGIN") {
+        nestedDepth++;
+      } else if (nestedDepth > 0) {
+        if (propName === "END") nestedDepth--;
+      } else {
+        currentBlock.push(line);
+      }
     }
   }
 
@@ -458,7 +520,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     return !cancelledSourceUids.has(sourceUid) && !cancelledSourceUids.has(uid);
   });
 
-  for (const block of eventBlocks) {
+  for (const [blockIndex, block] of eventBlocks.entries()) {
     // Null-prototype maps: a feed is free to name a property __proto__, and on
     // a plain object literal that assignment would reach Object.prototype
     // instead of landing as a key.
@@ -512,6 +574,16 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
     if (seenUids.has(dedupeKey)) continue;
     seenUids.add(dedupeKey);
 
+    const previousUid = previousUids[blockIndex] ?? uid;
+    const previousKey = recurrenceId
+      ? `${previousUid}|${recurrenceId}`
+      : previousUid;
+    // Those builds refused a longer UID, so no stored row can hold one.
+    const previousSourceUid =
+      previousKey !== dedupeKey && previousKey.length <= MAX_FIELD_CHARS
+        ? previousKey
+        : null;
+
     const rawSummary = props.SUMMARY ?? "";
     const title = decodeHtmlEntities(unescapeText(rawSummary)).trim();
     if (!title) continue;
@@ -532,9 +604,10 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
 
     if (!startTime) continue;
 
-    const isAllDay = /^\d{8}$/.test(
-      (props.DTSTART ?? "").split(":").pop() ?? "",
+    const allDayDate = ((props.DTSTART ?? "").split(":").pop() ?? "").match(
+      /^(\d{4})(\d{2})(\d{2})$/,
     );
+    const isAllDay = allDayDate !== null;
     const parsedEnd = parseDateTime(
       props.DTEND ?? "",
       timeZones.DTEND ?? startTimeZone,
@@ -550,12 +623,23 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
         1_000
       : 0;
     const hasDuration = duration?.slice(1).some(Boolean) ?? false;
-    const endTime = isAllDay
-      ? null
-      : (parsedEnd ??
-        (props.DTEND === undefined && hasDuration
-          ? new Date(startTime.getTime() + durationMs)
-          : null));
+    const endTime =
+      allDayDate && startTimeZone
+        ? allDayEndTime(
+            {
+              year: +allDayDate[1],
+              month: +allDayDate[2],
+              day: +allDayDate[3],
+            },
+            startTime,
+            parsedEnd,
+            props.DTEND === undefined && hasDuration ? duration : null,
+            startTimeZone,
+          )
+        : (parsedEnd ??
+          (props.DTEND === undefined && hasDuration
+            ? new Date(startTime.getTime() + durationMs)
+            : null));
 
     const rawLocation = props.LOCATION ?? null;
     let location: string | null = null;
@@ -608,6 +692,7 @@ export function parseIcs(raw: string, options: ParseOptions = {}): ParseResult {
       sourceUid: dedupeKey,
       recurrenceTime,
       legacySourceUid: recurrenceId ? uid : null,
+      previousSourceUid,
       sourceUrl,
       isAgeRestricted,
       contentWarning,

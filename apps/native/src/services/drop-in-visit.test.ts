@@ -2,16 +2,19 @@ import { beforeEach, expect, it, vi } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
 import { removeDropInVisit, saveDropInVisit } from "./drop-in-visit";
 
-const { update, schedule, cancel, getById } = vi.hoisted(() => ({
+const { update, schedule, cancel, getById, permission } = vi.hoisted(() => ({
   update: vi.fn(),
   getById: vi.fn(),
   schedule: vi.fn(),
   cancel: vi.fn(),
+  permission: vi.fn(),
 }));
 vi.mock("@/db/repositories/events", () => ({ update, getById }));
 vi.mock("./notifications", () => ({
   scheduleEventReminder: schedule,
   cancelEventReminder: cancel,
+  getNotificationPermissionStatus: permission,
+  withReminderLock: (work: () => Promise<unknown>) => work(),
 }));
 const event = {
   id: "market",
@@ -27,26 +30,67 @@ beforeEach(() => {
   getById.mockReset().mockResolvedValue(event);
   schedule.mockReset().mockResolvedValue("armed");
   cancel.mockReset().mockResolvedValue(true);
+  permission.mockReset().mockResolvedValue("granted");
 });
+const savedVisit = {
+  visitStartTime: "2027-01-01T12:00:00.000Z",
+  visitEndTime: "2027-01-01T12:30:00.000Z",
+  isInSchedule: true,
+  reminderMinutes: 15,
+};
 it("persists visit times separately and arms its reminder", async () => {
   await saveDropInVisit(event, draft, "UTC", 15);
-  expect(update).toHaveBeenCalledWith("market", {
-    visitStartTime: "2027-01-01T12:00:00.000Z",
-    visitEndTime: "2027-01-01T12:30:00.000Z",
-    isInSchedule: true,
-    reminderMinutes: 15,
-  });
+  expect(update).toHaveBeenCalledWith("market", savedVisit);
   expect(schedule).toHaveBeenCalledWith(
     expect.objectContaining({ startTime: "2027-01-01T12:00:00.000Z" }),
     15,
+    { requestPermission: true },
   );
 });
 it("does not save when a reminder cannot be armed", async () => {
+  // With permission granted, a null request means the reminder can no longer fire.
   schedule.mockResolvedValue(null);
+  permission.mockResolvedValue("granted");
   await expect(saveDropInVisit(event, draft, "UTC", 15)).rejects.toThrow(
     "reminder-unavailable",
   );
   expect(update).not.toHaveBeenCalled();
+});
+it("saves the visit and keeps the reminder intent when notification permission is denied", async () => {
+  schedule.mockResolvedValue(null);
+  permission.mockResolvedValue("denied");
+  await expect(
+    saveDropInVisit(event, draft, "UTC", 15),
+  ).resolves.toBeUndefined();
+  expect(update).toHaveBeenCalledWith("market", savedVisit);
+});
+it("primes before the first OS prompt and saves without one when the user says not now", async () => {
+  permission.mockResolvedValue("undetermined");
+  schedule.mockResolvedValue(null);
+  const confirmPermissionPrompt = vi.fn().mockResolvedValue(false);
+  await saveDropInVisit(event, draft, "UTC", 15, { confirmPermissionPrompt });
+  expect(confirmPermissionPrompt).toHaveBeenCalledTimes(1);
+  expect(schedule).toHaveBeenCalledWith(expect.anything(), 15, {
+    requestPermission: false,
+  });
+  expect(update).toHaveBeenCalledWith("market", savedVisit);
+});
+it("shows the OS prompt after priming only when the user continues", async () => {
+  permission.mockResolvedValue("undetermined");
+  const confirmPermissionPrompt = vi.fn().mockResolvedValue(true);
+  await saveDropInVisit(event, draft, "UTC", 15, { confirmPermissionPrompt });
+  expect(confirmPermissionPrompt).toHaveBeenCalledTimes(1);
+  expect(schedule).toHaveBeenCalledWith(expect.anything(), 15, {
+    requestPermission: true,
+  });
+  expect(update).toHaveBeenCalledWith("market", savedVisit);
+});
+it("skips priming when permission is already decided or no reminder is chosen", async () => {
+  const confirmPermissionPrompt = vi.fn().mockResolvedValue(false);
+  await saveDropInVisit(event, draft, "UTC", 15, { confirmPermissionPrompt });
+  permission.mockResolvedValue("undetermined");
+  await saveDropInVisit(event, draft, "UTC", null, { confirmPermissionPrompt });
+  expect(confirmPermissionPrompt).not.toHaveBeenCalled();
 });
 it("restores the previous reminder when persistence fails", async () => {
   const existing = {

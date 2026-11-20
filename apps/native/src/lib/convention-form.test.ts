@@ -1,6 +1,8 @@
+import type { TFunction } from "i18next";
 import { describe, expect, it } from "vitest";
 import {
   CONVENTION_NAME_MAX_LENGTH,
+  conventionFormFooter,
   conventionNameLength,
   isConventionUnchanged,
   normalizeConventionName,
@@ -139,6 +141,69 @@ describe("validateConventionForm", () => {
       validateConventionForm({ ...VALID, endDate: "not-a-date" }).errors
         .endDate,
     ).toBe("endBeforeStart");
+  });
+});
+
+describe("conventionFormFooter", () => {
+  // Echoes the key and its values, so each line shows what was asked for.
+  const t = ((key: string, values?: Record<string, unknown>) =>
+    values ? `${key}(${JSON.stringify(values)})` : key) as unknown as TFunction;
+
+  function footerLines(
+    values: typeof VALID,
+    options?: { locationSetsTimeZone?: boolean },
+  ): string[] {
+    return conventionFormFooter(validateConventionForm(values), t, options)
+      .split("\n")
+      .filter(Boolean);
+  }
+
+  it("is only the time zone help on an ordinary form", () => {
+    expect(footerLines(VALID)).toEqual(["convention.timeZoneAdvancedHelp"]);
+  });
+
+  // @expo/ui renders only a section's last footer. As footers of their own,
+  // the name limit and the long-span warning sat behind the zone help, and
+  // Save greyed out with no reason shown.
+  it("keeps the name limit and a long span in the same footer as the zone help", () => {
+    expect(
+      footerLines({
+        ...VALID,
+        name: "x".repeat(CONVENTION_NAME_MAX_LENGTH + 1),
+        endDate: "2026-11-03",
+      }),
+    ).toEqual([
+      `convention.nameTooLong({"max":${CONVENTION_NAME_MAX_LENGTH}})`,
+      'convention.longSpan({"count":61})',
+      "convention.timeZoneAdvancedHelp",
+    ]);
+  });
+
+  it("counts the name only once it is close to the limit", () => {
+    const near = CONVENTION_NAME_MAX_LENGTH - 14;
+    expect(footerLines({ ...VALID, name: "x".repeat(near) })).toEqual([
+      `convention.nameCounter({"count":${near},"max":${CONVENTION_NAME_MAX_LENGTH}})`,
+      "convention.timeZoneAdvancedHelp",
+    ]);
+    expect(
+      footerLines({ ...VALID, name: "x".repeat(near - 1) }),
+    ).not.toContainEqual(expect.stringMatching(/^convention\.nameCounter/));
+  });
+
+  it("says the location sets the zone only where it does", () => {
+    expect(footerLines(VALID, { locationSetsTimeZone: true })).toEqual([
+      "convention.locationTimeZoneNote",
+      "convention.timeZoneAdvancedHelp",
+    ]);
+    expect(footerLines(VALID, { locationSetsTimeZone: false })).toEqual([
+      "convention.timeZoneAdvancedHelp",
+    ]);
+  });
+
+  it("puts the invalid-zone error where the zone help would be", () => {
+    expect(footerLines({ ...VALID, timeZone: "Mars/Olympus" })).toEqual([
+      "convention.timeZoneInvalid",
+    ]);
   });
 });
 

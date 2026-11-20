@@ -9,9 +9,17 @@ import {
   type ScheduleChangeSummary,
 } from "@/lib/schedule-changes";
 import { hapticSuccess } from "@/services/haptics";
-import { refreshConventionSchedule } from "@/services/schedule-refresh";
+import {
+  canCheckSchedule,
+  refreshConventionSchedule,
+} from "@/services/schedule-refresh";
 
 export interface ScheduleRefreshState {
+  /**
+   * Whether a pressed check can run, so the screen offers one only where the
+   * refresh would not skip it. False until the saved category flag is read.
+   */
+  canCheck: boolean;
   /** Set only when something the user saved moved or went. */
   summary: ScheduleChangeSummary | null;
   /** When the feed was last read successfully. Null until one succeeds. */
@@ -45,6 +53,7 @@ export function useScheduleRefresh(
   const [checkedAt, setCheckedAt] = useState<number | null>(null);
   const [checking, setChecking] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [canCheck, setCanCheck] = useState(false);
   const running = useRef(false);
   const mounted = useRef(true);
   // Aborted when the screen blurs, so a check nobody is watching stops at the
@@ -146,7 +155,26 @@ export function useScheduleRefresh(
     }, [run]),
   );
 
+  // Re-read on focus and whenever the convention row changes: a re-import
+  // that keeps every category, an edit, or an archive changes the answer.
+  useFocusEffect(
+    useCallback(() => {
+      if (!convention) {
+        setCanCheck(false);
+        return;
+      }
+      let active = true;
+      void canCheckSchedule(convention).then((value) => {
+        if (active) setCanCheck(value);
+      });
+      return () => {
+        active = false;
+      };
+    }, [convention]),
+  );
+
   return {
+    canCheck,
     summary,
     checkedAt,
     checking,

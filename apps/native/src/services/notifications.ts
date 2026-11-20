@@ -134,6 +134,25 @@ interface ScheduleReminderOptions {
   notificationContent?: ReminderNotificationContent;
 }
 
+/**
+ * The translation key for a reminder's body. An "At event time" reminder fires
+ * as the event starts, so it says so instead of "Starts in 0 min". The reminder
+ * picker builds its own copy of this text and uses this too.
+ */
+export function reminderBodyKey(
+  minutesBefore: number,
+  room: string | null | undefined,
+) {
+  if (minutesBefore === 0) {
+    return room
+      ? "reminders.notificationBodyNowWithRoom"
+      : "reminders.notificationBodyNow";
+  }
+  return room
+    ? "reminders.notificationBodyWithRoom"
+    : "reminders.notificationBody";
+}
+
 function reminderNotificationContent(
   event: EventForReminder,
   minutesBefore: number,
@@ -141,21 +160,19 @@ function reminderNotificationContent(
 ): ReminderNotificationContent {
   if (override) return override;
   if (!i18n.isInitialized) {
+    const starts =
+      minutesBefore === 0 ? "Starting now" : `Starts in ${minutesBefore} min`;
     return {
       title: `Reminder for ${event.title}`,
-      body: event.room
-        ? `Starts in ${minutesBefore} min · ${event.room}`
-        : `Starts in ${minutesBefore} min`,
+      body: event.room ? `${starts} · ${event.room}` : starts,
     };
   }
   return {
     title: i18n.t("reminders.notificationTitle", { event: event.title }),
-    body: i18n.t(
-      event.room
-        ? "reminders.notificationBodyWithRoom"
-        : "reminders.notificationBody",
-      { minutes: minutesBefore, room: event.room },
-    ),
+    body: i18n.t(reminderBodyKey(minutesBefore, event.room), {
+      minutes: minutesBefore,
+      room: event.room,
+    }),
   };
 }
 
@@ -263,7 +280,32 @@ export interface ReminderReconciliationResult {
   staleCancelled: number;
 }
 
-export async function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
+let reminderQueue: Promise<unknown> = Promise.resolve();
+
+/**
+ * Runs reminder work one piece at a time.
+ *
+ * The reconcile reads every saved reminder and then re-files each one after
+ * several native round trips. A remove that cancels the OS request and clears
+ * the row in that gap, as a Watch tap drained at launch does, is undone by the
+ * reconcile re-filing from what it read first. Work that cancels a reminder
+ * and clears the row goes through here as one step, so it lands wholly before
+ * or after a reconcile.
+ *
+ * Not re-entrant: never call it from inside work it is already running, and
+ * never wrap `cancelEventReminder` itself, which the reconcile calls.
+ */
+export function withReminderLock<T>(work: () => Promise<T>): Promise<T> {
+  const run = reminderQueue.then(() => work());
+  reminderQueue = run.catch(() => undefined);
+  return run;
+}
+
+export function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
+  return withReminderLock(reconcileEventRemindersNow);
+}
+
+async function reconcileEventRemindersNow(): Promise<ReminderReconciliationResult> {
   const events = (await eventsRepo.getAllWithReminders()).map(plannedEvent);
   const archivedConventionIds = new Set(
     (await conventionsRepo.getAll())

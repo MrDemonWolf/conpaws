@@ -206,6 +206,24 @@ describe("buildWidgetSnapshot", () => {
     ]);
   });
 
+  it("drops an archived convention, saved events and all", () => {
+    const snapshot = buildWidgetSnapshot(
+      [
+        { ...convention, archivedAt: "2026-08-01T00:00:00Z" },
+        { ...convention, id: "con-2", name: "Still going", archivedAt: null },
+      ],
+      new Map([
+        [convention.id, [event("archived", "2026-09-03T15:00:00-05:00", true)]],
+      ]),
+      "en",
+      123,
+    );
+
+    // Archiving cancels the convention's reminders and refuses tracking, so
+    // the widget and Watch must not offer it as the next thing to go to.
+    expect(snapshot.conventions.map(({ id }) => id)).toEqual(["con-2"]);
+  });
+
   it("clamps inverted convention dates and nulls an inverted event end", () => {
     const invertedConvention = { ...convention, endDate: "2026-09-02" };
     const malformed = {

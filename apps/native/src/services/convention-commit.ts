@@ -103,3 +103,82 @@ export async function commitConventionUpdate(
 
   return { ok: true, conventionId };
 }
+
+/** A flag that outlives renders, so a second tap sees the first one's claim. */
+export interface SaveLock {
+  current: boolean;
+}
+
+export interface ConventionEditSaveSteps {
+  /**
+   * Settles the zone to save with. It may geocode for seconds or ask the
+   * user; null means they went to pick a zone by hand, so nothing is written.
+   */
+  resolveTimeZone: () => Promise<string | null>;
+  /** Writes the edit with that zone; null means the values no longer validate. */
+  commit: (timeZone: string) => Promise<ConventionCommitOutcome | null>;
+  /** False once the form has closed. */
+  isMounted: () => boolean;
+  /** Locks the form's buttons, from the tap until it unlocks. */
+  setSaving: (saving: boolean) => void;
+  /**
+   * True only from the moment the write starts until the form unlocks. The
+   * discard guard stands down on this, not on `setSaving`: until then a swipe
+   * still asks first, and a form closed that way writes nothing.
+   */
+  setWriting: (writing: boolean) => void;
+  onWriteFailed: () => void;
+  /** Closes the form; called at most once, and only while it is still open. */
+  leave: () => void;
+}
+
+/**
+ * Runs the edit form's Save: resolve the zone, write, then leave.
+ *
+ * The form is locked before the zone is resolved, not after. Resolving a
+ * changed location's zone is a geocode that can take seconds, and a form left
+ * live across it let a second Save write twice and call back() twice -- the
+ * second one popping the convention screen too. A form closed mid-way (a swipe
+ * down and Discard) writes nothing it has not already started writing, and
+ * never navigates from a screen that is already gone.
+ *
+ * Locked is not the same as unguarded, though: the discard prompt stays armed
+ * through the geocode and stands down only once the write starts. Dropping it
+ * at the tap let a swipe close the sheet with no prompt, and the edit the user
+ * had just saved was then thrown away.
+ */
+export async function saveConventionEdit(
+  lock: SaveLock,
+  steps: ConventionEditSaveSteps,
+): Promise<void> {
+  if (lock.current) return;
+  lock.current = true;
+  steps.setSaving(true);
+
+  const unlock = () => {
+    lock.current = false;
+    if (!steps.isMounted()) return;
+    steps.setWriting(false);
+    steps.setSaving(false);
+  };
+
+  const timeZone = await steps.resolveTimeZone();
+  if (!timeZone) {
+    unlock();
+    return;
+  }
+  if (!steps.isMounted()) return;
+
+  steps.setWriting(true);
+  const outcome = await steps.commit(timeZone);
+  if (!outcome) {
+    unlock();
+    return;
+  }
+  if (!outcome.ok) {
+    unlock();
+    steps.onWriteFailed();
+    return;
+  }
+  if (steps.isMounted()) steps.leave();
+}

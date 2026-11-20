@@ -137,16 +137,27 @@ export function currentLocale(): string {
   return i18n.resolvedLanguage ?? i18n.language ?? "en";
 }
 
-export async function initI18n(): Promise<void> {
+/** The language picked in Settings, or null when the device decides. */
+async function readStoredLanguage(): Promise<SupportedLanguage | null> {
   const stored = await AsyncStorage.getItem("appLanguage");
-  const saved =
+  return (
     parseSupportedLanguage(stored) ??
     (typeof stored === "string"
       ? (LEGACY_STORED_ALIASES[stored] ?? null)
-      : null);
+      : null)
+  );
+}
+
+function deviceLanguage(): SupportedLanguage {
   const deviceLocale = Localization.getLocales()[0];
   const deviceTag = deviceLocale?.languageTag ?? deviceLocale?.languageCode;
-  const lng = saved ?? resolveDeviceLocale(deviceTag) ?? "en";
+  return resolveDeviceLocale(deviceTag) ?? "en";
+}
+
+export async function initI18n(): Promise<void> {
+  const saved = await readStoredLanguage();
+  const device = deviceLanguage();
+  const lng = saved ?? device;
 
   await i18n.use(initReactI18next).init({
     resources: {
@@ -185,6 +196,25 @@ export async function initI18n(): Promise<void> {
 export async function changeLanguage(code: SupportedLanguage): Promise<void> {
   await AsyncStorage.setItem("appLanguage", code);
   await i18n.changeLanguage(code);
+}
+
+/**
+ * Re-resolves the language from the device for someone who never picked one
+ * in Settings. Android hands a system or per-app language change to the
+ * running process instead of restarting it (expo-localization adds `locale`
+ * to the activity's configChanges), so the launch-time language otherwise
+ * sticks until a force-stop. iOS ends the app on a language change.
+ *
+ * A Settings choice always wins, and the device language is applied without
+ * being stored, so the next device change is followed too. Resolves to the
+ * language switched to, or null when nothing changed.
+ */
+export async function followDeviceLanguage(): Promise<SupportedLanguage | null> {
+  if (await readStoredLanguage()) return null;
+  const next = deviceLanguage();
+  if (next === i18n.language) return null;
+  await i18n.changeLanguage(next);
+  return next;
 }
 
 export default i18n;

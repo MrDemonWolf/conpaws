@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { parseIcs } from "./ical-parser";
 import {
   type BrowseEvent,
   browseStateForEvent,
@@ -308,6 +309,34 @@ describe("selectBrowseEvents", () => {
   it("drops events with an unparseable start", () => {
     const broken = event("broken", "not a date", null);
     expect(selectBrowseEvents([broken, photo], all, TZ).rows).toHaveLength(1);
+  });
+
+  it("files an imported all-weekend event under drop-ins, not a 12 AM chip", () => {
+    const [parsed] = parseIcs(`BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-TIMEZONE:${TZ}
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260904
+DTEND;VALUE=DATE:20260907
+SUMMARY:Dealers Den (all weekend)
+UID:dealers-den
+END:VEVENT
+END:VCALENDAR`).events;
+    const den = event(
+      "den",
+      parsed.startTime.toISOString(),
+      parsed.endTime?.toISOString() ?? null,
+    );
+
+    const result = selectBrowseEvents(
+      [den],
+      { ...all, dayKey: "2026-09-04" },
+      TZ,
+    );
+
+    expect(result.rows).toEqual([]);
+    expect(result.dropIns).toEqual([den]);
+    expect(hourSlotsFor([den], "2026-09-04", TZ)).toEqual([]);
   });
 });
 

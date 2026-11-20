@@ -95,6 +95,7 @@ export function sessionsToImport(
       ageRating: null,
       sourceUid: session.id,
       legacySourceUid: null,
+      previousSourceUid: null,
       recurrenceTime: null,
       sourceUrl: options.scheduleUrl,
       isAgeRestricted: false,

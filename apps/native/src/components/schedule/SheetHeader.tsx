@@ -42,7 +42,8 @@ export function SheetHeader({
           accessibilityLabel={closeLabel}
           hitSlop={8}
           onPress={onClose}
-          className={`h-11 w-11 items-center justify-center rounded-full bg-card ${PRESS_DIM}`}
+          // px, not h-11: NativeWind's 14px rem made that 38.5.
+          className={`size-[48px] items-center justify-center rounded-full bg-card ${PRESS_DIM}`}
         >
           <X size={20} color={themeTokens[scheme].foreground} />
         </Pressable>

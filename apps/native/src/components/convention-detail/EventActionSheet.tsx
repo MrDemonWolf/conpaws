@@ -3,7 +3,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, useColorScheme, View } from "react-native";
 import { getEventIndicatorLabels } from "@/components/convention-detail/ConventionEventRow";
-import { Badge, Banner, Button, PRESS_DIM, Text } from "@/components/ui";
+import {
+  Badge,
+  Banner,
+  Button,
+  PRESS_DIM,
+  TAP_TARGET,
+  Text,
+} from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
 import { ageBadgeFor } from "@/lib/age-badge";
 import { categoryAccentColor } from "@/lib/category-color";
@@ -349,7 +356,7 @@ export function EventSheetContent({
           onPress={onClose}
           accessibilityRole="button"
           accessibilityLabel={t("convention.closeEventDetails")}
-          className={`min-h-12 items-center justify-center ${PRESS_DIM}`}
+          className={`${TAP_TARGET} items-center justify-center ${PRESS_DIM}`}
         >
           <Text variant="body" className="text-muted-foreground">
             {t("common.cancel")}

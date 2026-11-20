@@ -106,9 +106,9 @@ export interface ContentWidth {
   right: number;
   /**
    * Content padding for a full-window React Native list whose rows keep
-   * their own `px-4` gutter. Symmetric on purpose: Android can lay the app out
-   * right to left on an RTL device even though no RTL locale ships, and React
-   * Native swaps physical left and right padding there, which would put a
+   * their own `px-4` gutter. Symmetric on purpose: app.config.ts turns right
+   * to left off only until an RTL locale ships, and React Native swaps
+   * physical left and right padding in an RTL layout, which would put a
    * one-sided safe-area inset on the wrong edge.
    */
   listPadding: { paddingHorizontal: number };

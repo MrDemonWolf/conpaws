@@ -4,6 +4,7 @@ import { AccessibilityInfo, Alert, Linking } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { hasVisit, isValidVisit, plannedEvent } from "@/lib/drop-in-visit";
+import { confirmNotificationPriming } from "@/lib/notification-priming";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { removeDropInVisit } from "@/services/drop-in-visit";
 import {
@@ -14,6 +15,7 @@ import { hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
   getNotificationPermissionStatus,
+  reminderBodyKey,
   scheduleEventReminder,
 } from "@/services/notifications";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
@@ -33,25 +35,6 @@ class ReminderError extends Error {
     super(failure);
     this.failure = failure;
   }
-}
-
-/** Resolves true when the user wants to continue to the OS dialog. */
-function confirmNotificationPriming(
-  t: (key: string) => string,
-): Promise<boolean> {
-  return new Promise((resolve) => {
-    Alert.alert(t("reminders.priming.title"), t("reminders.priming.message"), [
-      {
-        text: t("reminders.priming.notNow"),
-        style: "cancel",
-        onPress: () => resolve(false),
-      },
-      {
-        text: t("reminders.priming.continue"),
-        onPress: () => resolve(true),
-      },
-    ]);
-  });
 }
 
 interface Options {
@@ -190,12 +173,10 @@ export function useEventScheduleMutations({
           notificationId = await scheduleEventReminder(reminderEvent, minutes, {
             notificationContent: {
               title: t("reminders.notificationTitle", { event: event.title }),
-              body: t(
-                reminderEvent.room
-                  ? "reminders.notificationBodyWithRoom"
-                  : "reminders.notificationBody",
-                { minutes, room: reminderEvent.room },
-              ),
+              body: t(reminderBodyKey(minutes, reminderEvent.room), {
+                minutes,
+                room: reminderEvent.room,
+              }),
             },
           });
         } catch {

@@ -318,8 +318,20 @@ export default function ScheduleScreen() {
           // There is no standalone event screen -- the sheet that owns
           // stars and reminders lives on the convention. Send the row
           // there rather than inventing a second place to edit the same
-          // event.
-          onPress={() => router.push(`/convention/${entry.conventionId}`)}
+          // event, opened on this panel's day with the row highlighted,
+          // as a reminder tap does. `highlightAt` makes a second tap on the
+          // same panel a new request: the convention screen is reused when it
+          // is already open, and identical params would not move it.
+          onPress={() =>
+            router.push({
+              pathname: "/convention/[id]",
+              params: {
+                id: entry.conventionId,
+                highlightEventId: event.id,
+                highlightAt: String(Date.now()),
+              },
+            })
+          }
           testID={`schedule-event-${event.id}`}
         />
       );

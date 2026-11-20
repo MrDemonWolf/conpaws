@@ -14,6 +14,7 @@ import {
 } from "@/components/ui";
 import { useContentWidth } from "@/hooks/useContentWidth";
 import { catalogEditionSummary } from "@/lib/catalog/adapter";
+import { catalogListQueryOptions } from "@/lib/catalog/query-options";
 import { resolveCatalogSource } from "@/lib/catalog/source-preference";
 import type { CatalogEdition } from "@/lib/catalog/types";
 import { formatConventionDate } from "@/lib/event-time-format";
@@ -23,8 +24,6 @@ import {
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
 import { NetworkError } from "@/lib/sched-extractor";
-
-const CATALOG_STALE_TIME_MS = 5 * 60 * 1000;
 
 export default function FindConventionScreen() {
   const { t } = useTranslation();
@@ -55,11 +54,7 @@ export default function FindConventionScreen() {
     }, []),
   );
 
-  const query = useQuery({
-    queryKey: ["catalog", source.kind],
-    queryFn: ({ signal }) => source.list(signal),
-    staleTime: CATALOG_STALE_TIME_MS,
-  });
+  const query = useQuery(catalogListQueryOptions(source));
   const editions = query.data ?? [];
   const filtered = useMemo(() => {
     const needle = search.trim().toLocaleLowerCase(locale);

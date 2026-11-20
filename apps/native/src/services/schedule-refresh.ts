@@ -1,6 +1,6 @@
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
-import type { Convention } from "@/db/schema";
+import type { Convention, ConventionEvent } from "@/db/schema";
 import {
   type ImportResult,
   runScheduleImport,
@@ -25,7 +25,7 @@ import {
   SCHEDULE_CHECK_INTERVAL_MS,
   setScheduleCheckedAt,
 } from "@/lib/schedule-refresh-storage";
-import { toSourceSnapshot } from "@/lib/schedule-source";
+import { toSourceEvents, toSourceSnapshot } from "@/lib/schedule-source";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
 /**
@@ -60,6 +60,109 @@ export type ScheduleRefreshResult =
   /** Offline, timed out, moved, or unparseable. Silent by construction. */
   | { status: "failed" };
 
+/**
+ * Columns a feed can correct without moving anything: wording and labels.
+ * Time and place belong to the change summary, identity and the tombstone mark
+ * to the planner.
+ */
+const CONTENT_COLUMNS = [
+  "title",
+  "description",
+  "category",
+  "sourceUrl",
+  "isAgeRestricted",
+  "ageRating",
+  "contentWarning",
+] as const;
+
+const NOTHING_TO_REPORT: ScheduleChangeSummary = {
+  moved: 0,
+  gone: 0,
+  savedMoved: 0,
+  savedGone: 0,
+  nowDropIn: 0,
+  savedNowDropIn: 0,
+};
+
+/**
+ * Whether the feed holds something to write that the change summary does not
+ * count: a panel it has gained, or a stored one whose wording or labels it
+ * corrected. Neither is news worth a notice, but both are the convention's
+ * current schedule. Without this, a feed whose only change was fifteen new
+ * panels was stamped "checked" and kept them out until an unrelated panel
+ * happened to move.
+ *
+ * A convention holding no feed rows at all answers no: with nothing to overlap
+ * there is no evidence this is the right feed, the same caution
+ * `summarizeScheduleChanges` applies before it trusts one.
+ *
+ * A row an earlier build stored under an alarm's UID or an Events Calendar
+ * export's UID answers yes through the last check: the event's current UID is
+ * not stored yet, and the write re-files the row under it.
+ */
+function hasUnreportedChanges(
+  stored: readonly ConventionEvent[],
+  feed: ReturnType<typeof toSourceEvents>,
+): boolean {
+  const feedByUid = new Map(feed.map((event) => [event.sourceUid, event]));
+  const storedUids = new Set<string>();
+  for (const row of stored) {
+    if (row.sourceUid === null) continue;
+    storedUids.add(row.sourceUid);
+    const match = feedByUid.get(row.sourceUid);
+    // The same `?? null` reading `upsertBySourceUid` uses to skip an
+    // unchanged row, so a difference this sees is one the write rewrites.
+    if (
+      match &&
+      CONTENT_COLUMNS.some(
+        (column) => (row[column] ?? null) !== (match[column] ?? null),
+      )
+    ) {
+      return true;
+    }
+  }
+  if (storedUids.size === 0) return false;
+  return feed.some(
+    (event) => event.sourceUid != null && !storedUids.has(event.sourceUid),
+  );
+}
+
+/**
+ * Whether a convention has a schedule source this refresh can re-read: a
+ * catalog download (`catalogSlug`) or a saved feed (`icalUrl`).
+ */
+export function hasScheduleSource(
+  convention: Pick<Convention, "catalogSlug" | "icalUrl">,
+): boolean {
+  return Boolean(convention.catalogSlug || convention.icalUrl);
+}
+
+/**
+ * Whether a check the user presses for can run: every gate the refresh
+ * applies except the automatic check's switch and interval, which a press
+ * skips. The convention screen's "Check for Changes" item reads it, and the
+ * refresh starts with it, so the menu never offers a check that is always
+ * skipped. Asking only for a source showed the item on ended, archived and
+ * category-filtered conventions, and pressing it answered with nothing.
+ */
+export async function canCheckSchedule(
+  convention: Pick<
+    Convention,
+    "id" | "catalogSlug" | "icalUrl" | "status" | "archivedAt"
+  >,
+): Promise<boolean> {
+  if (!hasScheduleSource(convention)) return false;
+  // An ended or archived convention's feed is not news, and a convention the
+  // user filed away should not be reaching the network.
+  if (convention.status === "ended" || convention.archivedAt !== null) {
+    return false;
+  }
+  // Without the full category set on the last import there is no record of
+  // what the user chose to leave out, and applying the feed wholesale would
+  // quietly reinstate it. See `getScheduleAllCategories`.
+  return getScheduleAllCategories(convention.id);
+}
+
 export interface ScheduleRefreshDeps {
   /** Invalidates the react-query keys the schedule screens read. */
   refreshCaches: (conventionId: string) => Promise<unknown>;
@@ -88,13 +191,7 @@ export async function refreshConventionSchedule(
 ): Promise<ScheduleRefreshResult> {
   const { force = false, now = Date.now(), signal } = options;
 
-  if (!convention.catalogSlug && !convention.icalUrl)
-    return { status: "skipped" };
-  // An ended or archived convention's feed is not news, and a convention the
-  // user filed away should not be reaching the network.
-  if (convention.status === "ended" || convention.archivedAt !== null) {
-    return { status: "skipped" };
-  }
+  if (!(await canCheckSchedule(convention))) return { status: "skipped" };
   if (!force && !(await getScheduleAutoCheck())) return { status: "skipped" };
 
   if (!force) {
@@ -102,13 +199,6 @@ export async function refreshConventionSchedule(
     if (checkedAt !== null && now - checkedAt < SCHEDULE_CHECK_INTERVAL_MS) {
       return { status: "skipped" };
     }
-  }
-
-  // Without the full category set on the last import there is no record of
-  // what the user chose to leave out, and applying the feed wholesale would
-  // quietly reinstate it. See `getScheduleAllCategories`.
-  if (!(await getScheduleAllCategories(convention.id))) {
-    return { status: "skipped" };
   }
 
   try {
@@ -162,10 +252,9 @@ export async function refreshConventionSchedule(
         status: "applied",
         checkedAt: now,
         summary: {
-          moved: outcome.status === "changed" ? outcome.summary.moved : 0,
-          gone: outcome.status === "changed" ? outcome.summary.gone : 0,
-          savedMoved:
-            outcome.status === "changed" ? outcome.summary.savedMoved : 0,
+          ...(outcome.status === "changed"
+            ? outcome.summary
+            : NOTHING_TO_REPORT),
           savedGone: result.tombstoned,
         },
       };
@@ -193,6 +282,8 @@ export async function refreshConventionSchedule(
         location: event.location,
         isInSchedule: false,
         feedStatus: null,
+        isAllDay: event.isAllDay,
+        previousSourceUid: event.previousSourceUid,
       })),
       parsed.cancelledSourceUids,
     );
@@ -204,7 +295,15 @@ export async function refreshConventionSchedule(
       return { status: "untrusted", checkedAt: now };
     }
 
-    if (outcome.status === "unchanged") {
+    // "Unchanged" here means nothing stored moved or went. New panels and
+    // corrected wording still go through the import, as a quiet `applied`.
+    if (
+      outcome.status === "unchanged" &&
+      !hasUnreportedChanges(
+        stored,
+        toSourceEvents(parsed.events, convention.id),
+      )
+    ) {
       await setScheduleCheckedAt(convention.id, now);
       return { status: "unchanged", checkedAt: now };
     }
@@ -238,7 +337,7 @@ export async function refreshConventionSchedule(
       status: "applied",
       checkedAt: now,
       summary: {
-        ...outcome.summary,
+        ...(outcome.status === "changed" ? outcome.summary : NOTHING_TO_REPORT),
         // The planner is the authority on what actually went. It resolves
         // series identities the flat comparison cannot see, so its count is
         // the one the user is shown.

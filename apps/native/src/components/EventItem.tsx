@@ -189,15 +189,19 @@ export function EventItem({
         interactive ? t("convention.eventActionsHint") : undefined
       }
       accessibilityState={{ selected: isInSchedule }}
+      // A custom name, never "activate": Android maps that one onto the row's
+      // click, so TalkBack's double-tap would run the star instead of opening
+      // the event. A custom name lands in TalkBack's actions menu and the
+      // VoiceOver rotor, and double-tap falls through to onPress.
       accessibilityActions={
         trailingAction
-          ? [{ name: "activate", label: trailingAction.label }]
+          ? [{ name: "toggleSave", label: trailingAction.label }]
           : undefined
       }
       onAccessibilityAction={
         trailingAction
           ? (event) => {
-              if (event.nativeEvent.actionName === "activate") {
+              if (event.nativeEvent.actionName === "toggleSave") {
                 trailingAction.onPress();
               }
             }
@@ -369,7 +373,8 @@ export function EventItem({
           onPress={trailingAction.onPress}
           testID={trailingAction.testID}
           className={cn(
-            "h-11 w-11 items-center justify-center rounded-full",
+            // px, not h-11: NativeWind's 14px rem made that 38.5.
+            "size-[48px] items-center justify-center rounded-full",
             stacked ? "self-end" : "self-center",
             PRESS_DIM,
           )}

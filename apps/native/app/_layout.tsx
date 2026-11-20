@@ -64,6 +64,7 @@ import "@/lib/error-reporting-boot";
 
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useLocales } from "expo-localization";
 import * as ExpoNotifications from "expo-notifications";
 import {
   DarkTheme,
@@ -99,7 +100,7 @@ import {
   reportMessage,
 } from "@/lib/error-reporting";
 import { loadHapticsPreference } from "@/lib/haptics-storage";
-import i18nInstance, { initI18n } from "@/lib/i18n";
+import i18nInstance, { followDeviceLanguage, initI18n } from "@/lib/i18n";
 import {
   materialNavigationColors,
   materialThemeVariables,
@@ -383,6 +384,33 @@ function RootLayout() {
     };
   }, [ready, translationsReady]);
 
+  // Android keeps the app running through a system or per-app language
+  // change, so someone who never picked a language in Settings would stay on
+  // the launch language until a force-stop. The hook re-renders on the OS
+  // locale event; the tag only changes when the device language does.
+  const deviceLanguageTag = useLocales()[0]?.languageTag;
+  useEffect(() => {
+    if (!navigable || !deviceLanguageTag) return;
+    void followDeviceLanguage()
+      .then(async (changed) => {
+        if (!changed) return;
+        // Same follow-up as picking a language in Settings: the widget and
+        // pending reminders carry text composed in the old language. Quick
+        // action labels follow through the languageChanged listener above.
+        await publishWidgetSnapshot().catch((error) => {
+          reportError(error, { scope: "i18n.followDevice.widgetSnapshot" });
+        });
+        await reconcileEventReminders()
+          .then(recordReminderReconciliation)
+          .catch((error) => {
+            reportError(error, { scope: "i18n.followDevice.reminders" });
+          });
+      })
+      .catch((error) => {
+        reportError(error, { scope: "i18n.followDevice" });
+      });
+  }, [navigable, deviceLanguageTag]);
+
   useEffect(() => {
     function openPendingQuickAction() {
       const pending = consumePendingQuickAction(quickActionReady);
@@ -484,8 +512,14 @@ function RootLayout() {
         pathname: "/convention/[id]",
         // highlightEventId scrolls the schedule to the event that fired —
         // landing on the convention with no focus made the tap feel broken.
+        // highlightAt makes each tap a new request, so it still scrolls when
+        // that convention is already open on the same event.
         params: eventId
-          ? { id: conventionId, highlightEventId: eventId }
+          ? {
+              id: conventionId,
+              highlightEventId: eventId,
+              highlightAt: String(Date.now()),
+            }
           : { id: conventionId },
       });
     }

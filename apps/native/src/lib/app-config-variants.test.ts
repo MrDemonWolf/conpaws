@@ -73,4 +73,21 @@ describe("app variants", () => {
       ),
     );
   });
+
+  // No shipped locale is right to left, so an Android phone set to Hebrew or
+  // Arabic falls back to English. Left to default, the plugin still let
+  // Android mirror that English layout, while iOS kept it left to right.
+  it.each(["development" as const, "preview" as const, "production" as const])(
+    "keeps the $0 layout left to right on every platform",
+    async (variant) => {
+      const config = await loadConfig(variant);
+      const localization = config.plugins?.find(
+        (plugin) => Array.isArray(plugin) && plugin[0] === "expo-localization",
+      );
+
+      expect(Array.isArray(localization) ? localization[1] : undefined).toEqual(
+        expect.objectContaining({ supportsRTL: false }),
+      );
+    },
+  );
 });

@@ -105,7 +105,15 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
       where !transfer.isTransferring && transfer.userInfo[conPawsSnapshotKey] != nil {
         transfer.cancel()
       }
-      session.transferUserInfo(payload)
+      // With the complication on the active face, and budget left for the
+      // day, this goes at once and wakes the Watch app to store it; a plain
+      // user info waits for a moment the system picks. Both arrive as user
+      // info on the Watch.
+      if session.isComplicationEnabled, session.remainingComplicationUserInfoTransfers > 0 {
+        session.transferCurrentComplicationUserInfo(payload)
+      } else {
+        session.transferUserInfo(payload)
+      }
       shouldTransferLatest = false
     }
     if isContextSent {
@@ -387,14 +395,37 @@ public class ConPawsWidgetsModule: Module {
         return false
       }
 
-      let changed = defaults.string(forKey: key) != json
+      let stored = defaults.string(forKey: key)
       defaults.set(json, forKey: key)
-      if changed {
+      if stored != json {
         WidgetCenter.shared.reloadAllTimelines()
       }
-      self.watchBridge.publish(json, changed: changed)
+      // The context always goes, so the Watch's stale check sees the new
+      // stamp; a queued transfer only when the schedule itself changed.
+      self.watchBridge.publish(json, changed: Self.hasNewContent(json, since: stored))
       return true
     }
+  }
+
+  /// Whether `json` says anything `stored` did not, apart from when it was
+  /// made. Every publish stamps a fresh `generatedAtMs`, so comparing the
+  /// raw strings queued a full transfer each time the app opened or a row
+  /// changed, and a Watch app opened after a while replayed every one.
+  private static func hasNewContent(_ json: String, since stored: String?) -> Bool {
+    guard
+      let stored,
+      let old = snapshotContent(stored),
+      let new = snapshotContent(json)
+    else { return true }
+    return old != new
+  }
+
+  private static func snapshotContent(_ json: String) -> NSDictionary? {
+    guard
+      var object = try? JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any]
+    else { return nil }
+    object.removeValue(forKey: "generatedAtMs")
+    return object as NSDictionary
   }
 }
 

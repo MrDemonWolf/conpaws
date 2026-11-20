@@ -27,9 +27,7 @@ enum ConPawsScheduleResolver {
       convention = snapshot.conventions.first { $0.id == selectedConventionID }
     } else {
       let nowMs = now.timeIntervalSince1970 * 1_000
-      let activeOrUpcoming = snapshot.conventions.filter {
-        $0.endAtMs >= nowMs || $0.events.contains { $0.startAtMs >= nowMs }
-      }
+      let activeOrUpcoming = snapshot.conventions.filter { lastActiveMs(of: $0) >= nowMs }
       // Among conventions already underway, one with saved panels outranks
       // one without: two active conventions on the same dates used to
       // resolve to whichever came first, and an empty one then hid the plan
@@ -68,6 +66,13 @@ enum ConPawsScheduleResolver {
       return .currentOnly(convention, current)
     }
     return .finished(convention)
+  }
+
+  /// The last moment `resolve` counts a convention as active or upcoming when
+  /// it chooses one itself, inclusive: the convention's end, or a saved
+  /// panel's start when one starts later.
+  static func lastActiveMs(of convention: ConPawsConventionSnapshot) -> Double {
+    convention.events.reduce(convention.endAtMs) { max($0, $1.startAtMs) }
   }
 
   static func isInReminderWindow(_ event: ConPawsEventSnapshot, now: Date) -> Bool {

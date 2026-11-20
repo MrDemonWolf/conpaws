@@ -4,9 +4,10 @@ import WatchConnectivity
 import WidgetKit
 
 final class WatchScheduleStore: NSObject, ObservableObject {
-  /// How far behind the stored snapshot a candidate may be stamped before it
-  /// reads as a clock correction rather than a delivery that arrived late.
-  private static let rewindToleranceMs: Double = 3_600 * 1_000
+  /// The one store, and so the one WatchConnectivity delegate. The app makes
+  /// it at launch, including a background launch for a delivery, and the
+  /// scene's `.backgroundTask(.watchConnectivity)` handler reaches it here.
+  static let shared = WatchScheduleStore()
 
   /// How far ahead of this watch's clock a snapshot may be stamped.
   ///
@@ -43,13 +44,41 @@ final class WatchScheduleStore: NSObject, ObservableObject {
       : Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000)
   }
 
-  override init() {
+  private override init() {
     super.init()
     pendingCommands = Self.loadPendingCommands()
     settlePendingCommands(against: snapshot, now: Date())
     guard WCSession.isSupported() else { return }
     WCSession.default.delegate = self
     WCSession.default.activate()
+  }
+
+  /// Holds a WatchConnectivity background wake open until what it brought is
+  /// stored and the complication reloaded.
+  ///
+  /// watchOS launches or wakes this app in the background for a new
+  /// application context or user info, and suspends it again as soon as the
+  /// scene's handler returns. Returning before the session has activated and
+  /// handed everything over, or before `save` has run on `receiveQueue` and
+  /// its main-thread half has reloaded the complication, leaves the
+  /// complication on the old schedule until the app is next opened. Ends
+  /// early only when the system cancels the task.
+  func drainPendingContent() async {
+    guard WCSession.isSupported() else { return }
+    let session = WCSession.default
+    while !Task.isCancelled,
+      session.activationState != .activated || session.hasContentPending
+    {
+      try? await Task.sleep(for: .milliseconds(100))
+    }
+    // Everything delivered so far has queued its save on receiveQueue, and
+    // each save posts its reload to main: once both have caught up, so has
+    // the complication.
+    await withCheckedContinuation { continuation in
+      receiveQueue.async {
+        DispatchQueue.main.async { continuation.resume() }
+      }
+    }
   }
 
   // MARK: Commands to the phone
@@ -190,37 +219,27 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     }
     candidate = candidate.filteringInvalidRecords()
     guard
-      Self.isValid(candidate)
-    else {
-      return
-    }
-
-    let persistedJSON = UserDefaults(
-      suiteName: ConPawsSnapshotStore.appGroupIdentifier()
-    )?.string(forKey: ConPawsSnapshotStore.snapshotKey)
-    let rewindMs = ConPawsSnapshotStore.load().generatedAtMs - candidate.generatedAtMs
-    guard
-      persistedJSON != json,
-      // Newer wins, which is what keeps an out-of-order WatchConnectivity
-      // delivery from overwriting a fresher schedule. A candidate stamped far
-      // enough behind the stored one is the other case: the phone's clock was
-      // wrong and has been corrected, so it wins too. Without that second arm
-      // one snapshot from a phone with a bad RTC keeps the watch frozen for
-      // good, since nothing here ever lowers the stored timestamp.
-      rewindMs <= 0 || rewindMs > Self.rewindToleranceMs,
-      ConPawsSnapshotStore.save(json: json)
-    else {
-      return
-    }
-
-    guard
+      Self.isValid(candidate),
+      // Newer wins, so the backlog of user infos replayed after the newest
+      // context never rewinds the schedule, and the second copy of one
+      // snapshot is not applied twice. A stored stamp from a phone with a bad
+      // clock is the exception; see `shouldReplace`.
+      ConPawsSnapshotStore.shouldReplace(
+        storedMs: ConPawsSnapshotStore.load().generatedAtMs,
+        candidateMs: candidate.generatedAtMs,
+        nowMs: Date().timeIntervalSince1970 * 1_000
+      ),
       let filteredData = try? JSONEncoder().encode(candidate),
-      let filteredJSON = String(data: filteredData, encoding: .utf8)
-    else { return }
+      let filteredJSON = String(data: filteredData, encoding: .utf8),
+      // Stored here, on receiveQueue, so the next delivery is measured against
+      // this one rather than whatever main has got round to.
+      ConPawsSnapshotStore.save(json: filteredJSON)
+    else {
+      return
+    }
 
     DispatchQueue.main.async { [weak self] in
       self?.snapshot = candidate
-      _ = ConPawsSnapshotStore.save(json: filteredJSON)
       WidgetCenter.shared.reloadTimelines(ofKind: ConPawsWidgetKind.watchComplication)
       self?.settlePendingCommands(against: candidate, now: Date())
     }

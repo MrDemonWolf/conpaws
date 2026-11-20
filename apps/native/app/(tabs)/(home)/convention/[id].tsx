@@ -24,6 +24,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import type { SearchBarCommands } from "react-native-screens";
 import {
   BlankConventionState,
   EMPTY_SCHEDULE_ICON,
@@ -86,8 +87,7 @@ import {
   formatEventEndTime,
   formatEventTime,
   formatHourLabel,
-  formatMinutesLeft,
-  formatMinutesUntilStart,
+  formatNowHeroTimes,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
 import {
@@ -151,12 +151,22 @@ export default function ConventionDetailScreen() {
     id,
     previewState: requestedPreviewState,
     highlightEventId,
+    highlightAt,
     dropIns: requestedDropIns,
   } = useLocalSearchParams<{
     id: string;
     previewState?: string;
-    /** From a notification tap: scroll to and briefly highlight this event. */
+    /**
+     * From a reminder or Schedule tab tap: scroll to and briefly highlight
+     * this event.
+     */
     highlightEventId?: string;
+    /**
+     * When that tap happened. A push to this convention while it is on top
+     * of the Home stack reuses the screen, so a second tap on the same panel
+     * would otherwise arrive with identical params and do nothing.
+     */
+    highlightAt?: string;
     dropIns?: string;
   }>();
   const { t } = useTranslation();
@@ -182,15 +192,24 @@ export default function ConventionDetailScreen() {
   const [browse, setBrowse] = useScheduleBrowseState(id ?? "");
   const [searchQuery, setSearchQuery] = useState("");
   const [dropInsOnly, setDropInsOnly] = useState(requestedDropIns === "1");
+  const searchBarRef = useRef<SearchBarCommands>(null);
+
+  // The native field has no value prop, so resetting `searchQuery` alone left
+  // the old text in it over an unfiltered list, and the next keystroke
+  // filtered on that text plus the new letter. Every reset goes through here.
+  const clearSearch = useCallback(() => {
+    searchBarRef.current?.clearText();
+    setSearchQuery("");
+  }, []);
 
   useEffect(() => {
     if (requestedDropIns === "1") {
       setDropInsOnly(true);
       setView("all");
-      setSearchQuery("");
+      clearSearch();
       setBrowse({ dayKey: ALL_DAYS, slotStartMs: null, category: null });
     }
-  }, [requestedDropIns, setBrowse]);
+  }, [requestedDropIns, setBrowse, clearSearch]);
   const [manualEventVisible, setManualEventVisible] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const notificationPermission = useNotificationPermission();
@@ -230,7 +249,12 @@ export default function ConventionDetailScreen() {
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(
     null,
   );
+  // The highlight request last handled: the event and when it was asked for,
+  // so the same event asked for again is handled again.
   const scrolledToHighlight = useRef<string | null>(null);
+  const highlightRequest = highlightEventId
+    ? `${highlightEventId}:${highlightAt ?? ""}`
+    : null;
 
   useEffect(() => {
     if (!highlightedEventId) return;
@@ -518,22 +542,22 @@ export default function ConventionDetailScreen() {
   );
 
   const clearFilters = useCallback(() => {
-    setSearchQuery("");
+    clearSearch();
     setDropInsOnly(false);
     setBrowse({ category: null, slotStartMs: null });
-  }, [setBrowse]);
+  }, [setBrowse, clearSearch]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Changed filters invalidate a pending scroll target.
   useEffect(() => {
     listJump.cancel();
   }, [listJump, filters, dropInsOnly, view]);
 
-  // Scroll once to the event a notification tap named, then let the pulse
-  // fade. Runs after the sections exist; a stale or deleted event id is
-  // silently ignored. The browse state is reset first so the row is on
-  // screen whatever was filtered before the tap.
+  // Scroll once per tap to the event a reminder or Schedule tab tap named,
+  // then let the pulse fade. Runs after the sections exist; a stale or
+  // deleted event id is silently ignored. The browse state is reset first so
+  // the row is on screen whatever was filtered before the tap.
   useEffect(() => {
-    if (!highlightEventId || scrolledToHighlight.current === highlightEventId)
+    if (!highlightEventId || scrolledToHighlight.current === highlightRequest)
       return;
     const target = events.find((event) => event.id === highlightEventId);
     if (!target) return;
@@ -555,7 +579,8 @@ export default function ConventionDetailScreen() {
       activeCategory !== null ||
       searchQuery !== query
     ) {
-      setSearchQuery(query);
+      // `query` is always "": the target's own day shows unsearched.
+      clearSearch();
       setBrowse(targetBrowse);
       return;
     }
@@ -564,7 +589,7 @@ export default function ConventionDetailScreen() {
         (row) => row.id === highlightEventId,
       );
       if (itemIndex >= 0) {
-        scrolledToHighlight.current = highlightEventId;
+        scrolledToHighlight.current = highlightRequest;
         setHighlightedEventId(highlightEventId);
         listJump.jump({
           sectionIndex,
@@ -577,6 +602,7 @@ export default function ConventionDetailScreen() {
     }
   }, [
     highlightEventId,
+    highlightRequest,
     events,
     sections,
     view,
@@ -587,12 +613,9 @@ export default function ConventionDetailScreen() {
     dropInsOnly,
     conventionTimeZone,
     setBrowse,
+    clearSearch,
     listJump,
   ]);
-
-  const minutesLeftLabel = (count: number) => formatMinutesLeft(count, t);
-  const minutesUntilLabel = (count: number) =>
-    formatMinutesUntilStart(count, t);
 
   const gapLabel = useCallback(
     (gap: AgendaGap): string => {
@@ -1115,70 +1138,17 @@ export default function ConventionDetailScreen() {
               : "convention.now.upNext",
           ),
           title: heroEvent.title,
-          timeLine: heroEvent.endTime
-            ? t("convention.eventTimeRange", {
-                start: formatEventTime(
-                  heroEvent.startTime,
-                  conventionTimeZone,
-                  locale,
-                  hour12,
-                ),
-                end: formatEventEndTime(
-                  heroEvent.startTime,
-                  heroEvent.endTime,
-                  conventionTimeZone,
-                  locale,
-                  hour12,
-                ),
-              })
-            : formatEventTime(
-                heroEvent.startTime,
-                conventionTimeZone,
-                locale,
-                hour12,
-              ),
-          callout:
-            hero.kind === "current"
-              ? heroEvent.endTime
-                ? {
-                    label: t("convention.now.until"),
-                    value: formatEventEndTime(
-                      heroEvent.startTime,
-                      heroEvent.endTime,
-                      conventionTimeZone,
-                      locale,
-                      hour12,
-                    ),
-                    sub: minutesLeftLabel(
-                      Math.max(
-                        0,
-                        Math.round(
-                          (Date.parse(heroEvent.endTime) - now) / 60_000,
-                        ),
-                      ),
-                    ),
-                  }
-                : {
-                    label: t("convention.now.until"),
-                    value: t("convention.now.unknownEnd"),
-                  }
-              : {
-                  label: t("convention.now.startsAt"),
-                  value: formatEventTime(
-                    heroEvent.startTime,
-                    conventionTimeZone,
-                    locale,
-                    hour12,
-                  ),
-                  sub: minutesUntilLabel(
-                    Math.max(
-                      0,
-                      Math.round(
-                        (Date.parse(heroEvent.startTime) - now) / 60_000,
-                      ),
-                    ),
-                  ),
-                },
+          ...formatNowHeroTimes({
+            kind: hero.kind,
+            onAnotherDay: hero.onAnotherDay,
+            startTime: heroEvent.startTime,
+            endTime: heroEvent.endTime,
+            nowMs: now,
+            timeZone: conventionTimeZone,
+            locale,
+            hour12,
+            t,
+          }),
           room: heroEvent.room ?? heroEvent.location ?? undefined,
           venue:
             heroEvent.room && heroEvent.location
@@ -1347,6 +1317,15 @@ export default function ConventionDetailScreen() {
   // scroll like a populated one.
   const nowHeroOnly =
     view === "now" && heroProps !== null && sections.length === 0;
+  // Whatever keeps the header also keeps the list scrollable, as Browse's
+  // empty day already is: the header's notices and day strip can outgrow the
+  // screen, and the empty state below them has to stay reachable.
+  const showsHeader = showsScheduleHeader(
+    view,
+    sections.length,
+    heroProps !== null,
+    scheduledEvents.length > 0,
+  );
 
   const emptyComponent =
     view === "all" ? (
@@ -1396,7 +1375,9 @@ export default function ConventionDetailScreen() {
           onCta={() => setView("all")}
         />
       ) : (
+        // Other days hold saves, so this sits under the day strip.
         <EmptyState
+          compact
           icon={EMPTY_SCHEDULE_ICON}
           title={t("convention.plan.empty.title")}
           subtitle={t("convention.plan.empty.body")}
@@ -1423,8 +1404,13 @@ export default function ConventionDetailScreen() {
           headerLargeTitleShadowVisible: false,
         }}
       />
-      {events.length > 0 && (view === "all" || sections.length > 0) ? (
+      {/* Mounted whenever there is something to search. Unmounting it on an
+          empty Plan or Now view dropped the native field (iOS remounts a new,
+          empty one) while `searchQuery` kept filtering Browse. Typing from
+          any view switches to Browse. */}
+      {events.length > 0 ? (
         <Stack.SearchBar
+          ref={searchBarRef}
           autoCapitalize="none"
           hideWhenScrolling
           placement={process.env.EXPO_OS === "ios" ? "stacked" : "automatic"}
@@ -1477,7 +1463,7 @@ export default function ConventionDetailScreen() {
             >
               {t("convention.importSchedule")}
             </Stack.Toolbar.MenuAction>
-            {convention?.icalUrl ? (
+            {scheduleRefresh.canCheck ? (
               <Stack.Toolbar.MenuAction
                 icon={
                   process.env.EXPO_OS === "ios"
@@ -1533,10 +1519,7 @@ export default function ConventionDetailScreen() {
         // not rubber-band, but the iOS large title needs a scrollable list
         // to lay itself into, so a populated list has to bounce.
         alwaysBounceVertical={shouldBounceSchedule(sections, nowHeroOnly)}
-        scrollEnabled={canScrollSchedule(
-          sections.length > 0 || view === "all" || nowHeroOnly,
-          fontScale,
-        )}
+        scrollEnabled={canScrollSchedule(showsHeader, fontScale)}
         sections={sections}
         keyExtractor={(row) => row.id}
         // Rows close over values that are not part of `sections`, and
@@ -1548,7 +1531,7 @@ export default function ConventionDetailScreen() {
         contentContainerStyle={contentContainerStyle}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
-          !showsScheduleHeader(view, sections.length, heroProps !== null)
+          !showsHeader
             ? undefined
             : events.length > 0 || scheduleRefresh.summary !== null
               ? listHeader

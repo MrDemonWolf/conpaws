@@ -3,7 +3,7 @@ import type { ConventionEvent } from "@/db/schema";
 import { hasVisit } from "@/lib/drop-in-visit";
 import { reportError } from "@/lib/error-reporting";
 import { removeDropInVisit } from "./drop-in-visit";
-import { cancelEventReminder } from "./notifications";
+import { cancelEventReminder, withReminderLock } from "./notifications";
 import { stopTrackingIfAffected } from "./tracked-event";
 
 /**
@@ -55,10 +55,14 @@ export async function removeEventFromPlan(
     await stopTrackingUnsaved([event.id]);
     return;
   }
-  await cancelEventReminder(event.id);
-  await eventsRepo.update(event.id, {
-    isInSchedule: false,
-    reminderMinutes: null,
+  // One step against the reminder reconcile, which would otherwise re-file the
+  // reminder from a read taken before this cleared it.
+  await withReminderLock(async () => {
+    await cancelEventReminder(event.id);
+    await eventsRepo.update(event.id, {
+      isInSchedule: false,
+      reminderMinutes: null,
+    });
   });
   await stopTrackingUnsaved([event.id]);
 }

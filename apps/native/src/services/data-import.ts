@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { eq } from "drizzle-orm";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { db } from "@/db";
@@ -10,6 +11,7 @@ import {
 } from "@/db/schema";
 import { MAX_BACKUP_BYTES, MAX_BACKUP_ROWS } from "@/lib/backup-limits";
 import { isValidTimeZone } from "@/lib/convention-time";
+import { setScheduleAllCategories } from "@/lib/schedule-refresh-storage";
 import { resolveScheduleUrl } from "@/lib/schedule-url";
 
 export { MAX_BACKUP_BYTES, MAX_BACKUP_ROWS } from "@/lib/backup-limits";
@@ -410,10 +412,87 @@ export function validateEventRow(
   };
 }
 
+/** The saved state of an event already on this device. */
+export interface ExistingEventSchedule {
+  id: string;
+  sourceUid: string | null;
+  isInSchedule: boolean;
+  visitStartTime: string | null;
+  visitEndTime: string | null;
+}
+
+/**
+ * Catalog conventions already on this device. Convention ids are random, so a
+ * copy downloaded again from Find has a different id from the one in a backup,
+ * and only the slug says they are the same convention.
+ */
+export interface ExistingCatalogCopies {
+  /** The device's convention for each catalog slug. */
+  conventionIdBySlug: ReadonlyMap<string, string>;
+  /**
+   * The catalog revision that convention holds. A slug missing here counts
+   * as an unknown revision; see `isLaterRevision`.
+   */
+  catalogRevisionBySlug?: ReadonlyMap<string, number | null>;
+  /** That convention's events, read only when a backup row merges into it. */
+  eventsOf?: (conventionId: string) => readonly ExistingEventSchedule[];
+}
+
+/** A star or visit the backup adds to an event already on the device. */
+export interface EventScheduleUpdate {
+  id: string;
+  isInSchedule?: true;
+  visitStartTime?: string;
+  visitEndTime?: string;
+}
+
 export interface DataImportPlan {
   conventions: Convention[];
   events: ConventionEvent[];
+  /** Saved state carried onto events already on the device. */
+  eventUpdates: EventScheduleUpdate[];
+  /** Catalog conventions this restore adds or merges into. */
+  catalogConventionIds: string[];
   result: ImportSuccess;
+}
+
+type SavedState = Pick<
+  ConventionEvent,
+  "isInSchedule" | "visitStartTime" | "visitEndTime"
+>;
+
+/** What `from` adds to `into`. A restore never unsaves or replaces a visit. */
+function savedStateToCarry(
+  into: SavedState,
+  from: SavedState,
+): Omit<EventScheduleUpdate, "id"> {
+  const patch: Omit<EventScheduleUpdate, "id"> = {};
+  if (from.isInSchedule && !into.isInSchedule) patch.isInSchedule = true;
+  if (
+    from.visitStartTime &&
+    from.visitEndTime &&
+    !into.visitStartTime &&
+    !into.visitEndTime
+  ) {
+    patch.visitStartTime = from.visitStartTime;
+    patch.visitEndTime = from.visitEndTime;
+  }
+  return patch;
+}
+
+/**
+ * Whether a backup copy of a catalog convention holds a later revision than
+ * the copy it merges into. Only then can a panel the owner lacks be one the
+ * catalog added since. A catalog download takes every session, so at the same
+ * or an earlier revision the owner's catalog had dropped it. An unknown
+ * revision proves nothing; the next catalog refresh re-adds any panel the
+ * catalog still lists.
+ */
+function isLaterRevision(
+  copy: number | null,
+  owner: number | null | undefined,
+): boolean {
+  return copy !== null && owner != null && copy > owner;
 }
 
 export function planDataImport(
@@ -421,12 +500,21 @@ export function planDataImport(
   existingConventionIds: ReadonlySet<string>,
   existingEventIds: ReadonlySet<string>,
   now: string = new Date().toISOString(),
+  existingCatalog: ExistingCatalogCopies = { conventionIdBySlug: new Map() },
 ): DataImportPlan {
   const knownConventionIds = new Set(existingConventionIds);
   const knownEventIds = new Set(existingEventIds);
   const conventionsToInsert: Convention[] = [];
   const eventsToInsert: ConventionEvent[] = [];
   const reasons = emptyReasons();
+  // Where every copy of a catalog slug lands: the device's convention, else
+  // the first one in this file.
+  const catalogOwners = new Map(existingCatalog.conventionIdBySlug);
+  const ownerRevisions = new Map(existingCatalog.catalogRevisionBySlug);
+  // A backup convention that is another copy of one of those, its owner, and
+  // whether the copy holds a later catalog revision than the owner.
+  const mergedInto = new Map<string, { owner: string; later: boolean }>();
+  const catalogConventionIds = new Set<string>();
 
   for (const candidate of envelope.conventions) {
     const validated = validateConventionRow(candidate, now);
@@ -434,30 +522,114 @@ export function planDataImport(
       reasons[validated.reason]++;
       continue;
     }
-    if (knownConventionIds.has(validated.row.id)) {
+    const { row } = validated;
+    if (knownConventionIds.has(row.id)) {
       reasons.duplicate++;
       continue;
     }
-    knownConventionIds.add(validated.row.id);
-    conventionsToInsert.push(validated.row);
+    knownConventionIds.add(row.id);
+    if (row.catalogSlug) {
+      const owner = catalogOwners.get(row.catalogSlug);
+      catalogConventionIds.add(owner ?? row.id);
+      if (owner !== undefined) {
+        reasons.duplicate++;
+        mergedInto.set(row.id, {
+          owner,
+          later: isLaterRevision(
+            row.catalogRevision,
+            ownerRevisions.get(row.catalogSlug),
+          ),
+        });
+        continue;
+      }
+      catalogOwners.set(row.catalogSlug, row.id);
+      ownerRevisions.set(row.catalogSlug, row.catalogRevision);
+    }
+    conventionsToInsert.push(row);
   }
 
+  const mergedEvents: { row: ConventionEvent; fromLaterCopy: boolean }[] = [];
   for (const candidate of envelope.events) {
     const validated = validateEventRow(candidate, now);
     if ("reason" in validated) {
       reasons[validated.reason]++;
       continue;
     }
-    if (knownEventIds.has(validated.row.id)) {
+    const { row } = validated;
+    if (knownEventIds.has(row.id)) {
       reasons.duplicate++;
       continue;
     }
-    if (!knownConventionIds.has(validated.row.conventionId)) {
+    if (!knownConventionIds.has(row.conventionId)) {
       reasons.orphan++;
       continue;
     }
-    knownEventIds.add(validated.row.id);
-    eventsToInsert.push(validated.row);
+    knownEventIds.add(row.id);
+    const merge = mergedInto.get(row.conventionId);
+    if (merge === undefined) eventsToInsert.push(row);
+    else
+      mergedEvents.push({
+        row: { ...row, conventionId: merge.owner },
+        fromLaterCopy: merge.later,
+      });
+  }
+
+  // Merged once every other row is planned, so a copy's events find the
+  // owner's in whatever order the file lists them. A match keeps the owner's
+  // row and only gains the backup's star or visit.
+  type MergeTarget = { state: SavedState; deviceId?: string };
+  const owners = new Set([...mergedInto.values()].map(({ owner }) => owner));
+  const targetsByOwner = new Map<string, Map<string, MergeTarget>>();
+  for (const owner of owners) {
+    const targets = new Map<string, MergeTarget>();
+    for (const event of existingCatalog.eventsOf?.(owner) ?? []) {
+      if (event.sourceUid)
+        targets.set(event.sourceUid, {
+          state: { ...event },
+          deviceId: event.id,
+        });
+    }
+    targetsByOwner.set(owner, targets);
+  }
+  for (const row of eventsToInsert) {
+    const targets = targetsByOwner.get(row.conventionId);
+    if (targets && row.sourceUid && !targets.has(row.sourceUid))
+      targets.set(row.sourceUid, { state: row });
+  }
+
+  const eventUpdates = new Map<string, EventScheduleUpdate>();
+  for (const { row, fromLaterCopy } of mergedEvents) {
+    const targets = targetsByOwner.get(row.conventionId);
+    const target = row.sourceUid ? targets?.get(row.sourceUid) : undefined;
+    if (!target) {
+      // A catalog panel the owner's revision dropped. Restored live, it would
+      // stay until the catalog's next revision, which would then count it as
+      // a removal. A saved one comes back as the tombstone a catalog refresh
+      // leaves; an unsaved one is left out, as the refresh leaves it out.
+      const dropped = Boolean(row.sourceUid) && !fromLaterCopy;
+      if (dropped && !row.isInSchedule) {
+        reasons.duplicate++;
+        continue;
+      }
+      const restored: ConventionEvent = dropped
+        ? { ...row, feedStatus: row.feedStatus ?? "removed" }
+        : row;
+      eventsToInsert.push(restored);
+      if (targets && restored.sourceUid)
+        targets.set(restored.sourceUid, { state: restored });
+      continue;
+    }
+    reasons.duplicate++;
+    const patch = savedStateToCarry(target.state, row);
+    if (Object.keys(patch).length === 0) continue;
+    Object.assign(target.state, patch);
+    if (target.deviceId !== undefined) {
+      eventUpdates.set(target.deviceId, {
+        ...eventUpdates.get(target.deviceId),
+        id: target.deviceId,
+        ...patch,
+      });
+    }
   }
 
   const skipped = Object.values(reasons).reduce((sum, n) => sum + n, 0);
@@ -465,6 +637,8 @@ export function planDataImport(
   return {
     conventions: conventionsToInsert,
     events: eventsToInsert,
+    eventUpdates: [...eventUpdates.values()],
+    catalogConventionIds: [...catalogConventionIds],
     result: {
       ok: true,
       conventionsAdded: conventionsToInsert.length,
@@ -491,18 +665,60 @@ export function chunkRows<T>(rows: readonly T[], columns: number): T[][] {
 const CONVENTION_COLUMNS = 14;
 const EVENT_COLUMNS = 24;
 
+/**
+ * Each slug's earliest-created convention, the same row `getByCatalogSlug`
+ * returns, so a restore merges into the copy that Find keeps updating, and
+ * the catalog revision that copy holds.
+ */
+function earliestCopyBySlug(
+  rows: readonly Pick<
+    Convention,
+    "id" | "catalogSlug" | "catalogRevision" | "createdAt"
+  >[],
+): Omit<ExistingCatalogCopies, "eventsOf"> {
+  const earliest = new Map<
+    string,
+    Pick<Convention, "id" | "catalogRevision" | "createdAt">
+  >();
+  for (const { id, catalogSlug, catalogRevision, createdAt } of rows) {
+    if (!catalogSlug) continue;
+    const current = earliest.get(catalogSlug);
+    if (
+      !current ||
+      createdAt < current.createdAt ||
+      (createdAt === current.createdAt && id < current.id)
+    ) {
+      earliest.set(catalogSlug, { id, catalogRevision, createdAt });
+    }
+  }
+  const copies = [...earliest];
+  return {
+    conventionIdBySlug: new Map(copies.map(([slug, { id }]) => [slug, id])),
+    catalogRevisionBySlug: new Map(
+      copies.map(([slug, { catalogRevision }]) => [slug, catalogRevision]),
+    ),
+  };
+}
+
 export async function importData(
   envelope: BackupEnvelope,
 ): Promise<ImportOutcome> {
+  let catalogConventionIds: string[] = [];
+  let outcome: ImportOutcome;
   try {
-    return db.transaction((tx) => {
+    outcome = db.transaction((tx) => {
+      const existingConventions = tx
+        .select({
+          id: conventions.id,
+          catalogSlug: conventions.catalogSlug,
+          catalogRevision: conventions.catalogRevision,
+          createdAt: conventions.createdAt,
+        })
+        .from(conventions)
+        .limit(MAX_BACKUP_ROWS + 1)
+        .all();
       const existingConventionIds = new Set(
-        tx
-          .select({ id: conventions.id })
-          .from(conventions)
-          .limit(MAX_BACKUP_ROWS + 1)
-          .all()
-          .map((row) => row.id),
+        existingConventions.map((row) => row.id),
       );
       if (existingConventionIds.size > MAX_BACKUP_ROWS) {
         return fail("device-limit", {
@@ -525,10 +741,27 @@ export async function importData(
           limit: MAX_BACKUP_ROWS,
         });
       }
+      const now = new Date().toISOString();
       const plan = planDataImport(
         envelope,
         existingConventionIds,
         existingEventIds,
+        now,
+        {
+          ...earliestCopyBySlug(existingConventions),
+          eventsOf: (conventionId) =>
+            tx
+              .select({
+                id: conventionEvents.id,
+                sourceUid: conventionEvents.sourceUid,
+                isInSchedule: conventionEvents.isInSchedule,
+                visitStartTime: conventionEvents.visitStartTime,
+                visitEndTime: conventionEvents.visitEndTime,
+              })
+              .from(conventionEvents)
+              .where(eq(conventionEvents.conventionId, conventionId))
+              .all(),
+        },
       );
 
       const totalRows =
@@ -549,13 +782,33 @@ export async function importData(
       for (const batch of chunkRows(plan.events, EVENT_COLUMNS)) {
         tx.insert(conventionEvents).values(batch).run();
       }
+      // A star added on this device counts as a phone change, so a Watch tap
+      // older than the restore no longer overrides it.
+      for (const { id, ...patch } of plan.eventUpdates) {
+        tx.update(conventionEvents)
+          .set({ ...patch, updatedAt: now })
+          .where(eq(conventionEvents.id, id))
+          .run();
+      }
 
+      catalogConventionIds = plan.catalogConventionIds;
       return plan.result;
     });
   } catch (error) {
     reportError(error, { scope: "data-import.write" });
     return fail("write-failed");
   }
+
+  // Schedule refresh only applies a feed the last import took in full, and
+  // that flag lives in AsyncStorage, not in the backup. A catalog download
+  // always takes every session, so a restored catalog convention gets it back
+  // here. A feed's category choice is not in the backup, so feeds stay off.
+  if (outcome.ok) {
+    await Promise.all(
+      catalogConventionIds.map((id) => setScheduleAllCategories(id, true)),
+    );
+  }
+  return outcome;
 }
 
 /**
