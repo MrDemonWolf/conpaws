@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   canApplyScheduleImport,
   importNeedsTimeZone,
+  isIcsFileName,
   isUtcAlias,
   parseIcsPreferringFeedTimeZone,
 } from "./import-policy";
@@ -71,6 +72,22 @@ describe("schedule import policy", () => {
         sourceEventCount: 1,
       }),
     ).toBe(true);
+  });
+});
+
+describe("isIcsFileName", () => {
+  it("accepts an .ics file whatever the extension case", () => {
+    // File providers keep the name's own casing, and plenty of exporters
+    // write SCHEDULE.ICS.
+    for (const name of ["a.ics", "Schedule.ICS", "a.Ics"]) {
+      expect(isIcsFileName(name)).toBe(true);
+    }
+  });
+
+  it("still refuses a file that is not an .ics", () => {
+    for (const name of ["a.ics.txt", "a.txt", "ics", "a.icsx"]) {
+      expect(isIcsFileName(name)).toBe(false);
+    }
   });
 });
 

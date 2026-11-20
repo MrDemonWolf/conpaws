@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("expo/fetch", () => ({
@@ -5,6 +7,7 @@ vi.mock("expo/fetch", () => ({
     globalThis.fetch(...args),
 }));
 
+import { parseIcs } from "./ical-parser";
 import {
   fetchScheduleIcs,
   InvalidResponseError,
@@ -174,5 +177,86 @@ describe("fetchScheduleIcs", () => {
       }),
     ).rejects.toBeInstanceOf(ScheduleFetchCancelledError);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("fetchScheduleIcs on an Events Calendar site", () => {
+  // The Events Calendar export: 30 events, UIDs `<post id>-<start>-<end>@host`.
+  const tribeFeed = readFileSync(
+    path.resolve(__dirname, "../../../../test-data/tribe-events-con.ics"),
+    "utf8",
+  );
+  const FEED_URL =
+    "https://tribeeventscon.example.org/?post_type=tribe_events&ical=1&eventDisplay=list";
+  const postIds = Array.from(
+    tribeFeed.matchAll(/^UID:(\d+)-/gm),
+    (match) => match[1],
+  );
+
+  function restEvents(ids: string[]) {
+    return ids.map((id) => ({
+      id: Number(id),
+      title: `Panel ${id}`,
+      utc_start_date: "2026-09-04 15:00:00",
+      utc_end_date: "2026-09-04 16:00:00",
+      timezone: "America/Indiana/Indianapolis",
+    }));
+  }
+
+  function stubSite(rest: () => Response) {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        String(url).includes("/wp-json/tribe/events/v1/events")
+          ? rest()
+          : respondWith(tribeFeed),
+      ),
+    );
+  }
+
+  async function importedUids(): Promise<string[]> {
+    const fetched = await fetchScheduleIcs(FEED_URL);
+    return parseIcs(fetched.icsContent).events.map((event) => event.sourceUid);
+  }
+
+  it("keeps the REST identity when the expansion fails", async () => {
+    // What a healthy expansion stores: every feed event plus the ones the
+    // list view cut off.
+    stubSite(() =>
+      Response.json({
+        events: restEvents([...postIds, "99001"]),
+        total_pages: 1,
+      }),
+    );
+    const expandedUids = await importedUids();
+    vi.unstubAllGlobals();
+
+    // A re-import while the REST route has a bad minute falls back to the
+    // truncated feed. Its events must still be the ones already stored, or the
+    // import marks every saved panel removed and adds an unsaved copy.
+    stubSite(() => new Response("busy", { status: 503 }));
+    const fallbackUids = await importedUids();
+
+    expect(fallbackUids).toHaveLength(30);
+    expect(fallbackUids).toContain("8154@conpaws.ecp");
+    for (const uid of fallbackUids) {
+      expect(uid).toMatch(/^\d+@conpaws\.ecp$/);
+      expect(expandedUids).toContain(uid);
+    }
+  });
+
+  it("keeps the REST identity when the feed wins the event count", async () => {
+    // A convention with no more events than the list view shows imports the
+    // feed itself. Once its schedule outgrows the cap the REST body wins, and
+    // that must not swap every identity either.
+    stubSite(() =>
+      Response.json({ events: restEvents(postIds), total_pages: 1 }),
+    );
+
+    const uids = await importedUids();
+
+    expect(uids).toHaveLength(30);
+    expect(uids).toContain("8154@conpaws.ecp");
+    for (const uid of uids) expect(uid).toMatch(/^\d+@conpaws\.ecp$/);
   });
 });

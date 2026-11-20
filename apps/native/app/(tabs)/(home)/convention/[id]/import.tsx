@@ -36,6 +36,7 @@ import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { isValidTimeZone } from "@/lib/convention-time";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { normalizeEcpUids } from "@/lib/ecp-feed";
 import type { FeedSource } from "@/lib/feed-source";
 import {
   type CategoryMeta,
@@ -47,6 +48,7 @@ import { runImportOnce } from "@/lib/import-lock";
 import {
   canApplyScheduleImport,
   importNeedsTimeZone,
+  isIcsFileName,
   parseIcsPreferringFeedTimeZone,
 } from "@/lib/import-policy";
 import {
@@ -361,7 +363,7 @@ export default function ImportScreen() {
 
       if (isCurrentRequest(generation) && !result.canceled) {
         const file = result.assets[0];
-        if (!file.name.endsWith(".ics")) {
+        if (!isIcsFileName(file.name)) {
           setError({
             type: "file-type",
             message: t("import.errors.fileType"),
@@ -380,7 +382,9 @@ export default function ImportScreen() {
           const content = await pickedFile.text();
           if (isCurrentRequest(generation)) {
             processIcs(
-              content,
+              // A downloaded Events Calendar export gets the identities its
+              // URL import uses, so adding the URL later matches these rows.
+              normalizeEcpUids(content),
               file.name.replace(/\.ics$/i, ""),
               storedTimeZone ?? undefined,
             );

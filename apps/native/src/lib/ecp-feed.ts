@@ -159,6 +159,39 @@ export function isEventsCalendarFeed(raw: string): boolean {
 }
 
 /**
+ * An ECP export's UID line, `UID:<post id>-<start>-<end>@<host>`, with any
+ * folded continuation lines.
+ */
+const ECP_UID_LINE = /^UID:(\d+)-\d+-\d+@[^\r\n]*(?:\r?\n[ \t][^\r\n]*)*/gim;
+
+/**
+ * Gives an Events Calendar export the identities its REST expansion uses.
+ *
+ * `buildIcsFromEcpEvents` names each event `<post id>@conpaws.ecp`; the export
+ * names the same event `<post id>-<start>-<end>@<host>`. Which body an import
+ * gets depends on whether the REST read worked and which holds more events,
+ * so without this one re-import can rename every event: reconciliation then
+ * marks each saved panel removed and adds an unsaved copy beside it.
+ *
+ * Returns the body untouched when it is not an ECP export, or when one post id
+ * sits behind two different UIDs: merging those would make the parser keep
+ * only the first, and losing an event is worse than a renamed one.
+ */
+export function normalizeEcpUids(raw: string): string {
+  if (!isEventsCalendarFeed(raw)) return raw;
+  const uidByPostId = new Map<string, string>();
+  for (const [line, postId] of raw.matchAll(ECP_UID_LINE)) {
+    const seen = uidByPostId.get(postId);
+    if (seen !== undefined && seen !== line) return raw;
+    uidByPostId.set(postId, line);
+  }
+  return raw.replace(
+    ECP_UID_LINE,
+    (_line, postId: string) => `UID:${postId}@conpaws.ecp`,
+  );
+}
+
+/**
  * The REST collection on the same origin as the feed.
  *
  * Same-origin by construction: the host is taken from the URL already being

@@ -24,6 +24,16 @@ export function canApplyScheduleImport({
   return sourceUrl !== null && sourceEventCount === 0;
 }
 
+/**
+ * Whether a picked file is named as an iCalendar file.
+ *
+ * Case-insensitive: file providers keep the name's own casing, and a valid
+ * calendar saved as `Schedule.ICS` must not be refused as the wrong type.
+ */
+export function isIcsFileName(name: string): boolean {
+  return /\.ics$/i.test(name);
+}
+
 const UTC_ALIASES = new Set([
   "UTC",
   "UCT",

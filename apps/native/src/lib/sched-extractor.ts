@@ -4,7 +4,11 @@ import {
   ResponseTooLargeError,
   readResponseTextWithLimit,
 } from "./bounded-response";
-import { fetchEcpFullSchedule, isEventsCalendarFeed } from "./ecp-feed";
+import {
+  fetchEcpFullSchedule,
+  isEventsCalendarFeed,
+  normalizeEcpUids,
+} from "./ecp-feed";
 import {
   InvalidScheduleUrlError,
   looksLikeCalendar,
@@ -177,6 +181,10 @@ function countEvents(ics: string): number {
  * REST route disabled, one that answers with fewer events for a reason we did
  * not anticipate, or any failure at all leaves the original body untouched.
  * The worst case is the truncated import that would have happened anyway.
+ *
+ * Whichever body wins carries the same event identities: the feed is returned
+ * with its UIDs in the REST form, so a REST hiccup on a re-import cannot rename
+ * every stored event (see `normalizeEcpUids`).
  */
 async function expandTruncatedFeed(
   body: string,
@@ -184,20 +192,21 @@ async function expandTruncatedFeed(
   controller: AbortController,
 ): Promise<string> {
   if (!isEventsCalendarFeed(body)) return body;
+  const feed = normalizeEcpUids(body);
 
   try {
     const expanded = await fetchEcpFullSchedule(fetchUrl, {
       signal: controller.signal,
     });
-    if (!expanded) return body;
+    if (!expanded) return feed;
     if (new TextEncoder().encode(expanded).byteLength > MAX_ICS_BYTES) {
-      return body;
+      return feed;
     }
-    return countEvents(expanded) > countEvents(body) ? expanded : body;
+    return countEvents(expanded) > countEvents(feed) ? expanded : feed;
   } catch (error) {
     // A cancelled import must stay cancelled; the outer handler turns this
     // into ScheduleFetchCancelledError rather than a network complaint.
     if ((error as Error)?.name === "AbortError") throw error;
-    return body;
+    return feed;
   }
 }
