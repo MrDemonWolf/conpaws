@@ -23,6 +23,11 @@ import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
+  CONVENTION_NAME_MAX_LENGTH,
+  conventionNameLength,
+  validateConventionForm,
+} from "@/lib/convention-form";
+import {
   canInferTimeZoneFromLocation,
   inferTimeZoneFromLocation,
   normalizeLocationName,
@@ -80,6 +85,18 @@ export default function CreateConventionScreen() {
     };
   }, []);
 
+  // The edit form's rules, so nothing can be created that Edit would then
+  // refuse to save (an over-long pasted name blocked every later change).
+  const values = {
+    name,
+    startDate: format(startDate, "yyyy-MM-dd"),
+    endDate: format(endDate, "yyyy-MM-dd"),
+    timeZone,
+    location,
+  };
+  const validation = validateConventionForm(values);
+  const nameLength = conventionNameLength(name);
+
   function updateStartDate(value: Date) {
     setStartDate(value);
     if (endDate < value) setEndDate(value);
@@ -129,16 +146,20 @@ export default function CreateConventionScreen() {
   }
 
   async function handleCreate() {
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      Alert.alert(t("common.error"), t("convention.nameRequired"));
+    if (validation.errors.name) {
+      Alert.alert(
+        t("common.error"),
+        validation.errors.name === "nameTooLong"
+          ? t("convention.nameTooLong", { max: CONVENTION_NAME_MAX_LENGTH })
+          : t("convention.nameRequired"),
+      );
       return;
     }
-    if (!isValidTimeZone(timeZone.trim())) {
+    if (validation.errors.timeZone) {
       Alert.alert(t("common.error"), t("convention.timeZoneInvalid"));
       return;
     }
+    if (!validation.valid) return;
 
     // Set before the geocode, not after it. Resolving a time zone from a
     // location is a throttled network call that can take seconds, and leaving
@@ -155,19 +176,33 @@ export default function CreateConventionScreen() {
     // worse than doing nothing.
     if (!isMounted.current) return;
 
-    const startDateKey = format(startDate, "yyyy-MM-dd");
-    const endDateKey = format(endDate, "yyyy-MM-dd");
-    const today = conventionDayKey(new Date(), resolvedTimeZone);
+    // A geocoded zone the device cannot use would leave a convention that
+    // Edit refuses to save, so the settled zone is checked like a picked one.
+    const resolvedValidation = validateConventionForm({
+      ...values,
+      timeZone: resolvedTimeZone,
+    });
+    if (!resolvedValidation.valid) {
+      Alert.alert(t("common.error"), t("convention.timeZoneInvalid"));
+      setSaving(false);
+      return;
+    }
+    const { cleaned } = resolvedValidation;
+    const today = conventionDayKey(new Date(), cleaned.timeZone);
 
     const outcome = await commitNewConvention(
       {
-        name: trimmedName,
-        startDate: startDateKey,
-        endDate: endDateKey,
-        timeZone: resolvedTimeZone,
-        location: normalizeLocationName(location) || null,
+        name: cleaned.name,
+        startDate: cleaned.startDate,
+        endDate: cleaned.endDate,
+        timeZone: cleaned.timeZone,
+        location: cleaned.location || null,
         icalUrl: null,
-        status: conventionStatusForDay(startDateKey, endDateKey, today),
+        status: conventionStatusForDay(
+          cleaned.startDate,
+          cleaned.endDate,
+          today,
+        ),
       },
       {
         create: conventionsRepo.create,
@@ -209,8 +244,7 @@ export default function CreateConventionScreen() {
     colorScheme: resolvedColorScheme,
     onChange: (value) => setEndDate(max([value, startDate])),
   });
-  const canCreate =
-    !saving && name.trim().length > 0 && isValidTimeZone(timeZone);
+  const canCreate = !saving && validation.valid;
 
   // Any typed input counts as dirty; the untouched dates are defaults, not input.
   const isDirty =
@@ -316,8 +350,22 @@ export default function CreateConventionScreen() {
                 {t("convention.timeZone")}
               </ListItem>
             </Collapsible>
+            {/* @expo/ui keeps only a section's last footer, so the name's
+                limit shares this one: Add greys out with the reason shown,
+                and the count appears only once the limit is close. */}
             <FieldGroup.SectionFooter>
-              <NativeText>{t("convention.timeZoneAdvancedHelp")}</NativeText>
+              <NativeText>
+                {validation.errors.name === "nameTooLong"
+                  ? t("convention.nameTooLong", {
+                      max: CONVENTION_NAME_MAX_LENGTH,
+                    })
+                  : nameLength > CONVENTION_NAME_MAX_LENGTH - 15
+                    ? t("convention.nameCounter", {
+                        count: nameLength,
+                        max: CONVENTION_NAME_MAX_LENGTH,
+                      })
+                    : t("convention.timeZoneAdvancedHelp")}
+              </NativeText>
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>
         </FieldGroup>

@@ -57,3 +57,46 @@ describe("convention date fields", () => {
     );
   });
 });
+
+describe("convention create form validation", () => {
+  const source = read("app/(tabs)/(home)/convention/create.tsx");
+
+  // Create used to check only for a non-empty name, so a 90-character paste
+  // was saved, and Edit, which enforces the shared 80-character limit, then
+  // refused every later change until that name was shortened.
+  it("gates Add on the validator the edit form uses", () => {
+    expect(source).toMatch(
+      /import \{[^}]*\bvalidateConventionForm\b[^}]*\} from "@\/lib\/convention-form";/,
+    );
+    expect(source).toMatch(/const canCreate =\s*!saving && validation\.valid;/);
+  });
+
+  it("writes the validator's cleaned name and location, checked again with the zone the save settled on", () => {
+    expect(source).toMatch(
+      /validateConventionForm\(\{\s*\.\.\.values,\s*timeZone: resolvedTimeZone,?\s*\}\)/,
+    );
+    const draft = between(
+      source,
+      "commitNewConvention(",
+      "create: conventionsRepo.create",
+    );
+    expect(draft).toMatch(/\bname: cleaned\.name,/);
+    expect(draft).toMatch(/\blocation: cleaned\.location \|\| null,/);
+    expect(draft).not.toMatch(/\btrimmedName\b/);
+  });
+
+  // @expo/ui keeps only the last FieldGroup.SectionFooter of a section, so a
+  // notice in any earlier footer never reaches the screen.
+  it("shows the name limit and counter in the section's last footer, the one that renders", () => {
+    const section = between(
+      source,
+      "<FieldGroup.Section>",
+      "</FieldGroup.Section>",
+    );
+    const lastFooter = section.slice(
+      section.lastIndexOf("<FieldGroup.SectionFooter>"),
+    );
+    expect(lastFooter).toContain('"convention.nameTooLong"');
+    expect(lastFooter).toContain('"convention.nameCounter"');
+  });
+});
