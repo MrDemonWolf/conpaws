@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const asyncStorage = vi.hoisted(() => ({
@@ -35,6 +37,7 @@ vi.mock("react-i18next", () => ({ initReactI18next: { type: "3rdParty" } }));
 
 import {
   changeLanguage,
+  followDeviceLanguage,
   initI18n,
   parseSupportedLanguage,
   resolveDeviceLocale,
@@ -211,5 +214,75 @@ describe("changeLanguage", () => {
     expect(asyncStorage.setItem.mock.invocationCallOrder[0]).toBeLessThan(
       i18next.changeLanguage.mock.invocationCallOrder[0],
     );
+  });
+});
+
+// Android hands a system or per-app language change to the running process
+// instead of restarting it, so the launch-time language used to stick until a
+// force-stop for anyone who never picked one in Settings.
+describe("followDeviceLanguage", () => {
+  function device(languageTag: string) {
+    localization.getLocales.mockReturnValue([
+      { languageTag, languageCode: languageTag.split("-")[0] },
+    ]);
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    i18next.language = "en";
+  });
+
+  it("follows a device language change when no language was picked", async () => {
+    asyncStorage.getItem.mockResolvedValueOnce(null);
+    device("de-DE");
+
+    await expect(followDeviceLanguage()).resolves.toBe("de");
+    expect(i18next.changeLanguage).toHaveBeenCalledWith("de");
+    // Not persisted: that would turn the device language into a Settings
+    // choice and stop the next device change from being followed.
+    expect(asyncStorage.setItem).not.toHaveBeenCalled();
+  });
+
+  it("falls back to English when the new device language does not ship", async () => {
+    i18next.language = "de";
+    asyncStorage.getItem.mockResolvedValueOnce(null);
+    device("th-TH");
+
+    await expect(followDeviceLanguage()).resolves.toBe("en");
+    expect(i18next.changeLanguage).toHaveBeenCalledWith("en");
+  });
+
+  it("leaves a language picked in Settings alone", async () => {
+    asyncStorage.getItem.mockResolvedValueOnce("fr");
+    device("de-DE");
+
+    await expect(followDeviceLanguage()).resolves.toBeNull();
+    expect(i18next.changeLanguage).not.toHaveBeenCalled();
+  });
+
+  it('leaves the pre-split stored "es" alone as a picked language', async () => {
+    asyncStorage.getItem.mockResolvedValueOnce("es");
+    device("de-DE");
+
+    await expect(followDeviceLanguage()).resolves.toBeNull();
+    expect(i18next.changeLanguage).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when the device still resolves to the current language", async () => {
+    // A region change (en-US to en-GB) also raises the locale event.
+    asyncStorage.getItem.mockResolvedValueOnce(null);
+    device("en-GB");
+
+    await expect(followDeviceLanguage()).resolves.toBeNull();
+    expect(i18next.changeLanguage).not.toHaveBeenCalled();
+  });
+
+  it("is driven from the root layout by the device locale", () => {
+    const layout = readFileSync(
+      path.resolve(__dirname, "../../app/_layout.tsx"),
+      "utf8",
+    );
+    expect(layout).toMatch(/useLocales\(\)/);
+    expect(layout).toMatch(/followDeviceLanguage\(\)/);
   });
 });
