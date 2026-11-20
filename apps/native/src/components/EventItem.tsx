@@ -189,15 +189,19 @@ export function EventItem({
         interactive ? t("convention.eventActionsHint") : undefined
       }
       accessibilityState={{ selected: isInSchedule }}
+      // A custom name, never "activate": Android maps that one onto the row's
+      // click, so TalkBack's double-tap would run the star instead of opening
+      // the event. A custom name lands in TalkBack's actions menu and the
+      // VoiceOver rotor, and double-tap falls through to onPress.
       accessibilityActions={
         trailingAction
-          ? [{ name: "activate", label: trailingAction.label }]
+          ? [{ name: "toggleSave", label: trailingAction.label }]
           : undefined
       }
       onAccessibilityAction={
         trailingAction
           ? (event) => {
-              if (event.nativeEvent.actionName === "activate") {
+              if (event.nativeEvent.actionName === "toggleSave") {
                 trailingAction.onPress();
               }
             }
