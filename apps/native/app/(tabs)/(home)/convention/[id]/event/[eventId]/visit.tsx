@@ -41,6 +41,7 @@ import {
   manualEventDayKey,
   manualEventPickerDate,
 } from "@/lib/manual-event-time";
+import { confirmNotificationPriming } from "@/lib/notification-priming";
 import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getCachedDefaultReminderMinutes,
@@ -185,7 +186,10 @@ function VisitForm({
     setError(false);
     try {
       if (remove) await removeDropInVisit(event);
-      else await saveDropInVisit(event, draft, timeZone, reminder);
+      else
+        await saveDropInVisit(event, draft, timeZone, reminder, {
+          confirmPermissionPrompt: () => confirmNotificationPriming(t),
+        });
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ["events", event.conventionId],
