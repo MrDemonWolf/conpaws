@@ -538,7 +538,78 @@ END:VCALENDAR`;
     const ev = result.events[0];
     expect(ev.startTime.toISOString()).toBe("2026-06-12T00:00:00.000Z");
     expect(ev.isAllDay).toBe(true);
-    expect(ev.endTime).toBeNull();
+    expect(ev.endTime?.toISOString()).toBe("2026-06-13T00:00:00.000Z");
+  });
+
+  it("keeps a multi-day all-day event's exclusive DTEND", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-TIMEZONE:America/New_York
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260904
+DTEND;VALUE=DATE:20260907
+SUMMARY:Dealers Den (all weekend)
+UID:dealers-den
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics).events;
+
+    expect(ev.startTime.toISOString()).toBe("2026-09-04T04:00:00.000Z");
+    expect(ev.endTime?.toISOString()).toBe("2026-09-07T04:00:00.000Z");
+    expect(ev.isAllDay).toBe(true);
+  });
+
+  it("gives an all-day event with no DTEND or DURATION one day", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-TIMEZONE:America/New_York
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260904
+SUMMARY:Registration open
+UID:registration
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics).events;
+
+    expect(ev.endTime?.toISOString()).toBe("2026-09-05T04:00:00.000Z");
+  });
+
+  it("ends a one-day all-day event at local midnight across a DST change", () => {
+    // 1 November 2026 is when New York falls back, so the day is 25 hours.
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-TIMEZONE:America/New_York
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261031
+SUMMARY:Costume Day
+UID:costume-day
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics).events;
+
+    expect(ev.startTime.toISOString()).toBe("2026-10-31T04:00:00.000Z");
+    expect(ev.endTime?.toISOString()).toBe("2026-11-01T04:00:00.000Z");
+  });
+
+  it("counts an all-day DURATION in convention days", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-TIMEZONE:America/New_York
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261030
+DURATION:P3D
+SUMMARY:Art Show
+UID:art-show
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics).events;
+
+    // Three local days, one of them 25 hours long, not 72 elapsed hours.
+    expect(ev.endTime?.toISOString()).toBe("2026-11-02T05:00:00.000Z");
   });
   it("rejects a nonexistent local time in a DST gap", () => {
     const result = parseIcs(
@@ -677,5 +748,101 @@ END:VCALENDAR`;
     expect(() => parseIcs(ics, { timeZone: "UTC" })).toThrow(
       CalendarTooLargeError,
     );
+  });
+});
+
+describe("nested VALARM", () => {
+  it("keeps the event's own UID and description over an Apple alarm's", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:event-uid-1
+DTSTART:20260612T160000Z
+SUMMARY:Opening Ceremonies
+DESCRIPTION:Welcome
+BEGIN:VALARM
+UID:alarm-uid-1
+X-WR-ALARMUID:alarm-uid-1
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics, { timeZone: "UTC" }).events;
+
+    expect(ev.sourceUid).toBe("event-uid-1");
+    expect(ev.description).toBe("Welcome");
+  });
+
+  it("keeps the event's title and description over an email alarm's", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:parade
+DTSTART:20260612T160000Z
+SUMMARY:Fursuit Parade
+DESCRIPTION:Line up by the lobby doors.
+BEGIN:VALARM
+ACTION:EMAIL
+TRIGGER:-P0DT0H30M0S
+SUMMARY:Alarm notification
+DESCRIPTION:This is an event reminder
+ATTENDEE:mailto:someone@example.com
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics, { timeZone: "UTC" }).events;
+
+    expect(ev.title).toBe("Fursuit Parade");
+    expect(ev.description).toBe("Line up by the lobby doors.");
+  });
+
+  it("still drops a cancelled event whose alarm carries its own UID", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:cancelled-1
+DTSTART:20260612T160000Z
+SUMMARY:Cancelled Panel
+STATUS:CANCELLED
+BEGIN:VALARM
+UID:alarm-c
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const result = parseIcs(ics, { timeZone: "UTC" });
+
+    expect(result.events).toEqual([]);
+    expect(result.cancelledSourceUids).toEqual(["cancelled-1"]);
+  });
+
+  it("keeps the event's DURATION over a repeating alarm's", () => {
+    const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:long-panel
+DTSTART:20260612T160000Z
+DURATION:PT90M
+SUMMARY:Long panel
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT15M
+DURATION:PT5M
+REPEAT:1
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const [ev] = parseIcs(ics, { timeZone: "UTC" }).events;
+
+    expect(ev.endTime?.toISOString()).toBe("2026-06-12T17:30:00.000Z");
   });
 });
