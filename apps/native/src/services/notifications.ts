@@ -263,7 +263,32 @@ export interface ReminderReconciliationResult {
   staleCancelled: number;
 }
 
-export async function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
+let reminderQueue: Promise<unknown> = Promise.resolve();
+
+/**
+ * Runs reminder work one piece at a time.
+ *
+ * The reconcile reads every saved reminder and then re-files each one after
+ * several native round trips. A remove that cancels the OS request and clears
+ * the row in that gap, as a Watch tap drained at launch does, is undone by the
+ * reconcile re-filing from what it read first. Work that cancels a reminder
+ * and clears the row goes through here as one step, so it lands wholly before
+ * or after a reconcile.
+ *
+ * Not re-entrant: never call it from inside work it is already running, and
+ * never wrap `cancelEventReminder` itself, which the reconcile calls.
+ */
+export function withReminderLock<T>(work: () => Promise<T>): Promise<T> {
+  const run = reminderQueue.then(() => work());
+  reminderQueue = run.catch(() => undefined);
+  return run;
+}
+
+export function reconcileEventReminders(): Promise<ReminderReconciliationResult> {
+  return withReminderLock(reconcileEventRemindersNow);
+}
+
+async function reconcileEventRemindersNow(): Promise<ReminderReconciliationResult> {
   const events = (await eventsRepo.getAllWithReminders()).map(plannedEvent);
   const archivedConventionIds = new Set(
     (await conventionsRepo.getAll())

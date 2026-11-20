@@ -259,7 +259,15 @@ describe("commitScheduleImport", () => {
     // The convention was written from this same schedule a moment ago, so
     // there is nothing left to bring into line with it.
     expect(deps.updateConvention).not.toHaveBeenCalled();
-    expect(deps.publishSnapshot).not.toHaveBeenCalled();
+    // It still has to reach the widget and Watch: a catalog download has no
+    // mutation behind it to republish on success.
+    expect(deps.publishSnapshot).toHaveBeenCalledTimes(1);
+    expect(firstCall(deps.publishSnapshot)).toBeGreaterThan(
+      firstCall(deps.importEvents),
+    );
+    expect(firstCall(deps.refreshCaches)).toBeGreaterThan(
+      firstCall(deps.publishSnapshot),
+    );
   });
 
   it("refuses to start a convention it has no dates for", async () => {

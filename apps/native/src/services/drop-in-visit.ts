@@ -5,6 +5,7 @@ import {
   cancelEventReminder,
   getNotificationPermissionStatus,
   scheduleEventReminder,
+  withReminderLock,
 } from "./notifications";
 
 interface SaveDropInVisitOptions {
@@ -78,19 +79,24 @@ export async function saveDropInVisit(
   }
 }
 
-export async function removeDropInVisit(event: ConventionEvent): Promise<void> {
-  if (!(await cancelEventReminder(event.id))) throw new Error("cancel-failed");
-  try {
-    await eventsRepo.update(event.id, {
-      visitStartTime: null,
-      visitEndTime: null,
-      isInSchedule: false,
-      reminderMinutes: null,
-    });
-  } catch (error) {
-    await restoreStoredReminder(event.id);
-    throw error;
-  }
+export function removeDropInVisit(event: ConventionEvent): Promise<void> {
+  // One step against the reminder reconcile, which would otherwise re-file the
+  // reminder from a read taken before this cleared it.
+  return withReminderLock(async () => {
+    if (!(await cancelEventReminder(event.id)))
+      throw new Error("cancel-failed");
+    try {
+      await eventsRepo.update(event.id, {
+        visitStartTime: null,
+        visitEndTime: null,
+        isInSchedule: false,
+        reminderMinutes: null,
+      });
+    } catch (error) {
+      await restoreStoredReminder(event.id);
+      throw error;
+    }
+  });
 }
 
 async function restoreStoredReminder(eventId: string): Promise<void> {

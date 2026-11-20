@@ -8,6 +8,7 @@ import {
   requestNotificationPermission,
   scheduleEventReminder,
   scheduleTestNotification,
+  withReminderLock,
 } from "./notifications";
 
 const notificationMocks = vi.hoisted(() => ({
@@ -414,6 +415,34 @@ describe("convention reminder cleanup", () => {
     expect(
       notificationMocks.cancelScheduledNotificationAsync,
     ).toHaveBeenCalledWith("reminder-event-2");
+  });
+});
+
+describe("withReminderLock", () => {
+  it("runs reminder work one at a time and carries on after a failure", async () => {
+    const steps: string[] = [];
+    let releaseFirst!: () => void;
+    const first = withReminderLock(async () => {
+      steps.push("first:start");
+      await new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      steps.push("first:end");
+      throw new Error("native call failed");
+    });
+    const second = withReminderLock(async () => {
+      steps.push("second");
+      return "done";
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(steps).toEqual(["first:start"]);
+
+    releaseFirst();
+    await expect(first).rejects.toThrow("native call failed");
+    await expect(second).resolves.toBe("done");
+    expect(steps).toEqual(["first:start", "first:end", "second"]);
   });
 });
 

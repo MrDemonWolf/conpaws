@@ -14,6 +14,7 @@ vi.mock("./notifications", () => ({
   scheduleEventReminder: schedule,
   cancelEventReminder: cancel,
   getNotificationPermissionStatus: permission,
+  withReminderLock: (work: () => Promise<unknown>) => work(),
 }));
 const event = {
   id: "market",

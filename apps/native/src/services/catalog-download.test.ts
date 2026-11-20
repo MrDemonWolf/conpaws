@@ -172,6 +172,32 @@ describe("downloadCatalogEdition", () => {
     expect(source.schedule).not.toHaveBeenCalled();
   });
 
+  it("publishes the widget snapshot after a first download", async () => {
+    // Nothing else republishes a catalog download: the screen runs it outside
+    // a mutation and the convention screen it opens finds the same revision.
+    // Without this the widget and Watch miss the new convention until the app
+    // next comes to the foreground.
+    const { deps, calls } = harness();
+
+    const result = await downloadCatalogEdition(
+      {
+        edition,
+        source: {
+          kind: "fixture",
+          list: async () => [edition],
+          schedule: async () => schedule,
+        },
+      },
+      deps,
+    );
+
+    expect(result).toMatchObject({ ok: true, created: true });
+    expect(calls.publishSnapshot).toHaveBeenCalledTimes(1);
+    expect(calls.publishSnapshot.mock.invocationCallOrder[0]).toBeGreaterThan(
+      calls.importEvents.mock.invocationCallOrder[0] ?? 0,
+    );
+  });
+
   it.each([
     ["network", new NetworkError("offline")],
     ["not-found", new CatalogNotFoundError()],
