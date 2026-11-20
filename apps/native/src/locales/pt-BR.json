@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Escolha um fuso horário válido, como Chicago (America/Chicago).",
     "location": "Local",
     "locationPlaceholder": "Cidade, espaço ou endereço",
-    "locationTimeZoneNote": "Também define automaticamente o fuso horário da convenção.",
+    "locationTimeZoneNote": "O local também define automaticamente o fuso horário da convenção.",
     "timeZoneFallbackTitle": "Não foi possível detectar o fuso horário",
     "timeZoneFallbackMessage": "O ConPaws pode usar o fuso deste dispositivo ({{timeZone}}), ou você pode escolher o fuso da convenção em Avançado.",
     "setTimeZone": "Definir fuso horário",

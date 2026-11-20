@@ -57,7 +57,7 @@
     "timeZoneInvalid": "請選擇有效的時區，例如芝加哥（America/Chicago）。",
     "location": "地點",
     "locationPlaceholder": "城市、場館或地址",
-    "locationTimeZoneNote": "同時會自動設定展會的時區。",
+    "locationTimeZoneNote": "地點還會自動設定展會的時區。",
     "timeZoneFallbackTitle": "無法偵測時區",
     "timeZoneFallbackMessage": "ConPaws 可以使用這部裝置的時區（{{timeZone}}），你也可以在「進階」中選擇展會的時區。",
     "setTimeZone": "設定時區",

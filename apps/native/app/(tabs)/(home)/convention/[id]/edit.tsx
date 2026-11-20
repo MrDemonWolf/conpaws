@@ -27,8 +27,7 @@ import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
-  CONVENTION_NAME_MAX_LENGTH,
-  conventionNameLength,
+  conventionFormFooter,
   isConventionUnchanged,
   validateConventionForm,
 } from "@/lib/convention-form";
@@ -148,7 +147,6 @@ export default function EditConventionScreen() {
       }
     : null;
   const unchanged = original ? isConventionUnchanged(values, original) : true;
-  const nameLength = conventionNameLength(name);
 
   function updateStartDate(value: Date) {
     setStartDate(value);
@@ -368,38 +366,9 @@ export default function EditConventionScreen() {
             >
               {t("convention.location")}
             </ListItem>
-            {validation.errors.name === "nameTooLong" ? (
-              <FieldGroup.SectionFooter>
-                <NativeText>
-                  {t("convention.nameTooLong", {
-                    max: CONVENTION_NAME_MAX_LENGTH,
-                  })}
-                </NativeText>
-              </FieldGroup.SectionFooter>
-            ) : nameLength > CONVENTION_NAME_MAX_LENGTH - 15 ? (
-              // Only surface the counter as the limit gets close; showing it
-              // always is noise on a name that is nowhere near the bound.
-              <FieldGroup.SectionFooter>
-                <NativeText>
-                  {t("convention.nameCounter", {
-                    count: nameLength,
-                    max: CONVENTION_NAME_MAX_LENGTH,
-                  })}
-                </NativeText>
-              </FieldGroup.SectionFooter>
-            ) : null}
 
             {startDateField.row}
             {endDateField.row}
-            {validation.warnings.longSpan ? (
-              <FieldGroup.SectionFooter>
-                <NativeText>
-                  {t("convention.longSpan", {
-                    count: validation.warnings.longSpan,
-                  })}
-                </NativeText>
-              </FieldGroup.SectionFooter>
-            ) : null}
 
             <Collapsible
               label={t("common.advanced")}
@@ -417,12 +386,11 @@ export default function EditConventionScreen() {
                 {t("convention.timeZone")}
               </ListItem>
             </Collapsible>
+            {/* @expo/ui keeps only a section's last footer, so this one
+                carries the name limit and the long-span warning as well:
+                Save greys out with its reason in view. */}
             <FieldGroup.SectionFooter>
-              <NativeText>
-                {validation.errors.timeZone
-                  ? t("convention.timeZoneInvalid")
-                  : t("convention.timeZoneAdvancedHelp")}
-              </NativeText>
+              <NativeText>{conventionFormFooter(validation, t)}</NativeText>
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>
         </FieldGroup>

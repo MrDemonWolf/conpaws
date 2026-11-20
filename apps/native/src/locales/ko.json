@@ -57,7 +57,7 @@
     "timeZoneInvalid": "시카고(America/Chicago)처럼 올바른 시간대를 선택하세요.",
     "location": "장소",
     "locationPlaceholder": "도시, 행사장 또는 주소",
-    "locationTimeZoneNote": "컨벤션의 시간대도 자동으로 설정돼요.",
+    "locationTimeZoneNote": "장소에 따라 컨벤션의 시간대도 자동으로 설정돼요.",
     "timeZoneFallbackTitle": "시간대를 감지하지 못했어요",
     "timeZoneFallbackMessage": "ConPaws가 이 기기의 시간대({{timeZone}})를 사용할 수 있어요. 또는 고급에서 컨벤션의 시간대를 직접 선택하세요.",
     "setTimeZone": "시간대 설정",

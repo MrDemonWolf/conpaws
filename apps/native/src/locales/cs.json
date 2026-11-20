@@ -125,7 +125,7 @@
     "timeZoneInvalid": "Vyberte platné časové pásmo, například Chicago (America/Chicago).",
     "location": "Místo",
     "locationPlaceholder": "Město, místo konání nebo adresa",
-    "locationTimeZoneNote": "Zároveň automaticky nastaví časové pásmo conu.",
+    "locationTimeZoneNote": "Místo zároveň automaticky nastaví časové pásmo conu.",
     "timeZoneFallbackTitle": "Časové pásmo se nepodařilo zjistit",
     "timeZoneFallbackMessage": "ConPaws může použít časové pásmo tohoto zařízení ({{timeZone}}), nebo můžete pásmo conu vybrat v Pokročilém nastavení.",
     "setTimeZone": "Nastavit časové pásmo",

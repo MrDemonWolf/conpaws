@@ -123,7 +123,7 @@
     "timeZoneInvalid": "Choose a valid time zone, such as Chicago (America/Chicago).",
     "location": "Location",
     "locationPlaceholder": "City, venue, or address",
-    "locationTimeZoneNote": "Also sets the convention's time zone automatically.",
+    "locationTimeZoneNote": "The location also sets the convention's time zone automatically.",
     "timeZoneFallbackTitle": "Time Zone Could Not Be Detected",
     "timeZoneFallbackMessage": "ConPaws can use this device's time zone ({{timeZone}}), or you can choose the convention's time zone under Advanced.",
     "setTimeZone": "Set Time Zone",

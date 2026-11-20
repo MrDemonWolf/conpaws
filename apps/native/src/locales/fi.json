@@ -123,7 +123,7 @@
     "timeZoneInvalid": "Valitse kelvollinen aikavyöhyke, esimerkiksi Chicago (America/Chicago).",
     "location": "Sijainti",
     "locationPlaceholder": "Kaupunki, tapahtumapaikka tai osoite",
-    "locationTimeZoneNote": "Asettaa samalla conin aikavyöhykkeen automaattisesti.",
+    "locationTimeZoneNote": "Sijainti asettaa samalla conin aikavyöhykkeen automaattisesti.",
     "timeZoneFallbackTitle": "Aikavyöhykettä ei voitu tunnistaa",
     "timeZoneFallbackMessage": "ConPaws voi käyttää tämän laitteen aikavyöhykettä ({{timeZone}}), tai voit valita conin aikavyöhykkeen Lisäasetuksista.",
     "setTimeZone": "Aseta aikavyöhyke",

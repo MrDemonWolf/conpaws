@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Välj en giltig tidszon, till exempel Chicago (America/Chicago).",
     "location": "Plats",
     "locationPlaceholder": "Stad, lokal eller adress",
-    "locationTimeZoneNote": "Ställer också automatiskt in konventets tidszon.",
+    "locationTimeZoneNote": "Platsen ställer också automatiskt in konventets tidszon.",
     "timeZoneFallbackTitle": "Tidszonen kunde inte identifieras",
     "timeZoneFallbackMessage": "ConPaws kan använda enhetens tidszon ({{timeZone}}), eller så kan du välja konventets tidszon under Avancerat.",
     "setTimeZone": "Ställ in tidszon",

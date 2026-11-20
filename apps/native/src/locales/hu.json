@@ -123,7 +123,7 @@
     "timeZoneInvalid": "Válassz érvényes időzónát, például Chicago (America/Chicago).",
     "location": "Helyszín",
     "locationPlaceholder": "Város, helyszín vagy cím",
-    "locationTimeZoneNote": "A con időzónáját is automatikusan beállítja.",
+    "locationTimeZoneNote": "A helyszín a con időzónáját is automatikusan beállítja.",
     "timeZoneFallbackTitle": "Az időzónát nem sikerült felismerni",
     "timeZoneFallbackMessage": "A ConPaws használhatja ennek az eszköznek az időzónáját ({{timeZone}}), vagy a Speciális részben kiválaszthatod a con időzónáját.",
     "setTimeZone": "Időzóna beállítása",

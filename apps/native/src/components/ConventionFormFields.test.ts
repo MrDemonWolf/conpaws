@@ -84,19 +84,40 @@ describe("convention create form validation", () => {
     expect(draft).toMatch(/\blocation: cleaned\.location \|\| null,/);
     expect(draft).not.toMatch(/\btrimmedName\b/);
   });
+});
 
+describe("convention form footers", () => {
   // @expo/ui keeps only the last FieldGroup.SectionFooter of a section, so a
-  // notice in any earlier footer never reaches the screen.
-  it("shows the name limit and counter in the section's last footer, the one that renders", () => {
+  // notice in any earlier footer never reaches the screen. Edit kept the name
+  // limit, the name counter and the long-span warning in footers of their own
+  // ahead of the time zone help: Save greyed out over a too-long name with the
+  // reason never shown. Create lost its location note the same way.
+  it.each(screens)(
+    "%s gives its section one footer, which carries every note",
+    (screen) => {
+      const section = between(
+        read(screen),
+        "<FieldGroup.Section>",
+        "</FieldGroup.Section>",
+      );
+      expect(section.match(/<FieldGroup\.SectionFooter>/g) ?? []).toHaveLength(
+        1,
+      );
+      const footer = section.slice(
+        section.indexOf("<FieldGroup.SectionFooter>"),
+      );
+      expect(footer).toMatch(/\bconventionFormFooter\(\s*validation,\s*t\b/);
+    },
+  );
+
+  it("adds the location note on create wherever the location sets the zone", () => {
     const section = between(
-      source,
+      read("app/(tabs)/(home)/convention/create.tsx"),
       "<FieldGroup.Section>",
       "</FieldGroup.Section>",
     );
-    const lastFooter = section.slice(
-      section.lastIndexOf("<FieldGroup.SectionFooter>"),
+    expect(section).toMatch(
+      /conventionFormFooter\(\s*validation,\s*t,\s*\{\s*locationSetsTimeZone: canInferTimeZone,?\s*\}\s*\)/,
     );
-    expect(lastFooter).toContain('"convention.nameTooLong"');
-    expect(lastFooter).toContain('"convention.nameCounter"');
   });
 });

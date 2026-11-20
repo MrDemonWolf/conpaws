@@ -123,7 +123,7 @@
     "timeZoneInvalid": "Scegli un fuso orario valido, ad esempio Chicago (America/Chicago).",
     "location": "Luogo",
     "locationPlaceholder": "Città, sede o indirizzo",
-    "locationTimeZoneNote": "Imposta automaticamente anche il fuso orario della convention.",
+    "locationTimeZoneNote": "Il luogo imposta automaticamente anche il fuso orario della convention.",
     "timeZoneFallbackTitle": "Impossibile rilevare il fuso orario",
     "timeZoneFallbackMessage": "ConPaws può usare il fuso orario di questo dispositivo ({{timeZone}}), oppure puoi scegliere quello della convention in Avanzate.",
     "setTimeZone": "Imposta fuso orario",

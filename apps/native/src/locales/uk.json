@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Виберіть коректний часовий пояс, наприклад Чикаго (America/Chicago).",
     "location": "Місце",
     "locationPlaceholder": "Місто, локація або адреса",
-    "locationTimeZoneNote": "Також автоматично встановлює часовий пояс конвенту.",
+    "locationTimeZoneNote": "Місце також автоматично встановлює часовий пояс конвенту.",
     "timeZoneFallbackTitle": "Не вдалося визначити часовий пояс",
     "timeZoneFallbackMessage": "ConPaws може використати часовий пояс цього пристрою ({{timeZone}}), або ви можете вибрати пояс конвенту в розділі «Додатково».",
     "setTimeZone": "Установити часовий пояс",

@@ -123,7 +123,7 @@
     "timeZoneInvalid": "Elige una zona horaria válida, como Chicago (America/Chicago).",
     "location": "Ubicación",
     "locationPlaceholder": "Ciudad, sede o dirección",
-    "locationTimeZoneNote": "También establece automáticamente la zona horaria de la convención.",
+    "locationTimeZoneNote": "La ubicación también establece automáticamente la zona horaria de la convención.",
     "timeZoneFallbackTitle": "No se pudo detectar la zona horaria",
     "timeZoneFallbackMessage": "ConPaws puede usar la zona horaria de este dispositivo ({{timeZone}}), o puedes elegir la de la convención en Avanzado.",
     "setTimeZone": "Elegir zona horaria",

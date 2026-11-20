@@ -57,7 +57,7 @@
     "timeZoneInvalid": "有効なタイムゾーンを選択してください（例：シカゴ（America/Chicago））。",
     "location": "場所",
     "locationPlaceholder": "都市、会場、住所など",
-    "locationTimeZoneNote": "コンベンションのタイムゾーンも自動的に設定されます。",
+    "locationTimeZoneNote": "場所からコンベンションのタイムゾーンも自動的に設定されます。",
     "timeZoneFallbackTitle": "タイムゾーンを検出できませんでした",
     "timeZoneFallbackMessage": "ConPawsはこのデバイスのタイムゾーン（{{timeZone}}）を使用できます。または「詳細設定」でコンベンションのタイムゾーンを選択してください。",
     "setTimeZone": "タイムゾーンを設定",

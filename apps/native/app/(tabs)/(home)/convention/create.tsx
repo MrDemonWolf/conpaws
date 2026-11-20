@@ -24,7 +24,7 @@ import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import {
   CONVENTION_NAME_MAX_LENGTH,
-  conventionNameLength,
+  conventionFormFooter,
   validateConventionForm,
 } from "@/lib/convention-form";
 import {
@@ -65,6 +65,9 @@ export default function CreateConventionScreen() {
     addDays(startOfDay(new Date()), 1),
   );
   const [saving, setSaving] = useState(false);
+  // `saving` only reaches the Add button on the next render; the ref stops a
+  // second tap that lands before then, as on the edit form.
+  const createLock = useRef(false);
   const isMounted = useRef(true);
   const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
@@ -95,7 +98,6 @@ export default function CreateConventionScreen() {
     location,
   };
   const validation = validateConventionForm(values);
-  const nameLength = conventionNameLength(name);
 
   function updateStartDate(value: Date) {
     setStartDate(value);
@@ -146,6 +148,7 @@ export default function CreateConventionScreen() {
   }
 
   async function handleCreate() {
+    if (createLock.current) return;
     if (validation.errors.name) {
       Alert.alert(
         t("common.error"),
@@ -161,14 +164,21 @@ export default function CreateConventionScreen() {
     }
     if (!validation.valid) return;
 
-    // Set before the geocode, not after it. Resolving a time zone from a
+    // Locked before the geocode, not after it. Resolving a time zone from a
     // location is a throttled network call that can take seconds, and leaving
     // the form live across that window let a second Save tap create a second
-    // convention.
+    // convention. The lock frees only when nothing was written, so a failed
+    // attempt can be retried and a tap queued behind a landed one cannot add
+    // the convention twice.
+    createLock.current = true;
     setSaving(true);
+    const unlock = () => {
+      createLock.current = false;
+      setSaving(false);
+    };
     const resolvedTimeZone = await resolveTimeZoneForSave();
     if (!resolvedTimeZone) {
-      setSaving(false);
+      unlock();
       return;
     }
     // The user may have left while the geocode was in flight. Writing a
@@ -184,7 +194,7 @@ export default function CreateConventionScreen() {
     });
     if (!resolvedValidation.valid) {
       Alert.alert(t("common.error"), t("convention.timeZoneInvalid"));
-      setSaving(false);
+      unlock();
       return;
     }
     const { cleaned } = resolvedValidation;
@@ -219,7 +229,7 @@ export default function CreateConventionScreen() {
 
     if (!outcome.ok) {
       Alert.alert(t("common.error"), t("convention.createError"));
-      setSaving(false);
+      unlock();
       return;
     }
     if (!isMounted.current) return;
@@ -324,14 +334,6 @@ export default function CreateConventionScreen() {
             >
               {t("convention.location")}
             </ListItem>
-            {/* The location silently drives a geocode on save that sets the
-                time zone and can take seconds — say so instead of looking
-                like a cosmetic field. Only where that geocode can run. */}
-            {canInferTimeZone ? (
-              <FieldGroup.SectionFooter>
-                <NativeText>{t("convention.locationTimeZoneNote")}</NativeText>
-              </FieldGroup.SectionFooter>
-            ) : null}
             {startDateField.row}
             {endDateField.row}
             <Collapsible
@@ -350,21 +352,15 @@ export default function CreateConventionScreen() {
                 {t("convention.timeZone")}
               </ListItem>
             </Collapsible>
-            {/* @expo/ui keeps only a section's last footer, so the name's
-                limit shares this one: Add greys out with the reason shown,
-                and the count appears only once the limit is close. */}
+            {/* @expo/ui keeps only a section's last footer, so this one
+                carries every note: the name limit, so Add greys out with the
+                reason shown, and, where the save geocodes the location into a
+                zone (which can take seconds), a note saying so. */}
             <FieldGroup.SectionFooter>
               <NativeText>
-                {validation.errors.name === "nameTooLong"
-                  ? t("convention.nameTooLong", {
-                      max: CONVENTION_NAME_MAX_LENGTH,
-                    })
-                  : nameLength > CONVENTION_NAME_MAX_LENGTH - 15
-                    ? t("convention.nameCounter", {
-                        count: nameLength,
-                        max: CONVENTION_NAME_MAX_LENGTH,
-                      })
-                    : t("convention.timeZoneAdvancedHelp")}
+                {conventionFormFooter(validation, t, {
+                  locationSetsTimeZone: canInferTimeZone,
+                })}
               </NativeText>
             </FieldGroup.SectionFooter>
           </FieldGroup.Section>

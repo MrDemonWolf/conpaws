@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { normalizeLocationName } from "./convention-location";
 import { isValidTimeZone } from "./convention-time";
 
@@ -102,6 +103,48 @@ export function validateConventionForm(
       location: normalizeLocationName(values.location),
     },
   };
+}
+
+/** The name's count shows once it is within this many characters of the limit. */
+const NAME_COUNTER_MARGIN = 15;
+
+/**
+ * Everything a convention form says under its fields, as one block of text.
+ *
+ * `@expo/ui` renders only the last `FieldGroup.SectionFooter` in a section,
+ * so a footer per row lost every note but the time zone help: Save greyed out
+ * over a too-long name with the reason never shown. The forms put this in
+ * their one footer instead, a line per note in the order of the rows.
+ *
+ * `locationSetsTimeZone` adds the note that saving geocodes the location into
+ * a zone, which only the create form does unasked, and only where
+ * `canInferTimeZoneFromLocation` allows.
+ */
+export function conventionFormFooter(
+  validation: ConventionFormValidation,
+  t: TFunction,
+  { locationSetsTimeZone = false }: { locationSetsTimeZone?: boolean } = {},
+): string {
+  const nameLength = conventionNameLength(validation.cleaned.name);
+  const { longSpan } = validation.warnings;
+  const lines = [
+    validation.errors.name === "nameTooLong"
+      ? t("convention.nameTooLong", { max: CONVENTION_NAME_MAX_LENGTH })
+      : nameLength > CONVENTION_NAME_MAX_LENGTH - NAME_COUNTER_MARGIN
+        ? t("convention.nameCounter", {
+            count: nameLength,
+            max: CONVENTION_NAME_MAX_LENGTH,
+          })
+        : null,
+    locationSetsTimeZone ? t("convention.locationTimeZoneNote") : null,
+    longSpan !== undefined
+      ? t("convention.longSpan", { count: longSpan })
+      : null,
+    validation.errors.timeZone
+      ? t("convention.timeZoneInvalid")
+      : t("convention.timeZoneAdvancedHelp"),
+  ];
+  return lines.filter((line) => line !== null).join("\n");
 }
 
 /** True when nothing the user can edit differs from what is stored. */

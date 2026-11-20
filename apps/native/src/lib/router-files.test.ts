@@ -107,6 +107,35 @@ describe("Expo Router convention routes", () => {
     expect(importSource).not.toMatch(/disabled=\{importMutation\.isPending\}/);
   });
 
+  // `saving` reaches the Add button only on the next render, so a quick double
+  // tap ran handleCreate twice and created two conventions. The edit form's
+  // Save already held a ref lock for exactly this (see saveConventionEdit).
+  it("lets the Add button create only one convention", () => {
+    const createSource = readFileSync(
+      path.resolve(conventionRoute, "../create.tsx"),
+      "utf8",
+    );
+    const handleCreate = createSource.slice(
+      createSource.indexOf("async function handleCreate"),
+      createSource.indexOf("const validTimeZone"),
+    );
+
+    expect(createSource).toMatch(/const createLock = useRef\(false\);/);
+    // Checked first, and taken before anything awaits.
+    expect(handleCreate).toMatch(
+      /^async function handleCreate\(\) \{\s*if \(createLock\.current\) return;/,
+    );
+    const taken = handleCreate.indexOf("createLock.current = true;");
+    expect(taken).toBeGreaterThan(0);
+    expect(taken).toBeLessThan(handleCreate.indexOf("await "));
+    // The form re-enables only through unlock, which frees the lock with it,
+    // so a failed attempt can be retried and a landed one cannot repeat.
+    expect(handleCreate).toMatch(
+      /const unlock = \(\) => \{\s*createLock\.current = false;\s*setSaving\(false\);\s*\};/,
+    );
+    expect(handleCreate.match(/setSaving\(false\)/g) ?? []).toHaveLength(1);
+  });
+
   // The edit form is a swipeable iOS form sheet, and usePreventRemove is the
   // only thing that stops a swipe. `saving` turns on at the tap, before a
   // geocode of up to ten seconds; guarding on it let the swipe close the sheet

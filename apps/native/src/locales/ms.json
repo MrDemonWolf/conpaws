@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Pilih zon waktu yang sah, contohnya Chicago (America/Chicago).",
     "location": "Lokasi",
     "locationPlaceholder": "Bandar, tempat atau alamat",
-    "locationTimeZoneNote": "Zon waktu konvensyen juga ditetapkan secara automatik.",
+    "locationTimeZoneNote": "Lokasi juga menetapkan zon waktu konvensyen secara automatik.",
     "timeZoneFallbackTitle": "Zon Waktu Tidak Dapat Dikesan",
     "timeZoneFallbackMessage": "ConPaws boleh menggunakan zon waktu peranti ini ({{timeZone}}), atau anda boleh pilih zon waktu konvensyen dalam Lanjutan.",
     "setTimeZone": "Tetapkan Zon Waktu",

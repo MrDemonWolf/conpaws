@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Velg en gyldig tidssone, for eksempel Chicago (America/Chicago).",
     "location": "Sted",
     "locationPlaceholder": "By, sted eller adresse",
-    "locationTimeZoneNote": "Setter også konventets tidssone automatisk.",
+    "locationTimeZoneNote": "Stedet setter også konventets tidssone automatisk.",
     "timeZoneFallbackTitle": "Fant ikke tidssonen",
     "timeZoneFallbackMessage": "ConPaws kan bruke tidssonen til denne enheten ({{timeZone}}), eller du kan velge konventets tidssone under Avansert.",
     "setTimeZone": "Velg tidssone",

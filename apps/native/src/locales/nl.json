@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Kies een geldige tijdzone, zoals Chicago (America/Chicago).",
     "location": "Locatie",
     "locationPlaceholder": "Stad, locatie of adres",
-    "locationTimeZoneNote": "Stelt ook automatisch de tijdzone van de conventie in.",
+    "locationTimeZoneNote": "De locatie stelt ook automatisch de tijdzone van de conventie in.",
     "timeZoneFallbackTitle": "Tijdzone kon niet worden bepaald",
     "timeZoneFallbackMessage": "ConPaws kan de tijdzone van dit apparaat ({{timeZone}}) gebruiken. Je kunt ook de tijdzone van de conventie kiezen onder Geavanceerd.",
     "setTimeZone": "Tijdzone instellen",

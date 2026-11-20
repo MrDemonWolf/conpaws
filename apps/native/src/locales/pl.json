@@ -57,7 +57,7 @@
     "timeZoneInvalid": "Wybierz prawidłową strefę czasową, np. Chicago (America/Chicago).",
     "location": "Lokalizacja",
     "locationPlaceholder": "Miasto, obiekt lub adres",
-    "locationTimeZoneNote": "Ustawia też automatycznie strefę czasową konwentu.",
+    "locationTimeZoneNote": "Lokalizacja ustawia też automatycznie strefę czasową konwentu.",
     "timeZoneFallbackTitle": "Nie udało się wykryć strefy czasowej",
     "timeZoneFallbackMessage": "ConPaws może użyć strefy czasowej tego urządzenia ({{timeZone}}). Strefę konwentu możesz też wybrać w sekcji Zaawansowane.",
     "setTimeZone": "Ustaw strefę czasową",
