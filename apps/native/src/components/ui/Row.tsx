@@ -16,10 +16,11 @@ export const PRESS_DIM = "active:opacity-60";
 
 /**
  * Minimum height for anything tappable: 48 satisfies both platform minimums,
- * HIG's 44pt and Material 3's 48dp. Several rows sat at `min-h-11` (44px),
- * which clears iOS and misses Android.
+ * HIG's 44pt and Material 3's 48dp. It is written in px because NativeWind
+ * takes 1rem as 14 on a device, so `min-h-12` renders 42 and `min-h-11` 38.5.
+ * `tap-target.test.ts` compiles the app's classes to keep every control at 48.
  */
-export const TAP_TARGET = "min-h-12";
+export const TAP_TARGET = "min-h-[48px]";
 
 interface RowProps extends Omit<PressableProps, "children" | "className"> {
   children: ReactNode;

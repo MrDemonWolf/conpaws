@@ -501,6 +501,8 @@
     "notificationTitle": "Нагадування про {{event}}",
     "notificationBody": "Початок через {{minutes}} хв",
     "notificationBodyWithRoom": "Початок через {{minutes}} хв · {{room}}",
+    "notificationBodyNow": "Починається зараз",
+    "notificationBodyNowWithRoom": "Починається зараз · {{room}}",
     "channelName": "Нагадування про події",
     "setAnnouncement": "Нагадування про вихід установлено для {{event}}.",
     "clearedAnnouncement": "Нагадування про вихід прибрано для {{event}}.",

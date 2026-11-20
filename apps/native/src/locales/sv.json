@@ -487,6 +487,8 @@
     "notificationTitle": "Påminnelse för {{event}}",
     "notificationBody": "Börjar om {{minutes}} min",
     "notificationBodyWithRoom": "Börjar om {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Börjar nu",
+    "notificationBodyNowWithRoom": "Börjar nu · {{room}}",
     "channelName": "Evenemangspåminnelser",
     "setAnnouncement": "Avgångspåminnelse inställd för {{event}}.",
     "clearedAnnouncement": "Avgångspåminnelse borttagen för {{event}}.",

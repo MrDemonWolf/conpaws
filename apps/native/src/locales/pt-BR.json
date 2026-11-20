@@ -487,6 +487,8 @@
     "notificationTitle": "Lembrete para {{event}}",
     "notificationBody": "Começa em {{minutes}} min",
     "notificationBodyWithRoom": "Começa em {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Começa agora",
+    "notificationBodyNowWithRoom": "Começa agora · {{room}}",
     "channelName": "Lembretes de eventos",
     "setAnnouncement": "Lembrete de saída definido para {{event}}.",
     "clearedAnnouncement": "Lembrete de saída removido para {{event}}.",

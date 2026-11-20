@@ -552,6 +552,8 @@
     "notificationTitle": "Reminder for {{event}}",
     "notificationBody": "Starts in {{minutes}} min",
     "notificationBodyWithRoom": "Starts in {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Starting now",
+    "notificationBodyNowWithRoom": "Starting now · {{room}}",
     "channelName": "Event reminders",
     "setAnnouncement": "Reminder set for {{event}}.",
     "clearedAnnouncement": "Reminder cleared for {{event}}.",

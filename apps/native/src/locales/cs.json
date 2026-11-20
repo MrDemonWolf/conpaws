@@ -566,6 +566,8 @@
     "notificationTitle": "Připomenutí: {{event}}",
     "notificationBody": "Začíná za {{minutes}} min",
     "notificationBodyWithRoom": "Začíná za {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Začíná právě teď",
+    "notificationBodyNowWithRoom": "Začíná právě teď · {{room}}",
     "channelName": "Připomenutí událostí",
     "setAnnouncement": "Připomenutí odchodu nastaveno pro {{event}}.",
     "clearedAnnouncement": "Připomenutí odchodu zrušeno pro {{event}}.",

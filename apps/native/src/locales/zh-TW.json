@@ -487,6 +487,8 @@
     "notificationTitle": "{{event}}提醒",
     "notificationBody": "{{minutes}} 分鐘後開始",
     "notificationBodyWithRoom": "{{minutes}} 分鐘後開始 · {{room}}",
+    "notificationBodyNow": "現在開始",
+    "notificationBodyNowWithRoom": "現在開始 · {{room}}",
     "channelName": "活動提醒",
     "setAnnouncement": "已為{{event}}設定提醒。",
     "clearedAnnouncement": "已清除{{event}}的提醒。",

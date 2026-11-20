@@ -487,6 +487,8 @@
     "notificationTitle": "Påminnelse for {{event}}",
     "notificationBody": "Starter om {{minutes}} min",
     "notificationBodyWithRoom": "Starter om {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Starter nå",
+    "notificationBodyNowWithRoom": "Starter nå · {{room}}",
     "channelName": "Hendelsespåminnelser",
     "setAnnouncement": "Avreisepåminnelse satt for {{event}}.",
     "clearedAnnouncement": "Avreisepåminnelse fjernet for {{event}}.",

@@ -553,6 +553,8 @@
     "notificationTitle": "Påmindelse: {{event}}",
     "notificationBody": "Starter om {{minutes}} min.",
     "notificationBodyWithRoom": "Starter om {{minutes}} min. · {{room}}",
+    "notificationBodyNow": "Starter nu",
+    "notificationBodyNowWithRoom": "Starter nu · {{room}}",
     "channelName": "Begivenhedspåmindelser",
     "setAnnouncement": "Påmindelse indstillet for {{event}}.",
     "clearedAnnouncement": "Påmindelse fjernet for {{event}}.",

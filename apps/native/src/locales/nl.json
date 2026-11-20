@@ -487,6 +487,8 @@
     "notificationTitle": "Herinnering voor {{event}}",
     "notificationBody": "Begint over {{minutes}} min",
     "notificationBodyWithRoom": "Begint over {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Begint nu",
+    "notificationBodyNowWithRoom": "Begint nu · {{room}}",
     "channelName": "Evenementherinneringen",
     "setAnnouncement": "Vertrekherinnering ingesteld voor {{event}}.",
     "clearedAnnouncement": "Vertrekherinnering gewist voor {{event}}.",

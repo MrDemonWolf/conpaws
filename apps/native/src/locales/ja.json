@@ -487,6 +487,8 @@
     "notificationTitle": "{{event}}のリマインダー",
     "notificationBody": "{{minutes}}分後に開始",
     "notificationBodyWithRoom": "{{minutes}}分後に開始 · {{room}}",
+    "notificationBodyNow": "開始時刻です",
+    "notificationBodyNowWithRoom": "開始時刻です · {{room}}",
     "channelName": "イベントリマインダー",
     "setAnnouncement": "{{event}}のリマインダーを設定しました。",
     "clearedAnnouncement": "{{event}}のリマインダーを解除しました。",

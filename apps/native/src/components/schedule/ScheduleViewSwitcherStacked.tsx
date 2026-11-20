@@ -1,5 +1,5 @@
 import { Pressable, View } from "react-native";
-import { PRESS_DIM, Text } from "@/components/ui";
+import { PRESS_DIM, TAP_TARGET, Text } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import {
   SCHEDULE_VIEWS,
@@ -37,7 +37,8 @@ export function ScheduleViewSwitcherStacked({
             accessibilityState={{ selected }}
             onPress={() => onChange(candidate)}
             className={cn(
-              "min-h-12 justify-center px-4",
+              TAP_TARGET,
+              "justify-center px-4",
               index > 0 && "border-border border-t",
               selected ? "bg-primary" : "bg-card",
               PRESS_DIM,

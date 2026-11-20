@@ -553,6 +553,8 @@
     "notificationTitle": "Rappel pour {{event}}",
     "notificationBody": "Commence dans {{minutes}} min",
     "notificationBodyWithRoom": "Commence dans {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Commence maintenant",
+    "notificationBodyNowWithRoom": "Commence maintenant · {{room}}",
     "channelName": "Rappels d'événements",
     "setAnnouncement": "Rappel de départ défini pour {{event}}.",
     "clearedAnnouncement": "Rappel de départ effacé pour {{event}}.",

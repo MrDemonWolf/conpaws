@@ -553,6 +553,8 @@
     "notificationTitle": "Aviso para {{event}}",
     "notificationBody": "Empieza en {{minutes}} min",
     "notificationBodyWithRoom": "Empieza en {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Empieza ahora",
+    "notificationBodyNowWithRoom": "Empieza ahora · {{room}}",
     "channelName": "Recordatorios de eventos",
     "setAnnouncement": "Aviso de salida configurado para {{event}}.",
     "clearedAnnouncement": "Aviso de salida eliminado para {{event}}.",

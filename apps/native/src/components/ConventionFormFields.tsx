@@ -166,7 +166,7 @@ export function TimeZonePickerModal({
               onPress={handleClose}
               className={cn(
                 TAP_TARGET,
-                "min-w-12 items-end justify-center",
+                "min-w-[48px] items-end justify-center",
                 PRESS_DIM,
               )}
             >

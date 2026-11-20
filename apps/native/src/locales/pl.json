@@ -497,6 +497,8 @@
     "notificationTitle": "Przypomnienie o {{event}}",
     "notificationBody": "Zaczyna się za {{minutes}} min",
     "notificationBodyWithRoom": "Zaczyna się za {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Zaczyna się teraz",
+    "notificationBodyNowWithRoom": "Zaczyna się teraz · {{room}}",
     "channelName": "Przypomnienia o wydarzeniach",
     "setAnnouncement": "Ustawiono przypomnienie o wyjściu na {{event}}.",
     "clearedAnnouncement": "Usunięto przypomnienie o wyjściu na {{event}}.",

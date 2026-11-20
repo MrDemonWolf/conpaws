@@ -487,6 +487,8 @@
     "notificationTitle": "{{event}} 알림",
     "notificationBody": "{{minutes}}분 후 시작",
     "notificationBodyWithRoom": "{{minutes}}분 후 시작 · {{room}}",
+    "notificationBodyNow": "지금 시작",
+    "notificationBodyNowWithRoom": "지금 시작 · {{room}}",
     "channelName": "이벤트 알림",
     "setAnnouncement": "{{event}}의 출발 알림을 설정했어요.",
     "clearedAnnouncement": "{{event}}의 출발 알림을 해제했어요.",

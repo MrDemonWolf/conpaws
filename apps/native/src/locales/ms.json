@@ -487,6 +487,8 @@
     "notificationTitle": "Peringatan untuk {{event}}",
     "notificationBody": "Bermula dalam {{minutes}} minit",
     "notificationBodyWithRoom": "Bermula dalam {{minutes}} minit · {{room}}",
+    "notificationBodyNow": "Bermula sekarang",
+    "notificationBodyNowWithRoom": "Bermula sekarang · {{room}}",
     "channelName": "Peringatan acara",
     "setAnnouncement": "Peringatan bertolak ditetapkan untuk {{event}}.",
     "clearedAnnouncement": "Peringatan bertolak dipadamkan untuk {{event}}.",

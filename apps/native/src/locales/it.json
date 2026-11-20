@@ -553,6 +553,8 @@
     "notificationTitle": "Promemoria per {{event}}",
     "notificationBody": "Inizia tra {{minutes}} min",
     "notificationBodyWithRoom": "Inizia tra {{minutes}} min · {{room}}",
+    "notificationBodyNow": "Inizia ora",
+    "notificationBodyNowWithRoom": "Inizia ora · {{room}}",
     "channelName": "Promemoria eventi",
     "setAnnouncement": "Promemoria di partenza impostato per {{event}}.",
     "clearedAnnouncement": "Promemoria di partenza rimosso per {{event}}.",

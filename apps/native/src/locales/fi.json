@@ -553,6 +553,8 @@
     "notificationTitle": "Muistutus: {{event}}",
     "notificationBody": "Alkaa {{minutes}} minuutin päästä",
     "notificationBodyWithRoom": "Alkaa {{minutes}} minuutin päästä · {{room}}",
+    "notificationBodyNow": "Alkaa nyt",
+    "notificationBodyNowWithRoom": "Alkaa nyt · {{room}}",
     "channelName": "Tapahtumamuistutukset",
     "setAnnouncement": "Lähtömuistutus asetettu tapahtumalle {{event}}.",
     "clearedAnnouncement": "Lähtömuistutus poistettu tapahtumalta {{event}}.",

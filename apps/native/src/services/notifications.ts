@@ -134,6 +134,25 @@ interface ScheduleReminderOptions {
   notificationContent?: ReminderNotificationContent;
 }
 
+/**
+ * The translation key for a reminder's body. An "At event time" reminder fires
+ * as the event starts, so it says so instead of "Starts in 0 min". The reminder
+ * picker builds its own copy of this text and uses this too.
+ */
+export function reminderBodyKey(
+  minutesBefore: number,
+  room: string | null | undefined,
+) {
+  if (minutesBefore === 0) {
+    return room
+      ? "reminders.notificationBodyNowWithRoom"
+      : "reminders.notificationBodyNow";
+  }
+  return room
+    ? "reminders.notificationBodyWithRoom"
+    : "reminders.notificationBody";
+}
+
 function reminderNotificationContent(
   event: EventForReminder,
   minutesBefore: number,
@@ -141,21 +160,19 @@ function reminderNotificationContent(
 ): ReminderNotificationContent {
   if (override) return override;
   if (!i18n.isInitialized) {
+    const starts =
+      minutesBefore === 0 ? "Starting now" : `Starts in ${minutesBefore} min`;
     return {
       title: `Reminder for ${event.title}`,
-      body: event.room
-        ? `Starts in ${minutesBefore} min · ${event.room}`
-        : `Starts in ${minutesBefore} min`,
+      body: event.room ? `${starts} · ${event.room}` : starts,
     };
   }
   return {
     title: i18n.t("reminders.notificationTitle", { event: event.title }),
-    body: i18n.t(
-      event.room
-        ? "reminders.notificationBodyWithRoom"
-        : "reminders.notificationBody",
-      { minutes: minutesBefore, room: event.room },
-    ),
+    body: i18n.t(reminderBodyKey(minutesBefore, event.room), {
+      minutes: minutesBefore,
+      room: event.room,
+    }),
   };
 }
 

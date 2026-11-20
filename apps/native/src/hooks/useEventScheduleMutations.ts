@@ -15,6 +15,7 @@ import { hapticToggle } from "@/services/haptics";
 import {
   cancelEventReminder,
   getNotificationPermissionStatus,
+  reminderBodyKey,
   scheduleEventReminder,
 } from "@/services/notifications";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
@@ -172,12 +173,10 @@ export function useEventScheduleMutations({
           notificationId = await scheduleEventReminder(reminderEvent, minutes, {
             notificationContent: {
               title: t("reminders.notificationTitle", { event: event.title }),
-              body: t(
-                reminderEvent.room
-                  ? "reminders.notificationBodyWithRoom"
-                  : "reminders.notificationBody",
-                { minutes, room: reminderEvent.room },
-              ),
+              body: t(reminderBodyKey(minutes, reminderEvent.room), {
+                minutes,
+                room: reminderEvent.room,
+              }),
             },
           });
         } catch {

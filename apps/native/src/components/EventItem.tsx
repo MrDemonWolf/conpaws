@@ -373,7 +373,8 @@ export function EventItem({
           onPress={trailingAction.onPress}
           testID={trailingAction.testID}
           className={cn(
-            "h-11 w-11 items-center justify-center rounded-full",
+            // px, not h-11: NativeWind's 14px rem made that 38.5.
+            "size-[48px] items-center justify-center rounded-full",
             stacked ? "self-end" : "self-center",
             PRESS_DIM,
           )}

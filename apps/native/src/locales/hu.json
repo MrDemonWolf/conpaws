@@ -553,6 +553,8 @@
     "notificationTitle": "Emlékeztető: {{event}}",
     "notificationBody": "{{minutes}} perc múlva kezdődik",
     "notificationBodyWithRoom": "{{minutes}} perc múlva kezdődik · {{room}}",
+    "notificationBodyNow": "Most kezdődik",
+    "notificationBodyNowWithRoom": "Most kezdődik · {{room}}",
     "channelName": "Eseményemlékeztetők",
     "setAnnouncement": "Indulási emlékeztető beállítva ehhez: {{event}}.",
     "clearedAnnouncement": "Indulási emlékeztető törölve ehhez: {{event}}.",

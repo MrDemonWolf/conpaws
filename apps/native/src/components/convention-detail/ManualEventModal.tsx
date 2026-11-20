@@ -187,7 +187,7 @@ function ManualEventModalContent({
               accessibilityState={{ disabled: saving }}
               className={cn(
                 TAP_TARGET,
-                "min-w-12 shrink-0 justify-center pr-3 disabled:opacity-50",
+                "min-w-[48px] shrink-0 justify-center pr-3 disabled:opacity-50",
                 PRESS_DIM,
               )}
             >
@@ -210,7 +210,7 @@ function ManualEventModalContent({
               accessibilityState={{ disabled: saving, busy: saving }}
               className={cn(
                 TAP_TARGET,
-                "ml-auto min-w-12 shrink-0 justify-center pl-3 disabled:opacity-50",
+                "ml-auto min-w-[48px] shrink-0 justify-center pl-3 disabled:opacity-50",
                 PRESS_DIM,
               )}
             >
