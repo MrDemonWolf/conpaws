@@ -88,6 +88,9 @@ export default function EditConventionScreen() {
   const [startDate, setStartDate] = useState(() => new Date());
   const [endDate, setEndDate] = useState(() => new Date());
   const [saving, setSaving] = useState(false);
+  // Only the write itself, not the geocode before it, lets the sheet go
+  // without asking. See saveConventionEdit.
+  const [writing, setWriting] = useState(false);
   // `saving` only reaches the buttons on the next render; the ref stops a
   // second tap that lands before then.
   const saveLock = useRef(false);
@@ -251,6 +254,7 @@ export default function EditConventionScreen() {
       },
       isMounted: () => isMounted.current,
       setSaving,
+      setWriting,
       onWriteFailed: () =>
         Alert.alert(t("common.error"), t("convention.updateError")),
       leave: () => router.back(),
@@ -258,8 +262,10 @@ export default function EditConventionScreen() {
   }
 
   const canSave = !saving && validation.valid && !unchanged;
+  // Armed through the geocode after Save, which can take ten seconds: the iOS
+  // sheet stays swipeable, and a swipe that closed it unasked dropped the edit.
   const { confirmDiscard: handleCancel } = useUnsavedChangesGuard({
-    isDirty: !saving && !unchanged,
+    isDirty: !writing && !unchanged,
     onDiscard: () => router.back(),
   });
 

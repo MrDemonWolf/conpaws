@@ -229,6 +229,7 @@ describe("saveConventionEdit", () => {
       ),
       isMounted: vi.fn(overrides.isMounted ?? (() => true)),
       setSaving: vi.fn(),
+      setWriting: vi.fn(),
       onWriteFailed: vi.fn(),
       leave: vi.fn(),
     };
@@ -246,6 +247,28 @@ describe("saveConventionEdit", () => {
 
     zone.resolve("America/New_York");
     await pending;
+  });
+
+  it("keeps the discard prompt armed until the write starts", async () => {
+    // Locking the buttons is not the same as letting the form go. The route
+    // stands its discard guard down on `setWriting(true)`, and the iOS sheet
+    // stays swipeable. Standing it down for the whole geocode (up to ten
+    // seconds) let a swipe close the sheet with no prompt, and the edit the
+    // user had just saved was then dropped.
+    const zone = deferred<string | null>();
+    const steps = editSteps({ resolveTimeZone: () => zone.promise });
+
+    const pending = saveConventionEdit({ current: false }, steps);
+    await Promise.resolve();
+    expect(steps.resolveTimeZone).toHaveBeenCalled();
+    expect(steps.setWriting).not.toHaveBeenCalledWith(true);
+
+    zone.resolve("America/New_York");
+    await pending;
+
+    expect(steps.setWriting).toHaveBeenCalledWith(true);
+    expect(firstCall(steps.setWriting)).toBeLessThan(firstCall(steps.commit));
+    expect(steps.leave).toHaveBeenCalledTimes(1);
   });
 
   it("writes and leaves once when Save is tapped again mid-geocode", async () => {
@@ -320,6 +343,23 @@ describe("saveConventionEdit", () => {
     expect(lock.current).toBe(false);
     expect(steps.setSaving).toHaveBeenLastCalledWith(false);
     expect(steps.leave).not.toHaveBeenCalled();
+  });
+
+  it("re-arms the discard prompt when the write does not land", async () => {
+    for (const commit of [
+      async () => null,
+      async (): Promise<ConventionCommitOutcome> => ({
+        ok: false,
+        reason: "write-failed",
+      }),
+    ]) {
+      const steps = editSteps({ commit });
+
+      await saveConventionEdit({ current: false }, steps);
+
+      expect(steps.setWriting).toHaveBeenCalledWith(true);
+      expect(steps.setWriting).toHaveBeenLastCalledWith(false);
+    }
   });
 
   it("reports a failed write and stays on the form", async () => {

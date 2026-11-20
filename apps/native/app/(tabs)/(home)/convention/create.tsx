@@ -71,12 +71,14 @@ export default function CreateConventionScreen() {
       ),
     [deviceTimeZone],
   );
-  useEffect(
-    () => () => {
+  // Set on every run, not just cleared: Fast Refresh keeps refs but re-runs
+  // this effect, and a flag left false made every Add tap write nothing.
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
       isMounted.current = false;
-    },
-    [],
-  );
+    };
+  }, []);
 
   function updateStartDate(value: Date) {
     setStartDate(value);

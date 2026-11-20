@@ -173,13 +173,15 @@ export default function ImportScreen() {
     [],
   );
 
-  useEffect(
-    () => () => {
+  // Set on every run, not just cleared: Fast Refresh keeps refs but re-runs
+  // this effect, and a flag left false made every Import tap write nothing.
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
       isMounted.current = false;
       inFlightFetch.current?.abort();
-    },
-    [],
-  );
+    };
+  }, []);
 
   useEffect(() => {
     if (!existingConvention || didPrefill.current) return;

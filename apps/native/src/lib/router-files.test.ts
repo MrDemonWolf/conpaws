@@ -84,6 +84,57 @@ describe("Expo Router convention routes", () => {
     );
     expect(importSource).not.toMatch(/disabled=\{importMutation\.isPending\}/);
   });
+
+  // The edit form is a swipeable iOS form sheet, and usePreventRemove is the
+  // only thing that stops a swipe. `saving` turns on at the tap, before a
+  // geocode of up to ten seconds; guarding on it let the swipe close the sheet
+  // with no prompt and dropped the edit just saved. The guard may stand down
+  // only once the write itself has started. See saveConventionEdit.
+  it("keeps the edit form's discard prompt armed until the write starts", () => {
+    const editSource = readFileSync(
+      path.join(conventionRoute, "edit.tsx"),
+      "utf8",
+    );
+    const isDirty = editSource.match(
+      /useUnsavedChangesGuard\(\{\s*isDirty:([^\n]+)\n/,
+    )?.[1];
+
+    expect(isDirty).toBeDefined();
+    expect(isDirty).not.toMatch(/\bsaving\b/);
+    expect(isDirty).toMatch(/\bwriting\b/);
+    expect(editSource).toMatch(/setWriting,/);
+  });
+});
+
+describe("Routes that track whether they are still open", () => {
+  // Fast Refresh keeps a component's refs but runs its `[]` effects' cleanup
+  // and then the effects again. A mount effect that only clears the flag
+  // leaves it false after a hot reload, and every write behind an
+  // `isMounted` check silently does nothing -- Import stuck on "Importing..."
+  // -- until a full reload. Found by pattern, so a route added later is
+  // covered the day it is added.
+  const appRoot = path.resolve(__dirname, "../../app");
+  const routes = (readdirSync(appRoot, { recursive: true }) as string[])
+    .filter((file) => file.endsWith(".tsx"))
+    .map(
+      (file) => [file, readFileSync(path.join(appRoot, file), "utf8")] as const,
+    )
+    .filter(([, source]) => /const isMounted = useRef\(/.test(source));
+
+  it("finds the routes to check", () => {
+    expect(routes.map(([file]) => path.basename(file))).toEqual(
+      expect.arrayContaining(["edit.tsx", "import.tsx"]),
+    );
+  });
+
+  it.each(routes)(
+    "%s sets isMounted again each time it mounts",
+    (_file, source) => {
+      expect(source).toMatch(
+        /useEffect\(\(\) => \{\s*isMounted\.current = true;/,
+      );
+    },
+  );
 });
 
 describe("iOS native stack headers", () => {
