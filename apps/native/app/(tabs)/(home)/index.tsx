@@ -54,6 +54,7 @@ import {
 } from "@/lib/presentation-lock";
 import { addPreviewConventions } from "@/lib/preview-convention";
 import { clearScheduleRefreshState } from "@/lib/schedule-refresh-storage";
+import { unarchiveConvention } from "@/services/convention-archive";
 import { cancelConventionReminders } from "@/services/notifications";
 import { stopTrackingIfAffected } from "@/services/tracked-event";
 
@@ -262,7 +263,7 @@ export default function HomeScreen() {
   });
 
   const unarchiveMutation = useMutation({
-    mutationFn: conventionsRepo.unarchive,
+    mutationFn: unarchiveConvention,
     onSuccess: async (_, id) => {
       const convention = conventions.find((item) => item.id === id);
       await queryClient.invalidateQueries({ queryKey: ["conventions"] });

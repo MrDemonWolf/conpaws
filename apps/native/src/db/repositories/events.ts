@@ -1,4 +1,4 @@
-import { eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../index";
 import {
   type ConventionEvent,
@@ -664,6 +664,10 @@ export interface SavedEventRow {
  * Joined rather than fetched per convention: the tab needs the convention's
  * name and time zone on each row, and the whole point is that the user has
  * more than one convention saved.
+ *
+ * An archived convention is off the plan: archiving cancels its reminders and
+ * refuses tracking, so its saved events stay out of the tab as well. Their
+ * stars and reminder choices are kept for Unarchive.
  */
 export async function getAllInSchedule(): Promise<SavedEventRow[]> {
   const rows = await db
@@ -674,7 +678,12 @@ export async function getAllInSchedule(): Promise<SavedEventRow[]> {
     })
     .from(conventionEvents)
     .innerJoin(conventions, eq(conventionEvents.conventionId, conventions.id))
-    .where(eq(conventionEvents.isInSchedule, true));
+    .where(
+      and(
+        eq(conventionEvents.isInSchedule, true),
+        isNull(conventions.archivedAt),
+      ),
+    );
 
   return rows;
 }

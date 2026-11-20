@@ -302,6 +302,9 @@ export function buildWidgetSnapshot(
   const formatterCache = new Map<string, Intl.DateTimeFormat>();
 
   const snapshots = conventions.flatMap((convention) => {
+    // Archived is off the plan: its reminders are cancelled and tracking is
+    // refused, so it must not become the widget's or Watch's next convention.
+    if (convention.archivedAt) return [];
     const start = calendarParts(convention.startDate);
     const end = calendarParts(convention.endDate);
     if (!start || !end) return [];

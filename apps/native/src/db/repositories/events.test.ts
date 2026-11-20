@@ -1,6 +1,10 @@
+import { DatabaseSync, type SQLInputValue } from "node:sqlite";
+import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { initializeDatabase } from "../bootstrap";
 import type { ConventionEvent } from "../schema";
 import {
+  getAllInSchedule,
   planSourceReconciliation,
   type SourceEventInput,
   type SourceOccurrenceIdentity,
@@ -10,10 +14,31 @@ import {
 } from "./events";
 
 const { mockDb } = vi.hoisted(() => ({
-  mockDb: { transaction: vi.fn() },
+  mockDb: { transaction: vi.fn(), select: vi.fn() },
 }));
 
 vi.mock("../index", () => ({ db: mockDb }));
+
+/**
+ * A migrated in-memory store behind a read-only Drizzle proxy, for reads whose
+ * filter is the thing under test: the real query runs against the real schema.
+ */
+function migratedStore() {
+  const database = new DatabaseSync(":memory:");
+  initializeDatabase({
+    execSync: (source: string) => {
+      database.exec(source);
+    },
+    getFirstSync: <T>(source: string): T | null =>
+      (database.prepare(source).get() as T | undefined) ?? null,
+  });
+  const store = drizzle(async (query, params) => {
+    const statement = database.prepare(query);
+    statement.setReturnArrays(true);
+    return { rows: statement.all(...(params as SQLInputValue[])) as never[] };
+  });
+  return { database, store };
+}
 
 function storedEvent(
   overrides: Partial<ConventionEvent> = {},
@@ -739,6 +764,38 @@ describe("upsertBySourceUid transaction", () => {
 
     expect(result.removedEventIds).toEqual(["gone"]);
     expect(recorder.deletes()).toBe(1);
+  });
+});
+
+describe("getAllInSchedule", () => {
+  it("leaves out saved events from an archived convention", async () => {
+    const { database, store } = migratedStore();
+    database.exec(`
+      INSERT INTO conventions (id, name, start_date, end_date, archived_at)
+      VALUES
+        ('attending', 'Attending Con', '2026-12-01', '2026-12-03', NULL),
+        ('archived', 'Archived Con', '2026-12-10', '2026-12-12',
+          '2026-11-20T00:00:00.000Z');
+      INSERT INTO convention_events
+        (id, convention_id, title, start_time, is_in_schedule, reminder_minutes)
+      VALUES
+        ('kept', 'attending', 'Kept', '2026-12-01T15:00:00Z', 1, 15),
+        ('unsaved', 'attending', 'Unsaved', '2026-12-01T16:00:00Z', 0, NULL),
+        ('hidden', 'archived', 'Hidden', '2026-12-10T15:00:00Z', 1, 15);
+    `);
+    mockDb.select.mockImplementation(store.select.bind(store));
+
+    const rows = await getAllInSchedule();
+
+    // Archiving cancels the reminders and refuses tracking, so the archived
+    // convention's saved panels must leave the Schedule tab too, or it lists
+    // a plan with reminder chips that will never fire.
+    expect(rows.map((row) => row.event.id)).toEqual(["kept"]);
+    expect(rows[0]).toMatchObject({
+      conventionName: "Attending Con",
+      event: { isInSchedule: true, reminderMinutes: 15 },
+    });
+    database.close();
   });
 });
 
