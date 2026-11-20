@@ -64,6 +64,7 @@ import {
   ScheduleTooLargeError,
 } from "@/lib/sched-extractor";
 import { setScheduleAllCategories } from "@/lib/schedule-refresh-storage";
+import { toSourceSnapshot } from "@/lib/schedule-source";
 import { scheduleNameFromUrl } from "@/lib/schedule-url";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { hapticSuccess } from "@/services/haptics";
@@ -592,25 +593,9 @@ export default function ImportScreen() {
             }
           : null,
         parsedEvents: eventsToImport,
-        sourceSnapshot: {
-          authoritative: preview.sourceUrl !== null,
-          activeOccurrences: reparsed.events.map((event) => ({
-            sourceUid: event.sourceUid,
-            legacySourceUid: event.legacySourceUid,
-            startTime: event.startTime.toISOString(),
-            recurrenceTime: event.recurrenceTime?.toISOString() ?? null,
-            title: event.title,
-            sourceUrl: event.sourceUrl,
-          })),
-          cancelledOccurrences: reparsed.cancelledEvents.map((event) => ({
-            sourceUid: event.sourceUid,
-            legacySourceUid: event.legacySourceUid,
-            startTime: event.startTime?.toISOString() ?? null,
-            recurrenceTime: event.recurrenceTime?.toISOString() ?? null,
-            title: event.title,
-            sourceUrl: event.sourceUrl,
-          })),
-        },
+        // The shared builder carries every identity an earlier build used
+        // (legacy and alarm UIDs), so a re-import matches those rows.
+        sourceSnapshot: toSourceSnapshot(reparsed, preview.sourceUrl !== null),
         patch: buildImportedConventionPatch({
           dates,
           sourceUrl: preview.sourceUrl,

@@ -65,6 +65,20 @@ describe("Expo Router convention routes", () => {
   // @expo/ui's Button disables only natively and still calls onPress, so a
   // second tap on Import that lands before React commits `disabled` ran a
   // whole second import: two conventions holding the same schedule.
+  it("builds the import's source snapshot with the shared helper, so earlier identities match", () => {
+    const importSource = readFileSync(
+      path.join(conventionRoute, "import.tsx"),
+      "utf8",
+    );
+
+    expect(importSource).toMatch(
+      /sourceSnapshot: toSourceSnapshot\(reparsed, preview\.sourceUrl !== null\)/,
+    );
+    expect(importSource).not.toMatch(
+      /activeOccurrences: reparsed\.events\.map/,
+    );
+  });
+
   it("lets the Import button start only one import", () => {
     const importSource = readFileSync(
       path.join(conventionRoute, "import.tsx"),
