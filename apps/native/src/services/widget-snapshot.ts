@@ -216,7 +216,66 @@ export interface WidgetSnapshot {
 
 interface NativeWidgetModule {
   publishSnapshot(json: string): Promise<boolean>;
-  getWidgetStrings?(localeIdentifier: string): WidgetStrings | null;
+  /** The whole canonical table, which also holds the Watch's strings. */
+  getWidgetStrings?(
+    localeIdentifier: string,
+  ): (WidgetStrings & Record<string, unknown>) | null;
+}
+
+/** The fields of the native table the phone widget reads. */
+const PHONE_WIDGET_STRING_KEYS = Object.keys({
+  language: true,
+  now: true,
+  startingSoon: true,
+  today: true,
+  tomorrow: true,
+  inFormat: true,
+  compactNow: true,
+  compactSoon: true,
+  compactHoursFormat: true,
+  compactDaysFormat: true,
+  compactMonthsFormat: true,
+  compactMinutesFormat: true,
+  comingUpCaps: true,
+  upNextCaps: true,
+  happeningNowCaps: true,
+  startsIn: true,
+  startsInCaps: true,
+  untilCapsFormat: true,
+  reminderAtFormat: true,
+  minutesBeforeFormat: true,
+  noLaterSavedEvents: true,
+  noLaterSavedEventsShort: true,
+  noPicksTitle: true,
+  noPicksHint: true,
+  noConventionTitle: true,
+  noConventionHint: true,
+  finishedTitle: true,
+  finishedHint: true,
+  nextEventA11yFormat: true,
+  planLastUpdatedFormat: true,
+  staleHint: true,
+  moreTodayFormat: true,
+  hoursUnit: true,
+  daysUnit: true,
+  monthsUnit: true,
+  minutesUnit: true,
+} satisfies Record<keyof WidgetStrings, true>);
+
+/**
+ * Every iOS timeline entry carries its own copy of these strings, so the
+ * Watch's share of the table would only use up the timeline's size budget.
+ */
+function phoneWidgetStrings(
+  table: Record<string, unknown> | null | undefined,
+): WidgetStrings | undefined {
+  if (!table) return undefined;
+  return Object.fromEntries(
+    PHONE_WIDGET_STRING_KEYS.filter((key) => key in table).map((key) => [
+      key,
+      table[key],
+    ]),
+  ) as WidgetStrings;
 }
 
 const nativeWidgetModule =
@@ -461,9 +520,9 @@ async function buildSnapshotAndPublish(
     snapshot.timeFormat ?? "system",
     getCalendars()[0]?.uses24hourClock,
   );
-  snapshot.presentation.strings =
-    nativeWidgetModule.getWidgetStrings?.(snapshot.localeIdentifier) ??
-    undefined;
+  snapshot.presentation.strings = phoneWidgetStrings(
+    nativeWidgetModule.getWidgetStrings?.(snapshot.localeIdentifier),
+  );
   // Watch and the Android timer only need schedule data, not phone layout
   // strings. On iOS the Watch also gets descriptions and the options it may
   // add from; the phone widgets below keep the plain snapshot.

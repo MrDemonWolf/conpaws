@@ -67,8 +67,13 @@ export function buildWidgetTimeline(snapshot: WidgetSnapshot): Array<{
   };
   const horizon = now + 48 * HOUR;
   const points = new Set([now, now + 30 * MINUTE]);
-  const add = (date: number) => {
-    if (Number.isFinite(date) && date > now && date < horizon) points.add(date);
+  // A reminder's minute-by-minute count is what the widget can best do
+  // without: missing it leaves the count high until the next entry, while a
+  // missing boundary shows the wrong panel or expires early. It gets the
+  // budget that is left once every boundary is in.
+  const minutes = new Set<number>();
+  const add = (date: number, into = points) => {
+    if (Number.isFinite(date) && date > now && date < horizon) into.add(date);
   };
   for (let date = now + HOUR; date < horizon; date += HOUR) add(date);
   for (const convention of snapshot.conventions) {
@@ -106,7 +111,7 @@ export function buildWidgetTimeline(snapshot: WidgetSnapshot): Array<{
           date > begin && date > now;
           date -= MINUTE
         )
-          add(date);
+          add(date, minutes);
       }
     }
   }
@@ -114,20 +119,32 @@ export function buildWidgetTimeline(snapshot: WidgetSnapshot): Array<{
   const timeline: ReturnType<typeof buildWidgetTimeline> = [];
   let bytes = 0;
   let expires = horizon;
-  for (const date of [...points].sort((a, b) => a - b)) {
+  /** Adds the entry for `date`, or returns false when it would not fit. */
+  const push = (date: number): boolean => {
     const props = { snapshot: snapshotAt(snapshot, date, dayKey) };
     // UTF-16 length * 3 bounds UTF-8 size, including non-Latin translations.
     const size = JSON.stringify(props).length * 3;
     if (
       timeline.length >= MAX_ENTRIES - 1 ||
       (timeline.length > 0 && bytes + size > MAX_BYTES)
-    ) {
+    )
+      return false;
+    timeline.push({ date: new Date(date), props });
+    bytes += size;
+    return true;
+  };
+  for (const date of [...points].sort((a, b) => a - b)) {
+    if (!push(date)) {
       expires = date;
       break;
     }
-    timeline.push({ date: new Date(date), props });
-    bytes += size;
   }
+  // Nearest reminders first, since the app is likely to be opened before later ones.
+  for (const date of [...minutes].sort((a, b) => a - b)) {
+    if (date >= expires) break;
+    if (!points.has(date) && !push(date)) break;
+  }
+  timeline.sort((a, b) => a.date.getTime() - b.date.getTime());
   // shortcut: prebuilt entries cover up to 48h; opening the app renews them offline.
   // A terminal refresh state prevents Expo's stored last entry freezing on an old event.
   timeline.push({

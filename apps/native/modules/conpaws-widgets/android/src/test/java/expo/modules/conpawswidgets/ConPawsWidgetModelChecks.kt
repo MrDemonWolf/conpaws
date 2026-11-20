@@ -33,6 +33,17 @@ object ConPawsWidgetModelChecks {
     check(ConPawsWidgetModel.nextBoundary(noEnd, 3_601_000L) == null)
     val refreshed = decode(root + ("conventions" to listOf(convention + ("events" to listOf(event + mapOf("startAtMs" to 3000L, "endAtMs" to 4000L))))))!!
     check(ConPawsWidgetModel.nextBoundary(refreshed, 500L) == 3000L)
+    // A reminder's hero appears when it fires and its minute count redraws each minute, as on iOS.
+    fun reminded(minutes: Any?) = decode(root + ("conventions" to listOf(convention + mapOf("endAtMs" to 86_400_000L,
+      "events" to listOf(event + mapOf("startAtMs" to 3_600_000L, "endAtMs" to 7_200_000L, "reminderMinutes" to minutes))))))!!
+    check(ConPawsWidgetModel.nextBoundary(reminded(15), 0L) == 2_700_000L)
+    check(ConPawsWidgetModel.nextBoundary(reminded(15), 2_700_000L) == 2_760_000L)
+    check(ConPawsWidgetModel.nextBoundary(reminded(15), 3_540_000L) == 3_600_000L)
+    // A longer reminder fires at its own time, then counts minutes only in the final hour.
+    check(ConPawsWidgetModel.nextBoundary(reminded(90), -3_600_000L) == -1_800_000L)
+    check(ConPawsWidgetModel.nextBoundary(reminded(90), -1_800_000L) == 0L)
+    check(ConPawsWidgetModel.nextBoundary(reminded(90), 0L) == 60_000L)
+    for (none in listOf(null, 0, -5, Double.NaN, Double.POSITIVE_INFINITY, "15")) check(ConPawsWidgetModel.nextBoundary(reminded(none), 0L) == 3_600_000L)
     println("ConPaws Android widget model checks passed")
   }
 }

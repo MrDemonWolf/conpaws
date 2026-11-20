@@ -20,7 +20,8 @@ internal object ConPawsWidgetUpdates {
     val manager = AppWidgetManager.getInstance(context)
     val provider = ComponentName(context.packageName, "${context.packageName}.ConPawsWidgetProvider")
     if (manager.getAppWidgetIds(provider).isEmpty()) return
-    // Inexact updates may arrive late under power saving; rendered event times stay absolute.
+    // Inexact updates may arrive late under power saving; rendered event times stay absolute,
+    // and a reminder's "Starts in" count has a boundary for every minute it changes.
     ConPawsWidgetModel.nextBoundary(ConPawsWidgetStore.read(context), System.currentTimeMillis())?.let { next ->
       alarm.set(AlarmManager.RTC, next, intent(context))
     }

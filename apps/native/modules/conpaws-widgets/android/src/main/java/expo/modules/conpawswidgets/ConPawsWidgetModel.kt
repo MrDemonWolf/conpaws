@@ -3,7 +3,7 @@ package expo.modules.conpawswidgets
 import java.util.TimeZone
 
 // Only persisted time boundaries cross into Kotlin; Expo owns selection and rendering.
-internal data class WidgetEvent(val id: String, val start: Long, val end: Long?)
+internal data class WidgetEvent(val id: String, val start: Long, val end: Long?, val reminderMinutes: Long? = null)
 internal data class WidgetConvention(val id: String, val start: Long, val end: Long, val events: List<WidgetEvent>)
 internal data class WidgetSnapshot(val conventions: List<WidgetConvention>)
 
@@ -40,7 +40,9 @@ internal object ConPawsWidgetModel {
         val eventStart = instant(event["startAtMs"]) ?: return@event null
         val eventEnd = event["endAtMs"]?.let { instant(it) ?: return@event null }
         if (eventEnd != null && eventEnd < eventStart || !seenEvents.add(eventId)) return@event null
-        WidgetEvent(eventId, eventStart, eventEnd)
+        val reminder = (event["reminderMinutes"] as? Number)?.toDouble()
+          ?.takeIf { it.isFinite() && it > 0 && it * 60_000 <= 8.64e15 }?.toLong()
+        WidgetEvent(eventId, eventStart, eventEnd, reminder)
       }.sortedWith(compareBy<WidgetEvent> { it.start }.thenBy { it.id })
       WidgetConvention(id, start, end, events)
     }.sortedWith(compareBy<WidgetConvention> { it.start }.thenBy { it.id })
@@ -49,7 +51,15 @@ internal object ConPawsWidgetModel {
 
   fun effectiveEnd(event: WidgetEvent): Long = event.end ?: event.start + 3_600_000L
 
+  /** When the reminder hero appears, then each minute its "Starts in" count changes, as the iOS timeline does. */
+  private fun reminderTimes(event: WidgetEvent): List<Long> {
+    val reminder = event.reminderMinutes ?: return emptyList()
+    // Whole minutes change only during the final hour of a reminder window.
+    return listOf(event.start - reminder * 60_000L) + (1..minOf(reminder, 60L)).map { event.start - it * 60_000L }
+  }
+
   fun nextBoundary(snapshot: WidgetSnapshot?, now: Long): Long? = snapshot?.conventions?.flatMap { convention ->
-    listOf(convention.start, convention.end) + convention.events.flatMap { listOf(it.start, effectiveEnd(it)) }
+    listOf(convention.start, convention.end) +
+      convention.events.flatMap { listOf(it.start, effectiveEnd(it)) + reminderTimes(it) }
   }?.filter { it > now }?.minOrNull()
 }
