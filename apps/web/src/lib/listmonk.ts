@@ -114,10 +114,8 @@ async function readDetail(response: Response): Promise<string> {
 /**
  * How many people have confirmed their double opt-in.
  *
- * listmonk is the only place that knows this. The local `waitlist.status`
- * column has a `confirmed` value and a `confirmed_at` timestamp, but nothing
- * ever writes them — listmonk owns the confirmation click and offers no
- * callback — so counting D1 would report 0 forever.
+ * listmonk owns confirmation. D1 mirrors subscriber status during hourly
+ * reconciliation, so the badge reads the listmonk count directly.
  *
  * Reads `subscriber_statuses.confirmed` rather than `subscriber_count`: the
  * latter is a cached total that includes unconfirmed and recently deleted
