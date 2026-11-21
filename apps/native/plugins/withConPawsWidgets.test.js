@@ -9,13 +9,18 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { XcodeProject } from "@bacons/xcode";
+import {
+  PBXBuildFile,
+  PBXCopyFilesBuildPhase,
+  XcodeProject,
+} from "@bacons/xcode";
 import { build } from "@bacons/xcode/json";
 import { describe, expect, it } from "vitest";
 import xcode from "xcode";
 import parser from "xcode/lib/parser/pbxproj";
 import withConPawsWidgets, {
   addWidgetResource,
+  embedWatchExtensionsInWatchApp,
   patchAndroidBuildGradle,
   patchAndroidProvider,
   patchAndroidWidgetInfo,
@@ -238,6 +243,215 @@ describe("phone widget target migration", () => {
     ).toEqual({
       PRODUCT_BUNDLE_IDENTIFIER: "com.mrdemonwolf.conpaws.watchkitapp",
     });
+  });
+});
+
+// The four Apple targets as a fresh prebuild leaves them (`fresh`), or as a
+// long-lived project has them. apple-targets creates the watch widget before
+// the Watch app on a fresh prebuild and embeds it in the iPhone app.
+function watchEmbedFixture({ fresh = true, watchApp = true } = {}) {
+  const objects = {
+    ROOT: {
+      isa: "PBXProject",
+      targets: [],
+      mainGroup: "GROUP",
+      buildConfigurationList: "PROJECTCONFIG",
+    },
+    GROUP: { isa: "PBXGroup", children: [], sourceTree: "<group>" },
+    PROJECTCONFIG: {
+      isa: "XCConfigurationList",
+      buildConfigurations: [],
+      defaultConfigurationName: "Release",
+    },
+  };
+  const phone = { SDKROOT: "iphoneos", IPHONEOS_DEPLOYMENT_TARGET: "16.4" };
+  const watch = { SDKROOT: "watchos", WATCHOS_DEPLOYMENT_TARGET: "10.0" };
+  for (const [id, name, productType, product, settings] of [
+    ["PHONE", "ConPaws", "application", "ConPaws.app", phone],
+    ["PHONEWIDGET", "ExpoWidgetsTarget", "app-extension", ".appex", phone],
+    [
+      "WATCHWIDGET",
+      "ConPawsWatchWidgetExtension",
+      "app-extension",
+      ".appex",
+      watch,
+    ],
+    ...(watchApp
+      ? [["WATCH", "ConPawsWatch", "application", "ConPawsWatch.app", watch]]
+      : []),
+  ]) {
+    objects.ROOT.targets.push(id);
+    objects[id] = {
+      isa: "PBXNativeTarget",
+      name,
+      productName: name,
+      productType: `com.apple.product-type.${productType}`,
+      productReference: `${id}PRODUCT`,
+      buildConfigurationList: `${id}CONFIGLIST`,
+      buildPhases: [],
+      buildRules: [],
+      dependencies: [],
+    };
+    objects[`${id}PRODUCT`] = {
+      isa: "PBXFileReference",
+      explicitFileType: `wrapper.${productType}`,
+      includeInIndex: 0,
+      path: product.startsWith(".") ? `${name}${product}` : product,
+      sourceTree: "BUILT_PRODUCTS_DIR",
+    };
+    objects[`${id}CONFIGLIST`] = {
+      isa: "XCConfigurationList",
+      buildConfigurations: [`${id}RELEASE`],
+      defaultConfigurationName: "Release",
+    };
+    objects[`${id}RELEASE`] = {
+      isa: "XCBuildConfiguration",
+      name: "Release",
+      buildSettings: { ...settings },
+    };
+  }
+  const project = new XcodeProject("/tmp/conpaws-watch-embed.pbxproj", {
+    rootObject: "ROOT",
+    objects,
+  });
+  const target = (id) => project.getObject(id);
+  const embed = (host, name, dstSubfolderSpec, dstPath, ids) =>
+    host.createBuildPhase(PBXCopyFilesBuildPhase, {
+      name,
+      dstSubfolderSpec,
+      dstPath,
+      files: ids.map((id) =>
+        PBXBuildFile.create(project, {
+          fileRef: target(id).props.productReference,
+          settings: { ATTRIBUTES: ["RemoveHeadersOnCopy"] },
+        }),
+      ),
+    });
+  const phoneApp = target("PHONE");
+  const extensions = fresh ? ["PHONEWIDGET", "WATCHWIDGET"] : ["PHONEWIDGET"];
+  embed(phoneApp, "Embed Foundation Extensions", 13, "", extensions);
+  for (const id of extensions) phoneApp.addDependency(target(id));
+  if (watchApp) {
+    embed(
+      phoneApp,
+      "Embed Watch Content",
+      16,
+      "$(CONTENTS_FOLDER_PATH)/Watch",
+      ["WATCH"],
+    );
+    phoneApp.addDependency(target("WATCH"));
+    if (!fresh) {
+      embed(target("WATCH"), "Embed Foundation Extensions", 13, "", [
+        "WATCHWIDGET",
+      ]);
+      target("WATCH").addDependency(target("WATCHWIDGET"));
+    }
+  }
+  return project;
+}
+
+function embedState(project) {
+  return Object.fromEntries(
+    project.rootObject.props.targets.map((target) => [
+      target.props.name,
+      {
+        embeds: target.props.buildPhases
+          .filter((phase) => PBXCopyFilesBuildPhase.is(phase))
+          .map((phase) => [
+            phase.props.name,
+            phase.props.dstSubfolderSpec,
+            phase.props.files.map((file) => file.props.fileRef.props.path),
+          ]),
+        dependencies: target.props.dependencies
+          .map((dependency) => dependency.props.target.props.name)
+          .sort(),
+      },
+    ]),
+  );
+}
+
+const countObjects = (project, isa) =>
+  [...project.values()].filter((object) => object.isa === isa).length;
+
+const embeddedInWatchApp = {
+  ConPaws: {
+    embeds: [
+      ["Embed Foundation Extensions", 13, ["ExpoWidgetsTarget.appex"]],
+      ["Embed Watch Content", 16, ["ConPawsWatch.app"]],
+    ],
+    dependencies: ["ConPawsWatch", "ExpoWidgetsTarget"],
+  },
+  ExpoWidgetsTarget: { embeds: [], dependencies: [] },
+  ConPawsWatchWidgetExtension: { embeds: [], dependencies: [] },
+  ConPawsWatch: {
+    embeds: [
+      [
+        "Embed Foundation Extensions",
+        13,
+        ["ConPawsWatchWidgetExtension.appex"],
+      ],
+    ],
+    dependencies: ["ConPawsWatchWidgetExtension"],
+  },
+};
+
+describe("Watch widget embedding", () => {
+  it("moves a watch widget a fresh prebuild left in the iPhone app into the Watch app", () => {
+    const project = watchEmbedFixture();
+    expect(embedState(project).ConPaws.embeds[0][2]).toContain(
+      "ConPawsWatchWidgetExtension.appex",
+    );
+    embedWatchExtensionsInWatchApp(project);
+    expect(embedState(project)).toEqual(embeddedInWatchApp);
+    // Moved, not copied: no orphaned build file, dependency or proxy remains.
+    expect(countObjects(project, "PBXBuildFile")).toBe(3);
+    expect(countObjects(project, "PBXTargetDependency")).toBe(3);
+    expect(countObjects(project, "PBXContainerItemProxy")).toBe(3);
+    const repaired = build(project.toJSON());
+    embedWatchExtensionsInWatchApp(project);
+    expect(build(project.toJSON())).toBe(repaired);
+  });
+
+  it("leaves an incrementally prebuilt project unchanged", () => {
+    const project = watchEmbedFixture({ fresh: false });
+    const before = build(project.toJSON());
+    embedWatchExtensionsInWatchApp(project);
+    expect(build(project.toJSON())).toBe(before);
+    expect(embedState(project)).toEqual(embeddedInWatchApp);
+  });
+
+  it("fails closed when no Watch app can host the watch widget", () => {
+    const project = watchEmbedFixture({ watchApp: false });
+    expect(() => embedWatchExtensionsInWatchApp(project)).toThrow(
+      /Expected one Watch app to embed ConPawsWatchWidgetExtension; found 0/,
+    );
+  });
+
+  it("repairs the written project after every generator has run", async () => {
+    const projectRoot = mkdtempSync(path.join(tmpdir(), "conpaws-watch-"));
+    const projectPath = path.join(
+      projectRoot,
+      "ios/Fixture.xcodeproj/project.pbxproj",
+    );
+    try {
+      mkdirSync(path.dirname(projectPath), { recursive: true });
+      writeFileSync(projectPath, build(watchEmbedFixture().toJSON()));
+      const config = withConPawsWidgets({
+        ios: { bundleIdentifier: "com.mrdemonwolf.conpaws" },
+      });
+      await config.mods.ios.finalized({
+        ...config,
+        modRequest: {
+          projectRoot,
+          platformProjectRoot: path.join(projectRoot, "ios"),
+        },
+      });
+      expect(embedState(XcodeProject.open(projectPath))).toEqual(
+        embeddedInWatchApp,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });
 

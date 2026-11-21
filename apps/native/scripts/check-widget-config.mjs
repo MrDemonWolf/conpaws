@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { XcodeProject } from "@bacons/xcode";
+import { PBXCopyFilesBuildPhase, XcodeProject } from "@bacons/xcode";
 
 const require = createRequire(import.meta.url);
 const { getConfig } = require("expo/config");
@@ -52,6 +52,48 @@ for (const [name, suffix] of [
     );
   }
 }
+
+// A fresh prebuild embedded the watch widget in the iPhone app, which the
+// simulator refuses to install and App Store validation rejects.
+const embedded = (target) =>
+  target.props.buildPhases
+    .filter((phase) => PBXCopyFilesBuildPhase.is(phase))
+    .flatMap((phase) =>
+      phase.props.files.map((file) => [
+        phase.props.name,
+        phase.props.dstSubfolderSpec,
+        file.props.fileRef?.props.path,
+      ]),
+    )
+    .sort();
+const dependencies = (target) =>
+  target.props.dependencies.map((dependency) => dependency.props.target?.uuid);
+const phoneApp = project.rootObject.getMainAppTarget("ios");
+const watchApp = targets.find((target) => target.props.name === "ConPawsWatch");
+const watchWidget = targets.find(
+  (target) => target.props.name === "ConPawsWatchWidgetExtension",
+);
+assert.deepEqual(
+  embedded(phoneApp),
+  [
+    ["Embed Foundation Extensions", 13, "ExpoWidgetsTarget.appex"],
+    ["Embed Watch Content", 16, "ConPawsWatch.app"],
+  ],
+  "The iPhone app must embed only the phone widget and the Watch app",
+);
+assert.deepEqual(
+  embedded(watchApp),
+  [["Embed Foundation Extensions", 13, "ConPawsWatchWidgetExtension.appex"]],
+  "The Watch app must embed the watch widget in its own PlugIns",
+);
+assert(
+  !dependencies(phoneApp).includes(watchWidget.uuid),
+  "The iPhone app must not build the watch widget as its own dependency",
+);
+assert(
+  dependencies(watchApp).includes(watchWidget.uuid),
+  "The Watch app must build the watch widget it embeds",
+);
 
 const extensionRoot = path.join(appRoot, "ios/ExpoWidgetsTarget");
 const swift = readFileSync(
