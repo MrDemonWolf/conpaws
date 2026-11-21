@@ -41,6 +41,12 @@ describe("readDeployEnv", () => {
     ).toBe(" padded ");
   });
 
+  it("rejects a list ID that would round to a different list", () => {
+    expect(() =>
+      readDeployEnv({ ...validEnv, LISTMONK_LIST_ID: "9007199254740993" }),
+    ).toThrow(/LISTMONK_LIST_ID/);
+  });
+
   it.each(["http://localhost:3000", "https://127.0.0.1"])(
     "rejects local site URL %s",
     (url) => {

@@ -29,7 +29,7 @@ export function readListmonkConfig(env: ListmonkEnv): ListmonkConfig | null {
   const listId = Number(env.LISTMONK_LIST_ID);
 
   if (!env.LISTMONK_BASE_URL || !apiUser || !apiToken) return null;
-  if (!Number.isInteger(listId) || listId <= 0) return null;
+  if (!Number.isSafeInteger(listId) || listId <= 0) return null;
 
   let url: URL;
   try {

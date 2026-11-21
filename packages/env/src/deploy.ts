@@ -97,7 +97,11 @@ export const deployEnvSchema = z
     LISTMONK_LIST_ID: z
       .string("LISTMONK_LIST_ID is required and must not be empty")
       .regex(/^[1-9]\d*$/, "LISTMONK_LIST_ID must be a positive whole number")
-      .transform(Number),
+      .transform(Number)
+      .refine(
+        Number.isSafeInteger,
+        "LISTMONK_LIST_ID exceeds the safe integer range",
+      ),
 
     /** Whether conpaws.com and www point at this Worker. */
     ROUTES_ENABLED: flag("ROUTES_ENABLED"),
