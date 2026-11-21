@@ -571,7 +571,6 @@
       "changeError": "ConPaws tidak dapat menukar rupa. Cuba lagi."
     },
     "app": {
-      "title": "Aplikasi",
       "theme": "Tema",
       "language": "Bahasa",
       "haptics": "Maklum Balas Haptik",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "Tidak dapat menyimpan tetapan kemas kini jadual"
     },
     "data": {
-      "title": "Data",
       "exportData": "Eksport Data",
       "exportDescription": "Simpan sandaran konvensyen dan jadual anda.",
       "exporting": "Menyediakan sandaran",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "Lesen Pihak Ketiga"
     },
     "about": {
-      "title": "Perihal",
       "tagline": "Jadual konvensyen anda, sedia secara luar talian.",
       "resources": "Sumber",
       "website": "Laman web",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "Teks lesen tidak tersedia dalam binaan ini."
     },
     "notifications": {
-      "title": "Pemberitahuan",
       "permission": "Kebenaran pemberitahuan",
       "enabled": "Dibenarkan — peringatan boleh sampai",
       "disabled": "Dimatikan — peringatan tidak akan sampai",
@@ -683,7 +679,24 @@
       "system": "Gunakan tetapan peranti",
       "hour12": "12 jam · 7:00 PM",
       "hour24": "24 jam · 19:00",
-      "saveError": "Tidak dapat menyimpan format masa. Cuba lagi."
+      "saveError": "Tidak dapat menyimpan format masa. Cuba lagi.",
+      "short": {
+        "system": "Automatik",
+        "hour12": "12 jam",
+        "hour24": "24 jam"
+      }
+    },
+    "sections": {
+      "appearance": "Penampilan",
+      "languageRegion": "Bahasa & rantau",
+      "reminders": "Peringatan",
+      "scheduleUpdates": "Kemas kini jadual",
+      "backup": "Sandaran",
+      "helpAbout": "Bantuan & perihal"
+    },
+    "footers": {
+      "scheduleUpdates": "Apabila anda membuka konvensyen, ConPaws menyemak jadualnya, paling kerap setiap 30 minit, untuk panel yang dipindahkan atau dibatalkan.",
+      "backup": "Sandaran ialah fail yang anda simpan atau kongsi sendiri. ConPaws tidak pernah memuat naiknya."
     }
   },
   "tracking": {

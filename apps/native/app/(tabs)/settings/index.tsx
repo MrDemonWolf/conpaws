@@ -1,23 +1,17 @@
-import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
-import {
-  FieldGroup,
-  Host,
-  Icon,
-  Switch as NativeSwitch,
-  Picker,
-} from "@expo/ui";
+import { FieldGroup, Host, Picker } from "@expo/ui";
+import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { type Href, router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Linking, useWindowDimensions } from "react-native";
+import { ContentScrollLink } from "@/components/ContentScrollLink";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
-// Platform-split: Compose rows cannot measure a React Native spinner, which
-// squeezed the Notifications row into one letter per line on Android.
-import { RowSpinner } from "@/components/ui/RowSpinner";
+import { settingsLinkRow, settingsSwitchRow } from "@/components/SettingsRows";
+import { SETTINGS_STACKED_FONT_SCALE } from "@/components/SettingsRows.types";
+import { FieldRow } from "@/components/ui/FieldRow";
+import { NativeText } from "@/components/ui/NativeText";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
@@ -54,23 +48,6 @@ import { useExportData } from "@/services/data-export";
 import { type ImportOutcome, useImportData } from "@/services/data-import";
 import { getHapticsEnabled } from "@/services/haptics";
 import { requestNotificationPermission } from "@/services/notifications";
-
-const CHEVRON = Icon.select({
-  ios: "chevron.right",
-  android: import("@expo/material-symbols/chevron_right.xml"),
-});
-const EXTERNAL_LINK = Icon.select({
-  ios: "arrow.up.right",
-  android: ArrowOutwardIcon,
-});
-
-function NavigationIndicator() {
-  return <Icon name={CHEVRON} size={16} />;
-}
-
-function ExternalIndicator() {
-  return <Icon name={EXTERNAL_LINK} size={15} />;
-}
 
 export default function SettingsScreen() {
   const { fontScale } = useWindowDimensions();
@@ -269,230 +246,210 @@ export default function SettingsScreen() {
     </Picker>
   );
 
+  const isIOS = process.env.EXPO_OS === "ios";
+  // iOS keeps the compact SwiftUI menu in the row until Dynamic Type makes it
+  // too wide; Android and large text push the reminder-default list instead
+  // (see reminder-default.tsx for why Android never uses the inline menu).
+  const inlineReminderMenu = isIOS && fontScale < SETTINGS_STACKED_FONT_SCALE;
+  const notificationStatus =
+    notificationPermission === "granted"
+      ? t("settings.notifications.enabled")
+      : notificationPermission === "denied"
+        ? t("settings.notifications.disabled")
+        : t("settings.notifications.notRequested");
+  const footer = (text: string) => (
+    <FieldGroup.SectionFooter>
+      <NativeText modifiers={[font({ textStyle: "footnote" })]}>
+        {text}
+      </NativeText>
+    </FieldGroup.SectionFooter>
+  );
+
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section title={t("settings.app.title")}>
-          <ListItem
-            leading={<SettingsLeadingIcon name="theme" />}
-            supportingText={t(`settings.appearance.${appearance}`)}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/appearance")}
-          >
-            {t("settings.app.theme")}
-          </ListItem>
-          <ListItem
-            leading={<SettingsLeadingIcon name="language" />}
-            supportingText={t(
-              `settings.languages.${i18n.language as SupportedLanguage}`,
-              { defaultValue: "English" },
-            )}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/language")}
-          >
-            {t("settings.app.language")}
-          </ListItem>
-          <ListItem
-            supportingText={t(
-              `settings.timeFormat.${timeFormat === "12" ? "hour12" : timeFormat === "24" ? "hour24" : "system"}`,
-            )}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/time-format" as Href)}
-          >
-            {t("settings.timeFormat.title")}
-          </ListItem>
-          <NativeSwitch
-            testID="haptics-switch"
-            label={t("settings.app.haptics")}
-            value={haptics}
-            onValueChange={handleHapticsChange}
-          />
-          <NativeSwitch
-            testID="schedule-auto-check-switch"
-            label={t("settings.app.scheduleAutoCheck")}
-            value={scheduleAutoCheck}
-            onValueChange={handleScheduleAutoCheckChange}
-          />
-        </FieldGroup.Section>
+    <ContentScrollLink style={{ flex: 1 }}>
+      <Host
+        colorScheme={resolvedColorScheme}
+        seedColor={colors.primary}
+        style={{ flex: 1 }}
+        useViewportSizeMeasurement
+      >
+        <FieldGroup {...readableGroup}>
+          <FieldGroup.Section title={t("settings.sections.appearance")}>
+            {settingsLinkRow({
+              icon: "theme",
+              title: t("settings.app.theme"),
+              value: t(`settings.appearance.${appearance}`),
+              onPress: () => router.push("/settings/appearance"),
+            })}
+            {settingsSwitchRow({
+              testID: "haptics-switch",
+              icon: "haptics",
+              title: t("settings.app.haptics"),
+              value: haptics,
+              onValueChange: handleHapticsChange,
+            })}
+          </FieldGroup.Section>
 
-        <FieldGroup.Section
-          title={t("settings.notifications.title")}
-          disabled={requestingPermission || savingDefault}
-        >
-          <ListItem
-            leading={<SettingsLeadingIcon name="notifications" />}
-            supportingText={
-              notificationPermission === "granted"
-                ? t("settings.notifications.enabled")
-                : notificationPermission === "denied"
-                  ? t("settings.notifications.disabled")
-                  : t("settings.notifications.notRequested")
-            }
-            trailing={
-              notificationPermission === null || requestingPermission ? (
-                <RowSpinner />
-              ) : (
-                <ExternalIndicator />
-              )
-            }
-            onPress={
-              notificationPermission === null || requestingPermission
-                ? undefined
-                : () => void handlePermission()
-            }
-          >
-            {t(
-              notificationPermission === "undetermined"
-                ? "settings.notifications.enable"
-                : "settings.notifications.permission",
-            )}
-          </ListItem>
-          {/* The same choice, offered differently per platform. On iOS the
-              SwiftUI menu is compact and belongs in the trailing slot. On
-              Android @expo/ui renders a Material 3 ExposedDropdownMenuBox whose
-              anchor is a bare TextField: unlabelled, sized to its own content
-              rather than the row, and trailing an underline past its own edge.
-              The universal Picker takes no `style` and no `label`, so Android
-              pushes a list of rows instead -- the same shape as Theme and
-              Language directly above, and how Material selects from a list
-              anyway. */}
-          <ListItem
-            supportingText={
-              fontScale >= 1.6
-                ? reminderDefaultLabel(defaultLead, t)
-                : process.env.EXPO_OS === "ios"
-                  ? t("settings.notifications.defaultLeadDescription")
-                  : reminderDefaultLabel(defaultLead, t)
-            }
-            trailing={
-              fontScale >= 1.6 ? undefined : process.env.EXPO_OS === "ios" ? (
-                defaultLeadPicker
-              ) : (
-                <NavigationIndicator />
-              )
-            }
-            onPress={
-              process.env.EXPO_OS === "ios" && fontScale < 1.6
-                ? undefined
-                : () => router.push("/settings/reminder-default" as Href)
-            }
-          >
-            {t("settings.notifications.defaultLead")}
-          </ListItem>
-        </FieldGroup.Section>
+          <FieldGroup.Section title={t("settings.sections.languageRegion")}>
+            {settingsLinkRow({
+              icon: "language",
+              title: t("settings.app.language"),
+              value: t(
+                `settings.languages.${i18n.language as SupportedLanguage}`,
+                { defaultValue: "English" },
+              ),
+              onPress: () => router.push("/settings/language"),
+            })}
+            {settingsLinkRow({
+              icon: "time",
+              title: t("settings.timeFormat.title"),
+              value: t(
+                `settings.timeFormat.short.${timeFormat === "12" ? "hour12" : timeFormat === "24" ? "hour24" : "system"}`,
+              ),
+              onPress: () => router.push("/settings/time-format" as Href),
+            })}
+          </FieldGroup.Section>
 
-        <FieldGroup.Section
-          title={t("settings.data.title")}
-          disabled={isExporting || isImporting}
-        >
-          <ListItem
-            leading={<SettingsLeadingIcon name="export" />}
-            supportingText={
-              isExporting
+          <FieldGroup.Section
+            title={t("settings.sections.reminders")}
+            disabled={requestingPermission || savingDefault}
+          >
+            {settingsLinkRow({
+              icon: "notifications",
+              kind: "external",
+              title: t(
+                notificationPermission === "undetermined"
+                  ? "settings.notifications.enable"
+                  : "settings.notifications.permission",
+              ),
+              description: notificationStatus,
+              busy: notificationPermission === null || requestingPermission,
+              onPress: () => void handlePermission(),
+            })}
+            {inlineReminderMenu ? (
+              <FieldRow
+                leading={<SettingsLeadingIcon name="reminder" />}
+                trailing={defaultLeadPicker}
+              >
+                {t("settings.notifications.defaultLead")}
+              </FieldRow>
+            ) : (
+              settingsLinkRow({
+                icon: "reminder",
+                title: t("settings.notifications.defaultLead"),
+                value: reminderDefaultLabel(defaultLead, t),
+                onPress: () =>
+                  router.push("/settings/reminder-default" as Href),
+              })
+            )}
+            {footer(t("settings.notifications.defaultLeadDescription"))}
+          </FieldGroup.Section>
+
+          <FieldGroup.Section title={t("settings.sections.scheduleUpdates")}>
+            {settingsSwitchRow({
+              testID: "schedule-auto-check-switch",
+              icon: "updates",
+              title: t("settings.app.scheduleAutoCheck"),
+              value: scheduleAutoCheck,
+              onValueChange: handleScheduleAutoCheckChange,
+            })}
+            {footer(t("settings.footers.scheduleUpdates"))}
+          </FieldGroup.Section>
+
+          <FieldGroup.Section
+            title={t("settings.sections.backup")}
+            disabled={isExporting || isImporting}
+          >
+            {settingsLinkRow({
+              icon: "export",
+              kind: "action",
+              title: t("settings.data.exportData"),
+              description: isExporting
                 ? t("settings.data.exporting")
-                : t("settings.data.exportDescription")
-            }
-            trailing={isExporting ? <RowSpinner /> : undefined}
-            onPress={isExporting ? undefined : handleExport}
-          >
-            {t("settings.data.exportData")}
-          </ListItem>
-          <ListItem
-            leading={<SettingsLeadingIcon name="import" />}
-            supportingText={
-              isImporting
+                : t("settings.data.exportDescription"),
+              busy: isExporting,
+              onPress: handleExport,
+            })}
+            {settingsLinkRow({
+              icon: "import",
+              kind: "action",
+              title: t("settings.data.importData"),
+              description: isImporting
                 ? t("settings.data.importing")
-                : t("settings.data.importDescription")
-            }
-            trailing={isImporting ? <RowSpinner /> : undefined}
-            onPress={isImporting ? undefined : () => importData()}
-          >
-            {t("settings.data.importData")}
-          </ListItem>
-        </FieldGroup.Section>
-
-        <FieldGroup.Section title={t("settings.about.title")}>
-          <ListItem
-            leading={<SettingsLeadingIcon name="about" />}
-            supportingText={versionLabel}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/about")}
-          >
-            {t("settings.legal.about")}
-          </ListItem>
-          <ListItem
-            leading={<SettingsLeadingIcon name="help" />}
-            supportingText={t("settings.help.gettingStartedDescription")}
-            trailing={<NavigationIndicator />}
-            onPress={() => router.push("/settings/getting-started" as Href)}
-          >
-            {t("settings.help.gettingStarted")}
-          </ListItem>
-          <ListItem
-            leading={<SettingsLeadingIcon name="privacy" />}
-            trailing={<ExternalIndicator />}
-            onPress={() => openLink("https://conpaws.com/privacy")}
-          >
-            {t("settings.legal.privacyPolicy")}
-          </ListItem>
-          <ListItem
-            leading={<SettingsLeadingIcon name="terms" />}
-            trailing={<ExternalIndicator />}
-            onPress={() => openLink("https://conpaws.com/terms")}
-          >
-            {t("settings.legal.termsOfService")}
-          </ListItem>
-        </FieldGroup.Section>
-
-        {showPreviewTesting ? (
-          <FieldGroup.Section title={t("settings.preview.title")}>
-            <ListItem
-              supportingText={t("settings.preview.description")}
-              trailing={<NavigationIndicator />}
-              onPress={() => router.push("/settings/preview" as Href)}
-            >
-              {t("settings.preview.title")}
-            </ListItem>
+                : t("settings.data.importDescription"),
+              busy: isImporting,
+              onPress: () => importData(),
+            })}
+            {footer(t("settings.footers.backup"))}
           </FieldGroup.Section>
-        ) : null}
 
-        {showDeveloperTools ? (
-          <FieldGroup.Section title="Developer">
-            <ListItem
-              leading={<SettingsLeadingIcon name="debug" />}
-              supportingText="Replay onboarding safely"
-              trailing={<NavigationIndicator />}
-              onPress={() => router.push("/settings/debug")}
-            >
-              Debug Tools
-            </ListItem>
-            <ListItem
-              leading={<SettingsLeadingIcon name="debug" />}
-              supportingText="Show the schedule hint card again"
-              onPress={() => {
-                void resetScheduleHint().then(() =>
-                  Alert.alert("Hints reset", "The hint will show again."),
-                );
-              }}
-            >
-              Reset Hints
-            </ListItem>
-            <ListItem
-              leading={<SettingsLeadingIcon name="theme" />}
-              supportingText="Preview app controls and states"
-              trailing={<NavigationIndicator />}
-              onPress={() => router.push("/settings/ui-system")}
-            >
-              UI System
-            </ListItem>
+          <FieldGroup.Section title={t("settings.sections.helpAbout")}>
+            {settingsLinkRow({
+              icon: "help",
+              title: t("settings.help.gettingStarted"),
+              description: t("settings.help.gettingStartedDescription"),
+              onPress: () => router.push("/settings/getting-started" as Href),
+            })}
+            {settingsLinkRow({
+              icon: "about",
+              title: t("settings.legal.about"),
+              description: versionLabel,
+              onPress: () => router.push("/settings/about"),
+            })}
+            {settingsLinkRow({
+              icon: "privacy",
+              kind: "external",
+              title: t("settings.legal.privacyPolicy"),
+              onPress: () => openLink("https://conpaws.com/privacy"),
+            })}
+            {settingsLinkRow({
+              icon: "terms",
+              kind: "external",
+              title: t("settings.legal.termsOfService"),
+              onPress: () => openLink("https://conpaws.com/terms"),
+            })}
           </FieldGroup.Section>
-        ) : null}
-      </FieldGroup>
-    </Host>
+
+          {showPreviewTesting ? (
+            <FieldGroup.Section title={t("settings.preview.title")}>
+              {settingsLinkRow({
+                icon: "preview",
+                title: t("settings.preview.title"),
+                description: t("settings.preview.description"),
+                onPress: () => router.push("/settings/preview" as Href),
+              })}
+            </FieldGroup.Section>
+          ) : null}
+
+          {showDeveloperTools ? (
+            <FieldGroup.Section title="Developer">
+              {settingsLinkRow({
+                icon: "debug",
+                title: "Debug Tools",
+                description: "Replay onboarding safely",
+                onPress: () => router.push("/settings/debug"),
+              })}
+              {settingsLinkRow({
+                icon: "debug",
+                kind: "action",
+                title: "Reset Hints",
+                description: "Show the schedule hint card again",
+                onPress: () => {
+                  void resetScheduleHint().then(() =>
+                    Alert.alert("Hints reset", "The hint will show again."),
+                  );
+                },
+              })}
+              {settingsLinkRow({
+                icon: "theme",
+                title: "UI System",
+                description: "Preview app controls and states",
+                onPress: () => router.push("/settings/ui-system"),
+              })}
+            </FieldGroup.Section>
+          ) : null}
+        </FieldGroup>
+      </Host>
+    </ContentScrollLink>
   );
 }

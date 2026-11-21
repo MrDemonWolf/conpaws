@@ -581,7 +581,6 @@
       "changeError": "Nie udało się zmienić wyglądu ConPaws. Spróbuj ponownie."
     },
     "app": {
-      "title": "Aplikacja",
       "theme": "Motyw",
       "language": "Język",
       "haptics": "Wibracje dotykowe",
@@ -591,7 +590,6 @@
       "scheduleAutoCheckError": "Nie udało się zapisać ustawienia aktualizacji programu"
     },
     "data": {
-      "title": "Dane",
       "exportData": "Eksportuj Dane",
       "exportDescription": "Zapisz kopię zapasową konwentów i harmonogramów.",
       "exporting": "Przygotowywanie kopii",
@@ -628,7 +626,6 @@
       "openSourceLicenses": "Licencje stron trzecich"
     },
     "about": {
-      "title": "O aplikacji",
       "tagline": "Twój plan konwentu, dostępny offline.",
       "resources": "Zasoby",
       "website": "Witryna",
@@ -658,7 +655,6 @@
       "licenseTextUnavailable": "Tekst licencji nie jest dostępny w tej kompilacji."
     },
     "notifications": {
-      "title": "Powiadomienia",
       "permission": "Zgoda na powiadomienia",
       "enabled": "Dozwolone — przypomnienia mogą przychodzić",
       "disabled": "Wyłączone — przypomnienia nie będą przychodzić",
@@ -697,7 +693,24 @@
       "system": "Użyj ustawienia urządzenia",
       "hour12": "12-godzinny · 7:00 PM",
       "hour24": "24-godzinny · 19:00",
-      "saveError": "Nie udało się zapisać formatu czasu. Spróbuj ponownie."
+      "saveError": "Nie udało się zapisać formatu czasu. Spróbuj ponownie.",
+      "short": {
+        "system": "Automatycznie",
+        "hour12": "12-godzinny",
+        "hour24": "24-godzinny"
+      }
+    },
+    "sections": {
+      "appearance": "Wygląd",
+      "languageRegion": "Język i region",
+      "reminders": "Przypomnienia",
+      "scheduleUpdates": "Aktualizacje programu",
+      "backup": "Kopia zapasowa",
+      "helpAbout": "Pomoc i informacje"
+    },
+    "footers": {
+      "scheduleUpdates": "Gdy otwierasz konwent, ConPaws co najwyżej raz na 30 minut sprawdza jego program pod kątem przeniesionych lub odwołanych paneli.",
+      "backup": "Kopie zapasowe to pliki, które sam zapisujesz lub udostępniasz. ConPaws nigdy ich nie wysyła."
     }
   },
   "tracking": {

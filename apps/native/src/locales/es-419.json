@@ -637,7 +637,6 @@
       "changeError": "ConPaws no pudo cambiar la apariencia. Inténtalo de nuevo."
     },
     "app": {
-      "title": "Aplicación",
       "theme": "Tema",
       "language": "Idioma",
       "haptics": "Respuesta háptica",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "No se pudo guardar tu ajuste de actualización del programa"
     },
     "data": {
-      "title": "Datos",
       "exportData": "Exportar Datos",
       "exportDescription": "Guarda un respaldo de tus convenciones y horarios.",
       "exporting": "Preparando respaldo",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Licencias de terceros"
     },
     "about": {
-      "title": "Acerca de",
       "tagline": "Tu horario de convenciones, disponible sin conexión.",
       "resources": "Recursos",
       "website": "Sitio web",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "El texto de la licencia no está disponible en esta compilación."
     },
     "notifications": {
-      "title": "Notificaciones",
       "permission": "Permiso de notificaciones",
       "enabled": "Permitido: los recordatorios pueden llegar",
       "disabled": "Desactivado: los recordatorios no llegarán",
@@ -749,7 +745,24 @@
       "system": "Usar el ajuste del dispositivo",
       "hour12": "12 horas · 7:00 PM",
       "hour24": "24 horas · 19:00",
-      "saveError": "No se pudo guardar el formato de hora. Inténtalo de nuevo."
+      "saveError": "No se pudo guardar el formato de hora. Inténtalo de nuevo.",
+      "short": {
+        "system": "Automático",
+        "hour12": "12 horas",
+        "hour24": "24 horas"
+      }
+    },
+    "sections": {
+      "appearance": "Apariencia",
+      "languageRegion": "Idioma y región",
+      "reminders": "Avisos",
+      "scheduleUpdates": "Actualizaciones del horario",
+      "backup": "Respaldo",
+      "helpAbout": "Ayuda e información"
+    },
+    "footers": {
+      "scheduleUpdates": "Cuando abres una convención, ConPaws revisa su horario, como máximo cada 30 minutos, para detectar paneles movidos o cancelados.",
+      "backup": "Los respaldos son archivos que tú guardas o compartes. ConPaws nunca los sube."
     }
   },
   "tracking": {

@@ -571,7 +571,6 @@
       "changeError": "ConPaws가 화면 모드를 변경하지 못했어요. 다시 시도해 주세요."
     },
     "app": {
-      "title": "앱",
       "theme": "테마",
       "language": "언어",
       "haptics": "햅틱 피드백",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "일정 업데이트 설정을 저장하지 못했습니다"
     },
     "data": {
-      "title": "데이터",
       "exportData": "데이터 내보내기",
       "exportDescription": "컨벤션과 일정의 백업을 저장해요.",
       "exporting": "백업 준비 중",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "서드 파티 라이선스"
     },
     "about": {
-      "title": "정보",
       "tagline": "컨벤션 일정, 오프라인에서도 준비 완료.",
       "resources": "리소스",
       "website": "웹사이트",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "이 빌드에서는 라이선스 본문을 볼 수 없어요."
     },
     "notifications": {
-      "title": "알림",
       "permission": "알림 권한",
       "enabled": "허용됨 — 알림이 도착할 수 있어요",
       "disabled": "꺼짐 — 알림이 도착하지 않아요",
@@ -683,7 +679,24 @@
       "system": "기기 설정 사용",
       "hour12": "12시간 · 오후 7:00",
       "hour24": "24시간 · 19:00",
-      "saveError": "시간 형식을 저장하지 못했어요. 다시 시도해 주세요."
+      "saveError": "시간 형식을 저장하지 못했어요. 다시 시도해 주세요.",
+      "short": {
+        "system": "자동",
+        "hour12": "12시간제",
+        "hour24": "24시간제"
+      }
+    },
+    "sections": {
+      "appearance": "화면 스타일",
+      "languageRegion": "언어 및 지역",
+      "reminders": "리마인더",
+      "scheduleUpdates": "일정표 업데이트",
+      "backup": "백업",
+      "helpAbout": "도움말 및 정보"
+    },
+    "footers": {
+      "scheduleUpdates": "컨벤션을 열면 ConPaws가 최대 30분마다 일정표를 확인해 옮겨지거나 취소된 패널을 찾아요.",
+      "backup": "백업은 직접 저장하거나 공유하는 파일이에요. ConPaws는 백업을 업로드하지 않아요."
     }
   },
   "tracking": {

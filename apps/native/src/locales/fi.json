@@ -637,7 +637,6 @@
       "changeError": "ConPaws ei voinut vaihtaa ulkoasua. Yritä uudelleen."
     },
     "app": {
-      "title": "Sovellus",
       "theme": "Teema",
       "language": "Kieli",
       "haptics": "Haptinen palaute",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Ohjelmapäivitysasetuksen tallentaminen epäonnistui"
     },
     "data": {
-      "title": "Tiedot",
       "exportData": "Vie tiedot",
       "exportDescription": "Tallenna varmuuskopio coneistasi ja ohjelmistasi.",
       "exporting": "Valmistellaan varmuuskopiota",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Kolmansien osapuolten lisenssit"
     },
     "about": {
-      "title": "Tietoa",
       "tagline": "Conisi ohjelma, valmiina myös offline-tilassa.",
       "resources": "Resurssit",
       "website": "Verkkosivusto",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "Lisenssitekstiä ei ole saatavilla tässä versiossa."
     },
     "notifications": {
-      "title": "Ilmoitukset",
       "permission": "Ilmoituslupa",
       "enabled": "Sallittu — muistutukset voivat saapua",
       "disabled": "Pois päältä — muistutukset eivät saavu",
@@ -749,7 +745,24 @@
       "system": "Käytä laitteen asetusta",
       "hour12": "12 tuntia · 7:00 PM",
       "hour24": "24 tuntia · 19:00",
-      "saveError": "Ajan esitysmuotoa ei voitu tallentaa. Yritä uudelleen."
+      "saveError": "Ajan esitysmuotoa ei voitu tallentaa. Yritä uudelleen.",
+      "short": {
+        "system": "Automaattinen",
+        "hour12": "12 tuntia",
+        "hour24": "24 tuntia"
+      }
+    },
+    "sections": {
+      "appearance": "Ulkoasu",
+      "languageRegion": "Kieli ja alue",
+      "reminders": "Muistutukset",
+      "scheduleUpdates": "Ohjelman päivitykset",
+      "backup": "Varmuuskopio",
+      "helpAbout": "Ohje ja tietoa"
+    },
+    "footers": {
+      "scheduleUpdates": "Kun avaat conin, ConPaws tarkistaa sen ohjelman enintään 30 minuutin välein siirrettyjen tai peruttujen paneelien varalta.",
+      "backup": "Varmuuskopiot ovat tiedostoja, jotka tallennat tai jaat itse. ConPaws ei koskaan lähetä niitä verkkoon."
     }
   },
   "tracking": {

@@ -571,7 +571,6 @@
       "changeError": "ConPaws kunne ikke endre utseendet. Prøv igjen."
     },
     "app": {
-      "title": "App",
       "theme": "Tema",
       "language": "Språk",
       "haptics": "Haptisk tilbakemelding",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "Kunne ikke lagre innstillingen for programoppdateringer"
     },
     "data": {
-      "title": "Data",
       "exportData": "Eksporter data",
       "exportDescription": "Lagre en sikkerhetskopi av konventene og programmene dine.",
       "exporting": "Forbereder sikkerhetskopi",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "Tredjepartslisenser"
     },
     "about": {
-      "title": "Om",
       "tagline": "Konventprogrammet ditt, klart uten nett.",
       "resources": "Ressurser",
       "website": "Nettsted",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "Lisensteksten er ikke tilgjengelig i denne versjonen."
     },
     "notifications": {
-      "title": "Varslinger",
       "permission": "Varslingstillatelse",
       "enabled": "Tillatt — påminnelser kan komme frem",
       "disabled": "Av — påminnelser kommer ikke frem",
@@ -683,7 +679,24 @@
       "system": "Bruk enhetens innstilling",
       "hour12": "12 timer · 7:00 PM",
       "hour24": "24 timer · 19:00",
-      "saveError": "Kunne ikke lagre tidsformatet. Prøv igjen."
+      "saveError": "Kunne ikke lagre tidsformatet. Prøv igjen.",
+      "short": {
+        "system": "Automatisk",
+        "hour12": "12 timer",
+        "hour24": "24 timer"
+      }
+    },
+    "sections": {
+      "appearance": "Utseende",
+      "languageRegion": "Språk og region",
+      "reminders": "Påminnelser",
+      "scheduleUpdates": "Programoppdateringer",
+      "backup": "Sikkerhetskopi",
+      "helpAbout": "Hjelp og om"
+    },
+    "footers": {
+      "scheduleUpdates": "Når du åpner et konvent, sjekker ConPaws programmet høyst hvert 30. minutt for flyttede eller avlyste paneler.",
+      "backup": "Sikkerhetskopier er filer du lagrer eller deler selv. ConPaws laster dem aldri opp."
     }
   },
   "tracking": {
