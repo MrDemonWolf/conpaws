@@ -38,7 +38,7 @@ describe("readListmonkConfig", () => {
   });
 
   it("returns null when the list id is not a positive integer", () => {
-    for (const value of ["not-a-number", "0", "-1"]) {
+    for (const value of ["not-a-number", "0", "-1", "9007199254740993"]) {
       expect(
         readListmonkConfig({ ...COMPLETE_ENV, LISTMONK_LIST_ID: value }),
       ).toBeNull();
