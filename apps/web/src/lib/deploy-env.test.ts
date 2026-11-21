@@ -31,6 +31,16 @@ describe("readDeployEnv", () => {
     });
   });
 
+  it("rejects whitespace-only credentials and preserves meaningful spaces", () => {
+    expect(() =>
+      readDeployEnv({ ...validEnv, ALCHEMY_PASSWORD: "   " }),
+    ).toThrow(/ALCHEMY_PASSWORD/);
+    expect(
+      readDeployEnv({ ...validEnv, ALCHEMY_PASSWORD: " padded " })
+        .ALCHEMY_PASSWORD,
+    ).toBe(" padded ");
+  });
+
   it.each(["http://localhost:3000", "https://127.0.0.1"])(
     "rejects local site URL %s",
     (url) => {

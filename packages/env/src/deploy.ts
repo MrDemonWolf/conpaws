@@ -36,7 +36,7 @@ const flag = (name: string) =>
  */
 const required = (name: string) => {
   const message = `${name} is required and must not be empty`;
-  return z.string(message).min(1, message);
+  return z.string(message).regex(/\S/, message);
 };
 
 export const deployEnvSchema = z
