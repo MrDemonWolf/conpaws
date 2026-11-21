@@ -1,12 +1,18 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { XcodeProject } = require("@bacons/xcode");
+const {
+  PBXBuildFile,
+  PBXCopyFilesBuildPhase,
+  PBXNativeTarget,
+  XcodeProject,
+} = require("@bacons/xcode");
 const { build } = require("@bacons/xcode/json");
 const {
   AndroidConfig,
   IOSConfig,
   withAndroidManifest,
   withDangerousMod,
+  withFinalizedMod,
   withProjectBuildGradle,
   withXcodeProject,
 } = require("expo/config-plugins");
@@ -36,6 +42,75 @@ function removeLegacyWidgetTarget(project, bundleIdentifier) {
       }
       target.removeFromProject();
     }
+  }
+}
+
+const WATCH_EMBED_PHASE = "Embed Foundation Extensions";
+
+// The same test @bacons/apple-targets uses: watchOS, but not the Watch app.
+function isWatchExtensionTarget(target) {
+  const settings = target.getDefaultConfiguration().props.buildSettings;
+  return (
+    !target.isWatchOSTarget() &&
+    (settings.SDKROOT === "watchos" || "WATCHOS_DEPLOYMENT_TARGET" in settings)
+  );
+}
+
+// @bacons/apple-targets embeds a watch widget in the Watch app only when the
+// Watch app target already exists. It registers one mod per target in folder
+// order and Expo runs mods in reverse, so a fresh prebuild creates the widget
+// first and falls back to the iPhone app's PlugIns, which the simulator and App
+// Store reject. Later prebuilds never revisit the embed. Move every watchOS
+// extension, and its build dependency, into the Watch app.
+function embedWatchExtensionsInWatchApp(project) {
+  const targets = project.rootObject.props.targets.filter((target) =>
+    PBXNativeTarget.is(target),
+  );
+  const extensions = targets.filter(isWatchExtensionTarget);
+  if (!extensions.length) return;
+  const watchApps = targets.filter((target) => target.isWatchOSTarget());
+  if (watchApps.length !== 1)
+    throw new Error(
+      `Expected one Watch app to embed ${extensions
+        .map((target) => target.props.name)
+        .join(", ")}; found ${watchApps.length}.`,
+    );
+  const [watchApp] = watchApps;
+  const phoneApp = project.rootObject.getMainAppTarget("ios");
+  const embed =
+    watchApp.props.buildPhases.find(
+      (phase) =>
+        PBXCopyFilesBuildPhase.is(phase) &&
+        phase.props.name === WATCH_EMBED_PHASE,
+    ) ??
+    watchApp.createBuildPhase(PBXCopyFilesBuildPhase, {
+      name: WATCH_EMBED_PHASE,
+      dstSubfolderSpec: 13,
+      dstPath: "",
+      files: [],
+    });
+  for (const extension of extensions) {
+    const product = extension.props.productReference;
+    for (const phase of phoneApp.props.buildPhases) {
+      if (!PBXCopyFilesBuildPhase.is(phase)) continue;
+      for (const file of phase.props.files.filter(
+        (file) => file.props.fileRef?.uuid === product.uuid,
+      )) {
+        phase.props.files.splice(phase.props.files.indexOf(file), 1);
+        if (embed.getBuildFile(product)) file.removeFromProject();
+        else embed.props.files.push(file);
+      }
+    }
+    if (!embed.getBuildFile(product)) {
+      embed.props.files.push(
+        PBXBuildFile.create(project, {
+          fileRef: product,
+          settings: { ATTRIBUTES: ["RemoveHeadersOnCopy"] },
+        }),
+      );
+    }
+    phoneApp.getDependencyForTarget(extension)?.removeFromProject();
+    watchApp.addDependency(extension);
   }
 }
 
@@ -224,6 +299,22 @@ module.exports = function withConPawsWidgets(config) {
     syncWidgetBuildSettings(config.modResults, config);
     return config;
   });
+  // Finalized mods run after every generator, including apple-targets, has
+  // written the project, so this sees the Watch targets on a fresh prebuild.
+  config = withFinalizedMod(config, [
+    "ios",
+    async (config) => {
+      const projectPath = IOSConfig.Paths.getPBXProjectPath(
+        config.modRequest.projectRoot,
+      );
+      const contents = fs.readFileSync(projectPath, "utf8");
+      const project = XcodeProject.open(projectPath);
+      embedWatchExtensionsInWatchApp(project);
+      const repaired = build(project.toJSON());
+      if (repaired !== contents) fs.writeFileSync(projectPath, repaired);
+      return config;
+    },
+  ]);
   config = withDangerousMod(config, [
     "android",
     async (config) => {
@@ -275,6 +366,7 @@ module.exports = function withConPawsWidgets(config) {
 };
 
 module.exports.removeLegacyWidgetTarget = removeLegacyWidgetTarget;
+module.exports.embedWatchExtensionsInWatchApp = embedWatchExtensionsInWatchApp;
 module.exports.patchAndroidProvider = patchAndroidProvider;
 module.exports.patchAndroidWidgetInfo = patchAndroidWidgetInfo;
 module.exports.patchAndroidBuildGradle = patchAndroidBuildGradle;
