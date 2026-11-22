@@ -12,7 +12,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
-import { getCalendars } from "expo-localization";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -36,6 +35,7 @@ import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { isValidTimeZone } from "@/lib/convention-time";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { normalizeEcpUids } from "@/lib/ecp-feed";
 import type { FeedSource } from "@/lib/feed-source";
 import {
@@ -171,7 +171,7 @@ export default function ImportScreen() {
     () =>
       buildTimeZoneOptions(
         ["UTC", ...supportedValuesOf("timeZone")],
-        getCalendars()[0]?.timeZone ?? "UTC",
+        getDeviceTimeZone(),
       ),
     [],
   );

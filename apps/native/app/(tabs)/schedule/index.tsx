@@ -2,7 +2,6 @@ import StarIcon from "@expo/material-symbols/star.xml";
 import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCalendars } from "expo-localization";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +38,7 @@ import {
   overlappingEventIds,
 } from "@/lib/convention-time";
 import { useHour12 } from "@/lib/device-clock";
+import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { plannedEvent } from "@/lib/drop-in-visit";
 import {
   formatClockParts,
@@ -135,7 +135,7 @@ export default function ScheduleScreen() {
   );
 
   const entries = useMemo<ScheduleEntry[]>(() => {
-    const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+    const deviceTimeZone = getDeviceTimeZone();
 
     return (rows ?? [])
       .map((row) => ({ ...row, event: plannedEvent(row.event) }))

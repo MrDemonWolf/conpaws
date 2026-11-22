@@ -2,7 +2,6 @@ import { Collapsible, FieldGroup, Host, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, max, startOfDay } from "date-fns";
-import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
@@ -38,6 +37,7 @@ import {
   conventionStatusForDay,
   isValidTimeZone,
 } from "@/lib/convention-time";
+import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { commitNewConvention } from "@/services/convention-commit";
@@ -52,7 +52,7 @@ export default function CreateConventionScreen() {
   const locale = currentLocale();
   const { colors } = useTheme();
   const seedColor = colors.primary;
-  const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+  const deviceTimeZone = getDeviceTimeZone();
   // Only iOS can turn the location into a zone. Elsewhere the zone row is the
   // only way to set it, so Advanced starts open and the location footer that
   // promises automatic detection is left out.

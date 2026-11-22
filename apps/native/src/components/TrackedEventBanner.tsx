@@ -1,10 +1,9 @@
-import { getCalendars } from "expo-localization";
 import { useTranslation } from "react-i18next";
 
 import { Banner } from "@/components/ui";
 import { useTrackedEvent } from "@/hooks/useTrackedEvent";
-import { isValidTimeZone } from "@/lib/convention-time";
 import { useHour12 } from "@/lib/device-clock";
+import { displayTimeZone } from "@/lib/display-time-zone";
 import { plannedEvent } from "@/lib/drop-in-visit";
 import {
   formatEventEndDateTime,
@@ -42,9 +41,7 @@ export function TrackedEventBanner({ conventionId }: TrackedEventBannerProps) {
   // that window rather than the whole drop-in's opening hours.
   const event = plannedEvent(tracked.event);
   const storedTimeZone = tracked.convention.timeZone;
-  const timeZone = isValidTimeZone(storedTimeZone)
-    ? storedTimeZone
-    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const timeZone = displayTimeZone(storedTimeZone);
   const locale = currentLocale();
 
   const start = new Date(event.startTime);

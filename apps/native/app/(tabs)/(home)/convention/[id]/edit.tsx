@@ -2,7 +2,6 @@ import { Collapsible, FieldGroup, Host, TextInput } from "@expo/ui";
 import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, max, parseISO } from "date-fns";
-import { getCalendars } from "expo-localization";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
@@ -42,6 +41,7 @@ import {
   conventionDayKey,
   conventionStatusForDay,
 } from "@/lib/convention-time";
+import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { currentLocale } from "@/lib/i18n";
 import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import {
@@ -69,7 +69,7 @@ export default function EditConventionScreen() {
   const locale = currentLocale();
   const { colors } = useTheme();
   const seedColor = colors.primary;
-  const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+  const deviceTimeZone = getDeviceTimeZone();
   // Only iOS can turn the location into a zone. Elsewhere a location edit
   // keeps the stored zone, and Advanced starts open so the zone row is the
   // visible way to change it.

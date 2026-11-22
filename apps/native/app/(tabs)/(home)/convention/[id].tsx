@@ -8,7 +8,6 @@ import RefreshIcon from "@expo/material-symbols/refresh.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
-import { getCalendars } from "expo-localization";
 import {
   router,
   Stack,
@@ -73,13 +72,10 @@ import {
 } from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { compareCandidates } from "@/lib/compare-candidates";
-import {
-  conventionDayKey,
-  isValidTimeZone,
-  overlappingEventIds,
-} from "@/lib/convention-time";
+import { conventionDayKey, overlappingEventIds } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
 import { useHour12 } from "@/lib/device-clock";
+import { displayTimeZone } from "@/lib/display-time-zone";
 import { hasVisit, plannedEvent } from "@/lib/drop-in-visit";
 import { shouldShowProvenance } from "@/lib/event-indicators";
 import {
@@ -391,9 +387,7 @@ export default function ConventionDetailScreen() {
   );
 
   const storedTimeZone = convention?.timeZone;
-  const conventionTimeZone = isValidTimeZone(storedTimeZone)
-    ? storedTimeZone
-    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const conventionTimeZone = displayTimeZone(storedTimeZone);
   const todayKey = conventionDayKey(new Date(now), conventionTimeZone);
 
   // The day strip: the convention's days plus any an event spills onto.

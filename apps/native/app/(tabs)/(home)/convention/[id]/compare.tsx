@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCalendars } from "expo-localization";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,8 +15,8 @@ import {
   overlapMinutesBetween,
   planAfterChoice,
 } from "@/lib/compare-candidates";
-import { isValidTimeZone } from "@/lib/convention-time";
 import { useHour12 } from "@/lib/device-clock";
+import { displayTimeZone } from "@/lib/display-time-zone";
 import { plannedEvent } from "@/lib/drop-in-visit";
 import { formatEventEndTime, formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
@@ -79,9 +78,7 @@ export default function CompareSheetRoute() {
   const compareSet = set;
 
   const storedTimeZone = convention?.timeZone;
-  const timeZone = isValidTimeZone(storedTimeZone)
-    ? storedTimeZone
-    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const timeZone = displayTimeZone(storedTimeZone);
   const selected =
     set.cards.find((card) => card.id === selectedId) ?? set.candidate;
   const change = planAfterChoice(set, selected.id, false);
