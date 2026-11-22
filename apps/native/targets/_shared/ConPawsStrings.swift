@@ -232,7 +232,17 @@ struct ConPawsStrings: Codable, Sendable {
   let finishedComplication: String
   let noEventsTodayTitle: String
   let noEventsTodayMessage: String
+
+  // MARK: Reminder offsets (2026-11)
+  //
+  // Copied verbatim from the app's `reminders.*` keys (see
+  // watch-strings-parity.test.ts), so a reminder reads the way the phone's
+  // picker offered it. `%@` is the bare number: the catalogs abbreviate
+  // minutes, which spares every language a case for the number.
+
   let minutesBeforeFormat: String
+  let hourBefore: String
+  let atEventTime: String
 
   // MARK: Widget redesign (2026-08)
 
@@ -342,9 +352,18 @@ extension ConPawsStrings {
   }
 
   func compactMinutes(_ value: Int) -> String { text(compactMinutesFormat, String(value)) }
-  func minutesBefore(_ value: Int) -> String { text(minutesBeforeFormat, minutes(value)) }
+  /// How far ahead a reminder fires, chosen the way the phone's
+  /// `reminderDefaultLabel` chooses: 0 is "At event time" and 60 is
+  /// "1 hour before", not "0 minutes before" and "60 minutes before".
+  func reminderOffset(_ minutes: Int) -> String {
+    switch minutes {
+    case 0: atEventTime
+    case 60: hourBefore
+    default: text(minutesBeforeFormat, String(minutes))
+    }
+  }
   func reminderAt(_ time: String, minutes: Int) -> String {
-    text(reminderAtFormat, time, minutesBefore(minutes))
+    text(reminderAtFormat, time, reminderOffset(minutes))
   }
   func moreToday(_ value: Int) -> String { text(moreTodayFormat, String(value)) }
 }
@@ -418,7 +437,9 @@ extension ConPawsStrings {
     finishedComplication: "No more panels today",
     noEventsTodayTitle: "No events today",
     noEventsTodayMessage: "No saved events are scheduled for today.",
-    minutesBeforeFormat: "%@ before",
+    minutesBeforeFormat: "%@ min before",
+    hourBefore: "1 hour before",
+    atEventTime: "At event time",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ more today",
     upNextCaps: "UP NEXT",
@@ -491,7 +512,9 @@ extension ConPawsStrings {
     finishedComplication: "Heute keine Panels mehr",
     noEventsTodayTitle: "Heute keine Events",
     noEventsTodayMessage: "Für heute sind keine gespeicherten Veranstaltungen geplant.",
-    minutesBeforeFormat: "%@ vorher",
+    minutesBeforeFormat: "%@ Min. vorher",
+    hourBefore: "1 Stunde vorher",
+    atEventTime: "Zur Eventzeit",
     compactMinutesFormat: "%@ Min.",
     moreTodayFormat: "+%@ weitere heute",
     upNextCaps: "ALS NÄCHSTES",
@@ -560,7 +583,9 @@ extension ConPawsStrings {
     finishedComplication: "Hoy no hay más paneles",
     noEventsTodayTitle: "Sin eventos hoy",
     noEventsTodayMessage: "No tienes eventos guardados para hoy.",
-    minutesBeforeFormat: "%@ antes",
+    minutesBeforeFormat: "%@ min antes",
+    hourBefore: "1 hora antes",
+    atEventTime: "A la hora del evento",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ más hoy",
     upNextCaps: "SIGUIENTE",
@@ -629,7 +654,9 @@ extension ConPawsStrings {
     finishedComplication: "Plus de panels aujourd’hui",
     noEventsTodayTitle: "Aucun événement aujourd’hui",
     noEventsTodayMessage: "Aucun événement enregistré n’est prévu aujourd’hui.",
-    minutesBeforeFormat: "%@ avant",
+    minutesBeforeFormat: "%@ min avant",
+    hourBefore: "1 heure avant",
+    atEventTime: "À l'heure de l'événement",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ autres aujourd’hui",
     upNextCaps: "À SUIVRE",
@@ -698,7 +725,9 @@ extension ConPawsStrings {
     finishedComplication: "Vandaag geen panels meer",
     noEventsTodayTitle: "Geen evenementen vandaag",
     noEventsTodayMessage: "Er zijn vandaag geen evenementen opgeslagen.",
-    minutesBeforeFormat: "%@ geleden",
+    minutesBeforeFormat: "%@ min van tevoren",
+    hourBefore: "1 uur van tevoren",
+    atEventTime: "Op het tijdstip van het evenement",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ meer vandaag",
     upNextCaps: "HIERNA",
@@ -777,7 +806,9 @@ extension ConPawsStrings {
     finishedComplication: "Na dziś koniec paneli",
     noEventsTodayTitle: "Brak wydarzeń dzisiaj",
     noEventsTodayMessage: "Na dziś nie masz zapisanych wydarzeń.",
-    minutesBeforeFormat: "%@ wcześniej",
+    minutesBeforeFormat: "%@ min wcześniej",
+    hourBefore: "1 godzinę wcześniej",
+    atEventTime: "O czasie wydarzenia",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ więcej dzisiaj",
     upNextCaps: "NASTĘPNIE",
@@ -846,7 +877,9 @@ extension ConPawsStrings {
     finishedComplication: "Não há mais painéis hoje",
     noEventsTodayTitle: "Nenhum evento hoje",
     noEventsTodayMessage: "Você não tem eventos salvos para hoje.",
-    minutesBeforeFormat: "%@ antes",
+    minutesBeforeFormat: "%@ min antes",
+    hourBefore: "1 hora antes",
+    atEventTime: "No horário do evento",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ mais hoje",
     upNextCaps: "A SEGUIR",
@@ -915,7 +948,9 @@ extension ConPawsStrings {
     finishedComplication: "Inga fler paneler i dag",
     noEventsTodayTitle: "Inga evenemang i dag",
     noEventsTodayMessage: "Du har inga sparade evenemang för i dag.",
-    minutesBeforeFormat: "%@ före",
+    minutesBeforeFormat: "%@ min innan",
+    hourBefore: "1 timme innan",
+    atEventTime: "Vid evenemangstid",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ till i dag",
     upNextCaps: "NÄST PÅ TUR",
@@ -984,7 +1019,9 @@ extension ConPawsStrings {
     finishedComplication: "Hoy no hay más paneles",
     noEventsTodayTitle: "Sin eventos hoy",
     noEventsTodayMessage: "No tienes eventos guardados para hoy.",
-    minutesBeforeFormat: "%@ antes",
+    minutesBeforeFormat: "%@ min antes",
+    hourBefore: "1 hora antes",
+    atEventTime: "A la hora del evento",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ más hoy",
     upNextCaps: "SIGUIENTE",
@@ -1053,7 +1090,9 @@ extension ConPawsStrings {
     finishedComplication: "Hoje não há mais painéis",
     noEventsTodayTitle: "Sem eventos hoje",
     noEventsTodayMessage: "Não tens eventos guardados para hoje.",
-    minutesBeforeFormat: "%@ antes",
+    minutesBeforeFormat: "%@ min antes",
+    hourBefore: "1 hora antes",
+    atEventTime: "À hora do evento",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ hoje",
     upNextCaps: "A SEGUIR",
@@ -1122,7 +1161,9 @@ extension ConPawsStrings {
     finishedComplication: "今日のパネルは終了しました",
     noEventsTodayTitle: "今日の予定なし",
     noEventsTodayMessage: "今日の保存済みイベントはありません。",
-    minutesBeforeFormat: "%@前",
+    minutesBeforeFormat: "%@分前",
+    hourBefore: "1時間前",
+    atEventTime: "イベントの開始時刻",
     compactMinutesFormat: "%@分",
     moreTodayFormat: "他%@件",
     upNextCaps: "次の予定",
@@ -1191,7 +1232,9 @@ extension ConPawsStrings {
     finishedComplication: "今天沒有更多活動",
     noEventsTodayTitle: "今天沒有議程",
     noEventsTodayMessage: "今天沒有已儲存的活動。",
-    minutesBeforeFormat: "%@前",
+    minutesBeforeFormat: "提前 %@ 分鐘",
+    hourBefore: "提前 1 小時",
+    atEventTime: "活動開始時",
     compactMinutesFormat: "%@ 分鐘",
     moreTodayFormat: "今天還有 %@ 個",
     upNextCaps: "接下來",
@@ -1260,7 +1303,9 @@ extension ConPawsStrings {
     finishedComplication: "今天没有更多活动",
     noEventsTodayTitle: "今天没有活动",
     noEventsTodayMessage: "今天没有已保存的活动。",
-    minutesBeforeFormat: "%@前",
+    minutesBeforeFormat: "提前 %@ 分钟",
+    hourBefore: "提前 1 小时",
+    atEventTime: "活动开始时",
     compactMinutesFormat: "%@ 分钟",
     moreTodayFormat: "今天还有 %@ 个",
     upNextCaps: "接下来",
@@ -1329,7 +1374,9 @@ extension ConPawsStrings {
     finishedComplication: "오늘은 더 이상 패널이 없습니다",
     noEventsTodayTitle: "오늘 일정 없음",
     noEventsTodayMessage: "오늘 저장된 일정이 없습니다.",
-    minutesBeforeFormat: "%@ 전",
+    minutesBeforeFormat: "%@분 전",
+    hourBefore: "1시간 전",
+    atEventTime: "이벤트 시작 시각",
     compactMinutesFormat: "%@분",
     moreTodayFormat: "오늘 %@개 더",
     upNextCaps: "다음 일정",
@@ -1398,7 +1445,9 @@ extension ConPawsStrings {
     finishedComplication: "Oggi non ci sono altri panel",
     noEventsTodayTitle: "Nessun evento oggi",
     noEventsTodayMessage: "Non hai eventi salvati per oggi.",
-    minutesBeforeFormat: "%@ prima",
+    minutesBeforeFormat: "%@ min prima",
+    hourBefore: "1 ora prima",
+    atEventTime: "All'ora dell'evento",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ oggi",
     upNextCaps: "PROSSIMO",
@@ -1467,7 +1516,9 @@ extension ConPawsStrings {
     finishedComplication: "Tiada lagi panel hari ini",
     noEventsTodayTitle: "Tiada acara hari ini",
     noEventsTodayMessage: "Tiada acara tersimpan untuk hari ini.",
-    minutesBeforeFormat: "%@ sebelum",
+    minutesBeforeFormat: "%@ minit sebelum",
+    hourBefore: "1 jam sebelum",
+    atEventTime: "Pada waktu acara",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ lagi hari ini",
     upNextCaps: "SETERUSNYA",
@@ -1536,7 +1587,9 @@ extension ConPawsStrings {
     finishedComplication: "Ingen flere paneler i dag",
     noEventsTodayTitle: "Ingen begivenheder i dag",
     noEventsTodayMessage: "Der er ingen gemte begivenheder i dag.",
-    minutesBeforeFormat: "%@ før",
+    minutesBeforeFormat: "%@ min. før",
+    hourBefore: "1 time før",
+    atEventTime: "Ved begivenhedens start",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ mere i dag",
     upNextCaps: "NÆSTE",
@@ -1605,7 +1658,9 @@ extension ConPawsStrings {
     finishedComplication: "Ingen flere paneler i dag",
     noEventsTodayTitle: "Ingen hendelser i dag",
     noEventsTodayMessage: "Ingen hendelser er lagret for i dag.",
-    minutesBeforeFormat: "%@ før",
+    minutesBeforeFormat: "%@ min før",
+    hourBefore: "1 time før",
+    atEventTime: "Når hendelsen starter",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ til i dag",
     upNextCaps: "NESTE",
@@ -1674,7 +1729,9 @@ extension ConPawsStrings {
     finishedComplication: "Ei enempää paneeleja tänään",
     noEventsTodayTitle: "Ei tapahtumia tänään",
     noEventsTodayMessage: "Tälle päivälle ei ole tallennettuja tapahtumia.",
-    minutesBeforeFormat: "%@ ennen",
+    minutesBeforeFormat: "%@ min ennen",
+    hourBefore: "1 tunti ennen",
+    atEventTime: "Tapahtuman alkaessa",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ tänään",
     upNextCaps: "SEURAAVAKSI",
@@ -1743,7 +1800,9 @@ extension ConPawsStrings {
     finishedComplication: "Dnes už žádné panely",
     noEventsTodayTitle: "Dnes žádné události",
     noEventsTodayMessage: "Na dnešek nemáš uložené žádné události.",
-    minutesBeforeFormat: "%@ před",
+    minutesBeforeFormat: "%@ min předem",
+    hourBefore: "1 hodinu předem",
+    atEventTime: "V čase události",
     compactMinutesFormat: "%@ min",
     moreTodayFormat: "+%@ dnes",
     upNextCaps: "DALŠÍ",
@@ -1812,7 +1871,9 @@ extension ConPawsStrings {
     finishedComplication: "Mára nincs több panel",
     noEventsTodayTitle: "Ma nincs program",
     noEventsTodayMessage: "Mára nincs mentett programod.",
-    minutesBeforeFormat: "%@ előtt",
+    minutesBeforeFormat: "%@ perccel előtte",
+    hourBefore: "1 órával előtte",
+    atEventTime: "Az esemény kezdetekor",
     compactMinutesFormat: "%@ perc",
     moreTodayFormat: "+%@ ma",
     upNextCaps: "KÖVETKEZIK",
@@ -1881,7 +1942,9 @@ extension ConPawsStrings {
     finishedComplication: "Сьогодні панелей більше немає",
     noEventsTodayTitle: "Сьогодні немає подій",
     noEventsTodayMessage: "На сьогодні не збережено жодних подій.",
-    minutesBeforeFormat: "%@ тому",
+    minutesBeforeFormat: "За %@ хв",
+    hourBefore: "За 1 годину",
+    atEventTime: "На час події",
     compactMinutesFormat: "%@ хв",
     moreTodayFormat: "+%@ сьогодні",
     upNextCaps: "ДАЛІ",
@@ -1950,7 +2013,9 @@ extension ConPawsStrings {
     finishedComplication: "Сегодня панелей больше нет",
     noEventsTodayTitle: "Сегодня событий нет",
     noEventsTodayMessage: "На сегодня нет сохранённых событий.",
-    minutesBeforeFormat: "%@ назад",
+    minutesBeforeFormat: "За %@ мин",
+    hourBefore: "За 1 час",
+    atEventTime: "В момент начала",
     compactMinutesFormat: "%@ мин",
     moreTodayFormat: "+%@ сегодня",
     upNextCaps: "ДАЛЕЕ",

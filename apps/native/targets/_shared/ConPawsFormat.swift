@@ -30,8 +30,8 @@ enum ConPawsFormat {
     return "\(start)–\(formatter.string(from: end))"
   }
 
-  /// "Reminder at 1:50 PM · 10 minutes before", from the offset the user
-  /// chose, or nil when the event has no reminder.
+  /// "Reminder at 1:50 PM · 10 min before", from the offset the user chose,
+  /// or nil when the event has no reminder.
   static func reminderAt(
     _ event: ConPawsEventSnapshot,
     in convention: ConPawsConventionSnapshot,

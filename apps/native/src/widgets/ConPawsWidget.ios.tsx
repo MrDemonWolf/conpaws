@@ -103,7 +103,7 @@ export function ConPawsWidgetLayout(
     compactMonthsFormat: "%@mo",
     compactMinutesFormat: "%@ min",
     reminderAtFormat: "Reminder at %1$@ · %2$@",
-    minutesBeforeFormat: "%@ before",
+    minutesBeforeFormat: "%@ min before",
     planLastUpdatedFormat: "Plan last updated here · %@",
     staleHint: "Open ConPaws to update your plan.",
     moreTodayFormat: "+%@ more today",
@@ -423,10 +423,9 @@ export function ConPawsWidgetLayout(
     return format(
       word("reminderAtFormat"),
       clock(event.startAtMs - event.reminderMinutes * 60_000),
-      format(
-        word("minutesBeforeFormat"),
-        unit("minutes", event.reminderMinutes),
-      ),
+      // The table copies the app's `reminders.minutesBefore`, which takes the
+      // bare number: "10 min before", "За 10 мин".
+      format(word("minutesBeforeFormat"), String(event.reminderMinutes)),
     );
   }
   function sentence(...parts: string[]): string {

@@ -641,6 +641,18 @@ describe("isolated Expo widget renderers", () => {
     expect(texts(running)).toContain("12:45");
   });
 
+  it("speaks the reminder offset with the bare minute count", () => {
+    // The shared table copies the app's `reminders.minutesBefore`, whose
+    // number stands alone: "5 min before", "За 5 мин". A pluralised count
+    // read "5 minutes min before".
+    const data = snapshot();
+    // Outside the reminder window, so the reminder is still ahead.
+    data.conventions[0].events[0].reminderMinutes = 5;
+    const spoken = spokenLabel(render("ios", { snapshot: data }));
+    expect(spoken).toContain("Reminder at 12:05 · 5 min before");
+    expect(spoken).not.toContain("minutes");
+  });
+
   it.each(platforms)(
     "rejects an unsupported snapshot schema on %s",
     (platform) => {

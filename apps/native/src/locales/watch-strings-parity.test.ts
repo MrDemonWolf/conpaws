@@ -5,10 +5,12 @@ import { describe, expect, it } from "vitest";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-locales";
 
 /**
- * The Watch's plan actions reuse the phone's wording rather than translating
- * it a second time: "Remove from my plan" on the wrist is the same button as
- * on the phone. The Swift table cannot read the JSON catalogs, so the copies
- * are held to them here, per field and per language.
+ * The Watch's plan actions and reminder offsets reuse the phone's wording
+ * rather than translating it a second time: "Remove from my plan" on the
+ * wrist is the same button as on the phone, and a reminder reads the way the
+ * phone's reminder picker offered it. The Swift table cannot read the JSON
+ * catalogs, so the copies are held to them here, per field and per language.
+ * A catalog's `{{minutes}}` is the table's `%@`.
  */
 const WATCH_FIELDS = {
   aboutThisPanel: "convention.panel.about",
@@ -17,7 +19,20 @@ const WATCH_FIELDS = {
   otherOptionsThisHour: "convention.now.otherOptions",
   remove: "common.remove",
   saved: "convention.savedLabel",
+  minutesBeforeFormat: "reminders.minutesBefore",
+  hourBefore: "reminders.hourBefore",
+  atEventTime: "reminders.atTime",
 } as const;
+
+/** i18next's one named value as the Swift table's positional `%@`. */
+function swiftFormat(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const placeholders = value.match(/\{\{\w+\}\}/g) ?? [];
+  if (placeholders.length > 1) {
+    throw new Error(`"${value}" needs positional specifiers, not one %@`);
+  }
+  return value.replace(/\{\{\w+\}\}/, "%@");
+}
 
 const swift = readFileSync(
   path.join(__dirname, "../../targets/_shared/ConPawsStrings.swift"),
@@ -71,7 +86,7 @@ function catalogValue(code: string, key: string): unknown {
     );
 }
 
-describe("Watch plan strings match the app catalogs", () => {
+describe("Watch strings copied from the app catalogs", () => {
   const byLanguage = tables();
 
   it("has a table for every shipped language", () => {
@@ -93,7 +108,7 @@ describe("Watch plan strings match the app catalogs", () => {
   )("%s %s copies %s verbatim", (code, field, key) => {
     const table = byLanguage.get(code);
     expect(table, `no Swift table for ${code}`).toBeDefined();
-    const expected = catalogValue(code, key);
+    const expected = swiftFormat(catalogValue(code, key));
     expect(typeof expected, `${code}.json has no ${key}`).toBe("string");
     expect(swiftValue(table ?? "", field)).toBe(expected);
   });

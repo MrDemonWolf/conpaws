@@ -146,7 +146,7 @@ struct ConPawsFormatTests {
     let panel = event(from: 1_795_204_800, reminderMinutes: 10) // 14:00
     #expect(
       ConPawsFormat.reminderAt(panel, in: convention, locale: english, strings: .english)
-        == "Reminder at 1:50\u{202F}PM · 10 minutes before"
+        == "Reminder at 1:50\u{202F}PM · 10 min before"
     )
   }
 
@@ -156,16 +156,23 @@ struct ConPawsFormatTests {
     #expect(ConPawsFormat.reminderAt(panel, in: convention, locale: english, strings: .english) == nil)
   }
 
-  /// The reminder line in the app's language: the offset reads as "before",
-  /// never "ago", and takes the plural its count needs.
+  /// The reminder line in the app's language, worded as the phone's reminder
+  /// picker words it: the offset reads as "before", never "ago", and the
+  /// minutes are the catalog's short form, so no language needs a case for
+  /// the number. Dutch, Russian and Ukrainian once read "10 minutes ago".
   @Test(arguments: [
-    ("en", "1:50 PM", 10, "Reminder at 1:50 PM · 10 minutes before"),
-    ("en", "1:59 PM", 1, "Reminder at 1:59 PM · 1 minute before"),
-    ("de", "13:50", 10, "Erinnerung um 13:50 · 10 Minuten vorher"),
-    ("fr", "13:55", 5, "Rappel à 13:55 · 5 minutes avant"),
-    ("pl", "13:58", 2, "Przypomnienie o 13:58 · 2 minuty wcześniej"),
-    ("pl", "13:55", 5, "Przypomnienie o 13:55 · 5 minut wcześniej"),
+    ("en", "1:50 PM", 10, "Reminder at 1:50 PM · 10 min before"),
+    ("en", "1:59 PM", 1, "Reminder at 1:59 PM · 1 min before"),
+    ("de", "13:50", 10, "Erinnerung um 13:50 · 10 Min. vorher"),
+    ("fr", "13:55", 5, "Rappel à 13:55 · 5 min avant"),
+    ("pl", "13:58", 2, "Przypomnienie o 13:58 · 2 min wcześniej"),
     ("ja", "13:45", 15, "13:45にリマインダー · 15分前"),
+    ("nl", "14:10", 10, "Herinnering om 14:10 · 10 min van tevoren"),
+    ("ru", "14:10", 10, "Напоминание в 14:10 · За 10 мин"),
+    ("ru", "14:19", 1, "Напоминание в 14:19 · За 1 мин"),
+    ("uk", "14:10", 10, "Нагадування о 14:10 · За 10 хв"),
+    ("cs", "14:10", 10, "Připomenutí v 14:10 · 10 min předem"),
+    ("hu", "14:10", 10, "Emlékeztető: 14:10 · 10 perccel előtte"),
   ])
   func reminderWordingSaysBeforeInTheAppsLanguage(
     language: String,
@@ -174,6 +181,31 @@ struct ConPawsFormatTests {
     expected: String
   ) {
     #expect(ConPawsStrings.resolve(language).reminderAt(time, minutes: minutes) == expected)
+  }
+
+  /// The phone offers 0 as "At event time" and 60 as "1 hour before"; the
+  /// Watch used to read them as "0 minutes before" and "60 minutes before".
+  @Test(arguments: [
+    ("en", "2:00 PM", 0, "Reminder at 2:00 PM · At event time"),
+    ("en", "1:00 PM", 60, "Reminder at 1:00 PM · 1 hour before"),
+    ("nl", "14:00", 0, "Herinnering om 14:00 · Op het tijdstip van het evenement"),
+    ("ru", "13:00", 60, "Напоминание в 13:00 · За 1 час"),
+  ])
+  func reminderAtTheStartOrAnHourAheadUsesThePhonesWords(
+    language: String,
+    time: String,
+    minutes: Int,
+    expected: String
+  ) {
+    #expect(ConPawsStrings.resolve(language).reminderAt(time, minutes: minutes) == expected)
+  }
+
+  @Test func reminderAtTheStartFormatsTheStartTime() {
+    let panel = event(from: 1_795_204_800, reminderMinutes: 0) // 14:00
+    #expect(
+      ConPawsFormat.reminderAt(panel, in: convention, locale: english, strings: .english)
+        == "Reminder at 2:00\u{202F}PM · At event time"
+    )
   }
 
   // MARK: Spoken durations
