@@ -3,13 +3,12 @@ import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
 import { FieldGroup, Host, Icon } from "@expo/ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { settingsFooter } from "@/components/SettingsFooter";
 import { FieldRow } from "@/components/ui/FieldRow";
-import { NativeText } from "@/components/ui/NativeText";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
@@ -101,11 +100,7 @@ export default function AppearanceScreen() {
               </FieldRow>
             );
           })}
-          <FieldGroup.SectionFooter>
-            <NativeText modifiers={[font({ textStyle: "footnote" })]}>
-              {t("settings.appearance.description")}
-            </NativeText>
-          </FieldGroup.SectionFooter>
+          {settingsFooter(t("settings.appearance.description"))}
         </FieldGroup.Section>
       </FieldGroup>
     </Host>

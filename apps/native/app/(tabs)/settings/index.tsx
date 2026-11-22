@@ -1,5 +1,4 @@
 import { FieldGroup, Host, Picker } from "@expo/ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
@@ -7,11 +6,11 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Linking, useWindowDimensions } from "react-native";
 import { ContentScrollLink } from "@/components/ContentScrollLink";
+import { settingsFooter } from "@/components/SettingsFooter";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
 import { settingsLinkRow, settingsSwitchRow } from "@/components/SettingsRows";
 import { SETTINGS_STACKED_FONT_SCALE } from "@/components/SettingsRows.types";
 import { FieldRow } from "@/components/ui/FieldRow";
-import { NativeText } from "@/components/ui/NativeText";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useOpenLink } from "@/hooks/useOpenLink";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
@@ -243,13 +242,6 @@ export default function SettingsScreen() {
       : notificationPermission === "denied"
         ? t("settings.notifications.disabled")
         : t("settings.notifications.notRequested");
-  const footer = (text: string) => (
-    <FieldGroup.SectionFooter>
-      <NativeText modifiers={[font({ textStyle: "footnote" })]}>
-        {text}
-      </NativeText>
-    </FieldGroup.SectionFooter>
-  );
 
   return (
     <ContentScrollLink style={{ flex: 1 }}>
@@ -327,7 +319,7 @@ export default function SettingsScreen() {
                 onPress: () => router.push("/settings/reminder-default"),
               })
             )}
-            {footer(t("settings.notifications.defaultLeadDescription"))}
+            {settingsFooter(t("settings.notifications.defaultLeadDescription"))}
           </FieldGroup.Section>
 
           <FieldGroup.Section title={t("settings.sections.scheduleUpdates")}>
@@ -338,7 +330,7 @@ export default function SettingsScreen() {
               value: scheduleAutoCheck,
               onValueChange: handleScheduleAutoCheckChange,
             })}
-            {footer(t("settings.footers.scheduleUpdates"))}
+            {settingsFooter(t("settings.footers.scheduleUpdates"))}
           </FieldGroup.Section>
 
           <FieldGroup.Section
@@ -365,7 +357,7 @@ export default function SettingsScreen() {
               busy: isImporting,
               onPress: () => importData(),
             })}
-            {footer(t("settings.footers.backup"))}
+            {settingsFooter(t("settings.footers.backup"))}
           </FieldGroup.Section>
 
           <FieldGroup.Section title={t("settings.sections.helpAbout")}>

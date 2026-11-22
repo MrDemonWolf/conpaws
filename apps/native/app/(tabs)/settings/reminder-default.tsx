@@ -1,15 +1,13 @@
 import RadioCheckedIcon from "@expo/material-symbols/radio_button_checked.xml";
 import RadioUncheckedIcon from "@expo/material-symbols/radio_button_unchecked.xml";
 import { FieldGroup, Host, Icon } from "@expo/ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { settingsFooter } from "@/components/SettingsFooter";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
-
-import { NativeText } from "@/components/ui/NativeText";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { reminderDefaultLabel } from "@/lib/reminder-default-label";
@@ -129,11 +127,7 @@ export default function ReminderDefaultScreen() {
               </ListItem>
             );
           })}
-          <FieldGroup.SectionFooter>
-            <NativeText modifiers={[font({ textStyle: "footnote" })]}>
-              {t("settings.notifications.defaultLeadDescription")}
-            </NativeText>
-          </FieldGroup.SectionFooter>
+          {settingsFooter(t("settings.notifications.defaultLeadDescription"))}
         </FieldGroup.Section>
       </FieldGroup>
     </Host>
