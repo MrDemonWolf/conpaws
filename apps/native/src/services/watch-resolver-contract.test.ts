@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -57,5 +57,22 @@ describe("Watch resolver contract", () => {
     expect(resolver).toContain(
       "?? snapshot.conventions.max { $0.endAtMs < $1.endAtMs }",
     );
+  });
+
+  it("never has the Watch pick a convention by id", () => {
+    // A convention picked by id could be one the phone left out as over.
+    const sources = ["watch", "watch-widget", "_shared"].flatMap((target) => {
+      const folder = `../../targets/${target}`;
+      return readdirSync(resolve(here, folder))
+        .filter((name) => name.endsWith(".swift"))
+        .map((name) => read(`${folder}/${name}`));
+    });
+    const picks = sources.flatMap((source) =>
+      [...source.matchAll(/selectedConventionID: (?!String\?)([^,)\n]+)/g)].map(
+        (match) => match[1],
+      ),
+    );
+    expect(picks.length).toBeGreaterThan(0);
+    expect(new Set(picks)).toEqual(new Set(["nil"]));
   });
 });
