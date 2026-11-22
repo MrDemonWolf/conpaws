@@ -99,6 +99,7 @@ import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
+import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getReminderReconciliation,
   resolveReminderNotice,
@@ -1125,14 +1126,7 @@ export default function ConventionDetailScreen() {
           reminderLabel:
             heroEvent.reminderMinutes !== null
               ? t("convention.now.reminder", {
-                  label: t(
-                    heroEvent.reminderMinutes === 60
-                      ? "reminders.hourBefore"
-                      : heroEvent.reminderMinutes === 0
-                        ? "reminders.atTime"
-                        : "reminders.minutesBefore",
-                    { minutes: heroEvent.reminderMinutes },
-                  ),
+                  label: reminderDefaultLabel(heroEvent.reminderMinutes, t),
                 })
               : undefined,
           next: hero.following

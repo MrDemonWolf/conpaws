@@ -23,7 +23,11 @@ import {
   scheduleFormatter,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
-import { getCachedDefaultReminderMinutes } from "@/lib/reminder-default-storage";
+import { reminderDefaultLabel } from "@/lib/reminder-default-label";
+import {
+  getCachedDefaultReminderMinutes,
+  REMINDER_DEFAULT_OPTIONS,
+} from "@/lib/reminder-default-storage";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { themeTokens } from "@/lib/theme-tokens";
 
@@ -380,11 +384,11 @@ interface ReminderPickerContentProps {
 }
 
 /**
- * `0` is "At event time" — the string existed in all locales but was never
- * offered because 0 was missing here; the scheduler already handles a zero
- * lead time (it only rejects triggers that are in the past).
+ * The lead times Settings offers, plus None. `0` is "At event time"; the
+ * scheduler handles a zero lead time (it only rejects triggers that are in
+ * the past).
  */
-const REMINDER_OPTIONS = [null, 0, 5, 10, 15, 30, 60] as const;
+const REMINDER_OPTIONS = [null, ...REMINDER_DEFAULT_OPTIONS] as const;
 
 function ReminderPickerContent({
   event,
@@ -417,11 +421,7 @@ function ReminderPickerContent({
         const label =
           minutes === null
             ? t("reminders.none")
-            : minutes === 0
-              ? t("reminders.atTime")
-              : minutes === 60
-                ? t("reminders.hourBefore")
-                : t("reminders.minutesBefore", { minutes });
+            : reminderDefaultLabel(minutes, t);
         return (
           <Pressable
             key={String(minutes)}

@@ -229,17 +229,11 @@ export default function SettingsScreen() {
       }}
       appearance="menu"
     >
-      <Picker.Item label={t("settings.notifications.noDefault")} value="" />
+      <Picker.Item label={reminderDefaultLabel(null, t)} value="" />
       {REMINDER_DEFAULT_OPTIONS.map((minutes) => (
         <Picker.Item
           key={String(minutes)}
-          label={
-            minutes === 0
-              ? t("reminders.atTime")
-              : minutes === 60
-                ? t("reminders.hourBefore")
-                : t("reminders.minutesBefore", { minutes })
-          }
+          label={reminderDefaultLabel(minutes, t)}
           value={String(minutes)}
         />
       ))}

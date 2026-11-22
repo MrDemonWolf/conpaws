@@ -1,11 +1,13 @@
 import type { TFunction } from "i18next";
 
 /**
- * How a default-reminder lead time reads to a person.
+ * How a default or chosen reminder lead time reads to a person.
  *
- * Shared because two places have to agree on it: the Settings row that shows
- * the current value, and the screen that lists the options. They used to be
- * one `<Picker>`, which needed the labels only once.
+ * Shared so every place that names one agrees: the Settings row, its inline
+ * iOS menu (below accessibility text sizes) and the pushed reminder-default
+ * list, the reminder choices in onboarding and the visit planner, the event's
+ * reminder picker and the Now card. Schedule rows keep their own chip wording
+ * (see `eventReminderLabel`), which reads 0 as "0 min before".
  *
  * `null` is "no default", not "at event time" -- 0 already means at the event.
  */
