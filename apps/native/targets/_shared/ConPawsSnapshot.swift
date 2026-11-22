@@ -125,8 +125,6 @@ extension ConPawsConventionSnapshot {
   func optionsThisHour(at now: Date, limit: Int = 5) -> [ConPawsEventSnapshot] {
     let nowMs = now.timeIntervalSince1970 * 1_000
     guard let options, !options.isEmpty, startAtMs <= nowMs, nowMs < endAtMs else { return [] }
-    var calendar = Calendar(identifier: .gregorian)
-    calendar.timeZone = TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent
     guard let slot = calendar.dateInterval(of: .hour, for: now) else { return [] }
     let slotStartMs = slot.start.timeIntervalSince1970 * 1_000
     let hourMs: Double = 3_600_000
@@ -211,6 +209,20 @@ extension ConPawsConventionSnapshot {
   /// The convention's own zone. `filteringInvalidRecords` drops a convention
   /// whose identifier does not resolve, so the device zone is only a guard.
   var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
+  var calendar: Calendar { ConPawsCalendar.convention(in: timeZone) }
+}
+
+/// The calendar every convention day, hour and month is counted in.
+enum ConPawsCalendar {
+  /// Gregorian, in the convention's zone, whatever calendar the watch is set
+  /// to. The wearer's Hebrew or Islamic calendar counted a 30-day wait as one
+  /// lunar month, so the complication said "In 1 month" while the iPhone
+  /// widget, which counts Gregorian months, said "In 30 days".
+  static func convention(in timeZone: TimeZone) -> Calendar {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = timeZone
+    return calendar
+  }
 }
 
 extension ConPawsEventSnapshot {

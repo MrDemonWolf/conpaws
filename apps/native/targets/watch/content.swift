@@ -1308,8 +1308,7 @@ private struct WatchScheduleProjection {
         .filter { $0.startDate > now && $0.id != next?.id }
         .prefix(2)
     )
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
+    let calendar = convention.calendar
     todayEvents = sorted.filter { calendar.isDate($0.startDate, inSameDayAs: now) }
   }
 

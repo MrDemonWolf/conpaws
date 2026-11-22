@@ -107,8 +107,7 @@ struct ConPawsComplicationProjection {
       }
       // "Tomorrow · 10:00 AM" turns into "10:00 AM" at the convention's
       // midnight, and nothing else would redraw the card then.
-      var calendar = Calendar.autoupdatingCurrent
-      calendar.timeZone = convention.timeZone
+      let calendar = convention.calendar
       if !calendar.isDate(upcoming.startDate, inSameDayAs: now),
         let midnight = calendar.nextDate(
           after: now,

@@ -52,8 +52,7 @@ enum ConPawsFormat {
     locale: Locale,
     strings: ConPawsStrings
   ) -> String? {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
+    let calendar = convention.calendar
     guard !calendar.isDate(date, inSameDayAs: now) else { return nil }
 
     if
@@ -97,8 +96,7 @@ enum ConPawsFormat {
     in timeZone: TimeZone,
     strings: ConPawsStrings
   ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
+    let calendar = ConPawsCalendar.convention(in: timeZone)
     let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: now, to: target)
     let months = max(0, parts.month ?? 0)
     let days = max(0, parts.day ?? 0)

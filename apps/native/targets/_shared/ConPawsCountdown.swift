@@ -44,8 +44,7 @@ enum ConPawsCountdown {
 
     if seconds < 86_400 { return .hours(Int(seconds / 3_600)) }
 
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
+    let calendar = ConPawsCalendar.convention(in: timeZone)
     // Count calendar days, not 24-hour blocks. An event 23 hours away can
     // still be "Tomorrow", and one 25 hours away can still be "Tomorrow" too.
     let startOfFrom = calendar.startOfDay(for: from)
@@ -244,8 +243,7 @@ enum ConPawsCountdown {
   ) -> [Date] {
     guard limit > 0, to > from else { return [] }
 
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
+    let calendar = ConPawsCalendar.convention(in: timeZone)
 
     var points: [Date] = []
     var cursor = from

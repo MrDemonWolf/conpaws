@@ -113,3 +113,20 @@ struct ConPawsCountdownTests {
     #expect(label(from: at(1_793_599_199), to: to) == "In 4 days")
   }
 }
+
+/// Days and months are counted on the Gregorian calendar in the convention's
+/// zone, whatever calendar the watch is set to: a Hebrew or Islamic calendar
+/// counted a 30-day wait as "In 1 month" while the iPhone said "In 30 days".
+/// The test cannot change the Mac's calendar, so it pins the helper itself.
+struct ConventionCalendarTests {
+  @Test func countdownLadderIsGregorianWhateverTheDeviceCalendar() {
+    let zone = TimeZone(identifier: "Asia/Jerusalem")!
+    let calendar = ConPawsCalendar.convention(in: zone)
+    #expect(calendar.identifier == .gregorian)
+    #expect(calendar.timeZone == zone)
+
+    let from = Date(timeIntervalSince1970: 1_767_225_600) // Thu 1 Jan 2026, 00:00 UTC
+    let to = from.addingTimeInterval(30 * 86_400)
+    #expect(ConPawsCountdown.label(from: from, to: to, timeZone: zone, strings: .english) == "In 30 days")
+  }
+}
