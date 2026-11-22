@@ -19,6 +19,7 @@ const WATCH_FIELDS = {
   otherOptionsThisHour: "convention.now.otherOptions",
   remove: "common.remove",
   saved: "convention.savedLabel",
+  ended: "convention.plan.status.ended",
   minutesBeforeFormat: "reminders.minutesBefore",
   hourBefore: "reminders.hourBefore",
   atEventTime: "reminders.atTime",

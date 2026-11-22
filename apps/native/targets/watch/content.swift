@@ -757,13 +757,14 @@ private struct TodayListView: View {
     ScrollViewReader { proxy in
       List(schedule.todayEvents) { event in
         let isRunning = event.id == schedule.activeEvent?.id
+        let hasEnded = ConPawsScheduleResolver.effectiveEnd(of: event) <= schedule.now
         let timeRange = ConPawsFormat.timeRange(event, in: convention, locale: locale)
         NavigationLink(value: WatchRoute.event(conventionID: convention.id, eventID: event.id)) {
           TodayRow(
             event: event,
             timeRange: timeRange,
             isRunning: isRunning,
-            hasEnded: ConPawsScheduleResolver.effectiveEnd(of: event) <= schedule.now
+            hasEnded: hasEnded
           )
         }
         // This label replaces the row's Texts, so their `privacySensitive`
@@ -774,8 +775,9 @@ private struct TodayListView: View {
             ? timeRange
             : [event.title, timeRange, event.shortPlace].compactMap { $0 }.joined(separator: ", ")
         )
-        // The accent bar is hidden from VoiceOver, so the running row says so.
-        .accessibilityValue(isRunning ? strings.now : "")
+        // The accent bar and the check are hidden from VoiceOver, so the
+        // running row and the ended ones say so.
+        .accessibilityValue(isRunning ? strings.now : hasEnded ? strings.ended : "")
       }
       // ponytail: plain, not .carousel — carousel scales rows toward the
       // screen center, so a single-event day renders as an oversized slab.
@@ -940,6 +942,8 @@ private struct EventDetailView: View {
           Image(systemName: hasEnded ? "checkmark.circle" : "clock")
             .accessibilityHidden(true)
         }
+        // The check is hidden, so VoiceOver hears the state in words.
+        .accessibilityValue(hasEnded ? strings.ended : "")
 
         if let location = event.place {
           Label {
