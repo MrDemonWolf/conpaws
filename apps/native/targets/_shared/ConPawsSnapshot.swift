@@ -282,6 +282,20 @@ extension ConPawsSnapshotAge {
     staleDate(of: snapshot).map { now >= $0 } ?? false
   }
 
+  /// How old a plan may be before the Watch app's convention countdown says
+  /// so. That screen shows a name, a date range and a countdown worked out on
+  /// the watch, and in the weeks before a convention the phone app is rarely
+  /// opened, so the thirty-minute rule put "Open ConPaws on your iPhone"
+  /// under a correct countdown on nearly every glance. A week still flags a
+  /// plan the phone may have changed since.
+  static let countdownStaleAfter: TimeInterval = 7 * 86_400
+
+  /// Whether the Watch app's convention countdown flags its plan as old.
+  static func isCountdownStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
+    guard !snapshot.conventions.isEmpty else { return false }
+    return now.timeIntervalSince1970 * 1_000 - snapshot.generatedAtMs >= countdownStaleAfter * 1_000
+  }
+
   /// How long ago the phone made the plan, as "45 min. ago" in `locale`.
   /// Only the Watch app says this: it redraws every minute, while a
   /// complication entry would keep the age it was drawn with.

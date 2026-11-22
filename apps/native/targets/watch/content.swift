@@ -149,7 +149,9 @@ private struct WatchRootView: View {
       PreConventionView(
         convention: convention,
         now: now,
-        isUsingSavedSchedule: isUsingSavedSchedule,
+        // Its own, slower rule: nothing on this screen goes out of date in
+        // half an hour.
+        isUsingSavedSchedule: ConPawsSnapshotAge.isCountdownStale(snapshot, now: now),
         snapshotDate: snapshotDate,
         strings: strings
       )

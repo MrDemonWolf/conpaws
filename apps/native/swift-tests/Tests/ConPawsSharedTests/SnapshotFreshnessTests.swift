@@ -48,6 +48,27 @@ struct SnapshotFreshnessTests {
     #expect(ConPawsSnapshotAge.isStale(plan, now: generatedAt.addingTimeInterval(age)) == stale)
   }
 
+  /// The Watch app's convention countdown is worked out on the watch, and the
+  /// phone app is rarely opened in the weeks before a convention, so the
+  /// thirty-minute rule put "Open ConPaws on your iPhone" under a correct
+  /// countdown on nearly every glance. It waits a week instead.
+  @Test(arguments: [
+    (1_800.0, false), // half an hour
+    (518_400, false), // six days
+    (604_799, false), // a second short of a week
+    (604_800, true), // a week
+    (2_592_000, true), // thirty days
+  ])
+  func aCountdownIsStaleFromAWeekOn(age: TimeInterval, stale: Bool) {
+    let plan = snapshot(withConventions: true)
+    #expect(ConPawsSnapshotAge.isCountdownStale(plan, now: generatedAt.addingTimeInterval(age)) == stale)
+  }
+
+  @Test func anEmptySnapshotsCountdownIsNeverStale() {
+    let empty = snapshot(withConventions: false)
+    #expect(ConPawsSnapshotAge.isCountdownStale(empty, now: generatedAt.addingTimeInterval(30 * 86_400)) == false)
+  }
+
   @Test(arguments: [("en_US", "45 min. ago"), ("de_DE", "vor 45 Min.")])
   func updatedTextSaysHowLongAgoInTheAppsLanguage(locale: String, expected: String) {
     let now = generatedAt.addingTimeInterval(45 * 60)
