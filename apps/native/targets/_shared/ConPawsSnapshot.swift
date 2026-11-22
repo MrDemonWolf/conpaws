@@ -127,18 +127,19 @@ extension ConPawsConventionSnapshot {
     guard let options, !options.isEmpty, startAtMs <= nowMs, nowMs < endAtMs else { return [] }
     guard let slot = calendar.dateInterval(of: .hour, for: now) else { return [] }
     let slotStartMs = slot.start.timeIntervalSince1970 * 1_000
-    let hourMs: Double = 3_600_000
+    let slotEndMs = slot.end.timeIntervalSince1970 * 1_000
+    let unknownEndMs = ConPawsScheduleResolver.unknownEndDuration * 1_000
     let saved = Set(events.map(\.id))
     return Array(
       options
         .filter { option in
           guard !saved.contains(option.id) else { return false }
-          let fallbackEnd = option.startAtMs + hourMs
+          let fallbackEnd = option.startAtMs + unknownEndMs
           // matchesHourSlot's endMs: an end that is not after the start is
           // treated as unknown.
           let slotEnd = option.endAtMs.flatMap { $0 > option.startAtMs ? $0 : nil } ?? fallbackEnd
           let liveEnd = option.endAtMs ?? fallbackEnd
-          return option.startAtMs < slotStartMs + hourMs && slotEnd > slotStartMs && liveEnd > nowMs
+          return option.startAtMs < slotEndMs && slotEnd > slotStartMs && liveEnd > nowMs
         }
         .sorted { lhs, rhs in
           lhs.startAtMs != rhs.startAtMs
@@ -148,6 +149,17 @@ extension ConPawsConventionSnapshot {
         .prefix(limit)
     )
   }
+}
+
+extension ConPawsScheduleResolver {
+  /// How long a panel with no published end counts as running, for "Other
+  /// options this hour" and for the resolver alike.
+  ///
+  /// Declared here because `optionsThisHour` reads it. The resolver's
+  /// `effectiveEnd` in ConPawsScheduleState.swift still writes the same hour
+  /// as `3_600_000` ms; `optionsAndResolverShareTheUnknownEndHour` holds the
+  /// two together until it reads this too.
+  static let unknownEndDuration: TimeInterval = 3_600
 }
 
 struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {

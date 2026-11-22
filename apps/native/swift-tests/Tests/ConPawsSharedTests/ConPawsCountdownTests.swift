@@ -130,3 +130,33 @@ struct ConventionCalendarTests {
     #expect(ConPawsCountdown.label(from: from, to: to, timeZone: zone, strings: .english) == "In 30 days")
   }
 }
+
+/// When a screen that redraws itself, the Watch app, shows a ticking timer
+/// rather than the worded ladder.
+struct TimerWindowTests {
+  @Test func panelsTickForAnHourAndTheConventionForADay() {
+    #expect(ConPawsCountdown.eventTimerWindow == 3_600)
+    #expect(ConPawsCountdown.conventionTimerWindow == 86_400)
+  }
+
+  /// The Up Next card and the detail screen tick inside the same window. The
+  /// card used to widen it to a day inside the leave window, which changed
+  /// nothing, since every reminder the app offers opens its leave window
+  /// within the hour.
+  @Test(arguments: [5, 10, 15, 30, 60])
+  func upNextAndDetailAgreeOnTheTimer(reminderMinutes: Int) {
+    let start = Date(timeIntervalSince1970: 1_795_204_800) // Fri 20 Nov 2026, 14:00 CST
+    let panel = ConPawsEventSnapshot(
+      id: "panel", title: "Panel", startAtMs: 1_795_204_800_000, endAtMs: nil,
+      location: nil, room: nil, reminderMinutes: reminderMinutes, ageRating: nil, summary: nil
+    )
+    for minutesLeft in stride(from: reminderMinutes, through: 1, by: -1) {
+      let now = start.addingTimeInterval(TimeInterval(-minutesLeft * 60))
+      #expect(ConPawsScheduleResolver.isInReminderWindow(panel, now: now))
+      #expect(
+        ConPawsCountdown.showsLiveTimer(from: now, to: start, within: ConPawsCountdown.eventTimerWindow),
+        "\(minutesLeft) minutes left"
+      )
+    }
+  }
+}

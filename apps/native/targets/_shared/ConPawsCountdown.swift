@@ -143,6 +143,14 @@ enum ConPawsCountdown {
     return "\(strings.startsIn) \(strings.compactMinutes(minutes))"
   }
 
+  /// How close a panel's start must be before the watch app ticks a timer.
+  /// The Up Next card and the detail screen both use it, so they never
+  /// disagree about the same panel. Every reminder the app offers is an hour
+  /// or less, so a leave window always falls inside it.
+  static let eventTimerWindow: TimeInterval = 3_600
+  /// The same for the convention's own start, on the pre-convention screen.
+  static let conventionTimerWindow: TimeInterval = 86_400
+
   /// Whether a screen that redraws itself -- the watch app, not a widget --
   /// should show a ticking timer for this wait instead of the worded ladder.
   ///

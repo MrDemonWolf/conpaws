@@ -215,7 +215,7 @@ private struct PreConventionView: View {
     let showsTimer = ConPawsCountdown.showsLiveTimer(
       from: now,
       to: convention.startDate,
-      within: 86_400
+      within: ConPawsCountdown.conventionTimerWindow
     )
     // Centered when it fits, scrollable for large Dynamic Type. A decorative
     // mark used to sit above the title and pushed the date range off the
@@ -397,7 +397,7 @@ private struct ScheduleHomeView: View {
     let showsTimer = ConPawsCountdown.showsLiveTimer(
       from: schedule.now,
       to: next.startDate,
-      within: schedule.isLeaveWindow ? 86_400 : 3_600
+      within: ConPawsCountdown.eventTimerWindow
     )
     let isToday = ConPawsFormat.dayLabel(
       next.startDate,
@@ -1026,7 +1026,11 @@ private struct EventDetailView: View {
       )
       .font(.caption2.bold())
       .foregroundStyle(Color.accentColor)
-    } else if ConPawsCountdown.showsLiveTimer(from: now, to: start, within: 3_600) {
+    } else if ConPawsCountdown.showsLiveTimer(
+      from: now,
+      to: start,
+      within: ConPawsCountdown.eventTimerWindow
+    ) {
       VStack(alignment: .leading, spacing: 0) {
         Text(strings.startsInCaps)
           .font(.caption2.bold())
@@ -1267,7 +1271,6 @@ private struct WatchScheduleProjection {
   let laterEvents: [ConPawsEventSnapshot]
   /// Every saved event starting today in the convention's time zone.
   let todayEvents: [ConPawsEventSnapshot]
-  let isLeaveWindow: Bool
 
   var convention: ConPawsConventionSnapshot? { Self.convention(of: state) }
 
@@ -1291,7 +1294,6 @@ private struct WatchScheduleProjection {
     let next = Self.nextEvent(of: state)
     self.now = now
     self.state = state
-    isLeaveWindow = next.map { ConPawsScheduleResolver.isInReminderWindow($0, now: now) } ?? false
 
     guard let convention = Self.convention(of: state) else {
       laterEvents = []
@@ -1392,7 +1394,6 @@ func runWatchScheduleSelfCheck() {
   let schedule = WatchScheduleProjection(snapshot: snapshot, now: now)
   assert(schedule.activeEvent?.id == "current")
   assert(schedule.nextEvent?.id == "next")
-  assert(schedule.isLeaveWindow)
   // Up Next has its own card, so Later never repeats it.
   assert(schedule.laterEvents.isEmpty)
   assert(schedule.todayEvents.map(\.id) == ["current", "next"])
