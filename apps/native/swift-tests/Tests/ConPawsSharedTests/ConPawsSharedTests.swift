@@ -65,15 +65,44 @@ struct ConPawsSharedTests {
     #expect(ConPawsScheduleResolver.effectiveEnd(of: unknown).timeIntervalSince1970 == 54_000)
   }
 
-  @Test(arguments: [1, 2, 5, 11, 12, 21, 22, 25, 111, 112])
-  func pluralForms(count: Int) {
-    let expected: [ConPawsLanguage: ConPawsPluralForm] = [
-      .cs: count == 1 ? .one : (2...4).contains(count) ? .few : .other,
-      .pl: count == 1 ? .one : ((2...4).contains(count % 10) && !(12...14).contains(count % 100)) ? .few : .other,
-      .ru: count % 10 == 1 && count % 100 != 11 ? .one : ((2...4).contains(count % 10) && !(12...14).contains(count % 100)) ? .few : .other,
-      .uk: count % 10 == 1 && count % 100 != 11 ? .one : ((2...4).contains(count % 10) && !(12...14).contains(count % 100)) ? .few : .other
-    ]
-    for (language, form) in expected { #expect(language.pluralForm(count) == form) }
+  /// CLDR's cardinal rules, written out case by case rather than recomputed:
+  /// a rule copied into both the code and its test fails neither.
+  @Test(arguments: [
+    // Czech: few is 2-4 only, never 22.
+    (ConPawsLanguage.cs, 1, ConPawsPluralForm.one),
+    (.cs, 2, .few),
+    (.cs, 4, .few),
+    (.cs, 5, .other),
+    (.cs, 21, .other),
+    (.cs, 22, .other),
+    // Polish: 22 is few, the teens are not, and 21 is not one.
+    (.pl, 1, .one),
+    (.pl, 5, .other),
+    (.pl, 12, .other),
+    (.pl, 21, .other),
+    (.pl, 22, .few),
+    (.pl, 112, .other),
+    // Russian and Ukrainian: 21 is one, 11 and 111 are not.
+    (.ru, 1, .one),
+    (.ru, 2, .few),
+    (.ru, 5, .other),
+    (.ru, 11, .other),
+    (.ru, 21, .one),
+    (.ru, 22, .few),
+    (.ru, 111, .other),
+    (.uk, 11, .other),
+    (.uk, 21, .one),
+    (.uk, 24, .few),
+    // Every other language: one for 1 alone.
+    (.en, 1, .one),
+    (.en, 2, .other),
+    (.en, 21, .other),
+    (.de, 1, .one),
+    (.de, 2, .other),
+    (.ja, 1, .one),
+  ])
+  func pluralForm(language: ConPawsLanguage, count: Int, form: ConPawsPluralForm) {
+    #expect(language.pluralForm(count) == form)
   }
 
   @Test(arguments: ["ja", "pt", "de_DE", "pt-BR", "es", "zh-Hant-TW", "zh-HK", "unknown"])

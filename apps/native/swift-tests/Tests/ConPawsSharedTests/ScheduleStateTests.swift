@@ -286,22 +286,47 @@ struct StringsPlaceholderParityTests {
     }
   }
 
+  /// Every countdown template must carry its number: "Stunden" without "%@"
+  /// would draw "In Stunden" and pass every other check.
+  @Test(arguments: ConPawsLanguage.allCases)
+  func everyPluralTemplateCarriesOneNumber(language: ConPawsLanguage) {
+    for (name, value) in pluralTemplates(in: ConPawsStrings.table(for: language)) {
+      #expect(placeholderCounts(in: value) == ["%@": 1], "\(language.rawValue) \(name): \(value)")
+    }
+  }
+
+  /// Format strings by field, and each plural template as "hoursUnit.one" and
+  /// so on, so the English comparison covers the units too.
   private func placeholders(in strings: ConPawsStrings) -> [String: [String: Int]] {
-    Mirror(reflecting: strings).children.reduce(into: [:]) { result, child in
-      guard
-        let name = child.label,
-        let value = child.value as? String
-      else { return }
-      let expression = try! NSRegularExpression(pattern: "%[0-9]+\\$@|%@")
-      let matches = expression.matches(
-        in: value,
-        range: NSRange(value.startIndex..., in: value)
-      ).compactMap { match in
-        Range(match.range, in: value).map { String(value[$0]) }
-      }
-      if !matches.isEmpty {
-        result[name] = Dictionary(matches.map { ($0, 1) }, uniquingKeysWith: +)
+    let fields = Mirror(reflecting: strings).children.compactMap { child -> (String, String)? in
+      guard let name = child.label, let value = child.value as? String else { return nil }
+      return (name, value)
+    }
+    return (fields + pluralTemplates(in: strings)).reduce(into: [:]) { result, field in
+      let counts = placeholderCounts(in: field.1)
+      if !counts.isEmpty { result[field.0] = counts }
+    }
+  }
+
+  /// The six templates of every `ConPawsPluralUnit` field.
+  private func pluralTemplates(in strings: ConPawsStrings) -> [(String, String)] {
+    Mirror(reflecting: strings).children.flatMap { child -> [(String, String)] in
+      guard let name = child.label, let unit = child.value as? ConPawsPluralUnit else { return [] }
+      return Mirror(reflecting: unit).children.compactMap { form in
+        guard let formName = form.label, let template = form.value as? String else { return nil }
+        return ("\(name).\(formName)", template)
       }
     }
+  }
+
+  private func placeholderCounts(in value: String) -> [String: Int] {
+    let expression = try! NSRegularExpression(pattern: "%[0-9]+\\$@|%@")
+    let matches = expression.matches(
+      in: value,
+      range: NSRange(value.startIndex..., in: value)
+    ).compactMap { match in
+      Range(match.range, in: value).map { String(value[$0]) }
+    }
+    return Dictionary(matches.map { ($0, 1) }, uniquingKeysWith: +)
   }
 }
