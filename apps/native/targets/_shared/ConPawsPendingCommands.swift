@@ -14,9 +14,10 @@ struct PendingWatchCommand: Codable, Hashable, Sendable {
 /// has shown yet: a table keyed by event id, so a newer tap on an event
 /// replaces the one waiting on it.
 ///
-/// Every function returns a new table and touches nothing else, so this
-/// compiles into swift-tests. `WatchScheduleStore` owns the published table,
-/// the WatchConnectivity calls and the moment each change is stored.
+/// The table functions return a new table and touch nothing else, and `load`
+/// and `save` use only the `UserDefaults` they are handed. Foundation only,
+/// so this compiles into swift-tests. `WatchScheduleStore` owns the published
+/// table, the WatchConnectivity calls and the moment each change is stored.
 enum ConPawsPendingCommands {
   typealias Table = [String: PendingWatchCommand]
 
