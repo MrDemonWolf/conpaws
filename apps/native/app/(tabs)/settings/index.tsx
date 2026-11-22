@@ -1,7 +1,7 @@
 import { FieldGroup, Host, Picker } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
-import { type Href, router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
@@ -306,7 +306,7 @@ export default function SettingsScreen() {
               value: t(
                 `settings.timeFormat.short.${timeFormat === "12" ? "hour12" : timeFormat === "24" ? "hour24" : "system"}`,
               ),
-              onPress: () => router.push("/settings/time-format" as Href),
+              onPress: () => router.push("/settings/time-format"),
             })}
           </FieldGroup.Section>
 
@@ -338,8 +338,7 @@ export default function SettingsScreen() {
                 icon: "reminder",
                 title: t("settings.notifications.defaultLead"),
                 value: reminderDefaultLabel(defaultLead, t),
-                onPress: () =>
-                  router.push("/settings/reminder-default" as Href),
+                onPress: () => router.push("/settings/reminder-default"),
               })
             )}
             {footer(t("settings.notifications.defaultLeadDescription"))}
@@ -388,7 +387,7 @@ export default function SettingsScreen() {
               icon: "help",
               title: t("settings.help.gettingStarted"),
               description: t("settings.help.gettingStartedDescription"),
-              onPress: () => router.push("/settings/getting-started" as Href),
+              onPress: () => router.push("/settings/getting-started"),
             })}
             {settingsLinkRow({
               icon: "about",
@@ -416,7 +415,7 @@ export default function SettingsScreen() {
                 icon: "preview",
                 title: t("settings.preview.title"),
                 description: t("settings.preview.description"),
-                onPress: () => router.push("/settings/preview" as Href),
+                onPress: () => router.push("/settings/preview"),
               })}
             </FieldGroup.Section>
           ) : null}
