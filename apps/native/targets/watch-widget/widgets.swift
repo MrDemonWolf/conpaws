@@ -141,6 +141,9 @@ private struct ConPawsWatchEntryView: View {
     // overflowing card clipped its eyebrow, which is the line carrying the
     // countdown.
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    // A tap opens the panel this card names, not whatever screen the Watch
+    // app was last left on.
+    .widgetURL(schedule.link.url)
     .environment(\.locale, entry.snapshot.locale)
     .environment(\.staleNotice, entry.staleNotice)
   }

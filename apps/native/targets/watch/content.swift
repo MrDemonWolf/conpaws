@@ -46,6 +46,13 @@ struct ContentView: View {
     // environment rather than the root's, and every time they format has to
     // be in the app's language, which is a phone setting, not the watch's.
     .environment(\.locale, store.snapshot.locale)
+    // A complication tap: the panel the card named, over the home screen, or
+    // the home screen alone for a card without one. Without this the app came
+    // forward on whatever screen it was last left on.
+    .onOpenURL { url in
+      guard let link = ConPawsWatchLink(url: url) else { return }
+      path = Self.path(opening: link, in: store.snapshot)
+    }
     .onChange(of: store.snapshot.generatedAtMs) {
       // A new schedule can drop the event a detail screen is showing. Pop it
       // rather than leave the reader on an empty screen. That includes an
@@ -63,6 +70,18 @@ struct ContentView: View {
             && snapshot.option(id: eventID, in: conventionID) == nil
         }
       }
+    }
+  }
+
+  /// The stack a complication link opens. A panel the plan no longer holds,
+  /// because a newer snapshot reached the app first, opens the home screen.
+  private static func path(opening link: ConPawsWatchLink, in snapshot: ConPawsSnapshot) -> [WatchRoute] {
+    switch link {
+    case .home:
+      return []
+    case .event(let conventionID, let eventID):
+      guard snapshot.event(id: eventID, in: conventionID) != nil else { return [] }
+      return [.event(conventionID: conventionID, eventID: eventID)]
     }
   }
 }
