@@ -8,6 +8,7 @@ import { useWindowDimensions } from "react-native";
 import { ReadableColumn } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { SEGMENTED_MAX } from "@/lib/content-width";
+import { STACKED_FONT_SCALE } from "@/lib/text-scale";
 import { themeTokens } from "@/lib/theme-tokens";
 import {
   SCHEDULE_VIEWS,
@@ -15,9 +16,6 @@ import {
   type ScheduleViewSwitcherProps,
 } from "./ScheduleViewSwitcher.types";
 import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcherStacked";
-
-/** Past this scale UISegmentedControl shows a few letters per segment. */
-const STACK_AT_FONT_SCALE = 1.6;
 
 /**
  * The Browse / My plan / Now switcher as a real UISegmentedControl, through
@@ -27,7 +25,8 @@ const STACK_AT_FONT_SCALE = 1.6;
 export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
   const { fontScale } = useWindowDimensions();
   const resolvedColorScheme = useResolvedColorScheme();
-  if (fontScale >= STACK_AT_FONT_SCALE) {
+  // Past this scale UISegmentedControl shows a few letters per segment.
+  if (fontScale >= STACKED_FONT_SCALE) {
     return <ScheduleViewSwitcherStacked {...props} />;
   }
 

@@ -11,6 +11,7 @@ import { ageBadgeFor } from "@/lib/age-badge";
 import { feedStatusLabel as describeFeedStatus } from "@/lib/agenda-labels";
 import type { ClusterPosition } from "@/lib/day-band";
 import type { AgeRating } from "@/lib/event-categories";
+import { STACKED_FONT_SCALE } from "@/lib/text-scale";
 import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
 
@@ -107,7 +108,7 @@ export function EventItem({
   const { t } = useTranslation();
   const { fontScale } = useWindowDimensions();
   // Past this scale the 80pt time column squeezes titles to a few letters.
-  const stacked = fontScale >= 1.6;
+  const stacked = fontScale >= STACKED_FONT_SCALE;
   const isDark = useColorScheme() === "dark";
   const ageBadge = ageBadgeFor(ageRating);
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
