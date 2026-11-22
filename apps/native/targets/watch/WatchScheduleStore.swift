@@ -3,18 +3,25 @@ import Foundation
 import WatchConnectivity
 import WidgetKit
 
+/// The schedule and pending taps the Watch app shows.
+///
+/// Main-actor isolated, so SwiftUI's reads and every change share one thread
+/// and the compiler holds them there. WatchConnectivity calls the delegate on
+/// a background queue: those methods are `nonisolated`, decode and store each
+/// snapshot on `receiveQueue`, and hop to main for anything they change here.
+@MainActor
 final class WatchScheduleStore: NSObject, ObservableObject {
   /// The one store, and so the one WatchConnectivity delegate. The app makes
   /// it at launch, including a background launch for a delivery, and the
   /// scene's `.backgroundTask(.watchConnectivity)` handler reaches it here.
   static let shared = WatchScheduleStore()
 
-  private let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
+  private nonisolated let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
 
   /// Saves and removes sent to the phone that no snapshot has shown yet,
   /// keyed by event id and kept across launches; see
-  /// `ConPawsPendingCommands`. Main thread only.
+  /// `ConPawsPendingCommands`.
   @Published private(set) var pendingCommands: [String: PendingWatchCommand] = [:]
 
   func isUsingSavedSchedule(at now: Date) -> Bool {
@@ -48,7 +55,10 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// its main-thread half has reloaded the complication, leaves the
   /// complication on the old schedule until the app is next opened. Ends
   /// early only when the system cancels the task.
-  func drainPendingContent() async {
+  ///
+  /// Nonisolated so the polling stays off the main actor; nothing here reads
+  /// the store's state.
+  nonisolated func drainPendingContent() async {
     guard WCSession.isSupported() else { return }
     let session = WCSession.default
     while !Task.isCancelled,
@@ -82,7 +92,6 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     event: ConPawsEventSnapshot,
     convention: ConPawsConventionSnapshot
   ) {
-    dispatchPrecondition(condition: .onQueue(.main))
     let command = ConPawsWatchCommand(action: action, eventID: event.id, conventionID: convention.id)
     guard command.isValid else { return }
     updatePendingCommands(ConPawsPendingCommands.adding(command, to: pendingCommands))
@@ -112,14 +121,19 @@ final class WatchScheduleStore: NSObject, ObservableObject {
       markDelivered(command.id)
       return
     }
+    // WatchConnectivity calls these on a background queue. `@Sendable` keeps
+    // them off the main actor, so they capture only sendable values and hop
+    // back to main explicitly. Holding the store until then is harmless: it
+    // is `shared`, and lives as long as the app.
+    let commandID = command.id
     session.sendMessage(
       payload,
-      replyHandler: { [weak self] _ in
-        DispatchQueue.main.async { self?.markDelivered(command.id) }
+      replyHandler: { @Sendable [self] _ in
+        DispatchQueue.main.async { self.markDelivered(commandID) }
       },
-      errorHandler: { [weak self] _ in
-        session.transferUserInfo(payload)
-        DispatchQueue.main.async { self?.markDelivered(command.id) }
+      errorHandler: { @Sendable [self] _ in
+        WCSession.default.transferUserInfo([ConPawsWatchCommand.messageKey: json])
+        DispatchQueue.main.async { self.markDelivered(commandID) }
       }
     )
   }
@@ -161,7 +175,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
   // MARK: Snapshots from the phone
 
-  private func receive(_ payload: [String: Any]) {
+  private nonisolated func receive(_ payload: [String: Any]) {
     let value = payload[ConPawsSnapshotStore.snapshotKey]
     let json = (value as? String) ?? (value as? Data).flatMap { String(data: $0, encoding: .utf8) }
 
@@ -177,7 +191,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     }
   }
 
-  private func save(_ json: String) {
+  private nonisolated func save(_ json: String) {
     let nowMs = Date().timeIntervalSince1970 * 1_000
     guard
       let data = json.data(using: .utf8),
@@ -225,8 +239,9 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   }
 }
 
+/// WatchConnectivity calls all of these on a background queue.
 extension WatchScheduleStore: WCSessionDelegate {
-  func session(
+  nonisolated func session(
     _ session: WCSession,
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: Error?
@@ -241,21 +256,21 @@ extension WatchScheduleStore: WCSessionDelegate {
     }
   }
 
-  func session(
+  nonisolated func session(
     _ session: WCSession,
     didReceiveApplicationContext applicationContext: [String: Any]
   ) {
     receive(applicationContext)
   }
 
-  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+  nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
     receive(userInfo)
   }
 
   /// A queued command the system could not deliver (the session failed, the
   /// phone app was removed) goes back to undelivered, to be sent again when
   /// the phone is next in reach, instead of waiting out the day.
-  func session(
+  nonisolated func session(
     _ session: WCSession,
     didFinish userInfoTransfer: WCSessionUserInfoTransfer,
     error: Error?
@@ -271,7 +286,7 @@ extension WatchScheduleStore: WCSessionDelegate {
     }
   }
 
-  func sessionReachabilityDidChange(_ session: WCSession) {
+  nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
     guard session.activationState == .activated, session.isReachable else { return }
     DispatchQueue.main.async { [weak self] in
       self?.deliverUndelivered()
