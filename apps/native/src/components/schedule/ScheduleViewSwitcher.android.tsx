@@ -5,8 +5,8 @@ import {
   Text,
 } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
-import { useWindowDimensions, View } from "react-native";
-import { useWidthCap } from "@/hooks/useContentWidth";
+import { useWindowDimensions } from "react-native";
+import { ReadableColumn } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { SEGMENTED_MAX } from "@/lib/content-width";
 import { themeTokens } from "@/lib/theme-tokens";
@@ -29,17 +29,16 @@ const STACK_AT_FONT_SCALE = 1.6;
 export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
   const { fontScale } = useWindowDimensions();
   const resolvedColorScheme = useResolvedColorScheme();
-  // Three short labels stretched across a wide window read as one bar.
-  const segmentedCap = useWidthCap()(SEGMENTED_MAX);
   if (fontScale >= STACK_AT_FONT_SCALE) {
     return <ScheduleViewSwitcherStacked {...props} />;
   }
 
   const { view, onChange, labels } = props;
+  // Three short labels stretched across a wide window read as one bar.
   return (
-    <View
+    <ReadableColumn
+      max={SEGMENTED_MAX}
       className="px-4"
-      style={segmentedCap}
       accessibilityLabel={props.accessibilityLabel}
     >
       <Host
@@ -62,6 +61,6 @@ export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
           ))}
         </SingleChoiceSegmentedButtonRow>
       </Host>
-    </View>
+    </ReadableColumn>
   );
 }

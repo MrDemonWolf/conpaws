@@ -16,11 +16,17 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";
 import { TrackedEventBanner } from "@/components/TrackedEventBanner";
-import { Button, EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
+import {
+  Button,
+  EmptyState,
+  ReadableColumn,
+  ScheduleSkeleton,
+  Text,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
-import { useContentWidth, useWidthCap } from "@/hooks/useContentWidth";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { ageBadgeFor } from "@/lib/age-badge";
 import { type AgendaRowItem, buildAgendaRows } from "@/lib/agenda-gaps";
@@ -102,7 +108,6 @@ export default function ScheduleScreen() {
   // On a wide window the list lays its rows into a readable column; zero on a
   // phone in portrait.
   const { listPadding } = useContentWidth();
-  const cap = useWidthCap();
   const hour12 = useHour12();
   const queryClient = useQueryClient();
 
@@ -365,7 +370,7 @@ export default function ScheduleScreen() {
         renderItem={renderItem}
         ListFooterComponent={
           entries.length > 0 ? (
-            <View className="px-4 py-4" style={cap(ACTIONS_MAX)}>
+            <ReadableColumn max={ACTIONS_MAX} className="px-4 py-4">
               <Button
                 variant="outline"
                 onPress={() => {
@@ -384,7 +389,7 @@ export default function ScheduleScreen() {
               >
                 {t("convention.browse.dropIn.find")}
               </Button>
-            </View>
+            </ReadableColumn>
           ) : undefined
         }
         ListEmptyComponent={

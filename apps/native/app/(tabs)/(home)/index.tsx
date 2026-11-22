@@ -23,13 +23,13 @@ import {
   Button,
   ConventionListSkeleton,
   EmptyState,
+  ReadableColumn,
   SkeletonUnderHeader,
   Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
-import { useWidthCap } from "@/hooks/useContentWidth";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { ACTIONS_MAX } from "@/lib/content-width";
 import {
@@ -115,11 +115,10 @@ function ConventionEmptyState({
 }: ConventionEmptyStateProps) {
   // The full-width buttons and caption stop at an action width in a wide
   // window instead of running across it.
-  const widthCap = useWidthCap();
   return (
-    <View
+    <ReadableColumn
+      max={ACTIONS_MAX}
       className="flex-1 items-center justify-center gap-1"
-      style={widthCap(ACTIONS_MAX)}
     >
       <EmptyState
         icon={EMPTY_ICON}
@@ -154,7 +153,7 @@ function ConventionEmptyState({
           </Text>
         </View>
       ) : null}
-    </View>
+    </ReadableColumn>
   );
 }
 
