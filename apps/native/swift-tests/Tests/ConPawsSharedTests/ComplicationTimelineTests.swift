@@ -75,6 +75,24 @@ struct ComplicationTimelineTests {
     #expect(atStart.relevantUntil == local(21, 14, 30))
   }
 
+  /// The phone sends a convention's start as midnight in its zone, from the
+  /// date alone. Raising the card from 23:30 to 00:30 the night before day
+  /// one showed nothing but a countdown turning over; saved panels raise it
+  /// when it matters.
+  @Test func aConventionsMidnightStartDoesNotRaiseTheCard() {
+    let value = snapshot(
+      conventions: [convention("con", from: local(22, 0), until: local(24, 18))],
+      generatedAt: local(21, 22)
+    )
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: local(21, 23))
+    let aroundMidnight = plan.filter { $0.date >= local(21, 23, 30) && $0.date <= local(22, 0, 30) }
+    #expect(aroundMidnight.contains { $0.date == local(22, 0) })
+    #expect(aroundMidnight.allSatisfy { $0.relevantUntil == nil })
+    for moment in [local(21, 23, 30), local(21, 23, 59), local(22, 0), local(22, 0, 20)] {
+      #expect(ConPawsComplicationTimeline.relevantUntil(snapshot: value, at: moment) == nil, "raised at \(moment)")
+    }
+  }
+
   @Test func withNothingScheduledTheTimelineStillEnds() {
     let now = local(21, 12)
     let plan = ConPawsComplicationTimeline.plan(snapshot: .empty, now: now)

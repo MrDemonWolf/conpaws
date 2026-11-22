@@ -6,7 +6,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
   /// Raises this card in the Smart Stack around the moments it matters —
-  /// convention and saved-panel starts, reminder or not. Without a relevance
+  /// saved-panel starts, reminder or not. Without a relevance
   /// the stack never surfaces the complication on its own.
   var relevance: TimelineEntryRelevance?
 
@@ -82,9 +82,9 @@ private struct ConPawsWatchProvider: TimelineProvider {
   ) {
     let snapshot = ConPawsSnapshotStore.load()
     // An entry for every moment the card reads differently, planned in
-    // targets/_shared so swift-tests covers it. Around a convention or saved
-    // panel start the card is at its most useful; the score makes the Smart
-    // Stack rotate it up.
+    // targets/_shared so swift-tests covers it. Around a saved panel's start
+    // the card is at its most useful; the score makes the Smart Stack rotate
+    // it up.
     let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: .now).map { planned in
       ConPawsWatchEntry(
         date: planned.date,

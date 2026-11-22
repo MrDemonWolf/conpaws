@@ -116,9 +116,9 @@ struct ConPawsComplicationProjection {
     var candidates: [Date] = []
     switch state {
     case .comingUp(let convention):
+      // The switch to the convention itself. It raises nothing in the Smart
+      // Stack: the start is the date alone, midnight where it happens.
       candidates.append(convention.startDate)
-      // An entry for the Smart Stack's relevance to start on.
-      candidates.append(convention.startDate.addingTimeInterval(-lift))
     case .leave(let current, let upcoming, let convention),
       .next(let current, let upcoming, let convention):
       candidates.append(upcoming.startDate)
@@ -181,7 +181,7 @@ enum ConPawsComplicationTimeline {
   static let horizon: TimeInterval = 86_400
   /// Enough for a 60-minute leave window's per-minute countdown and more.
   static let maximumEntries = 64
-  /// How long before and after a convention or panel start the Smart Stack
+  /// How long before and after a saved panel's start the Smart Stack
   /// rotates the card up.
   static let relevanceWindow: TimeInterval = 30 * 60
   /// How long a timeline lasts when nothing is scheduled to change.
@@ -242,15 +242,19 @@ enum ConPawsComplicationTimeline {
     }
   }
 
-  /// Half an hour after the latest convention or saved-panel start within half
-  /// an hour of `date`, or nil when there is none. A panel counts whether or
-  /// not it has a reminder: starring one sets none.
+  /// Half an hour after the latest saved-panel start within half an hour of
+  /// `date`, or nil when there is none. A panel counts whether or not it has
+  /// a reminder: starring one sets none.
+  ///
+  /// The convention's own start does not count. The phone sends it from the
+  /// date alone, as midnight in the convention's zone, so it raised the card
+  /// from 23:30 to 00:30 the night before day one to show a countdown
+  /// turning over, and not at all on the way to the venue.
   static func relevantUntil(snapshot: ConPawsSnapshot, at date: Date) -> Date? {
     guard
       let convention = ConPawsComplicationProjection(snapshot: snapshot, now: date).convention
     else { return nil }
-    let starts = [convention.startDate] + convention.events.map(\.startDate)
-    return starts
+    return convention.events.map(\.startDate)
       .filter { start in
         date >= start.addingTimeInterval(-relevanceWindow)
           && date < start.addingTimeInterval(relevanceWindow)
