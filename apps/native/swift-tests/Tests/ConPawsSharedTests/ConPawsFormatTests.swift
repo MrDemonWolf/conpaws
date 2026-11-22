@@ -156,6 +156,26 @@ struct ConPawsFormatTests {
     #expect(ConPawsFormat.reminderAt(panel, in: convention, locale: english, strings: .english) == nil)
   }
 
+  /// The reminder line in the app's language: the offset reads as "before",
+  /// never "ago", and takes the plural its count needs.
+  @Test(arguments: [
+    ("en", "1:50 PM", 10, "Reminder at 1:50 PM · 10 minutes before"),
+    ("en", "1:59 PM", 1, "Reminder at 1:59 PM · 1 minute before"),
+    ("de", "13:50", 10, "Erinnerung um 13:50 · 10 Minuten vorher"),
+    ("fr", "13:55", 5, "Rappel à 13:55 · 5 minutes avant"),
+    ("pl", "13:58", 2, "Przypomnienie o 13:58 · 2 minuty wcześniej"),
+    ("pl", "13:55", 5, "Przypomnienie o 13:55 · 5 minut wcześniej"),
+    ("ja", "13:45", 15, "13:45にリマインダー · 15分前"),
+  ])
+  func reminderWordingSaysBeforeInTheAppsLanguage(
+    language: String,
+    time: String,
+    minutes: Int,
+    expected: String
+  ) {
+    #expect(ConPawsStrings.resolve(language).reminderAt(time, minutes: minutes) == expected)
+  }
+
   // MARK: Spoken durations
 
   @Test(arguments: [
