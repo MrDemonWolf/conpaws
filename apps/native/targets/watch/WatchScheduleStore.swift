@@ -16,16 +16,12 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// it, so the ceiling belongs here, at the point the value is first trusted.
   private static let futureToleranceMs: Double = 86_400 * 1_000
 
-  /// Commands waiting for the phone, kept across launches: a tap made with
-  /// the phone out of reach must still be applied, and still show as waiting,
-  /// after watchOS ends the app.
-  private static let pendingCommandsKey = "conpaws.watch.pendingCommands.v1"
-
   private let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
 
   /// Saves and removes sent to the phone that no snapshot has shown yet,
-  /// keyed by event id. Main thread only.
+  /// keyed by event id and kept across launches; see
+  /// `ConPawsPendingCommands`. Main thread only.
   @Published private(set) var pendingCommands: [String: PendingWatchCommand] = [:]
 
   var isUsingSavedSchedule: Bool {
@@ -46,7 +42,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
   private override init() {
     super.init()
-    pendingCommands = Self.loadPendingCommands()
+    pendingCommands = ConPawsPendingCommands.load()
     settlePendingCommands(against: snapshot, now: Date())
     guard WCSession.isSupported() else { return }
     WCSession.default.delegate = self
@@ -86,10 +82,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// The action waiting on this event, if any. Expired entries read as none,
   /// so a button never stays disabled past the point the phone would apply it.
   func pendingAction(for eventID: String, now: Date = Date()) -> ConPawsWatchCommand.Action? {
-    guard let pending = pendingCommands[eventID], !pending.command.hasExpired(at: now) else {
-      return nil
-    }
-    return pending.command.action
+    ConPawsPendingCommands.action(for: eventID, in: pendingCommands, at: now)
   }
 
   /// Asks the phone to save or remove an event. The UI shows it as waiting
@@ -103,8 +96,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     dispatchPrecondition(condition: .onQueue(.main))
     let command = ConPawsWatchCommand(action: action, eventID: event.id, conventionID: convention.id)
     guard command.isValid else { return }
-    pendingCommands[event.id] = PendingWatchCommand(command: command, isDelivered: false)
-    persistPendingCommands()
+    updatePendingCommands(ConPawsPendingCommands.adding(command, to: pendingCommands))
     deliver(command)
   }
 
@@ -144,10 +136,8 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   }
 
   private func deliverUndelivered() {
-    let now = Date()
-    for pending in pendingCommands.values
-    where !pending.isDelivered && !pending.command.hasExpired(at: now) {
-      deliver(pending.command)
+    for command in ConPawsPendingCommands.undelivered(in: pendingCommands, at: Date()) {
+      deliver(command)
     }
   }
 
@@ -156,39 +146,22 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   }
 
   private func setDelivered(_ isDelivered: Bool, commandID: String) {
-    guard
-      let entry = pendingCommands.first(where: { $0.value.command.id == commandID }),
-      entry.value.isDelivered != isDelivered
-    else { return }
-    pendingCommands[entry.key]?.isDelivered = isDelivered
-    persistPendingCommands()
+    updatePendingCommands(
+      ConPawsPendingCommands.markingDelivered(isDelivered, commandID: commandID, in: pendingCommands)
+    )
   }
 
   /// Drops what `snapshot` shows as done or lists as handled, and what the
   /// phone would now ignore as too old.
   private func settlePendingCommands(against snapshot: ConPawsSnapshot, now: Date) {
-    let remaining = pendingCommands.filter { _, pending in
-      !pending.command.isSettled(by: snapshot) && !pending.command.hasExpired(at: now)
-    }
-    guard remaining.count != pendingCommands.count else { return }
-    pendingCommands = remaining
-    persistPendingCommands()
+    updatePendingCommands(ConPawsPendingCommands.settled(pendingCommands, by: snapshot, at: now))
   }
 
-  private static func loadPendingCommands() -> [String: PendingWatchCommand] {
-    guard
-      let data = UserDefaults.standard.data(forKey: pendingCommandsKey),
-      let stored = try? JSONDecoder().decode([String: PendingWatchCommand].self, from: data)
-    else { return [:] }
-    return stored.filter { $0.key == $0.value.command.eventId && $0.value.command.isValid }
-  }
-
-  private func persistPendingCommands() {
-    if pendingCommands.isEmpty {
-      UserDefaults.standard.removeObject(forKey: Self.pendingCommandsKey)
-    } else if let data = try? JSONEncoder().encode(pendingCommands) {
-      UserDefaults.standard.set(data, forKey: Self.pendingCommandsKey)
-    }
+  /// Publishes and stores `updated`, unless nothing changed.
+  private func updatePendingCommands(_ updated: [String: PendingWatchCommand]) {
+    guard updated != pendingCommands else { return }
+    pendingCommands = updated
+    ConPawsPendingCommands.save(updated)
   }
 
   // MARK: Snapshots from the phone
@@ -312,14 +285,4 @@ extension WatchScheduleStore: WCSessionDelegate {
       self?.deliverUndelivered()
     }
   }
-}
-
-/// A command sent to the phone and not yet shown by a snapshot.
-struct PendingWatchCommand: Codable, Hashable {
-  let command: ConPawsWatchCommand
-  /// False until `sendMessage` was answered or the command was handed to
-  /// `transferUserInfo`, which the system then delivers on its own, and false
-  /// again if that transfer fails. Anything still false is sent again at the
-  /// next activation or when the phone comes back in reach.
-  var isDelivered: Bool
 }
