@@ -25,34 +25,30 @@ private struct ConPawsWatchEntry: TimelineEntry {
     return strings.text(strings.staleA11yFormat, updated)
   }
 
+  /// The gallery's sample: a saved panel 20 minutes out whose reminder has
+  /// fired, so the card shows the leave countdown. It is drawn before any app
+  /// language is known, so it speaks the watch's language, as the empty state
+  /// does, and its panel and room are translated with the headings. Only the
+  /// panel and room are drawn in this state, so nothing else needs words.
   static var preview: ConPawsWatchEntry {
     let now = Date()
+    let localeIdentifier = ConPawsSnapshot.deviceLocaleIdentifier()
+    let strings = ConPawsStrings.resolve(localeIdentifier)
     let convention = ConPawsConventionSnapshot(
       id: "preview-convention",
-      name: "ConPaws Preview Con",
+      name: "ConPaws",
       startAtMs: now.addingTimeInterval(-86_400).timeIntervalSince1970 * 1_000,
       endAtMs: now.addingTimeInterval(86_400).timeIntervalSince1970 * 1_000,
       timeZoneIdentifier: TimeZone.autoupdatingCurrent.identifier,
-      dateRangeLabel: "Today",
+      dateRangeLabel: strings.today,
       events: [
         ConPawsEventSnapshot(
-          id: "preview-current",
-          title: "Opening Ceremonies",
-          startAtMs: now.addingTimeInterval(-1_800).timeIntervalSince1970 * 1_000,
-          endAtMs: now.addingTimeInterval(600).timeIntervalSince1970 * 1_000,
-          location: "Convention Center",
-          room: "Main Ballroom",
-          reminderMinutes: nil,
-          ageRating: nil,
-          summary: nil
-        ),
-        ConPawsEventSnapshot(
           id: "preview-next",
-          title: "Fursuit Meetup",
+          title: strings.previewEventTitle,
           startAtMs: now.addingTimeInterval(1_200).timeIntervalSince1970 * 1_000,
           endAtMs: now.addingTimeInterval(4_800).timeIntervalSince1970 * 1_000,
-          location: "Convention Center",
-          room: "Hall A",
+          location: nil,
+          room: strings.previewRoom,
           reminderMinutes: 30,
           ageRating: nil,
           summary: nil
@@ -65,9 +61,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
       snapshot: ConPawsSnapshot(
         schemaVersion: 2,
         generatedAtMs: now.timeIntervalSince1970 * 1_000,
-        // The watch's language, as the empty state uses: the gallery shows
-        // this before any app language is known.
-        localeIdentifier: ConPawsSnapshot.deviceLocaleIdentifier(),
+        localeIdentifier: localeIdentifier,
         conventions: [convention]
       )
     )
@@ -466,6 +460,10 @@ private struct WidgetCountdownView: View {
 struct ConPawsWatchWidget: Widget {
   static let kind = ConPawsWidgetKind.watchComplication
 
+  private static var galleryStrings: ConPawsStrings {
+    .resolve(ConPawsSnapshot.deviceLocaleIdentifier())
+  }
+
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: ConPawsWatchProvider()) { entry in
       ConPawsWatchEntryView(entry: entry)
@@ -474,11 +472,12 @@ struct ConPawsWatchWidget: Widget {
         // falling back silently.
         .containerBackground(Color(.widgetBackground), for: .widget)
     }
-    // System-drawn, like the iPhone widget's gallery entry: the Smart Stack
-    // resolves these against the watch's language, not the app's, so they need
-    // resources rather than the shared string table.
-    .configurationDisplayName("ConPaws Schedule")
-    .description("See your next event, schedule reminder, or convention countdown.")
+    // System-drawn in the face editor and the Smart Stack's add sheet, where
+    // the app's language is not known, so in the watch's. This target has no
+    // string resources, so the words come from the shared table through the
+    // String overloads, which show them as given.
+    .configurationDisplayName(Self.galleryStrings.complicationName)
+    .description(Self.galleryStrings.complicationDescription)
     .supportedFamilies([.accessoryRectangular])
   }
 }

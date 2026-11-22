@@ -170,9 +170,10 @@ struct ConPawsPluralUnit: Codable, Sendable {
 ///   language would mean loading a specific `.lproj` bundle by that identifier
 ///   by hand -- which is this table, with a silent-fallback failure mode added.
 ///
-/// The strings the *system* renders -- the widget gallery entry, the
-/// configuration intent, `CFBundleDisplayName` -- are deliberately not here.
-/// Those follow the device language by design and do need real resources.
+/// The Watch complication's gallery name and description are here too,
+/// although the system draws them in the device's language: the complication
+/// target has no resources to hold them, so it picks this table's entry for
+/// the watch's own language. `CFBundleDisplayName` stays a resource.
 struct ConPawsStrings: Codable, Sendable {
   let language: ConPawsLanguage
 
@@ -282,6 +283,18 @@ struct ConPawsStrings: Codable, Sendable {
   let otherOptionsThisHour: String
   let remove: String
   let saved: String
+
+  // MARK: Complication gallery (2026-11)
+  //
+  // The face editor and the Smart Stack draw these before any app language
+  // is known, so they are looked up by the watch's language instead (see
+  // `ConPawsSnapshot.deviceLocaleIdentifier`). The preview's sample panel is
+  // translated with them, so its headings and its panel share a language.
+
+  let complicationName: String
+  let complicationDescription: String
+  let previewEventTitle: String
+  let previewRoom: String
 }
 
 // MARK: - Substitution
@@ -468,6 +481,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Other options this hour",
     remove: "Remove",
     saved: "Saved",
+    complicationName: "ConPaws Schedule",
+    complicationDescription: "See your next event, schedule reminder, or convention countdown.",
+    previewEventTitle: "Fursuit Meetup",
+    previewRoom: "Hall A",
   )
 
   private static let de = ConPawsStrings(
@@ -543,6 +560,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Weitere Optionen in dieser Stunde",
     remove: "Entfernen",
     saved: "Gespeichert",
+    complicationName: "ConPaws-Zeitplan",
+    complicationDescription: "Zeigt dein nächstes Event, die Erinnerung dazu oder den Countdown bis zur Convention.",
+    previewEventTitle: "Fursuit-Treffen",
+    previewRoom: "Halle A",
   )
 
   private static let esES = ConPawsStrings(
@@ -614,6 +635,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Otras opciones esta hora",
     remove: "Quitar",
     saved: "Guardado",
+    complicationName: "Horario de ConPaws",
+    complicationDescription: "Consulta tu próximo evento, su aviso o la cuenta atrás para la convención.",
+    previewEventTitle: "Quedada de fursuits",
+    previewRoom: "Sala A",
   )
 
   private static let fr = ConPawsStrings(
@@ -685,6 +710,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Autres options cette heure-ci",
     remove: "Retirer",
     saved: "Enregistré",
+    complicationName: "Programme ConPaws",
+    complicationDescription: "Affiche le prochain événement, son rappel ou le compte à rebours avant la convention.",
+    previewEventTitle: "Rencontre fursuit",
+    previewRoom: "Salle A",
   )
 
   private static let nl = ConPawsStrings(
@@ -756,6 +785,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Andere opties dit uur",
     remove: "Verwijderen",
     saved: "Bewaard",
+    complicationName: "ConPaws-rooster",
+    complicationDescription: "Bekijk je volgende evenement, de herinnering ervoor of het aftellen tot de conventie.",
+    previewEventTitle: "Fursuit-meetup",
+    previewRoom: "Zaal A",
   )
 
   private static let pl = ConPawsStrings(
@@ -837,6 +870,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Inne opcje w tej godzinie",
     remove: "Usuń",
     saved: "Zapisano",
+    complicationName: "Harmonogram ConPaws",
+    complicationDescription: "Pokazuje następne wydarzenie, przypomnienie o nim lub odliczanie do konwentu.",
+    previewEventTitle: "Spotkanie fursuiterów",
+    previewRoom: "Sala A",
   )
 
   private static let ptBR = ConPawsStrings(
@@ -908,6 +945,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Outras opções nesta hora",
     remove: "Remover",
     saved: "Salvo",
+    complicationName: "Programação do ConPaws",
+    complicationDescription: "Veja seu próximo evento, o lembrete dele ou a contagem regressiva para a convenção.",
+    previewEventTitle: "Encontro de fursuits",
+    previewRoom: "Sala A",
   )
 
   private static let sv = ConPawsStrings(
@@ -979,6 +1020,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Andra alternativ den här timmen",
     remove: "Ta bort",
     saved: "Sparad",
+    complicationName: "ConPaws-schema",
+    complicationDescription: "Se ditt nästa evenemang, påminnelsen för det eller nedräkningen till konventet.",
+    previewEventTitle: "Fursuit-träff",
+    previewRoom: "Sal A",
   )
 
   private static let es419 = ConPawsStrings(
@@ -1050,6 +1095,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Otras opciones esta hora",
     remove: "Quitar",
     saved: "Guardado",
+    complicationName: "Horario de ConPaws",
+    complicationDescription: "Consulta tu próximo evento, su recordatorio o la cuenta regresiva para la convención.",
+    previewEventTitle: "Encuentro de fursuits",
+    previewRoom: "Sala A",
   )
 
   private static let ptPT = ConPawsStrings(
@@ -1121,6 +1170,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Outras opções nesta hora",
     remove: "Remover",
     saved: "Guardado",
+    complicationName: "Programa do ConPaws",
+    complicationDescription: "Vê o teu próximo evento, o respetivo lembrete ou a contagem decrescente para a convenção.",
+    previewEventTitle: "Encontro de fursuits",
+    previewRoom: "Sala A",
   )
 
   private static let ja = ConPawsStrings(
@@ -1192,6 +1245,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "この時間の他の候補",
     remove: "削除",
     saved: "保存済み",
+    complicationName: "ConPawsスケジュール",
+    complicationDescription: "次のイベント、そのリマインダー、またはコンベンションまでのカウントダウンを表示します。",
+    previewEventTitle: "ファースーツ交流会",
+    previewRoom: "ホールA",
   )
 
   private static let zhTW = ConPawsStrings(
@@ -1263,6 +1320,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "這個時段的其他選擇",
     remove: "移除",
     saved: "已收藏",
+    complicationName: "ConPaws 議程表",
+    complicationDescription: "查看下一個活動、活動提醒，或距離展會開始的倒數計時。",
+    previewEventTitle: "獸裝聚會",
+    previewRoom: "A 廳",
   )
 
   private static let zhCN = ConPawsStrings(
@@ -1334,6 +1395,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "这个时段的其他选择",
     remove: "移除",
     saved: "已收藏",
+    complicationName: "ConPaws 日程",
+    complicationDescription: "查看下一个活动、活动提醒，或距离展会开始的倒计时。",
+    previewEventTitle: "兽装聚会",
+    previewRoom: "A 厅",
   )
 
   private static let ko = ConPawsStrings(
@@ -1405,6 +1470,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "이 시간대의 다른 선택지",
     remove: "제거",
     saved: "저장됨",
+    complicationName: "ConPaws 일정",
+    complicationDescription: "다음 일정, 해당 알림 또는 컨벤션까지의 카운트다운을 확인하세요.",
+    previewEventTitle: "퍼슈트 모임",
+    previewRoom: "A홀",
   )
 
   private static let it = ConPawsStrings(
@@ -1476,6 +1545,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Altre opzioni in quest’ora",
     remove: "Rimuovi",
     saved: "Salvato",
+    complicationName: "Programma ConPaws",
+    complicationDescription: "Mostra il tuo prossimo evento, il relativo promemoria o il conto alla rovescia per la convention.",
+    previewEventTitle: "Raduno fursuit",
+    previewRoom: "Sala A",
   )
 
   private static let ms = ConPawsStrings(
@@ -1547,6 +1620,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Pilihan lain pada jam ini",
     remove: "Alih keluar",
     saved: "Disimpan",
+    complicationName: "Jadual ConPaws",
+    complicationDescription: "Lihat acara anda yang seterusnya, peringatannya atau kiraan detik ke konvensyen.",
+    previewEventTitle: "Pertemuan Fursuit",
+    previewRoom: "Dewan A",
   )
 
   private static let da = ConPawsStrings(
@@ -1618,6 +1695,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Andre muligheder denne time",
     remove: "Fjern",
     saved: "Gemt",
+    complicationName: "ConPaws-program",
+    complicationDescription: "Se din næste begivenhed, påmindelsen om den eller nedtællingen til stævnet.",
+    previewEventTitle: "Fursuit-træf",
+    previewRoom: "Sal A",
   )
 
   private static let nb = ConPawsStrings(
@@ -1689,6 +1770,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Andre alternativer denne timen",
     remove: "Fjern",
     saved: "Lagret",
+    complicationName: "ConPaws-program",
+    complicationDescription: "Se neste hendelse, påminnelsen for den eller nedtellingen til arrangementet.",
+    previewEventTitle: "Fursuit-treff",
+    previewRoom: "Sal A",
   )
 
   private static let fi = ConPawsStrings(
@@ -1760,6 +1845,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Muita vaihtoehtoja tällä tunnilla",
     remove: "Poista",
     saved: "Tallennettu",
+    complicationName: "ConPaws-ohjelma",
+    complicationDescription: "Näyttää seuraavan ohjelmanumeron, sen muistutuksen tai lähtölaskennan tapahtuman alkuun.",
+    previewEventTitle: "Fursuit-tapaaminen",
+    previewRoom: "Sali A",
   )
 
   private static let cs = ConPawsStrings(
@@ -1831,6 +1920,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Další možnosti v této hodině",
     remove: "Odebrat",
     saved: "Uloženo",
+    complicationName: "Program ConPaws",
+    complicationDescription: "Ukazuje další událost, připomenutí k ní nebo odpočet do conu.",
+    previewEventTitle: "Fursuit sraz",
+    previewRoom: "Sál A",
   )
 
   private static let hu = ConPawsStrings(
@@ -1902,6 +1995,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Más lehetőségek ebben az órában",
     remove: "Eltávolítás",
     saved: "Mentve",
+    complicationName: "ConPaws-program",
+    complicationDescription: "Mutatja a következő programot, az emlékeztetőjét vagy a visszaszámlálást a convent kezdetéig.",
+    previewEventTitle: "Fursuit-találkozó",
+    previewRoom: "A-terem",
   )
 
   private static let uk = ConPawsStrings(
@@ -1973,6 +2070,10 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Інші варіанти цієї години",
     remove: "Прибрати",
     saved: "Збережено",
+    complicationName: "Розклад ConPaws",
+    complicationDescription: "Показує наступну подію, нагадування про неї або відлік до конвенту.",
+    previewEventTitle: "Зустріч фурсьютерів",
+    previewRoom: "Зала А",
   )
 
   private static let ru = ConPawsStrings(
@@ -2044,5 +2145,9 @@ extension ConPawsStrings {
     otherOptionsThisHour: "Другие варианты в этот час",
     remove: "Убрать",
     saved: "Сохранено",
+    complicationName: "Расписание ConPaws",
+    complicationDescription: "Показывает следующее событие, напоминание о нём или обратный отсчёт до конвента.",
+    previewEventTitle: "Встреча фурсьютеров",
+    previewRoom: "Зал А",
   )
 }
