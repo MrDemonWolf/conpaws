@@ -1,28 +1,26 @@
 import Foundation
 
-/// Countdown text and timeline scheduling shared by the iPhone and Watch
-/// widgets.
+/// Countdown text and timeline scheduling for the Watch complication, which
+/// the Watch app's worded countdowns share.
 ///
-/// Widgets are refreshed on the system's schedule, not ours, so a label has to
-/// stay true for as long as it might sit on screen. Two rules follow from that:
+/// A complication is refreshed on the system's schedule, not ours, so a label
+/// has to stay true for as long as it might sit on screen. Two rules follow
+/// from that:
 ///
-/// - The smallest unit shown is a whole hour. Seconds and minutes imply a
-///   precision a widget refreshed on someone else's schedule cannot deliver.
+/// - Outside the leave window the smallest unit shown is a whole hour.
+///   Seconds and minutes imply a precision a complication refreshed on
+///   someone else's schedule cannot deliver.
 /// - The timeline carries an entry for every moment the text would change,
 ///   rather than one entry and a refresh request. WidgetKit renders those
 ///   pre-built entries itself, so the countdown stays correct even when the
 ///   system declines to wake the extension.
 enum ConPawsCountdown {
-  /// Longest a single label is allowed to remain on screen before an entry
-  /// exists to replace it.
+  /// The most change points one call returns. The caller plans again from
+  /// the last one.
   static let maximumEntries = 24
 
-  /// How much of a wait is left, in the only terms these widgets are willing
-  /// to state.
-  ///
-  /// Every rendering switches on this rather than re-deriving its own
-  /// thresholds, so a Lock Screen rectangle reading "Tomorrow" can never sit
-  /// beside a circle reading "2d".
+  /// How much of a wait is left, in the only terms these countdowns are
+  /// willing to state.
   private enum Remaining {
     case now
     case soon
@@ -82,50 +80,14 @@ enum ConPawsCountdown {
     }
   }
 
-  /// The same ladder compressed to the handful of characters a Lock Screen
-  /// circular gauge can hold.
+  /// The leave window's countdown, "Starts in 18 min": whole minutes inside
+  /// the final hour, the shared ladder above it.
   ///
-  /// `today` and `tomorrow` both read as "1d": both are a full day or more
-  /// out, and `today` only arises when a DST-lengthened day pushes a 24-hour
-  /// gap back onto the same calendar date.
-  static func compactLabel(
-    from: Date,
-    to: Date,
-    timeZone: TimeZone,
-    strings: ConPawsStrings
-  ) -> String {
-    switch remaining(from: from, to: to, timeZone: timeZone) {
-    case .now: strings.compactNow
-    case .soon: strings.compactSoon
-    case .hours(let hours): strings.compactHours(hours)
-    case .today, .tomorrow: strings.compactDays(1)
-    case .days(let days): strings.compactDays(days)
-    case .months(let months): strings.compactMonths(months)
-    }
-  }
-
-  /// The leave window's countdown: whole minutes inside the final hour
-  /// ("18 min"), the shared ladder above it.
-  ///
-  /// The leave window is the one place the hour floor gives way — it is
+  /// The leave window is the one place the hour floor gives way. It is
   /// minutes wide by definition, and `leaveChangePoints` pre-builds an entry
-  /// for every minute so the label never overpromises.
-  static func leaveCountdown(
-    from: Date,
-    to: Date,
-    timeZone: TimeZone,
-    strings: ConPawsStrings
-  ) -> String {
-    guard let minutes = leaveMinutes(from: from, to: to) else {
-      return label(from: from, to: to, timeZone: timeZone, strings: strings)
-    }
-    return strings.compactMinutes(minutes)
-  }
-
-  /// The same countdown phrased as "Starts in 18 min".
-  ///
-  /// Above an hour it uses the inline starts-in phrasing, because gluing the
-  /// lead onto a label that already carries its own "In" reads twice.
+  /// for every minute so the label never overpromises. Above an hour it uses
+  /// the inline starts-in phrasing, because gluing the lead onto a label that
+  /// already carries its own "In" reads twice.
   static func leaveLead(
     from: Date,
     to: Date,
@@ -204,36 +166,6 @@ enum ConPawsCountdown {
       points.append(to)
     }
     return points
-  }
-
-  /// How full the leave window's circular gauge is, from 0 at the reminder to
-  /// 1 at the event. Scaled to the window itself: it is minutes wide, so
-  /// unlike the pre-con ring it can afford to move visibly.
-  static func leaveProgress(from: Date, to: Date, windowMinutes: Int) -> Double {
-    let window = TimeInterval(max(1, windowMinutes) * 60)
-    let remaining = to.timeIntervalSince(from)
-    if remaining <= 0 { return 1 }
-    if remaining >= window { return 0 }
-    return 1 - (remaining / window)
-  }
-
-  /// The stretch of the wait a Lock Screen ring is scaled to.
-  static let ringWindow: TimeInterval = 7 * 86_400
-
-  /// How full the Lock Screen countdown ring should be, from 0 to 1.
-  ///
-  /// Scaled to the final week rather than the whole wait. A ring that barely
-  /// moves for two months reads as broken, and the week before a convention
-  /// is the stretch worth glancing at.
-  ///
-  /// Like the wording, this only redraws at the moments `changePoints`
-  /// already emits -- daily beyond a day out, hourly inside one -- so the
-  /// ring steps rather than sweeps. Same limit, same reason.
-  static func ringProgress(from: Date, to: Date) -> Double {
-    let remaining = to.timeIntervalSince(from)
-    if remaining <= 0 { return 1 }
-    if remaining >= ringWindow { return 0 }
-    return 1 - (remaining / ringWindow)
   }
 
   /// Every moment between `from` and `to` at which `label` would produce

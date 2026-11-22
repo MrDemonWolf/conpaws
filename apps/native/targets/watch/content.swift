@@ -1404,18 +1404,6 @@ func runWatchScheduleSelfCheck() {
   // A saved event is never also an option, so an option route resolves to
   // one or the other.
   assert(snapshot.option(id: "next", in: "con") == nil)
-  let deepLink = ConPawsSnapshotStore.appURL(conventionID: "con /?#")
-  let deepLinkComponents = deepLink.flatMap {
-    URLComponents(url: $0, resolvingAgainstBaseURL: false)
-  }
-  // The id travels as a query item, not a path segment, because the route it
-  // opens is /schedule reading a conventionId param. Round-tripping an id full
-  // of URL metacharacters is what this checks: percent encoding on the way out,
-  // the original string on the way back.
-  assert(deepLinkComponents?.host == "schedule")
-  assert(
-    deepLinkComponents?.queryItems?.first { $0.name == "conventionId" }?.value == "con /?#"
-  )
   assert(
     ConPawsFormat.nextEventTime(
       now.addingTimeInterval(86_400),

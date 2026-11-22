@@ -397,7 +397,6 @@ enum ConPawsSnapshotStore {
     let mainBundle = bundle
       .replacingOccurrences(of: ".watchkitapp.widgets", with: "")
       .replacingOccurrences(of: ".watchkitapp", with: "")
-      .replacingOccurrences(of: ".widgets", with: "")
     return "group.\(mainBundle)"
   }
 
@@ -425,17 +424,5 @@ enum ConPawsSnapshotStore {
     }
     defaults.set(json, forKey: snapshotKey)
     return true
-  }
-
-  static func appURL(conventionID: String? = nil) -> URL? {
-    let bundle = appGroupIdentifier().replacingOccurrences(of: "group.", with: "")
-    let scheme = bundle.hasSuffix(".dev") ? "conpaws-dev" : "conpaws"
-    var components = URLComponents()
-    components.scheme = scheme
-    components.host = conventionID == nil ? "" : "schedule"
-    if let conventionID {
-      components.queryItems = [URLQueryItem(name: "conventionId", value: conventionID)]
-    }
-    return components.url
   }
 }

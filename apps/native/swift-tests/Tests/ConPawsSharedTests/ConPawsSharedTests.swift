@@ -114,41 +114,26 @@ struct ConPawsSharedTests {
   @Test func countdownLadder() {
     let now = Date(timeIntervalSince1970: 1_767_225_600)
     let zone = TimeZone(identifier: "UTC")!
-    func compact(_ seconds: TimeInterval) -> String {
-      ConPawsCountdown.compactLabel(from: now, to: now.addingTimeInterval(seconds), timeZone: zone, strings: .english)
-    }
     func prose(_ seconds: TimeInterval) -> String {
       ConPawsCountdown.label(from: now, to: now.addingTimeInterval(seconds), timeZone: zone, strings: .english)
     }
-    #expect(compact(-60) == "Now")
-    #expect(compact(0) == "Now")
-    #expect(compact(60) == "Soon")
-    #expect(compact(3_599) == "Soon")
-    #expect(compact(3_600) == "1h")
-    #expect(compact(86_399) == "23h")
-    #expect(compact(86_400) == "1d")
-    #expect(compact(6 * 3_600) == "6h")
-    #expect(compact(13 * 86_400) == "13d")
-    #expect(compact(30 * 86_400) == "30d")
-    #expect(compact(31 * 86_400) == "1mo")
-    #expect(compact(60 * 86_400) == "2mo")
+    #expect(prose(-60) == "Now")
+    #expect(prose(0) == "Now")
+    #expect(prose(60) == "Starting soon")
+    #expect(prose(3_599) == "Starting soon")
     #expect(prose(3_600) == "In 1 hour")
+    #expect(prose(86_399) == "In 23 hours")
     #expect(prose(86_400) == "Tomorrow")
     #expect(prose(13 * 86_400) == "In 13 days")
     #expect(prose(30 * 86_400) == "In 30 days")
     #expect(prose(60 * 86_400) == "In 2 months")
-    #expect(ConPawsCountdown.ringProgress(from: now, to: now.addingTimeInterval(7 * 86_400)) == 0)
-    #expect(abs(ConPawsCountdown.ringProgress(from: now, to: now.addingTimeInterval(3.5 * 86_400)) - 0.5) < 0.0001)
     #expect(ConPawsCountdown.leaveMinutes(from: now, to: now.addingTimeInterval(1_080)) == 18)
-    #expect(ConPawsCountdown.leaveCountdown(from: now, to: now.addingTimeInterval(1_080), timeZone: zone, strings: .english) == "18 min")
     #expect(ConPawsCountdown.leaveLead(from: now, to: now.addingTimeInterval(1_080), timeZone: zone, strings: .english) == "Starts in 18 min")
     #expect(ConPawsCountdown.leaveLead(from: now, to: now.addingTimeInterval(7_200), timeZone: zone, strings: .english) == "Starts in 2 hours")
     let leaveTicks = ConPawsCountdown.leaveChangePoints(from: now, to: now.addingTimeInterval(1_080))
     #expect(leaveTicks.count == 18)
     #expect(leaveTicks.first == now.addingTimeInterval(60))
     #expect(leaveTicks.last == now.addingTimeInterval(1_080))
-    #expect(ConPawsCountdown.leaveProgress(from: now, to: now.addingTimeInterval(900), windowMinutes: 15) == 0)
-    #expect(abs(ConPawsCountdown.leaveProgress(from: now, to: now.addingTimeInterval(450), windowMinutes: 15) - 0.5) < 0.0001)
     #expect(ConPawsStrings.english.moreToday(3) == "+3 more today")
     #expect(ConPawsStrings.english.starred(8) == "8 events starred")
     #expect(ConPawsStrings.english.ends("1:00 AM") == "ends 1:00 AM")
@@ -160,7 +145,18 @@ struct ConPawsSharedTests {
     #expect(polish.hours(12) == "12 godzin")
     #expect(polish.hours(22) == "22 godziny")
     #expect(polish.inDays(3) == "Za 3 dni")
-    #expect(ConPawsCountdown.ringProgress(from: now, to: now) == 1)
+  }
+
+  /// Both Watch targets read the iPhone app's App Group. Only these two
+  /// targets compile this code, so only their suffixes need stripping.
+  @Test(arguments: [
+    ("com.mrdemonwolf.conpaws.watchkitapp", "group.com.mrdemonwolf.conpaws"),
+    ("com.mrdemonwolf.conpaws.watchkitapp.widgets", "group.com.mrdemonwolf.conpaws"),
+    ("com.mrdemonwolf.conpaws.dev.watchkitapp", "group.com.mrdemonwolf.conpaws.dev"),
+    ("com.mrdemonwolf.conpaws.dev.watchkitapp.widgets", "group.com.mrdemonwolf.conpaws.dev"),
+  ])
+  func appGroupIdentifierStripsWatchSuffixes(bundle: String, group: String) {
+    #expect(ConPawsSnapshotStore.appGroupIdentifier(bundleIdentifier: bundle) == group)
   }
 
   @Test func snapshotDecodesAndFiltersBadRows() throws {

@@ -1,5 +1,5 @@
 // swift-tools-version: 6.0
-// Foundation-only logic shared by the widget, watch app and watch widget,
+// Foundation-only logic shared by the Watch app and its complication,
 // tested on the Mac with `swift test --package-path apps/native/swift-tests`.
 // Sources are symlinks into targets/_shared: @bacons/apple-targets adds that
 // whole folder to every Apple target, so no package files may live there.
