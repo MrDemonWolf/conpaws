@@ -16,11 +16,10 @@ struct ConPawsComplicationProjection {
 
   let now: Date
   let resolved: ConPawsScheduleState
-  let generatedAtMs: Double
+  /// When the snapshot turns stale; nil when it never does.
+  let staleDate: Date?
   /// Every convention the resolver chose among, not only the one shown.
   let conventions: [ConPawsConventionSnapshot]
-
-  var hasConventions: Bool { !conventions.isEmpty }
 
   var convention: ConPawsConventionSnapshot? {
     switch resolved {
@@ -77,13 +76,9 @@ struct ConPawsComplicationProjection {
     return false
   }
 
+  /// The moment the card turns stale, while that is still to come.
   var staleBoundary: Date? {
-    guard hasConventions, !ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now) else {
-      return nil
-    }
-    let date = Date(timeIntervalSince1970: generatedAtMs / 1_000)
-      .addingTimeInterval(ConPawsSnapshotAge.staleAfter)
-    return date > now ? date : nil
+    staleDate.flatMap { $0 > now ? $0 : nil }
   }
 
   /// The next moment the state itself can change, or nil when nothing is
@@ -137,7 +132,7 @@ struct ConPawsComplicationProjection {
 
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
-    generatedAtMs = snapshot.generatedAtMs
+    staleDate = ConPawsSnapshotAge.staleDate(of: snapshot)
     conventions = snapshot.conventions
     resolved = ConPawsScheduleResolver.resolve(
       snapshot: snapshot,

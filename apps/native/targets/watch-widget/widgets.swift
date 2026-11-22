@@ -14,27 +14,15 @@ private struct ConPawsWatchEntry: TimelineEntry {
   /// this complication reads the same way the phone screen it mirrors does.
   var strings: ConPawsStrings { snapshot.strings }
 
-  var isStale: Bool {
-    !snapshot.conventions.isEmpty
-      && ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: date)
-  }
-
   /// The stale sentence VoiceOver appends to every state's label, or nil
   /// while the data is fresh. Visually, staleness is one symbol in the
   /// eyebrow: the two lines it used to add overflowed a three-line card.
   var staleNotice: String? {
-    guard isStale else { return nil }
-    return strings.text(strings.staleA11yFormat, relativeUpdatedText)
-  }
-
-  var relativeUpdatedText: String {
-    let formatter = RelativeDateTimeFormatter()
-    formatter.locale = snapshot.locale
-    formatter.unitsStyle = .short
-    return formatter.localizedString(
-      for: Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000),
-      relativeTo: date
-    )
+    guard
+      ConPawsSnapshotAge.isStale(snapshot, now: date),
+      let updated = ConPawsSnapshotAge.updatedText(snapshot, now: date, locale: snapshot.locale)
+    else { return nil }
+    return strings.text(strings.staleA11yFormat, updated)
   }
 
   static var preview: ConPawsWatchEntry {

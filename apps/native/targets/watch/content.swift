@@ -1149,11 +1149,7 @@ private struct SavedScheduleLabel: View {
   var alignment: TextAlignment = .leading
 
   private var updatedText: String? {
-    guard let snapshotDate else { return nil }
-    let formatter = RelativeDateTimeFormatter()
-    formatter.locale = locale
-    formatter.unitsStyle = .short
-    return formatter.localizedString(for: snapshotDate, relativeTo: now)
+    snapshotDate.map { ConPawsSnapshotAge.updatedText(since: $0, now: now, locale: locale) }
   }
 
   private var stackAlignment: HorizontalAlignment {

@@ -232,6 +232,44 @@ extension ConPawsEventSnapshot {
   var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
 }
 
+// MARK: - Freshness
+
+extension ConPawsSnapshotAge {
+  /// The moment `snapshot` turns stale, or nil when it never does: with no
+  /// conventions there is no plan to be out of date.
+  ///
+  /// The one rule the Watch app, the complication's entries and the timeline
+  /// that places those entries all read. When each kept its own copy, a change
+  /// to one could put the stale symbol at a moment with no timeline entry, and
+  /// the face stayed wrong until the next snapshot.
+  static func staleDate(of snapshot: ConPawsSnapshot) -> Date? {
+    guard !snapshot.conventions.isEmpty else { return nil }
+    return Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000).addingTimeInterval(staleAfter)
+  }
+
+  static func isStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
+    staleDate(of: snapshot).map { now >= $0 } ?? false
+  }
+
+  /// How long ago the phone made `snapshot`, as "45 min. ago" in `locale`, or
+  /// nil when it has no conventions and so no plan to date.
+  static func updatedText(_ snapshot: ConPawsSnapshot, now: Date, locale: Locale) -> String? {
+    guard !snapshot.conventions.isEmpty else { return nil }
+    return updatedText(
+      since: Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000),
+      now: now,
+      locale: locale
+    )
+  }
+
+  static func updatedText(since generatedAt: Date, now: Date, locale: Locale) -> String {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.locale = locale
+    formatter.unitsStyle = .short
+    return formatter.localizedString(for: generatedAt, relativeTo: now)
+  }
+}
+
 /// A save or remove tapped on the Watch, for the phone to apply.
 ///
 /// Sent as a JSON string under `messageKey`, by `sendMessage` when the phone

@@ -134,6 +134,40 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: now)
   }
 
+  // MARK: Staleness
+
+  /// The timeline places the stale entry where the shared rule says the plan
+  /// turns stale, and the entry drawn there reads stale by the same rule. A
+  /// phone stamp with a fraction of a second must not split the two.
+  @Test(arguments: [0.0, 0.123, 0.999])
+  func timelineStaleBoundaryMatchesTheEntryStaleFlag(fraction: TimeInterval) throws {
+    let generatedAt = local(21, 13, 50).addingTimeInterval(fraction)
+    let value = snapshot(
+      [event("trivia", from: local(21, 15, 30), until: local(21, 16, 30))],
+      generatedAt: generatedAt
+    )
+    let dates = plannedDates(value, now: generatedAt)
+    let boundary = try #require(ConPawsSnapshotAge.staleDate(of: value))
+    #expect(abs(boundary.timeIntervalSince(local(21, 14, 20)) - fraction) < 0.001)
+    let index = try #require(dates.firstIndex(of: boundary))
+    #expect(index > 0)
+    #expect(ConPawsSnapshotAge.isStale(value, now: dates[index - 1]) == false)
+    #expect(ConPawsSnapshotAge.isStale(value, now: dates[index]))
+    expectNoStaleCard(value, now: generatedAt)
+  }
+
+  /// With no convention there is nothing to go stale, so no stale entry.
+  @Test func anEmptySnapshotGetsNoStaleEntry() {
+    let now = local(21, 12)
+    let empty = ConPawsSnapshot(
+      schemaVersion: 2,
+      generatedAtMs: now.addingTimeInterval(-60).timeIntervalSince1970 * 1_000,
+      localeIdentifier: "en",
+      conventions: []
+    )
+    #expect(plannedDates(empty, now: now) == [now, now.addingTimeInterval(ConPawsComplicationTimeline.idleRefresh)])
+  }
+
   // MARK: Coming up
 
   /// The pre-convention card steps down at the convention's midnight, then
@@ -211,7 +245,7 @@ struct ComplicationTimelineTests {
   private func frame(_ snapshot: ConPawsSnapshot, at date: Date) -> String {
     let projection = ConPawsComplicationProjection(snapshot: snapshot, now: date)
     let strings = ConPawsStrings.resolve("en")
-    let stale = ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: date)
+    let stale = ConPawsSnapshotAge.isStale(snapshot, now: date)
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = zone
     func day(_ event: ConPawsEventSnapshot) -> Int {
