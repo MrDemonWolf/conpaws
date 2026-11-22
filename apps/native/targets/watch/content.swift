@@ -434,13 +434,13 @@ private struct ScheduleHomeView: View {
       // describes the past. The bell says "reminder", so the line keeps the
       // time and the offset; VoiceOver, which cannot see the bell, gets the
       // whole sentence.
-      if let reminder = ConPawsFormat.upcomingReminderTime(
+      let reminder = ConPawsFormat.upcomingReminderTime(
         next, now: schedule.now, in: convention, locale: locale, strings: strings
-      ),
-        let spoken = ConPawsFormat.upcomingReminderAt(
-          next, now: schedule.now, in: convention, locale: locale, strings: strings
-        )
-      {
+      )
+      let spoken = ConPawsFormat.upcomingReminderAt(
+        next, now: schedule.now, in: convention, locale: locale, strings: strings
+      )
+      if let reminder, let spoken {
         Label {
           Text(reminder)
             .fixedSize(horizontal: false, vertical: true)
