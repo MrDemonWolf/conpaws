@@ -1,9 +1,5 @@
-import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
-import { Host, Icon } from "@expo/ui";
-import { useTheme } from "expo-router/react-navigation";
 import { Pressable, View } from "react-native";
 import { PRESS_DIM, Text } from "@/components/ui";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import type {
   ConventionRowAction,
   ConventionRowActionId,
@@ -16,11 +12,10 @@ interface ConventionCardProps {
   dateRange: string;
   status: "upcoming" | "active" | "ended";
   statusLabel: string;
-  onPress?: () => void;
-  actions?: readonly ConventionRowAction[];
-  onAction?: (action: ConventionRowActionId) => void;
-  moreAccessibilityLabel?: string;
-  className?: string;
+  onPress: () => void;
+  actions: readonly ConventionRowAction[];
+  onAction: (action: ConventionRowActionId) => void;
+  moreAccessibilityLabel: string;
 }
 
 const statusStyles: Record<ConventionCardProps["status"], string> = {
@@ -44,13 +39,9 @@ export function ConventionCard({
   actions,
   onAction,
   moreAccessibilityLabel,
-  className,
 }: ConventionCardProps) {
-  const colorScheme = useResolvedColorScheme();
-  const { colors } = useTheme();
-
   return (
-    <View className={cn("min-h-16 flex-row items-stretch", className)}>
+    <View className="min-h-16 flex-row items-stretch">
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${name}, ${dateRange}, ${statusLabel}`}
@@ -79,19 +70,12 @@ export function ConventionCard({
             </View>
           </View>
         </View>
-        {!onAction ? (
-          <Host colorScheme={colorScheme} matchContents pointerEvents="none">
-            <Icon name={ChevronRightIcon} size={14} color={colors.text} />
-          </Host>
-        ) : null}
       </Pressable>
-      {onAction && actions && moreAccessibilityLabel ? (
-        <ConventionRowMenu
-          actions={actions}
-          accessibilityLabel={moreAccessibilityLabel}
-          onAction={onAction}
-        />
-      ) : null}
+      <ConventionRowMenu
+        actions={actions}
+        accessibilityLabel={moreAccessibilityLabel}
+        onAction={onAction}
+      />
     </View>
   );
 }

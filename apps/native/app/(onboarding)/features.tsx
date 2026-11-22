@@ -89,7 +89,6 @@ export default function FeaturesScreen() {
             category={event.category ?? undefined}
             isInSchedule={saved}
             interactive={false}
-            showScheduleIndicator={false}
             trailingAction={{
               label: t(
                 saved

@@ -39,7 +39,7 @@ interface ConventionEventRowProps {
   overlapGroupSize?: number;
   overlapCount?: number;
   accentColor?: string | null;
-  trailingAction?: {
+  trailingAction: {
     label: string;
     selected: boolean;
     onPress: () => void;

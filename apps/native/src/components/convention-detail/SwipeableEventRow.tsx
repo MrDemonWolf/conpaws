@@ -18,8 +18,7 @@ interface SwipeableEventRowProps {
   overlapGroupSize?: number;
   overlapCount?: number;
   accentColor?: string | null;
-  /** The visible star button; omitted on lists where every row is saved. */
-  trailingAction?: {
+  trailingAction: {
     label: string;
     selected: boolean;
     onPress: () => void;

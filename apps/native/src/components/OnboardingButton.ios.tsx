@@ -3,7 +3,6 @@ import {
   accessibilityLabel,
   buttonStyle,
   controlSize,
-  disabled as disabledModifier,
   frame,
 } from "@expo/ui/swift-ui/modifiers";
 import { View } from "react-native";
@@ -13,7 +12,6 @@ import type { OnboardingButtonProps } from "./OnboardingButton.types";
 
 const buttonStyles = {
   primary: "borderedProminent",
-  secondary: "bordered",
   text: "borderless",
 } as const;
 
@@ -21,7 +19,6 @@ export function OnboardingButton({
   label,
   onPress,
   variant = "primary",
-  disabled = false,
   testID,
 }: OnboardingButtonProps) {
   const resolvedColorScheme = useResolvedColorScheme();
@@ -45,7 +42,6 @@ export function OnboardingButton({
             accessibilityLabel(label),
             buttonStyle(buttonStyles[variant]),
             controlSize("regular"),
-            disabledModifier(disabled),
           ]}
         >
           <Text modifiers={[frame({ maxWidth: Infinity, minHeight: 44 })]}>

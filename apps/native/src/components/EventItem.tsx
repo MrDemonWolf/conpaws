@@ -21,12 +21,6 @@ interface EventItemProps {
   category?: string;
   description?: string | null;
   ageRating?: AgeRating | null;
-  /**
-   * Where this event comes from, when that is not already obvious. The
-   * Schedule tab pools events from several conventions into one list, so a
-   * row there has to say which one it belongs to.
-   */
-  contextLabel?: string;
   isInSchedule?: boolean;
   reminderLabel?: string;
   /**
@@ -55,11 +49,6 @@ interface EventItemProps {
   /** Exact number of other events sharing this timeframe, for screen readers. */
   overlapCount?: number;
   /**
-   * The Schedule tab sets this false: every row there is starred by
-   * definition, so a star on each would mean nothing.
-   */
-  showScheduleIndicator?: boolean;
-  /**
    * The category's accent, drawn as a thin bar at the start of the row. Pure
    * decoration: the category name is always printed too, and overlap grouping
    * keeps its own primary-coloured edge, so nothing is said by hue alone.
@@ -75,7 +64,7 @@ interface EventItemProps {
    * A visible star button on the trailing edge, the discoverable twin of the
    * swipe. Its label should name the event and the action.
    */
-  trailingAction?: {
+  trailingAction: {
     label: string;
     selected: boolean;
     onPress: () => void;
@@ -96,7 +85,6 @@ export function EventItem({
   category,
   description,
   ageRating,
-  contextLabel,
   isInSchedule = false,
   reminderLabel,
   provenanceLabel,
@@ -106,7 +94,6 @@ export function EventItem({
   overlapPosition,
   overlapGroupSize,
   overlapCount = 0,
-  showScheduleIndicator = true,
   accentColor,
   savedLabel,
   trailingAction,
@@ -130,7 +117,7 @@ export function EventItem({
           : "convention.feedStatus.removed",
       )
     : null;
-  const meta = [contextLabel, category, room].filter(Boolean).join(" · ");
+  const meta = [category, room].filter(Boolean).join(" · ");
   const summary = description?.trim() ? description.trim() : null;
 
   const accessibilityDetails = [
@@ -139,7 +126,6 @@ export function EventItem({
     // the listener's attention on a plan that no longer exists.
     feedStatusLabel,
     title,
-    contextLabel,
     endTime
       ? t("convention.eventTimeRange", { start: startTime, end: endTime })
       : startTime,
@@ -277,22 +263,12 @@ export function EventItem({
                 }
               />
             ) : null}
-            {isInSchedule && showScheduleIndicator && !trailingAction ? (
-              // A filled star, matching the Schedule tab's icon and the
-              // "star an event" copy — the old ✓ glyph shared no vocabulary
-              // with either. Hidden when the row has its own star button.
-              <Star
-                size={15}
-                color={themeTokens[isDark ? "dark" : "light"].primary}
-                fill={themeTokens[isDark ? "dark" : "light"].primary}
-              />
-            ) : null}
           </View>
         </View>
 
         {ageLabel || meta || (isInSchedule && savedLabel) ? (
           <View className="flex-row flex-wrap items-center gap-2">
-            {isInSchedule && showScheduleIndicator && savedLabel ? (
+            {isInSchedule && savedLabel ? (
               <Badge variant="active" label={savedLabel} />
             ) : null}
             {ageBadge && ageLabel ? (
