@@ -24,12 +24,13 @@ import type { ConventionEvent } from "@/db/schema";
 import { useContentWidth, useWidthCap } from "@/hooks/useContentWidth";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { ageBadgeFor } from "@/lib/age-badge";
+import { type AgendaRowItem, buildAgendaRows } from "@/lib/agenda-gaps";
 import {
-  type AgendaGap,
-  type AgendaRowItem,
-  buildAgendaRows,
-  splitMinutes,
-} from "@/lib/agenda-gaps";
+  agendaGapLabel,
+  agendaStatusLabel,
+  eventReminderLabel,
+  feedStatusLabel,
+} from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { ACTIONS_MAX } from "@/lib/content-width";
 import {
@@ -221,21 +222,6 @@ export default function ScheduleScreen() {
     [contentKind, listPadding],
   );
 
-  const gapLabel = useCallback(
-    (gap: AgendaGap): string => {
-      if (gap.kind === "backToBack") return t("convention.plan.gap.backToBack");
-      if (gap.kind === "overlap")
-        return t("convention.plan.gap.overlap", { minutes: gap.minutes });
-      if (gap.hint === "short")
-        return t("convention.plan.gap.free", { minutes: gap.minutes });
-      const { hours, minutes } = splitMinutes(gap.minutes);
-      return minutes === 0
-        ? t("convention.plan.gap.freeHours", { hours })
-        : t("convention.plan.gap.freeHoursMinutes", { hours, minutes });
-    },
-    [t],
-  );
-
   const renderSectionHeader = useCallback(
     ({ section }: { section: ScheduleSection }) => (
       <SectionHeader title={formatDayKeyLabel(section.key, locale)} />
@@ -246,7 +232,9 @@ export default function ScheduleScreen() {
   const renderItem = useCallback(
     ({ item }: { item: ScheduleRow }) => {
       if (item.kind === "gap") {
-        return <AgendaGapRow gap={item.gap} label={gapLabel(item.gap)} />;
+        return (
+          <AgendaGapRow gap={item.gap} label={agendaGapLabel(item.gap, t)} />
+        );
       }
       const { entry, status } = item;
       const event = entry.event;
@@ -276,36 +264,11 @@ export default function ScheduleScreen() {
           contextLabel={showConventionName ? entry.conventionName : undefined}
           accentColor={categoryAccentColor(event.category, colorScheme)}
           status={status}
-          statusLabel={
-            status === "now"
-              ? t("convention.plan.status.now")
-              : status === "endedToday"
-                ? t("convention.plan.status.endedToday")
-                : status === "ended"
-                  ? t("convention.plan.status.ended")
-                  : undefined
-          }
+          statusLabel={agendaStatusLabel(status, t)}
           hasConflict={conflictingEventIds.has(event.id)}
           conflictLabel={t("convention.overlapLabel")}
-          feedStatusLabel={
-            event.feedStatus
-              ? t(
-                  event.feedStatus === "cancelled"
-                    ? "convention.feedStatus.cancelled"
-                    : "convention.feedStatus.removed",
-                )
-              : undefined
-          }
-          reminderLabel={
-            event.reminderMinutes !== null
-              ? t(
-                  event.reminderMinutes === 60
-                    ? "reminders.hourBefore"
-                    : "reminders.minutesBefore",
-                  { minutes: event.reminderMinutes },
-                )
-              : undefined
-          }
+          feedStatusLabel={feedStatusLabel(event.feedStatus, t) ?? undefined}
+          reminderLabel={eventReminderLabel(event.reminderMinutes, t)}
           ageBadge={
             ageBadge
               ? { variant: ageBadge.variant, label: t(ageBadge.key) }
@@ -336,15 +299,7 @@ export default function ScheduleScreen() {
         />
       );
     },
-    [
-      colorScheme,
-      conflictingEventIds,
-      gapLabel,
-      hour12,
-      locale,
-      showConventionName,
-      t,
-    ],
+    [colorScheme, conflictingEventIds, hour12, locale, showConventionName, t],
   );
 
   if (isLoading) {

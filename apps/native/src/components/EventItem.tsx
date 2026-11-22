@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Badge, PRESS_DIM, Text } from "@/components/ui";
 import { ageBadgeFor } from "@/lib/age-badge";
+import { feedStatusLabel as describeFeedStatus } from "@/lib/agenda-labels";
 import type { ClusterPosition } from "@/lib/day-band";
 import type { AgeRating } from "@/lib/event-categories";
 import { themeTokens } from "@/lib/theme-tokens";
@@ -110,13 +111,7 @@ export function EventItem({
   const isDark = useColorScheme() === "dark";
   const ageBadge = ageBadgeFor(ageRating);
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
-  const feedStatusLabel = feedStatus
-    ? t(
-        feedStatus === "cancelled"
-          ? "convention.feedStatus.cancelled"
-          : "convention.feedStatus.removed",
-      )
-    : null;
+  const feedStatusLabel = describeFeedStatus(feedStatus, t);
   const meta = [category, room].filter(Boolean).join(" · ");
   const summary = description?.trim() ? description.trim() : null;
 

@@ -65,7 +65,12 @@ import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 import { useScheduleRefresh } from "@/hooks/useScheduleRefresh";
 import { ageBadgeFor } from "@/lib/age-badge";
-import { type AgendaGap, splitMinutes } from "@/lib/agenda-gaps";
+import {
+  agendaGapLabel,
+  agendaStatusLabel,
+  eventReminderLabel,
+  feedStatusLabel,
+} from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { compareCandidates } from "@/lib/compare-candidates";
 import {
@@ -617,21 +622,6 @@ export default function ConventionDetailScreen() {
     listJump,
   ]);
 
-  const gapLabel = useCallback(
-    (gap: AgendaGap): string => {
-      if (gap.kind === "backToBack") return t("convention.plan.gap.backToBack");
-      if (gap.kind === "overlap")
-        return t("convention.plan.gap.overlap", { minutes: gap.minutes });
-      if (gap.hint === "short")
-        return t("convention.plan.gap.free", { minutes: gap.minutes });
-      const { hours, minutes } = splitMinutes(gap.minutes);
-      return minutes === 0
-        ? t("convention.plan.gap.freeHours", { hours })
-        : t("convention.plan.gap.freeHoursMinutes", { hours, minutes });
-    },
-    [t],
-  );
-
   const renderItem = useCallback(
     ({ item, section }: { item: Row; section: Section }) => {
       switch (item.kind) {
@@ -720,14 +710,6 @@ export default function ConventionDetailScreen() {
             hour12,
           );
           const ageBadge = ageBadgeFor(event.ageRating);
-          const statusLabel =
-            item.status === "now"
-              ? t("convention.plan.status.now")
-              : item.status === "endedToday"
-                ? t("convention.plan.status.endedToday")
-                : item.status === "ended"
-                  ? t("convention.plan.status.ended")
-                  : undefined;
           return (
             <SwipeToggleRow
               removeLabel={t("common.remove")}
@@ -743,28 +725,13 @@ export default function ConventionDetailScreen() {
                 room={event.room ?? event.location ?? undefined}
                 accentColor={categoryAccentColor(event.category, colorScheme)}
                 status={item.status}
-                statusLabel={statusLabel}
+                statusLabel={agendaStatusLabel(item.status, t)}
                 hasConflict={conflictingEventIds.has(event.id)}
                 conflictLabel={t("convention.overlapLabel")}
                 feedStatusLabel={
-                  event.feedStatus
-                    ? t(
-                        event.feedStatus === "cancelled"
-                          ? "convention.feedStatus.cancelled"
-                          : "convention.feedStatus.removed",
-                      )
-                    : undefined
+                  feedStatusLabel(event.feedStatus, t) ?? undefined
                 }
-                reminderLabel={
-                  event.reminderMinutes !== null
-                    ? t(
-                        event.reminderMinutes === 60
-                          ? "reminders.hourBefore"
-                          : "reminders.minutesBefore",
-                        { minutes: event.reminderMinutes },
-                      )
-                    : undefined
-                }
+                reminderLabel={eventReminderLabel(event.reminderMinutes, t)}
                 ageBadge={
                   ageBadge
                     ? { variant: ageBadge.variant, label: t(ageBadge.key) }
@@ -787,14 +754,15 @@ export default function ConventionDetailScreen() {
           );
         }
         case "gap":
-          return <AgendaGapRow gap={item.gap} label={gapLabel(item.gap)} />;
+          return (
+            <AgendaGapRow gap={item.gap} label={agendaGapLabel(item.gap, t)} />
+          );
       }
     },
     [
       colorScheme,
       conflictingEventIds,
       conventionTimeZone,
-      gapLabel,
       handleStarPress,
       highlightedEventId,
       hour12,
@@ -1180,7 +1148,7 @@ export default function ConventionDetailScreen() {
                 title: hero.following.title,
                 meta: [
                   hero.following.room ?? hero.following.location,
-                  hero.gap ? gapLabel(hero.gap) : null,
+                  hero.gap ? agendaGapLabel(hero.gap, t) : null,
                 ]
                   .filter(Boolean)
                   .join(" · "),

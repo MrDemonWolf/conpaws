@@ -13,6 +13,7 @@ import {
 } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
 import { ageBadgeFor } from "@/lib/age-badge";
+import { feedStatusLabel as describeFeedStatus } from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { hasVisit, isValidVisit } from "@/lib/drop-in-visit";
 import {
@@ -100,13 +101,7 @@ export function EventSheetContent({
   const accent = categoryAccentColor(event.category, scheme);
   const duration = eventDurationMinutes(event.startTime, event.endTime);
   const dropIn = isDropInEvent(event);
-  const feedStatusLabel = event.feedStatus
-    ? t(
-        event.feedStatus === "cancelled"
-          ? "convention.feedStatus.cancelled"
-          : "convention.feedStatus.removed",
-      )
-    : null;
+  const feedStatusLabel = describeFeedStatus(event.feedStatus, t);
 
   if (mode === "reminder") {
     return (
