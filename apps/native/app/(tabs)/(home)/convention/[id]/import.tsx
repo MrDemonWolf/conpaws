@@ -3,7 +3,6 @@ import {
   Collapsible,
   FieldGroup,
   Host,
-  ListItem,
   Button as NativeButton,
   TextInput as NativeTextInput,
   useNativeState,
@@ -26,6 +25,7 @@ import {
   FORM_SAFE_EDGES,
 } from "@/components/FormModalHeader.shared";
 import { SafeView } from "@/components/ui";
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { RowSpinner } from "@/components/ui/RowSpinner";
 import * as conventionsRepo from "@/db/repositories/conventions";
