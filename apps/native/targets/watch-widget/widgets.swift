@@ -65,7 +65,9 @@ private struct ConPawsWatchEntry: TimelineEntry {
       snapshot: ConPawsSnapshot(
         schemaVersion: 2,
         generatedAtMs: now.timeIntervalSince1970 * 1_000,
-        localeIdentifier: Locale.autoupdatingCurrent.identifier,
+        // The watch's language, as the empty state uses: the gallery shows
+        // this before any app language is known.
+        localeIdentifier: ConPawsSnapshot.deviceLocaleIdentifier(),
         conventions: [convention]
       )
     )

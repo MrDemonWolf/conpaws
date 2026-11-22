@@ -13,12 +13,31 @@ struct ConPawsSnapshot: Codable, Sendable {
   /// payload still decodes.
   var handledCommandIds: [String]?
 
-  static let empty = ConPawsSnapshot(
-    schemaVersion: 1,
-    generatedAtMs: 0,
-    localeIdentifier: "en",
-    conventions: []
-  )
+  /// What the targets show before the phone has sent a snapshot they can
+  /// read, in the watch's own language: the app's language only arrives with
+  /// a snapshot. Computed rather than stored, so it never keeps the language
+  /// it had when first read.
+  static var empty: ConPawsSnapshot { empty() }
+
+  static func empty(
+    localeIdentifier: String = deviceLocaleIdentifier()
+  ) -> ConPawsSnapshot {
+    ConPawsSnapshot(
+      schemaVersion: 1,
+      generatedAtMs: 0,
+      localeIdentifier: localeIdentifier,
+      conventions: []
+    )
+  }
+
+  /// The wearer's first preferred language, for text drawn before the app's
+  /// is known. Not `Locale.current`: in a target without localizations, such
+  /// as the complication, that falls back to the development language.
+  static func deviceLocaleIdentifier(
+    preferredLanguages: [String] = Locale.preferredLanguages
+  ) -> String {
+    preferredLanguages.first ?? "en"
+  }
 
   /// The locale every date, time and weekday in these targets is formatted in.
   ///
@@ -401,16 +420,38 @@ enum ConPawsSnapshotStore {
   }
 
   static func load() -> ConPawsSnapshot {
-    guard
-      let defaults = UserDefaults(suiteName: appGroupIdentifier()),
-      let json = defaults.string(forKey: snapshotKey),
-      let data = json.data(using: .utf8),
+    snapshot(
+      fromStored: UserDefaults(suiteName: appGroupIdentifier())?.string(forKey: snapshotKey)
+    )
+  }
+
+  /// The stored snapshot, or the empty one when nothing is stored or this
+  /// binary cannot render what is. A payload it cannot render, say from a
+  /// newer app, still names the language the wearer chose in the app, and
+  /// the empty state keeps that rather than the watch's.
+  static func snapshot(
+    fromStored json: String?,
+    preferredLanguages: [String] = Locale.preferredLanguages
+  ) -> ConPawsSnapshot {
+    let device = ConPawsSnapshot.deviceLocaleIdentifier(preferredLanguages: preferredLanguages)
+    guard let data = json?.data(using: .utf8) else {
+      return .empty(localeIdentifier: device)
+    }
+    if
       let snapshot = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
       supportedSchemaVersions.contains(snapshot.schemaVersion)
-    else {
-      return .empty
+    {
+      return snapshot
     }
-    return snapshot
+    let stored = (try? JSONDecoder().decode(StoredLanguage.self, from: data))?
+      .localeIdentifier
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    return .empty(localeIdentifier: stored.flatMap { $0.isEmpty ? nil : $0 } ?? device)
+  }
+
+  /// Just the language of a stored payload, for one that will not decode whole.
+  private struct StoredLanguage: Decodable {
+    let localeIdentifier: String
   }
 
   static func save(json: String) -> Bool {
