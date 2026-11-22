@@ -15,9 +15,8 @@ import {
 
 // Hierarchical styles, not named label colours: Expo's colour converter does
 // not know "secondaryLabel", so a style using it is dropped and the text draws
-// in the primary colour. That is also why the subtitle is passed as a styled
-// Text: `ListItem` styles a plain-string `supportingText` with that name
-// (@expo/ui 58.0.29).
+// in the primary colour. The subtitle is a styled Text, not a plain string, to
+// get the smaller size iOS Settings uses for it.
 const SECONDARY = foregroundStyle({ type: "hierarchical", style: "secondary" });
 const TERTIARY = foregroundStyle({ type: "hierarchical", style: "tertiary" });
 const SUBTITLE = font({ textStyle: "subheadline" });

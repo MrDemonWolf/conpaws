@@ -63,7 +63,7 @@ describe("Settings rows on iOS", () => {
   });
 
   it("styles the subtitle itself instead of passing ListItem a string", () => {
-    // ListItem styles a plain-string supportingText with "secondaryLabel".
+    // A plain string gets ListItem's body size; Settings uses subheadline.
     expect(ios).not.toMatch(/supportingText=\{(description|value|subtitle)\}/);
     expect(ios).toMatch(/<Text modifiers=\{\[SUBTITLE, SECONDARY\]\}>/);
   });

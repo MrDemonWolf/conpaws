@@ -1,0 +1,34 @@
+diff --git a/build/universal/ListItem/ListItem.ios.js b/build/universal/ListItem/ListItem.ios.js
+index efba1c4..c48c360 100644
+--- a/build/universal/ListItem/ListItem.ios.js
++++ b/build/universal/ListItem/ListItem.ios.js
+@@ -17,9 +17,12 @@ function renderSupporting(node) {
+     if (typeof node === 'string' || typeof node === 'number') {
+         return /*#__PURE__*/ _jsx(Text, {
+             modifiers: [
++                // ConPaws patch: 'secondaryLabel' is not a colour Expo's converter
++                // knows, so the style was dropped and subtitles drew in the
++                // primary colour.
+                 foregroundStyle({
+-                    type: 'color',
+-                    color: 'secondaryLabel'
++                    type: 'hierarchical',
++                    style: 'secondary'
+                 })
+             ],
+             children: node
+diff --git a/src/universal/ListItem/ListItem.ios.tsx b/src/universal/ListItem/ListItem.ios.tsx
+index 1c7695d..0addb90 100644
+--- a/src/universal/ListItem/ListItem.ios.tsx
++++ b/src/universal/ListItem/ListItem.ios.tsx
+@@ -17,7 +17,9 @@ function wrapStrings(node: ReactNode): ReactNode {
+ function renderSupporting(node: ReactNode): ReactNode {
+   if (typeof node === 'string' || typeof node === 'number') {
+     return (
+-      <Text modifiers={[foregroundStyle({ type: 'color', color: 'secondaryLabel' })]}>{node}</Text>
++      // ConPaws patch: 'secondaryLabel' is not a colour Expo's converter knows,
++      // so the style was dropped and subtitles drew in the primary colour.
++      <Text modifiers={[foregroundStyle({ type: 'hierarchical', style: 'secondary' })]}>{node}</Text>
+     );
+   }
+   return node;
