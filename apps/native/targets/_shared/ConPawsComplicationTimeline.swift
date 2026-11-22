@@ -11,6 +11,10 @@ struct ConPawsComplicationProjection {
     case current(ConPawsEventSnapshot, ConPawsConventionSnapshot)
     case finished(ConPawsConventionSnapshot)
     case noPicks(ConPawsConventionSnapshot)
+    /// Every saved convention is over, and the resolver fell back to the
+    /// one that ended last. "No more panels today" and "Add panels on
+    /// iPhone" were wrong on every day after it.
+    case ended(ConPawsConventionSnapshot)
     case noConvention
   }
 
@@ -55,9 +59,32 @@ struct ConPawsComplicationProjection {
     case .currentOnly(let convention, let event):
       .current(event, convention)
     case .finished(let convention):
-      .finished(convention)
+      convention.hasPassed(at: now) ? .ended(convention) : .finished(convention)
     case .noPicks(let convention):
-      .noPicks(convention)
+      convention.hasPassed(at: now) ? .ended(convention) : .noPicks(convention)
+    }
+  }
+
+  /// The heading and the line under it on a status card.
+  struct Status: Equatable {
+    let title: String
+    let detail: String
+  }
+
+  /// What a status card says, for the states that draw no panel and no
+  /// countdown; nil for the rest.
+  func status(strings: ConPawsStrings) -> Status? {
+    switch state {
+    case .finished:
+      Status(title: strings.finishedComplication, detail: strings.finishedTitle)
+    case .noPicks:
+      Status(title: strings.noPicksComplication, detail: strings.noPicksTitle)
+    case .ended:
+      Status(title: strings.nothingUpcomingTitle, detail: strings.nothingUpcomingMessage)
+    case .noConvention:
+      Status(title: strings.noConventionComplication, detail: strings.openOnIphone)
+    case .comingUp, .leave, .next, .current:
+      nil
     }
   }
 
@@ -67,7 +94,7 @@ struct ConPawsComplicationProjection {
     switch state {
     case .comingUp(let convention): convention.startDate
     case .leave(_, let upcoming, _): upcoming.startDate
-    case .next, .current, .finished, .noPicks, .noConvention: nil
+    case .next, .current, .finished, .noPicks, .ended, .noConvention: nil
     }
   }
 
@@ -114,7 +141,7 @@ struct ConPawsComplicationProjection {
       }
     case .current(let event, _):
       candidates.append(ConPawsScheduleResolver.effectiveEnd(of: event))
-    case .finished, .noPicks, .noConvention:
+    case .finished, .noPicks, .ended, .noConvention:
       break
     }
     // Which convention the card follows can change wherever any of them
@@ -230,6 +257,16 @@ enum ConPawsComplicationTimeline {
       }
       .map { $0.addingTimeInterval(relevanceWindow) }
       .max()
+  }
+}
+
+extension ConPawsConventionSnapshot {
+  /// Whether the resolver has stopped counting this convention as active or
+  /// upcoming: past its end, and past the start of any saved panel after
+  /// that. The same test the resolver's own fallback makes, so a panel saved
+  /// for after the closing still holds the convention until it starts.
+  func hasPassed(at now: Date) -> Bool {
+    ConPawsScheduleResolver.lastActiveMs(of: self) < now.timeIntervalSince1970 * 1_000
   }
 }
 

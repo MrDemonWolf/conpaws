@@ -133,12 +133,12 @@ private struct ConPawsWatchEntryView: View {
         )
       case let .current(event, convention):
         CurrentWidgetView(event: event, convention: convention, strings: entry.strings)
-      case .finished:
-        StatusWidgetView(title: entry.strings.finishedComplication, detail: entry.strings.finishedTitle)
-      case .noPicks:
-        StatusWidgetView(title: entry.strings.noPicksComplication, detail: entry.strings.noPicksTitle)
-      case .noConvention:
-        StatusWidgetView(title: entry.strings.noConventionComplication, detail: entry.strings.openOnIphone)
+      case .finished, .noPicks, .ended, .noConvention:
+        // Worded in targets/_shared, so swift-tests covers which words
+        // each state gets.
+        if let status = schedule.status(strings: entry.strings) {
+          StatusWidgetView(title: status.title, detail: status.detail)
+        }
       }
     }
     // Every state is at most three lines, pinned to the top: centered, an

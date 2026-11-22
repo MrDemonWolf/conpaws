@@ -134,6 +134,75 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: now)
   }
 
+  // MARK: After the convention
+
+  /// Once every saved convention has ended, the card says so. It used to
+  /// read "No more panels today" every day for weeks after the convention,
+  /// or "Add panels on iPhone" for one that was over.
+  @Test(arguments: [true, false])
+  func aConventionThatHasEndedSaysNothingIsUpcoming(withPanels: Bool) throws {
+    let panels = withPanels ? [event("closing", from: local(23, 15), until: local(23, 16))] : []
+    let value = snapshot(
+      conventions: [convention("con", from: local(20, 8), until: local(23, 18), events: panels)],
+      generatedAt: local(23, 12)
+    )
+    let english = ConPawsStrings.resolve("en")
+    let nothingUpcoming = ConPawsComplicationProjection.Status(
+      title: "Nothing upcoming",
+      detail: "Your saved conventions have ended."
+    )
+    for dayAfter in [local(23, 18, 1), local(24, 10), local(30, 23)] {
+      let projection = ConPawsComplicationProjection(snapshot: value, now: dayAfter)
+      #expect(projection.status(strings: english) == nothingUpcoming, "at \(dayAfter)")
+    }
+
+    // The entry the timeline plans at the end already reads that way.
+    let afterEnd = local(23, 18, 1)
+    let shown = try #require(plannedDates(value, now: local(23, 17)).last { $0 <= afterEnd })
+    #expect(frame(value, at: shown) == frame(value, at: afterEnd))
+    expectNoStaleCard(value, now: local(23, 17))
+  }
+
+  /// While the convention runs, its own wording stays.
+  @Test func aRunningConventionKeepsItsOwnStatus() {
+    let english = ConPawsStrings.resolve("en")
+    let finished = snapshot(
+      [event("closing", from: local(23, 9), until: local(23, 10))],
+      generatedAt: local(23, 12)
+    )
+    #expect(
+      ConPawsComplicationProjection(snapshot: finished, now: local(23, 12)).status(strings: english)
+        == .init(title: "No more panels today", detail: "All the panels you picked have ended")
+    )
+    let empty = snapshot([], generatedAt: local(23, 12))
+    #expect(
+      ConPawsComplicationProjection(snapshot: empty, now: local(23, 12)).status(strings: english)
+        == .init(title: "Add panels on iPhone", detail: "No panels picked")
+    )
+  }
+
+  /// A saved panel that starts after the convention's end keeps the
+  /// convention current until that start, as the resolver does.
+  @Test func aPanelAfterTheEndHoldsOffTheEndedCard() {
+    let english = ConPawsStrings.resolve("en")
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(20, 8),
+          until: local(23, 18),
+          events: [event("afterparty", from: local(23, 20), until: local(23, 22))]
+        ),
+      ],
+      generatedAt: local(23, 12)
+    )
+    #expect(ConPawsComplicationProjection(snapshot: value, now: local(23, 21)).status(strings: english) == nil)
+    #expect(
+      ConPawsComplicationProjection(snapshot: value, now: local(23, 22, 30)).status(strings: english)?.title
+        == "Nothing upcoming"
+    )
+  }
+
   // MARK: Staleness
 
   /// The timeline places the stale entry where the shared rule says the plan
@@ -293,6 +362,8 @@ struct ComplicationTimelineTests {
       "finished \(convention.id)"
     case .noPicks(let convention):
       "no picks \(convention.id)"
+    case .ended(let convention):
+      "ended \(convention.id)"
     case .noConvention:
       "no convention"
     }
