@@ -411,13 +411,12 @@ private struct ScheduleHomeView: View {
       } else if isToday {
         // "In 3 hours": the same ladder the complication reads. Another day
         // gets no value line; the detail line already says "Tomorrow".
-        Text(
-          ConPawsCountdown.label(
-            from: schedule.now,
-            to: next.startDate,
-            timeZone: convention.timeZone,
-            strings: strings
-          )
+        AdaptiveCountdownView(
+          target: next.startDate,
+          now: schedule.now,
+          timeZone: convention.timeZone,
+          showsTimer: false,
+          strings: strings
         )
       }
     } detail: {
@@ -1156,6 +1155,7 @@ private struct PlanActionButton: View {
 }
 
 private struct AdaptiveCountdownView: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   let target: Date
   let now: Date
   let timeZone: TimeZone
@@ -1179,7 +1179,12 @@ private struct AdaptiveCountdownView: View {
       // Further out, read the same ladder the complication and the iPhone
       // Lock Screen read. The app used to say "12 D 9 H" here while its own
       // complication said "In 12 days" about the same wait.
+      //
+      // Words wrap rather than truncate: callers hold the line to one for
+      // the timer, but "2 kuukauden kuluttua" cannot fit one line on a 41 mm
+      // screen even shrunk, least of all at accessibility sizes.
       Text(ConPawsCountdown.label(from: now, to: target, timeZone: timeZone, strings: strings))
+        .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
     }
   }
 }
