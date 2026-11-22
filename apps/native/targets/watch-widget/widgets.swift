@@ -267,7 +267,7 @@ private struct ComingUpWidgetView: View {
           strings.comingUpA11yFormat,
           convention.name,
           strings.remaining(
-            WidgetFormat.countdownDuration(
+            ConPawsFormat.countdownDuration(
               from: now,
               to: convention.startDate,
               in: convention.timeZone,
@@ -320,7 +320,7 @@ private struct LeaveWidgetView: View {
   }
 
   private var nextTime: String {
-    WidgetFormat.nextEventTime(
+    ConPawsFormat.nextEventTime(
       next.startDate,
       relativeTo: now,
       in: convention,
@@ -336,7 +336,7 @@ private struct LeaveWidgetView: View {
     if redactionReasons.contains(.privacy) {
       return "\(lead), \(nextTime)."
     }
-    let countdown = WidgetFormat.countdownDuration(
+    let countdown = ConPawsFormat.countdownDuration(
       from: now,
       to: next.startDate,
       in: convention.timeZone,
@@ -382,7 +382,7 @@ private struct NextWidgetView: View {
   }
 
   private var startTime: String {
-    WidgetFormat.nextEventTime(
+    ConPawsFormat.nextEventTime(
       event.startDate,
       relativeTo: now,
       in: convention,
@@ -392,7 +392,7 @@ private struct NextWidgetView: View {
   }
 
   private var accessibilitySummary: String {
-    let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
+    let reminder = ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
       .map { ". \($0)" } ?? ""
     // Redacted: no titles or rooms, as on screen (see LeaveWidgetView).
     if redactionReasons.contains(.privacy) {
@@ -429,7 +429,7 @@ private struct CurrentWidgetView: View {
   }
 
   private var timeRange: String {
-    WidgetFormat.timeRange(event, in: convention, locale: locale)
+    ConPawsFormat.timeRange(event, in: convention, locale: locale)
   }
 
   private var accessibilitySummary: String {
@@ -491,109 +491,4 @@ struct ConPawsWatchWidget: Widget {
     .description("See your next event, schedule reminder, or convention countdown.")
     .supportedFamilies([.accessoryRectangular])
   }
-}
-
-private enum WidgetFormat {
-  static func time(
-    _ date: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale
-  ) -> String {
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.timeStyle = .short
-    return formatter.string(from: date)
-  }
-
-  /// "Reminder at 2:35 PM · 10 min before", from the offset the user chose.
-  static func reminderAt(
-    _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String? {
-    guard let minutes = event.reminderMinutes, minutes >= 0 else { return nil }
-    let reminderDate = event.startDate.addingTimeInterval(-Double(minutes) * 60)
-    return strings.reminderAt(time(reminderDate, in: convention, locale: locale), minutes: minutes)
-  }
-
-  /// "9:00–10:30 AM", or the start alone when the end is unknown. A copy of
-  /// the watch app's WatchFormat.timeRange until both share one formatter.
-  static func timeRange(
-    _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale
-  ) -> String {
-    guard let end = event.endDate else {
-      return time(event.startDate, in: convention, locale: locale)
-    }
-    return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
-  }
-
-  static func nextEventTime(
-    _ date: Date,
-    relativeTo now: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
-    let timeLabel = time(date, in: convention, locale: locale)
-    guard !calendar.isDate(date, inSameDayAs: now) else { return timeLabel }
-
-    if
-      let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
-      calendar.isDate(date, inSameDayAs: tomorrow)
-    {
-      return "\(strings.tomorrow) · \(timeLabel)"
-    }
-
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.setLocalizedDateFormatFromTemplate("EEEE")
-    return "\(formatter.string(from: date)) · \(timeLabel)"
-  }
-
-
-  /// How long the wait is, spoken as two units.
-  ///
-  /// Deliberately without "remaining" or its equivalents: the caller decides
-  /// whether the duration stands alone or sits inside a longer sentence, and
-  /// several languages phrase "remaining" as a prefix rather than a suffix.
-  static func countdownDuration(
-    from now: Date,
-    to target: Date,
-    in timeZone: TimeZone,
-    strings: ConPawsStrings
-  ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
-    let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: now, to: target)
-    let months = max(0, parts.month ?? 0)
-    let days = max(0, parts.day ?? 0)
-    let hours = max(0, parts.hour ?? 0)
-    let minutes = max(0, parts.minute ?? 0)
-
-    if target.timeIntervalSince(now) >= 30 * 86_400 {
-      return strings.duration(strings.months(months), strings.days(days))
-    }
-    if target.timeIntervalSince(now) >= 86_400 {
-      return strings.duration(strings.days(days), strings.hours(hours))
-    }
-    return strings.duration(strings.hours(hours), strings.minutes(minutes))
-  }
-}
-
-private extension ConPawsConventionSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
-  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
-}
-
-private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
 }

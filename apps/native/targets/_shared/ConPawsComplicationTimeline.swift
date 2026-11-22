@@ -240,16 +240,10 @@ enum ConPawsComplicationTimeline {
 }
 
 private extension ConPawsConventionSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
   /// The first moment the resolver no longer counts this convention as active
   /// or upcoming, a millisecond past the last one: an entry at the end itself
   /// still draws this convention.
   var pastActiveDate: Date {
     Date(timeIntervalSince1970: (ConPawsScheduleResolver.lastActiveMs(of: self) + 1) / 1_000)
   }
-  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
-}
-
-private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
 }

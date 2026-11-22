@@ -198,6 +198,28 @@ struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
   }
 }
 
+// MARK: - Dates
+
+// One set of accessors for every target. The Watch app, the complication and
+// the timeline each kept a private copy, and a private member beside an
+// internal one of the same name is ambiguous in its file, so there must be
+// only these.
+
+extension ConPawsConventionSnapshot {
+  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
+  var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
+  /// The convention's own zone. `filteringInvalidRecords` drops a convention
+  /// whose identifier does not resolve, so the device zone is only a guard.
+  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
+}
+
+extension ConPawsEventSnapshot {
+  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
+  /// Nil while the end is unknown. Code that needs an end anyway uses
+  /// `ConPawsScheduleResolver.effectiveEnd(of:)`.
+  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
+}
+
 /// A save or remove tapped on the Watch, for the phone to apply.
 ///
 /// Sent as a JSON string under `messageKey`, by `sendMessage` when the phone

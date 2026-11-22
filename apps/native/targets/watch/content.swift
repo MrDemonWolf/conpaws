@@ -299,7 +299,7 @@ private struct ScheduleHomeView: View {
                 conventionID: convention.id
               ) {
                 TimeAndPlace(
-                  time: WatchFormat.timeRange(current, in: convention, locale: locale),
+                  time: ConPawsFormat.timeRange(current, in: convention, locale: locale),
                   place: current.shortPlace
                 )
               }
@@ -316,7 +316,7 @@ private struct ScheduleHomeView: View {
               EventCard(
                 // Day-aware: a bare "11:00 AM" for tomorrow's panel read as
                 // later today.
-                eyebrow: WatchFormat.nextEventTime(
+                eyebrow: ConPawsFormat.nextEventTime(
                   event.startDate,
                   relativeTo: schedule.now,
                   in: convention,
@@ -399,7 +399,7 @@ private struct ScheduleHomeView: View {
       to: next.startDate,
       within: schedule.isLeaveWindow ? 86_400 : 3_600
     )
-    let isToday = WatchFormat.dayLabel(
+    let isToday = ConPawsFormat.dayLabel(
       next.startDate,
       relativeTo: schedule.now,
       in: convention,
@@ -434,7 +434,7 @@ private struct ScheduleHomeView: View {
       }
     } detail: {
       TimeAndPlace(
-        time: WatchFormat.nextEventTime(
+        time: ConPawsFormat.nextEventTime(
           next.startDate,
           relativeTo: schedule.now,
           in: convention,
@@ -446,7 +446,7 @@ private struct ScheduleHomeView: View {
       // Only while it is still to come: after it fires, "Reminder at…"
       // describes the past.
       if ConPawsScheduleResolver.isReminderPending(next, now: schedule.now),
-        let reminder = WatchFormat.reminderAt(next, in: convention, locale: locale, strings: strings)
+        let reminder = ConPawsFormat.reminderAt(next, in: convention, locale: locale, strings: strings)
       {
         Label {
           Text(reminder)
@@ -496,7 +496,7 @@ private struct OtherOptionsSection: View {
       SectionLabel(title: strings.otherOptionsThisHour)
       ForEach(options) { option in
         EventCard(
-          eyebrow: WatchFormat.timeRange(option, in: convention, locale: locale),
+          eyebrow: ConPawsFormat.timeRange(option, in: convention, locale: locale),
           event: option,
           conventionID: convention.id,
           accented: false,
@@ -771,7 +771,7 @@ private struct TodayListView: View {
     ScrollViewReader { proxy in
       List(schedule.todayEvents) { event in
         let isRunning = event.id == schedule.activeEvent?.id
-        let timeRange = WatchFormat.timeRange(event, in: convention, locale: locale)
+        let timeRange = ConPawsFormat.timeRange(event, in: convention, locale: locale)
         NavigationLink(value: WatchRoute.event(conventionID: convention.id, eventID: event.id)) {
           TodayRow(
             event: event,
@@ -961,7 +961,7 @@ private struct EventDetailView: View {
 
         // Kept after it fires, unlike on the Home card: here it answers
         // "did I set one?" rather than "what happens next".
-        if let reminder = WatchFormat.reminderAt(event, in: convention, locale: locale, strings: strings) {
+        if let reminder = ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings) {
           Label {
             Text(reminder)
           } icon: {
@@ -1045,7 +1045,7 @@ private struct EventDetailView: View {
       .foregroundStyle(Color.accentColor)
       .accessibilityElement(children: .combine)
     } else if start > now,
-      WatchFormat.dayLabel(start, relativeTo: now, in: convention, locale: locale, strings: strings) == nil
+      ConPawsFormat.dayLabel(start, relativeTo: now, in: convention, locale: locale, strings: strings) == nil
     {
       Text(ConPawsCountdown.label(from: now, to: start, timeZone: convention.timeZone, strings: strings))
         .font(.caption.bold())
@@ -1055,9 +1055,9 @@ private struct EventDetailView: View {
 
   /// "Tomorrow · 10:00–11:30 AM" once the event is not today.
   private var clockLabel: String {
-    let range = WatchFormat.timeRange(event, in: convention, locale: locale)
+    let range = ConPawsFormat.timeRange(event, in: convention, locale: locale)
     guard
-      let day = WatchFormat.dayLabel(
+      let day = ConPawsFormat.dayLabel(
         event.startDate,
         relativeTo: now,
         in: convention,
@@ -1129,7 +1129,7 @@ private struct AdaptiveCountdownView: View {
       Text(timerInterval: now...target, countsDown: true)
         .accessibilityLabel(
           strings.remaining(
-            WatchFormat.countdownDuration(from: now, to: target, in: timeZone, strings: strings)
+            ConPawsFormat.countdownDuration(from: now, to: target, in: timeZone, strings: strings)
           )
         )
     } else {
@@ -1327,110 +1327,6 @@ private struct WatchScheduleProjection {
   }
 }
 
-private enum WatchFormat {
-  static func reminderAt(
-    _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String? {
-    guard let minutes = event.reminderMinutes, minutes >= 0 else { return nil }
-    let reminderDate = event.startDate.addingTimeInterval(-Double(minutes) * 60)
-    return strings.reminderAt(time(reminderDate, in: convention, locale: locale), minutes: minutes)
-  }
-
-  static func time(
-    _ date: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale
-  ) -> String {
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.timeStyle = .short
-    return formatter.string(from: date)
-  }
-
-  /// "Tomorrow" or a weekday for a date that is not today in the convention's
-  /// time zone; nil for today, which needs no day.
-  static func dayLabel(
-    _ date: Date,
-    relativeTo now: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String? {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
-    guard !calendar.isDate(date, inSameDayAs: now) else { return nil }
-
-    if
-      let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
-      calendar.isDate(date, inSameDayAs: tomorrow)
-    {
-      return strings.tomorrow
-    }
-
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.setLocalizedDateFormatFromTemplate("EEEE")
-    return formatter.string(from: date)
-  }
-
-  static func nextEventTime(
-    _ date: Date,
-    relativeTo now: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String {
-    let timeLabel = time(date, in: convention, locale: locale)
-    guard
-      let day = dayLabel(date, relativeTo: now, in: convention, locale: locale, strings: strings)
-    else { return timeLabel }
-    return "\(day) · \(timeLabel)"
-  }
-
-  static func timeRange(
-    _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale
-  ) -> String {
-    guard let end = event.endDate else {
-      return time(event.startDate, in: convention, locale: locale)
-    }
-    return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
-  }
-
-  /// How long the wait is, spoken as two units.
-  ///
-  /// Deliberately without "remaining" or its equivalents: several languages
-  /// phrase that as a prefix rather than a suffix, so the caller wraps it.
-  static func countdownDuration(
-    from now: Date,
-    to target: Date,
-    in timeZone: TimeZone,
-    strings: ConPawsStrings
-  ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
-    let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: now, to: target)
-    let months = max(0, parts.month ?? 0)
-    let days = max(0, parts.day ?? 0)
-    let hours = max(0, parts.hour ?? 0)
-    let minutes = max(0, parts.minute ?? 0)
-
-    if target.timeIntervalSince(now) >= 30 * 86_400 {
-      return strings.duration(strings.months(months), strings.days(days))
-    }
-    if target.timeIntervalSince(now) >= 86_400 {
-      return strings.duration(strings.days(days), strings.hours(hours))
-    }
-    return strings.duration(strings.hours(hours), strings.minutes(minutes))
-  }
-}
-
 private extension ConPawsSnapshot {
   func event(
     id eventID: String,
@@ -1455,17 +1351,6 @@ private extension ConPawsSnapshot {
     else { return nil }
     return (option, convention)
   }
-}
-
-private extension ConPawsConventionSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
-  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
-}
-
-private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
 }
 
 #if DEBUG
@@ -1536,7 +1421,7 @@ func runWatchScheduleSelfCheck() {
     deepLinkComponents?.queryItems?.first { $0.name == "conventionId" }?.value == "con /?#"
   )
   assert(
-    WatchFormat.nextEventTime(
+    ConPawsFormat.nextEventTime(
       now.addingTimeInterval(86_400),
       relativeTo: now,
       in: convention,
@@ -1549,7 +1434,7 @@ func runWatchScheduleSelfCheck() {
   )
   // Today needs no day label; that is what keeps same-day cards to a bare time.
   assert(
-    WatchFormat.dayLabel(
+    ConPawsFormat.dayLabel(
       now.addingTimeInterval(60),
       relativeTo: now,
       in: convention,
