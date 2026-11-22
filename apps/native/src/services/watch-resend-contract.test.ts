@@ -8,9 +8,9 @@ import { describe, expect, it } from "vitest";
  * running: a newly active Watch after an Auto Switch, or a Watch app just
  * installed or reinstalled. Once a context is sent the bridge forgets it, so
  * without these the new Watch waits until the phone app is next opened. No CI
- * job compiles the phone's pod, and WatchConnectivity does not run between
- * simulators, so this holds the pieces in place; a physical iPhone with two
- * paired Watches is the only proof.
+ * job compiles the phone's pod or runs WatchConnectivity, so this holds the
+ * pieces in place; a switch between two paired Watches and a Watch app
+ * reinstall still need checking on a paired simulator or device.
  */
 const here = dirname(fileURLToPath(import.meta.url));
 const module = readFileSync(

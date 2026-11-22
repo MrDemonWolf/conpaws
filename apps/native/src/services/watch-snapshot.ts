@@ -344,8 +344,9 @@ export function withWatchExtras(
     snapshot.conventions,
     nowMs,
   ).map((convention) => {
-    // A convention that is over offers nothing, and the Watch shows only a
-    // finished state for it, so its descriptions would be dead weight.
+    // Past its end a convention offers nothing to add, and the Watch shows
+    // at most its finished state or a saved panel still running past the
+    // end, so its descriptions are left off to save room.
     if (convention.endAtMs <= nowMs) return convention;
     const source = eventsByConvention.get(convention.id) ?? [];
     const descriptions = new Map(
