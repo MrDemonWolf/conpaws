@@ -134,6 +134,23 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: now)
   }
 
+  // MARK: Coming up
+
+  /// The pre-convention card steps down at the convention's midnight, then
+  /// hourly, then reads "Starting soon". Each step needs an entry, or the
+  /// card keeps the old wording until the next phone snapshot. Starts 90
+  /// minutes, 5 hours, 30 hours and 3 days out.
+  @Test(arguments: [90, 300, 1_800, 4_320])
+  func comingUpCountdownNeverShowsAStaleLabel(minutesUntilStart: Int) {
+    let now = local(20, 7, 13)
+    let start = now.addingTimeInterval(TimeInterval(minutesUntilStart * 60))
+    let value = snapshot(
+      conventions: [convention("con", from: start, until: start.addingTimeInterval(2 * 86_400))],
+      generatedAt: now
+    )
+    expectNoStaleCard(value, now: now)
+  }
+
   // MARK: Completeness
 
   @Test(arguments: [0, 13 * 60 + 45, 22 * 60 + 40])
@@ -207,7 +224,13 @@ struct ComplicationTimelineTests {
     }
     let shown: String = switch projection.state {
     case .comingUp(let convention):
-      "coming \(convention.id)"
+      "coming \(convention.id) "
+        + ConPawsCountdown.label(
+          from: date,
+          to: Date(timeIntervalSince1970: convention.startAtMs / 1_000),
+          timeZone: zone,
+          strings: strings
+        )
     case .leave(let current, let next, let convention):
       "leave \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next)) "
         + ConPawsCountdown.leaveLead(

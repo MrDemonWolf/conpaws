@@ -285,11 +285,17 @@ enum ConPawsCountdown {
       return target.addingTimeInterval(TimeInterval(-hoursLeft * 3_600) + 1)
     }
 
-    // Further out, the wording only turns over at local midnight.
-    return calendar.nextDate(
+    // Further out, the wording turns over at local midnight, and once more a
+    // second after the wait drops under a day, where the hourly wording takes
+    // over whatever the calendar day says. Waiting for midnight alone kept
+    // "Tomorrow" on the card for most of a day after it should have read
+    // "In 23 hours".
+    let underADay = target.addingTimeInterval(-86_400 + 1)
+    let midnight = calendar.nextDate(
       after: date,
       matching: DateComponents(hour: 0, minute: 0, second: 0),
       matchingPolicy: .nextTime
     )
+    return midnight.map { min($0, underADay) } ?? underADay
   }
 }
