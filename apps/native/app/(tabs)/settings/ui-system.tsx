@@ -15,7 +15,7 @@ import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { Redirect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
@@ -47,10 +47,7 @@ import {
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
-import {
-  getAppearancePreference,
-  subscribeAppearancePreference,
-} from "@/lib/appearance-storage";
+import { useAppearancePreference } from "@/lib/appearance-storage";
 import { categoryAccentColor } from "@/lib/category-color";
 import { developerDiagnosticsEnabled } from "@/lib/developer-tools";
 
@@ -136,11 +133,7 @@ const GALLERY_SLOTS: readonly TimeChipSlot[] = [
 export default function UiSystemScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const appearancePreference = useSyncExternalStore(
-    subscribeAppearancePreference,
-    getAppearancePreference,
-    getAppearancePreference,
-  );
+  const appearancePreference = useAppearancePreference();
   const { fontScale, width } = useWindowDimensions();
   const [switchValue, setSwitchValue] = useState(true);
   const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);

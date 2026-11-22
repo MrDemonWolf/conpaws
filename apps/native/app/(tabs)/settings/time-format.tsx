@@ -1,16 +1,16 @@
 import { FieldGroup, Host } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
-  getTimeFormatPreference,
   saveTimeFormatPreference,
-  subscribeTimeFormat,
   type TimeFormatPreference,
+  timeFormatLabelKey,
+  useTimeFormatPreference,
 } from "@/lib/device-clock";
 import { reportError } from "@/lib/error-reporting";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
@@ -22,11 +22,7 @@ export default function TimeFormatScreen() {
   const { colors } = useTheme();
   const colorScheme = useResolvedColorScheme();
   const readableGroup = useReadableFieldGroup();
-  const selected = useSyncExternalStore(
-    subscribeTimeFormat,
-    getTimeFormatPreference,
-    getTimeFormatPreference,
-  );
+  const selected = useTimeFormatPreference();
   const [saving, setSaving] = useState(false);
 
   async function select(next: TimeFormatPreference) {
@@ -57,9 +53,7 @@ export default function TimeFormatScreen() {
             settingsChoiceRow({
               id: choice,
               testID: `time-format-${choice}`,
-              title: t(
-                `settings.timeFormat.${choice === "12" ? "hour12" : choice === "24" ? "hour24" : "system"}`,
-              ),
+              title: t(`settings.timeFormat.${timeFormatLabelKey(choice)}`),
               selected: choice === selected,
               indicator: "radio",
               onPress: () => void select(choice),

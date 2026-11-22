@@ -2,7 +2,7 @@ import { FieldGroup, Host, Picker } from "@expo/ui";
 import Constants from "expo-constants";
 import { router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Linking, useWindowDimensions } from "react-native";
 import { ContentScrollLink } from "@/components/ContentScrollLink";
@@ -16,18 +16,15 @@ import { useOpenLink } from "@/hooks/useOpenLink";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
-import {
-  getAppearancePreference,
-  subscribeAppearancePreference,
-} from "@/lib/appearance-storage";
+import { useAppearancePreference } from "@/lib/appearance-storage";
 import { importOutcomeMessage } from "@/lib/data-import-messages";
 import {
   developerDiagnosticsEnabled,
   developerToolsEnabled,
 } from "@/lib/developer-tools";
 import {
-  getTimeFormatPreference,
-  subscribeTimeFormat,
+  timeFormatLabelKey,
+  useTimeFormatPreference,
 } from "@/lib/device-clock";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
@@ -59,20 +56,12 @@ export default function SettingsScreen() {
   const resolvedColorScheme = useResolvedColorScheme();
   const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
-  const appearance = useSyncExternalStore(
-    subscribeAppearancePreference,
-    getAppearancePreference,
-    getAppearancePreference,
-  );
+  const appearance = useAppearancePreference();
 
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const showPreviewTesting = developerToolsEnabled(__DEV__, appVariant);
   const showDeveloperTools = developerDiagnosticsEnabled(__DEV__, appVariant);
-  const timeFormat = useSyncExternalStore(
-    subscribeTimeFormat,
-    getTimeFormatPreference,
-    getTimeFormatPreference,
-  );
+  const timeFormat = useTimeFormatPreference();
 
   const [haptics, setHaptics] = useState(getHapticsEnabled);
   // Seeded from the cache the launch bootstrap primed, so the switch is right
@@ -282,7 +271,7 @@ export default function SettingsScreen() {
               icon: "time",
               title: t("settings.timeFormat.title"),
               value: t(
-                `settings.timeFormat.short.${timeFormat === "12" ? "hour12" : timeFormat === "24" ? "hour24" : "system"}`,
+                `settings.timeFormat.short.${timeFormatLabelKey(timeFormat)}`,
               ),
               onPress: () => router.push("/settings/time-format"),
             })}

@@ -42,11 +42,27 @@ export function resolveHour12(
   return uses24hourClock == null ? undefined : !uses24hourClock;
 }
 
-export function useHour12(): boolean | undefined {
-  const preference = useSyncExternalStore(
+/** The stored 12/24-hour choice, re-rendering when Settings changes it. */
+export function useTimeFormatPreference(): TimeFormatPreference {
+  return useSyncExternalStore(
     subscribeTimeFormat,
     getTimeFormatPreference,
     getTimeFormatPreference,
   );
+}
+
+/** The `settings.timeFormat` key segment that names a preference. */
+export function timeFormatLabelKey(
+  preference: TimeFormatPreference,
+): "system" | "hour12" | "hour24" {
+  return preference === "12"
+    ? "hour12"
+    : preference === "24"
+      ? "hour24"
+      : "system";
+}
+
+export function useHour12(): boolean | undefined {
+  const preference = useTimeFormatPreference();
   return resolveHour12(preference, useCalendars()[0]?.uses24hourClock);
 }
