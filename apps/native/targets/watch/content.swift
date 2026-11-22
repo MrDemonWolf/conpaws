@@ -506,7 +506,7 @@ private struct OtherOptionsSection: View {
   }
 }
 
-/// No saved panels yet, but some running this hour: the empty state's words,
+/// No saved panels yet, but some running this hour: the empty state's title,
 /// then the options to add from.
 private struct NoPicksOptionsView: View {
   let convention: ConPawsConventionSnapshot
@@ -519,18 +519,14 @@ private struct NoPicksOptionsView: View {
   var body: some View {
     ScrollView {
       LazyVStack(alignment: .leading, spacing: WatchMetrics.cardSpacing) {
-        VStack(spacing: 4) {
-          Text(strings.noPicksTitle)
-            .font(.headline)
-            .accessibilityAddTraits(.isHeader)
-          Text(strings.noPicksWatchMessage)
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 6)
-        .accessibilityElement(children: .combine)
+        // The title alone: "Choose panels in ConPaws on your iPhone" sent the
+        // wearer to the phone from directly above panels they can add here.
+        Text(strings.noPicksTitle)
+          .font(.headline)
+          .multilineTextAlignment(.center)
+          .frame(maxWidth: .infinity)
+          .padding(.horizontal, 6)
+          .accessibilityAddTraits(.isHeader)
 
         OtherOptionsSection(convention: convention, options: options, strings: strings)
 
