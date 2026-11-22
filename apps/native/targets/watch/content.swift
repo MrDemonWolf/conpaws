@@ -934,7 +934,9 @@ private struct EventDetailView: View {
             .font(.caption2.bold())
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(.quaternary, in: .capsule)
+            // A platter like the cards': gone in Always On, where a lit
+            // capsule around the redacted rating drew the eye to it.
+            .cardBackground(.quaternary, in: Capsule())
             .privacySensitive()
         }
 
@@ -1280,19 +1282,20 @@ private enum WatchMetrics {
   static let cornerRadius: CGFloat = 12
 }
 
-/// A card's platter, dropped in Always On as Apple's Always On guidance asks:
-/// on the dimmed display a filled card reads as a lit slab, and the text alone
-/// carries the layout. Reading `isLuminanceReduced` here, in a leaf modifier,
-/// keeps the wrist-down switch from invalidating the whole screen.
-private struct CardBackground<Style: ShapeStyle>: ViewModifier {
+/// A card's or a pill's platter, dropped in Always On as Apple's Always On
+/// guidance asks: on the dimmed display a filled card reads as a lit slab, and
+/// the text alone carries the layout. Reading `isLuminanceReduced` here, in a
+/// leaf modifier, keeps the wrist-down switch from invalidating the whole
+/// screen.
+private struct CardBackground<Style: ShapeStyle, Platter: Shape>: ViewModifier {
   @Environment(\.isLuminanceReduced) private var isLuminanceReduced
   let style: Style
+  let shape: Platter
 
   func body(content: Content) -> some View {
     content.background {
       if !isLuminanceReduced {
-        RoundedRectangle(cornerRadius: WatchMetrics.cornerRadius, style: .continuous)
-          .fill(style)
+        shape.fill(style)
       }
     }
   }
@@ -1300,7 +1303,17 @@ private struct CardBackground<Style: ShapeStyle>: ViewModifier {
 
 private extension View {
   func cardBackground<Style: ShapeStyle>(_ style: Style) -> some View {
-    modifier(CardBackground(style: style))
+    cardBackground(
+      style,
+      in: RoundedRectangle(cornerRadius: WatchMetrics.cornerRadius, style: .continuous)
+    )
+  }
+
+  func cardBackground<Style: ShapeStyle, Platter: Shape>(
+    _ style: Style,
+    in shape: Platter
+  ) -> some View {
+    modifier(CardBackground(style: style, shape: shape))
   }
 }
 
