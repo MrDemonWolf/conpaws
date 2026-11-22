@@ -62,9 +62,11 @@ struct PendingCommandTests {
   }
 
   @Test func anOlderSnapshotNeverSettlesACommandByItsEffect() {
-    // An older schedule can show a state from before a newer tap.
+    // An older schedule can show a state from before a newer tap. It lists
+    // another tap as handled, so the receipts are read and only they count.
     let pending = table(command(.save, event: "evt", id: "c1"), command(.remove, event: "gone", id: "c2"))
-    let older = snapshot(saved: ["evt"])
+    var older = snapshot(saved: ["evt"])
+    older.handledCommandIds = ["unrelated"]
     #expect(ConPawsPendingCommands.settled(pending, byReceiptsIn: older) == pending)
   }
 
