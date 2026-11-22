@@ -9,13 +9,6 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// scene's `.backgroundTask(.watchConnectivity)` handler reaches it here.
   static let shared = WatchScheduleStore()
 
-  /// How far ahead of this watch's clock a snapshot may be stamped.
-  ///
-  /// `generatedAtMs` is the phone's wall clock, so a phone that boots with a
-  /// bad RTC can stamp one years out. Nothing downstream would ever displace
-  /// it, so the ceiling belongs here, at the point the value is first trusted.
-  private static let futureToleranceMs: Double = 86_400 * 1_000
-
   private let receiveQueue = DispatchQueue(label: "com.mrdemonwolf.conpaws.watch-receive")
   @Published private(set) var snapshot = ConPawsSnapshotStore.load()
 
@@ -23,10 +16,6 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// keyed by event id and kept across launches; see
   /// `ConPawsPendingCommands`. Main thread only.
   @Published private(set) var pendingCommands: [String: PendingWatchCommand] = [:]
-
-  var isUsingSavedSchedule: Bool {
-    isUsingSavedSchedule(at: .now)
-  }
 
   func isUsingSavedSchedule(at now: Date) -> Bool {
     guard !snapshot.conventions.isEmpty else { return false }
@@ -183,16 +172,16 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   }
 
   private func save(_ json: String) {
+    let nowMs = Date().timeIntervalSince1970 * 1_000
     guard
       let data = json.data(using: .utf8),
-      var candidate = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
-      Self.isValidEnvelope(candidate)
+      let decoded = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
+      ConPawsSnapshotStore.isAcceptableEnvelope(decoded, nowMs: nowMs)
     else {
       return
     }
-    candidate = candidate.filteringInvalidRecords()
+    let candidate = decoded.filteringInvalidRecords()
     guard
-      Self.isValid(candidate),
       // Newer wins, so the backlog of user infos replayed after the newest
       // context never rewinds the schedule, and the second copy of one
       // snapshot is not applied twice. A stored stamp from a phone with a bad
@@ -200,7 +189,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
       ConPawsSnapshotStore.shouldReplace(
         storedMs: ConPawsSnapshotStore.load().generatedAtMs,
         candidateMs: candidate.generatedAtMs,
-        nowMs: Date().timeIntervalSince1970 * 1_000
+        nowMs: nowMs
       ),
       let filteredData = try? JSONEncoder().encode(candidate),
       let filteredJSON = String(data: filteredData, encoding: .utf8),
@@ -217,20 +206,6 @@ final class WatchScheduleStore: NSObject, ObservableObject {
       self?.settlePendingCommands(against: candidate, now: Date())
     }
   }
-
-  private static func isValidEnvelope(_ snapshot: ConPawsSnapshot) -> Bool {
-    guard
-      ConPawsSnapshotStore.supportedSchemaVersions.contains(snapshot.schemaVersion),
-      snapshot.generatedAtMs.isFinite,
-      snapshot.generatedAtMs >= 0,
-      snapshot.generatedAtMs <= Date().timeIntervalSince1970 * 1_000 + Self.futureToleranceMs
-    else {
-      return false
-    }
-    return true
-  }
-
-  private static func isValid(_ snapshot: ConPawsSnapshot) -> Bool { isValidEnvelope(snapshot) }
 }
 
 extension WatchScheduleStore: WCSessionDelegate {
