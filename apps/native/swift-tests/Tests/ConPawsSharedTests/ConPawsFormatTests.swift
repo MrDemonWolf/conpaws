@@ -208,6 +208,59 @@ struct ConPawsFormatTests {
     )
   }
 
+  /// One rule for every Watch screen: the reminder line shows while the
+  /// reminder is still to come. Once it has fired, "Reminder at 1:50 PM"
+  /// describes the past, and on a running panel it read as still coming.
+  @Test(arguments: [
+    (1_795_201_200.0, true), // 13:00
+    (1_795_204_140, true), // 13:49
+    (1_795_204_200, false), // 13:50, the reminder fires
+    (1_795_204_500, false), // 13:55
+    (1_795_206_600, false), // 14:30, the panel is running
+  ])
+  func aReminderLineShowsOnlyUntilItFires(now: TimeInterval, shows: Bool) {
+    let panel = event(from: 1_795_204_800, until: 1_795_208_400, reminderMinutes: 10) // 14:00-15:00
+    let long = ConPawsFormat.upcomingReminderAt(
+      panel, now: at(now), in: convention, locale: english, strings: .english
+    )
+    let short = ConPawsFormat.upcomingReminderTime(
+      panel, now: at(now), in: convention, locale: english, strings: .english
+    )
+    #expect(long == (shows ? "Reminder at 1:50\u{202F}PM · 10 min before" : nil))
+    #expect(short == (shows ? "1:50\u{202F}PM · 10 min before" : nil))
+  }
+
+  /// The Up Next card's line, beside a bell that says "reminder": the time
+  /// and the offset alone, which fit where the sentence was cut to
+  /// "Reminder at 11:43 AM · 10 minut…".
+  @Test func theShortReminderLineKeepsTheTimeAndTheOffset() {
+    let panel = event(from: 1_795_204_800, reminderMinutes: 10) // 14:00
+    let now = at(1_795_201_200) // 13:00
+    #expect(
+      ConPawsFormat.upcomingReminderTime(
+        panel, now: now, in: convention, locale: german, strings: .resolve("de")
+      ) == "13:50 · 10 Min. vorher"
+    )
+    #expect(
+      ConPawsFormat.upcomingReminderTime(
+        panel, now: now, in: convention, locale: english, strings: .english
+      ) == "1:50\u{202F}PM · 10 min before"
+    )
+  }
+
+  @Test func noReminderMeansNoReminderLine() {
+    let panel = event(from: 1_795_204_800)
+    let now = at(1_795_201_200)
+    #expect(
+      ConPawsFormat.upcomingReminderAt(panel, now: now, in: convention, locale: english, strings: .english)
+        == nil
+    )
+    #expect(
+      ConPawsFormat.upcomingReminderTime(panel, now: now, in: convention, locale: english, strings: .english)
+        == nil
+    )
+  }
+
   // MARK: Spoken durations
 
   @Test(arguments: [

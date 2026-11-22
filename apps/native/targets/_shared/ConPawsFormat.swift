@@ -43,6 +43,41 @@ enum ConPawsFormat {
     return strings.reminderAt(time(reminderDate, in: convention, locale: locale), minutes: minutes)
   }
 
+  /// `reminderAt` while the reminder is still to come; nil once it has fired.
+  ///
+  /// The rule every Watch app screen reads: after the reminder fires,
+  /// "Reminder at 1:50 PM" describes the past, and on a running panel's
+  /// screen it read as a reminder still to come.
+  static func upcomingReminderAt(
+    _ event: ConPawsEventSnapshot,
+    now: Date,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale,
+    strings: ConPawsStrings
+  ) -> String? {
+    guard ConPawsScheduleResolver.isReminderPending(event, now: now) else { return nil }
+    return reminderAt(event, in: convention, locale: locale, strings: strings)
+  }
+
+  /// "1:50 PM · 10 min before": `upcomingReminderAt` without its words, for
+  /// a line that draws a bell beside it. The whole sentence was cut to
+  /// "Reminder at 11:43 AM · 10 minut…" on the Up Next card. A caller gives
+  /// VoiceOver the sentence, which does not depend on seeing the bell.
+  static func upcomingReminderTime(
+    _ event: ConPawsEventSnapshot,
+    now: Date,
+    in convention: ConPawsConventionSnapshot,
+    locale: Locale,
+    strings: ConPawsStrings
+  ) -> String? {
+    guard
+      ConPawsScheduleResolver.isReminderPending(event, now: now),
+      let minutes = event.reminderMinutes
+    else { return nil }
+    let reminderDate = event.startDate.addingTimeInterval(-Double(minutes) * 60)
+    return "\(time(reminderDate, in: convention, locale: locale)) · \(strings.reminderOffset(minutes))"
+  }
+
   /// "Tomorrow" or a weekday for a date that is not today in the convention's
   /// time zone; nil for today, which needs no day.
   static func dayLabel(

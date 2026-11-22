@@ -430,12 +430,20 @@ private struct ScheduleHomeView: View {
         place: next.shortPlace
       )
       // Only while it is still to come: after it fires, "Reminder at…"
-      // describes the past.
-      if ConPawsScheduleResolver.isReminderPending(next, now: schedule.now),
-        let reminder = ConPawsFormat.reminderAt(next, in: convention, locale: locale, strings: strings)
+      // describes the past. The bell says "reminder", so the line keeps the
+      // time and the offset; VoiceOver, which cannot see the bell, gets the
+      // whole sentence.
+      if let reminder = ConPawsFormat.upcomingReminderTime(
+        next, now: schedule.now, in: convention, locale: locale, strings: strings
+      ),
+        let spoken = ConPawsFormat.upcomingReminderAt(
+          next, now: schedule.now, in: convention, locale: locale, strings: strings
+        )
       {
         Label {
           Text(reminder)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityLabel(spoken)
         } icon: {
           Image(systemName: "bell")
             .accessibilityHidden(true)
@@ -955,9 +963,11 @@ private struct EventDetailView: View {
           }
         }
 
-        // Kept after it fires, unlike on the Home card: here it answers
-        // "did I set one?" rather than "what happens next".
-        if let reminder = ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings) {
+        // The Home card's rule: only while it is still to come. Kept after it
+        // fired, it read as a reminder still coming on a running panel.
+        if let reminder = ConPawsFormat.upcomingReminderAt(
+          event, now: now, in: convention, locale: locale, strings: strings
+        ) {
           Label {
             Text(reminder)
           } icon: {
