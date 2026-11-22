@@ -43,6 +43,9 @@ export const WATCH_OPTIONS_PER_HOUR = 5;
  */
 export const WATCH_PAYLOAD_MAX_BYTES = 48 * 1024;
 
+/** Mirrors `ConPawsScheduleResolver.longestCountedPanelMs`. */
+export const WATCH_LONGEST_COUNTED_PANEL_MS = 24 * HOUR_MS;
+
 export type WatchEventSnapshot = WidgetEventSnapshot & { summary?: string };
 
 export type WatchConventionSnapshot = Omit<
@@ -240,6 +243,52 @@ function hasEnded(event: WatchEventSnapshot, nowMs: number): boolean {
   return (event.endAtMs ?? event.startAtMs + HOUR_MS) <= nowMs;
 }
 
+/**
+ * The last moment the Watch counts a convention as active or upcoming,
+ * inclusive: its end, or a saved panel's end when one runs later, counted for
+ * a day from the panel's start at most. Mirrors
+ * `ConPawsScheduleResolver.lastActiveMs`; watch-resolver-contract.test.ts
+ * holds the two together.
+ */
+export function watchLastActiveMs(
+  convention: Pick<WidgetConventionSnapshot, "endAtMs" | "events">,
+): number {
+  return convention.events.reduce(
+    (latest, event) =>
+      Math.max(
+        latest,
+        Math.min(
+          event.endAtMs ?? event.startAtMs + HOUR_MS,
+          event.startAtMs + WATCH_LONGEST_COUNTED_PANEL_MS,
+        ),
+      ),
+    convention.endAtMs,
+  );
+}
+
+/**
+ * The conventions the Watch can still show from `nowMs` on. Choosing for
+ * itself, it picks among those still active or upcoming, and only when there
+ * are none falls back to the one that ends last, so any other convention that
+ * is over can never be shown again. The one that ends last always stays, so
+ * this is never empty when `conventions` is not: the Watch reads an empty list
+ * as "no schedule".
+ */
+function watchReachableConventions(
+  conventions: readonly WidgetConventionSnapshot[],
+  nowMs: number,
+): WidgetConventionSnapshot[] {
+  const latestEndAtMs = conventions.reduce(
+    (latest, convention) => Math.max(latest, convention.endAtMs),
+    Number.NEGATIVE_INFINITY,
+  );
+  return conventions.filter(
+    (convention) =>
+      convention.endAtMs === latestEndAtMs ||
+      watchLastActiveMs(convention) >= nowMs,
+  );
+}
+
 export interface WatchExtrasOptions {
   /** `process.env.EXPO_OS`; anything but "ios" gets today's payload. */
   os: string | undefined;
@@ -260,11 +309,18 @@ export interface WatchExtrasOptions {
  * The JSON handed to the native module's `publishSnapshot`: the snapshot
  * without its phone presentation, plus the Watch extras on iOS.
  *
- * When that is too large it gives things up in order of how little they are
- * missed: option descriptions, then descriptions of saved panels that have
- * ended, then the latest-starting options, then every description. At worst
- * the result is the payload the Watch received before any of this existed,
- * plus the ids of the commands the phone has handled.
+ * On iOS, conventions the Watch can no longer show are left out whatever the
+ * size: every one that is over except the one that ended last. A user who
+ * never archives would otherwise send each past convention's saved panels,
+ * which crowd out the active one's descriptions and options, and in time pass
+ * what WatchConnectivity accepts at all.
+ *
+ * When that is still too large it gives things up in order of how little
+ * they are missed: option descriptions, then descriptions of saved panels
+ * that have ended, then the latest-starting options, then every description.
+ * At worst the result is the payload the Watch received before any of this
+ * existed, less the conventions it can no longer show, plus the ids of the
+ * commands the phone has handled.
  */
 export function withWatchExtras(
   snapshot: WidgetSnapshot,
@@ -284,31 +340,32 @@ export function withWatchExtras(
       ? { handledCommandIds: [...handledCommandIds] }
       : {};
 
-  let conventions: WatchConventionSnapshot[] = snapshot.conventions.map(
-    (convention) => {
-      // A convention that is over offers nothing, and the Watch shows only a
-      // finished state for it, so its descriptions would be dead weight.
-      if (convention.endAtMs <= nowMs) return convention;
-      const source = eventsByConvention.get(convention.id) ?? [];
-      const descriptions = new Map(
-        source.map((event) => [event.id, event.description]),
-      );
-      const events = convention.events.map((event) =>
-        withSummary(event, descriptions.get(event.id)),
-      );
-      const options = selectWatchOptions(
-        source,
-        nowMs,
-        convention.timeZoneIdentifier,
-      ).flatMap((event) => {
-        const option = toOption(event);
-        return option ? [withSummary(option, event.description)] : [];
-      });
-      return options.length > 0
-        ? { ...convention, events, options }
-        : { ...convention, events };
-    },
-  );
+  let conventions: WatchConventionSnapshot[] = watchReachableConventions(
+    snapshot.conventions,
+    nowMs,
+  ).map((convention) => {
+    // A convention that is over offers nothing, and the Watch shows only a
+    // finished state for it, so its descriptions would be dead weight.
+    if (convention.endAtMs <= nowMs) return convention;
+    const source = eventsByConvention.get(convention.id) ?? [];
+    const descriptions = new Map(
+      source.map((event) => [event.id, event.description]),
+    );
+    const events = convention.events.map((event) =>
+      withSummary(event, descriptions.get(event.id)),
+    );
+    const options = selectWatchOptions(
+      source,
+      nowMs,
+      convention.timeZoneIdentifier,
+    ).flatMap((event) => {
+      const option = toOption(event);
+      return option ? [withSummary(option, event.description)] : [];
+    });
+    return options.length > 0
+      ? { ...convention, events, options }
+      : { ...convention, events };
+  });
 
   const serialize = () => JSON.stringify({ ...base, ...handled, conventions });
   let json = serialize();
