@@ -30,7 +30,6 @@ export interface SettingsLinkRowProps {
   /** Shows a spinner instead of the chevron and ignores presses. */
   busy?: boolean;
   onPress?: () => void;
-  testID?: string;
 }
 
 /** A Settings row whose whole job is one on/off choice. */

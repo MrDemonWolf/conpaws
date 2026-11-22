@@ -39,11 +39,9 @@ export function settingsLinkRow({
   kind = "navigate",
   busy = false,
   onPress,
-  testID,
 }: SettingsLinkRowProps) {
   return (
     <FieldRow
-      testID={testID}
       leading={<SettingsLeadingIcon name={icon} />}
       supportingText={value ?? description}
       trailing={busy ? <RowSpinner /> : <Trailing kind={kind} />}

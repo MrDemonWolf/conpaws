@@ -51,5 +51,3 @@ export const db = drizzle(resolveStore(), { schema });
 export function getDatabaseInitError(): Error | null {
   return databaseInitError;
 }
-
-export type Database = typeof db;

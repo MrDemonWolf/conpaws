@@ -23,10 +23,7 @@ import { useEffect, useState } from "react";
  */
 const DEFAULT_DELAY_MS = 250;
 
-export function useDelayedLoading(
-  isLoading: boolean,
-  delayMs: number = DEFAULT_DELAY_MS,
-): boolean {
+export function useDelayedLoading(isLoading: boolean): boolean {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -34,9 +31,9 @@ export function useDelayedLoading(
       setIsVisible(false);
       return;
     }
-    const timer = setTimeout(() => setIsVisible(true), delayMs);
+    const timer = setTimeout(() => setIsVisible(true), DEFAULT_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [isLoading, delayMs]);
+  }, [isLoading]);
 
   return isLoading && isVisible;
 }

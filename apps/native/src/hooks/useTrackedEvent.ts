@@ -255,7 +255,6 @@ export function useTrackedEvent() {
 
   return {
     trackedEventId: selection?.eventId ?? null,
-    trackedConventionId: selection?.conventionId ?? null,
     tracked,
     isTrackable,
     track,

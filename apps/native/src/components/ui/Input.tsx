@@ -8,12 +8,12 @@ import { Text } from "./Text";
  * so NativeWind never sees it and the token never reaches the field. These two
  * greys are the per-theme values that clear WCAG AA against both `background`
  * and `card`. They are not interchangeable -- the dark value lands near 2.3:1
- * on a light card, which is why every call site must ask for the pair rather
- * than paste one of them.
+ * on a light card, which is why Input picks from the pair here rather than
+ * pasting one of them.
  */
 const PLACEHOLDER_COLOR = { dark: "#94A3B8", light: "#64748B" } as const;
 
-export function usePlaceholderTextColor(): string {
+function usePlaceholderTextColor(): string {
   return PLACEHOLDER_COLOR[useResolvedColorScheme()];
 }
 

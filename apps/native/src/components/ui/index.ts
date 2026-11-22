@@ -1,14 +1,10 @@
 export { Badge, type BadgeVariant } from "./Badge";
-export {
-  Banner,
-  type BannerTone,
-  useBannerIconColor,
-} from "./Banner";
+export { Banner, useBannerIconColor } from "./Banner";
 export { Button } from "./Button";
 export { Card } from "./Card";
 export { Chip } from "./Chip";
 export { EmptyState } from "./EmptyState";
-export { Input, usePlaceholderTextColor } from "./Input";
+export { Input } from "./Input";
 export { ReadableColumn } from "./ReadableColumn";
 export { PRESS_DIM, Row, TAP_TARGET } from "./Row";
 export { SafeView } from "./SafeView";
