@@ -100,6 +100,57 @@ struct WatchHomeTests {
     #expect(schedule.laterEvents.map(\.id) == ["then", "after"])
   }
 
+  // MARK: Over
+
+  /// Nothing picked at a convention that is over: the home screen says it is
+  /// over instead of asking for panels to be picked, indefinitely.
+  @Test func aConventionOverWithNothingPickedIsOver() {
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(convention([])),
+      now: at(1_795_550_400) // Tue 24 Nov, 12:00, the day after it ended
+    )
+    #expect(schedule.isOverWithoutPicks)
+  }
+
+  /// The resolver falls back to the convention that ended last, which here
+  /// is the one with nothing picked.
+  @Test func theLastConventionToEndDecidesWhenAllAreOver() {
+    let picked = ConPawsConventionSnapshot(
+      id: "earlier",
+      name: "Earlier",
+      startAtMs: 1_794_589_200_000, // Fri 13 Nov 2026, 09:00
+      endAtMs: 1_794_880_800_000, // Mon 16 Nov, 18:00
+      timeZoneIdentifier: "America/Los_Angeles",
+      dateRangeLabel: "",
+      events: [event("old", from: 1_794_675_600)], // Sat 14 Nov, 09:00
+      options: nil
+    )
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(picked, convention([])),
+      now: at(1_795_550_400) // Tue 24 Nov, 12:00
+    )
+    #expect(schedule.convention?.id == "con")
+    #expect(schedule.isOverWithoutPicks)
+  }
+
+  /// While it runs, an empty plan still asks for panels.
+  @Test func aRunningConventionWithNothingPickedIsNotOver() {
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(convention([])),
+      now: at(1_795_293_000) // Sat 12:30
+    )
+    #expect(schedule.isOverWithoutPicks == false)
+  }
+
+  /// Panels picked and all over is the finished state's to word.
+  @Test func aConventionOverWithPanelsPickedIsNotOverWithoutPicks() {
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(convention([event("old", from: 1_795_276_800)])),
+      now: at(1_795_550_400) // Tue 24 Nov, 12:00
+    )
+    #expect(schedule.isOverWithoutPicks == false)
+  }
+
   // MARK: Today
 
   /// 23:30 on Saturday is Saturday at the convention, though it is Sunday in

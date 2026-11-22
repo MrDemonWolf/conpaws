@@ -158,7 +158,13 @@ private struct WatchRootView: View {
       // the last saved panel here lands on this screen -- so the hour's
       // options stay offered under the empty state rather than vanish.
       let options = convention.optionsThisHour(at: now)
-      if options.isEmpty {
+      if schedule.isOverWithoutPicks {
+        EmptyScheduleView(
+          title: strings.nothingUpcomingTitle,
+          message: strings.nothingUpcomingMessage,
+          systemImage: "checkmark.circle"
+        )
+      } else if options.isEmpty {
         EmptyScheduleView(
           title: strings.noPicksTitle,
           message: strings.noPicksWatchMessage
@@ -802,6 +808,12 @@ private struct TodayListView: View {
         title: strings.noScheduleTitle,
         message: strings.noScheduleMessage,
         systemImage: "iphone"
+      )
+    case .noPicks where schedule.isOverWithoutPicks:
+      EmptyScheduleView(
+        title: strings.nothingUpcomingTitle,
+        message: strings.nothingUpcomingMessage,
+        systemImage: "checkmark.circle"
       )
     case .noPicks:
       EmptyScheduleView(title: strings.noPicksTitle, message: strings.noPicksWatchMessage)

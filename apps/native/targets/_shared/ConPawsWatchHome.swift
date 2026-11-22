@@ -71,6 +71,15 @@ struct WatchScheduleProjection {
   var activeEvent: ConPawsEventSnapshot? { state.activeEvent }
   var nextEvent: ConPawsEventSnapshot? { state.nextEvent }
 
+  /// Nothing picked, and the convention is over: every convention has ended
+  /// and the resolver fell back to the one that ended last. "No panels
+  /// picked" asked for picks for a convention that was over, indefinitely.
+  /// The same test the complication's ended state makes.
+  var isOverWithoutPicks: Bool {
+    guard case .noPicks(let convention) = state else { return false }
+    return convention.hasPassed(at: now)
+  }
+
   init(snapshot: ConPawsSnapshot, now: Date) {
     let state = ConPawsScheduleResolver.resolve(
       snapshot: snapshot,
