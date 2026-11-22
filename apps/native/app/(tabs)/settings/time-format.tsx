@@ -1,11 +1,9 @@
-import { FieldGroup, Host } from "@expo/ui";
-import { useTheme } from "expo-router/react-navigation";
+import { FieldGroup } from "@expo/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import {
   saveTimeFormatPreference,
   type TimeFormatPreference,
@@ -19,9 +17,6 @@ const CHOICES = ["system", "12", "24"] as const;
 
 export default function TimeFormatScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
-  const colorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const selected = useTimeFormatPreference();
   const [saving, setSaving] = useState(false);
 
@@ -41,26 +36,19 @@ export default function TimeFormatScreen() {
   }
 
   return (
-    <Host
-      colorScheme={colorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section disabled={saving}>
-          {CHOICES.map((choice) =>
-            settingsChoiceRow({
-              id: choice,
-              testID: `time-format-${choice}`,
-              title: t(`settings.timeFormat.${timeFormatLabelKey(choice)}`),
-              selected: choice === selected,
-              indicator: "radio",
-              onPress: () => void select(choice),
-            }),
-          )}
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section disabled={saving}>
+        {CHOICES.map((choice) =>
+          settingsChoiceRow({
+            id: choice,
+            testID: `time-format-${choice}`,
+            title: t(`settings.timeFormat.${timeFormatLabelKey(choice)}`),
+            selected: choice === selected,
+            indicator: "radio",
+            onPress: () => void select(choice),
+          }),
+        )}
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }

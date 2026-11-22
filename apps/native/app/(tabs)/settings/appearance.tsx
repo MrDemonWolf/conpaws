@@ -1,15 +1,13 @@
 import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
-import { FieldGroup, Host, Icon } from "@expo/ui";
-import { useTheme } from "expo-router/react-navigation";
+import { FieldGroup, Icon } from "@expo/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { settingsFooter } from "@/components/SettingsFooter";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   APPEARANCE_PREFERENCES,
   type AppearancePreference,
@@ -33,9 +31,6 @@ const APPEARANCE_ICONS: Record<
 
 export default function AppearanceScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const [appearance, setAppearance] = useState<AppearancePreference>(
     getAppearancePreference,
   );
@@ -63,33 +58,26 @@ export default function AppearanceScreen() {
   }
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section disabled={isChanging}>
-          {APPEARANCE_PREFERENCES.map((preference) => {
-            const isSelected = appearance === preference;
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section disabled={isChanging}>
+        {APPEARANCE_PREFERENCES.map((preference) => {
+          const isSelected = appearance === preference;
 
-            return settingsChoiceRow({
-              id: preference,
-              testID: `appearance-${preference}`,
-              title: t(`settings.appearance.${preference}`),
-              selected: isSelected,
-              indicator: "check",
-              leading: <Icon name={APPEARANCE_ICONS[preference]} size={22} />,
-              supportingText: isSelected
-                ? t("settings.languages.selected")
-                : undefined,
-              onPress: () => handleSelect(preference),
-            });
-          })}
-          {settingsFooter(t("settings.appearance.description"))}
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+          return settingsChoiceRow({
+            id: preference,
+            testID: `appearance-${preference}`,
+            title: t(`settings.appearance.${preference}`),
+            selected: isSelected,
+            indicator: "check",
+            leading: <Icon name={APPEARANCE_ICONS[preference]} size={22} />,
+            supportingText: isSelected
+              ? t("settings.languages.selected")
+              : undefined,
+            onPress: () => handleSelect(preference),
+          });
+        })}
+        {settingsFooter(t("settings.appearance.description"))}
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }

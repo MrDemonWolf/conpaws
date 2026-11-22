@@ -1,12 +1,10 @@
-import { FieldGroup, Host } from "@expo/ui";
-import { useTheme } from "expo-router/react-navigation";
+import { FieldGroup } from "@expo/ui";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { settingsFooter } from "@/components/SettingsFooter";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getCachedDefaultReminderMinutes,
@@ -35,9 +33,6 @@ const CHOICES: Array<number | null> = [null, ...REMINDER_DEFAULT_OPTIONS];
  */
 export default function ReminderDefaultScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const [selected, setSelected] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
@@ -65,27 +60,20 @@ export default function ReminderDefaultScreen() {
   }
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section disabled={isSaving}>
-          {CHOICES.map((minutes) =>
-            settingsChoiceRow({
-              id: minutes,
-              testID: `reminder-default-${minutes ?? "none"}`,
-              title: reminderDefaultLabel(minutes, t),
-              selected: minutes === selected,
-              indicator: "radio",
-              onPress: () => handleSelect(minutes),
-            }),
-          )}
-          {settingsFooter(t("settings.notifications.defaultLeadDescription"))}
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section disabled={isSaving}>
+        {CHOICES.map((minutes) =>
+          settingsChoiceRow({
+            id: minutes,
+            testID: `reminder-default-${minutes ?? "none"}`,
+            title: reminderDefaultLabel(minutes, t),
+            selected: minutes === selected,
+            indicator: "radio",
+            onPress: () => handleSelect(minutes),
+          }),
+        )}
+        {settingsFooter(t("settings.notifications.defaultLeadDescription"))}
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }

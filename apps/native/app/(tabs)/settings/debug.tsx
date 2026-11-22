@@ -1,20 +1,18 @@
-import { FieldGroup, Host, Button as NativeButton, Switch } from "@expo/ui";
+import { FieldGroup, Button as NativeButton, Switch } from "@expo/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Application from "expo-application";
 import Constants from "expo-constants";
 import { Redirect, router, useFocusEffect } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AppState, Linking } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import {
   BLANK_PREVIEW_CONVENTION_ID,
   PREVIEW_CONVENTION_ID,
 } from "@/fixtures/conpaws-preview";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   getCachedCatalogSourcePreference,
   setCatalogSourcePreference,
@@ -57,9 +55,6 @@ export default function DebugScreen() {
     () => getCachedCatalogSourcePreference() === "fixture",
   );
   const presentationLock = useRef(0);
-  const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const enabled = developerDiagnosticsEnabled(__DEV__, appVariant);
   const version =
@@ -195,196 +190,187 @@ export default function DebugScreen() {
   }
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section title="Build">
-          <ListItem supportingText={`${version} (${buildNumber})`}>
-            {variantName} app version
-          </ListItem>
-        </FieldGroup.Section>
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section title="Build">
+        <ListItem supportingText={`${version} (${buildNumber})`}>
+          {variantName} app version
+        </ListItem>
+      </FieldGroup.Section>
 
-        <FieldGroup.Section title="Catalog">
-          <Switch
-            label="Use sample catalog"
-            value={useSampleCatalog}
-            onValueChange={(enabled) => {
-              setUseSampleCatalog(enabled);
-              void setCatalogSourcePreference(enabled ? "fixture" : "http");
-            }}
-            testID="debug-catalog-source"
-          />
-        </FieldGroup.Section>
+      <FieldGroup.Section title="Catalog">
+        <Switch
+          label="Use sample catalog"
+          value={useSampleCatalog}
+          onValueChange={(enabled) => {
+            setUseSampleCatalog(enabled);
+            void setCatalogSourcePreference(enabled ? "fixture" : "http");
+          }}
+          testID="debug-catalog-source"
+        />
+      </FieldGroup.Section>
 
-        <FieldGroup.Section title="Haptics">
-          <ListItem
-            supportingText={
-              hapticsEnabled
-                ? "On. Each button fires one effect."
-                : "Off in Settings, so every button below does nothing."
-            }
-          >
-            Haptic feedback
-          </ListItem>
-          <NativeButton
-            label="Success"
-            onPress={hapticSuccess}
-            testID="debug-haptic-success"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Toggle On"
-            variant="outlined"
-            onPress={() => hapticToggle(true)}
-            testID="debug-haptic-toggle-on"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Toggle Off"
-            variant="outlined"
-            onPress={() => hapticToggle(false)}
-            testID="debug-haptic-toggle-off"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Long Press"
-            variant="outlined"
-            onPress={hapticLongPress}
-            testID="debug-haptic-long-press"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Tap (iOS only)"
-            variant="text"
-            onPress={hapticTap}
-            testID="debug-haptic-tap"
-            style={{ height: 44 }}
-          />
-          <FieldGroup.SectionFooter>
-            <NativeText textStyle={{ fontSize: 13 }}>
-              Tap does nothing on Android on purpose — Material 3 gives plain
-              presses a ripple instead. If a button feels like nothing on a
-              device you expect to buzz, check what the system actually did: adb
-              shell dumpsys vibrator_manager | grep conpaws. "finished …
-              played:" ran the motor; "ignored_unsupported … played: null" was
-              dropped by the device.
-            </NativeText>
-          </FieldGroup.SectionFooter>
-        </FieldGroup.Section>
-
-        <FieldGroup.Section
-          title="Notifications"
-          disabled={notificationAction !== null}
+      <FieldGroup.Section title="Haptics">
+        <ListItem
+          supportingText={
+            hapticsEnabled
+              ? "On. Each button fires one effect."
+              : "Off in Settings, so every button below does nothing."
+          }
         >
-          <ListItem
-            supportingText={
-              notificationPermission === "granted"
-                ? "Allowed"
-                : notificationPermission === "denied"
-                  ? "Blocked in System Settings"
-                  : "Not requested"
-            }
-          >
-            Current permission
-          </ListItem>
-          <NativeButton
-            label={
-              notificationAction === "send"
-                ? "Scheduling Test"
-                : "Send Test in 5 Seconds"
-            }
-            onPress={sendTestNotification}
-            disabled={notificationAction !== null}
-            testID="debug-send-test-notification"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label={
-              notificationAction === "clear"
-                ? "Clearing Tests"
-                : "Clear Pending Tests"
-            }
-            variant="outlined"
-            onPress={clearTestNotifications}
-            disabled={notificationAction !== null}
-            testID="debug-clear-test-notifications"
-            style={{ height: 44 }}
-          />
-          {notificationPermission === "denied" ? (
-            <NativeButton
-              label="Open System Settings"
-              variant="text"
-              onPress={() => Linking.openSettings()}
-              style={{ height: 44 }}
-            />
-          ) : null}
-        </FieldGroup.Section>
+          Haptic feedback
+        </ListItem>
+        <NativeButton
+          label="Success"
+          onPress={hapticSuccess}
+          testID="debug-haptic-success"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Toggle On"
+          variant="outlined"
+          onPress={() => hapticToggle(true)}
+          testID="debug-haptic-toggle-on"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Toggle Off"
+          variant="outlined"
+          onPress={() => hapticToggle(false)}
+          testID="debug-haptic-toggle-off"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Long Press"
+          variant="outlined"
+          onPress={hapticLongPress}
+          testID="debug-haptic-long-press"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Tap (iOS only)"
+          variant="text"
+          onPress={hapticTap}
+          testID="debug-haptic-tap"
+          style={{ height: 44 }}
+        />
+        <FieldGroup.SectionFooter>
+          <NativeText textStyle={{ fontSize: 13 }}>
+            Tap does nothing on Android on purpose — Material 3 gives plain
+            presses a ripple instead. If a button feels like nothing on a device
+            you expect to buzz, check what the system actually did: adb shell
+            dumpsys vibrator_manager | grep conpaws. "finished … played:" ran
+            the motor; "ignored_unsupported … played: null" was dropped by the
+            device.
+          </NativeText>
+        </FieldGroup.SectionFooter>
+      </FieldGroup.Section>
 
-        <FieldGroup.Section title="Onboarding">
-          <ListItem supportingText="Your conventions and settings stay unchanged.">
-            Replay the first-run experience
-          </ListItem>
+      <FieldGroup.Section
+        title="Notifications"
+        disabled={notificationAction !== null}
+      >
+        <ListItem
+          supportingText={
+            notificationPermission === "granted"
+              ? "Allowed"
+              : notificationPermission === "denied"
+                ? "Blocked in System Settings"
+                : "Not requested"
+          }
+        >
+          Current permission
+        </ListItem>
+        <NativeButton
+          label={
+            notificationAction === "send"
+              ? "Scheduling Test"
+              : "Send Test in 5 Seconds"
+          }
+          onPress={sendTestNotification}
+          disabled={notificationAction !== null}
+          testID="debug-send-test-notification"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label={
+            notificationAction === "clear"
+              ? "Clearing Tests"
+              : "Clear Pending Tests"
+          }
+          variant="outlined"
+          onPress={clearTestNotifications}
+          disabled={notificationAction !== null}
+          testID="debug-clear-test-notifications"
+          style={{ height: 44 }}
+        />
+        {notificationPermission === "denied" ? (
           <NativeButton
-            label="Replay Onboarding"
-            variant="outlined"
-            onPress={replayOnboarding}
+            label="Open System Settings"
+            variant="text"
+            onPress={() => Linking.openSettings()}
             style={{ height: 44 }}
           />
-        </FieldGroup.Section>
+        ) : null}
+      </FieldGroup.Section>
 
-        <FieldGroup.Section title="Preview data" disabled={isLoadingPreview}>
-          <ListItem supportingText="Reset a full 200-event schedule and a blank convention for offline previews and tests.">
-            ConPaws Preview Cons
-          </ListItem>
-          <NativeButton
-            label={
-              isLoadingPreview
-                ? "Loading Preview Cons"
-                : "Preview Content State"
-            }
-            onPress={() =>
-              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "content")
-            }
-            disabled={isLoadingPreview}
-            testID="debug-load-preview-con"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Preview Empty State"
-            onPress={() =>
-              void loadPreviewConvention(BLANK_PREVIEW_CONVENTION_ID, "empty")
-            }
-            variant="outlined"
-            disabled={isLoadingPreview}
-            testID="debug-load-blank-preview-con"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Preview Loading State"
-            onPress={() =>
-              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "loading")
-            }
-            variant="outlined"
-            disabled={isLoadingPreview}
-            testID="debug-preview-convention-loading"
-            style={{ height: 44 }}
-          />
-          <NativeButton
-            label="Preview Error State"
-            onPress={() =>
-              void loadPreviewConvention(PREVIEW_CONVENTION_ID, "error")
-            }
-            variant="outlined"
-            disabled={isLoadingPreview}
-            testID="debug-preview-convention-error"
-            style={{ height: 44 }}
-          />
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+      <FieldGroup.Section title="Onboarding">
+        <ListItem supportingText="Your conventions and settings stay unchanged.">
+          Replay the first-run experience
+        </ListItem>
+        <NativeButton
+          label="Replay Onboarding"
+          variant="outlined"
+          onPress={replayOnboarding}
+          style={{ height: 44 }}
+        />
+      </FieldGroup.Section>
+
+      <FieldGroup.Section title="Preview data" disabled={isLoadingPreview}>
+        <ListItem supportingText="Reset a full 200-event schedule and a blank convention for offline previews and tests.">
+          ConPaws Preview Cons
+        </ListItem>
+        <NativeButton
+          label={
+            isLoadingPreview ? "Loading Preview Cons" : "Preview Content State"
+          }
+          onPress={() =>
+            void loadPreviewConvention(PREVIEW_CONVENTION_ID, "content")
+          }
+          disabled={isLoadingPreview}
+          testID="debug-load-preview-con"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Preview Empty State"
+          onPress={() =>
+            void loadPreviewConvention(BLANK_PREVIEW_CONVENTION_ID, "empty")
+          }
+          variant="outlined"
+          disabled={isLoadingPreview}
+          testID="debug-load-blank-preview-con"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Preview Loading State"
+          onPress={() =>
+            void loadPreviewConvention(PREVIEW_CONVENTION_ID, "loading")
+          }
+          variant="outlined"
+          disabled={isLoadingPreview}
+          testID="debug-preview-convention-loading"
+          style={{ height: 44 }}
+        />
+        <NativeButton
+          label="Preview Error State"
+          onPress={() =>
+            void loadPreviewConvention(PREVIEW_CONVENTION_ID, "error")
+          }
+          variant="outlined"
+          disabled={isLoadingPreview}
+          testID="debug-preview-convention-error"
+          style={{ height: 44 }}
+        />
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }
