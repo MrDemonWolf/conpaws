@@ -176,6 +176,70 @@ struct ScheduleStateTests {
     else { #expect(Bool(false)) }
   }
 
+  /// The phone sends a convention's end as the midnight after its last day,
+  /// so a closing-night panel can run past it. With the next convention
+  /// already saved, the Watch still follows the running panel until it ends.
+  @Test func aPanelRunningPastTheEndKeepsItsConventionUntilThePanelEnds() {
+    let end = now
+    let closing = event("closing", from: end.addingTimeInterval(-3_600), until: end.addingTimeInterval(2_700))
+    let first = convention(
+      [closing],
+      startsAt: end.addingTimeInterval(-3 * 86_400),
+      id: "first",
+      endsAt: end
+    )
+    let next = convention(
+      [],
+      startsAt: end.addingTimeInterval(26 * 86_400),
+      id: "next",
+      endsAt: end.addingTimeInterval(29 * 86_400)
+    )
+    let value = snapshot([first, next])
+
+    let during = resolveAutomatically(value, at: end.addingTimeInterval(60))
+    if case .currentOnly(let shown, let running) = during {
+      #expect(shown.id == "first")
+      #expect(running.id == "closing")
+    } else { Issue.record("expected the running panel, got \(during)") }
+
+    let after = resolveAutomatically(value, at: end.addingTimeInterval(2_700.001))
+    if case .countdown(let shown) = after { #expect(shown.id == "next") }
+    else { Issue.record("expected the next convention's countdown, got \(after)") }
+  }
+
+  /// Seconds after the convention's end at which it stops counting as active,
+  /// for one saved panel from `start` to `end` (nil: none, or no end time).
+  @Test(arguments: [
+    (nil, nil, 0),
+    (-7_200, -3_600, 0),
+    (-3_600, 2_700, 2_700),
+    (-1_800, nil, 1_800),
+    // A bad end time holds the convention a day from the panel's start at most.
+    (-3_600, 30 * 86_400, 82_800),
+    // A panel saved for after the convention still counts until it ends.
+    (2 * 86_400, 2 * 86_400 + 3_600, 2 * 86_400 + 3_600),
+  ] as [(TimeInterval?, TimeInterval?, TimeInterval)])
+  func lastActiveMomentFollowsTheLatestSavedPanelsEnd(
+    start: TimeInterval?,
+    end: TimeInterval?,
+    expected: TimeInterval
+  ) {
+    let events = start.map { start in
+      [event("panel", from: now.addingTimeInterval(start), until: end.map { now.addingTimeInterval($0) })]
+    } ?? []
+    let saved = convention(events, endsAt: now)
+    #expect(
+      ConPawsScheduleResolver.lastActiveMs(of: saved)
+        == now.addingTimeInterval(expected).timeIntervalSince1970 * 1_000
+    )
+  }
+
+  private func resolveAutomatically(_ snapshot: ConPawsSnapshot, at moment: Date) -> ConPawsScheduleState {
+    ConPawsScheduleResolver.resolve(
+      snapshot: snapshot, selectedConventionID: nil, skipCountdown: false, now: moment
+    )
+  }
+
   private func resolve(_ events: [ConPawsEventSnapshot]) -> ConPawsScheduleState {
     let saved = convention(events)
     return ConPawsScheduleResolver.resolve(

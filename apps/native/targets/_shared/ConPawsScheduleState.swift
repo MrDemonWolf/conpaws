@@ -68,11 +68,21 @@ enum ConPawsScheduleResolver {
     return .finished(convention)
   }
 
+  /// The longest a saved panel keeps its convention active, from the panel's
+  /// start. A bad end time weeks out would otherwise hide the next
+  /// convention's countdown for that long. Mirrored by
+  /// `WATCH_LONGEST_COUNTED_PANEL_MS` in src/services/watch-snapshot.ts.
+  static let longestCountedPanelMs: Double = 86_400_000
+
   /// The last moment `resolve` counts a convention as active or upcoming when
   /// it chooses one itself, inclusive: the convention's end, or a saved
-  /// panel's start when one starts later.
+  /// panel's end when one runs later. The phone sends the end as the midnight
+  /// after the last day, so a closing-night panel often runs past it.
+  /// Mirrored by `watchLastActiveMs` in src/services/watch-snapshot.ts.
   static func lastActiveMs(of convention: ConPawsConventionSnapshot) -> Double {
-    convention.events.reduce(convention.endAtMs) { max($0, $1.startAtMs) }
+    convention.events.reduce(convention.endAtMs) { latest, event in
+      max(latest, min(effectiveEndMs(of: event), event.startAtMs + longestCountedPanelMs))
+    }
   }
 
   static func isInReminderWindow(_ event: ConPawsEventSnapshot, now: Date) -> Bool {
@@ -93,7 +103,12 @@ enum ConPawsScheduleResolver {
   }
 
   static func effectiveEnd(of event: ConPawsEventSnapshot) -> Date {
-    Date(timeIntervalSince1970: (event.endAtMs ?? event.startAtMs + 3_600_000) / 1_000)
+    Date(timeIntervalSince1970: effectiveEndMs(of: event) / 1_000)
+  }
+
+  /// In milliseconds, so convention bounds compare exactly.
+  static func effectiveEndMs(of event: ConPawsEventSnapshot) -> Double {
+    event.endAtMs ?? event.startAtMs + 3_600_000
   }
 }
 

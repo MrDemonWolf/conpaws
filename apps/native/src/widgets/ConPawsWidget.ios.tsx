@@ -234,10 +234,18 @@ export function ConPawsWidgetLayout(
     return event.room?.trim() || event.location?.trim() || "";
   }
   const configuration = environment.configuration;
+  // A saved panel keeps its convention until it ends, as on the Watch
+  // (ConPawsScheduleResolver.lastActiveMs): a closing-night panel often runs
+  // past the end, the midnight after the last day. It counts for a day from
+  // its start at most, so a bad end time cannot hide the next convention.
   const candidates = conventions.filter(
     (convention) =>
       convention.endAtMs >= now ||
-      convention.events.some((event) => event.startAtMs >= now),
+      convention.events.some(
+        (event) =>
+          event.startAtMs >= now ||
+          Math.min(end(event), event.startAtMs + 86_400_000) > now,
+      ),
   );
   const underway = candidates.filter(
     (convention) => convention.startAtMs <= now && convention.events.length > 0,

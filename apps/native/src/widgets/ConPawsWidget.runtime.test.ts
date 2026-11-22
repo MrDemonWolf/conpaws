@@ -560,6 +560,49 @@ describe("isolated Expo widget renderers", () => {
     },
   );
 
+  it.each(platforms)(
+    "%s follows a saved panel running past its convention's end until it ends",
+    (platform) => {
+      const data = snapshot();
+      const base = data.conventions[0];
+      const panel = base.events[0];
+      // The end is the midnight after the last day; the closing-night panel
+      // runs past it while the next convention is already saved.
+      const closing = {
+        ...panel,
+        title: "Closing Night Social",
+        startAtMs: NOW - HOUR,
+        endAtMs: NOW + 15 * MINUTE,
+      };
+      data.conventions = [
+        {
+          ...base,
+          id: "first",
+          name: "First Con",
+          startAtMs: NOW - 3 * 86_400_000,
+          endAtMs: NOW - 30 * MINUTE,
+          events: [closing],
+        },
+        {
+          ...base,
+          id: "next",
+          name: "Next Con",
+          startAtMs: NOW + 26 * 86_400_000,
+          endAtMs: NOW + 29 * 86_400_000,
+          events: [],
+        },
+      ];
+      const running = texts(render(platform, { snapshot: data })).join(" ");
+      expect(running).toContain("Closing Night Social");
+      expect(running).not.toContain("Next Con");
+
+      closing.endAtMs = NOW;
+      const ended = texts(render(platform, { snapshot: data })).join(" ");
+      expect(ended).toContain("Next Con");
+      expect(ended).not.toContain("Closing Night Social");
+    },
+  );
+
   it("keeps an ongoing final event and does not invent its missing end", () => {
     const data = snapshot();
     Object.assign(data.conventions[0].events[0], {

@@ -107,9 +107,9 @@ struct ComplicationTimelineTests {
   /// the ended convention, and nothing redrew the card for six hours. The
   /// first convention's last hour-long panel starts this many minutes after
   /// its end (nil: no panels): long before, running until the end, so the
-  /// plan stands on the end itself, or starting after it, which keeps the
-  /// convention until that start.
-  @Test(arguments: [nil, -180, -60, 30] as [Int?])
+  /// plan stands on the end itself, or running past the end or starting
+  /// after it, which keeps the convention until that panel ends.
+  @Test(arguments: [nil, -180, -60, -30, 30] as [Int?])
   func theNextConventionTakesOverTheMomentTheFirstOneEnds(panelAfterEnd: Int?) throws {
     let end = local(23, 18)
     let panels = panelAfterEnd.map { minutes in
@@ -120,8 +120,13 @@ struct ComplicationTimelineTests {
     let later = convention("later", from: local(27, 8), until: local(29, 18))
     let value = snapshot(conventions: [first, later], generatedAt: local(23, 16, 59))
     let now = local(23, 17)
-    let takeover = end.addingTimeInterval(TimeInterval(max(panelAfterEnd ?? 0, 0) * 60 + 60))
+    let panelEndAfterEnd = max((panelAfterEnd ?? -60) + 60, 0)
+    let takeover = end.addingTimeInterval(TimeInterval(panelEndAfterEnd * 60 + 60))
     #expect(frame(value, at: takeover).hasPrefix("coming later"))
+    if panelEndAfterEnd > 0 {
+      // The panel's last minute still shows it, not the next countdown.
+      #expect(frame(value, at: takeover.addingTimeInterval(-120)).hasPrefix("current first closing"))
+    }
     let shown = try #require(plannedDates(value, now: now).last { $0 <= takeover })
     #expect(frame(value, at: shown) == frame(value, at: takeover))
     expectNoStaleCard(value, now: now)
