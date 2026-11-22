@@ -49,6 +49,25 @@ struct PendingCommandTests {
     #expect(ConPawsPendingCommands.settled(pending, by: snapshot(saved: []), at: now) == pending)
   }
 
+  @Test func anOlderSnapshotSettlesTheCommandsItListsAsHandled() {
+    // The phone declined c1 and listed it in S1, then a restart published S2
+    // without it. S1 arrives second and is never shown, but its receipt holds.
+    let declined = command(.save, event: "evt", id: "c1")
+    let waiting = command(.save, event: "other", id: "c2")
+    var older = snapshot(saved: [])
+    older.handledCommandIds = ["c1"]
+
+    let settled = ConPawsPendingCommands.settled(table(declined, waiting), byReceiptsIn: older)
+    #expect(settled == table(waiting))
+  }
+
+  @Test func anOlderSnapshotNeverSettlesACommandByItsEffect() {
+    // An older schedule can show a state from before a newer tap.
+    let pending = table(command(.save, event: "evt", id: "c1"), command(.remove, event: "gone", id: "c2"))
+    let older = snapshot(saved: ["evt"])
+    #expect(ConPawsPendingCommands.settled(pending, byReceiptsIn: older) == pending)
+  }
+
   // MARK: Delivery
 
   @Test func undeliveredSkipsDeliveredAndExpiredCommands() {

@@ -72,6 +72,21 @@ enum ConPawsPendingCommands {
     }
   }
 
+  /// Without the commands `snapshot` lists as handled, and nothing else.
+  ///
+  /// For a snapshot that is not shown because the stored one is newer. Its
+  /// receipts are still true, and may be the only ones: the phone keeps them
+  /// in memory, so a phone app relaunched after declining a tap publishes a
+  /// newer snapshot without it, and the older one that listed it arrives
+  /// later as a replayed user info. Its saved events are not used, because
+  /// they can predate a newer tap and would settle it early.
+  static func settled(_ pending: Table, byReceiptsIn snapshot: ConPawsSnapshot) -> Table {
+    guard let handled = snapshot.handledCommandIds.map(Set.init), !handled.isEmpty else {
+      return pending
+    }
+    return pending.filter { _, entry in !handled.contains(entry.command.id) }
+  }
+
   // MARK: Storage
 
   /// The table stored in `data`, without any entry filed under another

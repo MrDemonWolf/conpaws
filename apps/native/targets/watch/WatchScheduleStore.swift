@@ -146,6 +146,12 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     updatePendingCommands(ConPawsPendingCommands.settled(pendingCommands, by: snapshot, at: now))
   }
 
+  /// Drops what a snapshot too old to show lists as handled; see
+  /// `ConPawsPendingCommands.settled(_:byReceiptsIn:)`.
+  private func settlePendingCommands(byReceiptsIn snapshot: ConPawsSnapshot) {
+    updatePendingCommands(ConPawsPendingCommands.settled(pendingCommands, byReceiptsIn: snapshot))
+  }
+
   /// Publishes and stores `updated`, unless nothing changed.
   private func updatePendingCommands(_ updated: [String: PendingWatchCommand]) {
     guard updated != pendingCommands else { return }
@@ -190,7 +196,18 @@ final class WatchScheduleStore: NSObject, ObservableObject {
         storedMs: ConPawsSnapshotStore.load().generatedAtMs,
         candidateMs: candidate.generatedAtMs,
         nowMs: nowMs
-      ),
+      )
+    else {
+      // Never shown, but the taps it lists as handled are still done, and a
+      // declined one has no other way to free its button.
+      if candidate.handledCommandIds?.isEmpty == false {
+        DispatchQueue.main.async { [weak self] in
+          self?.settlePendingCommands(byReceiptsIn: candidate)
+        }
+      }
+      return
+    }
+    guard
       let filteredData = try? JSONEncoder().encode(candidate),
       let filteredJSON = String(data: filteredData, encoding: .utf8),
       // Stored here, on receiveQueue, so the next delivery is measured against
