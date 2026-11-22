@@ -333,6 +333,12 @@ extension ConPawsStrings {
   func minutes(_ value: Int) -> String { count(minutesUnit, value) }
   func events(_ value: Int) -> String { count(eventsUnit, value) }
 
+  /// Hours or minutes in the case "Starts in %@" governs, which is the case
+  /// of `inFormat`'s preposition in every language here: "za 1 minutę",
+  /// "18 minuutin kuluttua". "remaining" takes the plain forms above.
+  func hours(_ value: Int, oblique: Bool) -> String { count(hoursUnit, value, oblique: oblique) }
+  func minutes(_ value: Int, oblique: Bool) -> String { count(minutesUnit, value, oblique: oblique) }
+
   func inHours(_ value: Int) -> String {
     text(inFormat, count(hoursUnit, value, oblique: true))
   }

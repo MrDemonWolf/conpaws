@@ -264,18 +264,7 @@ private struct ComingUpWidgetView: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
       spokenSummary(
-        strings.text(
-          strings.comingUpA11yFormat,
-          convention.name,
-          strings.remaining(
-            ConPawsFormat.countdownDuration(
-              from: now,
-              to: convention.startDate,
-              in: convention.timeZone,
-              strings: strings
-            )
-          )
-        ),
+        ConPawsComplicationSpeech.comingUp(convention, now: now, strings: strings),
         stale: staleNotice
       )
     )
@@ -337,22 +326,13 @@ private struct LeaveWidgetView: View {
     if redactionReasons.contains(.privacy) {
       return "\(lead.text), \(nextTime)."
     }
-    let countdown = ConPawsFormat.countdownDuration(
-      from: now,
-      to: next.startDate,
-      in: convention.timeZone,
+    return ConPawsComplicationSpeech.leave(
+      current: current,
+      next: next,
+      now: now,
+      startTime: nextTime,
       strings: strings
     )
-    if let current {
-      return strings.text(
-        strings.startsWithCurrentA11yFormat,
-        countdown,
-        current.title,
-        next.title,
-        nextTime
-      )
-    }
-    return strings.text(strings.startsA11yFormat, countdown, next.title, nextTime)
   }
 }
 

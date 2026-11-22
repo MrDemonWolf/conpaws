@@ -209,7 +209,8 @@ struct ComplicationTimelineTests {
   }
 
   /// Every minute between two entries reads exactly like the earlier entry:
-  /// what the card would show had it been redrawn then.
+  /// what the card would show had it been redrawn then. So does the last
+  /// second before each next entry, which a minute's step can miss.
   private func expectNoStaleCard(
     _ snapshot: ConPawsSnapshot,
     now: Date,
@@ -229,6 +230,13 @@ struct ComplicationTimelineTests {
         sourceLocation: sourceLocation
       )
       moment.addTimeInterval(60)
+    }
+    for (entry, next) in zip(dates, dates.dropFirst()) where next.timeIntervalSince(entry) > 1 {
+      #expect(
+        frame(snapshot, at: next.addingTimeInterval(-1)) == frame(snapshot, at: entry),
+        "stale card just before \(next) from the \(entry) entry",
+        sourceLocation: sourceLocation
+      )
     }
   }
 
@@ -256,6 +264,8 @@ struct ComplicationTimelineTests {
         to: calendar.startOfDay(for: start)
       ).day ?? 0
     }
+    // The spoken countdown is part of the frame: WidgetKit keeps an entry's
+    // VoiceOver label as long as its pixels.
     let shown: String = switch projection.state {
     case .comingUp(let convention):
       "coming \(convention.id) "
@@ -265,6 +275,7 @@ struct ComplicationTimelineTests {
           timeZone: zone,
           strings: strings
         )
+        + " / " + ConPawsComplicationSpeech.comingUp(convention, now: date, strings: strings)
     case .leave(let current, let next, let convention):
       "leave \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next)) "
         + ConPawsCountdown.leaveLead(
@@ -273,6 +284,7 @@ struct ComplicationTimelineTests {
           timeZone: zone,
           strings: strings
         ).text
+        + " / " + ConPawsComplicationSpeech.leaveCountdown(from: date, to: next.startDate, strings: strings)
     case .next(let current, let next, let convention):
       "next \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next))"
     case .current(let event, let convention):
