@@ -17,11 +17,11 @@ import { Text } from "@/components/ui";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";
+import { useOpenLink } from "@/hooks/useOpenLink";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 import { ABOUT_HERO_MAX } from "@/lib/content-width";
-import { openExternal } from "@/lib/open-external";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
 const CHEVRON_ICON = Icon.select({
@@ -54,15 +54,7 @@ function NavigationIndicator() {
 export default function AboutScreen() {
   const { t } = useTranslation();
 
-  // One place that catches the two rejections these links actually produce: a
-  // second tap while a browser is already up, and a `mailto:` on a device with
-  // no mail account. Both used to be unhandled and silent.
-  function openLink(url: string) {
-    void openExternal(url, {
-      errorTitle: t("common.error"),
-      errorMessage: t("common.openLinkError"),
-    });
-  }
+  const openLink = useOpenLink();
 
   const { width } = useWindowDimensions();
   const { colors } = useTheme();

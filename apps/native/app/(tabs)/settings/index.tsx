@@ -13,6 +13,7 @@ import { SETTINGS_STACKED_FONT_SCALE } from "@/components/SettingsRows.types";
 import { FieldRow } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useOpenLink } from "@/hooks/useOpenLink";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
@@ -31,7 +32,6 @@ import {
 } from "@/lib/device-clock";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
-import { openExternal } from "@/lib/open-external";
 import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getCachedDefaultReminderMinutes,
@@ -53,15 +53,7 @@ export default function SettingsScreen() {
   const { fontScale } = useWindowDimensions();
   const { t } = useTranslation();
 
-  // One place that catches the two rejections these links actually produce: a
-  // second tap while a browser is already up, and a `mailto:` on a device with
-  // no mail account. Both used to be unhandled and silent.
-  function openLink(url: string) {
-    void openExternal(url, {
-      errorTitle: t("common.error"),
-      errorMessage: t("common.openLinkError"),
-    });
-  }
+  const openLink = useOpenLink();
 
   const { exportData, isLoading: isExporting } = useExportData();
   const { colors } = useTheme();
