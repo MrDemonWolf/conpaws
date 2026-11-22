@@ -44,6 +44,11 @@ struct ConPawsCountdownTests {
     let points = ConPawsCountdown.changePoints(from: from, to: to, timeZone: chicago)
 
     #expect(label(from: from, to: to) == "Tomorrow")
+    // In the language the snapshot asked for, not the watch's.
+    #expect(
+      ConPawsCountdown.label(from: from, to: to, timeZone: chicago, strings: .resolve("sv"))
+        == "I morgon"
+    )
     let underADay = at(1_795_201_981) // Fri 20 Nov, 13:13:01
     #expect(label(from: underADay, to: to) == "In 23 hours")
     #expect(points.first == underADay)

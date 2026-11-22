@@ -25,26 +25,9 @@ struct ConPawsComplicationProjection {
   /// Every convention the resolver chose among, not only the one shown.
   let conventions: [ConPawsConventionSnapshot]
 
-  var convention: ConPawsConventionSnapshot? {
-    switch resolved {
-    case .noConvention: nil
-    case .countdown(let value), .finished(let value), .noPicks(let value): value
-    case .next(let value, _, _), .currentOnly(let value, _): value
-    }
-  }
-
-  var activeEvent: ConPawsEventSnapshot? {
-    switch resolved {
-    case .next(_, let current, _): current
-    case .currentOnly(_, let event): event
-    case .noConvention, .countdown, .finished, .noPicks: nil
-    }
-  }
-
-  var nextEvent: ConPawsEventSnapshot? {
-    if case .next(_, _, let upcoming) = resolved { return upcoming }
-    return nil
-  }
+  var convention: ConPawsConventionSnapshot? { resolved.convention }
+  var activeEvent: ConPawsEventSnapshot? { resolved.activeEvent }
+  var nextEvent: ConPawsEventSnapshot? { resolved.nextEvent }
 
   var state: State {
     switch resolved {

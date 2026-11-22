@@ -6,12 +6,6 @@ struct ConPawsWatchApp: App {
   /// delegate set, before anything is delivered. `ContentView` observes it.
   private let store = WatchScheduleStore.shared
 
-  init() {
-    #if DEBUG
-    runWatchScheduleSelfCheck()
-    #endif
-  }
-
   var body: some Scene {
     WindowGroup {
       ContentView(store: store)

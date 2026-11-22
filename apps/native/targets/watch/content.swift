@@ -1,21 +1,6 @@
 import Foundation
 import SwiftUI
 
-/// Where the watch app can push.
-///
-/// Value-based, so a pushed screen belongs to the path rather than to the link
-/// that opened it. With closure links, Up Next's card moving into the Happening
-/// Now slot on the minute tick took its link -- and the reader's detail screen
-/// -- with it, at the exact moment that screen mattered. The convention id
-/// travels with the event id so the lookup is exact.
-private enum WatchRoute: Hashable {
-  case today
-  case event(conventionID: String, eventID: String)
-  /// An unsaved panel from "Other options this hour". Kept when the panel is
-  /// added: the same screen then shows it as saved rather than popping.
-  case option(conventionID: String, eventID: String)
-}
-
 struct ContentView: View {
   @ObservedObject var store: WatchScheduleStore
   @State private var path: [WatchRoute] = []
@@ -51,37 +36,13 @@ struct ContentView: View {
     // forward on whatever screen it was last left on.
     .onOpenURL { url in
       guard let link = ConPawsWatchLink(url: url) else { return }
-      path = Self.path(opening: link, in: store.snapshot)
+      path = WatchRoute.path(opening: link, in: store.snapshot)
     }
     .onChange(of: store.snapshot.generatedAtMs) {
       // A new schedule can drop the event a detail screen is showing. Pop it
-      // rather than leave the reader on an empty screen. That includes an
-      // event removed from here: once the phone confirms, there is nothing
-      // left to show.
-      let snapshot = store.snapshot
-      path.removeAll { route in
-        switch route {
-        case .today:
-          return false
-        case .event(let conventionID, let eventID):
-          return snapshot.event(id: eventID, in: conventionID) == nil
-        case .option(let conventionID, let eventID):
-          return snapshot.event(id: eventID, in: conventionID) == nil
-            && snapshot.option(id: eventID, in: conventionID) == nil
-        }
-      }
-    }
-  }
-
-  /// The stack a complication link opens. A panel the plan no longer holds,
-  /// because a newer snapshot reached the app first, opens the home screen.
-  private static func path(opening link: ConPawsWatchLink, in snapshot: ConPawsSnapshot) -> [WatchRoute] {
-    switch link {
-    case .home:
-      return []
-    case .event(let conventionID, let eventID):
-      guard snapshot.event(id: eventID, in: conventionID) != nil else { return [] }
-      return [.event(conventionID: conventionID, eventID: eventID)]
+      // rather than leave the reader on an empty screen.
+      let pruned = WatchRoute.pruned(path, against: store.snapshot)
+      if pruned != path { path = pruned }
     }
   }
 }
@@ -1283,189 +1244,7 @@ private extension View {
   }
 }
 
-private struct WatchScheduleProjection {
-  let now: Date
-  let state: ConPawsScheduleState
-  /// Up to two saved events after Up Next, soonest first.
-  let laterEvents: [ConPawsEventSnapshot]
-  /// Every saved event starting today in the convention's time zone.
-  let todayEvents: [ConPawsEventSnapshot]
-
-  var convention: ConPawsConventionSnapshot? { Self.convention(of: state) }
-
-  var activeEvent: ConPawsEventSnapshot? {
-    switch state {
-    case .next(_, let current, _): current
-    case .currentOnly(_, let event): event
-    case .noConvention, .countdown, .finished, .noPicks: nil
-    }
-  }
-
-  var nextEvent: ConPawsEventSnapshot? { Self.nextEvent(of: state) }
-
-  init(snapshot: ConPawsSnapshot, now: Date) {
-    let state = ConPawsScheduleResolver.resolve(
-      snapshot: snapshot,
-      selectedConventionID: nil,
-      skipCountdown: false,
-      now: now
-    )
-    let next = Self.nextEvent(of: state)
-    self.now = now
-    self.state = state
-
-    guard let convention = Self.convention(of: state) else {
-      laterEvents = []
-      todayEvents = []
-      return
-    }
-    let sorted = convention.events.sorted { $0.startAtMs < $1.startAtMs }
-    laterEvents = Array(
-      sorted
-        .filter { $0.startDate > now && $0.id != next?.id }
-        .prefix(2)
-    )
-    let calendar = convention.calendar
-    todayEvents = sorted.filter { calendar.isDate($0.startDate, inSameDayAs: now) }
-  }
-
-  private static func convention(of state: ConPawsScheduleState) -> ConPawsConventionSnapshot? {
-    switch state {
-    case .noConvention: nil
-    case .countdown(let convention), .finished(let convention), .noPicks(let convention): convention
-    case .next(let convention, _, _), .currentOnly(let convention, _): convention
-    }
-  }
-
-  private static func nextEvent(of state: ConPawsScheduleState) -> ConPawsEventSnapshot? {
-    if case .next(_, _, let upcoming) = state { return upcoming }
-    return nil
-  }
-}
-
-private extension ConPawsSnapshot {
-  func event(
-    id eventID: String,
-    in conventionID: String
-  ) -> (event: ConPawsEventSnapshot, convention: ConPawsConventionSnapshot)? {
-    guard
-      let convention = conventions.first(where: { $0.id == conventionID }),
-      let event = convention.events.first(where: { $0.id == eventID })
-    else { return nil }
-    return (event, convention)
-  }
-
-  /// An unsaved option, from the whole window the phone sent rather than the
-  /// current hour, so a detail screen outlives the hour that listed it.
-  func option(
-    id eventID: String,
-    in conventionID: String
-  ) -> (event: ConPawsEventSnapshot, convention: ConPawsConventionSnapshot)? {
-    guard
-      let convention = conventions.first(where: { $0.id == conventionID }),
-      let option = convention.options?.first(where: { $0.id == eventID })
-    else { return nil }
-    return (option, convention)
-  }
-}
-
 #if DEBUG
-func runWatchScheduleSelfCheck() {
-  let now = Date(timeIntervalSince1970: 2_000_000_000)
-  let current = ConPawsEventSnapshot(
-    id: "current",
-    title: "Current",
-    startAtMs: now.addingTimeInterval(-600).timeIntervalSince1970 * 1_000,
-    endAtMs: now.addingTimeInterval(600).timeIntervalSince1970 * 1_000,
-    location: nil,
-    room: nil,
-    reminderMinutes: nil,
-    ageRating: nil,
-    summary: nil
-  )
-  let next = ConPawsEventSnapshot(
-    id: "next",
-    title: "Next",
-    startAtMs: now.addingTimeInterval(1_200).timeIntervalSince1970 * 1_000,
-    endAtMs: nil,
-    location: nil,
-    room: nil,
-    reminderMinutes: 30,
-    ageRating: nil,
-    summary: nil
-  )
-  let convention = ConPawsConventionSnapshot(
-    id: "con",
-    name: "Convention",
-    startAtMs: now.addingTimeInterval(-86_400).timeIntervalSince1970 * 1_000,
-    endAtMs: now.addingTimeInterval(86_400).timeIntervalSince1970 * 1_000,
-    timeZoneIdentifier: "UTC",
-    dateRangeLabel: "Today",
-    events: [current, next],
-    options: nil
-  )
-  let snapshot = ConPawsSnapshot(
-    schemaVersion: 1,
-    generatedAtMs: now.timeIntervalSince1970 * 1_000,
-    localeIdentifier: "en",
-    conventions: [convention]
-  )
-  let schedule = WatchScheduleProjection(snapshot: snapshot, now: now)
-  assert(schedule.activeEvent?.id == "current")
-  assert(schedule.nextEvent?.id == "next")
-  // Up Next has its own card, so Later never repeats it.
-  assert(schedule.laterEvents.isEmpty)
-  assert(schedule.todayEvents.map(\.id) == ["current", "next"])
-  // The routes a detail screen is pushed with resolve, and a dropped event
-  // does not, which is what pops a stale detail screen.
-  assert(snapshot.event(id: "next", in: "con")?.event.id == "next")
-  assert(snapshot.event(id: "next", in: "other") == nil)
-  // A saved event is never also an option, so an option route resolves to
-  // one or the other.
-  assert(snapshot.option(id: "next", in: "con") == nil)
-  assert(
-    ConPawsFormat.nextEventTime(
-      now.addingTimeInterval(86_400),
-      relativeTo: now,
-      in: convention,
-      // Pinned rather than read from the device: the prefix compared below is
-      // English, so a tester on a German Mac would fail this for the wrong
-      // reason.
-      locale: Locale(identifier: "en_US"),
-      strings: .english
-    ).hasPrefix("Tomorrow · ")
-  )
-  // Today needs no day label; that is what keeps same-day cards to a bare time.
-  assert(
-    ConPawsFormat.dayLabel(
-      now.addingTimeInterval(60),
-      relativeTo: now,
-      in: convention,
-      locale: Locale(identifier: "en_US"),
-      strings: .english
-    ) == nil
-  )
-  // Beyond a day out the app reads the shared ladder, not its own wording.
-  assert(
-    ConPawsCountdown.label(
-      from: now,
-      to: now.addingTimeInterval(32 * 3_600),
-      timeZone: TimeZone(identifier: "UTC")!,
-      strings: .english
-    ) == "Tomorrow"
-  )
-  // The same wait, in the language the snapshot asked for rather than the
-  // watch's. This is the whole point of carrying localeIdentifier across.
-  assert(
-    ConPawsCountdown.label(
-      from: now,
-      to: now.addingTimeInterval(32 * 3_600),
-      timeZone: TimeZone(identifier: "UTC")!,
-      strings: ConPawsStrings.resolve("sv")
-    ) == "I morgon"
-  )
-}
-
 /// Snapshots for the canvas, built around the moment the preview renders.
 private enum WatchPreviewFixtures {
   static let now = Date()
