@@ -4,7 +4,6 @@ import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
 import SearchIcon from "@expo/material-symbols/search.xml";
 import SortIcon from "@expo/material-symbols/sort.xml";
-import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
@@ -19,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
+import { ERROR_ICON } from "@/components/icons";
 import {
   Button,
   ConventionListSkeleton,
@@ -61,11 +61,6 @@ import { stopTrackingIfAffected } from "@/services/tracked-event";
 const EMPTY_ICON = Icon.select({
   ios: "calendar.badge.plus",
   android: CalendarAddIcon,
-});
-
-const ERROR_ICON = Icon.select({
-  ios: "exclamationmark.triangle",
-  android: WarningIcon,
 });
 
 const DEVICE_TIME_ZONE =

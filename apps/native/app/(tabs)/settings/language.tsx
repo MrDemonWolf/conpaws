@@ -1,13 +1,11 @@
-import CheckIcon from "@expo/material-symbols/check.xml";
-import { FieldGroup, Host, Icon } from "@expo/ui";
+import { FieldGroup, Host } from "@expo/ui";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
 import { settingsFooter } from "@/components/SettingsFooter";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { reportError } from "@/lib/error-reporting";
@@ -20,8 +18,6 @@ import i18n, {
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import { reconcileEventReminders } from "@/services/notifications";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
-
-const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 
 /**
  * A language is not a country, but a flag is the fastest visual anchor in a
@@ -108,26 +104,15 @@ export default function LanguageScreen() {
               .filter(Boolean)
               .join(" · ");
 
-            return (
-              <ListItem
-                // Selected state is in the key because @expo/ui's Android
-                // ListItem mounts its `trailing` slot once and then leaves it
-                // alone: it unmounts a slot that becomes `undefined` but never
-                // mounts a new one, so the checkmark vanished off the old row
-                // and never appeared on the new one. Remounting the two rows
-                // that flipped is what makes the tick move. Verified on the
-                // reminder-default screen, which had the identical bug.
-                key={`${code}-${isSelected}`}
-                testID={`language-${code}`}
-                supportingText={supportingText || undefined}
-                trailing={
-                  isSelected ? <Icon name={CHECK} size={18} /> : undefined
-                }
-                onPress={() => handleSelect(code)}
-              >
-                {`${LANGUAGE_FLAGS[code]}  ${nativeName}`}
-              </ListItem>
-            );
+            return settingsChoiceRow({
+              id: code,
+              testID: `language-${code}`,
+              title: `${LANGUAGE_FLAGS[code]}  ${nativeName}`,
+              selected: isSelected,
+              indicator: "check",
+              supportingText: supportingText || undefined,
+              onPress: () => handleSelect(code),
+            });
           })}
           {settingsFooter(t("settings.languages.description"))}
         </FieldGroup.Section>

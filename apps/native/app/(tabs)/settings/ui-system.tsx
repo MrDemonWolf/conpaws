@@ -1,5 +1,4 @@
 import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
-import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import FormsIcon from "@expo/material-symbols/forms_add_on.xml";
 import {
   BottomSheet,
@@ -20,6 +19,7 @@ import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
 // See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { NavigationIndicator } from "@/components/icons";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";
 import { BrowseSummaryHeader } from "@/components/schedule/BrowseSummaryHeader";
@@ -54,10 +54,6 @@ import {
 import { categoryAccentColor } from "@/lib/category-color";
 import { developerDiagnosticsEnabled } from "@/lib/developer-tools";
 
-const CHEVRON_ICON = Icon.select({
-  ios: "chevron.right",
-  android: ChevronRightIcon,
-});
 const EMPTY_STATE_ICON = Icon.select({
   ios: "calendar.badge.plus",
   android: CalendarAddIcon,
@@ -136,10 +132,6 @@ const GALLERY_SLOTS: readonly TimeChipSlot[] = [
     accessibilityLabel: "Panels between 4 PM and 5 PM",
   },
 ];
-
-function NavigationIndicator() {
-  return <Icon name={CHEVRON_ICON} size={15} />;
-}
 
 export default function UiSystemScreen() {
   const { t } = useTranslation();

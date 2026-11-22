@@ -1,5 +1,4 @@
 import StarIcon from "@expo/material-symbols/star.xml";
-import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -11,6 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { ERROR_ICON } from "@/components/icons";
 import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
@@ -72,11 +72,6 @@ import {
 const EMPTY_ICON = Icon.select({
   ios: "star",
   android: StarIcon,
-});
-
-const ERROR_ICON = Icon.select({
-  ios: "exclamationmark.triangle",
-  android: WarningIcon,
 });
 
 interface ScheduleEntry extends PersonalScheduleEntry {

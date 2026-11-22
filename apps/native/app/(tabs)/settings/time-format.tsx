@@ -1,11 +1,9 @@
-import RadioCheckedIcon from "@expo/material-symbols/radio_button_checked.xml";
-import RadioUncheckedIcon from "@expo/material-symbols/radio_button_unchecked.xml";
-import { FieldGroup, Host, Icon } from "@expo/ui";
+import { FieldGroup, Host } from "@expo/ui";
 import { useTheme } from "expo-router/react-navigation";
 import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-import { FieldRow } from "@/components/ui/FieldRow";
+import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
@@ -17,8 +15,6 @@ import {
 import { reportError } from "@/lib/error-reporting";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
-const SELECTED = Icon.select({ ios: "checkmark", android: RadioCheckedIcon });
-const UNSELECTED = Icon.select({ ios: "circle", android: RadioUncheckedIcon });
 const CHOICES = ["system", "12", "24"] as const;
 
 export default function TimeFormatScreen() {
@@ -57,23 +53,18 @@ export default function TimeFormatScreen() {
     >
       <FieldGroup {...readableGroup}>
         <FieldGroup.Section disabled={saving}>
-          {CHOICES.map((choice) => (
-            <FieldRow
-              key={`${choice}-${choice === selected}`}
-              testID={`time-format-${choice}`}
-              trailing={
-                <Icon
-                  name={choice === selected ? SELECTED : UNSELECTED}
-                  size={18}
-                />
-              }
-              onPress={() => void select(choice)}
-            >
-              {t(
+          {CHOICES.map((choice) =>
+            settingsChoiceRow({
+              id: choice,
+              testID: `time-format-${choice}`,
+              title: t(
                 `settings.timeFormat.${choice === "12" ? "hour12" : choice === "24" ? "hour24" : "system"}`,
-              )}
-            </FieldRow>
-          ))}
+              ),
+              selected: choice === selected,
+              indicator: "radio",
+              onPress: () => void select(choice),
+            }),
+          )}
         </FieldGroup.Section>
       </FieldGroup>
     </Host>

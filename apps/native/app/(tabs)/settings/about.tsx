@@ -1,5 +1,4 @@
 import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
-import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import DescriptionIcon from "@expo/material-symbols/description.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
@@ -10,6 +9,7 @@ import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
 import { Image, useWindowDimensions, View } from "react-native";
+import { NavigationIndicator } from "@/components/icons";
 import { Text } from "@/components/ui";
 // Android draws a card inside a card when a universal ListItem sits in a
 // FieldGroup.Section; FieldRow is the same component with one surface. See
@@ -24,10 +24,6 @@ import { useVersionLabel } from "@/hooks/useVersionLabel";
 import { ABOUT_HERO_MAX } from "@/lib/content-width";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
-const CHEVRON_ICON = Icon.select({
-  ios: "chevron.right",
-  android: ChevronRightIcon,
-});
 const WEBSITE_ICON = Icon.select({ ios: "globe", android: PublicIcon });
 const EMAIL_ICON = Icon.select({ ios: "envelope", android: MailIcon });
 const HELP_ICON = Icon.select({
@@ -45,10 +41,6 @@ function NativeIcon({ name }: { name: ReturnType<typeof Icon.select> }) {
 
 function ExternalIndicator() {
   return <Icon name={EXTERNAL_ICON} size={15} />;
-}
-
-function NavigationIndicator() {
-  return <Icon name={CHEVRON_ICON} size={15} />;
 }
 
 export default function AboutScreen() {

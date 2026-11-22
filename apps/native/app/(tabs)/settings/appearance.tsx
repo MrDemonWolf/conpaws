@@ -1,4 +1,3 @@
-import CheckIcon from "@expo/material-symbols/check.xml";
 import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
@@ -7,8 +6,8 @@ import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
 import { settingsFooter } from "@/components/SettingsFooter";
-import { FieldRow } from "@/components/ui/FieldRow";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
@@ -23,7 +22,6 @@ import {
 import { reportError } from "@/lib/error-reporting";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
-const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 const APPEARANCE_ICONS: Record<
   AppearancePreference,
   ReturnType<typeof Icon.select>
@@ -76,29 +74,18 @@ export default function AppearanceScreen() {
           {APPEARANCE_PREFERENCES.map((preference) => {
             const isSelected = appearance === preference;
 
-            return (
-              <FieldRow
-                // Selected state is in the key because @expo/ui's Android
-                // ListItem mounts its `trailing` slot once and then leaves it
-                // alone: it unmounts a slot that becomes `undefined` but never
-                // mounts a new one, so the checkmark vanished off the old row
-                // and never appeared on the new one. Remounting the two rows
-                // that flipped is what makes the tick move. Verified on the
-                // reminder-default screen, which had the identical bug.
-                key={`${preference}-${isSelected}`}
-                testID={`appearance-${preference}`}
-                leading={<Icon name={APPEARANCE_ICONS[preference]} size={22} />}
-                supportingText={
-                  isSelected ? t("settings.languages.selected") : undefined
-                }
-                trailing={
-                  isSelected ? <Icon name={CHECK} size={18} /> : undefined
-                }
-                onPress={() => handleSelect(preference)}
-              >
-                {t(`settings.appearance.${preference}`)}
-              </FieldRow>
-            );
+            return settingsChoiceRow({
+              id: preference,
+              testID: `appearance-${preference}`,
+              title: t(`settings.appearance.${preference}`),
+              selected: isSelected,
+              indicator: "check",
+              leading: <Icon name={APPEARANCE_ICONS[preference]} size={22} />,
+              supportingText: isSelected
+                ? t("settings.languages.selected")
+                : undefined,
+              onPress: () => handleSelect(preference),
+            });
           })}
           {settingsFooter(t("settings.appearance.description"))}
         </FieldGroup.Section>
