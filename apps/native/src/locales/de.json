@@ -637,7 +637,6 @@
       "changeError": "ConPaws konnte das Design nicht ändern. Versuche es erneut."
     },
     "app": {
-      "title": "App",
       "theme": "Design",
       "language": "Sprache",
       "haptics": "Haptisches Feedback",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Einstellung für Programmaktualisierungen konnte nicht gespeichert werden"
     },
     "data": {
-      "title": "Daten",
       "exportData": "Daten exportieren",
       "exportDescription": "Speichere eine Sicherung deiner Conventions und Zeitpläne.",
       "exporting": "Sicherung wird vorbereitet",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Drittanbieter-Lizenzen"
     },
     "about": {
-      "title": "Über",
       "tagline": "Dein Convention-Zeitplan, offline verfügbar.",
       "resources": "Ressourcen",
       "website": "Website",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "Der Lizenztext ist in diesem Build nicht verfügbar."
     },
     "notifications": {
-      "title": "Benachrichtigungen",
       "permission": "Benachrichtigungsberechtigung",
       "enabled": "Erlaubt – Erinnerungen können ankommen",
       "disabled": "Aus – Erinnerungen kommen nicht an",
@@ -749,7 +745,24 @@
       "system": "Geräteeinstellung verwenden",
       "hour12": "12 Stunden · 7:00 PM",
       "hour24": "24 Stunden · 19:00",
-      "saveError": "Dein Zeitformat konnte nicht gespeichert werden. Versuche es erneut."
+      "saveError": "Dein Zeitformat konnte nicht gespeichert werden. Versuche es erneut.",
+      "short": {
+        "system": "Automatisch",
+        "hour12": "12 Stunden",
+        "hour24": "24 Stunden"
+      }
+    },
+    "sections": {
+      "appearance": "Darstellung",
+      "languageRegion": "Sprache & Region",
+      "reminders": "Erinnerungen",
+      "scheduleUpdates": "Zeitplan-Updates",
+      "backup": "Backup",
+      "helpAbout": "Hilfe & Info"
+    },
+    "footers": {
+      "scheduleUpdates": "Wenn du eine Convention öffnest, prüft ConPaws höchstens alle 30 Minuten den Zeitplan auf verschobene oder abgesagte Programmpunkte.",
+      "backup": "Backups sind Dateien, die du selbst sicherst oder teilst. ConPaws lädt sie nie hoch."
     }
   },
   "tracking": {

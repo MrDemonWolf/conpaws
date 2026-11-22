@@ -571,7 +571,6 @@
       "changeError": "ConPawsは外観を変更できませんでした。もう一度お試しください。"
     },
     "app": {
-      "title": "アプリ",
       "theme": "テーマ",
       "language": "言語",
       "haptics": "触覚フィードバック",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "スケジュール更新の設定を保存できませんでした"
     },
     "data": {
-      "title": "データ",
       "exportData": "データを書き出す",
       "exportDescription": "コンベンションとスケジュールのバックアップを保存します。",
       "exporting": "バックアップを準備中",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "サードパーティライセンス"
     },
     "about": {
-      "title": "このアプリについて",
       "tagline": "コンベンションのスケジュールを、オフラインでも。",
       "resources": "リソース",
       "website": "ウェブサイト",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "このビルドではライセンスの本文を表示できません。"
     },
     "notifications": {
-      "title": "通知",
       "permission": "通知の許可",
       "enabled": "許可済み — リマインダーが届きます",
       "disabled": "オフ — リマインダーは届きません",
@@ -683,7 +679,24 @@
       "system": "端末の設定を使用",
       "hour12": "12時間表示 · 午後7:00",
       "hour24": "24時間表示 · 19:00",
-      "saveError": "時刻の表示形式を保存できませんでした。もう一度お試しください。"
+      "saveError": "時刻の表示形式を保存できませんでした。もう一度お試しください。",
+      "short": {
+        "system": "自動",
+        "hour12": "12時間表示",
+        "hour24": "24時間表示"
+      }
+    },
+    "sections": {
+      "appearance": "外観",
+      "languageRegion": "言語と地域",
+      "reminders": "リマインダー",
+      "scheduleUpdates": "スケジュールの更新",
+      "backup": "バックアップ",
+      "helpAbout": "ヘルプと情報"
+    },
+    "footers": {
+      "scheduleUpdates": "コンベンションを開くと、ConPawsは最大30分ごとにスケジュールを確認し、移動または中止されたパネルを探します。",
+      "backup": "バックアップはあなたが自分で保存・共有するファイルです。ConPawsがアップロードすることはありません。"
     }
   },
   "tracking": {

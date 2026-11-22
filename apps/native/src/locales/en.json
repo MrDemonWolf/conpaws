@@ -637,7 +637,6 @@
       "changeError": "ConPaws could not change the appearance. Try again."
     },
     "app": {
-      "title": "App",
       "theme": "Theme",
       "language": "Language",
       "haptics": "Haptic feedback",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Could not save your schedule update setting"
     },
     "data": {
-      "title": "Data",
       "exportData": "Export data",
       "exportDescription": "Save a backup of your conventions and schedules.",
       "exporting": "Preparing backup",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Third-Party Licenses"
     },
     "about": {
-      "title": "About",
       "tagline": "Your convention schedule, ready offline.",
       "resources": "Resources",
       "website": "Website",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "The license text is not available in this build."
     },
     "notifications": {
-      "title": "Notifications",
       "permission": "Notification permission",
       "enabled": "Allowed — reminders can arrive",
       "disabled": "Off — reminders will not arrive",
@@ -749,7 +745,24 @@
       "system": "Use device setting",
       "hour12": "12-hour · 7:00 PM",
       "hour24": "24-hour · 19:00",
-      "saveError": "Could not save your time format. Try again."
+      "saveError": "Could not save your time format. Try again.",
+      "short": {
+        "system": "Automatic",
+        "hour12": "12-hour",
+        "hour24": "24-hour"
+      }
+    },
+    "sections": {
+      "appearance": "Appearance",
+      "languageRegion": "Language & region",
+      "reminders": "Reminders",
+      "scheduleUpdates": "Schedule updates",
+      "backup": "Backup",
+      "helpAbout": "Help & about"
+    },
+    "footers": {
+      "scheduleUpdates": "When you open a convention, ConPaws checks its schedule for moved or cancelled panels, at most every 30 minutes.",
+      "backup": "Backups are files you save or share yourself. ConPaws never uploads them."
     }
   },
   "tracking": {

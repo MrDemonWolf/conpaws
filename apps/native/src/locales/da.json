@@ -637,7 +637,6 @@
       "changeError": "ConPaws kunne ikke ændre udseendet. Prøv igen."
     },
     "app": {
-      "title": "App",
       "theme": "Tema",
       "language": "Sprog",
       "haptics": "Haptisk feedback",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Din indstilling for programopdateringer kunne ikke gemmes"
     },
     "data": {
-      "title": "Data",
       "exportData": "Eksportér data",
       "exportDescription": "Gem en sikkerhedskopi af dine konventer og programmer.",
       "exporting": "Forbereder sikkerhedskopi",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Tredjepartslicenser"
     },
     "about": {
-      "title": "Om",
       "tagline": "Dit konventprogram, klar offline.",
       "resources": "Ressourcer",
       "website": "Hjemmeside",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "Licensteksten er ikke tilgængelig i denne version."
     },
     "notifications": {
-      "title": "Notifikationer",
       "permission": "Tilladelse til notifikationer",
       "enabled": "Tilladt — påmindelser kan leveres",
       "disabled": "Slået fra — påmindelser leveres ikke",
@@ -749,7 +745,24 @@
       "system": "Brug enhedens indstilling",
       "hour12": "12 timer · 7:00 PM",
       "hour24": "24 timer · 19:00",
-      "saveError": "Tidsformatet kunne ikke gemmes. Prøv igen."
+      "saveError": "Tidsformatet kunne ikke gemmes. Prøv igen.",
+      "short": {
+        "system": "Automatisk",
+        "hour12": "12 timer",
+        "hour24": "24 timer"
+      }
+    },
+    "sections": {
+      "appearance": "Udseende",
+      "languageRegion": "Sprog og område",
+      "reminders": "Påmindelser",
+      "scheduleUpdates": "Programopdateringer",
+      "backup": "Sikkerhedskopi",
+      "helpAbout": "Hjælp og om"
+    },
+    "footers": {
+      "scheduleUpdates": "Når du åbner et konvent, tjekker ConPaws højst hvert 30. minut programmet for flyttede eller aflyste programpunkter.",
+      "backup": "Sikkerhedskopier er filer, du selv gemmer eller deler. ConPaws uploader dem aldrig."
     }
   },
   "tracking": {

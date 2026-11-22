@@ -650,7 +650,6 @@
       "changeError": "ConPaws nedokázal změnit vzhled. Zkuste to znovu."
     },
     "app": {
-      "title": "Aplikace",
       "theme": "Motiv",
       "language": "Jazyk",
       "haptics": "Haptická odezva",
@@ -660,7 +659,6 @@
       "scheduleAutoCheckError": "Nastavení aktualizací programu se nepodařilo uložit"
     },
     "data": {
-      "title": "Data",
       "exportData": "Exportovat data",
       "exportDescription": "Uložte si zálohu conů a programů.",
       "exporting": "Příprava zálohy",
@@ -697,7 +695,6 @@
       "openSourceLicenses": "Licence třetích stran"
     },
     "about": {
-      "title": "O aplikaci",
       "tagline": "Program vašeho conu, připravený offline.",
       "resources": "Odkazy",
       "website": "Web",
@@ -727,7 +724,6 @@
       "licenseTextUnavailable": "Text licence není v tomto sestavení k dispozici."
     },
     "notifications": {
-      "title": "Oznámení",
       "permission": "Oprávnění k oznámením",
       "enabled": "Povoleno — připomenutí mohou chodit",
       "disabled": "Vypnuto — připomenutí chodit nebudou",
@@ -766,7 +762,24 @@
       "system": "Použít nastavení zařízení",
       "hour12": "12hodinový · 7:00 PM",
       "hour24": "24hodinový · 19:00",
-      "saveError": "Nepodařilo se uložit formát času. Zkus to znovu."
+      "saveError": "Nepodařilo se uložit formát času. Zkus to znovu.",
+      "short": {
+        "system": "Automaticky",
+        "hour12": "12hodinový",
+        "hour24": "24hodinový"
+      }
+    },
+    "sections": {
+      "appearance": "Vzhled",
+      "languageRegion": "Jazyk a oblast",
+      "reminders": "Připomenutí",
+      "scheduleUpdates": "Aktualizace programu",
+      "backup": "Záloha",
+      "helpAbout": "Nápověda a informace"
+    },
+    "footers": {
+      "scheduleUpdates": "Když otevřeš con, ConPaws nejvýše jednou za 30 minut zkontroluje jeho program kvůli přesunutým nebo zrušeným panelům.",
+      "backup": "Zálohy jsou soubory, které si sám uložíš nebo sdílíš. ConPaws je nikam nenahrává."
     }
   },
   "tracking": {

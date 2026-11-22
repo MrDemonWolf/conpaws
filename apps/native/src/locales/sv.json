@@ -571,7 +571,6 @@
       "changeError": "ConPaws kunde inte ändra utseendet. Försök igen."
     },
     "app": {
-      "title": "App",
       "theme": "Tema",
       "language": "Språk",
       "haptics": "Haptisk återkoppling",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "Det gick inte att spara din inställning för schemauppdateringar"
     },
     "data": {
-      "title": "Data",
       "exportData": "Exportera Data",
       "exportDescription": "Spara en säkerhetskopia av dina konvent och scheman.",
       "exporting": "Förbereder säkerhetskopia",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "Tredjepartslicenser"
     },
     "about": {
-      "title": "Om",
       "tagline": "Ditt konventsschema, tillgängligt offline.",
       "resources": "Resurser",
       "website": "Webbplats",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "Licenstexten är inte tillgänglig i den här versionen."
     },
     "notifications": {
-      "title": "Aviseringar",
       "permission": "Aviseringstillstånd",
       "enabled": "Tillåtet – påminnelser kan komma",
       "disabled": "Av – påminnelser kommer inte fram",
@@ -683,7 +679,24 @@
       "system": "Använd enhetens inställning",
       "hour12": "12 timmar · 7:00 PM",
       "hour24": "24 timmar · 19:00",
-      "saveError": "Kunde inte spara tidsformatet. Försök igen."
+      "saveError": "Kunde inte spara tidsformatet. Försök igen.",
+      "short": {
+        "system": "Automatiskt",
+        "hour12": "12 timmar",
+        "hour24": "24 timmar"
+      }
+    },
+    "sections": {
+      "appearance": "Utseende",
+      "languageRegion": "Språk och region",
+      "reminders": "Påminnelser",
+      "scheduleUpdates": "Schemauppdateringar",
+      "backup": "Säkerhetskopia",
+      "helpAbout": "Hjälp och om"
+    },
+    "footers": {
+      "scheduleUpdates": "När du öppnar ett konvent kontrollerar ConPaws schemat högst var 30:e minut efter flyttade eller inställda programpunkter.",
+      "backup": "Säkerhetskopior är filer som du själv sparar eller delar. ConPaws laddar aldrig upp dem."
     }
   },
   "tracking": {

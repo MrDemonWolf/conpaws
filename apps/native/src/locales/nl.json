@@ -571,7 +571,6 @@
       "changeError": "ConPaws kon de weergave niet wijzigen. Probeer het opnieuw."
     },
     "app": {
-      "title": "App",
       "theme": "Thema",
       "language": "Taal",
       "haptics": "Haptische feedback",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "Kon je instelling voor programma-updates niet opslaan"
     },
     "data": {
-      "title": "Gegevens",
       "exportData": "Gegevens exporteren",
       "exportDescription": "Bewaar een back-up van je conventies en programma's.",
       "exporting": "Back-up voorbereiden",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "Licenties van derden"
     },
     "about": {
-      "title": "Over",
       "tagline": "Je conventieprogramma, ook offline beschikbaar.",
       "resources": "Bronnen",
       "website": "Website",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "De licentietekst is niet beschikbaar in deze build."
     },
     "notifications": {
-      "title": "Meldingen",
       "permission": "Meldingstoestemming",
       "enabled": "Toegestaan – herinneringen kunnen aankomen",
       "disabled": "Uit – herinneringen komen niet aan",
@@ -683,7 +679,24 @@
       "system": "Apparaatinstelling gebruiken",
       "hour12": "12 uur · 7:00 PM",
       "hour24": "24 uur · 19:00",
-      "saveError": "Je tijdnotatie kon niet worden opgeslagen. Probeer het opnieuw."
+      "saveError": "Je tijdnotatie kon niet worden opgeslagen. Probeer het opnieuw.",
+      "short": {
+        "system": "Automatisch",
+        "hour12": "12-uursnotatie",
+        "hour24": "24-uursnotatie"
+      }
+    },
+    "sections": {
+      "appearance": "Weergave",
+      "languageRegion": "Taal en regio",
+      "reminders": "Herinneringen",
+      "scheduleUpdates": "Programma-updates",
+      "backup": "Back-up",
+      "helpAbout": "Hulp en info"
+    },
+    "footers": {
+      "scheduleUpdates": "Als je een conventie opent, controleert ConPaws het programma hooguit elke 30 minuten op verplaatste of geannuleerde panels.",
+      "backup": "Back-ups zijn bestanden die je zelf bewaart of deelt. ConPaws uploadt ze nooit."
     }
   },
   "tracking": {

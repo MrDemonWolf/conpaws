@@ -637,7 +637,6 @@
       "changeError": "ConPaws n'a pas pu modifier l'apparence. Réessayez."
     },
     "app": {
-      "title": "Application",
       "theme": "Thème",
       "language": "Langue",
       "haptics": "Retour haptique",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Impossible d'enregistrer votre réglage de mise à jour du programme"
     },
     "data": {
-      "title": "Données",
       "exportData": "Exporter les Données",
       "exportDescription": "Enregistrez une sauvegarde de vos conventions et programmes.",
       "exporting": "Préparation de la sauvegarde",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Licences tierces"
     },
     "about": {
-      "title": "À propos",
       "tagline": "Votre programme de convention, disponible hors ligne.",
       "resources": "Ressources",
       "website": "Site web",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "Le texte de la licence n’est pas disponible dans cette version."
     },
     "notifications": {
-      "title": "Notifications",
       "permission": "Autorisation de notifications",
       "enabled": "Autorisées — les rappels peuvent arriver",
       "disabled": "Désactivées — les rappels n'arriveront pas",
@@ -749,7 +745,24 @@
       "system": "Utiliser le réglage de l’appareil",
       "hour12": "12 heures · 7:00 PM",
       "hour24": "24 heures · 19:00",
-      "saveError": "Impossible d’enregistrer le format de l’heure. Réessaie."
+      "saveError": "Impossible d’enregistrer le format de l’heure. Réessaie.",
+      "short": {
+        "system": "Automatique",
+        "hour12": "12 heures",
+        "hour24": "24 heures"
+      }
+    },
+    "sections": {
+      "appearance": "Apparence",
+      "languageRegion": "Langue et région",
+      "reminders": "Rappels",
+      "scheduleUpdates": "Mises à jour du programme",
+      "backup": "Sauvegarde",
+      "helpAbout": "Aide et à propos"
+    },
+    "footers": {
+      "scheduleUpdates": "Quand vous ouvrez une convention, ConPaws vérifie son programme toutes les 30 minutes au plus pour repérer les activités déplacées ou annulées.",
+      "backup": "Les sauvegardes sont des fichiers que vous enregistrez ou partagez vous-même. ConPaws ne les envoie jamais en ligne."
     }
   },
   "tracking": {

@@ -637,7 +637,6 @@
       "changeError": "A ConPaws nem tudta átállítani a megjelenést. Próbáld újra."
     },
     "app": {
-      "title": "Alkalmazás",
       "theme": "Téma",
       "language": "Nyelv",
       "haptics": "Haptikus visszajelzés",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Nem sikerült menteni a programfrissítési beállítást"
     },
     "data": {
-      "title": "Adatok",
       "exportData": "Adatok exportálása",
       "exportDescription": "Ments biztonsági másolatot a conjaidról és programjaidról.",
       "exporting": "Mentés előkészítése",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Harmadik felek licencei"
     },
     "about": {
-      "title": "Névjegy",
       "tagline": "A conod programja, offline is kéznél.",
       "resources": "Források",
       "website": "Weboldal",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "A licenc szövege nem érhető el ebben a buildben."
     },
     "notifications": {
-      "title": "Értesítések",
       "permission": "Értesítési engedély",
       "enabled": "Engedélyezve — az emlékeztetők megérkezhetnek",
       "disabled": "Kikapcsolva — az emlékeztetők nem érkeznek meg",
@@ -749,7 +745,24 @@
       "system": "Eszközbeállítás használata",
       "hour12": "12 órás · 7:00 PM",
       "hour24": "24 órás · 19:00",
-      "saveError": "Nem sikerült menteni az időformátumot. Próbáld újra."
+      "saveError": "Nem sikerült menteni az időformátumot. Próbáld újra.",
+      "short": {
+        "system": "Automatikus",
+        "hour12": "12 órás",
+        "hour24": "24 órás"
+      }
+    },
+    "sections": {
+      "appearance": "Megjelenés",
+      "languageRegion": "Nyelv és régió",
+      "reminders": "Emlékeztetők",
+      "scheduleUpdates": "Programfrissítések",
+      "backup": "Biztonsági mentés",
+      "helpAbout": "Súgó és névjegy"
+    },
+    "footers": {
+      "scheduleUpdates": "Amikor megnyitsz egy rendezvényt, a ConPaws legfeljebb 30 percenként ellenőrzi a programját áthelyezett vagy elmaradt paneleket keresve.",
+      "backup": "A biztonsági mentések olyan fájlok, amelyeket te mentesz el vagy osztasz meg. A ConPaws soha nem tölti fel őket."
     }
   },
   "tracking": {

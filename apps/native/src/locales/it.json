@@ -637,7 +637,6 @@
       "changeError": "ConPaws non è riuscito a cambiare l'aspetto. Riprova."
     },
     "app": {
-      "title": "App",
       "theme": "Tema",
       "language": "Lingua",
       "haptics": "Feedback aptico",
@@ -647,7 +646,6 @@
       "scheduleAutoCheckError": "Impossibile salvare l'impostazione di aggiornamento del programma"
     },
     "data": {
-      "title": "Dati",
       "exportData": "Esporta dati",
       "exportDescription": "Salva un backup delle tue convention e dei tuoi programmi.",
       "exporting": "Preparazione del backup",
@@ -684,7 +682,6 @@
       "openSourceLicenses": "Licenze di terze parti"
     },
     "about": {
-      "title": "Informazioni",
       "tagline": "Il programma della tua convention, pronto anche offline.",
       "resources": "Risorse",
       "website": "Sito web",
@@ -710,7 +707,6 @@
       "licenseTextUnavailable": "Il testo della licenza non è disponibile in questa build."
     },
     "notifications": {
-      "title": "Notifiche",
       "permission": "Permesso per le notifiche",
       "enabled": "Consentito: i promemoria possono arrivare",
       "disabled": "Disattivato: i promemoria non arriveranno",
@@ -749,7 +745,24 @@
       "system": "Usa l’impostazione del dispositivo",
       "hour12": "12 ore · 7:00 PM",
       "hour24": "24 ore · 19:00",
-      "saveError": "Impossibile salvare il formato dell’ora. Riprova."
+      "saveError": "Impossibile salvare il formato dell’ora. Riprova.",
+      "short": {
+        "system": "Automatico",
+        "hour12": "12 ore",
+        "hour24": "24 ore"
+      }
+    },
+    "sections": {
+      "appearance": "Aspetto",
+      "languageRegion": "Lingua e area geografica",
+      "reminders": "Promemoria",
+      "scheduleUpdates": "Aggiornamenti del programma",
+      "backup": "Backup",
+      "helpAbout": "Aiuto e informazioni"
+    },
+    "footers": {
+      "scheduleUpdates": "Quando apri una convention, ConPaws controlla il programma al massimo ogni 30 minuti per trovare panel spostati o annullati.",
+      "backup": "I backup sono file che salvi o condividi tu. ConPaws non li carica mai online."
     }
   },
   "tracking": {

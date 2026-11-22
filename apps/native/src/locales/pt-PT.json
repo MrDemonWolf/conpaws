@@ -571,7 +571,6 @@
       "changeError": "O ConPaws não conseguiu alterar o aspeto. Tente novamente."
     },
     "app": {
-      "title": "Aplicação",
       "theme": "Tema",
       "language": "Idioma",
       "haptics": "Resposta háptica",
@@ -581,7 +580,6 @@
       "scheduleAutoCheckError": "Não foi possível guardar a sua definição de atualização do programa"
     },
     "data": {
-      "title": "Dados",
       "exportData": "Exportar Dados",
       "exportDescription": "Guarde uma cópia de segurança das suas convenções e agendas.",
       "exporting": "A preparar a cópia de segurança",
@@ -618,7 +616,6 @@
       "openSourceLicenses": "Licenças de terceiros"
     },
     "about": {
-      "title": "Acerca de",
       "tagline": "O programa da sua convenção, pronto offline.",
       "resources": "Recursos",
       "website": "Site",
@@ -644,7 +641,6 @@
       "licenseTextUnavailable": "O texto da licença não está disponível nesta compilação."
     },
     "notifications": {
-      "title": "Notificações",
       "permission": "Permissão de notificações",
       "enabled": "Permitido — os lembretes podem chegar",
       "disabled": "Desativado — os lembretes não vão chegar",
@@ -683,7 +679,24 @@
       "system": "Usar definição do dispositivo",
       "hour12": "12 horas · 7:00 PM",
       "hour24": "24 horas · 19:00",
-      "saveError": "Não foi possível guardar o formato da hora. Tenta novamente."
+      "saveError": "Não foi possível guardar o formato da hora. Tenta novamente.",
+      "short": {
+        "system": "Automático",
+        "hour12": "12 horas",
+        "hour24": "24 horas"
+      }
+    },
+    "sections": {
+      "appearance": "Aspeto",
+      "languageRegion": "Idioma e região",
+      "reminders": "Lembretes",
+      "scheduleUpdates": "Atualizações do programa",
+      "backup": "Cópia de segurança",
+      "helpAbout": "Ajuda e acerca de"
+    },
+    "footers": {
+      "scheduleUpdates": "Quando abre uma convenção, o ConPaws verifica o programa, no máximo a cada 30 minutos, à procura de painéis mudados ou cancelados.",
+      "backup": "As cópias de segurança são ficheiros que guarda ou partilha. O ConPaws nunca as envia para a internet."
     }
   },
   "tracking": {

@@ -60,7 +60,9 @@ export default function SettingsLayout() {
     >
       <Stack.Screen
         name="index"
-        options={{ title: t("settings.title"), ...hostedScreenOptions }}
+        // Large title like the other tabs: ContentScrollLink hands UIKit the
+        // Form's scroll view, so the title collapses as the list scrolls.
+        options={{ title: t("settings.title") }}
       />
       <Stack.Screen
         name="language"

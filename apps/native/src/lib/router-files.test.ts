@@ -315,6 +315,9 @@ describe("iOS native stack headers", () => {
     const REAL_SCROLLVIEW_SCREENS = ["licenses/index", "licenses/[id]"];
     // Dev-only, behind `Stack.Protected`; they never reach a user.
     const DEVELOPER_SCREENS = ["debug", "ui-system"];
+    // Hosted screens that hand UIKit their list's scroll view through
+    // ContentScrollLink, so they keep the tab's large title and it collapses.
+    const LINKED_SCREENS = ["index"];
 
     const screens = settingsLayoutSource
       .split("<Stack.Screen")
@@ -337,12 +340,31 @@ describe("iOS native stack headers", () => {
         .filter(
           ({ name }) =>
             !REAL_SCROLLVIEW_SCREENS.includes(name) &&
-            !DEVELOPER_SCREENS.includes(name),
+            !DEVELOPER_SCREENS.includes(name) &&
+            !LINKED_SCREENS.includes(name),
         )
         .map(({ name, block }) => [name, block] as const),
     )('"%s" spreads hostedScreenOptions', (_name, block) => {
       expect(block).toContain("...hostedScreenOptions");
     });
+
+    it.each(LINKED_SCREENS)(
+      '"%s" keeps its large title and links its list to the bar',
+      (name) => {
+        const screen = screens.find((candidate) => candidate.name === name);
+        expect(screen).toBeDefined();
+        expect(screen?.block).not.toContain("...hostedScreenOptions");
+        // Without the link the bar is the transparent, never-collapsing one
+        // this guard exists for, so the route must wrap its Host in it.
+        const routeSource = readFileSync(
+          path.resolve(__dirname, `../../app/(tabs)/settings/${name}.tsx`),
+          "utf8",
+        );
+        expect(routeSource).toMatch(
+          /<ContentScrollLink[^>]*>\s*<Host[\s\S]*<\/Host>\s*<\/ContentScrollLink>/,
+        );
+      },
+    );
 
     it("leaves the real-ScrollView screens their large titles", () => {
       for (const name of REAL_SCROLLVIEW_SCREENS) {

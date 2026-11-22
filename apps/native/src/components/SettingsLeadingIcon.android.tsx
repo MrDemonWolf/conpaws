@@ -1,3 +1,4 @@
+import AlarmIcon from "@expo/material-symbols/alarm.xml";
 import BugIcon from "@expo/material-symbols/bug_report.xml";
 import DescriptionIcon from "@expo/material-symbols/description.xml";
 import DownloadIcon from "@expo/material-symbols/download.xml";
@@ -5,9 +6,13 @@ import PrivacyIcon from "@expo/material-symbols/front_hand.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import InfoIcon from "@expo/material-symbols/info.xml";
 import LanguageIcon from "@expo/material-symbols/language.xml";
+import VibrateIcon from "@expo/material-symbols/mobile_vibrate.xml";
 import NotificationsIcon from "@expo/material-symbols/notifications.xml";
 import PaletteIcon from "@expo/material-symbols/palette.xml";
-import ShareIcon from "@expo/material-symbols/share.xml";
+import ScheduleIcon from "@expo/material-symbols/schedule.xml";
+import ScienceIcon from "@expo/material-symbols/science.xml";
+import SyncIcon from "@expo/material-symbols/sync.xml";
+import UploadIcon from "@expo/material-symbols/upload.xml";
 import { Icon } from "@expo/ui";
 import { useWindowDimensions } from "react-native";
 
@@ -38,14 +43,19 @@ import type {
  */
 const GLYPHS: Record<SettingsIconName, Parameters<typeof Icon>[0]["name"]> = {
   theme: PaletteIcon,
+  haptics: VibrateIcon,
   language: LanguageIcon,
+  time: ScheduleIcon,
   notifications: NotificationsIcon,
-  export: ShareIcon,
+  reminder: AlarmIcon,
+  updates: SyncIcon,
+  export: UploadIcon,
   import: DownloadIcon,
-  about: InfoIcon,
   help: HelpIcon,
+  about: InfoIcon,
   privacy: PrivacyIcon,
   terms: DescriptionIcon,
+  preview: ScienceIcon,
   debug: BugIcon,
 };
 
