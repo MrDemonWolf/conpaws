@@ -1,17 +1,16 @@
-import { Collapsible, FieldGroup, Host, TextInput } from "@expo/ui";
-import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
+import { FieldGroup, Host, TextInput } from "@expo/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, max, startOfDay } from "date-fns";
 import * as Location from "expo-location";
 import { router, Stack } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Keyboard } from "react-native";
 import tzLookup from "tz-lookup";
 import {
-  TimeZonePickerModal,
   useConventionDateField,
+  useConventionTimeZoneField,
 } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
 import { FORM_SAFE_EDGES } from "@/components/FormModalHeader.shared";
@@ -39,7 +38,6 @@ import {
 } from "@/lib/convention-time";
 import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { currentLocale } from "@/lib/i18n";
-import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import { commitNewConvention } from "@/services/convention-commit";
 import { hapticSuccess } from "@/services/haptics";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
@@ -70,16 +68,16 @@ export default function CreateConventionScreen() {
   // second tap that lands before then, as on the edit form.
   const createLock = useRef(false);
   const isMounted = useRef(true);
-  const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
-  const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
-  const timeZones = useMemo(
-    () =>
-      buildTimeZoneOptions(
-        ["UTC", ...supportedValuesOf("timeZone")],
-        deviceTimeZone,
-      ),
-    [deviceTimeZone],
-  );
+  const timeZoneField = useConventionTimeZoneField({
+    timeZone,
+    deviceTimeZone,
+    canInferTimeZone,
+    onPick: (value) => {
+      setTimeZone(value);
+      setTimeZoneManuallySet(true);
+    },
+    testID: "time-zone-picker",
+  });
   // Set on every run, not just cleared: Fast Refresh keeps refs but re-runs
   // this effect, and a flag left false made every Add tap write nothing.
   useEffect(() => {
@@ -105,31 +103,6 @@ export default function CreateConventionScreen() {
     if (endDate < value) setEndDate(value);
   }
 
-  function confirmDeviceTimeZoneFallback(): Promise<string | null> {
-    return new Promise((resolve) => {
-      Alert.alert(
-        t("convention.timeZoneFallbackTitle"),
-        t("convention.timeZoneFallbackMessage", {
-          timeZone: timeZoneLabel(deviceTimeZone),
-        }),
-        [
-          {
-            text: t("convention.setTimeZone"),
-            onPress: () => {
-              setAdvancedOpen(true);
-              setTimeZonePickerVisible(true);
-              resolve(null);
-            },
-          },
-          {
-            text: t("convention.useDeviceTimeZone"),
-            onPress: () => resolve(deviceTimeZone),
-          },
-        ],
-      );
-    });
-  }
-
   async function resolveTimeZoneForSave(): Promise<string | null> {
     const normalizedLocation = normalizeLocationName(location);
     if (!normalizedLocation || timeZoneManuallySet || !canInferTimeZone) {
@@ -145,7 +118,7 @@ export default function CreateConventionScreen() {
       setTimeZone(inferred);
       return inferred;
     }
-    return confirmDeviceTimeZoneFallback();
+    return timeZoneField.confirmDeviceFallback();
   }
 
   async function handleCreate() {
@@ -337,22 +310,7 @@ export default function CreateConventionScreen() {
             </ListItem>
             {startDateField.row}
             {endDateField.row}
-            <Collapsible
-              label={t("common.advanced")}
-              isOpen={advancedOpen}
-              onOpenChange={setAdvancedOpen}
-            >
-              <ListItem
-                supportingText={timeZoneLabel(timeZone)}
-                testID="time-zone-picker"
-                onPress={() => {
-                  Keyboard.dismiss();
-                  setTimeZonePickerVisible(true);
-                }}
-              >
-                {t("convention.timeZone")}
-              </ListItem>
-            </Collapsible>
+            {timeZoneField.row}
             {/* @expo/ui keeps only a section's last footer, so this one
                 carries every note: the name limit, so Add greys out with the
                 reason shown, and, where the save geocodes the location into a
@@ -370,16 +328,7 @@ export default function CreateConventionScreen() {
       {startDateField.dialog}
       {endDateField.dialog}
 
-      <TimeZonePickerModal
-        visible={timeZonePickerVisible}
-        options={timeZones}
-        selected={timeZone}
-        onSelect={(value) => {
-          setTimeZone(value);
-          setTimeZoneManuallySet(true);
-        }}
-        onClose={() => setTimeZonePickerVisible(false)}
-      />
+      {timeZoneField.modal}
     </SafeView>
   );
 }

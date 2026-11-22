@@ -1,17 +1,16 @@
-import { Collapsible, FieldGroup, Host, TextInput } from "@expo/ui";
-import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
+import { FieldGroup, Host, TextInput } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, max, parseISO } from "date-fns";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Keyboard, View } from "react-native";
 import tzLookup from "tz-lookup";
 import {
-  TimeZonePickerModal,
   useConventionDateField,
+  useConventionTimeZoneField,
 } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
 import {
@@ -43,7 +42,6 @@ import {
 } from "@/lib/convention-time";
 import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { currentLocale } from "@/lib/i18n";
-import { buildTimeZoneOptions, timeZoneLabel } from "@/lib/time-zone-search";
 import {
   commitConventionUpdate,
   saveConventionEdit,
@@ -95,8 +93,16 @@ export default function EditConventionScreen() {
   // second tap that lands before then.
   const saveLock = useRef(false);
   const isMounted = useRef(true);
-  const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
-  const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
+  const timeZoneField = useConventionTimeZoneField({
+    timeZone,
+    deviceTimeZone,
+    canInferTimeZone,
+    onPick: (value) => {
+      setTimeZone(value);
+      setTimeZoneManuallySet(true);
+    },
+    testID: "edit-time-zone-picker",
+  });
   // Seed the form from storage exactly once. Re-seeding on every query settle
   // would silently discard whatever the user is part-way through typing.
   // This is state rather than a ref because the form must not mount until it
@@ -120,15 +126,6 @@ export default function EditConventionScreen() {
     setTimeZone(convention.timeZone ?? deviceTimeZone);
     setSeeded(true);
   }, [convention, deviceTimeZone, seeded]);
-
-  const timeZones = useMemo(
-    () =>
-      buildTimeZoneOptions(
-        ["UTC", ...supportedValuesOf("timeZone")],
-        deviceTimeZone,
-      ),
-    [deviceTimeZone],
-  );
 
   const values = {
     name,
@@ -175,31 +172,6 @@ export default function EditConventionScreen() {
     onChange: (value) => setEndDate(max([value, startDate])),
   });
 
-  function confirmDeviceTimeZoneFallback(): Promise<string | null> {
-    return new Promise((resolve) => {
-      Alert.alert(
-        t("convention.timeZoneFallbackTitle"),
-        t("convention.timeZoneFallbackMessage", {
-          timeZone: timeZoneLabel(deviceTimeZone),
-        }),
-        [
-          {
-            text: t("convention.setTimeZone"),
-            onPress: () => {
-              setAdvancedOpen(true);
-              setTimeZonePickerVisible(true);
-              resolve(null);
-            },
-          },
-          {
-            text: t("convention.useDeviceTimeZone"),
-            onPress: () => resolve(deviceTimeZone),
-          },
-        ],
-      );
-    });
-  }
-
   async function resolveTimeZoneForSave(): Promise<string | null> {
     const normalizedLocation = normalizeLocationName(location);
     const originalLocation = normalizeLocationName(convention?.location ?? "");
@@ -224,7 +196,7 @@ export default function EditConventionScreen() {
     }
     // Asking over a form that has already closed would offer to save it.
     if (!isMounted.current) return null;
-    return confirmDeviceTimeZoneFallback();
+    return timeZoneField.confirmDeviceFallback();
   }
 
   async function handleSave() {
@@ -371,22 +343,7 @@ export default function EditConventionScreen() {
             {startDateField.row}
             {endDateField.row}
 
-            <Collapsible
-              label={t("common.advanced")}
-              isOpen={advancedOpen}
-              onOpenChange={setAdvancedOpen}
-            >
-              <ListItem
-                supportingText={timeZoneLabel(timeZone)}
-                testID="edit-time-zone-picker"
-                onPress={() => {
-                  Keyboard.dismiss();
-                  setTimeZonePickerVisible(true);
-                }}
-              >
-                {t("convention.timeZone")}
-              </ListItem>
-            </Collapsible>
+            {timeZoneField.row}
             {/* @expo/ui keeps only a section's last footer, so this one
                 carries the name limit and the long-span warning as well:
                 Save greys out with its reason in view. */}
@@ -399,16 +356,7 @@ export default function EditConventionScreen() {
       {startDateField.dialog}
       {endDateField.dialog}
 
-      <TimeZonePickerModal
-        visible={timeZonePickerVisible}
-        options={timeZones}
-        selected={timeZone}
-        onSelect={(value) => {
-          setTimeZone(value);
-          setTimeZoneManuallySet(true);
-        }}
-        onClose={() => setTimeZonePickerVisible(false)}
-      />
+      {timeZoneField.modal}
     </SafeView>
   );
 }
