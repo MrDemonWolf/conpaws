@@ -85,11 +85,19 @@ enum ConPawsFormat {
     return "\(day) · \(timeLabel)"
   }
 
-  /// How long the wait is, spoken as two units.
+  /// How long the wait is, spoken in at most two units: "1 hour, 30
+  /// minutes", "18 minutes", "3 days".
+  ///
+  /// A unit that counts zero is left out, and the last minute is still "1
+  /// minute". Months are used only once the wait is 30 days and a whole
+  /// calendar month, as the visible ladder does, and each branch asks the
+  /// calendar for its own two units alone: asking for months as well put a
+  /// February wait of 28 days into "1 month" and left "0 days" to say.
   ///
   /// Deliberately without "remaining" or its equivalents: the caller decides
   /// whether the duration stands alone or sits inside a longer sentence, and
   /// several languages phrase "remaining" as a prefix rather than a suffix.
+  /// The units are in the plain case, which is what "remaining" takes.
   static func countdownDuration(
     from now: Date,
     to target: Date,
@@ -97,19 +105,45 @@ enum ConPawsFormat {
     strings: ConPawsStrings
   ) -> String {
     let calendar = ConPawsCalendar.convention(in: timeZone)
-    let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: now, to: target)
-    let months = max(0, parts.month ?? 0)
-    let days = max(0, parts.day ?? 0)
+    let seconds = target.timeIntervalSince(now)
+
+    if seconds >= 30 * 86_400 {
+      let parts = calendar.dateComponents([.month, .day], from: now, to: target)
+      let months = parts.month ?? 0
+      if months >= 1 {
+        return spokenPair(
+          (months, strings.months),
+          (parts.day ?? 0, strings.days),
+          strings: strings
+        )
+      }
+    }
+    if seconds >= 86_400 {
+      let parts = calendar.dateComponents([.day, .hour], from: now, to: target)
+      return spokenPair(
+        (parts.day ?? 0, strings.days),
+        (parts.hour ?? 0, strings.hours),
+        strings: strings
+      )
+    }
+    let parts = calendar.dateComponents([.hour, .minute], from: now, to: target)
     let hours = max(0, parts.hour ?? 0)
     let minutes = max(0, parts.minute ?? 0)
+    if hours == 0 { return strings.minutes(max(1, minutes)) }
+    return spokenPair((hours, strings.hours), (minutes, strings.minutes), strings: strings)
+  }
 
-    if target.timeIntervalSince(now) >= 30 * 86_400 {
-      return strings.duration(strings.months(months), strings.days(days))
+  /// Two counted units, without whichever of them is zero.
+  private static func spokenPair(
+    _ first: (count: Int, unit: (Int) -> String),
+    _ second: (count: Int, unit: (Int) -> String),
+    strings: ConPawsStrings
+  ) -> String {
+    switch (first.count > 0, second.count > 0) {
+    case (true, true): strings.duration(first.unit(first.count), second.unit(second.count))
+    case (true, false): first.unit(first.count)
+    case (false, _): second.unit(max(1, second.count))
     }
-    if target.timeIntervalSince(now) >= 86_400 {
-      return strings.duration(strings.days(days), strings.hours(hours))
-    }
-    return strings.duration(strings.hours(hours), strings.minutes(minutes))
   }
 
   private static func timeFormatter(
