@@ -166,10 +166,19 @@ private func spokenSummary(_ summary: String, stale: String?) -> String {
 /// Mark + one line of context: the complication's shared first line, matching
 /// the iPhone Lock Screen rectangular grammar. A reminder uses a bell in place
 /// of the brand mark. A stale plan adds a trailing symbol rather than lines.
+///
+/// Translations run long on a 41 mm card, so the title shrinks a little
+/// before anything is cut, and a `count` beside it is never cut at all.
 private struct WatchEyebrow: View {
   @Environment(\.staleNotice) private var staleNotice
   let title: String
+  /// Drawn after the title at full width: the leave countdown's minutes,
+  /// which are the point of that card.
+  var count: String?
   var symbol: String?
+  /// A status card's eyebrow is its message, so it may take a second line
+  /// rather than lose its end. Every other eyebrow is one line.
+  var lineLimit = 1
 
   var body: some View {
     HStack(spacing: 4) {
@@ -181,8 +190,16 @@ private struct WatchEyebrow: View {
         // 16 pt: the compass ring blurs below that.
         ConPawsMark(size: 16)
       }
-      Text(title)
-        .lineLimit(1)
+      HStack(alignment: .firstTextBaseline, spacing: 4) {
+        Text(title)
+          .lineLimit(lineLimit)
+          .minimumScaleFactor(0.8)
+        if let count {
+          Text(count)
+            .lineLimit(1)
+            .layoutPriority(1)
+        }
+      }
       if staleNotice != nil {
         Spacer(minLength: 2)
         Image(systemName: "exclamationmark.arrow.circlepath")
@@ -280,7 +297,7 @@ private struct LeaveWidgetView: View {
     // reminder (which has already fired by the time this state exists) are
     // spoken, not drawn.
     VStack(alignment: .leading, spacing: 1) {
-      WatchEyebrow(title: lead, symbol: "bell")
+      WatchEyebrow(title: lead.phrase, count: lead.minutes, symbol: "bell")
         .monospacedDigit()
 
       Text(next.title)
@@ -294,7 +311,7 @@ private struct LeaveWidgetView: View {
     .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
   }
 
-  private var lead: String {
+  private var lead: ConPawsCountdown.LeaveLead {
     ConPawsCountdown.leaveLead(
       from: now,
       to: next.startDate,
@@ -318,7 +335,7 @@ private struct LeaveWidgetView: View {
     // children, so `privacySensitive` on them never reaches VoiceOver. Speak
     // only what stays drawn, the lead and the clock time.
     if redactionReasons.contains(.privacy) {
-      return "\(lead), \(nextTime)."
+      return "\(lead.text), \(nextTime)."
     }
     let countdown = ConPawsFormat.countdownDuration(
       from: now,
@@ -433,7 +450,10 @@ private struct StatusWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
-      WatchEyebrow(title: title)
+      // The message comes first and may wrap; the detail fills what is
+      // left. "Panels auf dem iPhone hinzufügen" is wider than the card.
+      WatchEyebrow(title: title, lineLimit: 2)
+        .layoutPriority(1)
       Text(detail)
         .font(.caption)
         .foregroundStyle(.secondary)

@@ -88,21 +88,39 @@ enum ConPawsCountdown {
   /// for every minute so the label never overpromises. Above an hour it uses
   /// the inline starts-in phrasing, because gluing the lead onto a label that
   /// already carries its own "In" reads twice.
+  ///
+  /// It comes in two pieces, so a narrow card can shorten the phrase and keep
+  /// the count: "Começa dentro de" and "18 min". Drawn as one string, the
+  /// count was the part a 41 mm card cut off.
   static func leaveLead(
     from: Date,
     to: Date,
     timeZone: TimeZone,
     strings: ConPawsStrings
-  ) -> String {
+  ) -> LeaveLead {
     guard let minutes = leaveMinutes(from: from, to: to) else {
-      return strings.text(
+      let phrase = strings.text(
         strings.inlineStartsFormat,
         strings.midSentenceCountdown(
           label(from: from, to: to, timeZone: timeZone, strings: strings)
         )
       )
+      return LeaveLead(phrase: phrase, minutes: nil)
     }
-    return "\(strings.startsIn) \(strings.compactMinutes(minutes))"
+    return LeaveLead(phrase: strings.startsIn, minutes: strings.compactMinutes(minutes))
+  }
+
+  struct LeaveLead: Equatable, Sendable {
+    let phrase: String
+    /// The whole minutes, or nil above an hour, where the count sits inside
+    /// the phrase.
+    let minutes: String?
+
+    /// The lead as one string, for VoiceOver. The phrase comes first in
+    /// every language's wording, so this is the order the pieces join.
+    var text: String {
+      minutes.map { "\(phrase) \($0)" } ?? phrase
+    }
   }
 
   /// How close a panel's start must be before the watch app ticks a timer.

@@ -95,6 +95,35 @@ struct ConPawsCountdownTests {
 
   /// Chicago leaves daylight time at 02:00 on Sunday 1 November 2026, so that
   /// day is 25 hours long. The day steps still land on local midnight.
+  /// Inside the final hour the lead comes in two pieces, so a narrow card
+  /// can shorten the phrase and keep the count. Drawn as one string, the
+  /// count was the part a 41 mm card cut off: "Começa dentro de 1…".
+  @Test func leaveLeadKeepsTheMinutesApartFromThePhrase() {
+    let now = at(1_795_186_800) // Fri 20 Nov 2026, 09:00 CST
+    let lead = ConPawsCountdown.leaveLead(
+      from: now,
+      to: now.addingTimeInterval(1_080),
+      timeZone: chicago,
+      strings: .resolve("pt-PT")
+    )
+    #expect(lead.phrase == "Começa dentro de")
+    #expect(lead.minutes == "18 min")
+    #expect(lead.text == "Começa dentro de 18 min")
+  }
+
+  /// Above an hour the lead is one phrase with its count inside, as before.
+  @Test func leaveLeadAboveAnHourIsOnePhrase() {
+    let now = at(1_795_186_800) // Fri 20 Nov 2026, 09:00 CST
+    let lead = ConPawsCountdown.leaveLead(
+      from: now,
+      to: now.addingTimeInterval(7_200),
+      timeZone: chicago,
+      strings: .english
+    )
+    #expect(lead.phrase == "Starts in 2 hours")
+    #expect(lead.minutes == nil)
+  }
+
   @Test func changePointsAcrossChicagoDSTEnd() {
     let from = at(1_793_494_800) // Sat 31 Oct 2026, 20:00 CDT
     let to = at(1_793_901_600) // Thu 5 Nov 2026, 12:00 CST

@@ -272,7 +272,7 @@ struct ComplicationTimelineTests {
           to: Date(timeIntervalSince1970: next.startAtMs / 1_000),
           timeZone: zone,
           strings: strings
-        )
+        ).text
     case .next(let current, let next, let convention):
       "next \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next))"
     case .current(let event, let convention):
