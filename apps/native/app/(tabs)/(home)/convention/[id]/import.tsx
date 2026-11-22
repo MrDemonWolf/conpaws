@@ -23,6 +23,7 @@ import {
   FORM_PRESENTED_AS_SHEET,
   FORM_SAFE_EDGES,
 } from "@/components/FormModalHeader.shared";
+import { importHelpRows } from "@/components/ImportHelpRows";
 import { SafeView } from "@/components/ui";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
@@ -930,15 +931,7 @@ export default function ImportScreen() {
               isOpen={helpOpen}
               onOpenChange={setHelpOpen}
             >
-              <ListItem supportingText={t("import.help.sched")}>
-                {t("import.help.schedTitle")}
-              </ListItem>
-              <ListItem supportingText={t("import.help.ics")}>
-                {t("import.help.icsTitle")}
-              </ListItem>
-              <ListItem supportingText={t("import.help.ask")}>
-                {t("import.help.askTitle")}
-              </ListItem>
+              {importHelpRows(t)}
             </Collapsible>
           </FieldGroup.Section>
 
