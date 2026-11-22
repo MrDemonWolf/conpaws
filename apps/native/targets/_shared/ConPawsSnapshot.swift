@@ -282,17 +282,9 @@ extension ConPawsSnapshotAge {
     staleDate(of: snapshot).map { now >= $0 } ?? false
   }
 
-  /// How long ago the phone made `snapshot`, as "45 min. ago" in `locale`, or
-  /// nil when it has no conventions and so no plan to date.
-  static func updatedText(_ snapshot: ConPawsSnapshot, now: Date, locale: Locale) -> String? {
-    guard !snapshot.conventions.isEmpty else { return nil }
-    return updatedText(
-      since: Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000),
-      now: now,
-      locale: locale
-    )
-  }
-
+  /// How long ago the phone made the plan, as "45 min. ago" in `locale`.
+  /// Only the Watch app says this: it redraws every minute, while a
+  /// complication entry would keep the age it was drawn with.
   static func updatedText(since generatedAt: Date, now: Date, locale: Locale) -> String {
     let formatter = RelativeDateTimeFormatter()
     formatter.locale = locale

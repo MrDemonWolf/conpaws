@@ -18,11 +18,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
   /// while the data is fresh. Visually, staleness is one symbol in the
   /// eyebrow: the two lines it used to add overflowed a three-line card.
   var staleNotice: String? {
-    guard
-      ConPawsSnapshotAge.isStale(snapshot, now: date),
-      let updated = ConPawsSnapshotAge.updatedText(snapshot, now: date, locale: snapshot.locale)
-    else { return nil }
-    return strings.text(strings.staleA11yFormat, updated)
+    ConPawsComplicationSpeech.staleNotice(snapshot, now: date)
   }
 
   /// The gallery's sample: a saved panel 20 minutes out whose reminder has

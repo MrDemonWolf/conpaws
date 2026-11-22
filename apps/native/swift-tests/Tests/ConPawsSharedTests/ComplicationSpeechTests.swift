@@ -107,6 +107,48 @@ struct ComplicationSpeechTests {
     )
   }
 
+  // MARK: Stale notice
+
+  private func plan(generatedAt: TimeInterval, language: String = "en") -> ConPawsSnapshot {
+    ConPawsSnapshot(
+      schemaVersion: 2,
+      generatedAtMs: generatedAt * 1_000,
+      localeIdentifier: language,
+      conventions: [convention]
+    )
+  }
+
+  /// A stale entry can stay on the face for hours, so the notice must not
+  /// state an age: the entry drawn at 20:30 said "Last updated 30 min. ago"
+  /// until the next entry, past midnight.
+  @Test func staleNoticeReadsTheSameHowEverLongTheEntryStays() throws {
+    let value = plan(generatedAt: 1_795_226_400) // Fri 20 Nov 2026, 20:00
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: at(1_795_228_199)) == nil) // 20:29:59
+    let atBoundary = try #require(ConPawsComplicationSpeech.staleNotice(value, now: at(1_795_228_200))) // 20:30
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: at(1_795_273_200)) == atBoundary) // Sat 09:00
+    #expect(atBoundary == "This plan may be out of date. Open ConPaws to check for changes.")
+  }
+
+  /// In the app's language, which is the snapshot's.
+  @Test func staleNoticeIsInTheAppsLanguage() {
+    let value = plan(generatedAt: 1_795_226_400, language: "de")
+    #expect(
+      ConPawsComplicationSpeech.staleNotice(value, now: at(1_795_273_200))
+        == "Dieser Plan ist möglicherweise nicht aktuell. Öffne ConPaws, um nach Änderungen zu sehen."
+    )
+  }
+
+  /// With no convention there is no plan to be out of date.
+  @Test func staleNoticeNeedsAPlan() {
+    let empty = ConPawsSnapshot(
+      schemaVersion: 2,
+      generatedAtMs: 1_795_226_400_000,
+      localeIdentifier: "en",
+      conventions: []
+    )
+    #expect(ConPawsComplicationSpeech.staleNotice(empty, now: at(1_795_273_200)) == nil)
+  }
+
   /// Inside the final hour the timeline has an entry every minute, so the
   /// spoken minutes hold from one entry to the next.
   @Test func leaveCountdownHoldsUntilTheNextMinuteEntry() {

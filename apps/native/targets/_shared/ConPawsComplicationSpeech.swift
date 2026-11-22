@@ -40,6 +40,16 @@ enum ConPawsComplicationSpeech {
     return strings.hours(Int(start.timeIntervalSince(now) / 3_600), oblique: true)
   }
 
+  /// The sentence VoiceOver adds to every state while the plan is stale, or
+  /// nil while it is fresh. It names no age: the timeline adds an entry where
+  /// the plan turns stale and then only at state changes, so an age worked
+  /// out at that entry said "30 min. ago" for the rest of the night. The
+  /// Watch app redraws every minute and keeps its age.
+  static func staleNotice(_ snapshot: ConPawsSnapshot, now: Date) -> String? {
+    guard ConPawsSnapshotAge.isStale(snapshot, now: now) else { return nil }
+    return snapshot.strings.staleNoticeA11y
+  }
+
   /// "Starts in 18 minutes for Fursuit Meetup, at 2:00 PM.", with the panel
   /// still running named when there is one.
   static func leave(

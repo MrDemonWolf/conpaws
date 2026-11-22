@@ -33,7 +33,6 @@ struct SnapshotFreshnessTests {
     let dayLater = generatedAt.addingTimeInterval(86_400)
     #expect(ConPawsSnapshotAge.staleDate(of: empty) == nil)
     #expect(ConPawsSnapshotAge.isStale(empty, now: dayLater) == false)
-    #expect(ConPawsSnapshotAge.updatedText(empty, now: dayLater, locale: Locale(identifier: "en_US")) == nil)
   }
 
   @Test func aPlanTurnsStaleThirtyMinutesAfterThePhoneMadeIt() {
@@ -51,9 +50,7 @@ struct SnapshotFreshnessTests {
 
   @Test(arguments: [("en_US", "45 min. ago"), ("de_DE", "vor 45 Min.")])
   func updatedTextSaysHowLongAgoInTheAppsLanguage(locale: String, expected: String) {
-    let plan = snapshot(withConventions: true)
     let now = generatedAt.addingTimeInterval(45 * 60)
-    #expect(ConPawsSnapshotAge.updatedText(plan, now: now, locale: Locale(identifier: locale)) == expected)
     #expect(ConPawsSnapshotAge.updatedText(since: generatedAt, now: now, locale: Locale(identifier: locale)) == expected)
   }
 }
