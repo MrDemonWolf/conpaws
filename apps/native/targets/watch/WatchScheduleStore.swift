@@ -24,16 +24,15 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// `ConPawsPendingCommands`.
   @Published private(set) var pendingCommands: [String: PendingWatchCommand] = [:]
 
+  /// The complication's stale rule, so the app and the face flag the same
+  /// moment.
   func isUsingSavedSchedule(at now: Date) -> Bool {
-    guard !snapshot.conventions.isEmpty else { return false }
-    return ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: now)
+    ConPawsSnapshotAge.isStale(snapshot, now: now)
   }
 
   /// When the snapshot was produced on the phone, for the "Updated…" footer.
   var snapshotDate: Date? {
-    snapshot.conventions.isEmpty
-      ? nil
-      : Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000)
+    ConPawsSnapshotAge.generatedDate(of: snapshot)
   }
 
   private override init() {

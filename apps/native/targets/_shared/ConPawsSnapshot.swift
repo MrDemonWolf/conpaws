@@ -265,17 +265,25 @@ extension ConPawsEventSnapshot {
 
 // MARK: - Freshness
 
-extension ConPawsSnapshotAge {
-  /// The moment `snapshot` turns stale, or nil when it never does: with no
-  /// conventions there is no plan to be out of date.
+enum ConPawsSnapshotAge {
+  static let staleAfter: TimeInterval = 30 * 60
+
+  /// When the phone made `snapshot`, or nil when it holds no conventions:
+  /// with no plan there is no age to show or go stale. Every rule below
+  /// starts here, so none can treat the empty snapshot differently.
+  static func generatedDate(of snapshot: ConPawsSnapshot) -> Date? {
+    guard !snapshot.conventions.isEmpty else { return nil }
+    return Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000)
+  }
+
+  /// The moment `snapshot` turns stale, or nil when it never does.
   ///
   /// The one rule the Watch app, the complication's entries and the timeline
   /// that places those entries all read. When each kept its own copy, a change
   /// to one could put the stale symbol at a moment with no timeline entry, and
   /// the face stayed wrong until the next snapshot.
   static func staleDate(of snapshot: ConPawsSnapshot) -> Date? {
-    guard !snapshot.conventions.isEmpty else { return nil }
-    return Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000).addingTimeInterval(staleAfter)
+    generatedDate(of: snapshot)?.addingTimeInterval(staleAfter)
   }
 
   static func isStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
@@ -292,8 +300,7 @@ extension ConPawsSnapshotAge {
 
   /// Whether the Watch app's convention countdown flags its plan as old.
   static func isCountdownStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
-    guard !snapshot.conventions.isEmpty else { return false }
-    return now.timeIntervalSince1970 * 1_000 - snapshot.generatedAtMs >= countdownStaleAfter * 1_000
+    generatedDate(of: snapshot).map { now >= $0.addingTimeInterval(countdownStaleAfter) } ?? false
   }
 
   /// How long ago the phone made the plan, as "45 min. ago" in `locale`.

@@ -111,11 +111,3 @@ enum ConPawsScheduleResolver {
     event.endAtMs ?? event.startAtMs + 3_600_000
   }
 }
-
-enum ConPawsSnapshotAge {
-  static let staleAfter: TimeInterval = 30 * 60
-
-  static func isStale(generatedAtMs: Double, now: Date) -> Bool {
-    now.timeIntervalSince1970 * 1_000 - generatedAtMs >= staleAfter * 1_000
-  }
-}

@@ -312,26 +312,6 @@ struct ScheduleStateTests {
   }
 }
 
-struct SnapshotAgeTests {
-  @Test func freshAtTwentyNineMinutesFiftyNineSeconds() {
-    let now = Date(timeIntervalSince1970: 1_800_000_000)
-    let generatedAtMs = now.addingTimeInterval(-1_799).timeIntervalSince1970 * 1_000
-    #expect(!ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now))
-  }
-
-  @Test func staleAtThirtyMinutes() {
-    let now = Date(timeIntervalSince1970: 1_800_000_000)
-    let generatedAtMs = now.addingTimeInterval(-1_800).timeIntervalSince1970 * 1_000
-    #expect(ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now))
-  }
-
-  @Test func futureStampedSnapshotIsFresh() {
-    let now = Date(timeIntervalSince1970: 1_800_000_000)
-    let generatedAtMs = now.addingTimeInterval(60).timeIntervalSince1970 * 1_000
-    #expect(!ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now))
-  }
-}
-
 struct StringsPlaceholderParityTests {
   @Test func formatPlaceholdersMatchEnglishAcrossLanguages() {
     let english = placeholders(in: ConPawsStrings.table(for: .en))

@@ -35,6 +35,13 @@ struct SnapshotFreshnessTests {
     #expect(ConPawsSnapshotAge.isStale(empty, now: dayLater) == false)
   }
 
+  /// The Watch app's "Updated…" footer reads this, so an empty snapshot,
+  /// which the app also never flags as stale, shows no age either.
+  @Test func onlyAPlanHasAGeneratedDate() {
+    #expect(ConPawsSnapshotAge.generatedDate(of: snapshot(withConventions: false)) == nil)
+    #expect(ConPawsSnapshotAge.generatedDate(of: snapshot(withConventions: true)) == generatedAt)
+  }
+
   @Test func aPlanTurnsStaleThirtyMinutesAfterThePhoneMadeIt() {
     #expect(
       ConPawsSnapshotAge.staleDate(of: snapshot(withConventions: true))
