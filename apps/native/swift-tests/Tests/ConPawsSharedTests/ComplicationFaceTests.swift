@@ -294,12 +294,24 @@ struct ComplicationFaceTests {
     )
   }
 
-  @Test func inlineStatusIsItsTitleAndAStalePlanSwapsTheSymbol() {
+  /// A status heading runs to 32 characters in German, so the two long ones
+  /// fall back to a few words when the slot cannot hold them.
+  @Test func inlineStatusIsItsTitleThenAShortLineAndAStalePlanSwapsTheSymbol() {
     let now = FaceFixture.local(21, 12)
     let fresh = FaceFixture.projection([], at: now)
     #expect(
       Face.inline(fresh, strings: strings, locale: locale, redacted: false)
-        == .init(symbol: nil, lines: ["Add panels on iPhone"])
+        == .init(symbol: nil, lines: ["Add panels on iPhone", "No panels yet"])
+    )
+    let finished = FaceFixture.projection([FaceFixture.artJam], at: FaceFixture.local(21, 15))
+    #expect(
+      Face.inline(finished, strings: strings, locale: locale, redacted: false)
+        == .init(symbol: nil, lines: ["No more panels today", "Done for today"])
+    )
+    let noPlan = ConPawsComplicationProjection(snapshot: .empty(localeIdentifier: "en"), now: now)
+    #expect(
+      Face.inline(noPlan, strings: strings, locale: locale, redacted: false)
+        == .init(symbol: nil, lines: ["No plan yet"])
     )
     let stale = FaceFixture.projection([talk], at: now, generatedAt: now.addingTimeInterval(-7_200))
     #expect(Face.inline(stale, strings: strings, locale: locale, redacted: false).symbol == Face.staleSymbol)

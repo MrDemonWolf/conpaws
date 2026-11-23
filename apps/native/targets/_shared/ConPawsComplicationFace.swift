@@ -324,7 +324,13 @@ enum ConPawsComplicationFace {
         : event.currentTimingLabel(timeZone: convention.timeZone, locale: locale, strings: strings)
       symbol = "clock"
       lines = withRoom(timing, event, redacted: redacted)
-    case .finished, .noPicks, .ended, .noConvention:
+    case .noPicks:
+      symbol = nil
+      lines = [strings.noPicksComplication, strings.complication.inlineNoPicks]
+    case .finished:
+      symbol = nil
+      lines = [strings.finishedComplication, strings.complication.inlineFinished]
+    case .ended, .noConvention:
       symbol = nil
       lines = projection.status(strings: strings).map { [$0.title] } ?? []
     }
