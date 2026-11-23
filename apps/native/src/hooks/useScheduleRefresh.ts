@@ -26,7 +26,7 @@ export interface ScheduleRefreshState {
   checkedAt: number | null;
   /** True only for a check the user pressed for; the quiet one shows nothing. */
   checking: boolean;
-  /** Null unless an explicit check failed and the user is owed an answer. */
+  /** False unless an explicit check failed and the user is owed an answer. */
   failed: boolean;
   checkNow: () => void;
   dismiss: () => void;

@@ -109,12 +109,6 @@ export function buildTimeZoneOptions(
 }
 
 /**
- * The short label shown on the closed row: the city alone when it is
- * unambiguous, otherwise the region too. Always prefer this over the raw
- * identifier in UI — `America/Argentina/Buenos_Aires` means nothing to a
- * convention-goer.
- */
-/**
  * The current GMT offset for a zone, as "GMT-5".
  *
  * Cached because the time-zone picker renders a few hundred rows and building

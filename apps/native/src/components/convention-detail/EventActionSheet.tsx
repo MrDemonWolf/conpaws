@@ -62,11 +62,10 @@ interface EventSheetContentProps {
   onRemoveVisit: () => void;
   visitBusy: boolean;
   /**
-   * Track event. Omitted, the sheet offers nothing. Neither action closes the
-   * sheet: the button flipping between Track and Stop, and the badge, are the
-   * confirmation the user is looking at.
+   * Track event. Neither action closes the sheet: the button flipping between
+   * Track and Stop, and the badge, are the confirmation the user is looking at.
    */
-  tracking?: EventSheetTracking;
+  tracking: EventSheetTracking;
 }
 
 export interface EventSheetTracking {
@@ -195,7 +194,7 @@ export function EventSheetContent({
           {feedStatusLabel ? (
             <Badge variant="ended" emphasis="strong" label={feedStatusLabel} />
           ) : null}
-          {tracking?.state === "this" ? (
+          {tracking.state === "this" ? (
             <Badge variant="info" label={t("tracking.badge")} />
           ) : null}
         </View>
@@ -328,7 +327,7 @@ export function EventSheetContent({
             {t("convention.visit.remove")}
           </Button>
         ) : null}
-        {tracking?.state === "this" ? (
+        {tracking.state === "this" ? (
           <Button
             variant="outline"
             loading={tracking.busy}
@@ -337,7 +336,7 @@ export function EventSheetContent({
           >
             {t("tracking.stop")}
           </Button>
-        ) : tracking?.state === "none" && tracking.trackable ? (
+        ) : tracking.state === "none" && tracking.trackable ? (
           <Button
             variant="outline"
             loading={tracking.busy}
