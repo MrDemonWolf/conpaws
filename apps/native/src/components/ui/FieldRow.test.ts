@@ -25,4 +25,22 @@ describe("FieldRow", () => {
     expect(section).toContain("isUniversalListItem(child)");
     expect(section).toContain("cloneElement(child");
   });
+
+  it("draws a string subtitle in the secondary colour on iOS", () => {
+    // @expo/ui 58.0.29 styled it with "secondaryLabel", a colour Expo's
+    // converter does not know, so the style was dropped and every subtitle
+    // drew in the primary colour. patches/@expo%2Fui@58.0.29.patch swaps in
+    // the hierarchical secondary style, in the source and the built file.
+    const uiRoot = path.dirname(require.resolve("@expo/ui/package.json"));
+    for (const file of [
+      "src/universal/ListItem/ListItem.ios.tsx",
+      "build/universal/ListItem/ListItem.ios.js",
+    ]) {
+      const source = readFileSync(path.join(uiRoot, file), "utf8");
+      expect(source, file).not.toMatch(/color: 'secondaryLabel'/);
+      expect(source, file).toMatch(
+        /type: 'hierarchical',\s*style: 'secondary'/,
+      );
+    }
+  });
 });
