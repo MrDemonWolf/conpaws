@@ -170,17 +170,6 @@ extension ConPawsConventionSnapshot {
   }
 }
 
-extension ConPawsScheduleResolver {
-  /// How long a panel with no published end counts as running, for "Other
-  /// options this hour" and for the resolver alike.
-  ///
-  /// Declared here because `optionsThisHour` reads it. The resolver's
-  /// `effectiveEnd` in ConPawsScheduleState.swift still writes the same hour
-  /// as `3_600_000` ms; `optionsAndResolverShareTheUnknownEndHour` holds the
-  /// two together until it reads this too.
-  static let unknownEndDuration: TimeInterval = 3_600
-}
-
 struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
   let id: String
   let title: String

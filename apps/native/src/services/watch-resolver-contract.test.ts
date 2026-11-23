@@ -29,8 +29,9 @@ describe("Watch resolver contract", () => {
     expect(swiftLastActive).toContain(
       "min(effectiveEndMs(of: event), event.startAtMs + longestCountedPanelMs)",
     );
-    expect(resolver).toContain("event.endAtMs ?? event.startAtMs + 3_600_000");
-    expect(HOUR_MS).toBe(3_600_000);
+    expect(resolver).toContain(
+      "event.endAtMs ?? event.startAtMs + unknownEndDuration * 1_000",
+    );
     expect(tsLastActive).toContain("convention.endAtMs");
     expect(tsLastActive).toContain(
       "event.endAtMs ?? event.startAtMs + HOUR_MS",
@@ -38,6 +39,13 @@ describe("Watch resolver contract", () => {
     expect(tsLastActive).toContain(
       "event.startAtMs + WATCH_LONGEST_COUNTED_PANEL_MS",
     );
+  });
+
+  it("gives a panel with no end the same hour on both sides", () => {
+    const swift = resolver.match(
+      /static let unknownEndDuration: TimeInterval = ([\d_]+)/,
+    )?.[1];
+    expect(Number(swift?.replaceAll("_", "")) * 1_000).toBe(HOUR_MS);
   });
 
   it("caps a panel at the same length on both sides", () => {

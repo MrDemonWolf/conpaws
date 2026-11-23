@@ -106,8 +106,13 @@ enum ConPawsScheduleResolver {
     Date(timeIntervalSince1970: effectiveEndMs(of: event) / 1_000)
   }
 
+  /// How long a panel with no published end counts as running, for the
+  /// resolver and for "Other options this hour" alike. Mirrored by `HOUR_MS`
+  /// in `watchLastActiveMs` (src/services/watch-snapshot.ts).
+  static let unknownEndDuration: TimeInterval = 3_600
+
   /// In milliseconds, so convention bounds compare exactly.
   static func effectiveEndMs(of event: ConPawsEventSnapshot) -> Double {
-    event.endAtMs ?? event.startAtMs + 3_600_000
+    event.endAtMs ?? event.startAtMs + unknownEndDuration * 1_000
   }
 }
