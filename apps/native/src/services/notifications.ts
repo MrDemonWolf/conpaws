@@ -10,10 +10,10 @@ const REMINDER_IDENTIFIER_PREFIX = "reminder-";
 const TEST_NOTIFICATION_IDENTIFIER_PREFIX = "developer-test-";
 
 /**
- * What marks a notification as a panel reminder. The phone's tap handler and
- * the Watch app both read these back; the Watch's copies live in
- * `targets/_shared/ConPawsReminderNotification.swift`, and
- * `notifications-watch-contract.test.ts` holds the two together.
+ * What marks a notification as a panel reminder. The phone's tap handler
+ * (app/_layout.tsx) reads the kind; the Watch app reads both, from its own
+ * copies in `targets/_shared/ConPawsReminderNotification.swift`, which
+ * `notifications-watch-contract.test.ts` holds to these.
  */
 export const REMINDER_CATEGORY_IDENTIFIER = "conpaws.reminder";
 export const REMINDER_NOTIFICATION_KIND = "event-reminder";
