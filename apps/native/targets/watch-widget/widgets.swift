@@ -170,13 +170,6 @@ private extension EnvironmentValues {
   @Entry var staleNotice: String? = nil
 }
 
-/// A state's VoiceOver summary with the stale sentence after it.
-private func spokenSummary(_ summary: String, stale: String?) -> String {
-  guard let stale else { return summary }
-  let endsSentence = summary.last.map { ".。!?！？".contains($0) } ?? true
-  return endsSentence ? "\(summary) \(stale)" : "\(summary). \(stale)"
-}
-
 /// Mark + one line of context: the complication's shared first line, matching
 /// the iPhone Lock Screen rectangular grammar. A reminder uses a bell in place
 /// of the brand mark. A stale plan adds a trailing symbol rather than lines.
@@ -277,7 +270,7 @@ private struct ComingUpWidgetView: View {
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
-      spokenSummary(
+      ConPawsComplicationSpeech.withStale(
         ConPawsComplicationSpeech.comingUp(convention, now: now, strings: strings),
         stale: staleNotice
       )
@@ -311,7 +304,7 @@ private struct LeaveWidgetView: View {
       WidgetDetailLine(time: nextTime, place: next.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+    .accessibilityLabel(ConPawsComplicationSpeech.withStale(accessibilitySummary, stale: staleNotice))
   }
 
   private var lead: ConPawsCountdown.LeaveLead {
@@ -338,7 +331,7 @@ private struct LeaveWidgetView: View {
     // children, so `privacySensitive` on them never reaches VoiceOver. Speak
     // only what stays drawn, the lead and the clock time.
     if redactionReasons.contains(.privacy) {
-      return "\(lead.text), \(nextTime)."
+      return ConPawsComplicationSpeech.leaveRedacted(lead: lead, startTime: nextTime)
     }
     return ConPawsComplicationSpeech.leave(
       current: current,
@@ -373,7 +366,7 @@ private struct NextWidgetView: View {
       WidgetDetailLine(time: startTime, place: event.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+    .accessibilityLabel(ConPawsComplicationSpeech.withStale(accessibilitySummary, stale: staleNotice))
   }
 
   private var startTime: String {
@@ -387,16 +380,15 @@ private struct NextWidgetView: View {
   }
 
   private var accessibilitySummary: String {
-    let reminder = ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
-      .map { ". \($0)" } ?? ""
     // Redacted: no titles or rooms, as on screen (see LeaveWidgetView).
-    if redactionReasons.contains(.privacy) {
-      return "\(strings.upNextCaps), \(startTime)\(reminder)."
-    }
-    let next = strings.text(strings.nextEventA11yFormat, event.title, startTime)
-    let currentText = current.map { "\(strings.happeningNowCaps), \($0.title). " } ?? ""
-    let place = event.place.map { ", \($0)" } ?? ""
-    return "\(currentText)\(next)\(place)\(reminder)."
+    ConPawsComplicationSpeech.next(
+      current: current,
+      event: event,
+      startTime: startTime,
+      reminder: ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings),
+      redacted: redactionReasons.contains(.privacy),
+      strings: strings
+    )
   }
 }
 
@@ -420,7 +412,7 @@ private struct CurrentWidgetView: View {
       WidgetDetailLine(time: timeRange, place: event.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+    .accessibilityLabel(ConPawsComplicationSpeech.withStale(accessibilitySummary, stale: staleNotice))
   }
 
   private var timeRange: String {
@@ -429,11 +421,12 @@ private struct CurrentWidgetView: View {
 
   private var accessibilitySummary: String {
     // Redacted: no title or room, as on screen (see LeaveWidgetView).
-    if redactionReasons.contains(.privacy) {
-      return "\(strings.happeningNowCaps), \(timeRange). \(strings.noLaterSavedEventsShort)."
-    }
-    let place = event.place.map { ", \($0)" } ?? ""
-    return "\(strings.happeningNowCaps), \(event.title), \(timeRange)\(place). \(strings.noLaterSavedEventsShort)."
+    ConPawsComplicationSpeech.current(
+      event,
+      timeRange: timeRange,
+      redacted: redactionReasons.contains(.privacy),
+      strings: strings
+    )
   }
 }
 
@@ -454,7 +447,12 @@ private struct StatusWidgetView: View {
         .lineLimit(2)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary("\(title), \(detail)", stale: staleNotice))
+    .accessibilityLabel(
+      ConPawsComplicationSpeech.withStale(
+        ConPawsComplicationSpeech.status(.init(title: title, detail: detail)),
+        stale: staleNotice
+      )
+    )
   }
 }
 
