@@ -4,13 +4,15 @@ import { Pressable, type PressableProps, View } from "react-native";
 import { cn } from "@/lib/utils";
 
 /**
- * The press-dim every tappable surface uses.
+ * The press-dim for tappable surfaces.
  *
- * `Button.tsx` already claims this is uniform across the app ("raw Pressables
- * across the app use the same modifier, so pressed feedback stays uniform") and
- * it was not: the same gesture rendered at opacity 60, 65 and 70 depending on
- * which screen you were on. Exporting it is what makes the claim true, so
- * import this rather than retyping `active:opacity-*`.
+ * The same gesture used to render at opacity 60, 65 and 70 depending on the
+ * screen. New code imports this rather than retyping `active:opacity-*`.
+ *
+ * Three older raw Pressables still dim to 70: the reminder picker rows and
+ * Cancel in `convention-detail/EventActionSheet.tsx`, and the Android field in
+ * `convention-detail/NativeDateTimeField.tsx`. Moving them to this value is a
+ * visible change, so it needs the owner's sign-off first.
  */
 export const PRESS_DIM = "active:opacity-60";
 
