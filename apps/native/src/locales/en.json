@@ -445,11 +445,11 @@
         },
         "download": {
           "title": "Download the schedule",
-          "body": "Tap {{button}}. Once it's saved, the schedule works without an internet connection."
+          "body": "Tap “{{button}}”. Once it's saved, the schedule works without an internet connection."
         },
         "notListed": {
           "title": "Not listed yet?",
-          "body": "Not every convention is in the catalog yet. Tap {{button}} to bring in a Sched link or a calendar file instead."
+          "body": "Not every convention is in the catalog yet. Tap “{{button}}” to bring in a Sched link or a calendar file instead."
         }
       }
     },
@@ -467,7 +467,7 @@
         },
         "paste": {
           "title": "Paste it into ConPaws",
-          "body": "On the {{screen}} screen, paste the address under {{field}}, then tap {{button}}."
+          "body": "On the “{{screen}}” screen, paste the address under “{{field}}”, then tap “{{button}}”."
         },
         "review": {
           "title": "Check it, then import",
@@ -489,7 +489,7 @@
         },
         "add": {
           "title": "Add it to ConPaws",
-          "body": "On the {{screen}} screen, paste the link under {{field}} and tap {{fetch}}. Have a file instead? Tap {{button}} and pick it."
+          "body": "On the “{{screen}}” screen, paste the link under “{{field}}” and tap “{{fetch}}”. Have a file instead? Tap “{{button}}” and pick it."
         },
         "review": {
           "title": "Check it, then import",
