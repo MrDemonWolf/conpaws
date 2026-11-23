@@ -109,12 +109,19 @@ struct ComplicationFaceTests {
   }
 
   /// Without a published end there is no end to fill toward, and none is
-  /// invented: the card says it is on now and when it started.
+  /// invented: the card says it is on now and when it started. "Now" is the
+  /// value, not the glyph, so a circle with no room for the mark keeps it.
   @Test func circularRunningPanelWithoutAnEndSaysNow() {
-    let card = FaceFixture.projection([openPlay], at: FaceFixture.local(21, 13, 30))
+    let now = FaceFixture.local(21, 13, 30)
+    let card = FaceFixture.projection([openPlay], at: now)
     #expect(
       Face.circular(card, strings: strings, locale: locale)
-        == .stack(.text("Now"), value: "1:00", detail: "PM")
+        == .stack(.mark, value: "Now", detail: time(openPlay.startDate))
+    )
+    let stale = FaceFixture.projection([openPlay], at: now, generatedAt: now.addingTimeInterval(-7_200))
+    #expect(
+      Face.circular(stale, strings: strings, locale: locale)
+        == .stack(.symbol(Face.staleSymbol), value: "Now", detail: time(openPlay.startDate))
     )
   }
 
@@ -147,6 +154,58 @@ struct ComplicationFaceTests {
     )
     let status = FaceFixture.projection([], at: now, generatedAt: now.addingTimeInterval(-7_200))
     #expect(Face.circular(status, strings: strings, locale: locale) == .glyph(.symbol(Face.staleSymbol)))
+  }
+
+  // MARK: Circular stack layouts
+
+  /// A glyph over two lines stands 51.5 pt at the default text size, taller
+  /// than any circle (44.5 pt on 41 mm, 50 pt on 45 mm), so the circle falls
+  /// back to its second layout. The mark only decorates and gives way; the
+  /// stale symbol moves to the front of the detail line.
+  @Test func aStackTooTallForTheCircleDropsOnlyTheMark() {
+    #expect(
+      Face.stackLayouts(.mark, value: "4:00", detail: "PM") == [
+        .init(glyph: .mark, value: "4:00", detail: "PM", flag: nil),
+        .init(glyph: nil, value: "4:00", detail: "PM", flag: nil),
+      ]
+    )
+    #expect(
+      Face.stackLayouts(.symbol(Face.staleSymbol), value: "18", detail: "min") == [
+        .init(glyph: .symbol(Face.staleSymbol), value: "18", detail: "min", flag: nil),
+        .init(glyph: nil, value: "18", detail: "min", flag: Face.staleSymbol),
+      ]
+    )
+  }
+
+  /// Two lines fit every circle, so without a detail the glyph always stays.
+  @Test func aStackWithoutADetailKeepsItsGlyph() {
+    #expect(
+      Face.stackLayouts(.symbol(Face.staleSymbol), value: "16:00", detail: nil)
+        == [.init(glyph: .symbol(Face.staleSymbol), value: "16:00", detail: nil, flag: nil)]
+    )
+  }
+
+  /// Whichever layout the circle can fit, an old plan never draws like a
+  /// current one: every stacked state keeps the stale symbol in each layout.
+  @Test(arguments: [
+    FaceFixture.local(17, 9), // coming up, from a plan over a week old
+    FaceFixture.local(21, 12), // up next
+    FaceFixture.local(21, 13, 42), // leave
+    FaceFixture.local(21, 14, 40), // happening now, toward a published end
+  ])
+  func aStalePlanIsFlaggedInEveryCircleLayout(now: Date) {
+    let card = FaceFixture.projection(
+      [FaceFixture.artJam, FaceFixture.meetup],
+      at: now,
+      generatedAt: now.addingTimeInterval(-8 * 86_400)
+    )
+    guard case .stack(let glyph, let value, let detail) = Face.circular(card, strings: strings, locale: locale) else {
+      Issue.record("expected a stack")
+      return
+    }
+    for layout in Face.stackLayouts(glyph, value: value, detail: detail) {
+      #expect(layout.glyph == .symbol(Face.staleSymbol) || layout.flag == Face.staleSymbol, "\(layout)")
+    }
   }
 
   // MARK: Circular bezel

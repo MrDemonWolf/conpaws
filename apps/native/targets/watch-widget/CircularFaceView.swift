@@ -34,16 +34,16 @@ struct CircularFaceView: View {
       .tint(Color.accentColor)
       .widgetAccentable()
     case let .stack(glyph, value, detail):
+      let layouts = ConPawsComplicationFace.stackLayouts(glyph, value: value, detail: detail)
       ZStack {
         AccessoryWidgetBackground()
-        // The glyph goes first when a larger text size leaves no room for
-        // all three lines; the time and its day or period always stay.
+        // Tallest first. Three lines do not fit a circle at the default
+        // text size, so the mark gives way and the stale flag moves onto
+        // the detail line; the time and its day or period always stay.
         ViewThatFits(in: .vertical) {
-          VStack(spacing: 0) {
-            ComplicationGlyphView(glyph: glyph)
-            CircularStackText(value: value, detail: detail)
+          ForEach(layouts.indices, id: \.self) { index in
+            CircularStackView(layout: layouts[index])
           }
-          CircularStackText(value: value, detail: detail)
         }
       }
     case let .glyph(glyph):

@@ -59,7 +59,6 @@ enum ConPawsComplicationFace {
     /// The ConPaws mark, at 16 points or more.
     case mark
     case symbol(String)
-    case text(String)
   }
 
   // MARK: Circular
@@ -70,7 +69,8 @@ enum ConPawsComplicationFace {
     /// A running panel's ring, filled by the system from its published start
     /// to its published end; the centre is the end time.
     case panelRing(ClosedRange<Date>, end: Clock)
-    /// A glyph over a value over an optional detail line.
+    /// A glyph over a value over an optional detail line, drawn through
+    /// `stackLayouts`: a circle has no room for the glyph over two lines.
     case stack(Glyph, value: String, detail: String?)
     /// Only a glyph: nothing to count and no panel to time.
     case glyph(Glyph)
@@ -120,17 +120,52 @@ enum ConPawsComplicationFace {
       if let interval, !stale {
         return .panelRing(interval, end: clock(interval.upperBound, timeZone: convention.timeZone, locale: locale))
       }
-      // Stale, the ring gives its place to the flag and the end time stays;
-      // without a published end the card says it is on now and since when.
-      let shown = clock(interval?.upperBound ?? event.startDate, timeZone: convention.timeZone, locale: locale)
-      return .stack(
-        stale ? .symbol(staleSymbol) : .text(strings.compactNow),
-        value: shown.digits,
-        detail: shown.period.isEmpty ? nil : shown.period
-      )
+      let glyph: Glyph = stale ? .symbol(staleSymbol) : .mark
+      guard let interval else {
+        // Without a published end the card says it is on now and since
+        // when. "Now" is the value, not the glyph, which a circle drops.
+        return .stack(
+          glyph,
+          value: strings.compactNow,
+          detail: ConPawsFormat.time(event.startDate, in: convention, locale: locale)
+        )
+      }
+      // Stale, the ring gives its place to the flag and the end time stays.
+      let end = clock(interval.upperBound, timeZone: convention.timeZone, locale: locale)
+      return .stack(glyph, value: end.digits, detail: end.period.isEmpty ? nil : end.period)
     case .finished, .noPicks, .ended, .noConvention:
       return .glyph(stale ? .symbol(staleSymbol) : .mark)
     }
+  }
+
+  /// One way to draw a `.stack` circle: the glyph over the value and its
+  /// detail, or the two lines alone with `flag` (a symbol) leading the
+  /// detail.
+  struct StackLayout: Equatable, Sendable {
+    let glyph: Glyph?
+    let value: String
+    let detail: String?
+    let flag: String?
+  }
+
+  /// The ways to draw `.stack`, tallest first; the circle draws the first
+  /// that fits.
+  ///
+  /// A glyph over two lines stands 51.5 points at the default text size
+  /// (caption 2, headline and caption 2 leading), taller than any watch's
+  /// circle: 44.5 points on 41 mm, 50 on 45 mm. So with a detail line the
+  /// second layout is the one drawn. The mark only decorates and gives way;
+  /// the stale symbol moves to the front of the detail line, so an old plan
+  /// never draws like a current one.
+  static func stackLayouts(_ glyph: Glyph, value: String, detail: String?) -> [StackLayout] {
+    let full = StackLayout(glyph: glyph, value: value, detail: detail, flag: nil)
+    guard let detail else { return [full] }
+    let flag: String? =
+      switch glyph {
+      case .mark: nil
+      case .symbol(let name): name
+      }
+    return [full, StackLayout(glyph: nil, value: value, detail: detail, flag: flag)]
   }
 
   /// Text along the bezel above the Infograph face's top circle.
