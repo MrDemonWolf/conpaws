@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-private struct ConPawsWatchEntry: TimelineEntry {
+struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
   /// Half an hour either side of a saved panel's start, reminder or not.
@@ -114,10 +114,38 @@ private struct ConPawsWatchProvider: TimelineProvider {
 }
 
 private struct ConPawsWatchEntryView: View {
+  @Environment(\.widgetFamily) private var family
   let entry: ConPawsWatchEntry
 
   var body: some View {
     let schedule = ConPawsComplicationProjection(snapshot: entry.snapshot, now: entry.date)
+    Group {
+      switch family {
+      case .accessoryCircular:
+        CircularComplicationView(projection: schedule, strings: entry.strings, staleNotice: entry.staleNotice)
+      case .accessoryCorner:
+        CornerComplicationView(projection: schedule, strings: entry.strings, staleNotice: entry.staleNotice)
+      case .accessoryInline:
+        InlineComplicationView(projection: schedule, strings: entry.strings, staleNotice: entry.staleNotice)
+      default:
+        RectangularWidgetView(schedule: schedule, entry: entry)
+      }
+    }
+    // A tap opens the panel this card names, not whatever screen the Watch
+    // app was last left on, from every family.
+    .widgetURL(schedule.link.url)
+    .environment(\.locale, entry.snapshot.locale)
+    .environment(\.staleNotice, entry.staleNotice)
+  }
+}
+
+/// The rectangular card, the Smart Stack's and the larger faces' slot: an
+/// eyebrow and two lines for each state.
+private struct RectangularWidgetView: View {
+  let schedule: ConPawsComplicationProjection
+  let entry: ConPawsWatchEntry
+
+  var body: some View {
     Group {
       switch schedule.state {
       case let .comingUp(convention):
@@ -156,11 +184,6 @@ private struct ConPawsWatchEntryView: View {
     // overflowing card clipped its eyebrow, which is the line carrying the
     // countdown.
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    // A tap opens the panel this card names, not whatever screen the Watch
-    // app was last left on.
-    .widgetURL(schedule.link.url)
-    .environment(\.locale, entry.snapshot.locale)
-    .environment(\.staleNotice, entry.staleNotice)
   }
 }
 
@@ -490,6 +513,9 @@ struct ConPawsWatchWidget: Widget {
     // String overloads, which show them as given.
     .configurationDisplayName(Self.galleryStrings.complicationName)
     .description(Self.galleryStrings.complicationDescription)
-    .supportedFamilies([.accessoryRectangular])
+    // Every face's slot: the rectangular card, and a slice of it sized for
+    // the circles of Infograph and Modular Compact, the corners of Infograph
+    // and Wayfinder, and the inline line above the time or along the dial.
+    .supportedFamilies([.accessoryRectangular, .accessoryCircular, .accessoryCorner, .accessoryInline])
   }
 }

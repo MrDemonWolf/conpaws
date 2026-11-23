@@ -155,15 +155,19 @@ struct ComplicationFaceTests {
   /// and room while they may be shown, nothing wrist down.
   @Test func bezelNamesThePanelUntilTheFaceIsRedacted() {
     let card = FaceFixture.projection([FaceFixture.meetup], at: FaceFixture.local(21, 13, 42))
-    #expect(Face.bezel(card, strings: strings, redacted: false) == "Fursuit Meetup · Hall A")
+    #expect(
+      Face.bezel(card, strings: strings, redacted: false) == .init(text: "Fursuit Meetup · Hall A", isPrivate: true)
+    )
     #expect(Face.bezel(card, strings: strings, redacted: true) == nil)
   }
 
   @Test func bezelNamesTheConventionOrTheStatus() {
     let countdown = FaceFixture.projection([], at: FaceFixture.local(17, 9))
-    #expect(Face.bezel(countdown, strings: strings, redacted: true) == "FurCon")
+    #expect(Face.bezel(countdown, strings: strings, redacted: true) == .init(text: "FurCon", isPrivate: false))
     let status = FaceFixture.projection([], at: FaceFixture.local(21, 12))
-    #expect(Face.bezel(status, strings: strings, redacted: true) == "Add panels on iPhone")
+    #expect(
+      Face.bezel(status, strings: strings, redacted: true) == .init(text: "Add panels on iPhone", isPrivate: false)
+    )
   }
 
   // MARK: Corner
@@ -234,7 +238,7 @@ struct ComplicationFaceTests {
     let fresh = FaceFixture.projection([], at: now)
     #expect(
       Face.corner(fresh, strings: strings, locale: locale, redacted: false)
-        == .init(content: .glyph(.mark), label: .none, isStale: false)
+        == .init(content: .glyph(.mark), label: .empty, isStale: false)
     )
     let stale = FaceFixture.projection([], at: now, generatedAt: now.addingTimeInterval(-7_200))
     #expect(Face.corner(stale, strings: strings, locale: locale, redacted: false).isStale)
@@ -318,7 +322,7 @@ struct ComplicationFaceTests {
     let corner = Face.corner(card, strings: strings, locale: locale, redacted: true)
     if case .text(let lines) = corner.content { drawn += lines }
     if case .text(let label, _) = corner.label { drawn.append(label) }
-    if let bezel = Face.bezel(card, strings: strings, redacted: true) { drawn.append(bezel) }
+    if let bezel = Face.bezel(card, strings: strings, redacted: true) { drawn.append(bezel.text) }
     for line in drawn {
       for secret in ["Art Jam", "Fursuit Meetup", "Hall A", "Studio B", "Center"] {
         #expect(line.contains(secret) == false, "\(line) names \(secret)")

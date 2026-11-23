@@ -133,6 +133,13 @@ enum ConPawsComplicationFace {
     }
   }
 
+  /// Text along the bezel above the Infograph face's top circle.
+  struct Bezel: Equatable, Sendable {
+    let text: String
+    /// Whether it names a panel, which the view marks `privacySensitive`.
+    let isPrivate: Bool
+  }
+
   /// The label the Infograph face's top circle draws along the bezel, or nil
   /// for none. Nearly half the bezel, so it names what the circle cannot:
   /// the panel and its room, never wrist down, or the convention or status.
@@ -140,15 +147,16 @@ enum ConPawsComplicationFace {
     _ projection: ConPawsComplicationProjection,
     strings: ConPawsStrings,
     redacted: Bool
-  ) -> String? {
+  ) -> Bezel? {
     switch projection.state {
     case .comingUp(let convention):
-      return convention.name
+      return Bezel(text: convention.name, isPrivate: false)
     case .leave(_, let event, _), .next(_, let event, _), .current(let event, _):
       guard !redacted else { return nil }
-      return [event.title, event.shortPlace].compactMap { $0 }.joined(separator: " · ")
+      let text = [event.title, event.shortPlace].compactMap { $0 }.joined(separator: " · ")
+      return Bezel(text: text, isPrivate: true)
     case .finished, .noPicks, .ended, .noConvention:
-      return projection.status(strings: strings)?.title
+      return projection.status(strings: strings).map { Bezel(text: $0.title, isPrivate: false) }
     }
   }
 
@@ -164,7 +172,8 @@ enum ConPawsComplicationFace {
     }
 
     enum Label: Equatable, Sendable {
-      case none
+      /// No inner curve: the content fills the large corner circle.
+      case empty
       /// A curved bar filled to this fraction.
       case gauge(Double)
       /// A curved bar the system fills from a panel's start to its end.
@@ -198,7 +207,7 @@ enum ConPawsComplicationFace {
           timeZone: convention.timeZone,
           strings: strings
         )
-      else { return Corner(content: .glyph(.mark), label: .none, isStale: stale) }
+      else { return Corner(content: .glyph(.mark), label: .empty, isStale: stale) }
       return Corner(
         content: .text([strings.text(parts.format, parts.value)]),
         label: .gauge(ConPawsCountdown.ringProgress(from: now, to: convention.startDate)),
@@ -246,7 +255,7 @@ enum ConPawsComplicationFace {
         isStale: stale
       )
     case .finished, .noPicks, .ended, .noConvention:
-      return Corner(content: .glyph(.mark), label: .none, isStale: stale)
+      return Corner(content: .glyph(.mark), label: .empty, isStale: stale)
     }
   }
 
