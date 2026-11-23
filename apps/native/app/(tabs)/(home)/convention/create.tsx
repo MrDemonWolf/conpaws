@@ -262,7 +262,7 @@ export default function CreateConventionScreen() {
           title={t("convention.new")}
           cancelLabel={t("common.cancel")}
           // FormModalHeader has no disabled state for Cancel, so the press is
-          // dropped instead. See the handoff note in the audit report.
+          // dropped while saving, as on the edit form.
           onCancel={saving ? () => undefined : handleCancel}
           confirmLabel={t("common.add")}
           onConfirm={handleCreate}

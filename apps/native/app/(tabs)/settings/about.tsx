@@ -12,9 +12,6 @@ import { Image, useWindowDimensions, View } from "react-native";
 import { NavigationIndicator } from "@/components/icons";
 import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { Text } from "@/components/ui";
-// Android draws a card inside a card when a universal ListItem sits in a
-// FieldGroup.Section; FieldRow is the same component with one surface. See
-// components/ui/FieldRow.android.tsx.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";

@@ -5,7 +5,6 @@ import Constants from "expo-constants";
 import { Redirect, router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AppState, Linking } from "react-native";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";

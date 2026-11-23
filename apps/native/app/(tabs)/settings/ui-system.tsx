@@ -18,7 +18,6 @@ import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { NavigationIndicator } from "@/components/icons";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";

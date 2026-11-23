@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { importHelpRows } from "@/components/ImportHelpRows";
 import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 
