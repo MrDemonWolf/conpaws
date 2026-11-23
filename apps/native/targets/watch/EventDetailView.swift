@@ -13,6 +13,10 @@ struct EventDetailView: View {
   /// screen marks it and drops everything that treats it as still on.
   var withdrawnStatus: ConPawsWithdrawnEvent.Status?
 
+  /// Why the last tap here changed nothing, as the phone reported it. Read
+  /// in this body, so Observation redraws only this screen when it changes.
+  private var tapFeedback: WatchTapFeedback { .shared }
+
   /// Never for a withdrawn panel, which did not happen.
   private var hasEnded: Bool {
     withdrawnStatus == nil && ConPawsScheduleResolver.effectiveEnd(of: event) <= now
@@ -101,8 +105,13 @@ struct EventDetailView: View {
         }
 
         if let planAction {
-          PlanActionButton(action: planAction, eventTitle: event.title, strings: strings)
-            .padding(.top, 6)
+          PlanActionButton(
+            action: planAction,
+            eventTitle: event.title,
+            decline: tapFeedback.decline(for: event.id, at: now),
+            strings: strings
+          )
+          .padding(.top, 6)
         }
       }
       .font(.callout)

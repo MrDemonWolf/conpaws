@@ -5,13 +5,19 @@ import SwiftUI
 ///
 /// While the phone has not confirmed, the label is a spinner and the button
 /// is disabled, so a second tap cannot send a second command. A line under it
-/// says what a long wait needs and when the phone did not make the change
-/// (see `WatchPlanNote`).
+/// says what a long wait needs and, when the phone did not make the change,
+/// why: the phone's reason when the snapshot gave one ("Not changed: edited
+/// on iPhone"), otherwise that nothing changed (see `WatchPlanNote`). A
+/// change the phone made replaces the button instead, so this line never
+/// claims one.
 struct PlanActionButton: View {
   @Environment(\.redactionReasons) private var redactionReasons
   @Environment(\.isLuminanceReduced) private var isLuminanceReduced
   let action: WatchPlanAction
   let eventTitle: String
+  /// Why the last tap on this event changed nothing, from the snapshot that
+  /// settled it, while that is still worth saying; nil otherwise.
+  var decline: ConPawsWatchTapDecline?
   let strings: ConPawsStrings
   @State private var isConfirmingRemoval = false
   @State private var note = WatchPlanNote.none
@@ -27,6 +33,15 @@ struct PlanActionButton: View {
     redactionReasons.contains(.privacy) || isLuminanceReduced
       ? strings.removeFromPlan
       : eventTitle
+  }
+
+  /// The phone's reason once the wait is over, else the note. Neither names
+  /// the panel, so neither is `privacySensitive`.
+  private var caption: String? {
+    if !action.isPending, let decline {
+      return strings.declineText(decline)
+    }
+    return note.text(strings)
   }
 
   var body: some View {
@@ -51,14 +66,20 @@ struct PlanActionButton: View {
         Button(strings.remove, role: .destructive, action: action.perform)
       }
 
-      if let text = note.text(strings) {
-        Text(text)
+      if let caption {
+        Text(caption)
           .font(.footnote)
           .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
     .onChange(of: action.isPending) { wasPending, isPending in
-      let next = note.after(wasPending: wasPending, isPending: isPending)
+      var next = note.after(wasPending: wasPending, isPending: isPending)
+      // The phone's reason says this better, and the store read it out as it
+      // arrived; once it is no longer shown, the button says nothing.
+      if next == .notChanged, decline != nil {
+        next = .none
+      }
       if next == .notChanged, note != .notChanged {
         AccessibilityNotification.Announcement(strings.notChanged).post()
       }
@@ -72,4 +93,29 @@ struct PlanActionButton: View {
       note = .waiting
     }
   }
+}
+
+#Preview("Declined · changed on iPhone") {
+  ScrollView {
+    PlanActionButton(
+      action: WatchPlanAction(kind: .add, isPending: false) {},
+      eventTitle: "Fursuit Parade",
+      decline: .changedOnIphone,
+      strings: .english
+    )
+    .padding(.horizontal, 8)
+  }
+}
+
+#Preview("Declined · German, largest text") {
+  ScrollView {
+    PlanActionButton(
+      action: WatchPlanAction(kind: .add, isPending: false) {},
+      eventTitle: "Fursuit Parade",
+      decline: .cancelled,
+      strings: .table(for: .de)
+    )
+    .padding(.horizontal, 8)
+  }
+  .environment(\.dynamicTypeSize, .accessibility3)
 }
