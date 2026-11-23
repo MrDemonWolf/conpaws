@@ -1,4 +1,5 @@
 import { conventionDayKey } from "./convention-time";
+import { effectiveEndMs } from "./schedule-browse";
 
 export interface PersonalScheduleEntry {
   id: string;
@@ -23,18 +24,6 @@ export function hasEndedStarredEvents(
   return entries.length > 0 && days.length === 0;
 }
 
-// Same fallback the per-convention schedule uses: imported and hand-added
-// events may have no end time, and dropping them the moment they start would
-// make an event vanish while the user is standing in it.
-const NO_END_FALLBACK_MS = 60 * 60 * 1000;
-
-function endOf(entry: PersonalScheduleEntry): number {
-  const start = Date.parse(entry.startTime);
-  if (!entry.endTime) return start + NO_END_FALLBACK_MS;
-  const end = Date.parse(entry.endTime);
-  return Number.isFinite(end) && end > start ? end : start + NO_END_FALLBACK_MS;
-}
-
 /**
  * Group starred events from every convention into day sections.
  *
@@ -57,7 +46,8 @@ export function groupPersonalScheduleByDay<T extends PersonalScheduleEntry>(
   for (const entry of entries) {
     const start = Date.parse(entry.startTime);
     if (!Number.isFinite(start)) continue;
-    if (endOf(entry) <= nowMs) continue;
+    // An event with no end stays for an hour; see NO_END_FALLBACK_MS.
+    if (effectiveEndMs(entry) <= nowMs) continue;
 
     const key = conventionDayKey(entry.startTime, entry.timeZone);
     const bucket = groups.get(key);
