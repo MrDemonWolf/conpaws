@@ -4,12 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  SectionList,
-  useColorScheme,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { SectionList, useWindowDimensions, View } from "react-native";
 import { ERROR_ICON } from "@/components/icons";
 import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -28,6 +23,7 @@ import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { useContentWidth } from "@/hooks/useContentWidth";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { ageBadgeFor } from "@/lib/age-badge";
 import { type AgendaRowItem, buildAgendaRows } from "@/lib/agenda-gaps";
 import {
@@ -95,7 +91,7 @@ export default function ScheduleScreen() {
   const { conventionId } = useLocalSearchParams<{ conventionId?: string }>();
   const { t } = useTranslation();
   const locale = currentLocale();
-  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
+  const colorScheme = useResolvedColorScheme();
   // iOS applies a Dynamic Type change to a running app, but a VirtualizedList
   // keeps the heights it measured for cells it has already built; the font
   // scale is part of `extraData` so those cells are rebuilt.

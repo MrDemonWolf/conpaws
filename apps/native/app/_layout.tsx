@@ -78,10 +78,11 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { VariableContextProvider } from "nativewind";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AppState, StatusBar, useColorScheme } from "react-native";
+import { AppState, StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { getDatabaseInitError } from "@/db";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import {
   applyAppearancePreference,
   loadAppearancePreference,
@@ -251,7 +252,7 @@ function RootLayout() {
   const [attempt, setAttempt] = useState(0);
   const [translationsReady, setTranslationsReady] = useState(true);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
-  const colorScheme = useColorScheme();
+  const colorScheme = useResolvedColorScheme();
   const pathname = usePathname();
   const segments = useSegments();
   const databaseInitError = getDatabaseInitError();
@@ -541,14 +542,13 @@ function RootLayout() {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
 
-  const resolvedScheme = colorScheme === "dark" ? "dark" : "light";
   const materialColors = useMemo(
-    () => getNativeMaterialColors(resolvedScheme),
-    [resolvedScheme],
+    () => getNativeMaterialColors(colorScheme),
+    [colorScheme],
   );
   const navigationTheme = useMemo(() => {
     const base =
-      resolvedScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
+      colorScheme === "dark" ? darkNavigationTheme : lightNavigationTheme;
     return materialColors
       ? {
           ...base,
@@ -558,7 +558,7 @@ function RootLayout() {
           },
         }
       : base;
-  }, [resolvedScheme, materialColors]);
+  }, [colorScheme, materialColors]);
   const materialVariables = useMemo(
     () => (materialColors ? materialThemeVariables(materialColors) : {}),
     [materialColors],

@@ -1,7 +1,7 @@
 import { Bell, Calendar, MapPin } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, useColorScheme, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { getEventIndicatorLabels } from "@/components/convention-detail/ConventionEventRow";
 import {
   Badge,
@@ -12,6 +12,7 @@ import {
   Text,
 } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { ageBadgeFor } from "@/lib/age-badge";
 import { feedStatusLabel as describeFeedStatus } from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
@@ -94,7 +95,7 @@ export function EventSheetContent({
 }: EventSheetContentProps) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<"actions" | "reminder">("actions");
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
   const tokens = themeTokens[scheme];
 
   const room = event.room ?? event.location;

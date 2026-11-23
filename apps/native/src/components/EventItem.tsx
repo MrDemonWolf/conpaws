@@ -1,12 +1,8 @@
 import { AlertTriangle, Clock, Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import {
-  Pressable,
-  useColorScheme,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Pressable, useWindowDimensions, View } from "react-native";
 import { Badge, PRESS_DIM, Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { ageBadgeFor } from "@/lib/age-badge";
 import { feedStatusLabel as describeFeedStatus } from "@/lib/agenda-labels";
 import type { ClusterPosition } from "@/lib/day-band";
@@ -109,7 +105,7 @@ export function EventItem({
   const { fontScale } = useWindowDimensions();
   // Past this scale the 80pt time column squeezes titles to a few letters.
   const stacked = fontScale >= STACKED_FONT_SCALE;
-  const isDark = useColorScheme() === "dark";
+  const isDark = useResolvedColorScheme() === "dark";
   const ageBadge = ageBadgeFor(ageRating);
   const ageLabel = ageBadge ? t(ageBadge.key) : null;
   const feedStatusLabel = describeFeedStatus(feedStatus, t);

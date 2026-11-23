@@ -2,13 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { CompareCard } from "@/components/schedule/CompareCard";
 import { SheetHeader } from "@/components/schedule/SheetHeader";
 import { Button, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { categoryAccentColor } from "@/lib/category-color";
 import {
   compareCandidates,
@@ -41,7 +42,7 @@ export default function CompareSheetRoute() {
   const { t } = useTranslation();
   const locale = currentLocale();
   const hour12 = useHour12();
-  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
+  const colorScheme = useResolvedColorScheme();
 
   const { data: convention } = useQuery({
     queryKey: ["convention", id],

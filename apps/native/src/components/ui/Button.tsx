@@ -1,4 +1,5 @@
-import { ActivityIndicator, Pressable, useColorScheme } from "react-native";
+import { ActivityIndicator, Pressable } from "react-native";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
 import { Text } from "./Text";
@@ -65,13 +66,13 @@ export function Button({
   testID,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
-  const colorScheme = useColorScheme();
+  const colorScheme = useResolvedColorScheme();
   // Spinner colors come from the theme-token mirror (asserted against
   // global.css by theme-tokens.test.ts) — the old hardcoded hexes matched no
   // token and drifted from the palette unnoticed because nothing rendered
   // them: the loading prop had zero call sites until the create/edit/manual
   // save buttons were wired to it.
-  const tokens = themeTokens[colorScheme === "dark" ? "dark" : "light"];
+  const tokens = themeTokens[colorScheme];
   const spinnerColor =
     variant === "default"
       ? tokens.primaryForeground

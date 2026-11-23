@@ -19,7 +19,6 @@ import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
   SectionList,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -62,6 +61,7 @@ import type { ConventionEvent } from "@/db/schema";
 import { useContentWidth } from "@/hooks/useContentWidth";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useScheduleRefresh } from "@/hooks/useScheduleRefresh";
 import { ageBadgeFor } from "@/lib/age-badge";
 import {
@@ -175,7 +175,7 @@ export default function ConventionDetailScreen() {
   const queryClient = useQueryClient();
   const locale = currentLocale();
   const hour12 = useHour12();
-  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
+  const colorScheme = useResolvedColorScheme();
   // A Dynamic Type change reaches a running app, but already-measured list
   // cells keep their old heights and clip the larger text. Part of
   // `extraData` below so the cells are rebuilt.

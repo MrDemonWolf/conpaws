@@ -1,6 +1,7 @@
 import { X } from "lucide-react-native";
-import { Pressable, useColorScheme, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { PRESS_DIM, Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 
 interface SheetHeaderProps {
@@ -24,7 +25,7 @@ export function SheetHeader({
   closeLabel,
   onClose,
 }: SheetHeaderProps) {
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
 
   return (
     <View className="gap-1 px-4 pt-3 pb-2">

@@ -250,12 +250,7 @@ export function ConventionList<T extends { id: string }>({
             // background, and foregroundStyle only reaches the label. Losing
             // the red would be a real regression -- it is the one signal that
             // separates this action from Archive at a glance.
-            modifiers={[
-              tint(
-                themeTokens[colorScheme === "dark" ? "dark" : "light"]
-                  .destructive,
-              ),
-            ]}
+            modifiers={[tint(themeTokens[colorScheme].destructive)]}
             onPress={() => onDelete(item)}
           />
         </SwipeActions.Actions>
