@@ -83,6 +83,15 @@ struct ConPawsSnapshot: Codable, Sendable {
       let events = convention.events.filter { event in
         seenEvents.insert(event.id).inserted && Self.isValid(event)
       }
+      // Withdrawn panels pass the same checks and continue the same id set,
+      // ahead of the options: a withdrawn panel is still saved, so an option
+      // repeating one must never offer to add it. A status this build does
+      // not know is dropped rather than guessed at.
+      let withdrawn = convention.withdrawn.map { rows in
+        rows.filter { row in
+          seenEvents.insert(row.id).inserted && row.status != nil && Self.isValid(row.event)
+        }
+      }
       // Options pass the same checks, and continue the same id set: an option
       // repeating a saved event would offer to add what is already planned.
       let options = convention.options.map { options in
@@ -93,7 +102,8 @@ struct ConPawsSnapshot: Codable, Sendable {
       return ConPawsConventionSnapshot(
         id: convention.id, name: convention.name, startAtMs: convention.startAtMs,
         endAtMs: convention.endAtMs, timeZoneIdentifier: convention.timeZoneIdentifier,
-        dateRangeLabel: convention.dateRangeLabel, events: events, options: options
+        dateRangeLabel: convention.dateRangeLabel, events: events, options: options,
+        withdrawn: withdrawn
       )
     }
     return ConPawsSnapshot(schemaVersion: schemaVersion, generatedAtMs: generatedAtMs,
@@ -131,6 +141,80 @@ struct ConPawsConventionSnapshot: Codable, Identifiable, Hashable, Sendable {
   /// nothing to offer -- optional, and decoded with `decodeIfPresent`, so all
   /// of those still decode. See `optionsThisHour(at:)` for what is shown.
   let options: [ConPawsEventSnapshot]?
+  /// Saved panels the convention's feed cancelled or stopped listing, for
+  /// the Watch app's Today list, detail screen and Home notice to show
+  /// struck through instead of dropping without a word. Never in `events`:
+  /// the resolver, Up Next, Happening Now and the complication read only
+  /// those, so none of them can count one. Sent by the iOS app only;
+  /// optional, so every older payload decodes, and a list this build cannot
+  /// read costs the marks rather than the schedule (see `init(from:)`).
+  var withdrawn: [ConPawsWithdrawnEvent]? = nil
+}
+
+extension ConPawsConventionSnapshot {
+  /// The synthesized decoding, except that `withdrawn` is read with `try?`:
+  /// the newest and least important field, it must never be the reason a
+  /// snapshot fails to decode and the Watch falls back to no schedule.
+  init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(String.self, forKey: .id)
+    name = try container.decode(String.self, forKey: .name)
+    startAtMs = try container.decode(Double.self, forKey: .startAtMs)
+    endAtMs = try container.decode(Double.self, forKey: .endAtMs)
+    timeZoneIdentifier = try container.decode(String.self, forKey: .timeZoneIdentifier)
+    dateRangeLabel = try container.decode(String.self, forKey: .dateRangeLabel)
+    events = try container.decode([ConPawsEventSnapshot].self, forKey: .events)
+    options = try container.decodeIfPresent([ConPawsEventSnapshot].self, forKey: .options)
+    withdrawn = try? container.decodeIfPresent([ConPawsWithdrawnEvent].self, forKey: .withdrawn)
+  }
+}
+
+/// A saved panel the convention's feed cancelled or stopped listing.
+///
+/// The phone sends it flat, an event row with a `status` beside its fields
+/// (`WatchWithdrawnSnapshot` in src/services/watch-snapshot.ts), with no
+/// reminder, since the phone cancels a withdrawn panel's notification, and no
+/// description. Kept here as the event it was plus what happened to it, so
+/// the screens that draw an event draw this one too.
+struct ConPawsWithdrawnEvent: Codable, Identifiable, Hashable, Sendable {
+  /// `feedStatus` on the phone.
+  enum Status: String, Codable, Sendable {
+    /// The convention cancelled it.
+    case cancelled
+    /// The feed stopped listing it, without saying why.
+    case removed
+  }
+
+  let event: ConPawsEventSnapshot
+  /// Nil for a status this build does not know; `filteringInvalidRecords`
+  /// drops those rows.
+  let status: Status?
+
+  var id: String { event.id }
+
+  init(event: ConPawsEventSnapshot, status: Status) {
+    self.event = event
+    self.status = status
+  }
+
+  private enum CodingKeys: String, CodingKey {
+    case status
+  }
+
+  init(from decoder: any Decoder) throws {
+    event = try ConPawsEventSnapshot(from: decoder)
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    status = (try? container.decodeIfPresent(String.self, forKey: .status))
+      .flatMap(Status.init(rawValue:))
+  }
+
+  /// Flat again, as the phone sent it: the Watch stores the snapshot
+  /// re-encoded, and the complication and the next launch decode that copy.
+  func encode(to encoder: any Encoder) throws {
+    try event.encode(to: encoder)
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(status, forKey: .status)
+  }
 }
 
 extension ConPawsConventionSnapshot {
@@ -375,12 +459,16 @@ struct ConPawsWatchCommand: Codable, Hashable, Sendable {
   /// Whether `snapshot` ends the wait: the phone lists this command as
   /// handled, or the snapshot already shows what it asked for -- the event
   /// among the convention's saved events after a save, gone from them after a
-  /// remove. A command the phone declined is only ever settled by the list;
-  /// the effect check covers an app that does not send one.
+  /// remove. A panel the convention withdrew is still saved, so a remove
+  /// tapped on one waits until it leaves `withdrawn` too. A command the phone
+  /// declined is only ever settled by the list; the effect check covers an
+  /// app that does not send one.
   func isSettled(by snapshot: ConPawsSnapshot) -> Bool {
     if snapshot.handledCommandIds?.contains(id) == true { return true }
     let isSaved = snapshot.conventions.contains { convention in
-      convention.id == conventionId && convention.events.contains { $0.id == eventId }
+      convention.id == conventionId
+        && (convention.events.contains { $0.id == eventId }
+          || convention.withdrawn?.contains { $0.id == eventId } == true)
     }
     switch action {
     case .save: return isSaved
