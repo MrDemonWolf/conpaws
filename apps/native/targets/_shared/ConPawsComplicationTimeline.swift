@@ -99,9 +99,12 @@ struct ConPawsComplicationProjection {
     var candidates: [Date] = []
     switch state {
     case .comingUp(let convention):
-      // The switch to the convention itself. It raises nothing in the Smart
-      // Stack: the start is the date alone, midnight where it happens.
-      candidates.append(convention.startDate)
+      // The switch to the plan: the convention's start, or the first saved
+      // panel's start or reminder when that comes first, the moment the
+      // resolver stops counting down. The convention's start raises nothing
+      // in the Smart Stack (it is the date alone, midnight where it happens);
+      // a panel raises the card through `relevantUntil`.
+      candidates.append(ConPawsScheduleResolver.countdownEnd(of: convention))
     case .leave(let current, let upcoming, let convention),
       .next(let current, let upcoming, let convention):
       candidates.append(upcoming.startDate)

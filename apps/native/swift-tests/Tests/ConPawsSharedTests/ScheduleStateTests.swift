@@ -65,6 +65,71 @@ struct ScheduleStateTests {
     }
   }
 
+  /// A saved meet-up the evening before day one ran behind "Starts tomorrow"
+  /// from its reminder to its end: the countdown only gave way at the
+  /// convention's own start.
+  @Test func aSavedPanelRunningBeforeTheFirstDayIsShownNotTheCountdown() {
+    let meetUp = event("meet-up", from: now.addingTimeInterval(-1_800), until: now.addingTimeInterval(1_800))
+    let saved = convention([meetUp], startsAt: now.addingTimeInterval(6 * 3_600))
+    let result = resolveAutomatically(snapshot(saved), at: now)
+    if case .currentOnly(_, let running) = result { #expect(running.id == "meet-up") }
+    else { Issue.record("expected the running panel, got \(result)") }
+  }
+
+  /// The countdown runs until the earliest of the convention's start, its
+  /// first saved panel's start and that panel's reminder, in seconds from
+  /// the convention's start. The panel starts `panelStart` seconds from it.
+  @Test(arguments: [
+    (-7_200, nil, -7_200),
+    (-7_200, 0, -7_200),
+    (-7_200, 30, -9_000),
+    (3_600, nil, 0),
+    (3_600, 30, 0),
+    // A reminder that fires before the doors open ends the countdown then.
+    (900, 60, -2_700),
+  ] as [(TimeInterval, Int?, TimeInterval)])
+  func theCountdownEndsWhenTheFirstSavedPanelIsDue(
+    panelStart: TimeInterval,
+    reminderMinutes: Int?,
+    countdownEnd: TimeInterval
+  ) {
+    let start = now.addingTimeInterval(86_400)
+    let panel = event(
+      "first",
+      from: start.addingTimeInterval(panelStart),
+      until: start.addingTimeInterval(panelStart + 3_600),
+      reminderMinutes: reminderMinutes
+    )
+    let saved = convention([panel], startsAt: start, endsAt: start.addingTimeInterval(3 * 86_400))
+    let end = start.addingTimeInterval(countdownEnd)
+    #expect(ConPawsScheduleResolver.countdownEnd(of: saved) == end)
+
+    let before = resolveAutomatically(snapshot(saved), at: end.addingTimeInterval(-1))
+    if case .countdown = before {} else { Issue.record("expected the countdown, got \(before)") }
+    let after = resolveAutomatically(snapshot(saved), at: end)
+    switch after {
+    case .next(_, nil, let upcoming): #expect(upcoming.id == "first")
+    case .currentOnly(_, let running): #expect(running.id == "first")
+    default: Issue.record("expected the first panel, got \(after)")
+    }
+  }
+
+  /// Only the first panel's reminder counts: the Watch's leave countdown
+  /// follows the panel that starts next, not a later one with a longer
+  /// reminder.
+  @Test func aLaterPanelsEarlierReminderDoesNotEndTheCountdown() {
+    let start = now.addingTimeInterval(86_400)
+    let first = event("first", from: start.addingTimeInterval(-3_600), reminderMinutes: 10)
+    let later = event("later", from: start.addingTimeInterval(-1_800), reminderMinutes: 120)
+    let saved = convention([later, first], startsAt: start)
+    #expect(ConPawsScheduleResolver.countdownEnd(of: saved) == start.addingTimeInterval(-4_200))
+  }
+
+  @Test func aConventionWithoutPanelsCountsDownToItsStart() {
+    let start = now.addingTimeInterval(86_400)
+    #expect(ConPawsScheduleResolver.countdownEnd(of: convention([], startsAt: start)) == start)
+  }
+
   @Test func reminderWindowIncludesItsBoundary() {
     let upcoming = event("upcoming", from: now.addingTimeInterval(600), reminderMinutes: 10)
     #expect(!ConPawsScheduleResolver.isInReminderWindow(upcoming, now: now.addingTimeInterval(-1)))

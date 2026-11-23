@@ -277,6 +277,33 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: now)
   }
 
+  /// A saved panel the evening before day one ends the countdown when its
+  /// reminder fires, as on the Watch app, and the card switches to the leave
+  /// countdown that minute rather than at the convention's midnight. With
+  /// no reminder it switches at the panel's start.
+  @Test(arguments: [15, nil] as [Int?])
+  func aPanelBeforeTheFirstDayTakesOverFromTheCountdown(reminderMinutes: Int?) throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("meet-up", from: local(21, 19), until: local(21, 20), reminderMinutes: reminderMinutes)]
+        ),
+      ],
+      generatedAt: local(21, 12)
+    )
+    let now = local(21, 12)
+    let handover = reminderMinutes == nil ? local(21, 19) : local(21, 18, 45)
+    #expect(frame(value, at: handover.addingTimeInterval(-60)).hasPrefix("coming con"))
+    let expected = reminderMinutes == nil ? "current con meet-up" : "leave con - meet-up"
+    #expect(frame(value, at: handover).hasPrefix(expected))
+    #expect(frame(value, at: local(21, 19, 30)).hasPrefix("current con meet-up"))
+    #expect(plannedDates(value, now: now).contains(handover))
+    expectNoStaleCard(value, now: now)
+  }
+
   // MARK: Completeness
 
   @Test(arguments: [0, 13 * 60 + 45, 22 * 60 + 40])
