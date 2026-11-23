@@ -248,6 +248,49 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: generatedAt)
   }
 
+  /// The countdown is worked out on the watch, so, like the Watch app's
+  /// countdown screen, the card flags its plan only after a week, and the
+  /// timeline places the stale entry there rather than half an hour in. The
+  /// half-hour flag under a correct countdown taught the wearer to ignore
+  /// the one that matters during the convention.
+  @Test func aCountdownFlagsItsPlanOnlyAfterAWeek() throws {
+    let generatedAt = local(1, 12)
+    let value = snapshot(
+      conventions: [convention("con", from: local(22, 0), until: local(24, 18))],
+      generatedAt: generatedAt
+    )
+    #expect(plannedDates(value, now: generatedAt).contains(generatedAt.addingTimeInterval(30 * 60)) == false)
+    let week = generatedAt.addingTimeInterval(ConPawsSnapshotAge.countdownStaleAfter)
+    let now = week.addingTimeInterval(-3_600)
+    let dates = plannedDates(value, now: now)
+    let index = try #require(dates.firstIndex(of: week))
+    try #require(index > 0)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: dates[index - 1]) == nil)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: week) != nil)
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// From the handover the plan's half-hour rule applies again, so a plan
+  /// made the day before reads stale from the handover entry on.
+  @Test func anOldPlanReadsStaleFromTheCountdownsHandover() throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("opening", from: local(22, 10), until: local(22, 11))]
+        ),
+      ],
+      generatedAt: local(21, 12)
+    )
+    let now = local(21, 22, 30)
+    #expect(plannedDates(value, now: now).contains(local(22, 0)))
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: local(21, 23, 59)) == nil)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: local(22, 0)) != nil)
+    expectNoStaleCard(value, now: now)
+  }
+
   /// With no convention there is nothing to go stale, so no stale entry.
   @Test func anEmptySnapshotGetsNoStaleEntry() {
     let now = local(21, 12)
@@ -419,7 +462,8 @@ struct ComplicationTimelineTests {
   private func frame(_ snapshot: ConPawsSnapshot, at date: Date) -> String {
     let projection = ConPawsComplicationProjection(snapshot: snapshot, now: date)
     let strings = ConPawsStrings.resolve("en")
-    let stale = ConPawsSnapshotAge.isStale(snapshot, now: date)
+    // The flag the card draws: the eyebrow's symbol and the spoken notice.
+    let stale = ConPawsComplicationSpeech.staleNotice(snapshot, now: date) != nil
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = zone
     func day(_ event: ConPawsEventSnapshot) -> Int {

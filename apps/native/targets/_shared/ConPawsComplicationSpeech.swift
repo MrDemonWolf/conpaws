@@ -45,8 +45,12 @@ enum ConPawsComplicationSpeech {
   /// the plan turns stale and then only at state changes, so an age worked
   /// out at that entry said "30 min. ago" for the rest of the night. The
   /// Watch app redraws every minute and keeps its age.
+  ///
+  /// The eyebrow draws its symbol from this too, so the drawn flag, the
+  /// spoken one and the entry the timeline places all follow the
+  /// projection's state-dependent rule.
   static func staleNotice(_ snapshot: ConPawsSnapshot, now: Date) -> String? {
-    guard ConPawsSnapshotAge.isStale(snapshot, now: now) else { return nil }
+    guard ConPawsComplicationProjection(snapshot: snapshot, now: now).isStale else { return nil }
     return snapshot.strings.staleNoticeA11y
   }
 

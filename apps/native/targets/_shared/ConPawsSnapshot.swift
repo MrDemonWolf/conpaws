@@ -265,31 +265,34 @@ enum ConPawsSnapshotAge {
     return Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000)
   }
 
-  /// The moment `snapshot` turns stale, or nil when it never does.
+  /// The moment `snapshot` turns stale, or nil when it never does: a week
+  /// after the phone made it while the screen only counts down to a
+  /// convention (`countdownStaleAfter`), half an hour after otherwise.
   ///
   /// The one rule the Watch app, the complication's entries and the timeline
   /// that places those entries all read. When each kept its own copy, a change
   /// to one could put the stale symbol at a moment with no timeline entry, and
   /// the face stayed wrong until the next snapshot.
-  static func staleDate(of snapshot: ConPawsSnapshot) -> Date? {
-    generatedDate(of: snapshot)?.addingTimeInterval(staleAfter)
+  static func staleDate(of snapshot: ConPawsSnapshot, countingDown: Bool = false) -> Date? {
+    generatedDate(of: snapshot)?.addingTimeInterval(countingDown ? countdownStaleAfter : staleAfter)
   }
 
   static func isStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
     staleDate(of: snapshot).map { now >= $0 } ?? false
   }
 
-  /// How old a plan may be before the Watch app's convention countdown says
-  /// so. That screen shows a name, a date range and a countdown worked out on
-  /// the watch, and in the weeks before a convention the phone app is rarely
-  /// opened, so the thirty-minute rule put "Open ConPaws on your iPhone"
-  /// under a correct countdown on nearly every glance. A week still flags a
-  /// plan the phone may have changed since.
+  /// How old a plan may be before a convention countdown, in the Watch app
+  /// or on the complication, says so. Both show a name, a date and a
+  /// countdown worked out on the watch, and in the weeks before a convention
+  /// the phone app is rarely opened, so the thirty-minute rule flagged a
+  /// correct countdown on nearly every glance and taught the wearer to ignore
+  /// the flag that matters during the convention. A week still flags a plan
+  /// the phone may have changed since.
   static let countdownStaleAfter: TimeInterval = 7 * 86_400
 
   /// Whether the Watch app's convention countdown flags its plan as old.
   static func isCountdownStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
-    generatedDate(of: snapshot).map { now >= $0.addingTimeInterval(countdownStaleAfter) } ?? false
+    staleDate(of: snapshot, countingDown: true).map { now >= $0 } ?? false
   }
 
   /// How long ago the phone made the plan, as "45 min. ago" in `locale`.

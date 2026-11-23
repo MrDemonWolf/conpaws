@@ -20,7 +20,8 @@ struct ConPawsComplicationProjection {
 
   let now: Date
   let resolved: ConPawsScheduleState
-  /// When the snapshot turns stale; nil when it never does.
+  /// When the snapshot turns stale for the card shown at `now`; nil when it
+  /// never does. A countdown waits a week, the plan's cards half an hour.
   let staleDate: Date?
   /// Every convention the resolver chose among, not only the one shown.
   let conventions: [ConPawsConventionSnapshot]
@@ -86,7 +87,14 @@ struct ConPawsComplicationProjection {
     return false
   }
 
-  /// The moment the card turns stale, while that is still to come.
+  /// Whether the card at `now` flags its plan as possibly out of date.
+  var isStale: Bool {
+    staleDate.map { now >= $0 } ?? false
+  }
+
+  /// The moment the card turns stale, while that is still to come. While
+  /// counting down that is the week's mark; the handover to the plan is an
+  /// entry already, and a plan older than half an hour reads stale there.
   var staleBoundary: Date? {
     staleDate.flatMap { $0 > now ? $0 : nil }
   }
@@ -149,7 +157,6 @@ struct ConPawsComplicationProjection {
 
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
-    staleDate = ConPawsSnapshotAge.staleDate(of: snapshot)
     conventions = snapshot.conventions
     resolved = ConPawsScheduleResolver.resolve(
       snapshot: snapshot,
@@ -157,6 +164,10 @@ struct ConPawsComplicationProjection {
       skipCountdown: false,
       now: now
     )
+    // The same rule as the Watch app's countdown screen, so the face does
+    // not flag a countdown the app shows as current.
+    let countingDown = if case .countdown = resolved { true } else { false }
+    staleDate = ConPawsSnapshotAge.staleDate(of: snapshot, countingDown: countingDown)
   }
 }
 

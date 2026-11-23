@@ -24,8 +24,9 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// `ConPawsPendingCommands`.
   @Published private(set) var pendingCommands: [String: PendingWatchCommand] = [:]
 
-  /// The complication's stale rule, so the app and the face flag the same
-  /// moment.
+  /// The complication's stale rule for the plan's screens, so the app and
+  /// the face flag the same moment. The countdown screen reads the slower
+  /// `isCountdownStale`, as the complication's countdown does.
   func isUsingSavedSchedule(at now: Date) -> Bool {
     ConPawsSnapshotAge.isStale(snapshot, now: now)
   }

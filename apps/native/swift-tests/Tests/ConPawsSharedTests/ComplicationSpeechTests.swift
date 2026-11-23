@@ -109,12 +109,29 @@ struct ComplicationSpeechTests {
 
   // MARK: Stale notice
 
-  private func plan(generatedAt: TimeInterval, language: String = "en") -> ConPawsSnapshot {
+  /// Runs Fri 20 Nov 2026, 00:00 CST, to Sun 22 Nov, 18:00 CST: under way,
+  /// so the plan's half-hour rule applies rather than the countdown's week.
+  private let runningConvention = ConPawsConventionSnapshot(
+    id: "running",
+    name: "RunningCon",
+    startAtMs: 1_795_154_400_000,
+    endAtMs: 1_795_392_000_000,
+    timeZoneIdentifier: "America/Chicago",
+    dateRangeLabel: "",
+    events: [],
+    options: nil
+  )
+
+  private func plan(
+    generatedAt: TimeInterval,
+    language: String = "en",
+    convention: ConPawsConventionSnapshot? = nil
+  ) -> ConPawsSnapshot {
     ConPawsSnapshot(
       schemaVersion: 2,
       generatedAtMs: generatedAt * 1_000,
       localeIdentifier: language,
-      conventions: [convention]
+      conventions: [convention ?? runningConvention]
     )
   }
 
@@ -136,6 +153,17 @@ struct ComplicationSpeechTests {
       ConPawsComplicationSpeech.staleNotice(value, now: at(1_795_273_200))
         == "Dieser Plan ist möglicherweise nicht aktuell. Öffne ConPaws, um nach Änderungen zu sehen."
     )
+  }
+
+  /// The countdown card shows a name, a date and a countdown worked out on
+  /// the watch, so it waits a week, as the Watch app's countdown screen
+  /// does, before it says the plan may be out of date.
+  @Test func aCountdownsNoticeWaitsAWeek() {
+    let generatedAt: TimeInterval = 1_795_226_400 // Fri 20 Nov 2026, 20:00
+    let value = plan(generatedAt: generatedAt, convention: convention)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: at(generatedAt + 3_600)) == nil)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: at(generatedAt + 7 * 86_400 - 1)) == nil)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: at(generatedAt + 7 * 86_400)) != nil)
   }
 
   /// With no convention there is no plan to be out of date.
