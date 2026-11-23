@@ -304,6 +304,53 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: now)
   }
 
+  /// A saved panel before day one raises the card half an hour before it
+  /// starts, as one inside the convention does. The countdown planned only
+  /// its handover, so without a 30- or 60-minute reminder nothing carried
+  /// the raise and the card rose at the reminder or at the start instead.
+  @Test(arguments: [nil, 15] as [Int?])
+  func aPanelBeforeTheFirstDayIsRelevantFromHalfAnHourBefore(reminderMinutes: Int?) throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("meet-up", from: local(21, 19), until: local(21, 20), reminderMinutes: reminderMinutes)]
+        ),
+      ],
+      generatedAt: local(21, 12)
+    )
+    let now = local(21, 12)
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: now)
+    let index = try #require(plan.firstIndex { $0.date == local(21, 18, 30) })
+    #expect(plan[index].relevantUntil == local(21, 19, 30))
+    try #require(index > 0)
+    #expect(plan[index - 1].relevantUntil == nil)
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// The same for a panel just after the convention's midnight: the card
+  /// rises from 23:45, not from the handover at 00:00.
+  @Test func aPanelJustAfterTheFirstMidnightIsRelevantBeforeTheCountdownEnds() throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("late-meet", from: local(22, 0, 15), until: local(22, 1))]
+        ),
+      ],
+      generatedAt: local(21, 20)
+    )
+    let now = local(21, 20)
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: now)
+    let lift = try #require(plan.first { $0.date == local(21, 23, 45) })
+    #expect(lift.relevantUntil == local(22, 0, 45))
+    expectNoStaleCard(value, now: now)
+  }
+
   // MARK: Completeness
 
   @Test(arguments: [0, 13 * 60 + 45, 22 * 60 + 40])

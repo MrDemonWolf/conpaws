@@ -103,8 +103,12 @@ struct ConPawsComplicationProjection {
       // panel's start or reminder when that comes first, the moment the
       // resolver stops counting down. The convention's start raises nothing
       // in the Smart Stack (it is the date alone, midnight where it happens);
-      // a panel raises the card through `relevantUntil`.
+      // a panel raises the card through `relevantUntil` from half an hour
+      // before it starts, which falls inside the countdown, so each saved
+      // panel's raise is an entry of its own. All of them, not only the
+      // first: a second panel can start within half an hour of the first.
       candidates.append(ConPawsScheduleResolver.countdownEnd(of: convention))
+      candidates.append(contentsOf: convention.events.map { $0.startDate.addingTimeInterval(-lift) })
     case .leave(let current, let upcoming, let convention),
       .next(let current, let upcoming, let convention):
       candidates.append(upcoming.startDate)
