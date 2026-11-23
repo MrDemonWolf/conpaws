@@ -87,6 +87,16 @@ describe("Expo Router convention routes", () => {
     );
   });
 
+  // The help's "Show me how" opens over this form sheet, so it must be a
+  // full-screen modal mounted here rather than a pushed route.
+  it("hosts the import walkthrough in its own modal", () => {
+    const importSource = readFileSync(
+      path.join(conventionRoute, "import.tsx"),
+      "utf8",
+    );
+    expect(importSource).toContain("<HowToModal");
+  });
+
   it("lets the Import button start only one import", () => {
     const importSource = readFileSync(
       path.join(conventionRoute, "import.tsx"),

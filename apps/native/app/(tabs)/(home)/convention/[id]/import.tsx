@@ -23,6 +23,7 @@ import {
   FORM_PRESENTED_AS_SHEET,
   FORM_SAFE_EDGES,
 } from "@/components/FormModalHeader.shared";
+import { HowToModal, type HowToRequest } from "@/components/how-to/HowToModal";
 import { importHelpRows } from "@/components/ImportHelpRows";
 import { SafeView } from "@/components/ui";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
@@ -131,6 +132,8 @@ export default function ImportScreen() {
   const importMutation = useImportSchedule();
   const didPrefill = useRef(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  // The "Show me how" walkthrough over this sheet, opened from the help.
+  const [howTo, setHowTo] = useState<HowToRequest | null>(null);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   const filePickerLock = useRef(0);
   const requestGeneration = useRef(0);
@@ -931,7 +934,9 @@ export default function ImportScreen() {
               isOpen={helpOpen}
               onOpenChange={setHelpOpen}
             >
-              {importHelpRows(t)}
+              {importHelpRows(t, (method) =>
+                setHowTo({ method, openedAt: Date.now() }),
+              )}
             </Collapsible>
           </FieldGroup.Section>
 
@@ -1024,6 +1029,7 @@ export default function ImportScreen() {
         }}
         onClose={() => setTimeZonePickerVisible(false)}
       />
+      <HowToModal request={howTo} onClose={() => setHowTo(null)} />
     </SafeView>
   );
 }

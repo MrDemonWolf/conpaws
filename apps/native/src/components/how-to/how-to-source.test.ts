@@ -12,6 +12,8 @@ const read = (file: string) => readFileSync(path.join(__dirname, file), "utf8");
 const pictures = read("pictures.tsx");
 const frame = read("MockupFrame.tsx");
 const walkthrough = read("HowToWalkthrough.tsx");
+const modal = read("HowToModal.tsx");
+const helpRows = read("../ImportHelpRows.tsx");
 
 const count = (source: string, pattern: RegExp) =>
   source.match(pattern)?.length ?? 0;
@@ -80,5 +82,30 @@ describe("how-to walkthrough", () => {
       'AccessibilityInfo.sendAccessibilityEvent(node, "focus")',
     );
     expect(walkthrough).toMatch(/accessible\s+accessibilityRole="header"/);
+  });
+});
+
+describe("how-to modal over the import screen", () => {
+  // The import screen is an iOS form sheet, and iOS drops a sheet presented
+  // from a sheet. The provider stops it inheriting the sheet's top inset of 0.
+  it("covers the sheet in full and measures its own safe area", () => {
+    expect(modal).toContain('presentationStyle="fullScreen"');
+    expect(modal).toContain("<SafeAreaProvider>");
+  });
+});
+
+describe("import help rows", () => {
+  // Android's FieldGroup.Section draws only a bare universal ListItem as a
+  // flat row and wraps anything else in a second card.
+  it("returns only bare FieldRows", () => {
+    const tags = new Set(
+      [...helpRows.matchAll(/<([A-Z][A-Za-z.]*)/g)].map((match) => match[1]),
+    );
+    expect([...tags].sort()).toEqual(["FieldRow", "NavigationIndicator"]);
+  });
+
+  it("offers Show me how for both import methods", () => {
+    expect(helpRows).toContain('showMeRow("sched")');
+    expect(helpRows).toContain('showMeRow("ics")');
   });
 });
