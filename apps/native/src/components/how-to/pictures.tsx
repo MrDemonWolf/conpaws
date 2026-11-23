@@ -191,18 +191,21 @@ function CatalogNotListedPicture({ surface }: PictureProps) {
   const { t } = useTranslation();
 
   // No ring: the card carries its own outer margin, and it is already the
-  // whole picture.
+  // whole picture. That margin is `mt-4` on top only, so the same space goes
+  // underneath to keep the card centred in the frame.
   return (
     <MockupFrame surface={surface}>
-      <CatalogFallbackCard
-        title={t("catalog.notListed.title")}
-        body={t("catalog.notListed.body")}
-        importLabel={t("catalog.notListed.import")}
-        createLabel={t("catalog.notListed.create")}
-        onImport={noop}
-        onCreate={noop}
-        focusable={false}
-      />
+      <View className="pb-4">
+        <CatalogFallbackCard
+          title={t("catalog.notListed.title")}
+          body={t("catalog.notListed.body")}
+          importLabel={t("catalog.notListed.import")}
+          createLabel={t("catalog.notListed.create")}
+          onImport={noop}
+          onCreate={noop}
+          focusable={false}
+        />
+      </View>
     </MockupFrame>
   );
 }
