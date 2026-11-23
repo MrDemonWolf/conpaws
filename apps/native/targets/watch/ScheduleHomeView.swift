@@ -6,8 +6,19 @@ struct ScheduleHomeView: View {
   let isUsingSavedSchedule: Bool
   var snapshotDate: Date?
   let strings: ConPawsStrings
+  /// Bumped when Up Next's leave window opens with Home in front, for one
+  /// tap on the wrist.
+  @State private var goTaps = 0
+  /// The window last tapped for, so coming back to Home seconds after it
+  /// opened does not tap again.
+  @State private var announcedGo: WatchGoWindow.Announcement?
+  /// Home is the screen on top: the only time Double Tap opens the Go card.
+  @State private var isOnTop = false
 
   var body: some View {
+    let goEvent = schedule.goEvent
+    let goAnnouncement = schedule.goAnnouncement
+
     ScrollView {
       LazyVStack(alignment: .leading, spacing: WatchMetrics.cardSpacing) {
         if let convention = schedule.convention {
@@ -17,6 +28,12 @@ struct ScheduleHomeView: View {
           // at the very bottom, under the Today row, as two overlapping lines.
           if case .finished = schedule.state {
             FinishedStatusView(convention: convention, now: schedule.now, strings: strings)
+          }
+
+          // Time to go: Up Next moves above the running panel, as the Go
+          // card, for as long as the complication shows its leave countdown.
+          if let goEvent {
+            goCard(goEvent, in: convention)
           }
 
           if let current = schedule.activeEvent {
@@ -36,7 +53,7 @@ struct ScheduleHomeView: View {
             }
           }
 
-          if let next = schedule.nextEvent {
+          if let next = schedule.nextEvent, goEvent == nil {
             nextHero(next, in: convention)
           }
 
@@ -95,6 +112,35 @@ struct ScheduleHomeView: View {
         }
       }
     }
+    .onAppear { isOnTop = true }
+    .onDisappear { isOnTop = false }
+    // One id per window opening, so the minute tick never restarts the wait.
+    .task(id: goAnnouncement) {
+      await tapWhenWindowOpens(goAnnouncement)
+    }
+    .sensoryFeedback(.start, trigger: goTaps)
+  }
+
+  /// Sleeps until Up Next's leave window opens, then taps the wrist once if
+  /// Home is still in front. Pushing a screen or a new Up Next cancels the
+  /// wait; a wake well after the opening is the app returning or launching
+  /// mid-window and stays quiet. The system plays nothing wrist-down.
+  private func tapWhenWindowOpens(_ announcement: WatchGoWindow.Announcement?) async {
+    guard let announcement else { return }
+    let wait = announcement.opening.timeIntervalSinceNow
+    if wait > 0 {
+      // Tight: left to the system, the wake of an hours-long sleep can be
+      // coalesced past the seconds `isOnTime` allows.
+      guard
+        (try? await Task.sleep(for: .seconds(wait), tolerance: .seconds(1))) != nil
+      else { return }
+    }
+    // Read after the sleep, where it is current.
+    guard announcement != announcedGo, WatchGoWindow.isOnTime(announcement, at: .now) else {
+      return
+    }
+    announcedGo = announcement
+    goTaps += 1
   }
 
   private func header(_ convention: ConPawsConventionSnapshot) -> some View {
@@ -115,6 +161,34 @@ struct ScheduleHomeView: View {
       }
     }
     .padding(.horizontal, WatchMetrics.cardInset)
+  }
+
+  private func goCard(
+    _ next: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot
+  ) -> some View {
+    // The Up Next card's rule. Every reminder the app offers is an hour or
+    // less, so this is a timer; a longer lead from elsewhere reads the
+    // ladder under UP NEXT rather than "STARTS IN In 2 hours".
+    let showsTimer = ConPawsCountdown.showsLiveTimer(
+      from: schedule.now,
+      to: next.startDate,
+      within: ConPawsCountdown.eventTimerWindow
+    )
+    return GoCard(
+      eyebrow: showsTimer ? strings.startsInCaps : strings.upNextCaps,
+      event: next,
+      conventionID: convention.id,
+      opensOnDoubleTap: isOnTop
+    ) {
+      AdaptiveCountdownView(
+        target: next.startDate,
+        now: schedule.now,
+        timeZone: convention.timeZone,
+        showsTimer: showsTimer,
+        strings: strings
+      )
+    }
   }
 
   private func nextHero(
