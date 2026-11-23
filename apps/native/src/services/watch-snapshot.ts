@@ -21,7 +21,7 @@ import type {
  * phone has finished with.
  *
  * iOS only. Android stores the same payload for its boundary timer, which has
- * no use for either, and the phone widgets are published from the original
+ * no use for any of it, and the phone widgets are published from the original
  * snapshot object, which this never touches. Everything added is optional on
  * the Swift side, so the schema version stays 2 and older payloads decode.
  */
@@ -454,7 +454,7 @@ export function withWatchExtras(
     // that panel finishes (`watchLastActiveMs`), so those keep their
     // descriptions. Ended ones, which the size guard gives up early on any
     // convention, are left off to save room, so once every panel is over
-    // the convention carries nothing extra.
+    // the convention carries nothing extra but the day's withdrawn panels.
     if (convention.endAtMs <= nowMs) {
       return withWithdrawn(
         {
