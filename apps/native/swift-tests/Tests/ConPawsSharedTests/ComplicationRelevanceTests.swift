@@ -197,6 +197,51 @@ struct ComplicationRelevanceTests {
     #expect(windows.first == opening(fallBack(8, 0), fallBack(10, 0)))
   }
 
+  // MARK: watchOS 10 entry scores
+
+  /// watchOS 10 reads only the timeline entries' scores, so the first
+  /// morning starts an entry of its own that carries the raise.
+  @Test func theFirstMorningStartsARaisedEntry() throws {
+    let value = snapshot(conventions: [
+      convention("con", from: local(22, 0), until: local(25, 0), events: [
+        event("opening", from: local(22, 14)),
+      ]),
+    ])
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: local(22, 6))
+    #expect(plan.first?.relevantUntil == nil)
+    let morning = try #require(plan.first { $0.date == local(22, 8) })
+    #expect(morning.relevantUntil == local(22, 10))
+    #expect(plan.filter { $0.date >= local(22, 10) && $0.date < local(22, 13, 30) }.allSatisfy {
+      $0.relevantUntil == nil
+    })
+  }
+
+  @Test func anEntryInsideTheFirstMorningIsRaisedUntilItEnds() throws {
+    let value = snapshot(conventions: [
+      convention("con", from: local(22, 0), until: local(25, 0), events: [
+        event("opening", from: local(22, 14)),
+      ]),
+    ])
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: local(22, 8, 40))
+    #expect(plan.first?.date == local(22, 8, 40))
+    #expect(plan.first?.relevantUntil == local(22, 10))
+  }
+
+  /// The morning picks up again after a 9:00 panel's half hour.
+  @Test func theMorningAfterAnEarlyPanelStartsAnotherRaisedEntry() throws {
+    let value = snapshot(conventions: [
+      convention("con", from: local(22, 0), until: local(25, 0), events: [
+        event("early", from: local(22, 9), until: local(22, 9, 15)),
+        event("later", from: local(23, 14)),
+      ]),
+    ])
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: local(22, 6))
+    let resumed = try #require(plan.first { $0.date == local(22, 9, 30) })
+    #expect(resumed.relevantUntil == local(22, 10))
+    let first = try #require(plan.first { $0.date == local(22, 8) })
+    #expect(first.relevantUntil == local(22, 8, 30))
+  }
+
   // MARK: Refreshing the clues
 
   @Test func cluesNeverGivenNeedGiving() {
