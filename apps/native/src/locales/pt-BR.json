@@ -356,6 +356,14 @@
     "sortAndView": "Ordenação e visualização"
   },
   "howTo": {
+    "intro": "Três jeitos de colocar a programação da sua convenção no ConPaws.",
+    "showMe": "Mostre como",
+    "showMeHint": "Abre um guia curto, passo a passo.",
+    "next": "Próximo",
+    "back": "Voltar",
+    "close": "Fechar",
+    "askTitle": "Não achou nenhuma dessas?",
+    "startTitle": "Vamos começar?",
     "find": {
       "title": "Catálogo do ConPaws",
       "summary": "Sua convenção talvez já esteja no ConPaws. Baixe a programação com poucos toques.",
@@ -421,6 +429,10 @@
           "body": "Se a programação tiver categorias, escolha as que quiser. Confira o fuso horário e toque no botão de importar lá embaixo. Um arquivo não se atualiza sozinho, mas o ConPaws pode verificar mudanças em um link depois."
         }
       }
+    },
+    "mock": {
+      "copy": "Copiar",
+      "addToCalendar": "Adicionar ao calendário"
     }
   },
   "import": {

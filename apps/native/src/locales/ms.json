@@ -356,6 +356,14 @@
     "sortAndView": "Isih dan paparan"
   },
   "howTo": {
+    "intro": "Tiga cara untuk memasukkan jadual konvensyen anda ke dalam ConPaws.",
+    "showMe": "Tunjukkan caranya",
+    "showMeHint": "Membuka panduan ringkas langkah demi langkah.",
+    "next": "Seterusnya",
+    "back": "Kembali",
+    "close": "Tutup",
+    "askTitle": "Tidak jumpa satu pun?",
+    "startTitle": "Sedia untuk bermula?",
     "find": {
       "title": "Katalog ConPaws",
       "summary": "Konvensyen anda mungkin sudah ada dalam ConPaws. Muat turun jadualnya dengan beberapa ketikan.",
@@ -421,6 +429,10 @@
           "body": "Jika jadual ada kategori, pilih yang anda mahu. Semak zon waktu, kemudian ketik butang import di bahagian bawah. Fail tidak dikemas kini dengan sendirinya, tetapi ConPaws boleh menyemak pautan untuk perubahan kemudian."
         }
       }
+    },
+    "mock": {
+      "copy": "Salin",
+      "addToCalendar": "Tambah ke kalendar"
     }
   },
   "import": {

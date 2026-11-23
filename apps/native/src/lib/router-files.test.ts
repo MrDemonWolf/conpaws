@@ -313,7 +313,11 @@ describe("iOS native stack headers", () => {
   describe("settings screens hosted in @expo/ui", () => {
     // Real `ScrollView` content: these collapse and blur correctly on their own,
     // and forcing the hosted options on them would be the regression.
-    const REAL_SCROLLVIEW_SCREENS = ["licenses/index", "licenses/[id]"];
+    const REAL_SCROLLVIEW_SCREENS = [
+      "licenses/index",
+      "licenses/[id]",
+      "getting-started",
+    ];
     // Dev-only, behind `Stack.Protected`; they never reach a user.
     const DEVELOPER_SCREENS = ["debug", "ui-system"];
     // Hosted screens that hand UIKit their list's scroll view through
@@ -373,6 +377,23 @@ describe("iOS native stack headers", () => {
         expect(screen).toBeDefined();
         expect(screen?.block).not.toContain("...hostedScreenOptions");
       }
+    });
+
+    // Its cards carry React Native pictures, which cannot sit reliably in an
+    // @expo/ui list, so it left SettingsFieldGroupScreen for a ScrollView that
+    // UIKit can link its large title to.
+    it("renders Getting started as a real ScrollView linked to the bar", () => {
+      const routeSource = readFileSync(
+        path.resolve(
+          __dirname,
+          "../../app/(tabs)/settings/getting-started.tsx",
+        ),
+        "utf8",
+      );
+      expect(routeSource).not.toContain("<Host");
+      expect(routeSource).toContain(
+        'contentInsetAdjustmentBehavior="automatic"',
+      );
     });
 
     it("keeps hostedScreenOptions doing all three things", () => {

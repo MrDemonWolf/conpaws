@@ -356,6 +356,14 @@
     "sortAndView": "Sortering og visning"
   },
   "howTo": {
+    "intro": "Tre måter å få konventets program inn i ConPaws på.",
+    "showMe": "Vis meg hvordan",
+    "showMeHint": "Åpner en kort trinnvis veiledning.",
+    "next": "Neste",
+    "back": "Tilbake",
+    "close": "Lukk",
+    "askTitle": "Finner du ingen av disse?",
+    "startTitle": "Klar til å starte?",
     "find": {
       "title": "ConPaws-katalogen",
       "summary": "Konventet ditt er kanskje allerede i ConPaws. Last ned programmet med et par trykk.",
@@ -421,6 +429,10 @@
           "body": "Hvis programmet har kategorier, velger du dem du vil ha. Sjekk tidssonen, og trykk deretter på importknappen nederst. En fil oppdaterer seg ikke selv, men ConPaws kan senere sjekke en lenke for endringer."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopier",
+      "addToCalendar": "Legg til i kalender"
     }
   },
   "import": {

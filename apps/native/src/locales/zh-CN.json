@@ -356,6 +356,14 @@
     "sortAndView": "排序和显示"
   },
   "howTo": {
+    "intro": "把展会日程导入 ConPaws 的三种方法。",
+    "showMe": "查看步骤",
+    "showMeHint": "打开一份简短的分步指南。",
+    "next": "下一步",
+    "back": "上一步",
+    "close": "关闭",
+    "askTitle": "这些都找不到？",
+    "startTitle": "准备好了吗？",
     "find": {
       "title": "ConPaws 目录",
       "summary": "你的展会可能已经在 ConPaws 里了。点几下就能下载它的日程。",
@@ -421,6 +429,10 @@
           "body": "如果日程有分类，选择你想要的分类。检查时区，然后点按底部的导入按钮。文件不会自动更新，但之后 ConPaws 可以通过链接检查变动。"
         }
       }
+    },
+    "mock": {
+      "copy": "复制",
+      "addToCalendar": "添加到日历"
     }
   },
   "import": {

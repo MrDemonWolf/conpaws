@@ -422,6 +422,14 @@
     "sortAndView": "Sort & view"
   },
   "howTo": {
+    "intro": "Three ways to get your convention's schedule into ConPaws.",
+    "showMe": "Show me how",
+    "showMeHint": "Opens a short step-by-step guide.",
+    "next": "Next",
+    "back": "Back",
+    "close": "Close",
+    "askTitle": "Can't find any of these?",
+    "startTitle": "Ready to start?",
     "find": {
       "title": "ConPaws catalog",
       "summary": "Your con might already be in ConPaws. Download its schedule in a couple of taps.",
@@ -487,6 +495,10 @@
           "body": "If the schedule has categories, pick the ones you want. Check the time zone, then tap the import button at the bottom. A file won't update by itself, but ConPaws can check a link for changes later."
         }
       }
+    },
+    "mock": {
+      "copy": "Copy",
+      "addToCalendar": "Add to calendar"
     }
   },
   "import": {

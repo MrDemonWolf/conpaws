@@ -356,6 +356,14 @@
     "sortAndView": "Sortering och visning"
   },
   "howTo": {
+    "intro": "Tre sätt att få in ditt konvents schema i ConPaws.",
+    "showMe": "Visa hur",
+    "showMeHint": "Öppnar en kort steg-för-steg-guide.",
+    "next": "Nästa",
+    "back": "Tillbaka",
+    "close": "Stäng",
+    "askTitle": "Hittar du inget av dessa?",
+    "startTitle": "Redo att börja?",
     "find": {
       "title": "ConPaws-katalogen",
       "summary": "Ditt konvent kanske redan finns i ConPaws. Hämta schemat med ett par tryck.",
@@ -421,6 +429,10 @@
           "body": "Om schemat har kategorier väljer du de du vill ha. Kontrollera tidszonen och tryck sedan på importknappen längst ned. En fil uppdateras inte av sig själv, men ConPaws kan senare kolla en länk efter ändringar."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopiera",
+      "addToCalendar": "Lägg till i kalender"
     }
   },
   "import": {

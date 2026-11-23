@@ -435,6 +435,14 @@
     "sortAndView": "Řazení a zobrazení"
   },
   "howTo": {
+    "intro": "Tři způsoby, jak dostat program vašeho conu do ConPaws.",
+    "showMe": "Ukázat jak",
+    "showMeHint": "Otevře krátký návod krok za krokem.",
+    "next": "Další",
+    "back": "Zpět",
+    "close": "Zavřít",
+    "askTitle": "Nenašli jste nic z toho?",
+    "startTitle": "Můžeme začít?",
     "find": {
       "title": "Katalog ConPaws",
       "summary": "Váš con už v ConPaws možná je. Stáhněte si jeho program na pár klepnutí.",
@@ -500,6 +508,10 @@
           "body": "Pokud má program kategorie, vyberte ty, které chcete. Zkontrolujte časové pásmo a pak klepněte na tlačítko importu dole. Soubor se sám neaktualizuje, ale ConPaws může později u odkazu zkontrolovat změny."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopírovat",
+      "addToCalendar": "Přidat do kalendáře"
     }
   },
   "import": {

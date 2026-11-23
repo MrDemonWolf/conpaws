@@ -422,6 +422,14 @@
     "sortAndView": "Tri et affichage"
   },
   "howTo": {
+    "intro": "Trois façons d'ajouter le programme de votre convention à ConPaws.",
+    "showMe": "Me montrer comment",
+    "showMeHint": "Ouvre un court guide pas à pas.",
+    "next": "Suivant",
+    "back": "Retour",
+    "close": "Fermer",
+    "askTitle": "Vous ne trouvez rien de tout cela ?",
+    "startTitle": "On commence ?",
     "find": {
       "title": "Catalogue ConPaws",
       "summary": "Votre convention est peut-être déjà dans ConPaws. Téléchargez son programme en quelques gestes.",
@@ -487,6 +495,10 @@
           "body": "Si le programme a des catégories, choisissez celles qui vous intéressent. Vérifiez le fuseau horaire, puis touchez le bouton d'importation en bas. Un fichier ne se met pas à jour tout seul, mais ConPaws pourra plus tard vérifier si un lien a changé."
         }
       }
+    },
+    "mock": {
+      "copy": "Copier",
+      "addToCalendar": "Ajouter au calendrier"
     }
   },
   "import": {

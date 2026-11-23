@@ -422,6 +422,14 @@
     "sortAndView": "Sortieren & Ansicht"
   },
   "howTo": {
+    "intro": "Drei Wege, wie der Zeitplan deiner Convention in ConPaws kommt.",
+    "showMe": "Zeig mir, wie",
+    "showMeHint": "Öffnet eine kurze Schritt-für-Schritt-Anleitung.",
+    "next": "Weiter",
+    "back": "Zurück",
+    "close": "Schließen",
+    "askTitle": "Nichts davon gefunden?",
+    "startTitle": "Bereit loszulegen?",
     "find": {
       "title": "ConPaws-Katalog",
       "summary": "Deine Con ist vielleicht schon in ConPaws. Lade ihren Zeitplan mit wenigen Fingertipps herunter.",
@@ -487,6 +495,10 @@
           "body": "Wenn der Zeitplan Kategorien hat, wähle die gewünschten aus. Prüfe die Zeitzone und tippe dann unten auf die Schaltfläche zum Importieren. Eine Datei aktualisiert sich nicht von selbst, aber ConPaws kann einen Link später auf Änderungen prüfen."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopieren",
+      "addToCalendar": "Zum Kalender hinzufügen"
     }
   },
   "import": {

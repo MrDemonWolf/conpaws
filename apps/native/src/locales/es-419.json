@@ -422,6 +422,14 @@
     "sortAndView": "Orden y vista"
   },
   "howTo": {
+    "intro": "Tres formas de llevar el programa de tu convención a ConPaws.",
+    "showMe": "Muéstrame cómo",
+    "showMeHint": "Abre una guía breve paso a paso.",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "close": "Cerrar",
+    "askTitle": "¿No encuentras ninguna de estas?",
+    "startTitle": "¿Empezamos?",
     "find": {
       "title": "Catálogo de ConPaws",
       "summary": "Puede que tu convención ya esté en ConPaws. Descarga su programa con un par de toques.",
@@ -487,6 +495,10 @@
           "body": "Si el programa tiene categorías, elige las que quieras. Revisa la zona horaria y toca el botón para importar que está abajo. Un archivo no se actualiza solo, pero ConPaws puede revisar un enlace más adelante para ver si cambió."
         }
       }
+    },
+    "mock": {
+      "copy": "Copiar",
+      "addToCalendar": "Agregar al calendario"
     }
   },
   "import": {

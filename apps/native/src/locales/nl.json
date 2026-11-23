@@ -356,6 +356,14 @@
     "sortAndView": "Sorteren en weergave"
   },
   "howTo": {
+    "intro": "Drie manieren om het programma van je conventie in ConPaws te krijgen.",
+    "showMe": "Laat zien hoe",
+    "showMeHint": "Opent een korte stapsgewijze uitleg.",
+    "next": "Volgende",
+    "back": "Terug",
+    "close": "Sluiten",
+    "askTitle": "Vind je geen van deze?",
+    "startTitle": "Klaar om te beginnen?",
     "find": {
       "title": "ConPaws-catalogus",
       "summary": "Je con staat misschien al in ConPaws. Download het programma met een paar tikken.",
@@ -421,6 +429,10 @@
           "body": "Heeft het programma categorieën? Kies dan de categorieën die je wilt. Controleer de tijdzone en tik dan onderaan op de importknop. Een bestand werkt zichzelf niet bij, maar ConPaws kan een link later controleren op wijzigingen."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopiëren",
+      "addToCalendar": "Toevoegen aan agenda"
     }
   },
   "import": {

@@ -422,6 +422,14 @@
     "sortAndView": "Rendezés és nézet"
   },
   "howTo": {
+    "intro": "Háromféleképpen kerülhet a rendezvényed programja a ConPawsba.",
+    "showMe": "Mutasd, hogyan",
+    "showMeHint": "Megnyit egy rövid, lépésenkénti útmutatót.",
+    "next": "Tovább",
+    "back": "Vissza",
+    "close": "Bezárás",
+    "askTitle": "Egyiket sem találod ezek közül?",
+    "startTitle": "Kezdhetjük?",
     "find": {
       "title": "ConPaws-katalógus",
       "summary": "Lehet, hogy a rendezvényed már szerepel a ConPawsban. Töltsd le a programját néhány koppintással.",
@@ -487,6 +495,10 @@
           "body": "Ha a programban vannak kategóriák, válaszd ki azokat, amelyeket szeretnél. Ellenőrizd az időzónát, majd koppints a lenti importálás gombra. A fájl magától nem frissül, de a ConPaws később ellenőrizni tudja, változott-e egy link."
         }
       }
+    },
+    "mock": {
+      "copy": "Másolás",
+      "addToCalendar": "Hozzáadás a naptárhoz"
     }
   },
   "import": {

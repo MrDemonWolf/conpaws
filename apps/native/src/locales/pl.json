@@ -366,6 +366,14 @@
     "sortAndView": "Sortowanie i widok"
   },
   "howTo": {
+    "intro": "Trzy sposoby, by dodać program konwentu do ConPaws.",
+    "showMe": "Pokaż, jak",
+    "showMeHint": "Otwiera krótki przewodnik krok po kroku.",
+    "next": "Dalej",
+    "back": "Wstecz",
+    "close": "Zamknij",
+    "askTitle": "Nie możesz znaleźć żadnej z tych opcji?",
+    "startTitle": "Zaczynamy?",
     "find": {
       "title": "Katalog ConPaws",
       "summary": "Twój konwent może już być w ConPaws. Pobierz jego program kilkoma stuknięciami.",
@@ -431,6 +439,10 @@
           "body": "Jeśli program ma kategorie, wybierz te, które chcesz. Sprawdź strefę czasową, a potem stuknij przycisk importu na dole. Plik sam się nie zaktualizuje, ale ConPaws może później sprawdzać link pod kątem zmian."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopiuj",
+      "addToCalendar": "Dodaj do kalendarza"
     }
   },
   "import": {

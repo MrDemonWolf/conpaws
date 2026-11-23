@@ -422,6 +422,14 @@
     "sortAndView": "Lajittelu ja näkymä"
   },
   "howTo": {
+    "intro": "Kolme tapaa saada conisi ohjelma ConPawsiin.",
+    "showMe": "Näytä miten",
+    "showMeHint": "Avaa lyhyen vaiheittaisen oppaan.",
+    "next": "Seuraava",
+    "back": "Takaisin",
+    "close": "Sulje",
+    "askTitle": "Etkö löydä mitään näistä?",
+    "startTitle": "Valmiina aloittamaan?",
     "find": {
       "title": "ConPaws-luettelo",
       "summary": "Conisi saattaa jo löytyä ConPawsista. Lataa sen ohjelma parilla napautuksella.",
@@ -487,6 +495,10 @@
           "body": "Jos ohjelmassa on luokkia, valitse haluamasi. Tarkista aikavyöhyke ja napauta sitten alareunan tuontipainiketta. Tiedosto ei päivity itsestään, mutta ConPaws voi myöhemmin tarkistaa linkistä muutokset."
         }
       }
+    },
+    "mock": {
+      "copy": "Kopioi",
+      "addToCalendar": "Lisää kalenteriin"
     }
   },
   "import": {
