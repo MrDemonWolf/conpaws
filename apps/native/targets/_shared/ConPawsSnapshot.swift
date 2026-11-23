@@ -12,6 +12,12 @@ struct ConPawsSnapshot: Codable, Sendable {
   /// what frees its button. iOS payloads only; optional, so every older
   /// payload still decodes.
   var handledCommandIds: [String]?
+  /// What the phone did with each of `handledCommandIds`, so the Watch can
+  /// say why a tap changed nothing. Beside the ids, never instead of them:
+  /// a Watch from before this field reads only the ids. iOS payloads only;
+  /// optional, and decoded without ever throwing (see
+  /// `ConPawsCommandOutcomes`), so every older payload still decodes.
+  var commandOutcomes: ConPawsCommandOutcomes?
 
   /// What the targets show before the phone has sent a snapshot they can
   /// read, in the watch's own language: the app's language only arrives with
@@ -108,7 +114,7 @@ struct ConPawsSnapshot: Codable, Sendable {
     }
     return ConPawsSnapshot(schemaVersion: schemaVersion, generatedAtMs: generatedAtMs,
       localeIdentifier: localeIdentifier, conventions: validConventions, timeFormat: timeFormat,
-      handledCommandIds: handledCommandIds)
+      handledCommandIds: handledCommandIds, commandOutcomes: commandOutcomes)
   }
 
   private static func isValid(_ event: ConPawsEventSnapshot) -> Bool {
@@ -464,7 +470,13 @@ struct ConPawsWatchCommand: Codable, Hashable, Sendable {
   /// declined is only ever settled by the list; the effect check covers an
   /// app that does not send one.
   func isSettled(by snapshot: ConPawsSnapshot) -> Bool {
-    if snapshot.handledCommandIds?.contains(id) == true { return true }
+    snapshot.handledCommandIds?.contains(id) == true || isShown(in: snapshot)
+  }
+
+  /// Whether `snapshot` already shows what this command asked for: the event
+  /// among the convention's saved events after a save, gone from them after a
+  /// remove. A withdrawn panel is still saved.
+  func isShown(in snapshot: ConPawsSnapshot) -> Bool {
     let isSaved = snapshot.conventions.contains { convention in
       convention.id == conventionId
         && (convention.events.contains { $0.id == eventId }

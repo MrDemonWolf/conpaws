@@ -65,27 +65,69 @@ enum ConPawsPendingCommands {
     return updated
   }
 
+  /// What a snapshot ends: the commands still waiting, and what became of
+  /// each one it settled, keyed by event id.
+  struct Settlement: Equatable, Sendable {
+    var pending: Table
+    var results: [String: ConPawsWatchTapResult]
+  }
+
+  /// Settles what `snapshot` shows as done or lists as handled, and what the
+  /// phone would now ignore as too old.
+  static func settling(_ pending: Table, by snapshot: ConPawsSnapshot, at now: Date) -> Settlement {
+    var settlement = Settlement(pending: [:], results: [:])
+    for (eventID, entry) in pending {
+      if let result = entry.command.result(shown: snapshot, receipts: snapshot) {
+        settlement.results[eventID] = result
+      } else if entry.command.hasExpired(at: now) {
+        settlement.results[eventID] = .declined(.tooOld)
+      } else {
+        settlement.pending[eventID] = entry
+      }
+    }
+    return settlement
+  }
+
   /// Without what `snapshot` shows as done or lists as handled, and what the
   /// phone would now ignore as too old.
   static func settled(_ pending: Table, by snapshot: ConPawsSnapshot, at now: Date) -> Table {
-    pending.filter { _, entry in
-      !entry.command.isSettled(by: snapshot) && !entry.command.hasExpired(at: now)
-    }
+    settling(pending, by: snapshot, at: now).pending
   }
 
-  /// Without the commands `snapshot` lists as handled, and nothing else.
+  /// Settles the commands `receipts` lists as handled, and nothing else.
   ///
-  /// For a snapshot that is not shown because the stored one is newer. Its
-  /// receipts are still true, and may be the only ones: the phone keeps them
-  /// in memory, so a phone app relaunched after declining a tap publishes a
-  /// newer snapshot without it, and the older one that listed it arrives
-  /// later as a replayed user info. Its saved events are not used, because
-  /// they can predate a newer tap and would settle it early.
-  static func settled(_ pending: Table, byReceiptsIn snapshot: ConPawsSnapshot) -> Table {
-    guard let handled = snapshot.handledCommandIds.map(Set.init), !handled.isEmpty else {
-      return pending
+  /// For a snapshot that is not shown because the stored one, `shown`, is
+  /// newer. Its receipts are still true, and may be the only ones: a phone
+  /// app that could not keep them across a relaunch published a newer
+  /// snapshot without them, and the older one that listed them arrives later
+  /// as a replayed user info. Its saved events are not used, because they can
+  /// predate a newer tap and would settle it early; whether a listed tap
+  /// landed is read from `shown`.
+  static func settling(
+    _ pending: Table,
+    byReceiptsIn receipts: ConPawsSnapshot,
+    shown: ConPawsSnapshot
+  ) -> Settlement {
+    guard let handled = receipts.handledCommandIds.map(Set.init), !handled.isEmpty else {
+      return Settlement(pending: pending, results: [:])
     }
-    return pending.filter { _, entry in !handled.contains(entry.command.id) }
+    var settlement = Settlement(pending: [:], results: [:])
+    for (eventID, entry) in pending {
+      if handled.contains(entry.command.id),
+        let result = entry.command.result(shown: shown, receipts: receipts)
+      {
+        settlement.results[eventID] = result
+      } else {
+        settlement.pending[eventID] = entry
+      }
+    }
+    return settlement
+  }
+
+  /// Without the commands `snapshot` lists as handled, and nothing else; see
+  /// `settling(_:byReceiptsIn:shown:)`.
+  static func settled(_ pending: Table, byReceiptsIn snapshot: ConPawsSnapshot) -> Table {
+    settling(pending, byReceiptsIn: snapshot, shown: snapshot).pending
   }
 
   // MARK: Storage
