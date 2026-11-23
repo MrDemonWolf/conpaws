@@ -8,6 +8,7 @@ export function CatalogEditionRow({
   scheduleReadyLabel,
   scheduleNotYetLabel,
   onPress,
+  focusable,
 }: {
   edition: CatalogEdition;
   dateRange: string;
@@ -15,11 +16,14 @@ export function CatalogEditionRow({
   scheduleReadyLabel: string;
   scheduleNotYetLabel: string;
   onPress: () => void;
+  /** False only for a pretend row inside a how-to picture. */
+  focusable?: boolean;
 }) {
   return (
     <Row
       className="mx-4 mb-2 rounded-2xl border border-border bg-card px-4 py-3"
       onPress={onPress}
+      focusable={focusable}
       accessibilityLabel={`${edition.name}, ${dateRange}, ${edition.city}`}
     >
       <Text variant="label">{edition.name}</Text>
