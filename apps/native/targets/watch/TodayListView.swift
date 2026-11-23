@@ -10,9 +10,12 @@ struct TodayListView: View {
   let strings: ConPawsStrings
 
   var body: some View {
+    // The day's saved panels with the ones the convention withdrew among
+    // them, so a cancelled panel stays where the reader expects it, marked.
+    let rows = schedule.todayRows
     Group {
-      if let convention = schedule.convention, !schedule.todayEvents.isEmpty {
-        list(convention)
+      if let convention = schedule.convention, !rows.isEmpty {
+        list(rows, in: convention)
       } else {
         emptyState
       }
@@ -20,31 +23,41 @@ struct TodayListView: View {
     .navigationTitle(strings.today)
   }
 
-  private func list(_ convention: ConPawsConventionSnapshot) -> some View {
+  private func list(_ rows: [WatchTodayRow], in convention: ConPawsConventionSnapshot) -> some View {
     ScrollViewReader { proxy in
-      List(schedule.todayEvents) { event in
-        let isRunning = event.id == schedule.activeEvent?.id
-        let hasEnded = ConPawsScheduleResolver.effectiveEnd(of: event) <= schedule.now
+      List(rows) { row in
+        let event = row.event
+        // Never running or over: a withdrawn panel did not happen.
+        let withdrawnLabel = row.status.map(strings.withdrawnStrings.label(for:))
+        let isRunning = withdrawnLabel == nil && event.id == schedule.activeEvent?.id
+        let hasEnded = withdrawnLabel == nil
+          && ConPawsScheduleResolver.effectiveEnd(of: event) <= schedule.now
         let timeRange = ConPawsFormat.timeRange(event, in: convention, locale: locale)
+        // A withdrawn panel opens the same screen, which then shows it marked
+        // and offers only to remove it.
         NavigationLink(value: WatchRoute.event(conventionID: convention.id, eventID: event.id)) {
           TodayRow(
             event: event,
             timeRange: timeRange,
             isRunning: isRunning,
-            hasEnded: hasEnded
+            hasEnded: hasEnded,
+            withdrawnLabel: withdrawnLabel
           )
         }
         // This label replaces the row's Texts, so their `privacySensitive`
         // never reaches it: wrist-down it must leave the title and room out
-        // itself and speak only the time that stays drawn.
+        // itself and speak only the time that stays drawn. A withdrawn row
+        // draws no room.
         .accessibilityLabel(
           redactionReasons.contains(.privacy)
             ? timeRange
-            : [event.title, timeRange, event.shortPlace].compactMap { $0 }.joined(separator: ", ")
+            : [event.title, timeRange, withdrawnLabel == nil ? event.shortPlace : nil]
+              .compactMap { $0 }
+              .joined(separator: ", ")
         )
-        // The accent bar and the check are hidden from VoiceOver, so the
-        // running row and the ended ones say so.
-        .accessibilityValue(isRunning ? strings.now : hasEnded ? strings.ended : "")
+        // The accent bar, the check and the cross are hidden from VoiceOver,
+        // so the running row, the ended ones and the withdrawn ones say so.
+        .accessibilityValue(withdrawnLabel ?? (isRunning ? strings.now : hasEnded ? strings.ended : ""))
       }
       // ponytail: plain, not .carousel — carousel scales rows toward the
       // screen center, so a single-event day renders as an oversized slab.

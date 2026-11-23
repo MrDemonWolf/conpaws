@@ -21,13 +21,16 @@ enum WatchRoute: Hashable, Sendable {
 
 extension WatchRoute {
   /// The stack a complication link opens. A panel the plan no longer holds,
-  /// because a newer snapshot reached the app first, opens the home screen.
+  /// because a newer snapshot reached the app first, opens the home screen;
+  /// one the convention withdrew since opens marked as such.
   static func path(opening link: ConPawsWatchLink, in snapshot: ConPawsSnapshot) -> [WatchRoute] {
     switch link {
     case .home:
       return []
     case .event(let conventionID, let eventID):
-      guard snapshot.event(id: eventID, in: conventionID) != nil else { return [] }
+      guard snapshot.event(id: eventID, in: conventionID) != nil
+        || snapshot.withdrawnEvent(id: eventID, in: conventionID) != nil
+      else { return [] }
       return [.event(conventionID: conventionID, eventID: eventID)]
     }
   }
@@ -37,7 +40,8 @@ extension WatchRoute {
   /// A saved panel's screen goes once the panel does, including one removed
   /// from that screen: once the phone confirms, there is nothing left to
   /// show. An option's screen stays while the panel is either offered or
-  /// saved, so adding it from there keeps the reader on it.
+  /// saved, so adding it from there keeps the reader on it. Either stays,
+  /// marked, while the panel is saved but withdrawn by the convention.
   static func pruned(_ path: [WatchRoute], against snapshot: ConPawsSnapshot) -> [WatchRoute] {
     path.filter { route in
       switch route {
@@ -45,9 +49,11 @@ extension WatchRoute {
         true
       case .event(let conventionID, let eventID):
         snapshot.event(id: eventID, in: conventionID) != nil
+          || snapshot.withdrawnEvent(id: eventID, in: conventionID) != nil
       case .option(let conventionID, let eventID):
         snapshot.event(id: eventID, in: conventionID) != nil
           || snapshot.option(id: eventID, in: conventionID) != nil
+          || snapshot.withdrawnEvent(id: eventID, in: conventionID) != nil
       }
     }
   }

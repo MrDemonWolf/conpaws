@@ -66,4 +66,13 @@ extension WatchScheduleProjection {
   var upcomingWithdrawn: [ConPawsWithdrawnEvent] {
     convention?.upcomingWithdrawn(at: now) ?? []
   }
+
+  /// Where the Home notice leads: the soonest panel it counts, which is the
+  /// only one when there is one and otherwise the one that matters first.
+  /// Not Today, which lists only today's and would miss a panel withdrawn
+  /// from a later day. Nil when there is no notice.
+  var withdrawnNoticeRoute: WatchRoute? {
+    guard let convention, let soonest = upcomingWithdrawn.first else { return nil }
+    return .event(conventionID: convention.id, eventID: soonest.id)
+  }
 }

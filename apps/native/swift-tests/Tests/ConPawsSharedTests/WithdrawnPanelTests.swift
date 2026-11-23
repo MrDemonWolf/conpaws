@@ -207,6 +207,57 @@ struct WithdrawnPanelTests {
     #expect(WatchScheduleProjection(snapshot: .empty(localeIdentifier: "en"), now: now).upcomingWithdrawn.isEmpty)
   }
 
+  /// The notice opens the soonest panel it counts: the only one when there
+  /// is one, and otherwise the one that matters first.
+  @Test func theNoticeOpensTheSoonestPanelItCounts() {
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(convention(
+        saved: [event("trivia", from: 1_795_294_800)],
+        withdrawn: [
+          withdrawn("over", from: 1_795_276_800),
+          withdrawn("tomorrow", from: 1_795_366_800),
+          withdrawn("next", from: 1_795_287_600),
+        ]
+      )),
+      now: now
+    )
+    #expect(schedule.withdrawnNoticeRoute == .event(conventionID: "con", eventID: "next"))
+    let none = WatchScheduleProjection(
+      snapshot: snapshot(convention(saved: [event("trivia", from: 1_795_294_800)], withdrawn: [])),
+      now: now
+    )
+    #expect(none.withdrawnNoticeRoute == nil)
+  }
+
+  // MARK: Screens
+
+  /// A detail screen whose panel the convention withdraws stays, and shows it
+  /// struck through, rather than popping out from under the reader.
+  @Test func aDetailScreenStaysWhenItsPanelIsWithdrawn() {
+    let value = snapshot(convention(saved: [], withdrawn: [withdrawn("art", from: 1_795_287_600)]))
+    let path: [WatchRoute] = [.today, .event(conventionID: "con", eventID: "art")]
+    #expect(WatchRoute.pruned(path, against: value) == path)
+    // Added from an option, then withdrawn: still the reader's screen.
+    let option: [WatchRoute] = [.option(conventionID: "con", eventID: "art")]
+    #expect(WatchRoute.pruned(option, against: value) == option)
+  }
+
+  @Test func aDetailScreenGoesOnceTheWithdrawnPanelIsRemoved() {
+    let value = snapshot(convention(saved: [], withdrawn: []))
+    let path: [WatchRoute] = [.today, .event(conventionID: "con", eventID: "art")]
+    #expect(WatchRoute.pruned(path, against: value) == [.today])
+  }
+
+  /// The complication draws only live panels, but the app may hold a newer
+  /// snapshot by the time a tap opens it.
+  @Test func aComplicationLinkOpensAPanelWithdrawnSinceItWasDrawn() {
+    let value = snapshot(convention(saved: [], withdrawn: [withdrawn("art", from: 1_795_287_600)]))
+    #expect(
+      WatchRoute.path(opening: .event(conventionID: "con", eventID: "art"), in: value)
+        == [.event(conventionID: "con", eventID: "art")]
+    )
+  }
+
   // MARK: Fixtures
 
   private func event(_ id: String, from start: TimeInterval) -> ConPawsEventSnapshot {

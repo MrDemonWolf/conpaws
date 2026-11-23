@@ -6,6 +6,11 @@ struct TodayRow: View {
   let timeRange: String
   let isRunning: Bool
   let hasEnded: Bool
+  /// "Cancelled" or "Off the schedule" for a panel the convention withdrew;
+  /// nil for a live one.
+  var withdrawnLabel: String?
+
+  private var isWithdrawn: Bool { withdrawnLabel != nil }
 
   var body: some View {
     HStack(spacing: 6) {
@@ -19,14 +24,31 @@ struct TodayRow: View {
       }
       VStack(alignment: .leading, spacing: 2) {
         Text(event.title)
+          // Struck through as well as labelled below, so a withdrawn panel
+          // never reads as one still on.
+          .strikethrough(isWithdrawn)
           .font(.body.weight(.semibold))
-          .foregroundStyle(hasEnded ? HierarchicalShapeStyle.secondary : HierarchicalShapeStyle.primary)
+          .foregroundStyle(
+            hasEnded || isWithdrawn ? HierarchicalShapeStyle.secondary : HierarchicalShapeStyle.primary
+          )
           .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
           .privacySensitive()
+        if let withdrawnLabel {
+          // The status in words beside its symbol, and readable wrist-down:
+          // it says nothing about which panel it was.
+          Label {
+            Text(withdrawnLabel)
+          } icon: {
+            Image(systemName: "xmark.circle")
+              .accessibilityHidden(true)
+          }
+          .font(.caption2.bold())
+        }
         HStack(spacing: 3) {
           // Ended rows carry a check as well as the dimmer title, by the same
-          // rule as the running bar: state is never shown by color alone.
-          if hasEnded {
+          // rule as the running bar: state is never shown by color alone. A
+          // withdrawn panel never ran, so it gets none.
+          if hasEnded, !isWithdrawn {
             Image(systemName: "checkmark")
               .accessibilityHidden(true)
           }
@@ -34,7 +56,9 @@ struct TodayRow: View {
         }
         .font(.caption2)
         .foregroundStyle(isRunning ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
-        if let place = event.shortPlace {
+        // A withdrawn panel's room is nowhere to go; its detail screen still
+        // names it.
+        if !isWithdrawn, let place = event.shortPlace {
           Text(place)
             .font(.caption2)
             .foregroundStyle(.secondary)
