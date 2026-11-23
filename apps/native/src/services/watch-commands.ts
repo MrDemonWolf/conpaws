@@ -7,9 +7,15 @@ import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { removeEventFromPlan, saveEventToPlan } from "./event-schedule";
 import {
+  restoreStoredWatchCommandReceipts,
+  storeWatchCommandReceipts,
+} from "./watch-command-receipt-storage";
+import {
   isHandledWatchCommand,
   recordHandledWatchCommands,
   WATCH_COMMAND_MAX_AGE_MS,
+  WATCH_COMMAND_MAX_ID_LENGTH,
+  type WatchCommandOutcome,
 } from "./watch-command-receipts";
 import { publishWidgetSnapshot } from "./widget-snapshot";
 
@@ -32,12 +38,16 @@ import { publishWidgetSnapshot } from "./widget-snapshot";
  * The phone stays the source of truth. A command never overrides a change
  * made on the phone after the tap, and the Watch only shows the result once
  * the snapshot published after the batch says so. That snapshot also lists
- * the command as handled, so a declined tap frees its button on the Watch.
+ * the command as handled, with its outcome, so a declined tap frees its
+ * button on the Watch and the Watch can say why. The receipts are stored
+ * before that snapshot goes out, so a restarted app still lists them.
  */
 
-export { WATCH_COMMAND_MAX_AGE_MS };
-/** Ids must be shorter than this, on both sides of the bridge. */
-export const WATCH_COMMAND_MAX_ID_LENGTH = 256;
+export {
+  WATCH_COMMAND_MAX_AGE_MS,
+  WATCH_COMMAND_MAX_ID_LENGTH,
+  type WatchCommandOutcome,
+};
 /** The native event that says commands are waiting. */
 export const WATCH_COMMAND_EVENT = "onWatchCommand";
 /** Tries before a failing command is given up on and reported handled. */
@@ -52,20 +62,6 @@ export interface WatchCommand {
   eventId: string;
   sentAtMs: number;
 }
-
-export type WatchCommandOutcome =
-  | "applied"
-  /** Already in the state the command asks for. */
-  | "unchanged"
-  /** Older than a day, or stamped implausibly far ahead. */
-  | "expired"
-  /** The event is gone, or belongs to another convention now. */
-  | "missing"
-  /** The phone changed the event after the Watch tap; the phone wins. */
-  | "superseded"
-  /** A drop-in, or a panel the convention cancelled or changed. */
-  | "not-allowed"
-  | "failed";
 
 export interface WatchCommandBatchResult {
   outcomes: { command: WatchCommand; outcome: WatchCommandOutcome }[];
@@ -166,6 +162,17 @@ async function applyOne(
   const event = await eventsRepo.getById(command.eventId);
   if (!event || event.conventionId !== command.conventionId) return "missing";
 
+  // Ahead of the phone-wins check: the feed refresh that withdraws a panel
+  // also stamps the row, and the Watch should blame the convention for that
+  // rather than a change on the phone. Either way nothing is saved. A saved
+  // panel that was withdrawn can still be removed.
+  if (
+    command.action === "save" &&
+    !event.isInSchedule &&
+    event.feedStatus !== null
+  )
+    return event.feedStatus;
+
   // The phone's last change, read before this batch wrote to the row: a save
   // and a remove queued on the Watch must not supersede each other just
   // because applying the first one touched the row.
@@ -176,9 +183,8 @@ async function applyOne(
 
   if (command.action === "save") {
     if (event.isInSchedule) return "unchanged";
-    // A drop-in needs a visit time the Watch cannot choose, and a marked
-    // panel is one the convention stopped running.
-    if (isDropInEvent(event) || event.feedStatus !== null) return "not-allowed";
+    // A drop-in needs a visit time the Watch cannot choose.
+    if (isDropInEvent(event)) return "not-allowed";
     phoneUpdatedAt.set(event.id, updatedAtMs);
     await saveEventToPlan(event, {
       reminderMinutes: await wristReminderMinutes(event.conventionId),
@@ -277,8 +283,15 @@ function acknowledge(ids: readonly string[]): void {
 }
 
 async function drainOnce(): Promise<void> {
+  // Before anything is judged new: a tap an earlier process handled may be
+  // delivered again. The first drain republishes what it restored, since the
+  // snapshot that carried those receipts may never have reached the Watch.
+  const restored = await restoreStoredWatchCommandReceipts(Date.now());
   const queued = peekQueued();
-  if (queued.length === 0) return;
+  if (queued.length === 0) {
+    if (restored > 0) await publish();
+    return;
+  }
   const nowMs = Date.now();
 
   /** Ids to take off the queue once the snapshot that reflects them is out. */
@@ -301,7 +314,7 @@ async function drainOnce(): Promise<void> {
   }
 
   const result = await applyWatchCommands(fresh, nowMs);
-  const handled: string[] = [];
+  const handled: { id: string; outcome: WatchCommandOutcome }[] = [];
   for (const { command, outcome } of result.outcomes) {
     if (outcome === "failed") {
       const attempts = (failedAttempts.get(command.id) ?? 0) + 1;
@@ -311,10 +324,11 @@ async function drainOnce(): Promise<void> {
       }
     }
     failedAttempts.delete(command.id);
-    handled.push(command.id);
+    handled.push({ id: command.id, outcome });
     finished.add(command.id);
   }
   recordHandledWatchCommands(handled, nowMs);
+  if (handled.length > 0) await storeWatchCommandReceipts(nowMs);
 
   if (result.changedConventionIds.length > 0) {
     try {
@@ -324,14 +338,16 @@ async function drainOnce(): Promise<void> {
     }
   }
   // Even a batch that changed nothing republishes: the snapshot lists every
-  // handled id, which is how the Watch learns a tap is done, whether it was
-  // applied, was already so or was declined.
-  if (handled.length > 0) {
-    await publishWidgetSnapshot().catch((error: unknown) => {
-      reportError(error, { scope: "watchCommands.publishWidgetSnapshot" });
-    });
-  }
+  // handled id and its outcome, which is how the Watch learns a tap is done,
+  // whether it was applied, was already so or was declined, and why.
+  if (handled.length > 0 || restored > 0) await publish();
   acknowledge([...finished]);
+}
+
+async function publish(): Promise<void> {
+  await publishWidgetSnapshot().catch((error: unknown) => {
+    reportError(error, { scope: "watchCommands.publishWidgetSnapshot" });
+  });
 }
 
 /**

@@ -13,6 +13,9 @@ vi.mock("@/lib/reminder-default-storage", () => ({
 vi.mock("./event-schedule", () => ({}));
 vi.mock("./widget-snapshot", () => ({}));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
+vi.mock("@react-native-async-storage/async-storage", () => ({
+  default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() },
+}));
 
 const {
   WATCH_COMMAND_EVENT,
@@ -90,7 +93,7 @@ describe("Watch command contract", () => {
   it("lists handled commands under one key on the phone and the Watch", () => {
     expect(shared).toMatch(/var handledCommandIds: \[String\]\?/);
     expect(read("./watch-snapshot.ts")).toContain(
-      "{ handledCommandIds: [...handledCommandIds] }",
+      "{ handledCommandIds: [...ids] }",
     );
     expect(sharedCommand).toContain("snapshot.handledCommandIds");
   });

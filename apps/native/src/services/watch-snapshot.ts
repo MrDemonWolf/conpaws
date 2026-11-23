@@ -8,6 +8,10 @@ import {
   isDropInEvent,
   matchesHourSlot,
 } from "@/lib/schedule-browse";
+import {
+  type WatchCommandOutcome,
+  watchCommandOutcomes,
+} from "./watch-command-receipts";
 import type {
   WidgetConventionSnapshot,
   WidgetEventSnapshot,
@@ -18,7 +22,7 @@ import type {
  * What the Watch gets on top of the widget snapshot: a short plain-text
  * description for each event, the unsaved events it may offer to add, the
  * saved events the convention withdrew, and the ids of the Watch commands the
- * phone has finished with.
+ * phone has finished with, each with what the phone did with it.
  *
  * iOS only. Android stores the same payload for its boundary timer, which has
  * no use for any of it, and the phone widgets are published from the original
@@ -389,6 +393,16 @@ export interface WatchExtrasOptions {
    * every step of the size guard: it is small and nothing else replaces it.
    */
   handledCommandIds?: readonly string[];
+  /**
+   * What the phone did with each of `handledCommandIds`, so the Watch can say
+   * why a tap changed nothing ("Changed on iPhone", "Cancelled by the
+   * convention"). Sent beside the ids, never instead of them: a Watch from
+   * before this field reads only the ids. Entries for ids not listed are left
+   * out. Defaults to the receipts in watch-command-receipts.ts, which is
+   * where the ids come from too. Kept at every step of the size guard, like
+   * the ids: at most 50 short entries.
+   */
+  commandOutcomes?: Readonly<Record<string, WatchCommandOutcome>>;
   maxBytes?: number;
 }
 
@@ -414,8 +428,28 @@ export interface WatchExtrasOptions {
  * including those of a convention past its end, and last the withdrawn
  * panels still to come. At worst the result is the payload the Watch
  * received before any of this existed, less the conventions it can no longer
- * show, plus the ids of the commands the phone has handled.
+ * show, plus the ids of the commands the phone has handled and their
+ * outcomes.
  */
+/** The handled ids and, for those that have one, their outcomes. */
+function handledReceipts(
+  ids: readonly string[],
+  outcomes: Readonly<Record<string, WatchCommandOutcome>>,
+): {
+  handledCommandIds?: string[];
+  commandOutcomes?: Record<string, WatchCommandOutcome>;
+} {
+  if (ids.length === 0) return {};
+  const listed: Record<string, WatchCommandOutcome> = {};
+  for (const id of ids) {
+    const outcome = Object.hasOwn(outcomes, id) ? outcomes[id] : undefined;
+    if (outcome) listed[id] = outcome;
+  }
+  return Object.keys(listed).length > 0
+    ? { handledCommandIds: [...ids], commandOutcomes: listed }
+    : { handledCommandIds: [...ids] };
+}
+
 export function withWatchExtras(
   snapshot: WidgetSnapshot,
   eventsByConvention: ReadonlyMap<string, readonly ConventionEvent[]>,
@@ -424,15 +458,13 @@ export function withWatchExtras(
     nowMs,
     toOption,
     handledCommandIds = [],
+    commandOutcomes = watchCommandOutcomes(handledCommandIds),
     maxBytes = WATCH_PAYLOAD_MAX_BYTES,
   }: WatchExtrasOptions,
 ): string {
   const base = { ...snapshot, presentation: undefined };
   if (os !== "ios") return JSON.stringify(base);
-  const handled =
-    handledCommandIds.length > 0
-      ? { handledCommandIds: [...handledCommandIds] }
-      : {};
+  const handled = handledReceipts(handledCommandIds, commandOutcomes);
 
   let conventions: WatchConventionSnapshot[] = watchReachableConventions(
     snapshot.conventions,

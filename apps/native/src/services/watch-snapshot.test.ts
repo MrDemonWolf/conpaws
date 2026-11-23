@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
 import {
+  recordHandledWatchCommands,
+  resetHandledWatchCommands,
+  type WatchCommandOutcome,
+} from "./watch-command-receipts";
+import {
   plainTextSummary,
   selectWatchOptions,
   utf8ByteLength,
@@ -431,6 +436,51 @@ describe("withWatchExtras", () => {
     ).not.toHaveProperty("handledCommandIds");
   });
 
+  it("says what the phone did with each handled command, on iOS only", () => {
+    const snapshot = savedSnapshot(rows);
+    const events = new Map([["con-1", rows]]);
+    const sent = (
+      os: string,
+      commandOutcomes?: Record<string, WatchCommandOutcome>,
+    ) =>
+      JSON.parse(
+        withWatchExtras(snapshot, events, {
+          os,
+          nowMs: NOW,
+          toOption,
+          handledCommandIds: ["cmd-1", "cmd-2"],
+          commandOutcomes,
+        }),
+      );
+    // Only for the ids it lists: an outcome without its id settles nothing.
+    expect(
+      sent("ios", {
+        "cmd-1": "superseded",
+        "cmd-2": "applied",
+        "cmd-3": "failed",
+      }).commandOutcomes,
+    ).toEqual({ "cmd-1": "superseded", "cmd-2": "applied" });
+    expect(sent("ios", {})).not.toHaveProperty("commandOutcomes");
+    expect(sent("android", { "cmd-1": "failed" })).not.toHaveProperty(
+      "commandOutcomes",
+    );
+  });
+
+  it("reads the outcomes from the phone's receipts by default", () => {
+    resetHandledWatchCommands();
+    recordHandledWatchCommands([{ id: "cmd-9", outcome: "cancelled" }], NOW);
+    const json = JSON.parse(
+      withWatchExtras(savedSnapshot(rows), new Map([["con-1", rows]]), {
+        os: "ios",
+        nowMs: NOW,
+        toOption,
+        handledCommandIds: ["cmd-9"],
+      }),
+    );
+    resetHandledWatchCommands();
+    expect(json.commandOutcomes).toEqual({ "cmd-9": "cancelled" });
+  });
+
   describe("a convention past its end", () => {
     /** The same convention, ended half an hour ago. */
     const over = (saved: readonly ConventionEvent[]): WidgetSnapshot => {
@@ -753,7 +803,7 @@ describe("withWatchExtras", () => {
       expect(sent(1_000)).toBe(sent(undefined, "android"));
     });
 
-    it("keeps the handled command ids however much else goes", () => {
+    it("keeps the handled command ids and outcomes however much else goes", () => {
       const json = withWatchExtras(
         savedSnapshot(large),
         new Map([["con-1", large]]),
@@ -762,10 +812,14 @@ describe("withWatchExtras", () => {
           nowMs: NOW,
           toOption,
           handledCommandIds: ["cmd-1"],
+          commandOutcomes: { "cmd-1": "not-allowed" },
           maxBytes: 1_000,
         },
       );
       expect(JSON.parse(json).handledCommandIds).toEqual(["cmd-1"]);
+      expect(JSON.parse(json).commandOutcomes).toEqual({
+        "cmd-1": "not-allowed",
+      });
     });
 
     it("measures non-ASCII text by the bytes the phone sends", () => {
