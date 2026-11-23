@@ -34,11 +34,7 @@ import {
 } from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { ACTIONS_MAX } from "@/lib/content-width";
-import {
-  conventionDayKey,
-  isValidTimeZone,
-  overlappingEventIds,
-} from "@/lib/convention-time";
+import { conventionDayKey, isValidTimeZone } from "@/lib/convention-time";
 import { useHour12 } from "@/lib/device-clock";
 import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { plannedEvent } from "@/lib/drop-in-visit";
@@ -58,7 +54,7 @@ import {
   getReminderReconciliation,
   resolveReminderNotice,
 } from "@/lib/reminder-notice";
-import { isDropInEvent } from "@/lib/schedule-browse";
+import { conflictingSavedIds, isDropInEvent } from "@/lib/schedule-browse";
 import {
   canScrollSchedule,
   scheduleContentStyle,
@@ -173,23 +169,15 @@ export default function ScheduleScreen() {
   );
 
   /**
-   * Ids that genuinely clash. Decided with `overlappingEventIds`, the same
+   * Ids that genuinely clash. Decided with `conflictingSavedIds`, the same
    * rule the convention screen uses, over every live saved entry at once --
    * grouping by day first would miss a panel that runs past midnight into
    * the next day's first one. Drop-in programming never clashes.
    */
-  const conflictingEventIds = useMemo(() => {
-    const live = entries.filter(
-      (entry) => entry.event.feedStatus === null && !isDropInEvent(entry.event),
-    );
-    return overlappingEventIds(
-      live.map((entry) => ({
-        id: entry.event.id,
-        startTime: entry.startTime,
-        endTime: entry.endTime,
-      })),
-    );
-  }, [entries]);
+  const conflictingEventIds = useMemo(
+    () => conflictingSavedIds(entries.map((entry) => entry.event)),
+    [entries],
+  );
 
   const sections = useMemo<ScheduleSection[]>(() => {
     const nowMs = now.getTime();

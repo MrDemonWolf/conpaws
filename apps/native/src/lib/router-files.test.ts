@@ -476,12 +476,14 @@ describe("Both schedules mark clashing events", () => {
   // event with no end time a fallback duration so it can still be grouped;
   // `overlappingEventIds` skips it. Deriving the label from the grouping count
   // instead would make one screen claim clashes the other does not, for the
-  // same two events.
+  // same two events. `conflictingSavedIds` (src/lib/schedule-browse.ts) is
+  // `overlappingEventIds` over saved, live, non-drop-in events, and both
+  // screens share that one rule.
   it.each([
     ["schedule tab", scheduleScreenSource],
     ["convention detail", conventionDetailSource],
-  ])("%s decides a clash with overlappingEventIds", (_name, source) => {
-    expect(source).toContain("overlappingEventIds");
+  ])("%s decides a clash with conflictingSavedIds", (_name, source) => {
+    expect(source).toContain("conflictingSavedIds(");
   });
 });
 

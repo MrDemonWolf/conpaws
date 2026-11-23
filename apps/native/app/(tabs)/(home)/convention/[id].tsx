@@ -72,7 +72,7 @@ import {
 } from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { compareCandidates } from "@/lib/compare-candidates";
-import { conventionDayKey, overlappingEventIds } from "@/lib/convention-time";
+import { conventionDayKey } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
 import { useHour12 } from "@/lib/device-clock";
 import { displayTimeZone } from "@/lib/display-time-zone";
@@ -103,6 +103,7 @@ import {
 import {
   type BrowseFilters,
   browseStateForEvent,
+  conflictingSavedIds,
   conventionDayKeys,
   dayCounts,
   defaultBrowseDay,
@@ -376,14 +377,10 @@ export default function ConventionDetailScreen() {
   );
   // One computation per render, not per row.
   const showProvenance = useMemo(() => shouldShowProvenance(events), [events]);
-  // Drop-in programming never clashes: a room open all day is not a
-  // commitment that competes with a panel.
+  // Saved, live, timed clashes; drop-ins never count (see conflictingSavedIds).
   const conflictingEventIds = useMemo(
-    () =>
-      overlappingEventIds(
-        liveScheduledEvents.filter((event) => !isDropInEvent(event)),
-      ),
-    [liveScheduledEvents],
+    () => conflictingSavedIds(scheduledEvents),
+    [scheduledEvents],
   );
 
   const storedTimeZone = convention?.timeZone;
