@@ -37,6 +37,8 @@ export type WidgetStrings = Record<
   | "untilCapsFormat"
   | "reminderAtFormat"
   | "minutesBeforeFormat"
+  | "hourBefore"
+  | "atEventTime"
   | "noLaterSavedEvents"
   | "noLaterSavedEventsShort"
   | "noPicksTitle"

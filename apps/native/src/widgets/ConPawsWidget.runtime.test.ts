@@ -696,6 +696,74 @@ describe("isolated Expo widget renderers", () => {
     expect(spoken).not.toContain("minutes");
   });
 
+  // The phone picker and the Watch word these two offsets as phrases, not as
+  // "0 min before" / "60 min before".
+  it.each([
+    {
+      minutes: 0,
+      startAtMs: NOW + 600_000,
+      expected: "Reminder at 12:10 · At event time",
+      wrong: "0 min before",
+    },
+    {
+      minutes: 60,
+      startAtMs: NOW + 7_200_000,
+      expected: "Reminder at 13:00 · 1 hour before",
+      wrong: "60 min",
+    },
+  ])(
+    "speaks a $minutes-minute reminder the way the picker words it",
+    ({ minutes, startAtMs, expected, wrong }) => {
+      const data = snapshot();
+      const event = data.conventions[0].events[0];
+      event.reminderMinutes = minutes;
+      event.startAtMs = startAtMs;
+      event.endAtMs = startAtMs + 3_600_000;
+      const spoken = spokenLabel(render("ios", { snapshot: data }));
+      expect(spoken).toContain(expected);
+      expect(spoken).not.toContain(wrong);
+    },
+  );
+
+  it("speaks the hour-before reminder from the app-language table", () => {
+    const data = snapshot();
+    const event = data.conventions[0].events[0];
+    event.reminderMinutes = 60;
+    event.startAtMs = NOW + 7_200_000;
+    event.endAtMs = NOW + 10_800_000;
+    data.presentation = {
+      appearance: "system",
+      appScheme: "conpaws",
+      palette: {
+        light: {
+          background: "#FFFFFF",
+          foreground: "#000000",
+          secondary: "#333333",
+          accent: "#005575",
+        },
+        dark: {
+          background: "#000000",
+          foreground: "#FFFFFF",
+          secondary: "#CCCCCC",
+          accent: "#18B7F2",
+        },
+      },
+      labels: {
+        next: "Next",
+        current: "Current",
+        noEvents: "None",
+        finished: "Finished",
+      },
+      strings: {
+        language: "de",
+        reminderAtFormat: "Erinnerung um %1$@ · %2$@",
+        hourBefore: "1 Stunde vorher",
+      } as WidgetStrings,
+    };
+    const spoken = spokenLabel(render("ios", { snapshot: data }));
+    expect(spoken).toContain("Erinnerung um 13:00 · 1 Stunde vorher");
+  });
+
   it.each(platforms)(
     "rejects an unsupported snapshot schema on %s",
     (platform) => {

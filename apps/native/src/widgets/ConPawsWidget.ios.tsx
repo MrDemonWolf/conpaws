@@ -104,6 +104,8 @@ export function ConPawsWidgetLayout(
     compactMinutesFormat: "%@ min",
     reminderAtFormat: "Reminder at %1$@ · %2$@",
     minutesBeforeFormat: "%@ min before",
+    hourBefore: "1 hour before",
+    atEventTime: "At event time",
     planLastUpdatedFormat: "Plan last updated here · %@",
     staleHint: "Open ConPaws to update your plan.",
     moreTodayFormat: "+%@ more today",
@@ -427,13 +429,22 @@ export function ConPawsWidgetLayout(
   const [untilBefore, untilAfter] =
     kind === "now" ? around(word("untilCapsFormat")) : ["", ""];
   function reminderLabel(event: WidgetEventSnapshot): string {
-    if (event.reminderMinutes == null) return "";
+    const minutes = event.reminderMinutes;
+    if (minutes == null) return "";
+    // Worded like the phone picker and the Watch: the table copies the app's
+    // `reminders.atTime` and `reminders.hourBefore` for 0 and 60, and
+    // `reminders.minutesBefore`, which takes the bare number ("10 min
+    // before", "За 10 мин"), for the rest.
+    const offset =
+      minutes === 0
+        ? word("atEventTime")
+        : minutes === 60
+          ? word("hourBefore")
+          : format(word("minutesBeforeFormat"), String(minutes));
     return format(
       word("reminderAtFormat"),
-      clock(event.startAtMs - event.reminderMinutes * 60_000),
-      // The table copies the app's `reminders.minutesBefore`, which takes the
-      // bare number: "10 min before", "За 10 мин".
-      format(word("minutesBeforeFormat"), String(event.reminderMinutes)),
+      clock(event.startAtMs - minutes * 60_000),
+      offset,
     );
   }
   function sentence(...parts: string[]): string {

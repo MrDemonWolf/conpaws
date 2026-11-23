@@ -244,6 +244,8 @@ const PHONE_WIDGET_STRING_KEYS = Object.keys({
   untilCapsFormat: true,
   reminderAtFormat: true,
   minutesBeforeFormat: true,
+  hourBefore: true,
+  atEventTime: true,
   noLaterSavedEvents: true,
   noLaterSavedEventsShort: true,
   noPicksTitle: true,
