@@ -434,6 +434,74 @@
     },
     "sortAndView": "Řazení a zobrazení"
   },
+  "howTo": {
+    "find": {
+      "title": "Katalog ConPaws",
+      "summary": "Váš con už v ConPaws možná je. Stáhněte si jeho program na pár klepnutí.",
+      "steps": {
+        "search": {
+          "title": "Vyhledejte svůj con",
+          "body": "Vyhledejte v katalogu název nebo město svého conu. Tento krok vyžaduje připojení k internetu."
+        },
+        "check": {
+          "title": "Zkontrolujte podrobnosti",
+          "body": "Klepněte na svůj con a uvidíte jeho termín, místo konání a časové pásmo a také to, jestli je program připravený."
+        },
+        "download": {
+          "title": "Stáhněte program",
+          "body": "Klepněte na „{{button}}“. Jakmile se program uloží, funguje i bez připojení k internetu."
+        },
+        "notListed": {
+          "title": "Ještě tu není?",
+          "body": "Ne každý con už je v katalogu. Klepněte na „{{button}}“ a místo toho přidejte odkaz na Sched nebo soubor kalendáře."
+        }
+      }
+    },
+    "sched": {
+      "title": "Odkaz na Sched",
+      "summary": "Mnoho conů zveřejňuje program na Schedu. Zkopírujte jeho adresu a vložte ji do ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Otevřete stránku conu na Schedu",
+          "body": "Otevřete program svého conu v prohlížeči. Adresa na Schedu končí na .sched.com."
+        },
+        "copy": {
+          "title": "Zkopírujte adresu",
+          "body": "Zkopírujte ji z adresního řádku nebo z nabídky Sdílet. Poslouží jakákoli stránka z daného webu na Schedu."
+        },
+        "paste": {
+          "title": "Vložte ji do ConPaws",
+          "body": "Na obrazovce „{{screen}}“ vložte adresu do pole „{{field}}“ a pak klepněte na „{{button}}“."
+        },
+        "review": {
+          "title": "Zkontrolujte a importujte",
+          "body": "Pokud má program kategorie, vyberte ty, které chcete. Zkontrolujte časové pásmo a pak klepněte na tlačítko importu dole. ConPaws může později u odkazu zkontrolovat, jestli se program změnil."
+        }
+      }
+    },
+    "ics": {
+      "title": "Soubor kalendáře",
+      "summary": "Máte z webu conu soubor .ics nebo odkaz webcal://? ConPaws přečte obojí.",
+      "steps": {
+        "find": {
+          "title": "Najděte odkaz na kalendář",
+          "body": "Na webu svého conu hledejte odkaz jako „Přidat do kalendáře“, „Kalendářový kanál“, „Odebírat“ nebo „Exportovat“."
+        },
+        "save": {
+          "title": "Zkopírujte odkaz",
+          "body": "Podržte prst na odkazu a zkopírujte ho. Funguje odkaz webcal:// i .ics. Pokud už soubor .ics máte, nechte si ho v telefonu na další krok."
+        },
+        "add": {
+          "title": "Přidejte ho do ConPaws",
+          "body": "Na obrazovce „{{screen}}“ vložte odkaz do pole „{{field}}“ a klepněte na „{{fetch}}“. Máte místo toho soubor? Klepněte na „{{button}}“ a vyberte ho."
+        },
+        "review": {
+          "title": "Zkontrolujte a importujte",
+          "body": "Pokud má program kategorie, vyberte ty, které chcete. Zkontrolujte časové pásmo a pak klepněte na tlačítko importu dole. Soubor se sám neaktualizuje, ale ConPaws může později u odkazu zkontrolovat změny."
+        }
+      }
+    }
+  },
   "import": {
     "title": "Importovat program",
     "source": "Zdroj",

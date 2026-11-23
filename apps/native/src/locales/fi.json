@@ -421,6 +421,74 @@
     },
     "sortAndView": "Lajittelu ja näkymä"
   },
+  "howTo": {
+    "find": {
+      "title": "ConPaws-luettelo",
+      "summary": "Conisi saattaa jo löytyä ConPawsista. Lataa sen ohjelma parilla napautuksella.",
+      "steps": {
+        "search": {
+          "title": "Etsi conisi",
+          "body": "Hae luettelosta conin nimellä tai kaupungilla. Tähän vaiheeseen tarvitaan internetyhteys."
+        },
+        "check": {
+          "title": "Tarkista tiedot",
+          "body": "Napauta coniasi, niin näet sen päivät, tapahtumapaikan ja aikavyöhykkeen sekä sen, onko ohjelma valmis."
+        },
+        "download": {
+          "title": "Lataa ohjelma",
+          "body": "Napauta ”{{button}}”. Kun ohjelma on tallennettu, se toimii ilman internetyhteyttä."
+        },
+        "notListed": {
+          "title": "Eikö conia vielä löydy?",
+          "body": "Kaikki conit eivät ole vielä luettelossa. Napauta ”{{button}}” ja tuo sen sijaan Sched-linkki tai kalenteritiedosto."
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched-linkki",
+      "summary": "Monet conit julkaisevat ohjelmansa Schedissä. Kopioi sen osoite ja liitä se ConPawsiin.",
+      "steps": {
+        "open": {
+          "title": "Avaa conin Sched-sivu",
+          "body": "Avaa conisi ohjelma selaimessa. Sched-osoitteen lopussa on .sched.com."
+        },
+        "copy": {
+          "title": "Kopioi osoite",
+          "body": "Kopioi se osoiteriviltä tai Jaa-valikosta. Mikä tahansa sivu kyseiseltä Sched-sivustolta käy."
+        },
+        "paste": {
+          "title": "Liitä se ConPawsiin",
+          "body": "Liitä osoite ”{{screen}}” -näkymässä kohtaan ”{{field}}” ja napauta sitten ”{{button}}”."
+        },
+        "review": {
+          "title": "Tarkista ja tuo",
+          "body": "Jos ohjelmassa on luokkia, valitse haluamasi. Tarkista aikavyöhyke ja napauta sitten alareunan tuontipainiketta. ConPaws voi myöhemmin tarkistaa linkistä, onko ohjelma muuttunut."
+        }
+      }
+    },
+    "ics": {
+      "title": "Kalenteritiedosto",
+      "summary": "Saitko conin verkkosivuilta .ics-tiedoston tai webcal://-linkin? ConPaws lukee molemmat.",
+      "steps": {
+        "find": {
+          "title": "Etsi kalenterilinkki",
+          "body": "Etsi conin verkkosivuilta linkkiä, kuten ”Lisää kalenteriin”, ”Kalenterisyöte”, ”Tilaa” tai ”Vie”."
+        },
+        "save": {
+          "title": "Kopioi linkki",
+          "body": "Paina linkkiä pitkään ja kopioi se. Sekä webcal://- että .ics-linkki käy. Jos sinulla on jo .ics-tiedosto, pidä se puhelimessasi seuraavaa vaihetta varten."
+        },
+        "add": {
+          "title": "Lisää se ConPawsiin",
+          "body": "Liitä linkki ”{{screen}}” -näkymässä kohtaan ”{{field}}” ja napauta ”{{fetch}}”. Onko sinulla tiedosto? Napauta ”{{button}}” ja valitse se."
+        },
+        "review": {
+          "title": "Tarkista ja tuo",
+          "body": "Jos ohjelmassa on luokkia, valitse haluamasi. Tarkista aikavyöhyke ja napauta sitten alareunan tuontipainiketta. Tiedosto ei päivity itsestään, mutta ConPaws voi myöhemmin tarkistaa linkistä muutokset."
+        }
+      }
+    }
+  },
   "import": {
     "title": "Tuo ohjelma",
     "source": "Lähde",

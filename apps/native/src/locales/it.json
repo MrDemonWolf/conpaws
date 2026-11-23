@@ -421,6 +421,74 @@
     },
     "sortAndView": "Ordina e visualizza"
   },
+  "howTo": {
+    "find": {
+      "title": "Catalogo ConPaws",
+      "summary": "La tua convention potrebbe essere già in ConPaws. Scarica il programma con un paio di tocchi.",
+      "steps": {
+        "search": {
+          "title": "Cerca la tua convention",
+          "body": "Cerca nel catalogo per nome o città della tua convention. Per questo passaggio serve una connessione a Internet."
+        },
+        "check": {
+          "title": "Controlla i dettagli",
+          "body": "Tocca la tua convention per vedere date, sede e fuso orario, e se il programma è pronto."
+        },
+        "download": {
+          "title": "Scarica il programma",
+          "body": "Tocca \"{{button}}\". Una volta salvato, il programma funziona anche senza connessione a Internet."
+        },
+        "notListed": {
+          "title": "Non è ancora in elenco?",
+          "body": "Non tutte le convention sono già nel catalogo. Tocca \"{{button}}\" per aggiungere invece un link Sched o un file calendario."
+        }
+      }
+    },
+    "sched": {
+      "title": "Link Sched",
+      "summary": "Molte convention pubblicano il programma su Sched. Copia l'indirizzo e incollalo in ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Apri la pagina Sched della tua convention",
+          "body": "Apri il programma della tua convention nel browser. Un indirizzo Sched finisce con .sched.com."
+        },
+        "copy": {
+          "title": "Copia l'indirizzo",
+          "body": "Copialo dalla barra degli indirizzi o dal menu Condividi. Va bene qualsiasi pagina di quel sito Sched."
+        },
+        "paste": {
+          "title": "Incollalo in ConPaws",
+          "body": "Nella schermata \"{{screen}}\", incolla l'indirizzo in \"{{field}}\", poi tocca \"{{button}}\"."
+        },
+        "review": {
+          "title": "Controlla, poi importa",
+          "body": "Se il programma ha delle categorie, scegli quelle che ti interessano. Controlla il fuso orario, poi tocca il pulsante di importazione in basso. In seguito ConPaws può controllare il link per vedere se il programma è cambiato."
+        }
+      }
+    },
+    "ics": {
+      "title": "File calendario",
+      "summary": "Hai un file .ics o un link webcal:// dal sito della tua convention? ConPaws li legge entrambi.",
+      "steps": {
+        "find": {
+          "title": "Trova il link del calendario",
+          "body": "Sul sito della tua convention, cerca un link come \"Aggiungi al calendario\", \"Feed calendario\", \"Iscriviti\" o \"Esporta\"."
+        },
+        "save": {
+          "title": "Copia il link",
+          "body": "Tieni premuto il link e copialo. Va bene un link webcal:// o .ics. Se hai già il file .ics, tienilo sul telefono per il passaggio successivo."
+        },
+        "add": {
+          "title": "Aggiungilo a ConPaws",
+          "body": "Nella schermata \"{{screen}}\", incolla il link in \"{{field}}\" e tocca \"{{fetch}}\". Hai invece un file? Tocca \"{{button}}\" e sceglilo."
+        },
+        "review": {
+          "title": "Controlla, poi importa",
+          "body": "Se il programma ha delle categorie, scegli quelle che ti interessano. Controlla il fuso orario, poi tocca il pulsante di importazione in basso. Un file non si aggiorna da solo, ma in seguito ConPaws può controllare se un link è cambiato."
+        }
+      }
+    }
+  },
   "import": {
     "title": "Importa programma",
     "source": "Origine",

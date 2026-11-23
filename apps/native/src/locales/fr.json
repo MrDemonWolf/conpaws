@@ -421,6 +421,74 @@
     },
     "sortAndView": "Tri et affichage"
   },
+  "howTo": {
+    "find": {
+      "title": "Catalogue ConPaws",
+      "summary": "Votre convention est peut-être déjà dans ConPaws. Téléchargez son programme en quelques gestes.",
+      "steps": {
+        "search": {
+          "title": "Cherchez votre convention",
+          "body": "Cherchez dans le catalogue par nom de convention ou par ville. Cette étape nécessite une connexion Internet."
+        },
+        "check": {
+          "title": "Vérifiez les détails",
+          "body": "Touchez votre convention pour voir ses dates, son lieu et son fuseau horaire, et savoir si son programme est prêt."
+        },
+        "download": {
+          "title": "Téléchargez le programme",
+          "body": "Touchez « {{button}} ». Une fois enregistré, le programme fonctionne sans connexion Internet."
+        },
+        "notListed": {
+          "title": "Pas encore listée ?",
+          "body": "Toutes les conventions ne sont pas encore dans le catalogue. Touchez « {{button}} » pour ajouter plutôt un lien Sched ou un fichier calendrier."
+        }
+      }
+    },
+    "sched": {
+      "title": "Lien Sched",
+      "summary": "Beaucoup de conventions publient leur programme sur Sched. Copiez son adresse et collez-la dans ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Ouvrez la page Sched de votre convention",
+          "body": "Ouvrez le programme de votre convention dans votre navigateur. Une adresse Sched se termine par .sched.com."
+        },
+        "copy": {
+          "title": "Copiez l'adresse",
+          "body": "Copiez-la depuis la barre d'adresse ou le menu Partager. N'importe quelle page de ce site Sched convient."
+        },
+        "paste": {
+          "title": "Collez-la dans ConPaws",
+          "body": "Sur l'écran « {{screen}} », collez l'adresse sous « {{field}} », puis touchez « {{button}} »."
+        },
+        "review": {
+          "title": "Vérifiez, puis importez",
+          "body": "Si le programme a des catégories, choisissez celles qui vous intéressent. Vérifiez le fuseau horaire, puis touchez le bouton d'importation en bas. ConPaws pourra plus tard vérifier si le programme a changé grâce au lien."
+        }
+      }
+    },
+    "ics": {
+      "title": "Fichier calendrier",
+      "summary": "Vous avez un fichier .ics ou un lien webcal:// sur le site de votre convention ? ConPaws lit les deux.",
+      "steps": {
+        "find": {
+          "title": "Trouvez le lien du calendrier",
+          "body": "Sur le site de votre convention, cherchez un lien comme « Ajouter au calendrier », « Flux calendrier », « S'abonner » ou « Exporter »."
+        },
+        "save": {
+          "title": "Copiez le lien",
+          "body": "Maintenez le doigt sur le lien et copiez-le. Un lien webcal:// ou .ics convient. Si vous avez déjà le fichier .ics, gardez-le sur votre téléphone pour l'étape suivante."
+        },
+        "add": {
+          "title": "Ajoutez-le à ConPaws",
+          "body": "Sur l'écran « {{screen}} », collez le lien sous « {{field}} » et touchez « {{fetch}} ». Vous avez plutôt un fichier ? Touchez « {{button}} » et choisissez-le."
+        },
+        "review": {
+          "title": "Vérifiez, puis importez",
+          "body": "Si le programme a des catégories, choisissez celles qui vous intéressent. Vérifiez le fuseau horaire, puis touchez le bouton d'importation en bas. Un fichier ne se met pas à jour tout seul, mais ConPaws pourra plus tard vérifier si un lien a changé."
+        }
+      }
+    }
+  },
   "import": {
     "title": "Importer le Programme",
     "source": "Source",

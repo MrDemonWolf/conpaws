@@ -365,6 +365,74 @@
     "find": "Znajdź mój konwent",
     "sortAndView": "Sortowanie i widok"
   },
+  "howTo": {
+    "find": {
+      "title": "Katalog ConPaws",
+      "summary": "Twój konwent może już być w ConPaws. Pobierz jego program kilkoma stuknięciami.",
+      "steps": {
+        "search": {
+          "title": "Wyszukaj swój konwent",
+          "body": "Przeszukaj katalog według nazwy konwentu lub miasta. Ten krok wymaga połączenia z internetem."
+        },
+        "check": {
+          "title": "Sprawdź szczegóły",
+          "body": "Stuknij swój konwent, aby zobaczyć daty, miejsce i strefę czasową oraz to, czy program jest gotowy."
+        },
+        "download": {
+          "title": "Pobierz program",
+          "body": "Stuknij „{{button}}”. Po zapisaniu program działa bez połączenia z internetem."
+        },
+        "notListed": {
+          "title": "Jeszcze go nie ma?",
+          "body": "Nie każdy konwent jest już w katalogu. Stuknij „{{button}}”, aby zamiast tego dodać link do Sched lub plik kalendarza."
+        }
+      }
+    },
+    "sched": {
+      "title": "Link do Sched",
+      "summary": "Wiele konwentów publikuje program na Sched. Skopiuj adres i wklej go w ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Otwórz stronę konwentu na Sched",
+          "body": "Otwórz program konwentu w przeglądarce. Adres Sched kończy się na .sched.com."
+        },
+        "copy": {
+          "title": "Skopiuj adres",
+          "body": "Skopiuj go z paska adresu lub z menu Udostępnij. Zadziała każda strona z tej witryny Sched."
+        },
+        "paste": {
+          "title": "Wklej go w ConPaws",
+          "body": "Na ekranie „{{screen}}” wklej adres w polu „{{field}}”, a potem stuknij „{{button}}”."
+        },
+        "review": {
+          "title": "Sprawdź i zaimportuj",
+          "body": "Jeśli program ma kategorie, wybierz te, które chcesz. Sprawdź strefę czasową, a potem stuknij przycisk importu na dole. ConPaws może później sprawdzać link pod kątem zmian w programie."
+        }
+      }
+    },
+    "ics": {
+      "title": "Plik kalendarza",
+      "summary": "Masz plik .ics albo link webcal:// ze strony konwentu? ConPaws odczyta jedno i drugie.",
+      "steps": {
+        "find": {
+          "title": "Znajdź link do kalendarza",
+          "body": "Na stronie konwentu poszukaj linku w rodzaju „Dodaj do kalendarza”, „Kanał kalendarza”, „Subskrybuj” lub „Eksportuj”."
+        },
+        "save": {
+          "title": "Skopiuj link",
+          "body": "Przytrzymaj link i go skopiuj. Zadziała link webcal:// lub .ics. Jeśli masz już plik .ics, zachowaj go w telefonie na następny krok."
+        },
+        "add": {
+          "title": "Dodaj go do ConPaws",
+          "body": "Na ekranie „{{screen}}” wklej link w polu „{{field}}” i stuknij „{{fetch}}”. Masz zamiast tego plik? Stuknij „{{button}}” i go wybierz."
+        },
+        "review": {
+          "title": "Sprawdź i zaimportuj",
+          "body": "Jeśli program ma kategorie, wybierz te, które chcesz. Sprawdź strefę czasową, a potem stuknij przycisk importu na dole. Plik sam się nie zaktualizuje, ale ConPaws może później sprawdzać link pod kątem zmian."
+        }
+      }
+    }
+  },
   "import": {
     "title": "Importuj Harmonogram",
     "source": "Źródło",
