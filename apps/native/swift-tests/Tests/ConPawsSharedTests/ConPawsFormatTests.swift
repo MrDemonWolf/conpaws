@@ -346,8 +346,8 @@ struct ConPawsFormatTests {
     }
   }
 
-  /// "remaining" takes the plain case: "pozostało 18 minut", "осталось 1
-  /// минута".
+  /// "remaining" takes the plain case: "pozostało: 18 minut", "осталось:
+  /// 1 минута".
   @Test(arguments: [
     ("pl", 1_795_187_880.0, "18 minut"),
     ("ru", 1_795_186_860, "1 минута"),
@@ -362,6 +362,36 @@ struct ConPawsFormatTests {
         in: convention.timeZone,
         strings: .resolve(language)
       ) == expected
+    )
+  }
+
+  /// The live timer's spoken "remaining" wraps hours and minutes, which
+  /// differ in gender and number, so a verb or adjective that agrees with
+  /// the noun is wrong for some of them: "1 minute restants", "pozostało
+  /// 1 minuta", "faltan 1 minuto". These languages use a phrasing that
+  /// agrees with nothing.
+  @Test(arguments: [
+    ("fr", 1, "il reste 1 minute"),
+    ("pl", 2, "pozostało: 2 minuty"),
+    ("ru", 1, "осталось: 1 минута"),
+    ("uk", 1, "залишилось: 1 хвилина"),
+    ("it", 1, "tempo rimanente: 1 minuto"),
+    ("cs", 2, "zbývá: 2 minuty"),
+    ("es-ES", 1, "tiempo restante: 1 minuto"),
+    ("es-419", 1, "tiempo restante: 1 minuto"),
+    ("pt-BR", 1, "tempo restante: 1 minuto"),
+    ("pt-PT", 1, "tempo restante: 1 minuto"),
+  ])
+  func remainingAgreesWithEveryUnit(language: String, minutes: Int, expected: String) {
+    let strings = ConPawsStrings.resolve(language)
+    #expect(strings.remaining(strings.minutes(minutes)) == expected)
+  }
+
+  @Test func remainingReadsTwoUnitsOfDifferentGenders() {
+    let strings = ConPawsStrings.resolve("fr")
+    #expect(
+      strings.remaining(strings.duration(strings.hours(1), strings.minutes(30)))
+        == "il reste 1 heure, 30 minutes"
     )
   }
 }

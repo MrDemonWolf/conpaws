@@ -195,7 +195,11 @@ struct ConPawsStrings: Codable, Sendable {
   let compactHoursFormat: String
   let compactDaysFormat: String
   let compactMonthsFormat: String
-  /// Wraps a duration for VoiceOver, as in "3 days, 4 hours remaining".
+  /// Wraps a duration for VoiceOver, as in "3 days, 4 hours remaining". The
+  /// duration mixes units of different gender and number, so where a verb
+  /// or adjective would have to agree with one ("1 minute restants",
+  /// "faltan 1 minuto") the phrasing agrees with none: "il reste %@",
+  /// "tiempo restante: %@", "осталось: %@".
   let remainingFormat: String
 
   // MARK: Eyebrows, already in the case they are drawn in
@@ -601,7 +605,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ d",
     compactMonthsFormat: "%@ m",
-    remainingFormat: "faltan %@",
+    remainingFormat: "tiempo restante: %@",
     comingUpCaps: "PRÓXIMAMENTE",
     startsInCaps: "EMPIEZA EN",
     startsIn: "Empieza en",
@@ -679,7 +683,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ j",
     compactMonthsFormat: "%@ mois",
-    remainingFormat: "%@ restants",
+    remainingFormat: "il reste %@",
     comingUpCaps: "À VENIR",
     startsInCaps: "COMMENCE DANS",
     startsIn: "Commence dans",
@@ -845,7 +849,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ godz.",
     compactDaysFormat: "%@ dn.",
     compactMonthsFormat: "%@ mies.",
-    remainingFormat: "pozostało %@",
+    remainingFormat: "pozostało: %@",
     comingUpCaps: "WKRÓTCE",
     startsInCaps: "ZACZYNA SIĘ ZA",
     startsIn: "Zaczyna się za",
@@ -923,7 +927,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ d",
     compactMonthsFormat: "%@ m",
-    remainingFormat: "faltam %@",
+    remainingFormat: "tempo restante: %@",
     comingUpCaps: "EM BREVE",
     startsInCaps: "COMEÇA EM",
     startsIn: "Começa em",
@@ -1079,7 +1083,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ d",
     compactMonthsFormat: "%@ m",
-    remainingFormat: "faltan %@",
+    remainingFormat: "tiempo restante: %@",
     comingUpCaps: "PRÓXIMAMENTE",
     startsInCaps: "EMPIEZA EN",
     startsIn: "Empieza en",
@@ -1157,7 +1161,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ d",
     compactMonthsFormat: "%@ m",
-    remainingFormat: "faltam %@",
+    remainingFormat: "tempo restante: %@",
     comingUpCaps: "A SEGUIR",
     startsInCaps: "COMEÇA DENTRO DE",
     startsIn: "Começa dentro de",
@@ -1547,7 +1551,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ g",
     compactMonthsFormat: "%@ mesi",
-    remainingFormat: "%@ rimanenti",
+    remainingFormat: "tempo rimanente: %@",
     comingUpCaps: "IN ARRIVO",
     startsInCaps: "INIZIA TRA",
     startsIn: "Inizia tra",
@@ -1937,7 +1941,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ h",
     compactDaysFormat: "%@ d",
     compactMonthsFormat: "%@ měs",
-    remainingFormat: "zbývá %@",
+    remainingFormat: "zbývá: %@",
     comingUpCaps: "NÁSLEDUJE",
     startsInCaps: "ZAČÍNÁ ZA",
     startsIn: "Začíná za",
@@ -2093,7 +2097,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ год",
     compactDaysFormat: "%@ дн",
     compactMonthsFormat: "%@ міс",
-    remainingFormat: "залишилось %@",
+    remainingFormat: "залишилось: %@",
     comingUpCaps: "ДАЛІ",
     startsInCaps: "ПОЧАТОК ЗА",
     startsIn: "Початок за",
@@ -2171,7 +2175,7 @@ extension ConPawsStrings {
     compactHoursFormat: "%@ ч",
     compactDaysFormat: "%@ дн",
     compactMonthsFormat: "%@ мес",
-    remainingFormat: "осталось %@",
+    remainingFormat: "осталось: %@",
     comingUpCaps: "ДАЛЕЕ",
     startsInCaps: "НАЧАЛО ЧЕРЕЗ",
     startsIn: "Начало через",
