@@ -275,10 +275,7 @@ function applyColumnMigration(
   column: keyof typeof COLUMN_MIGRATIONS,
 ): void {
   const migration = COLUMN_MIGRATIONS[column];
-  const alreadyPresent =
-    database.getFirstSync<{ present: number }>(
-      `SELECT 1 AS present FROM pragma_table_info('${migration.table}') WHERE name = '${column}'`,
-    )?.present === 1;
+  const alreadyPresent = hasColumn(database, column, migration.table);
 
   try {
     database.execSync(
