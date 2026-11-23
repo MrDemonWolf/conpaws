@@ -1,7 +1,7 @@
 import { Bell, Calendar, MapPin } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, useColorScheme, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { getEventIndicatorLabels } from "@/components/convention-detail/ConventionEventRow";
 import {
   Badge,
@@ -12,7 +12,9 @@ import {
   Text,
 } from "@/components/ui";
 import type { ConventionEvent } from "@/db/schema";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { ageBadgeFor } from "@/lib/age-badge";
+import { feedStatusLabel as describeFeedStatus } from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { hasVisit, isValidVisit } from "@/lib/drop-in-visit";
 import {
@@ -22,7 +24,11 @@ import {
   scheduleFormatter,
 } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
-import { getCachedDefaultReminderMinutes } from "@/lib/reminder-default-storage";
+import { reminderDefaultLabel } from "@/lib/reminder-default-label";
+import {
+  getCachedDefaultReminderMinutes,
+  REMINDER_DEFAULT_OPTIONS,
+} from "@/lib/reminder-default-storage";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { themeTokens } from "@/lib/theme-tokens";
 
@@ -57,11 +63,10 @@ interface EventSheetContentProps {
   onRemoveVisit: () => void;
   visitBusy: boolean;
   /**
-   * Track event. Omitted, the sheet offers nothing. Neither action closes the
-   * sheet: the button flipping between Track and Stop, and the badge, are the
-   * confirmation the user is looking at.
+   * Track event. Neither action closes the sheet: the button flipping between
+   * Track and Stop, and the badge, are the confirmation the user is looking at.
    */
-  tracking?: EventSheetTracking;
+  tracking: EventSheetTracking;
 }
 
 export interface EventSheetTracking {
@@ -90,7 +95,7 @@ export function EventSheetContent({
 }: EventSheetContentProps) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<"actions" | "reminder">("actions");
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
   const tokens = themeTokens[scheme];
 
   const room = event.room ?? event.location;
@@ -100,13 +105,7 @@ export function EventSheetContent({
   const accent = categoryAccentColor(event.category, scheme);
   const duration = eventDurationMinutes(event.startTime, event.endTime);
   const dropIn = isDropInEvent(event);
-  const feedStatusLabel = event.feedStatus
-    ? t(
-        event.feedStatus === "cancelled"
-          ? "convention.feedStatus.cancelled"
-          : "convention.feedStatus.removed",
-      )
-    : null;
+  const feedStatusLabel = describeFeedStatus(event.feedStatus, t);
 
   if (mode === "reminder") {
     return (
@@ -196,7 +195,7 @@ export function EventSheetContent({
           {feedStatusLabel ? (
             <Badge variant="ended" emphasis="strong" label={feedStatusLabel} />
           ) : null}
-          {tracking?.state === "this" ? (
+          {tracking.state === "this" ? (
             <Badge variant="info" label={t("tracking.badge")} />
           ) : null}
         </View>
@@ -329,7 +328,7 @@ export function EventSheetContent({
             {t("convention.visit.remove")}
           </Button>
         ) : null}
-        {tracking?.state === "this" ? (
+        {tracking.state === "this" ? (
           <Button
             variant="outline"
             loading={tracking.busy}
@@ -338,7 +337,7 @@ export function EventSheetContent({
           >
             {t("tracking.stop")}
           </Button>
-        ) : tracking?.state === "none" && tracking.trackable ? (
+        ) : tracking.state === "none" && tracking.trackable ? (
           <Button
             variant="outline"
             loading={tracking.busy}
@@ -385,11 +384,11 @@ interface ReminderPickerContentProps {
 }
 
 /**
- * `0` is "At event time" — the string existed in all locales but was never
- * offered because 0 was missing here; the scheduler already handles a zero
- * lead time (it only rejects triggers that are in the past).
+ * The lead times Settings offers, plus None. `0` is "At event time"; the
+ * scheduler handles a zero lead time (it only rejects triggers that are in
+ * the past).
  */
-const REMINDER_OPTIONS = [null, 0, 5, 10, 15, 30, 60] as const;
+const REMINDER_OPTIONS = [null, ...REMINDER_DEFAULT_OPTIONS] as const;
 
 function ReminderPickerContent({
   event,
@@ -422,11 +421,7 @@ function ReminderPickerContent({
         const label =
           minutes === null
             ? t("reminders.none")
-            : minutes === 0
-              ? t("reminders.atTime")
-              : minutes === 60
-                ? t("reminders.hourBefore")
-                : t("reminders.minutesBefore", { minutes });
+            : reminderDefaultLabel(minutes, t);
         return (
           <Pressable
             key={String(minutes)}

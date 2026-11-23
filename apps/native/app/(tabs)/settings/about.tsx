@@ -1,33 +1,25 @@
 import ArrowOutwardIcon from "@expo/material-symbols/arrow_outward.xml";
-import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import DescriptionIcon from "@expo/material-symbols/description.xml";
 import HelpIcon from "@expo/material-symbols/help.xml";
 import MailIcon from "@expo/material-symbols/mail.xml";
 import PublicIcon from "@expo/material-symbols/public.xml";
-import { Column, FieldGroup, Host, Icon, RNHostView } from "@expo/ui";
+import { Column, FieldGroup, Icon, RNHostView } from "@expo/ui";
 import { font } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
 import { Image, useWindowDimensions, View } from "react-native";
+import { NavigationIndicator } from "@/components/icons";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { Text } from "@/components/ui";
-// Android draws a card inside a card when a universal ListItem sits in a
-// FieldGroup.Section; FieldRow is the same component with one surface. See
-// components/ui/FieldRow.android.tsx.
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
+import { FieldRow } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { useOpenLink } from "@/hooks/useOpenLink";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
 import { ABOUT_HERO_MAX } from "@/lib/content-width";
-import { openExternal } from "@/lib/open-external";
 
 const LICENSE_ICON = Icon.select({ ios: "doc.text", android: DescriptionIcon });
-const CHEVRON_ICON = Icon.select({
-  ios: "chevron.right",
-  android: ChevronRightIcon,
-});
 const WEBSITE_ICON = Icon.select({ ios: "globe", android: PublicIcon });
 const EMAIL_ICON = Icon.select({ ios: "envelope", android: MailIcon });
 const HELP_ICON = Icon.select({
@@ -47,27 +39,13 @@ function ExternalIndicator() {
   return <Icon name={EXTERNAL_ICON} size={15} />;
 }
 
-function NavigationIndicator() {
-  return <Icon name={CHEVRON_ICON} size={15} />;
-}
-
 export default function AboutScreen() {
   const { t } = useTranslation();
 
-  // One place that catches the two rejections these links actually produce: a
-  // second tap while a browser is already up, and a `mailto:` on a device with
-  // no mail account. Both used to be unhandled and silent.
-  function openLink(url: string) {
-    void openExternal(url, {
-      errorTitle: t("common.error"),
-      errorMessage: t("common.openLinkError"),
-    });
-  }
+  const openLink = useOpenLink();
 
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
   const heroWidth = Math.min(ABOUT_HERO_MAX, Math.max(260, width - 64));
 
@@ -127,77 +105,70 @@ export default function AboutScreen() {
           title and clips under the status bar. */}
       {isIOS ? null : <View className="items-center px-4 py-6">{hero}</View>}
 
-      <Host
-        colorScheme={resolvedColorScheme}
-        seedColor={colors.primary}
-        style={{ flex: 1 }}
-        useViewportSizeMeasurement
-      >
-        <FieldGroup {...readableGroup}>
-          {isIOS ? (
-            <FieldGroup.Section>
-              <Column alignment="center" style={{ paddingVertical: 24 }}>
-                <RNHostView matchContents>{hero}</RNHostView>
-              </Column>
-            </FieldGroup.Section>
-          ) : null}
-
-          <FieldGroup.Section title={t("settings.about.support")}>
-            <ListItem
-              leading={<NativeIcon name={HELP_ICON} />}
-              supportingText="conpaws.com/support"
-              trailing={<ExternalIndicator />}
-              onPress={() => openLink("https://conpaws.com/support")}
-            >
-              {t("settings.about.helpCenter")}
-            </ListItem>
-            <ListItem
-              leading={<NativeIcon name={EMAIL_ICON} />}
-              supportingText="legal@conpaws.com"
-              trailing={<ExternalIndicator />}
-              onPress={() => openLink("mailto:legal@conpaws.com")}
-            >
-              {t("settings.about.email")}
-            </ListItem>
-            {/* A Discord row lived here. discord.gg/conpaws resolves to "Unknown
-                Invite", and a dead link is an App Review rejection risk, so the
-                row is gone until there is a permanent invite. Add the row and
-                its description string back together. */}
+      <SettingsFieldGroupScreen>
+        {isIOS ? (
+          <FieldGroup.Section>
+            <Column alignment="center" style={{ paddingVertical: 24 }}>
+              <RNHostView matchContents>{hero}</RNHostView>
+            </Column>
           </FieldGroup.Section>
+        ) : null}
 
-          <FieldGroup.Section title={t("settings.about.resources")}>
-            <ListItem
-              leading={<NativeIcon name={WEBSITE_ICON} />}
-              supportingText="conpaws.com"
-              trailing={<ExternalIndicator />}
-              onPress={() => openLink("https://conpaws.com")}
-            >
-              {t("settings.about.website")}
-            </ListItem>
-          </FieldGroup.Section>
+        <FieldGroup.Section title={t("settings.about.support")}>
+          <FieldRow
+            leading={<NativeIcon name={HELP_ICON} />}
+            supportingText="conpaws.com/support"
+            trailing={<ExternalIndicator />}
+            onPress={() => openLink("https://conpaws.com/support")}
+          >
+            {t("settings.about.helpCenter")}
+          </FieldRow>
+          <FieldRow
+            leading={<NativeIcon name={EMAIL_ICON} />}
+            supportingText="legal@conpaws.com"
+            trailing={<ExternalIndicator />}
+            onPress={() => openLink("mailto:legal@conpaws.com")}
+          >
+            {t("settings.about.email")}
+          </FieldRow>
+          {/* A Discord row lived here. discord.gg/conpaws resolves to "Unknown
+              Invite", and a dead link is an App Review rejection risk, so the
+              row is gone until there is a permanent invite. Add the row and
+              its description string back together. */}
+        </FieldGroup.Section>
 
-          <FieldGroup.Section title={t("settings.about.builtWith")}>
-            <ListItem
-              leading={<NativeIcon name={LICENSE_ICON} />}
-              supportingText={t("settings.about.licenseDescription", {
-                count: licenses.packages.length,
-              })}
-              trailing={<NavigationIndicator />}
-              onPress={() => router.push("/settings/licenses")}
+        <FieldGroup.Section title={t("settings.about.resources")}>
+          <FieldRow
+            leading={<NativeIcon name={WEBSITE_ICON} />}
+            supportingText="conpaws.com"
+            trailing={<ExternalIndicator />}
+            onPress={() => openLink("https://conpaws.com")}
+          >
+            {t("settings.about.website")}
+          </FieldRow>
+        </FieldGroup.Section>
+
+        <FieldGroup.Section title={t("settings.about.builtWith")}>
+          <FieldRow
+            leading={<NativeIcon name={LICENSE_ICON} />}
+            supportingText={t("settings.about.licenseDescription", {
+              count: licenses.packages.length,
+            })}
+            trailing={<NavigationIndicator />}
+            onPress={() => router.push("/settings/licenses")}
+          >
+            {t("settings.legal.openSourceLicenses")}
+          </FieldRow>
+          <FieldGroup.SectionFooter>
+            <NativeText
+              textStyle={{ fontSize: 13 }}
+              modifiers={[font({ textStyle: "footnote" })]}
             >
-              {t("settings.legal.openSourceLicenses")}
-            </ListItem>
-            <FieldGroup.SectionFooter>
-              <NativeText
-                textStyle={{ fontSize: 13 }}
-                modifiers={[font({ textStyle: "footnote" })]}
-              >
-                {t("settings.about.copyright")}
-              </NativeText>
-            </FieldGroup.SectionFooter>
-          </FieldGroup.Section>
-        </FieldGroup>
-      </Host>
+              {t("settings.about.copyright")}
+            </NativeText>
+          </FieldGroup.SectionFooter>
+        </FieldGroup.Section>
+      </SettingsFieldGroupScreen>
     </View>
   );
 }

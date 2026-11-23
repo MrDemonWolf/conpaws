@@ -14,7 +14,7 @@
  */
 
 import type { TFunction } from "i18next";
-import { conventionDayKey } from "./convention-time";
+import { conventionDayKey, dayKeyDifference } from "./convention-time";
 
 export function formatEventDuration(minutes: number, t: TFunction): string {
   const hours = Math.floor(minutes / 60);
@@ -165,10 +165,8 @@ export function eventEndDayOffset(
   const endKey = conventionDayKey(end, timeZone);
   if (startKey === endKey) return 0;
 
-  const days =
-    (Date.parse(`${endKey}T00:00:00Z`) - Date.parse(`${startKey}T00:00:00Z`)) /
-    86_400_000;
-  return Number.isFinite(days) ? Math.round(days) : 0;
+  const days = dayKeyDifference(startKey, endKey);
+  return Number.isFinite(days) ? days : 0;
 }
 
 /**
@@ -177,9 +175,8 @@ export function eventEndDayOffset(
  * A bare clock time is a lie for anything that crosses midnight: IndyFurCon's
  * three-day "Tabletop Gaming" rendered as "10:00 PM" over "9:00 PM", which
  * reads as ending before it starts. When the end lands on a different
- * convention-local day it carries an abbreviated weekday — "Sun 9:00 PM" —
- * matching what the iOS widget's `conPawsTimeLabel` already does. The weekday
- * comes from `Intl`, so it needs no new translated strings.
+ * convention-local day it carries an abbreviated weekday — "Sun 9:00 PM".
+ * The weekday comes from `Intl`, so it needs no new translated strings.
  */
 export function formatEventEndTime(
   startIso: string,

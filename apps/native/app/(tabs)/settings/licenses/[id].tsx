@@ -7,8 +7,8 @@ import { ScrollView, View } from "react-native";
 import { Card, EmptyState, Row, Text } from "@/components/ui";
 import licenseManifest from "@/generated/open-source-licenses.json";
 import { useContentWidth } from "@/hooks/useContentWidth";
+import { useOpenLink } from "@/hooks/useOpenLink";
 import { GUTTER } from "@/lib/content-width";
-import { openExternal } from "@/lib/open-external";
 
 const NOT_FOUND_ICON = Icon.select({
   ios: "questionmark.folder",
@@ -32,15 +32,7 @@ export default function LicenseDetailsScreen() {
         }
       : undefined;
 
-  // One place that catches the two rejections these links actually produce: a
-  // second tap while a browser is already up, and a `mailto:` on a device with
-  // no mail account. Both used to be unhandled and silent.
-  function openLink(url: string) {
-    void openExternal(url, {
-      errorTitle: t("common.error"),
-      errorMessage: t("common.openLinkError"),
-    });
-  }
+  const openLink = useOpenLink();
 
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;

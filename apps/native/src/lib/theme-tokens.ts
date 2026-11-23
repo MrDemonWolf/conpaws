@@ -32,5 +32,3 @@ export const themeTokens = {
     mutedForeground: "#aeb4c0",
   },
 } as const;
-
-export type ThemeScheme = keyof typeof themeTokens;

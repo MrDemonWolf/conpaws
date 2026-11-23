@@ -1,7 +1,6 @@
 export interface OnboardingButtonProps {
   label: string;
   onPress: () => void;
-  variant?: "primary" | "secondary" | "text";
-  disabled?: boolean;
+  variant?: "primary" | "text";
   testID?: string;
 }

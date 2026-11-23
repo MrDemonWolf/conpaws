@@ -1,6 +1,7 @@
 import { Check, Clock, MapPin } from "lucide-react-native";
-import { Pressable, useColorScheme, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Badge, PRESS_DIM, Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +36,7 @@ export function CompareCard({
   accessibilityLabel,
   onSelect,
 }: CompareCardProps) {
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
   const tokens = themeTokens[scheme];
 
   return (

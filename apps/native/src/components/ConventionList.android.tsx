@@ -5,10 +5,11 @@ import { ConventionCard } from "./ConventionCard.android";
 import type { ConventionListProps } from "./ConventionList.types";
 
 /**
- * `deleteLabel`, `onDelete`, `archiveItemLabel` and `onArchive` are deliberately
- * not destructured here: an Android `FlatList` row has no swipe affordance, so this
- * implementation offers both actions through its native row menu instead. See the
- * note on those props in `ConventionList.types.ts`.
+ * `deleteLabel`, `onDelete`, `archiveItemLabel`, `onArchive`,
+ * `unarchiveItemLabel` and `onUnarchive` are deliberately not destructured
+ * here: an Android `FlatList` row has no swipe affordance, so this
+ * implementation offers these actions through its native row menu instead.
+ * See the note on those props in `ConventionList.types.ts`.
  */
 export function ConventionList<T extends { id: string }>({
   data,

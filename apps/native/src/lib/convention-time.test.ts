@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   conventionDayKey,
   conventionStatusForDay,
+  dayKeyDifference,
   formatInConventionTime,
   fromConventionTime,
   isValidTimeZone,
   overlappingEventIds,
+  resolveConventionWallClock,
 } from "./convention-time";
 
 describe("convention time", () => {
@@ -60,6 +62,37 @@ describe("convention time", () => {
     expect(
       formatInConventionTime(skipped, "America/Chicago", "yyyy-MM-dd HH:mm"),
     ).toBe("2026-03-08 03:30");
+  });
+
+  it("rejects a wall clock inside the spring-forward gap at either precision", () => {
+    const gap = { year: 2026, month: 3, day: 8, hour: 2, minute: 30 };
+
+    expect(resolveConventionWallClock(gap, "America/Chicago")).toBeNull();
+    expect(
+      resolveConventionWallClock({ ...gap, second: 15 }, "America/Chicago"),
+    ).toBeNull();
+  });
+
+  it("resolves a wall clock that exists, to the minute or the second", () => {
+    const parts = { year: 2026, month: 7, day: 16, hour: 9, minute: 5 };
+
+    expect(
+      resolveConventionWallClock(parts, "America/Chicago")?.toISOString(),
+    ).toBe("2026-07-16T14:05:00.000Z");
+    expect(
+      resolveConventionWallClock(
+        { ...parts, second: 7 },
+        "America/Chicago",
+      )?.toISOString(),
+    ).toBe("2026-07-16T14:05:07.000Z");
+  });
+
+  it("counts whole calendar days between day keys", () => {
+    expect(dayKeyDifference("2026-03-08", "2026-03-08")).toBe(0);
+    // A DST change in between does not make the day 23 or 25 hours long.
+    expect(dayKeyDifference("2026-03-07", "2026-03-08")).toBe(1);
+    expect(dayKeyDifference("2026-11-02", "2026-10-31")).toBe(-2);
+    expect(dayKeyDifference("2026-03-07", "not-a-day")).toBeNaN();
   });
 
   it("classifies convention dates including both boundary days", () => {

@@ -58,17 +58,6 @@ export function setBrowseState(
   emit();
 }
 
-/** Drops the category only; the chosen day and hour are not a "filter". */
-export function clearBrowseFilters(conventionId: string): void {
-  setBrowseState(conventionId, { category: null });
-}
-
-export function resetBrowseState(conventionId: string): void {
-  if (!states.has(conventionId)) return;
-  states.delete(conventionId);
-  emit();
-}
-
 export function subscribeBrowseState(listener: () => void): () => void {
   listeners.add(listener);
   return () => {

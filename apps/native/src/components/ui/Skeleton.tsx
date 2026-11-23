@@ -95,7 +95,7 @@ export function Skeleton({ className, style, ...props }: ViewProps) {
  * Wraps a screen's placeholders so assistive tech hears "loading" once, rather
  * than reading out a dozen meaningless empty boxes.
  */
-export function SkeletonScreen({
+function SkeletonScreen({
   className,
   children,
   contentStyle,
@@ -283,11 +283,11 @@ export function ScheduleSkeleton({
 }
 
 /** Mirrors a form's stack of labelled fields. */
-export function FormSkeleton({ fields = 4 }: { fields?: number }) {
+export function FormSkeleton() {
   return (
     <SkeletonScreen>
       <View className="gap-4 px-4 pt-4">
-        {placeholderKeys("form-field", fields).map((key) => (
+        {placeholderKeys("form-field", 4).map((key) => (
           <View key={key} className="gap-2">
             <Skeleton className="h-3 w-28" />
             <Skeleton className="h-12 w-full rounded-xl" />

@@ -1,11 +1,20 @@
 // See components/ui/FieldRow.tsx — one Material surface per row.
 
+import { Collapsible } from "@expo/ui";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { DatePicker as SwiftDatePicker } from "@expo/ui/swift-ui";
 import { datePickerStyle } from "@expo/ui/swift-ui/modifiers";
+import { supportedValuesOf } from "@formatjs/intl-supportedvaluesof";
 import { type ReactElement, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Modal, Pressable, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  Keyboard,
+  Modal,
+  Pressable,
+  View,
+} from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
   Input,
@@ -17,7 +26,12 @@ import {
 } from "@/components/ui";
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { formatMediumDate } from "@/lib/event-time-format";
-import { searchTimeZones, type TimeZoneOption } from "@/lib/time-zone-search";
+import {
+  buildTimeZoneOptions,
+  searchTimeZones,
+  type TimeZoneOption,
+  timeZoneLabel,
+} from "@/lib/time-zone-search";
 import { cn } from "@/lib/utils";
 
 /**
@@ -102,6 +116,114 @@ export function useConventionDateField({
         onDismiss={() => setDialogVisible(false)}
       />
     ) : null,
+  };
+}
+
+/** Every zone the picker offers, with the device's zone ranked first. */
+export function useTimeZoneOptions(deviceTimeZone: string): TimeZoneOption[] {
+  return useMemo(
+    () =>
+      buildTimeZoneOptions(
+        ["UTC", ...supportedValuesOf("timeZone")],
+        deviceTimeZone,
+      ),
+    [deviceTimeZone],
+  );
+}
+
+export interface ConventionTimeZoneFieldProps {
+  timeZone: string;
+  deviceTimeZone: string;
+  /** Where the location cannot set the zone, Advanced starts open. */
+  canInferTimeZone: boolean;
+  onPick: (id: string) => void;
+  testID: string;
+}
+
+export interface ConventionTimeZoneFieldParts {
+  /** The Advanced disclosure holding the zone row; a direct child of `FieldGroup.Section`. */
+  row: ReactElement;
+  /** The search picker, rendered outside the form's `Host`. */
+  modal: ReactElement;
+  /**
+   * Asks whether to fall back to the device's zone when the location could
+   * not be turned into one. Resolves to that zone, or null after opening the
+   * picker instead.
+   */
+  confirmDeviceFallback: () => Promise<string | null>;
+}
+
+/**
+ * The time-zone row, its picker and the device-zone fallback prompt. A hook
+ * for the same reason as `useConventionDateField`: the section must get the
+ * `Collapsible` element itself.
+ */
+export function useConventionTimeZoneField({
+  timeZone,
+  deviceTimeZone,
+  canInferTimeZone,
+  onPick,
+  testID,
+}: ConventionTimeZoneFieldProps): ConventionTimeZoneFieldParts {
+  const { t } = useTranslation();
+  const [advancedOpen, setAdvancedOpen] = useState(!canInferTimeZone);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const timeZones = useTimeZoneOptions(deviceTimeZone);
+
+  function confirmDeviceFallback(): Promise<string | null> {
+    return new Promise((resolve) => {
+      Alert.alert(
+        t("convention.timeZoneFallbackTitle"),
+        t("convention.timeZoneFallbackMessage", {
+          timeZone: timeZoneLabel(deviceTimeZone),
+        }),
+        [
+          {
+            text: t("convention.setTimeZone"),
+            onPress: () => {
+              setAdvancedOpen(true);
+              setPickerVisible(true);
+              resolve(null);
+            },
+          },
+          {
+            text: t("convention.useDeviceTimeZone"),
+            onPress: () => resolve(deviceTimeZone),
+          },
+        ],
+      );
+    });
+  }
+
+  return {
+    row: (
+      <Collapsible
+        label={t("common.advanced")}
+        isOpen={advancedOpen}
+        onOpenChange={setAdvancedOpen}
+      >
+        <ListItem
+          supportingText={timeZoneLabel(timeZone)}
+          testID={testID}
+          onPress={() => {
+            Keyboard.dismiss();
+            setPickerVisible(true);
+          }}
+        >
+          {t("convention.timeZone")}
+        </ListItem>
+      </Collapsible>
+    ),
+    modal: (
+      <TimeZonePickerModal
+        visible={pickerVisible}
+        options={timeZones}
+        selected={timeZone}
+        onSelect={onPick}
+        onClose={() => setPickerVisible(false)}
+      />
+    ),
+    confirmDeviceFallback,
   };
 }
 

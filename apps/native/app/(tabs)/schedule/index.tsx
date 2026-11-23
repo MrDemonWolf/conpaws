@@ -1,43 +1,42 @@
 import StarIcon from "@expo/material-symbols/star.xml";
-import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCalendars } from "expo-localization";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  SectionList,
-  useColorScheme,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { SectionList, useWindowDimensions, View } from "react-native";
+import { ERROR_ICON } from "@/components/icons";
 import { ReminderNoticeBanner } from "@/components/ReminderNoticeBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";
 import { TrackedEventBanner } from "@/components/TrackedEventBanner";
-import { Button, EmptyState, ScheduleSkeleton, Text } from "@/components/ui";
+import {
+  Button,
+  EmptyState,
+  ReadableColumn,
+  ScheduleSkeleton,
+  Text,
+} from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
-import { useContentWidth, useWidthCap } from "@/hooks/useContentWidth";
+import { useContentWidth } from "@/hooks/useContentWidth";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { ageBadgeFor } from "@/lib/age-badge";
+import { type AgendaRowItem, buildAgendaRows } from "@/lib/agenda-gaps";
 import {
-  type AgendaGap,
-  type AgendaRowItem,
-  buildAgendaRows,
-  splitMinutes,
-} from "@/lib/agenda-gaps";
+  agendaGapLabel,
+  agendaStatusLabel,
+  eventReminderLabel,
+  feedStatusLabel,
+} from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { ACTIONS_MAX } from "@/lib/content-width";
-import {
-  conventionDayKey,
-  isValidTimeZone,
-  overlappingEventIds,
-} from "@/lib/convention-time";
+import { conventionDayKey, isValidTimeZone } from "@/lib/convention-time";
 import { useHour12 } from "@/lib/device-clock";
+import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { plannedEvent } from "@/lib/drop-in-visit";
 import {
   formatClockParts,
@@ -55,7 +54,7 @@ import {
   getReminderReconciliation,
   resolveReminderNotice,
 } from "@/lib/reminder-notice";
-import { isDropInEvent } from "@/lib/schedule-browse";
+import { conflictingSavedIds, isDropInEvent } from "@/lib/schedule-browse";
 import {
   canScrollSchedule,
   scheduleContentStyle,
@@ -65,11 +64,6 @@ import {
 const EMPTY_ICON = Icon.select({
   ios: "star",
   android: StarIcon,
-});
-
-const ERROR_ICON = Icon.select({
-  ios: "exclamationmark.triangle",
-  android: WarningIcon,
 });
 
 interface ScheduleEntry extends PersonalScheduleEntry {
@@ -93,7 +87,7 @@ export default function ScheduleScreen() {
   const { conventionId } = useLocalSearchParams<{ conventionId?: string }>();
   const { t } = useTranslation();
   const locale = currentLocale();
-  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
+  const colorScheme = useResolvedColorScheme();
   // iOS applies a Dynamic Type change to a running app, but a VirtualizedList
   // keeps the heights it measured for cells it has already built; the font
   // scale is part of `extraData` so those cells are rebuilt.
@@ -101,7 +95,6 @@ export default function ScheduleScreen() {
   // On a wide window the list lays its rows into a readable column; zero on a
   // phone in portrait.
   const { listPadding } = useContentWidth();
-  const cap = useWidthCap();
   const hour12 = useHour12();
   const queryClient = useQueryClient();
 
@@ -134,7 +127,7 @@ export default function ScheduleScreen() {
   );
 
   const entries = useMemo<ScheduleEntry[]>(() => {
-    const deviceTimeZone = getCalendars()[0]?.timeZone ?? "UTC";
+    const deviceTimeZone = getDeviceTimeZone();
 
     return (rows ?? [])
       .map((row) => ({ ...row, event: plannedEvent(row.event) }))
@@ -176,23 +169,15 @@ export default function ScheduleScreen() {
   );
 
   /**
-   * Ids that genuinely clash. Decided with `overlappingEventIds`, the same
+   * Ids that genuinely clash. Decided with `conflictingSavedIds`, the same
    * rule the convention screen uses, over every live saved entry at once --
    * grouping by day first would miss a panel that runs past midnight into
    * the next day's first one. Drop-in programming never clashes.
    */
-  const conflictingEventIds = useMemo(() => {
-    const live = entries.filter(
-      (entry) => entry.event.feedStatus === null && !isDropInEvent(entry.event),
-    );
-    return overlappingEventIds(
-      live.map((entry) => ({
-        id: entry.event.id,
-        startTime: entry.startTime,
-        endTime: entry.endTime,
-      })),
-    );
-  }, [entries]);
+  const conflictingEventIds = useMemo(
+    () => conflictingSavedIds(entries.map((entry) => entry.event)),
+    [entries],
+  );
 
   const sections = useMemo<ScheduleSection[]>(() => {
     const nowMs = now.getTime();
@@ -221,21 +206,6 @@ export default function ScheduleScreen() {
     [contentKind, listPadding],
   );
 
-  const gapLabel = useCallback(
-    (gap: AgendaGap): string => {
-      if (gap.kind === "backToBack") return t("convention.plan.gap.backToBack");
-      if (gap.kind === "overlap")
-        return t("convention.plan.gap.overlap", { minutes: gap.minutes });
-      if (gap.hint === "short")
-        return t("convention.plan.gap.free", { minutes: gap.minutes });
-      const { hours, minutes } = splitMinutes(gap.minutes);
-      return minutes === 0
-        ? t("convention.plan.gap.freeHours", { hours })
-        : t("convention.plan.gap.freeHoursMinutes", { hours, minutes });
-    },
-    [t],
-  );
-
   const renderSectionHeader = useCallback(
     ({ section }: { section: ScheduleSection }) => (
       <SectionHeader title={formatDayKeyLabel(section.key, locale)} />
@@ -246,7 +216,9 @@ export default function ScheduleScreen() {
   const renderItem = useCallback(
     ({ item }: { item: ScheduleRow }) => {
       if (item.kind === "gap") {
-        return <AgendaGapRow gap={item.gap} label={gapLabel(item.gap)} />;
+        return (
+          <AgendaGapRow gap={item.gap} label={agendaGapLabel(item.gap, t)} />
+        );
       }
       const { entry, status } = item;
       const event = entry.event;
@@ -276,36 +248,11 @@ export default function ScheduleScreen() {
           contextLabel={showConventionName ? entry.conventionName : undefined}
           accentColor={categoryAccentColor(event.category, colorScheme)}
           status={status}
-          statusLabel={
-            status === "now"
-              ? t("convention.plan.status.now")
-              : status === "endedToday"
-                ? t("convention.plan.status.endedToday")
-                : status === "ended"
-                  ? t("convention.plan.status.ended")
-                  : undefined
-          }
+          statusLabel={agendaStatusLabel(status, t)}
           hasConflict={conflictingEventIds.has(event.id)}
           conflictLabel={t("convention.overlapLabel")}
-          feedStatusLabel={
-            event.feedStatus
-              ? t(
-                  event.feedStatus === "cancelled"
-                    ? "convention.feedStatus.cancelled"
-                    : "convention.feedStatus.removed",
-                )
-              : undefined
-          }
-          reminderLabel={
-            event.reminderMinutes !== null
-              ? t(
-                  event.reminderMinutes === 60
-                    ? "reminders.hourBefore"
-                    : "reminders.minutesBefore",
-                  { minutes: event.reminderMinutes },
-                )
-              : undefined
-          }
+          feedStatusLabel={feedStatusLabel(event.feedStatus, t) ?? undefined}
+          reminderLabel={eventReminderLabel(event.reminderMinutes, t)}
           ageBadge={
             ageBadge
               ? { variant: ageBadge.variant, label: t(ageBadge.key) }
@@ -336,15 +283,7 @@ export default function ScheduleScreen() {
         />
       );
     },
-    [
-      colorScheme,
-      conflictingEventIds,
-      gapLabel,
-      hour12,
-      locale,
-      showConventionName,
-      t,
-    ],
+    [colorScheme, conflictingEventIds, hour12, locale, showConventionName, t],
   );
 
   if (isLoading) {
@@ -410,7 +349,7 @@ export default function ScheduleScreen() {
         renderItem={renderItem}
         ListFooterComponent={
           entries.length > 0 ? (
-            <View className="px-4 py-4" style={cap(ACTIONS_MAX)}>
+            <ReadableColumn max={ACTIONS_MAX} className="px-4 py-4">
               <Button
                 variant="outline"
                 onPress={() => {
@@ -429,7 +368,7 @@ export default function ScheduleScreen() {
               >
                 {t("convention.browse.dropIn.find")}
               </Button>
-            </View>
+            </ReadableColumn>
           ) : undefined
         }
         ListEmptyComponent={

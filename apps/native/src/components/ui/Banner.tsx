@@ -1,8 +1,8 @@
 import { X } from "lucide-react-native";
 import type { ReactNode } from "react";
-import { Pressable, useColorScheme, View } from "react-native";
-
+import { Pressable, View } from "react-native";
 import { Text } from "@/components/ui/Text";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +41,7 @@ interface BannerProps {
  * ScheduleHintCard and so escaped it.
  */
 export function useBannerIconColor(tone: BannerTone = "secondary"): string {
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
   if (tone === "info") return themeTokens[scheme].infoForeground;
   if (tone === "success") return themeTokens[scheme].successForeground;
   return themeTokens[scheme].mutedForeground;

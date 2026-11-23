@@ -1,17 +1,13 @@
-import CheckIcon from "@expo/material-symbols/check.xml";
 import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
-import { FieldGroup, Host, Icon } from "@expo/ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
-import { useTheme } from "expo-router/react-navigation";
+import { FieldGroup, Icon } from "@expo/ui";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-import { FieldRow } from "@/components/ui/FieldRow";
-import { NativeText } from "@/components/ui/NativeText";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
+import { settingsFooter } from "@/components/SettingsFooter";
 import {
   APPEARANCE_PREFERENCES,
   type AppearancePreference,
@@ -24,7 +20,6 @@ import {
 import { reportError } from "@/lib/error-reporting";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
 
-const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 const APPEARANCE_ICONS: Record<
   AppearancePreference,
   ReturnType<typeof Icon.select>
@@ -36,9 +31,6 @@ const APPEARANCE_ICONS: Record<
 
 export default function AppearanceScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const [appearance, setAppearance] = useState<AppearancePreference>(
     getAppearancePreference,
   );
@@ -66,48 +58,26 @@ export default function AppearanceScreen() {
   }
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section disabled={isChanging}>
-          {APPEARANCE_PREFERENCES.map((preference) => {
-            const isSelected = appearance === preference;
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section disabled={isChanging}>
+        {APPEARANCE_PREFERENCES.map((preference) => {
+          const isSelected = appearance === preference;
 
-            return (
-              <FieldRow
-                // Selected state is in the key because @expo/ui's Android
-                // ListItem mounts its `trailing` slot once and then leaves it
-                // alone: it unmounts a slot that becomes `undefined` but never
-                // mounts a new one, so the checkmark vanished off the old row
-                // and never appeared on the new one. Remounting the two rows
-                // that flipped is what makes the tick move. Verified on the
-                // reminder-default screen, which had the identical bug.
-                key={`${preference}-${isSelected}`}
-                testID={`appearance-${preference}`}
-                leading={<Icon name={APPEARANCE_ICONS[preference]} size={22} />}
-                supportingText={
-                  isSelected ? t("settings.languages.selected") : undefined
-                }
-                trailing={
-                  isSelected ? <Icon name={CHECK} size={18} /> : undefined
-                }
-                onPress={() => handleSelect(preference)}
-              >
-                {t(`settings.appearance.${preference}`)}
-              </FieldRow>
-            );
-          })}
-          <FieldGroup.SectionFooter>
-            <NativeText modifiers={[font({ textStyle: "footnote" })]}>
-              {t("settings.appearance.description")}
-            </NativeText>
-          </FieldGroup.SectionFooter>
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+          return settingsChoiceRow({
+            id: preference,
+            testID: `appearance-${preference}`,
+            title: t(`settings.appearance.${preference}`),
+            selected: isSelected,
+            indicator: "check",
+            leading: <Icon name={APPEARANCE_ICONS[preference]} size={22} />,
+            supportingText: isSelected
+              ? t("settings.languages.selected")
+              : undefined,
+            onPress: () => handleSelect(preference),
+          });
+        })}
+        {settingsFooter(t("settings.appearance.description"))}
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }

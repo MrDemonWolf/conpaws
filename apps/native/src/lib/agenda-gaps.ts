@@ -10,6 +10,7 @@
  */
 
 import { conventionDayKey } from "./convention-time";
+import { effectiveEndMs, NO_END_FALLBACK_MS } from "./schedule-browse";
 
 export type AgendaGap =
   | { kind: "free"; minutes: number; hint: "short" | "long" }
@@ -24,9 +25,6 @@ export interface AgendaEntryLike {
 
 /** An hour or more is long enough to sit down; less is time to walk. */
 const LONG_BREAK_MINUTES = 60;
-
-/** Same fallback as the personal schedule: an unknown end counts as an hour. */
-const NO_END_FALLBACK_MS = 60 * 60 * 1000;
 
 function parse(value: string | null): number | null {
   if (!value) return null;
@@ -82,9 +80,7 @@ export function agendaStatus(
 ): AgendaStatus {
   const start = parse(entry.startTime);
   if (start === null) return "upcoming";
-  const end = parse(entry.endTime);
-  const effectiveEnd =
-    end !== null && end > start ? end : start + NO_END_FALLBACK_MS;
+  const effectiveEnd = effectiveEndMs(entry);
 
   if (nowMs >= effectiveEnd) {
     return conventionDayKey(entry.startTime, timeZone) === todayKey

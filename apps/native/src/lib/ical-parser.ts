@@ -1,7 +1,7 @@
 import {
-  formatInConventionTime,
   fromConventionTime,
   isValidTimeZone,
+  resolveConventionWallClock,
 } from "./convention-time";
 import {
   type AgeRating,
@@ -193,11 +193,8 @@ function parseDateTime(value: string, timeZone: string | null): Date | null {
       minute: +mi,
       second: +s,
     };
-    const date = fromConventionTime(parts, timeZone);
-    return formatInConventionTime(date, timeZone, "yyyy-MM-dd HH:mm:ss") ===
-      `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")} ${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}:${String(parts.second).padStart(2, "0")}`
-      ? date
-      : null;
+    // Null for a wall clock a DST change skips.
+    return resolveConventionWallClock(parts, timeZone);
   }
 
   // All-day: 20260612

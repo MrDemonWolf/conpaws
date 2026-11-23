@@ -4,10 +4,11 @@ import {
   pickerStyle,
   tag,
 } from "@expo/ui/swift-ui/modifiers";
-import { useWindowDimensions, View } from "react-native";
-import { useWidthCap } from "@/hooks/useContentWidth";
+import { useWindowDimensions } from "react-native";
+import { ReadableColumn } from "@/components/ui";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { SEGMENTED_MAX } from "@/lib/content-width";
+import { STACKED_FONT_SCALE } from "@/lib/text-scale";
 import { themeTokens } from "@/lib/theme-tokens";
 import {
   SCHEDULE_VIEWS,
@@ -15,9 +16,6 @@ import {
   type ScheduleViewSwitcherProps,
 } from "./ScheduleViewSwitcher.types";
 import { ScheduleViewSwitcherStacked } from "./ScheduleViewSwitcherStacked";
-
-/** Past this scale UISegmentedControl shows a few letters per segment. */
-const STACK_AT_FONT_SCALE = 1.6;
 
 /**
  * The Browse / My plan / Now switcher as a real UISegmentedControl, through
@@ -27,15 +25,15 @@ const STACK_AT_FONT_SCALE = 1.6;
 export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
   const { fontScale } = useWindowDimensions();
   const resolvedColorScheme = useResolvedColorScheme();
-  // Three short labels stretched across a wide window read as one bar.
-  const segmentedCap = useWidthCap()(SEGMENTED_MAX);
-  if (fontScale >= STACK_AT_FONT_SCALE) {
+  // Past this scale UISegmentedControl shows a few letters per segment.
+  if (fontScale >= STACKED_FONT_SCALE) {
     return <ScheduleViewSwitcherStacked {...props} />;
   }
 
   const { view, onChange, labels, accessibilityLabel } = props;
+  // Three short labels stretched across a wide window read as one bar.
   return (
-    <View className="px-4" style={segmentedCap}>
+    <ReadableColumn max={SEGMENTED_MAX} className="px-4">
       <Host
         colorScheme={resolvedColorScheme}
         seedColor={themeTokens[resolvedColorScheme].primary}
@@ -59,6 +57,6 @@ export function ScheduleViewSwitcher(props: ScheduleViewSwitcherProps) {
           ))}
         </Picker>
       </Host>
-    </View>
+    </ReadableColumn>
   );
 }

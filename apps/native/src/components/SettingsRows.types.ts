@@ -1,3 +1,4 @@
+import { STACKED_FONT_SCALE } from "@/lib/text-scale";
 import type { SettingsIconName } from "./SettingsLeadingIcon.types";
 
 /**
@@ -6,7 +7,7 @@ import type { SettingsIconName } from "./SettingsLeadingIcon.types";
  * moves it under the title, as iOS Settings does. Event rows stack at the same
  * point.
  */
-export const SETTINGS_STACKED_FONT_SCALE = 1.6;
+export const SETTINGS_STACKED_FONT_SCALE = STACKED_FONT_SCALE;
 
 /**
  * A Settings row that opens something: another screen ("navigate"), a web
@@ -30,7 +31,6 @@ export interface SettingsLinkRowProps {
   /** Shows a spinner instead of the chevron and ignores presses. */
   busy?: boolean;
   onPress?: () => void;
-  testID?: string;
 }
 
 /** A Settings row whose whole job is one on/off choice. */

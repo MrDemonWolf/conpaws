@@ -90,7 +90,7 @@ conpaws/
 │   │   │   ├── lib/         # ICS parsing, timezone, import policy, schedule selectors
 │   │   │   ├── services/    # Local reminders, backup import/export, widget snapshot
 │   │   │   ├── global.css   # Tailwind entry point
-│   │   │   └── components/ hooks/ locales/ fixtures/ assets/ widgets/
+│   │   │   └── components/ hooks/ locales/ fixtures/ widgets/
 │   │   ├── targets/         # Watch targets via @bacons/apple-targets (NOT hand-written pbxproj)
 │   │   │   ├── watch/       # watchOS app
 │   │   │   ├── watch-widget/ # watchOS Smart Stack complication

@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, Linking } from "react-native";
+import { AccessibilityInfo, Alert } from "react-native";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention, ConventionEvent } from "@/db/schema";
 import { reportError } from "@/lib/error-reporting";
+import { showOpenSettingsAlert } from "@/lib/notification-priming";
 import { trackedEventBlocker } from "@/lib/tracked-event";
 import type { TrackedEventSelection } from "@/lib/tracked-event.types";
 import { hapticToggle } from "@/services/haptics";
@@ -64,22 +65,6 @@ function confirmReplace(
       { cancelable: true, onDismiss: () => resolve(false) },
     );
   });
-}
-
-function showPermissionAlert(
-  title: string,
-  message: string,
-  t: (key: string) => string,
-) {
-  Alert.alert(title, message, [
-    { text: t("common.cancel"), style: "cancel" },
-    {
-      text: t("reminders.openSettings"),
-      onPress: () => {
-        void Linking.openSettings();
-      },
-    },
-  ]);
 }
 
 export interface TrackedEventDetails {
@@ -192,14 +177,14 @@ export function useTrackedEvent() {
             );
             return;
           case "notifications-denied":
-            showPermissionAlert(
+            showOpenSettingsAlert(
               t("tracking.permission.notificationsTitle"),
               t("tracking.permission.notificationsMessage"),
               t,
             );
             return;
           case "live-activities-disabled":
-            showPermissionAlert(
+            showOpenSettingsAlert(
               t("tracking.permission.liveActivitiesTitle"),
               t("tracking.permission.liveActivitiesMessage"),
               t,
@@ -255,7 +240,6 @@ export function useTrackedEvent() {
 
   return {
     trackedEventId: selection?.eventId ?? null,
-    trackedConventionId: selection?.conventionId ?? null,
     tracked,
     isTrackable,
     track,

@@ -10,8 +10,10 @@ import { formatVersionLabel } from "@/lib/app-version";
  * `nativeBuildVersion` is the build number of the binary that is actually
  * running -- iOS `CFBundleVersion`, Android `versionCode` -- rather than
  * whatever `app.config.ts` happened to say when the bundle was made. That
- * distinction matters here: EAS assigns build numbers from remote version
- * counters, so the config does not carry them at all.
+ * distinction matters here: local builds take it from `BUILD_NUMBER` in
+ * `app.config.ts`, and release CI assigns its own number in a temporary
+ * checkout that is never committed, so the config in the repo can lag the
+ * running binary.
  */
 export function useVersionLabel(): string {
   const { t } = useTranslation();

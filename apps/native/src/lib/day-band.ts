@@ -11,11 +11,7 @@
  * (first/middle/last) and draws its own share of the group chrome.
  */
 
-/**
- * An event with no end time is treated as an hour long — the same fallback
- * the personal schedule uses for "still running".
- */
-const NO_END_FALLBACK_MS = 60 * 60 * 1000;
+import { NO_END_FALLBACK_MS } from "./schedule-browse";
 
 export type ClusterPosition = "solo" | "first" | "middle" | "last";
 

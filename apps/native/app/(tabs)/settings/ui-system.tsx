@@ -1,5 +1,4 @@
 import CalendarAddIcon from "@expo/material-symbols/calendar_add_on.xml";
-import ChevronRightIcon from "@expo/material-symbols/chevron_right.xml";
 import FormsIcon from "@expo/material-symbols/forms_add_on.xml";
 import {
   BottomSheet,
@@ -16,10 +15,10 @@ import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import { Redirect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
+import { NavigationIndicator } from "@/components/icons";
 import { AgendaGapRow } from "@/components/schedule/AgendaGapRow";
 import { AgendaRow } from "@/components/schedule/AgendaRow";
 import { BrowseSummaryHeader } from "@/components/schedule/BrowseSummaryHeader";
@@ -44,20 +43,15 @@ import {
   ScheduleSkeleton,
   Text,
 } from "@/components/ui";
+// Aliased because rows here take literal titles, and Biome's raw-text rule
+// skips ListItem (FieldRow is that same component).
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
-import {
-  getAppearancePreference,
-  subscribeAppearancePreference,
-} from "@/lib/appearance-storage";
+import { useAppearancePreference } from "@/lib/appearance-storage";
 import { categoryAccentColor } from "@/lib/category-color";
 import { developerDiagnosticsEnabled } from "@/lib/developer-tools";
 
-const CHEVRON_ICON = Icon.select({
-  ios: "chevron.right",
-  android: ChevronRightIcon,
-});
 const EMPTY_STATE_ICON = Icon.select({
   ios: "calendar.badge.plus",
   android: CalendarAddIcon,
@@ -137,18 +131,10 @@ const GALLERY_SLOTS: readonly TimeChipSlot[] = [
   },
 ];
 
-function NavigationIndicator() {
-  return <Icon name={CHEVRON_ICON} size={15} />;
-}
-
 export default function UiSystemScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const appearancePreference = useSyncExternalStore(
-    subscribeAppearancePreference,
-    getAppearancePreference,
-    getAppearancePreference,
-  );
+  const appearancePreference = useAppearancePreference();
   const { fontScale, width } = useWindowDimensions();
   const [switchValue, setSwitchValue] = useState(true);
   const [sheetPreview, setSheetPreview] = useState<SheetPreview>(null);

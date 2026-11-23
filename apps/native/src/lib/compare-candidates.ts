@@ -9,7 +9,7 @@
  * A and C conflict. Chaining would turn a busy afternoon into one blob.
  */
 
-import { DROP_IN_MIN_DURATION_MS } from "./schedule-browse";
+import { isDropInEvent } from "./schedule-browse";
 
 export interface CompareEvent {
   id: string;
@@ -28,7 +28,7 @@ function interval(
   if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start)
     return null;
   // Drop-in programming is never a conflict; see schedule-browse.ts.
-  if (end - start >= DROP_IN_MIN_DURATION_MS) return null;
+  if (isDropInEvent(event)) return null;
   return { start, end };
 }
 

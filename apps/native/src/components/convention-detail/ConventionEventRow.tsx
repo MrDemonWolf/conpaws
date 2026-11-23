@@ -3,6 +3,7 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { EventItem } from "@/components/EventItem";
 import type { ConventionEvent } from "@/db/schema";
+import { eventReminderLabel } from "@/lib/agenda-labels";
 import type { ClusterPosition } from "@/lib/day-band";
 import { getEventIndicators } from "@/lib/event-indicators";
 import { formatEventEndTime, formatEventTime } from "@/lib/event-time-format";
@@ -12,18 +13,11 @@ export function getEventIndicatorLabels(
   event: Pick<ConventionEvent, "reminderMinutes" | "sourceUid">,
   t: TFunction,
 ): { provenanceLabel: string; reminderLabel?: string } {
-  const { provenance, reminder } = getEventIndicators(event);
+  const { provenance } = getEventIndicators(event);
 
   return {
     provenanceLabel: t(`convention.eventSource.${provenance}`),
-    reminderLabel: reminder
-      ? t(
-          reminder.kind === "hour"
-            ? "reminders.hourBefore"
-            : "reminders.minutesBefore",
-          { minutes: reminder.minutes },
-        )
-      : undefined,
+    reminderLabel: eventReminderLabel(event.reminderMinutes, t),
   };
 }
 
@@ -39,7 +33,7 @@ interface ConventionEventRowProps {
   overlapGroupSize?: number;
   overlapCount?: number;
   accentColor?: string | null;
-  trailingAction?: {
+  trailingAction: {
     label: string;
     selected: boolean;
     onPress: () => void;

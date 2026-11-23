@@ -607,10 +607,6 @@ export async function getAllWithReminders(): Promise<ConventionEvent[]> {
     .where(isNotNull(conventionEvents.reminderMinutes));
 }
 
-export async function remove(id: string): Promise<void> {
-  await db.delete(conventionEvents).where(eq(conventionEvents.id, id));
-}
-
 export async function update(
   id: string,
   data: Partial<Omit<NewConventionEvent, "id" | "createdAt">>,

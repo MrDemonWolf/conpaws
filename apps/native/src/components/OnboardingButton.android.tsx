@@ -1,10 +1,4 @@
-import {
-  Button,
-  Host,
-  OutlinedButton,
-  Text,
-  TextButton,
-} from "@expo/ui/jetpack-compose";
+import { Button, Host, Text, TextButton } from "@expo/ui/jetpack-compose";
 import {
   defaultMinSize,
   fillMaxWidth,
@@ -17,7 +11,6 @@ import type { OnboardingButtonProps } from "./OnboardingButton.types";
 
 const buttonComponents = {
   primary: Button,
-  secondary: OutlinedButton,
   text: TextButton,
 };
 
@@ -25,7 +18,6 @@ export function OnboardingButton({
   label,
   onPress,
   variant = "primary",
-  disabled = false,
   testID,
 }: OnboardingButtonProps) {
   const resolvedColorScheme = useResolvedColorScheme();
@@ -49,11 +41,7 @@ export function OnboardingButton({
         matchContents={{ vertical: true }}
         style={{ alignSelf: "stretch" }}
       >
-        <NativeButton
-          onClick={onPress}
-          enabled={!disabled}
-          modifiers={modifiers}
-        >
+        <NativeButton onClick={onPress} modifiers={modifiers}>
           <Text style={{ typography: "labelLarge" }}>{label}</Text>
         </NativeButton>
       </Host>

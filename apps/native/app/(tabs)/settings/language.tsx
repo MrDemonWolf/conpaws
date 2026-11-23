@@ -1,16 +1,11 @@
-import CheckIcon from "@expo/material-symbols/check.xml";
-import { FieldGroup, Host, Icon } from "@expo/ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
+import { FieldGroup } from "@expo/ui";
 import { router } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
-import { NativeText } from "@/components/ui/NativeText";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
+import { settingsChoiceRow } from "@/components/SettingsChoiceRow";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
+import { settingsFooter } from "@/components/SettingsFooter";
 import { reportError } from "@/lib/error-reporting";
 import i18n, {
   changeLanguage,
@@ -21,8 +16,6 @@ import i18n, {
 import { recordReminderReconciliation } from "@/lib/reminder-notice";
 import { reconcileEventReminders } from "@/services/notifications";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
-
-const CHECK = Icon.select({ ios: "checkmark", android: CheckIcon });
 
 /**
  * A language is not a country, but a flag is the fastest visual anchor in a
@@ -58,9 +51,6 @@ const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
 
 export default function LanguageScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
   const [isChanging, setIsChanging] = useState(false);
   const currentLanguage = i18n.language as SupportedLanguage;
 
@@ -88,55 +78,33 @@ export default function LanguageScreen() {
   }
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section disabled={isChanging}>
-          {SUPPORTED_LANGUAGES.map((code) => {
-            const { nativeName } = LANGUAGE_META[code];
-            const isSelected = currentLanguage === code;
-            const localizedName = t(`settings.languages.${code}`, {
-              defaultValue: nativeName,
-            });
-            const supportingText = [
-              localizedName === nativeName ? null : localizedName,
-              isSelected ? t("settings.languages.selected") : null,
-            ]
-              .filter(Boolean)
-              .join(" · ");
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section disabled={isChanging}>
+        {SUPPORTED_LANGUAGES.map((code) => {
+          const { nativeName } = LANGUAGE_META[code];
+          const isSelected = currentLanguage === code;
+          const localizedName = t(`settings.languages.${code}`, {
+            defaultValue: nativeName,
+          });
+          const supportingText = [
+            localizedName === nativeName ? null : localizedName,
+            isSelected ? t("settings.languages.selected") : null,
+          ]
+            .filter(Boolean)
+            .join(" · ");
 
-            return (
-              <ListItem
-                // Selected state is in the key because @expo/ui's Android
-                // ListItem mounts its `trailing` slot once and then leaves it
-                // alone: it unmounts a slot that becomes `undefined` but never
-                // mounts a new one, so the checkmark vanished off the old row
-                // and never appeared on the new one. Remounting the two rows
-                // that flipped is what makes the tick move. Verified on the
-                // reminder-default screen, which had the identical bug.
-                key={`${code}-${isSelected}`}
-                testID={`language-${code}`}
-                supportingText={supportingText || undefined}
-                trailing={
-                  isSelected ? <Icon name={CHECK} size={18} /> : undefined
-                }
-                onPress={() => handleSelect(code)}
-              >
-                {`${LANGUAGE_FLAGS[code]}  ${nativeName}`}
-              </ListItem>
-            );
-          })}
-          <FieldGroup.SectionFooter>
-            <NativeText modifiers={[font({ textStyle: "footnote" })]}>
-              {t("settings.languages.description")}
-            </NativeText>
-          </FieldGroup.SectionFooter>
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+          return settingsChoiceRow({
+            id: code,
+            testID: `language-${code}`,
+            title: `${LANGUAGE_FLAGS[code]}  ${nativeName}`,
+            selected: isSelected,
+            indicator: "check",
+            supportingText: supportingText || undefined,
+            onPress: () => handleSelect(code),
+          });
+        })}
+        {settingsFooter(t("settings.languages.description"))}
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }

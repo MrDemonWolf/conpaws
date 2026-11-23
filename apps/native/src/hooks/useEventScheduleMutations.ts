@@ -1,10 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, Linking } from "react-native";
+import { AccessibilityInfo, Alert } from "react-native";
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
 import { hasVisit, isValidVisit, plannedEvent } from "@/lib/drop-in-visit";
-import { confirmNotificationPriming } from "@/lib/notification-priming";
+import {
+  confirmNotificationPriming,
+  showOpenSettingsAlert,
+} from "@/lib/notification-priming";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { removeDropInVisit } from "@/services/drop-in-visit";
 import {
@@ -19,6 +22,14 @@ import {
   scheduleEventReminder,
 } from "@/services/notifications";
 import { publishWidgetSnapshot } from "@/services/widget-snapshot";
+
+/** The one alert for a save, unsave, visit removal or swap that failed. */
+function showScheduleUpdateError(t: (key: string) => string): void {
+  Alert.alert(
+    t("convention.scheduleUpdateErrorTitle"),
+    t("convention.scheduleUpdateErrorMessage"),
+  );
+}
 
 /** Why a reminder could not be set, so each cause gets its own message. */
 type ReminderFailure =
@@ -84,12 +95,7 @@ export function useEventScheduleMutations({
         ),
       );
     },
-    onError: () => {
-      Alert.alert(
-        t("convention.scheduleUpdateErrorTitle"),
-        t("convention.scheduleUpdateErrorMessage"),
-      );
-    },
+    onError: () => showScheduleUpdateError(t),
   });
 
   const removeVisitMutation = useMutation({
@@ -106,12 +112,7 @@ export function useEventScheduleMutations({
         t("convention.scheduleRemovedAnnouncement", { event: event.title }),
       );
     },
-    onError: () => {
-      Alert.alert(
-        t("convention.scheduleUpdateErrorTitle"),
-        t("convention.scheduleUpdateErrorMessage"),
-      );
-    },
+    onError: () => showScheduleUpdateError(t),
   });
 
   const setReminderMutation = useMutation({
@@ -235,18 +236,10 @@ export function useEventScheduleMutations({
 
       if (failure === "permission") {
         onPermissionDenied?.();
-        Alert.alert(
+        showOpenSettingsAlert(
           t("reminders.permissionTitle"),
           t("reminders.permissionMessage"),
-          [
-            { text: t("common.cancel"), style: "cancel" },
-            {
-              text: t("reminders.openSettings"),
-              onPress: () => {
-                void Linking.openSettings();
-              },
-            },
-          ],
+          t,
         );
         return;
       }
@@ -307,12 +300,7 @@ export function useEventScheduleMutations({
             }),
       );
     },
-    onError: () => {
-      Alert.alert(
-        t("convention.scheduleUpdateErrorTitle"),
-        t("convention.scheduleUpdateErrorMessage"),
-      );
-    },
+    onError: () => showScheduleUpdateError(t),
   });
 
   return {

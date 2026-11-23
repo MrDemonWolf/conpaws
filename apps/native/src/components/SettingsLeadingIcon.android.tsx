@@ -24,22 +24,16 @@ import type {
 /**
  * Compose-native icons, because a React Native view here **crashes the app**.
  *
- * Settings used to render lucide glyphs on both platforms. A lucide icon is a
- * React Native view, and putting one in an `@expo/ui` ListItem `leading` slot
- * makes Compose host it through `AndroidView` interop -- which throws
+ * A React Native view in an `@expo/ui` ListItem `leading` slot makes Compose
+ * host it through `AndroidView` interop, which throws
  * `IllegalStateException: The specified child already has a parent` from
- * `AndroidViewHolder.<init>` when the row recomposes. Reproducible on the
- * emulator as Conventions -> Schedule -> Settings, and fatal: the whole
- * Settings tab was unreachable on Android.
+ * `AndroidViewHolder.<init>` when the row recomposes. That is fatal: the
+ * whole Settings tab becomes unreachable on Android.
  *
  * `RNHostView` is not the way out. The About screen already documents that it
  * renders nothing inside an @expo/ui list on Android -- with `matchContents`
  * it measures to zero and the content silently vanishes. About solves the same
  * problem the same way this does, with a native Icon.
- *
- * The stale comment on the old shared `LeadingIcon` said native Icons
- * "collapse inside RN wrapper views". True of an RN wrapper; a ListItem slot
- * is not one, and About has shipped native Icons in `leading` all along.
  */
 const GLYPHS: Record<SettingsIconName, Parameters<typeof Icon>[0]["name"]> = {
   theme: PaletteIcon,

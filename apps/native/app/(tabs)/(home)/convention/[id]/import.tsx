@@ -3,7 +3,6 @@ import {
   Collapsible,
   FieldGroup,
   Host,
-  ListItem,
   Button as NativeButton,
   TextInput as NativeTextInput,
   useNativeState,
@@ -13,7 +12,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
-import { getCalendars } from "expo-localization";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -25,7 +23,9 @@ import {
   FORM_PRESENTED_AS_SHEET,
   FORM_SAFE_EDGES,
 } from "@/components/FormModalHeader.shared";
+import { importHelpRows } from "@/components/ImportHelpRows";
 import { SafeView } from "@/components/ui";
+import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { RowSpinner } from "@/components/ui/RowSpinner";
 import * as conventionsRepo from "@/db/repositories/conventions";
@@ -36,6 +36,7 @@ import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { isValidTimeZone } from "@/lib/convention-time";
 import { developerToolsEnabled } from "@/lib/developer-tools";
+import { getDeviceTimeZone } from "@/lib/display-time-zone";
 import { normalizeEcpUids } from "@/lib/ecp-feed";
 import type { FeedSource } from "@/lib/feed-source";
 import {
@@ -171,7 +172,7 @@ export default function ImportScreen() {
     () =>
       buildTimeZoneOptions(
         ["UTC", ...supportedValuesOf("timeZone")],
-        getCalendars()[0]?.timeZone ?? "UTC",
+        getDeviceTimeZone(),
       ),
     [],
   );
@@ -930,15 +931,7 @@ export default function ImportScreen() {
               isOpen={helpOpen}
               onOpenChange={setHelpOpen}
             >
-              <ListItem supportingText={t("import.help.sched")}>
-                {t("import.help.schedTitle")}
-              </ListItem>
-              <ListItem supportingText={t("import.help.ics")}>
-                {t("import.help.icsTitle")}
-              </ListItem>
-              <ListItem supportingText={t("import.help.ask")}>
-                {t("import.help.askTitle")}
-              </ListItem>
+              {importHelpRows(t)}
             </Collapsible>
           </FieldGroup.Section>
 

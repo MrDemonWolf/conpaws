@@ -601,7 +601,6 @@
     "title": "Settings",
     "languages": {
       "title": "Language",
-      "systemDefault": "Use device language",
       "en": "English",
       "es-419": "Spanish (Latin America)",
       "es-ES": "Spanish (Spain)",

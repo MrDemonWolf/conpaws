@@ -1,72 +1,52 @@
-import { FieldGroup, Host } from "@expo/ui";
+import { FieldGroup } from "@expo/ui";
 import { router } from "expo-router";
-import { useTheme } from "expo-router/react-navigation";
 import { useTranslation } from "react-i18next";
-// See components/ui/FieldRow.android.tsx — one Material surface per row.
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
+import { importHelpRows } from "@/components/ImportHelpRows";
+import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
+import { FieldRow } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
-import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
-import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 
 /**
- * The import guidance as a permanent reference. The same content lives in the
- * import screen's collapsible help; a user who dismissed it there can always
- * find their way back through Settings.
+ * The import guidance as a permanent reference. The same rows
+ * (`importHelpRows`) sit in the import screen's collapsible help; a user who
+ * dismissed it there can always find their way back through Settings.
  */
 export default function GettingStartedScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
-  const resolvedColorScheme = useResolvedColorScheme();
-  const readableGroup = useReadableFieldGroup();
 
   return (
-    <Host
-      colorScheme={resolvedColorScheme}
-      seedColor={colors.primary}
-      style={{ flex: 1 }}
-      useViewportSizeMeasurement
-    >
-      <FieldGroup {...readableGroup}>
-        <FieldGroup.Section title={t("import.help.title")}>
-          <ListItem supportingText={t("import.help.sched")}>
-            {t("import.help.schedTitle")}
-          </ListItem>
-          <ListItem supportingText={t("import.help.ics")}>
-            {t("import.help.icsTitle")}
-          </ListItem>
-          <ListItem supportingText={t("import.help.ask")}>
-            {t("import.help.askTitle")}
-          </ListItem>
-        </FieldGroup.Section>
-        <FieldGroup.Section>
-          <ListItem
-            supportingText={t("settings.help.findDescription")}
-            onPress={() => router.push("/convention/find")}
-          >
-            {t("settings.help.find")}
-          </ListItem>
-          <ListItem
-            supportingText={t("settings.help.importNowDescription")}
-            onPress={() => router.push("/convention/new/import")}
-          >
-            {t("settings.help.importNow")}
-          </ListItem>
-          <ListItem
-            supportingText={t("settings.help.replayDescription")}
-            onPress={() =>
-              router.push({
-                pathname: "/(onboarding)/welcome",
-                params: { replay: "1" },
-              })
-            }
-          >
-            {t("settings.help.replay")}
-          </ListItem>
-          <FieldGroup.SectionFooter>
-            <NativeText>{t("convention.scheduleHint.body")}</NativeText>
-          </FieldGroup.SectionFooter>
-        </FieldGroup.Section>
-      </FieldGroup>
-    </Host>
+    <SettingsFieldGroupScreen>
+      <FieldGroup.Section title={t("import.help.title")}>
+        {importHelpRows(t)}
+      </FieldGroup.Section>
+      <FieldGroup.Section>
+        <FieldRow
+          supportingText={t("settings.help.findDescription")}
+          onPress={() => router.push("/convention/find")}
+        >
+          {t("settings.help.find")}
+        </FieldRow>
+        <FieldRow
+          supportingText={t("settings.help.importNowDescription")}
+          onPress={() => router.push("/convention/new/import")}
+        >
+          {t("settings.help.importNow")}
+        </FieldRow>
+        <FieldRow
+          supportingText={t("settings.help.replayDescription")}
+          onPress={() =>
+            router.push({
+              pathname: "/(onboarding)/welcome",
+              params: { replay: "1" },
+            })
+          }
+        >
+          {t("settings.help.replay")}
+        </FieldRow>
+        <FieldGroup.SectionFooter>
+          <NativeText>{t("convention.scheduleHint.body")}</NativeText>
+        </FieldGroup.SectionFooter>
+      </FieldGroup.Section>
+    </SettingsFieldGroupScreen>
   );
 }

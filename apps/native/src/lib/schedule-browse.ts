@@ -41,10 +41,12 @@ export const HOUR_MS = 60 * 60 * 1000;
 export const DROP_IN_MIN_DURATION_MS = 4 * HOUR_MS;
 
 /**
- * Same fallback the other schedule helpers use: an event with no published
- * end is treated as an hour long so it can still be matched and ordered.
+ * The one fallback every schedule helper uses: imported and hand-added events
+ * may have no published end, so an unknown end counts as an hour. The event
+ * can still be matched and ordered, and it does not vanish from Now or the
+ * personal schedule the moment it starts, while the user is standing in it.
  */
-const NO_END_FALLBACK_MS = HOUR_MS;
+export const NO_END_FALLBACK_MS = HOUR_MS;
 
 /** The longest convention the day strip will enumerate day by day. */
 const MAX_STRIP_DAYS = 60;
@@ -53,7 +55,13 @@ function startMs(event: Pick<BrowseEvent, "startTime">): number {
   return Date.parse(event.startTime);
 }
 
-function endMs(event: Pick<BrowseEvent, "startTime" | "endTime">): number {
+/**
+ * When an event stops counting as running: its published end when that is
+ * after the start, otherwise `NO_END_FALLBACK_MS` after the start.
+ */
+export function effectiveEndMs(
+  event: Pick<BrowseEvent, "startTime" | "endTime">,
+): number {
   const start = startMs(event);
   if (!event.endTime) return start + NO_END_FALLBACK_MS;
   const end = Date.parse(event.endTime);
@@ -188,7 +196,10 @@ export function matchesHourSlot(
   slotStartMs: number,
 ): boolean {
   if (!hasValidStart(event)) return false;
-  return startMs(event) < slotStartMs + HOUR_MS && endMs(event) > slotStartMs;
+  return (
+    startMs(event) < slotStartMs + HOUR_MS &&
+    effectiveEndMs(event) > slotStartMs
+  );
 }
 
 /** Case-insensitive match over the fields a reader might type. */
@@ -233,7 +244,8 @@ export interface BrowseSelection<T extends BrowseEvent> {
   dayCount: number;
 }
 
-function compareByStart(
+/** Schedule order: start, then room, then title, then id. */
+export function compareByStart(
   left: Pick<BrowseEvent, "id" | "title" | "room" | "startTime">,
   right: Pick<BrowseEvent, "id" | "title" | "room" | "startTime">,
 ): number {

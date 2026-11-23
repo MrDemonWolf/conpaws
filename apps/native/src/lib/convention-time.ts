@@ -45,11 +45,58 @@ export function formatInConventionTime(
   return format(new TZDate(timestamp, timeZone), pattern);
 }
 
+function pad(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+/**
+ * The instant a convention-local wall clock stands for, or null when that wall
+ * clock does not exist in the zone. Compared to the minute, or to the second
+ * when `second` is given.
+ *
+ * Spring forward skips an hour: 2:30 AM on the second Sunday of March never
+ * happens in US Central, and the zone arithmetic quietly lands on 3:30 AM
+ * instead. Round-tripping the result back through the zone is the only way to
+ * catch it, and a caller that skips the check stores the event an hour off and
+ * fires its reminder at the wrong time.
+ */
+export function resolveConventionWallClock(
+  parts: {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second?: number;
+  },
+  timeZone: string,
+): Date | null {
+  const instant = fromConventionTime(parts, timeZone);
+  const withSeconds = parts.second !== undefined;
+  const requested = `${parts.year}-${pad(parts.month)}-${pad(parts.day)} ${pad(parts.hour)}:${pad(parts.minute)}${withSeconds ? `:${pad(parts.second ?? 0)}` : ""}`;
+
+  return formatInConventionTime(
+    instant,
+    timeZone,
+    withSeconds ? "yyyy-MM-dd HH:mm:ss" : "yyyy-MM-dd HH:mm",
+  ) === requested
+    ? instant
+    : null;
+}
+
 export function conventionDayKey(
   value: string | Date,
   timeZone: string,
 ): string {
   return formatInConventionTime(value, timeZone, "yyyy-MM-dd");
+}
+
+/** Whole calendar days from one yyyy-MM-dd key to another; NaN when either key is invalid. */
+export function dayKeyDifference(from: string, to: string): number {
+  return Math.round(
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
+      86_400_000,
+  );
 }
 
 export function conventionStatusForDay(

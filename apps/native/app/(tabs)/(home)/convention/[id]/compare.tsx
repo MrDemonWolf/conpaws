@@ -1,23 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCalendars } from "expo-localization";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, useColorScheme, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { CompareCard } from "@/components/schedule/CompareCard";
 import { SheetHeader } from "@/components/schedule/SheetHeader";
 import { Button, Text } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { categoryAccentColor } from "@/lib/category-color";
 import {
   compareCandidates,
   overlapMinutesBetween,
   planAfterChoice,
 } from "@/lib/compare-candidates";
-import { isValidTimeZone } from "@/lib/convention-time";
 import { useHour12 } from "@/lib/device-clock";
+import { displayTimeZone } from "@/lib/display-time-zone";
 import { plannedEvent } from "@/lib/drop-in-visit";
 import { formatEventEndTime, formatEventTime } from "@/lib/event-time-format";
 import { currentLocale } from "@/lib/i18n";
@@ -42,7 +42,7 @@ export default function CompareSheetRoute() {
   const { t } = useTranslation();
   const locale = currentLocale();
   const hour12 = useHour12();
-  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
+  const colorScheme = useResolvedColorScheme();
 
   const { data: convention } = useQuery({
     queryKey: ["convention", id],
@@ -79,9 +79,7 @@ export default function CompareSheetRoute() {
   const compareSet = set;
 
   const storedTimeZone = convention?.timeZone;
-  const timeZone = isValidTimeZone(storedTimeZone)
-    ? storedTimeZone
-    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const timeZone = displayTimeZone(storedTimeZone);
   const selected =
     set.cards.find((card) => card.id === selectedId) ?? set.candidate;
   const change = planAfterChoice(set, selected.id, false);

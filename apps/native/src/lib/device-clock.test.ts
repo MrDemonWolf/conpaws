@@ -82,3 +82,14 @@ describe("time format preference", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("timeFormatLabelKey", () => {
+  it.each([
+    ["system", "system"],
+    ["12", "hour12"],
+    ["24", "hour24"],
+  ] as const)("names %s as the %s label", async (preference, key) => {
+    const clock = await import("./device-clock");
+    expect(clock.timeFormatLabelKey(preference)).toBe(key);
+  });
+});

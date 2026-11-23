@@ -50,14 +50,12 @@ function SettingsLinkRowView({
   kind = "navigate",
   busy = false,
   onPress,
-  testID,
 }: SettingsLinkRowProps) {
   const { fontScale } = useWindowDimensions();
   const stacked = fontScale >= SETTINGS_STACKED_FONT_SCALE;
   const subtitle = stacked ? (value ?? description) : description;
   return (
     <FieldRow
-      testID={testID}
       leading={<SettingsLeadingIcon name={icon} />}
       supportingText={
         subtitle ? (

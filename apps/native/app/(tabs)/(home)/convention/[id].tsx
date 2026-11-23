@@ -8,7 +8,6 @@ import RefreshIcon from "@expo/material-symbols/refresh.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
-import { getCalendars } from "expo-localization";
 import {
   router,
   Stack,
@@ -20,7 +19,6 @@ import { useTranslation } from "react-i18next";
 import {
   AccessibilityInfo,
   SectionList,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -63,18 +61,21 @@ import type { ConventionEvent } from "@/db/schema";
 import { useContentWidth } from "@/hooks/useContentWidth";
 import { useEventScheduleMutations } from "@/hooks/useEventScheduleMutations";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useScheduleRefresh } from "@/hooks/useScheduleRefresh";
 import { ageBadgeFor } from "@/lib/age-badge";
-import { type AgendaGap, splitMinutes } from "@/lib/agenda-gaps";
+import {
+  agendaGapLabel,
+  agendaStatusLabel,
+  eventReminderLabel,
+  feedStatusLabel,
+} from "@/lib/agenda-labels";
 import { categoryAccentColor } from "@/lib/category-color";
 import { compareCandidates } from "@/lib/compare-candidates";
-import {
-  conventionDayKey,
-  isValidTimeZone,
-  overlappingEventIds,
-} from "@/lib/convention-time";
+import { conventionDayKey } from "@/lib/convention-time";
 import { resolveConventionPreviewState } from "@/lib/developer-tools";
 import { useHour12 } from "@/lib/device-clock";
+import { displayTimeZone } from "@/lib/display-time-zone";
 import { hasVisit, plannedEvent } from "@/lib/drop-in-visit";
 import { shouldShowProvenance } from "@/lib/event-indicators";
 import {
@@ -94,6 +95,7 @@ import {
   resetPresentationLock,
   tryAcquirePresentationLock,
 } from "@/lib/presentation-lock";
+import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getReminderReconciliation,
   resolveReminderNotice,
@@ -101,6 +103,7 @@ import {
 import {
   type BrowseFilters,
   browseStateForEvent,
+  conflictingSavedIds,
   conventionDayKeys,
   dayCounts,
   defaultBrowseDay,
@@ -173,7 +176,7 @@ export default function ConventionDetailScreen() {
   const queryClient = useQueryClient();
   const locale = currentLocale();
   const hour12 = useHour12();
-  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
+  const colorScheme = useResolvedColorScheme();
   // A Dynamic Type change reaches a running app, but already-measured list
   // cells keep their old heights and clip the larger text. Part of
   // `extraData` below so the cells are rebuilt.
@@ -374,20 +377,14 @@ export default function ConventionDetailScreen() {
   );
   // One computation per render, not per row.
   const showProvenance = useMemo(() => shouldShowProvenance(events), [events]);
-  // Drop-in programming never clashes: a room open all day is not a
-  // commitment that competes with a panel.
+  // Saved, live, timed clashes; drop-ins never count (see conflictingSavedIds).
   const conflictingEventIds = useMemo(
-    () =>
-      overlappingEventIds(
-        liveScheduledEvents.filter((event) => !isDropInEvent(event)),
-      ),
-    [liveScheduledEvents],
+    () => conflictingSavedIds(scheduledEvents),
+    [scheduledEvents],
   );
 
   const storedTimeZone = convention?.timeZone;
-  const conventionTimeZone = isValidTimeZone(storedTimeZone)
-    ? storedTimeZone
-    : (getCalendars()[0]?.timeZone ?? "UTC");
+  const conventionTimeZone = displayTimeZone(storedTimeZone);
   const todayKey = conventionDayKey(new Date(now), conventionTimeZone);
 
   // The day strip: the convention's days plus any an event spills onto.
@@ -617,21 +614,6 @@ export default function ConventionDetailScreen() {
     listJump,
   ]);
 
-  const gapLabel = useCallback(
-    (gap: AgendaGap): string => {
-      if (gap.kind === "backToBack") return t("convention.plan.gap.backToBack");
-      if (gap.kind === "overlap")
-        return t("convention.plan.gap.overlap", { minutes: gap.minutes });
-      if (gap.hint === "short")
-        return t("convention.plan.gap.free", { minutes: gap.minutes });
-      const { hours, minutes } = splitMinutes(gap.minutes);
-      return minutes === 0
-        ? t("convention.plan.gap.freeHours", { hours })
-        : t("convention.plan.gap.freeHoursMinutes", { hours, minutes });
-    },
-    [t],
-  );
-
   const renderItem = useCallback(
     ({ item, section }: { item: Row; section: Section }) => {
       switch (item.kind) {
@@ -720,14 +702,6 @@ export default function ConventionDetailScreen() {
             hour12,
           );
           const ageBadge = ageBadgeFor(event.ageRating);
-          const statusLabel =
-            item.status === "now"
-              ? t("convention.plan.status.now")
-              : item.status === "endedToday"
-                ? t("convention.plan.status.endedToday")
-                : item.status === "ended"
-                  ? t("convention.plan.status.ended")
-                  : undefined;
           return (
             <SwipeToggleRow
               removeLabel={t("common.remove")}
@@ -743,28 +717,13 @@ export default function ConventionDetailScreen() {
                 room={event.room ?? event.location ?? undefined}
                 accentColor={categoryAccentColor(event.category, colorScheme)}
                 status={item.status}
-                statusLabel={statusLabel}
+                statusLabel={agendaStatusLabel(item.status, t)}
                 hasConflict={conflictingEventIds.has(event.id)}
                 conflictLabel={t("convention.overlapLabel")}
                 feedStatusLabel={
-                  event.feedStatus
-                    ? t(
-                        event.feedStatus === "cancelled"
-                          ? "convention.feedStatus.cancelled"
-                          : "convention.feedStatus.removed",
-                      )
-                    : undefined
+                  feedStatusLabel(event.feedStatus, t) ?? undefined
                 }
-                reminderLabel={
-                  event.reminderMinutes !== null
-                    ? t(
-                        event.reminderMinutes === 60
-                          ? "reminders.hourBefore"
-                          : "reminders.minutesBefore",
-                        { minutes: event.reminderMinutes },
-                      )
-                    : undefined
-                }
+                reminderLabel={eventReminderLabel(event.reminderMinutes, t)}
                 ageBadge={
                   ageBadge
                     ? { variant: ageBadge.variant, label: t(ageBadge.key) }
@@ -787,14 +746,15 @@ export default function ConventionDetailScreen() {
           );
         }
         case "gap":
-          return <AgendaGapRow gap={item.gap} label={gapLabel(item.gap)} />;
+          return (
+            <AgendaGapRow gap={item.gap} label={agendaGapLabel(item.gap, t)} />
+          );
       }
     },
     [
       colorScheme,
       conflictingEventIds,
       conventionTimeZone,
-      gapLabel,
       handleStarPress,
       highlightedEventId,
       hour12,
@@ -1157,14 +1117,7 @@ export default function ConventionDetailScreen() {
           reminderLabel:
             heroEvent.reminderMinutes !== null
               ? t("convention.now.reminder", {
-                  label: t(
-                    heroEvent.reminderMinutes === 60
-                      ? "reminders.hourBefore"
-                      : heroEvent.reminderMinutes === 0
-                        ? "reminders.atTime"
-                        : "reminders.minutesBefore",
-                    { minutes: heroEvent.reminderMinutes },
-                  ),
+                  label: reminderDefaultLabel(heroEvent.reminderMinutes, t),
                 })
               : undefined,
           next: hero.following
@@ -1180,7 +1133,7 @@ export default function ConventionDetailScreen() {
                 title: hero.following.title,
                 meta: [
                   hero.following.room ?? hero.following.location,
-                  hero.gap ? gapLabel(hero.gap) : null,
+                  hero.gap ? agendaGapLabel(hero.gap, t) : null,
                 ]
                   .filter(Boolean)
                   .join(" · "),

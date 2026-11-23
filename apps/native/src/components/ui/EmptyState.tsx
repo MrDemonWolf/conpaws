@@ -16,14 +16,11 @@ interface EmptyStateProps {
   compact?: boolean;
   ctaLabel?: string;
   onCta?: () => void;
-  ctaTestID?: string;
   secondaryCtaLabel?: string;
   onSecondaryCta?: () => void;
-  secondaryCtaTestID?: string;
   actionsInline?: boolean;
   secondaryCtaVariant?: "text" | "outlined";
   className?: string;
-  testID?: string;
 }
 
 /**
@@ -43,14 +40,11 @@ export function EmptyState({
   compact = false,
   ctaLabel,
   onCta,
-  ctaTestID,
   secondaryCtaLabel,
   onSecondaryCta,
-  secondaryCtaTestID,
   actionsInline = false,
   secondaryCtaVariant = "text",
   className,
-  testID,
 }: EmptyStateProps) {
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
@@ -66,7 +60,6 @@ export function EmptyState({
         className,
       )}
       style={compact ? undefined : widthCap(EMPTY_STATE_MAX)}
-      testID={testID}
     >
       {icon ? (
         <View
@@ -129,7 +122,7 @@ export function EmptyState({
           compact ? (
             // No min-h class on these Buttons: tailwind-merge would let it
             // replace Button's own 48 floor, and min-h-12 renders 42.
-            <Button className="w-full" onPress={onCta} testID={ctaTestID}>
+            <Button className="w-full" onPress={onCta}>
               {ctaLabel}
             </Button>
           ) : Platform.OS === "ios" ? (
@@ -142,7 +135,6 @@ export function EmptyState({
                 label={ctaLabel}
                 modifiers={IOS_MIN_TAP_TARGET}
                 onPress={onCta}
-                testID={ctaTestID}
               />
             </Host>
           ) : (
@@ -151,40 +143,25 @@ export function EmptyState({
             // the parent's items-center has nothing to centre. alignSelf on
             // the Host does not override it. The plain button sizes to its
             // own content, which is what centring needs.
-            <Button
-              className="self-center px-6"
-              onPress={onCta}
-              testID={ctaTestID}
-            >
+            <Button className="self-center px-6" onPress={onCta}>
               {ctaLabel}
             </Button>
           )
         ) : null}
         {secondaryCtaLabel && onSecondaryCta ? (
-          compact ? (
-            <Button
-              className="w-full"
-              onPress={onSecondaryCta}
-              testID={secondaryCtaTestID}
-              variant={secondaryCtaVariant === "outlined" ? "outline" : "ghost"}
-            >
-              {secondaryCtaLabel}
-            </Button>
-          ) : Platform.OS === "ios" ? (
+          Platform.OS === "ios" ? (
             <Host colorScheme={resolvedColorScheme} matchContents>
               <NativeButton
                 label={secondaryCtaLabel}
                 modifiers={IOS_MIN_TAP_TARGET}
                 onPress={onSecondaryCta}
                 variant={secondaryCtaVariant}
-                testID={secondaryCtaTestID}
               />
             </Host>
           ) : (
             <Button
               className="self-center px-6"
               onPress={onSecondaryCta}
-              testID={secondaryCtaTestID}
               // Honor the requested variant — hardcoding ghost made the
               // secondary action visually weaker on Android than on iOS.
               variant={secondaryCtaVariant === "outlined" ? "outline" : "ghost"}

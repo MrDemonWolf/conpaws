@@ -1,7 +1,8 @@
 import { ChevronRight, Store } from "lucide-react-native";
 import { memo } from "react";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 import { Row, Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 
 interface DropInRowProps {
@@ -23,7 +24,7 @@ export const DropInRow = memo(function DropInRow({
   onPress,
   testID,
 }: DropInRowProps) {
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
   const tokens = themeTokens[scheme];
 
   return (

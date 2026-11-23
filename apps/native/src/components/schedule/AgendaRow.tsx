@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Pressable, useWindowDimensions, View } from "react-native";
 import { Badge, type BadgeVariant, PRESS_DIM, Text } from "@/components/ui";
 import type { AgendaStatus } from "@/lib/agenda-gaps";
+import { STACKED_FONT_SCALE } from "@/lib/text-scale";
 import { cn } from "@/lib/utils";
 
 export interface AgendaRowProps {
@@ -66,7 +67,7 @@ export const AgendaRow = memo(function AgendaRow({
   className,
 }: AgendaRowProps) {
   const { fontScale } = useWindowDimensions();
-  const stacked = fontScale >= 1.6;
+  const stacked = fontScale >= STACKED_FONT_SCALE;
   const ended = status === "ended" || status === "endedToday";
   const conflictLabel = hasConflict ? conflictLabelProp : undefined;
   const meta = [contextLabel, room, untilLabel].filter(Boolean).join(" · ");

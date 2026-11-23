@@ -130,7 +130,7 @@ export interface LocationEditOptions {
 }
 
 export type LocationEditDecision =
-  /** Nothing to re-infer — keep `currentTimeZone`. */
+  /** Nothing to re-infer — keep the convention's stored zone. */
   | { action: "keep" }
   /** The location changed to something real — geocode it. */
   | { action: "infer" };

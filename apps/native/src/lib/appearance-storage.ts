@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSyncExternalStore } from "react";
 import { Appearance } from "react-native";
 import {
   type AppearancePreference,
@@ -19,6 +20,15 @@ export function subscribeAppearancePreference(
 ): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+/** The stored appearance choice, re-rendering when Settings changes it. */
+export function useAppearancePreference(): AppearancePreference {
+  return useSyncExternalStore(
+    subscribeAppearancePreference,
+    getAppearancePreference,
+    getAppearancePreference,
+  );
 }
 
 export function applyAppearancePreference(

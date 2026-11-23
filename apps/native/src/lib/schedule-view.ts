@@ -1,25 +1,11 @@
+import { compareByStart, NO_END_FALLBACK_MS } from "./schedule-browse";
+
 export interface ScheduleViewEvent {
   id: string;
   title: string;
   startTime: string;
   endTime: string | null;
   room: string | null;
-}
-
-// End times are optional for manual and imported events. Keep them visible in
-// Now for one hour instead of dropping them at their start time.
-const NO_END_FALLBACK_MS = 60 * 60 * 1000;
-
-function compareEvents(
-  left: ScheduleViewEvent,
-  right: ScheduleViewEvent,
-): number {
-  return (
-    Date.parse(left.startTime) - Date.parse(right.startTime) ||
-    (left.room ?? "").localeCompare(right.room ?? "") ||
-    left.title.localeCompare(right.title) ||
-    left.id.localeCompare(right.id)
-  );
 }
 
 export function getNowAndNextEvents<T extends ScheduleViewEvent>(
@@ -45,7 +31,7 @@ export function getNowAndNextEvents<T extends ScheduleViewEvent>(
         nowMs < end
       );
     })
-    .sort(compareEvents);
+    .sort(compareByStart);
 
   const upcoming = validEvents.filter(
     (event) => Date.parse(event.startTime) > nowMs,
@@ -56,7 +42,7 @@ export function getNowAndNextEvents<T extends ScheduleViewEvent>(
   );
   const next = upcoming
     .filter((event) => Date.parse(event.startTime) === nextStart)
-    .sort(compareEvents);
+    .sort(compareByStart);
 
   return { current, next };
 }

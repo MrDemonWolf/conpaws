@@ -4,7 +4,6 @@ import DownloadIcon from "@expo/material-symbols/download.xml";
 import EditCalendarIcon from "@expo/material-symbols/edit_calendar.xml";
 import SearchIcon from "@expo/material-symbols/search.xml";
 import SortIcon from "@expo/material-symbols/sort.xml";
-import WarningIcon from "@expo/material-symbols/warning.xml";
 import { Icon } from "@expo/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
@@ -19,17 +18,18 @@ import {
   View,
 } from "react-native";
 import { ConventionList } from "@/components/ConventionList";
+import { ERROR_ICON } from "@/components/icons";
 import {
   Button,
   ConventionListSkeleton,
   EmptyState,
+  ReadableColumn,
   SkeletonUnderHeader,
   Text,
 } from "@/components/ui";
 import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import type { Convention } from "@/db/schema";
-import { useWidthCap } from "@/hooks/useContentWidth";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { ACTIONS_MAX } from "@/lib/content-width";
 import {
@@ -61,11 +61,6 @@ import { stopTrackingIfAffected } from "@/services/tracked-event";
 const EMPTY_ICON = Icon.select({
   ios: "calendar.badge.plus",
   android: CalendarAddIcon,
-});
-
-const ERROR_ICON = Icon.select({
-  ios: "exclamationmark.triangle",
-  android: WarningIcon,
 });
 
 const DEVICE_TIME_ZONE =
@@ -115,11 +110,10 @@ function ConventionEmptyState({
 }: ConventionEmptyStateProps) {
   // The full-width buttons and caption stop at an action width in a wide
   // window instead of running across it.
-  const widthCap = useWidthCap();
   return (
-    <View
+    <ReadableColumn
+      max={ACTIONS_MAX}
       className="flex-1 items-center justify-center gap-1"
-      style={widthCap(ACTIONS_MAX)}
     >
       <EmptyState
         icon={EMPTY_ICON}
@@ -154,7 +148,7 @@ function ConventionEmptyState({
           </Text>
         </View>
       ) : null}
-    </View>
+    </ReadableColumn>
   );
 }
 

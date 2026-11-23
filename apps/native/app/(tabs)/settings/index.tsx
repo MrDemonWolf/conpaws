@@ -1,37 +1,33 @@
 import { FieldGroup, Host, Picker } from "@expo/ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
-import { type Href, router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Linking, useWindowDimensions } from "react-native";
 import { ContentScrollLink } from "@/components/ContentScrollLink";
+import { settingsFooter } from "@/components/SettingsFooter";
 import { SettingsLeadingIcon } from "@/components/SettingsLeadingIcon";
 import { settingsLinkRow, settingsSwitchRow } from "@/components/SettingsRows";
 import { SETTINGS_STACKED_FONT_SCALE } from "@/components/SettingsRows.types";
 import { FieldRow } from "@/components/ui/FieldRow";
-import { NativeText } from "@/components/ui/NativeText";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
+import { useOpenLink } from "@/hooks/useOpenLink";
 import { useReadableFieldGroup } from "@/hooks/useReadableFieldGroup";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { useVersionLabel } from "@/hooks/useVersionLabel";
-import {
-  getAppearancePreference,
-  subscribeAppearancePreference,
-} from "@/lib/appearance-storage";
+import { useAppearancePreference } from "@/lib/appearance-storage";
 import { importOutcomeMessage } from "@/lib/data-import-messages";
 import {
   developerDiagnosticsEnabled,
   developerToolsEnabled,
 } from "@/lib/developer-tools";
 import {
-  getTimeFormatPreference,
-  subscribeTimeFormat,
+  timeFormatLabelKey,
+  useTimeFormatPreference,
 } from "@/lib/device-clock";
 import { saveHapticsPreference } from "@/lib/haptics-storage";
 import i18n, { type SupportedLanguage } from "@/lib/i18n";
-import { openExternal } from "@/lib/open-external";
 import { reminderDefaultLabel } from "@/lib/reminder-default-label";
 import {
   getCachedDefaultReminderMinutes,
@@ -53,35 +49,19 @@ export default function SettingsScreen() {
   const { fontScale } = useWindowDimensions();
   const { t } = useTranslation();
 
-  // One place that catches the two rejections these links actually produce: a
-  // second tap while a browser is already up, and a `mailto:` on a device with
-  // no mail account. Both used to be unhandled and silent.
-  function openLink(url: string) {
-    void openExternal(url, {
-      errorTitle: t("common.error"),
-      errorMessage: t("common.openLinkError"),
-    });
-  }
+  const openLink = useOpenLink();
 
   const { exportData, isLoading: isExporting } = useExportData();
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
   const readableGroup = useReadableFieldGroup();
   const versionLabel = useVersionLabel();
-  const appearance = useSyncExternalStore(
-    subscribeAppearancePreference,
-    getAppearancePreference,
-    getAppearancePreference,
-  );
+  const appearance = useAppearancePreference();
 
   const appVariant = Constants.expoConfig?.extra?.appVariant;
   const showPreviewTesting = developerToolsEnabled(__DEV__, appVariant);
   const showDeveloperTools = developerDiagnosticsEnabled(__DEV__, appVariant);
-  const timeFormat = useSyncExternalStore(
-    subscribeTimeFormat,
-    getTimeFormatPreference,
-    getTimeFormatPreference,
-  );
+  const timeFormat = useTimeFormatPreference();
 
   const [haptics, setHaptics] = useState(getHapticsEnabled);
   // Seeded from the cache the launch bootstrap primed, so the switch is right
@@ -124,7 +104,7 @@ export default function SettingsScreen() {
    * The restore prompt. It has to settle even when no button is pressed: on
    * Android an Alert is dismissible with the back gesture, and a confirm that
    * never resolves would pin the import mutation pending and leave the whole
-   * Data section disabled until the app restarts.
+   * Backup section disabled until the app restarts.
    */
   const confirmImport = useCallback(
     ({
@@ -199,9 +179,11 @@ export default function SettingsScreen() {
   const [defaultLead, setDefaultLead] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
-  // On focus, not just on mount: Android sets this on a pushed screen, so the
-  // row would otherwise keep showing the value from before the trip and only
-  // catch up on relaunch. iOS changes it in place and re-reads harmlessly.
+  // On focus, not just on mount: the pushed list (Android, or iOS at
+  // accessibility text sizes) sets this on another screen, so the row would
+  // otherwise keep showing the value from before the trip and only catch up
+  // on relaunch. The inline iOS menu changes it in place and re-reads
+  // harmlessly.
   useFocusEffect(
     useCallback(() => {
       void getDefaultReminderMinutes().then(setDefaultLead);
@@ -229,17 +211,11 @@ export default function SettingsScreen() {
       }}
       appearance="menu"
     >
-      <Picker.Item label={t("settings.notifications.noDefault")} value="" />
+      <Picker.Item label={reminderDefaultLabel(null, t)} value="" />
       {REMINDER_DEFAULT_OPTIONS.map((minutes) => (
         <Picker.Item
           key={String(minutes)}
-          label={
-            minutes === 0
-              ? t("reminders.atTime")
-              : minutes === 60
-                ? t("reminders.hourBefore")
-                : t("reminders.minutesBefore", { minutes })
-          }
+          label={reminderDefaultLabel(minutes, t)}
           value={String(minutes)}
         />
       ))}
@@ -257,13 +233,6 @@ export default function SettingsScreen() {
       : notificationPermission === "denied"
         ? t("settings.notifications.disabled")
         : t("settings.notifications.notRequested");
-  const footer = (text: string) => (
-    <FieldGroup.SectionFooter>
-      <NativeText modifiers={[font({ textStyle: "footnote" })]}>
-        {text}
-      </NativeText>
-    </FieldGroup.SectionFooter>
-  );
 
   return (
     <ContentScrollLink style={{ flex: 1 }}>
@@ -304,9 +273,9 @@ export default function SettingsScreen() {
               icon: "time",
               title: t("settings.timeFormat.title"),
               value: t(
-                `settings.timeFormat.short.${timeFormat === "12" ? "hour12" : timeFormat === "24" ? "hour24" : "system"}`,
+                `settings.timeFormat.short.${timeFormatLabelKey(timeFormat)}`,
               ),
-              onPress: () => router.push("/settings/time-format" as Href),
+              onPress: () => router.push("/settings/time-format"),
             })}
           </FieldGroup.Section>
 
@@ -338,11 +307,10 @@ export default function SettingsScreen() {
                 icon: "reminder",
                 title: t("settings.notifications.defaultLead"),
                 value: reminderDefaultLabel(defaultLead, t),
-                onPress: () =>
-                  router.push("/settings/reminder-default" as Href),
+                onPress: () => router.push("/settings/reminder-default"),
               })
             )}
-            {footer(t("settings.notifications.defaultLeadDescription"))}
+            {settingsFooter(t("settings.notifications.defaultLeadDescription"))}
           </FieldGroup.Section>
 
           <FieldGroup.Section title={t("settings.sections.scheduleUpdates")}>
@@ -353,7 +321,7 @@ export default function SettingsScreen() {
               value: scheduleAutoCheck,
               onValueChange: handleScheduleAutoCheckChange,
             })}
-            {footer(t("settings.footers.scheduleUpdates"))}
+            {settingsFooter(t("settings.footers.scheduleUpdates"))}
           </FieldGroup.Section>
 
           <FieldGroup.Section
@@ -380,7 +348,7 @@ export default function SettingsScreen() {
               busy: isImporting,
               onPress: () => importData(),
             })}
-            {footer(t("settings.footers.backup"))}
+            {settingsFooter(t("settings.footers.backup"))}
           </FieldGroup.Section>
 
           <FieldGroup.Section title={t("settings.sections.helpAbout")}>
@@ -388,7 +356,7 @@ export default function SettingsScreen() {
               icon: "help",
               title: t("settings.help.gettingStarted"),
               description: t("settings.help.gettingStartedDescription"),
-              onPress: () => router.push("/settings/getting-started" as Href),
+              onPress: () => router.push("/settings/getting-started"),
             })}
             {settingsLinkRow({
               icon: "about",
@@ -416,7 +384,7 @@ export default function SettingsScreen() {
                 icon: "preview",
                 title: t("settings.preview.title"),
                 description: t("settings.preview.description"),
-                onPress: () => router.push("/settings/preview" as Href),
+                onPress: () => router.push("/settings/preview"),
               })}
             </FieldGroup.Section>
           ) : null}

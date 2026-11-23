@@ -1,4 +1,4 @@
-import { Alert } from "react-native";
+import { Alert, Linking } from "react-native";
 
 /**
  * The pre-prompt shown before the FIRST OS notification dialog, so the system
@@ -22,4 +22,24 @@ export function confirmNotificationPriming(
       },
     ]);
   });
+}
+
+/**
+ * The permission-denied alert with an Open Settings button, for both
+ * notification and Live Activity denials.
+ */
+export function showOpenSettingsAlert(
+  title: string,
+  message: string,
+  t: (key: string) => string,
+): void {
+  Alert.alert(title, message, [
+    { text: t("common.cancel"), style: "cancel" },
+    {
+      text: t("reminders.openSettings"),
+      onPress: () => {
+        void Linking.openSettings();
+      },
+    },
+  ]);
 }

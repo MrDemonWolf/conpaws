@@ -1,6 +1,7 @@
 import { ArrowRight, MapPin } from "lucide-react-native";
-import { Pressable, useColorScheme, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Badge, Button, Card, PRESS_DIM, Text } from "@/components/ui";
+import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { themeTokens } from "@/lib/theme-tokens";
 
 export interface NowHeroCardProps {
@@ -55,7 +56,7 @@ export function NowHeroCard({
   onOpen,
   openAccessibilityLabel,
 }: NowHeroCardProps) {
-  const scheme = useColorScheme() === "dark" ? "dark" : "light";
+  const scheme = useResolvedColorScheme();
   const tokens = themeTokens[scheme];
 
   return (
