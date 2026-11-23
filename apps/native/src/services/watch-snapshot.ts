@@ -315,12 +315,17 @@ export interface WatchExtrasOptions {
  * which crowd out the active one's descriptions and options, and in time pass
  * what WatchConnectivity accepts at all.
  *
+ * A convention past its end gets no options, and descriptions only for its
+ * saved panels that have yet to end: the Watch keeps showing one of those
+ * until it finishes. Once they have all ended it gets nothing extra.
+ *
  * When that is still too large it gives things up in order of how little
- * they are missed: option descriptions, then descriptions of saved panels
- * that have ended, then the latest-starting options, then every description.
- * At worst the result is the payload the Watch received before any of this
- * existed, less the conventions it can no longer show, plus the ids of the
- * commands the phone has handled.
+ * they are missed, across every convention alike: option descriptions, then
+ * descriptions of saved panels that have ended, then the latest-starting
+ * options, then every description, including those of a convention past its
+ * end. At worst the result is the payload the Watch received before any of
+ * this existed, less the conventions it can no longer show, plus the ids of
+ * the commands the phone has handled.
  */
 export function withWatchExtras(
   snapshot: WidgetSnapshot,
@@ -344,14 +349,27 @@ export function withWatchExtras(
     snapshot.conventions,
     nowMs,
   ).map((convention) => {
-    // Past its end a convention offers nothing to add, and the Watch shows
-    // at most its finished state or a saved panel still running past the
-    // end, so its descriptions are left off to save room.
-    if (convention.endAtMs <= nowMs) return convention;
     const source = eventsByConvention.get(convention.id) ?? [];
     const descriptions = new Map(
       source.map((event) => [event.id, event.description]),
     );
+    // Past its end a convention offers nothing to add: the Watch lists
+    // options only between its start and end. It still shows a saved panel
+    // that has yet to end, running past the end or starting after it, until
+    // that panel finishes (`watchLastActiveMs`), so those keep their
+    // descriptions. Ended ones, which the size guard gives up early on any
+    // convention, are left off to save room, so once every panel is over
+    // the convention carries nothing extra.
+    if (convention.endAtMs <= nowMs) {
+      return {
+        ...convention,
+        events: convention.events.map((event) =>
+          hasEnded(event, nowMs)
+            ? event
+            : withSummary(event, descriptions.get(event.id)),
+        ),
+      };
+    }
     const events = convention.events.map((event) =>
       withSummary(event, descriptions.get(event.id)),
     );

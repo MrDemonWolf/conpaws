@@ -431,23 +431,71 @@ describe("withWatchExtras", () => {
     ).not.toHaveProperty("handledCommandIds");
   });
 
-  it("sends nothing extra for a convention that is over", () => {
-    const snapshot = savedSnapshot(rows);
-    const [convention] = snapshot.conventions;
-    if (!convention) throw new Error("fixture");
-    const over = {
-      ...snapshot,
-      conventions: [{ ...convention, endAtMs: NOW }],
+  describe("a convention past its end", () => {
+    /** The same convention, ended half an hour ago. */
+    const over = (saved: readonly ConventionEvent[]): WidgetSnapshot => {
+      const snapshot = savedSnapshot(saved);
+      return {
+        ...snapshot,
+        conventions: snapshot.conventions.map((convention) => ({
+          ...convention,
+          endAtMs: NOW - 30 * MINUTE,
+        })),
+      };
     };
-    const [sent] = parse(
-      withWatchExtras(over, new Map([["con-1", rows]]), {
-        os: "ios",
-        nowMs: NOW,
-        toOption,
-      }),
-    ).conventions;
-    expect(sent).not.toHaveProperty("options");
-    expect(sent?.events.some((event) => event.summary)).toBe(false);
+    const send = (saved: readonly ConventionEvent[]) =>
+      parse(
+        withWatchExtras(over(saved), new Map([["con-1", saved]]), {
+          os: "ios",
+          nowMs: NOW,
+          toOption,
+        }),
+      ).conventions[0];
+
+    /**
+     * The Watch keeps showing a closing panel that runs past the end, and
+     * one that starts after it, until it finishes; their detail screens
+     * lost the description the moment the convention ended.
+     */
+    it("keeps descriptions of the saved panels the Watch still shows", () => {
+      const sent = send([
+        row("ended", -180, {
+          isInSchedule: true,
+          description: "Over before the end.",
+        }),
+        row("closing-night", -60, {
+          isInSchedule: true,
+          durationMinutes: 120,
+          description: "<p>Runs past the end.</p>",
+        }),
+        row("after-party", 30, {
+          isInSchedule: true,
+          durationMinutes: null,
+          description: "Starts after the end.",
+        }),
+        row("option", -10, { description: "Not saved." }),
+      ]);
+      expect(sent?.events.map((event) => [event.id, event.summary])).toEqual([
+        ["ended", undefined],
+        ["closing-night", "Runs past the end."],
+        ["after-party", "Starts after the end."],
+      ]);
+      expect(sent?.events[0]).not.toHaveProperty("summary");
+      expect(sent).not.toHaveProperty("options");
+    });
+
+    it("sends nothing extra once every saved panel is over", () => {
+      const saved = [
+        row("ended", -180, { isInSchedule: true, description: "Over." }),
+        // Ends the moment the payload is made, so it has ended.
+        row("closing-night", -60, {
+          isInSchedule: true,
+          description: "Over too.",
+        }),
+        row("option", -10, { description: "Not saved." }),
+      ];
+      expect(send(saved)).toEqual(over(saved).conventions[0]);
+    });
   });
 
   describe("conventions the Watch can no longer show", () => {
@@ -653,6 +701,56 @@ describe("withWatchExtras", () => {
           .slice(0, kept.length)
           .map((event) => event.id),
       );
+    });
+
+    /**
+     * A convention past its end whose closing panel still runs gives up that
+     * description in the same step as the running panels of the convention
+     * that is on: last, with every other description.
+     */
+    it("keeps a closing panel's description until every description goes", () => {
+      const closingNight = row("closing-night", -60, {
+        conventionId: "closing",
+        isInSchedule: true,
+        durationMinutes: 120,
+        description: long("closing night"),
+      });
+      const panel = toOption(closingNight);
+      if (!panel) throw new Error("fixture");
+      const closing: WidgetConventionSnapshot = {
+        id: "closing",
+        name: "Closing Con",
+        startAtMs: NOW - 4 * DAY,
+        endAtMs: NOW - 30 * MINUTE,
+        timeZoneIdentifier: "America/Chicago",
+        dateRangeLabel: "Aug 31 – Sep 4",
+        events: [panel],
+      };
+      const snapshot = savedSnapshot(large);
+      snapshot.conventions = [closing, ...snapshot.conventions];
+      const events = new Map([
+        ["closing", [closingNight]],
+        ["con-1", large],
+      ]);
+      const sent = (maxBytes?: number, os = "ios") =>
+        withWatchExtras(snapshot, events, {
+          os,
+          nowMs: NOW,
+          toOption,
+          maxBytes,
+        });
+
+      const fitted = sent();
+      expect(utf8ByteLength(fitted)).toBeLessThanOrEqual(
+        WATCH_PAYLOAD_MAX_BYTES,
+      );
+      const [kept, active] = parse(fitted).conventions;
+      expect(kept?.events[0]?.summary).toBeDefined();
+      expect(active?.options?.length).toBeLessThan(WATCH_OPTIONS_LIMIT);
+      expect(active?.events.filter(ended).some((event) => event.summary)).toBe(
+        false,
+      );
+      expect(sent(1_000)).toBe(sent(undefined, "android"));
     });
 
     it("keeps the handled command ids however much else goes", () => {
