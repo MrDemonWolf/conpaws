@@ -397,33 +397,43 @@ function LinkOrFilePicture({ surface, density }: PictureProps) {
 
 function ImportIcsPicture({ surface, density }: PictureProps) {
   const { t } = useTranslation();
-  const full = density === "full";
+  const chooseFile = (
+    <View className="mx-4">
+      <Spotlight>
+        <Button variant="outline" focusable={false}>
+          {t("import.chooseFile")}
+        </Button>
+      </Spotlight>
+    </View>
+  );
+  const link = (
+    <View className="mx-4">
+      <Spotlight>
+        <Input value={WEBCAL_URL} editable={false} focusable={false} />
+      </Spotlight>
+    </View>
+  );
+  if (density === "focus") {
+    // Each ring reaches 4 points past its control and the frame's gap-2 is
+    // only 7, so with no row between them the two rings would overlap. The
+    // wider gap keeps them two separate rings.
+    return (
+      <MockupFrame surface={surface}>
+        <View className="gap-4">
+          {chooseFile}
+          {link}
+        </View>
+      </MockupFrame>
+    );
+  }
 
   // Two rings, in the order the real screen shows the two sources.
   return (
-    <MockupFrame
-      surface={surface}
-      caption={full ? t("import.title") : undefined}
-    >
-      {full ? (
-        <MockRow
-          title={t("import.file")}
-          detail={t("import.fileDescription")}
-        />
-      ) : null}
-      <View className="mx-4">
-        <Spotlight>
-          <Button variant="outline" focusable={false}>
-            {t("import.chooseFile")}
-          </Button>
-        </Spotlight>
-      </View>
-      {full ? <MockRow title={t("import.url")} /> : null}
-      <View className="mx-4">
-        <Spotlight>
-          <Input value={WEBCAL_URL} editable={false} focusable={false} />
-        </Spotlight>
-      </View>
+    <MockupFrame surface={surface} caption={t("import.title")}>
+      <MockRow title={t("import.file")} detail={t("import.fileDescription")} />
+      {chooseFile}
+      <MockRow title={t("import.url")} />
+      {link}
     </MockupFrame>
   );
 }
