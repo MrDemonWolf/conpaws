@@ -104,7 +104,7 @@ export default function SettingsScreen() {
    * The restore prompt. It has to settle even when no button is pressed: on
    * Android an Alert is dismissible with the back gesture, and a confirm that
    * never resolves would pin the import mutation pending and leave the whole
-   * Data section disabled until the app restarts.
+   * Backup section disabled until the app restarts.
    */
   const confirmImport = useCallback(
     ({
@@ -179,9 +179,11 @@ export default function SettingsScreen() {
   const [defaultLead, setDefaultLead] = useState<number | null>(
     getCachedDefaultReminderMinutes,
   );
-  // On focus, not just on mount: Android sets this on a pushed screen, so the
-  // row would otherwise keep showing the value from before the trip and only
-  // catch up on relaunch. iOS changes it in place and re-reads harmlessly.
+  // On focus, not just on mount: the pushed list (Android, or iOS at
+  // accessibility text sizes) sets this on another screen, so the row would
+  // otherwise keep showing the value from before the trip and only catch up
+  // on relaunch. The inline iOS menu changes it in place and re-reads
+  // harmlessly.
   useFocusEffect(
     useCallback(() => {
       void getDefaultReminderMinutes().then(setDefaultLead);

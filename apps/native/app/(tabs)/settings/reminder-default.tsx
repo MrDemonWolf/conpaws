@@ -19,17 +19,17 @@ const CHOICES: Array<number | null> = [null, ...REMINDER_DEFAULT_OPTIONS];
 /**
  * Picks the lead time new leave reminders start from.
  *
- * Android reaches this from a Settings row. It used to be an `@expo/ui`
- * `<Picker>` inline in Settings, which on Android renders a Material 3
- * `ExposedDropdownMenuBox` whose anchor is a bare `TextField` -- unlabelled,
- * sized to its own content rather than the row, and trailing an underline past
- * its own edge. The universal Picker exposes no `style` and no `label`, so
- * there was nothing to set. Theme and Language already answer the same
+ * Android, and iOS at accessibility text sizes, reach this from a Settings
+ * row. It used to be an `@expo/ui` `<Picker>` inline in Settings, which on
+ * Android renders a Material 3 `ExposedDropdownMenuBox` whose anchor is a bare
+ * `TextField` -- unlabelled, sized to its own content rather than the row, and
+ * trailing an underline past its own edge. The universal Picker exposes no
+ * `style` and no `label`, so there was nothing to set. Theme and Language already answer the same
  * question with a pushed list of rows, and Material selects from a list this
  * way regardless, so this follows them.
  *
- * iOS keeps the compact SwiftUI menu in the Settings row's trailing slot and
- * never pushes here.
+ * Below accessibility text sizes (`SETTINGS_STACKED_FONT_SCALE`) iOS keeps the
+ * compact SwiftUI menu in the Settings row's trailing slot instead.
  */
 export default function ReminderDefaultScreen() {
   const { t } = useTranslation();

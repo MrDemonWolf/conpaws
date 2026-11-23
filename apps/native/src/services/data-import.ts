@@ -898,7 +898,7 @@ export async function pickBackupFile(): Promise<BackupPickOutcome> {
  * Asks the user to confirm a restore. The caller owns the prompt, so it also
  * owns settling this promise: on Android an Alert is dismissible without any
  * button, and a confirm that never settles pins the mutation in `isPending`
- * and disables the whole Data section until the app restarts.
+ * and disables the whole Backup section until the app restarts.
  */
 export type ImportConfirm = (preview: {
   conventionCount: number;

@@ -306,9 +306,10 @@ describe("iOS native stack headers", () => {
   // the title -- the app icon crossed the words "About ConPaws", and the
   // notification row crossed "Settings".
   //
-  // `hostedScreenOptions` is the fix, and a new screen in this stack gets the
-  // bug simply by not spreading it. Asserting the pattern rather than a list of
-  // names so a screen added later is covered on the day it is added.
+  // `hostedScreenOptions` is the fix, or `ContentScrollLink` for
+  // LINKED_SCREENS, and a new screen in this stack gets the bug simply by
+  // doing neither. Asserting the pattern rather than a list of names so a
+  // screen added later is covered on the day it is added.
   describe("settings screens hosted in @expo/ui", () => {
     // Real `ScrollView` content: these collapse and blur correctly on their own,
     // and forcing the hosted options on them would be the regression.

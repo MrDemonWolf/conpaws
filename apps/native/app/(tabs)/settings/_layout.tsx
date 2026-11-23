@@ -22,15 +22,21 @@ export default function SettingsLayout() {
   );
 
   /**
-   * Options for the screens whose content is an `@expo/ui` `Host`.
+   * Options for pushed screens whose content is an `@expo/ui` `Host` and that
+   * are not linked to the bar through `ContentScrollLink`.
    *
    * UIKit wires a navigation bar's large-title collapse and its scroll-edge
    * background to a scroll view it can see. The SwiftUI `List` inside a `Host`
-   * is not that view, so the bar stayed in its scrolled-to-top appearance
-   * forever: transparent, and on About the large title never collapsed at all.
-   * Content then slid under the bar and drew straight through the title -- the
-   * app icon crossed the words "About ConPaws", and Settings' rows crossed
-   * "Settings".
+   * is not that view, so without these options the bar stays in its
+   * scrolled-to-top appearance forever: transparent, and on About the large
+   * title never collapsed at all. Content then slid under the bar and drew
+   * straight through the title -- the app icon crossed the words "About
+   * ConPaws".
+   *
+   * The Settings index does not use them. It hands UIKit its list's scroll
+   * view through `ContentScrollLink`, so it keeps its large title and the
+   * title collapses; before that link, its rows crossed "Settings" the same
+   * way.
    *
    * Licenses does not get this treatment on purpose. It is the same kind of
    * pushed screen but its content is a real `ScrollView`, so the large title
