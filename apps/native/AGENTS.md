@@ -108,7 +108,7 @@ installed side by side. Never promote a preview build publicly.
 
 ### Native MVP Screens
 
-The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus About, appearance, language, licenses, technology, the UI system gallery, and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).
+The current routes cover onboarding, the Home, Schedule, and Settings tabs, convention detail, create, edit, and schedule import, plus the Settings screens: About, appearance, language, time format, default reminder, getting started, licenses, preview testing, the UI System gallery and debug tools. The Schedule tab pools starred events from every saved convention into one day-grouped list; per-convention schedules stay on the convention screen. Put new routes in `apps/native/app/` (top level).
 
 The tab bar uses **`NativeTabs` from `expo-router/native-tabs`** (`app/(tabs)/_layout.tsx`), the stable SDK 58 import. Android `md` tab icons require the direct SDK-aligned `expo-symbols` dependency, which is optional to Expo Router in SDK 58. Keep its behavior aligned with the installed Expo Router version and re-check it on every Expo upgrade; preserve native tabs. The **Technical Blueprint** in Notion remains the source for unfinished MVP and later product scope.
 
