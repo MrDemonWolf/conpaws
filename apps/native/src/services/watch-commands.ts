@@ -1,7 +1,9 @@
 import { requireOptionalNativeModule } from "expo";
 import { AppState } from "react-native";
+import * as conventionsRepo from "@/db/repositories/conventions";
 import * as eventsRepo from "@/db/repositories/events";
 import { reportError } from "@/lib/error-reporting";
+import { getDefaultReminderMinutes } from "@/lib/reminder-default-storage";
 import { isDropInEvent } from "@/lib/schedule-browse";
 import { removeEventFromPlan, saveEventToPlan } from "./event-schedule";
 import {
@@ -129,6 +131,30 @@ export function rowUpdatedAtMs(value: string | null | undefined): number {
   return Date.parse(sqlite ? `${sqlite[1]}T${sqlite[2]}Z` : value);
 }
 
+/**
+ * The reminder a panel saved from the wrist gets: the lead time chosen in
+ * Settings, which the phone's reminder picker suggests after a star. A tap
+ * cannot show that picker, so the default is set for it, and `saveEventToPlan`
+ * arms it only when notifications are already allowed and it is still ahead.
+ * None for an archived convention, whose reminders stay off until it comes
+ * back. The async getter, because a background wake can find the cache cold.
+ * The reminder is extra, so a failed read saves the panel without one rather
+ * than failing the tap.
+ */
+async function wristReminderMinutes(
+  conventionId: string,
+): Promise<number | null> {
+  try {
+    const minutes = await getDefaultReminderMinutes();
+    if (minutes === null) return null;
+    const convention = await conventionsRepo.getById(conventionId);
+    return convention && !convention.archivedAt ? minutes : null;
+  } catch (error) {
+    reportError(error, { scope: "watchCommands.defaultReminder" });
+    return null;
+  }
+}
+
 async function applyOne(
   command: WatchCommand,
   nowMs: number,
@@ -154,7 +180,9 @@ async function applyOne(
     // panel is one the convention stopped running.
     if (isDropInEvent(event) || event.feedStatus !== null) return "not-allowed";
     phoneUpdatedAt.set(event.id, updatedAtMs);
-    await saveEventToPlan(event);
+    await saveEventToPlan(event, {
+      reminderMinutes: await wristReminderMinutes(event.conventionId),
+    });
     return "applied";
   }
 

@@ -6,6 +6,10 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("expo", () => ({ requireOptionalNativeModule: () => null }));
 vi.mock("react-native", () => ({ AppState: { addEventListener: vi.fn() } }));
 vi.mock("@/db/repositories/events", () => ({ getById: vi.fn() }));
+vi.mock("@/db/repositories/conventions", () => ({ getById: vi.fn() }));
+vi.mock("@/lib/reminder-default-storage", () => ({
+  getDefaultReminderMinutes: vi.fn(),
+}));
 vi.mock("./event-schedule", () => ({}));
 vi.mock("./widget-snapshot", () => ({}));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));

@@ -3,13 +3,27 @@ import type { ConventionEvent } from "@/db/schema";
 
 const rows = new Map<string, ConventionEvent>();
 const getById = vi.fn(async (id: string) => rows.get(id));
-const saveEventToPlan = vi.fn(async (event: ConventionEvent) => {
-  rows.set(event.id, {
-    ...event,
-    isInSchedule: true,
-    updatedAt: new Date(clock).toISOString(),
-  });
-});
+const saveEventToPlan = vi.fn(
+  async (
+    event: ConventionEvent,
+    options: { reminderMinutes?: number | null } = {},
+  ) => {
+    rows.set(event.id, {
+      ...event,
+      isInSchedule: true,
+      reminderMinutes: options.reminderMinutes ?? event.reminderMinutes,
+      updatedAt: new Date(clock).toISOString(),
+    });
+  },
+);
+const getDefaultReminderMinutes = vi.fn(
+  async (): Promise<number | null> => null,
+);
+const archivedConventionIds = new Set<string>();
+const getConventionById = vi.fn(async (id: string) => ({
+  id,
+  archivedAt: archivedConventionIds.has(id) ? "2026-09-01T00:00:00.000Z" : null,
+}));
 const removeEventFromPlan = vi.fn(async (event: ConventionEvent) => {
   rows.set(event.id, {
     ...event,
@@ -46,6 +60,12 @@ vi.mock("react-native", () => ({
   },
 }));
 vi.mock("@/db/repositories/events", () => ({ getById }));
+vi.mock("@/db/repositories/conventions", () => ({
+  getById: getConventionById,
+}));
+vi.mock("@/lib/reminder-default-storage", () => ({
+  getDefaultReminderMinutes,
+}));
 vi.mock("./event-schedule", () => ({ saveEventToPlan, removeEventFromPlan }));
 vi.mock("./widget-snapshot", () => ({ publishWidgetSnapshot }));
 vi.mock("@/lib/error-reporting", () => ({ reportError }));
@@ -124,6 +144,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   resetHandledWatchCommands();
   peekWatchCommands.mockReset().mockReturnValue([]);
+  getDefaultReminderMinutes.mockReset().mockResolvedValue(null);
+  archivedConventionIds.clear();
 });
 
 afterEach(() => {
@@ -178,12 +200,72 @@ describe("rowUpdatedAtMs", () => {
 });
 
 describe("applyWatchCommands", () => {
-  it("saves an unsaved panel without a reminder", async () => {
+  it("saves an unsaved panel without a reminder when Settings has no default", async () => {
     const event = row("panel");
     const result = await applyWatchCommands([command("save", "panel")], NOW);
-    expect(saveEventToPlan).toHaveBeenCalledWith(event);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
     expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
     expect(result.changedConventionIds).toEqual(["con-1"]);
+  });
+
+  // The star leaves the reminder to the picker, which suggests the Settings
+  // default. A wrist tap cannot show that picker, so it gets the default.
+  it("gives a panel saved from the wrist the Settings default reminder", async () => {
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    const event = row("panel");
+    await applyWatchCommands([command("save", "panel")], NOW);
+    expect(getDefaultReminderMinutes).toHaveBeenCalled();
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: 15,
+    });
+  });
+
+  it("gives an archived convention's panel no reminder", async () => {
+    // Archive keeps reminders off until the convention comes back.
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    archivedConventionIds.add("con-1");
+    const event = row("panel");
+    await applyWatchCommands([command("save", "panel")], NOW);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
+  });
+
+  it("still saves, without a reminder, when the default cannot be read", async () => {
+    getDefaultReminderMinutes.mockRejectedValue(new Error("storage"));
+    const event = row("panel");
+    const result = await applyWatchCommands([command("save", "panel")], NOW);
+    expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
+  });
+
+  it("still saves, without a reminder, when the convention cannot be read", async () => {
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    getConventionById.mockRejectedValueOnce(new Error("database is locked"));
+    const event = row("panel");
+    const result = await applyWatchCommands([command("save", "panel")], NOW);
+    expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
+    expect(reportError).toHaveBeenCalledWith(expect.any(Error), {
+      scope: "watchCommands.defaultReminder",
+    });
+  });
+
+  it("reads no default for a remove or a declined save", async () => {
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    row("saved", { isInSchedule: true });
+    row("cancelled", { feedStatus: "cancelled" });
+    await applyWatchCommands(
+      [command("remove", "saved"), command("save", "cancelled")],
+      NOW,
+    );
+    expect(getDefaultReminderMinutes).not.toHaveBeenCalled();
   });
 
   it("removes a saved panel the way the phone's star does", async () => {
