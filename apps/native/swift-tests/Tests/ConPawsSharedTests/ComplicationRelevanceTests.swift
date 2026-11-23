@@ -3,8 +3,9 @@ import Testing
 @testable import ConPawsShared
 
 /// The Smart Stack clues the complication hands watchOS 11 and later through
-/// its provider's `relevance()`. watchOS reads those, not the entries' scores,
-/// so these windows decide when ConPaws rises to the top of the stack.
+/// its provider's `relevance()`, and the first-morning entry scores that
+/// carry the same raise on watchOS 10. These windows decide when ConPaws
+/// asks to rise to the top of the stack; the system still decides.
 struct ComplicationRelevanceTests {
   private typealias Relevance = ConPawsComplicationRelevance
   private let zone = TimeZone(identifier: "America/Chicago")!
