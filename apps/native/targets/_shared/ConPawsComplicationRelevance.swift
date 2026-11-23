@@ -3,8 +3,8 @@ import Foundation
 /// When the Smart Stack should raise the complication: the date clues its
 /// timeline provider's `relevance()` hands watchOS 11 and later. Apple's
 /// "Increasing the visibility of widgets in Smart Stacks" says watchOS gathers
-/// relevance through that callback; the entries' `TimelineEntryRelevance`
-/// scores are what watchOS 10 reads. Foundation-only, so swift-tests covers
+/// relevance through that callback; watchOS 10 has only the entries'
+/// `TimelineEntryRelevance` scores. Foundation-only, so swift-tests covers
 /// it; targets/watch-widget turns each window into a `RelevantContext`.
 ///
 /// Every window is planned from the snapshot alone, never from the clock, so

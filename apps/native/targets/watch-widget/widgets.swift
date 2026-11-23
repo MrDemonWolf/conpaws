@@ -5,9 +5,10 @@ import WidgetKit
 private struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
-  /// Raises this card in the Smart Stack around the moments it matters —
-  /// saved-panel starts, reminder or not. Without a relevance
-  /// the stack never surfaces the complication on its own.
+  /// Half an hour either side of a saved panel's start, reminder or not.
+  /// On watchOS 10 these scores are the Smart Stack's only clue; watchOS 11
+  /// and later also gather the provider's `relevance()` clues, and Apple's
+  /// guide asks for both.
   var relevance: TimelineEntryRelevance?
 
   /// The app's language, not the watch's. The snapshot carries it precisely so
@@ -81,11 +82,12 @@ private struct ConPawsWatchProvider: TimelineProvider {
     completion: @escaping (Timeline<ConPawsWatchEntry>) -> Void
   ) {
     let snapshot = ConPawsSnapshotStore.load()
+    let now = Date.now
     // An entry for every moment the card reads differently, planned in
     // targets/_shared so swift-tests covers it. Around a saved panel's start
-    // the card is at its most useful; the score makes the Smart Stack rotate
-    // it up.
-    let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: .now).map { planned in
+    // the card is at its most useful; on watchOS 10 the score is what makes
+    // the Smart Stack rotate it up.
+    let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: now).map { planned in
       ConPawsWatchEntry(
         date: planned.date,
         snapshot: snapshot,
@@ -94,7 +96,20 @@ private struct ConPawsWatchProvider: TimelineProvider {
         }
       )
     }
+    // A new snapshot reloads this timeline, so here is where changed clues
+    // are noticed. watchOS 10 has no clues to change.
+    if #available(watchOS 11.0, *) {
+      ConPawsWatchRelevance.refreshIfChanged(snapshot: snapshot, now: now)
+    }
     completion(Timeline(entries: entries, policy: .atEnd))
+  }
+
+  /// When the Smart Stack should raise the card on watchOS 11 and later,
+  /// which gather relevance clues through this callback: around each saved
+  /// panel's start and on the convention's first morning.
+  @available(watchOS 11.0, *)
+  func relevance() async -> WidgetRelevance<Void> {
+    ConPawsWatchRelevance.current()
   }
 }
 
