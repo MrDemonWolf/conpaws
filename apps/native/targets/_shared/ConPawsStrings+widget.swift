@@ -97,13 +97,13 @@ extension ConPawsComplicationStrings {
   private static let zhTW = ConPawsComplicationStrings(
     language: .zhTW,
     inlineNoPicks: "尚未選擇活動",
-    inlineFinished: "今天已結束"
+    inlineFinished: "今日活動已結束"
   )
 
   private static let zhCN = ConPawsComplicationStrings(
     language: .zhCN,
     inlineNoPicks: "尚未选择活动",
-    inlineFinished: "今天已结束"
+    inlineFinished: "今日活动已结束"
   )
 
   private static let ko = ConPawsComplicationStrings(
@@ -139,7 +139,7 @@ extension ConPawsComplicationStrings {
   private static let nl = ConPawsComplicationStrings(
     language: .nl,
     inlineNoPicks: "Nog geen panels",
-    inlineFinished: "Vandaag klaar"
+    inlineFinished: "Klaar voor vandaag"
   )
 
   private static let ms = ConPawsComplicationStrings(
@@ -169,7 +169,7 @@ extension ConPawsComplicationStrings {
   private static let fi = ConPawsComplicationStrings(
     language: .fi,
     inlineNoPicks: "Ei paneeleja",
-    inlineFinished: "Päivä on ohi"
+    inlineFinished: "Ei enää tänään"
   )
 
   private static let cs = ConPawsComplicationStrings(
