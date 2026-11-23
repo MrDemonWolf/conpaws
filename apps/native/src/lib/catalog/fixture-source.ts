@@ -1,5 +1,8 @@
 import { buildConPawsPreviewFixture } from "@/fixtures/conpaws-preview";
-import { formatInConventionTime } from "@/lib/convention-time";
+import {
+  dayKeyDifference,
+  formatInConventionTime,
+} from "@/lib/convention-time";
 import { ScheduleFetchCancelledError } from "@/lib/sched-extractor";
 import { CatalogNotFoundError } from "./client";
 import type { CatalogSource } from "./source";
@@ -14,13 +17,6 @@ function addDays(dayKey: string, amount: number): string {
     .slice(0, 10);
 }
 
-function dayOffset(from: string, to: string): number {
-  return (
-    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
-    86_400_000
-  );
-}
-
 function shiftWallClock(
   value: string,
   sourceStart: string,
@@ -29,7 +25,7 @@ function shiftWallClock(
   const local = formatInConventionTime(value, TIME_ZONE, "yyyy-MM-dd'T'HH:mm");
   const targetDay = addDays(
     targetStart,
-    dayOffset(sourceStart, local.slice(0, 10)),
+    dayKeyDifference(sourceStart, local.slice(0, 10)),
   );
   return `${targetDay}${local.slice(10)}`;
 }

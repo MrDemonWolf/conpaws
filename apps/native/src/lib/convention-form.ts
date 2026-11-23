@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next";
 import { normalizeLocationName } from "./convention-location";
-import { isValidTimeZone } from "./convention-time";
+import { dayKeyDifference, isValidTimeZone } from "./convention-time";
 
 /**
  * Validation shared by the create and edit forms. Keeping it here rather than
@@ -61,10 +61,8 @@ export function conventionNameLength(value: string): number {
 }
 
 function dayDifference(startDate: string, endDate: string): number | null {
-  const start = Date.parse(`${startDate}T00:00:00Z`);
-  const end = Date.parse(`${endDate}T00:00:00Z`);
-  if (Number.isNaN(start) || Number.isNaN(end)) return null;
-  return Math.round((end - start) / 86_400_000);
+  const days = dayKeyDifference(startDate, endDate);
+  return Number.isNaN(days) ? null : days;
 }
 
 export function validateConventionForm(

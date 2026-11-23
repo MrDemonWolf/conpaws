@@ -91,6 +91,14 @@ export function conventionDayKey(
   return formatInConventionTime(value, timeZone, "yyyy-MM-dd");
 }
 
+/** Whole calendar days from one yyyy-MM-dd key to another; NaN when either key is invalid. */
+export function dayKeyDifference(from: string, to: string): number {
+  return Math.round(
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
+      86_400_000,
+  );
+}
+
 export function conventionStatusForDay(
   startDate: string,
   endDate: string,

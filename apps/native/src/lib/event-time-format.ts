@@ -14,7 +14,7 @@
  */
 
 import type { TFunction } from "i18next";
-import { conventionDayKey } from "./convention-time";
+import { conventionDayKey, dayKeyDifference } from "./convention-time";
 
 export function formatEventDuration(minutes: number, t: TFunction): string {
   const hours = Math.floor(minutes / 60);
@@ -165,10 +165,8 @@ export function eventEndDayOffset(
   const endKey = conventionDayKey(end, timeZone);
   if (startKey === endKey) return 0;
 
-  const days =
-    (Date.parse(`${endKey}T00:00:00Z`) - Date.parse(`${startKey}T00:00:00Z`)) /
-    86_400_000;
-  return Number.isFinite(days) ? Math.round(days) : 0;
+  const days = dayKeyDifference(startKey, endKey);
+  return Number.isFinite(days) ? days : 0;
 }
 
 /**

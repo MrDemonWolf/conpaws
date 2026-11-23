@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   conventionDayKey,
   conventionStatusForDay,
+  dayKeyDifference,
   formatInConventionTime,
   fromConventionTime,
   isValidTimeZone,
@@ -84,6 +85,14 @@ describe("convention time", () => {
         "America/Chicago",
       )?.toISOString(),
     ).toBe("2026-07-16T14:05:07.000Z");
+  });
+
+  it("counts whole calendar days between day keys", () => {
+    expect(dayKeyDifference("2026-03-08", "2026-03-08")).toBe(0);
+    // A DST change in between does not make the day 23 or 25 hours long.
+    expect(dayKeyDifference("2026-03-07", "2026-03-08")).toBe(1);
+    expect(dayKeyDifference("2026-11-02", "2026-10-31")).toBe(-2);
+    expect(dayKeyDifference("2026-03-07", "not-a-day")).toBeNaN();
   });
 
   it("classifies convention dates including both boundary days", () => {
