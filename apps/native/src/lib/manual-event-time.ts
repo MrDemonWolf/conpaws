@@ -1,7 +1,4 @@
-import {
-  formatInConventionTime,
-  fromConventionTime,
-} from "@/lib/convention-time";
+import { resolveConventionWallClock } from "@/lib/convention-time";
 
 export interface ManualEventTimes {
   date: Date;
@@ -56,31 +53,16 @@ export function manualEventTimeParts(value: Date): ManualEventTimeParts {
   };
 }
 
-function pad(value: number): string {
-  return String(value).padStart(2, "0");
-}
-
 /**
  * The instant a picked wall clock stands for in the convention's zone, or null
- * when that wall clock does not exist there.
- *
- * Spring forward skips an hour: 2:30 AM on the second Sunday of March never
- * happens in US Central, and the zone arithmetic quietly lands on 3:30 AM
- * instead. Round-tripping the result back through the zone is the only way to
- * catch it, and a caller that skips the check stores the event an hour off and
- * fires its reminder at the wrong time.
+ * when that wall clock does not exist there (a spring-forward gap); see
+ * `resolveConventionWallClock`.
  */
 export function resolveManualEventInstant(
   parts: ManualEventTimeParts,
   timeZone: string,
 ): Date | null {
-  const instant = fromConventionTime(parts, timeZone);
-  const requested = `${parts.year}-${pad(parts.month)}-${pad(parts.day)} ${pad(parts.hour)}:${pad(parts.minute)}`;
-
-  return formatInConventionTime(instant, timeZone, "yyyy-MM-dd HH:mm") ===
-    requested
-    ? instant
-    : null;
+  return resolveConventionWallClock(parts, timeZone);
 }
 
 function clampDayKey(dayKey: string, minimumDay: string, maximumDay: string) {
