@@ -95,6 +95,9 @@ describe("Expo Router convention routes", () => {
       "utf8",
     );
     expect(importSource).toContain("<HowToModal");
+    // The link field can still hold focus when a help row is tapped, so the
+    // keyboard has to go before the full-screen modal comes up.
+    expect(importSource).toMatch(/Keyboard\.dismiss\(\);\s*setHowTo\(/);
   });
 
   it("lets the Import button start only one import", () => {

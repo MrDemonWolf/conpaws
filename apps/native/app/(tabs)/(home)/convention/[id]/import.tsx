@@ -16,7 +16,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useTheme } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert } from "react-native";
+import { AccessibilityInfo, Alert, Keyboard } from "react-native";
 import { TimeZonePickerModal } from "@/components/ConventionFormFields";
 import { FormModalHeader } from "@/components/FormModalHeader";
 import {
@@ -934,9 +934,15 @@ export default function ImportScreen() {
               isOpen={helpOpen}
               onOpenChange={setHelpOpen}
             >
-              {importHelpRows(t, (method) =>
-                setHowTo({ method, openedAt: Date.now() }),
-              )}
+              {importHelpRows(t, (method) => {
+                // The link field may still hold focus, and tapping a row in
+                // the form does not take it away, so the keyboard could stay
+                // up over the walkthrough. `@expo/ui` routes this blur to the
+                // hosted field. The convention form's time zone row does the
+                // same before its modal.
+                Keyboard.dismiss();
+                setHowTo({ method, openedAt: Date.now() });
+              })}
             </Collapsible>
           </FieldGroup.Section>
 
