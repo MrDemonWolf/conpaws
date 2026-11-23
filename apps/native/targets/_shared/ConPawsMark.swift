@@ -3,10 +3,10 @@ import SwiftUI
 /// The ConPaws compass-paw mark, drawn as one fillable path.
 ///
 /// A `Shape` rather than an asset-catalog image on purpose: whatever style
-/// paints it — a brand `foregroundStyle`, the accented pass on a tinted Home
-/// Screen, the vibrant pass on the Lock Screen — recolors every part of the
-/// mark exactly like the text beside it, which is the whole point of shipping
-/// a monochrome mark instead of the app icon. The ring is a stroked circle
+/// paints it — a brand `foregroundStyle`, the accented pass on a tinted watch
+/// face — recolors every part of the mark exactly like the text beside it,
+/// which is the whole point of shipping a monochrome mark instead of the app
+/// icon. The ring is a stroked circle
 /// converted to a fillable outline so the entire glyph stays a single path.
 ///
 /// Geometry mirrors the 24×24 vector in archived `widget-redesign-2026-08.html`:
@@ -74,9 +74,10 @@ struct ConPawsMarkShape: Shape {
 }
 
 /// The mark at a fixed square size, decorative by default — every layout that
-/// uses it puts the same information in the text beside it.
+/// uses it puts the same information in the text beside it. Never below 16
+/// points: the compass ring blurs smaller than that.
 struct ConPawsMark: View {
-  var size: CGFloat = 12
+  var size: CGFloat = 16
 
   var body: some View {
     ConPawsMarkShape()

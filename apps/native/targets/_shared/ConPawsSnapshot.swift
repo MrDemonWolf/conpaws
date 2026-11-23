@@ -13,12 +13,31 @@ struct ConPawsSnapshot: Codable, Sendable {
   /// payload still decodes.
   var handledCommandIds: [String]?
 
-  static let empty = ConPawsSnapshot(
-    schemaVersion: 1,
-    generatedAtMs: 0,
-    localeIdentifier: "en",
-    conventions: []
-  )
+  /// What the targets show before the phone has sent a snapshot they can
+  /// read, in the watch's own language: the app's language only arrives with
+  /// a snapshot. Computed rather than stored, so it never keeps the language
+  /// it had when first read.
+  static var empty: ConPawsSnapshot { empty() }
+
+  static func empty(
+    localeIdentifier: String = deviceLocaleIdentifier()
+  ) -> ConPawsSnapshot {
+    ConPawsSnapshot(
+      schemaVersion: 1,
+      generatedAtMs: 0,
+      localeIdentifier: localeIdentifier,
+      conventions: []
+    )
+  }
+
+  /// The wearer's first preferred language, for text drawn before the app's
+  /// is known. Not `Locale.current`: in a target without localizations, such
+  /// as the complication, that falls back to the development language.
+  static func deviceLocaleIdentifier(
+    preferredLanguages: [String] = Locale.preferredLanguages
+  ) -> String {
+    preferredLanguages.first ?? "en"
+  }
 
   /// The locale every date, time and weekday in these targets is formatted in.
   ///
@@ -125,22 +144,21 @@ extension ConPawsConventionSnapshot {
   func optionsThisHour(at now: Date, limit: Int = 5) -> [ConPawsEventSnapshot] {
     let nowMs = now.timeIntervalSince1970 * 1_000
     guard let options, !options.isEmpty, startAtMs <= nowMs, nowMs < endAtMs else { return [] }
-    var calendar = Calendar(identifier: .gregorian)
-    calendar.timeZone = TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent
     guard let slot = calendar.dateInterval(of: .hour, for: now) else { return [] }
     let slotStartMs = slot.start.timeIntervalSince1970 * 1_000
-    let hourMs: Double = 3_600_000
+    let slotEndMs = slot.end.timeIntervalSince1970 * 1_000
+    let unknownEndMs = ConPawsScheduleResolver.unknownEndDuration * 1_000
     let saved = Set(events.map(\.id))
     return Array(
       options
         .filter { option in
           guard !saved.contains(option.id) else { return false }
-          let fallbackEnd = option.startAtMs + hourMs
+          let fallbackEnd = option.startAtMs + unknownEndMs
           // matchesHourSlot's endMs: an end that is not after the start is
           // treated as unknown.
           let slotEnd = option.endAtMs.flatMap { $0 > option.startAtMs ? $0 : nil } ?? fallbackEnd
           let liveEnd = option.endAtMs ?? fallbackEnd
-          return option.startAtMs < slotStartMs + hourMs && slotEnd > slotStartMs && liveEnd > nowMs
+          return option.startAtMs < slotEndMs && slotEnd > slotStartMs && liveEnd > nowMs
         }
         .sorted { lhs, rhs in
           lhs.startAtMs != rhs.startAtMs
@@ -195,6 +213,96 @@ struct ConPawsEventSnapshot: Codable, Identifiable, Hashable, Sendable {
     clock.locale = locale
     let time = Date(timeIntervalSince1970: (endAtMs ?? startAtMs) / 1_000).formatted(clock)
     return endAtMs == nil ? time : strings.text(strings.untilCapsFormat, time)
+  }
+}
+
+// MARK: - Dates
+
+// One set of accessors for every target. The Watch app, the complication and
+// the timeline each kept a private copy, and a private member beside an
+// internal one of the same name is ambiguous in its file, so there must be
+// only these.
+
+extension ConPawsConventionSnapshot {
+  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
+  var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
+  /// The convention's own zone. `filteringInvalidRecords` drops a convention
+  /// whose identifier does not resolve, so the device zone is only a guard.
+  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
+  var calendar: Calendar { ConPawsCalendar.convention(in: timeZone) }
+}
+
+/// The calendar every convention day, hour and month is counted in.
+enum ConPawsCalendar {
+  /// Gregorian, in the convention's zone, whatever calendar the watch is set
+  /// to. The wearer's Hebrew or Islamic calendar counted a 30-day wait as one
+  /// lunar month, so the complication said "In 1 month" while the iPhone
+  /// widget, which counts Gregorian months, said "In 30 days".
+  static func convention(in timeZone: TimeZone) -> Calendar {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = timeZone
+    return calendar
+  }
+}
+
+extension ConPawsEventSnapshot {
+  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
+  /// Nil while the end is unknown. Code that needs an end anyway uses
+  /// `ConPawsScheduleResolver.effectiveEnd(of:)`.
+  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
+}
+
+// MARK: - Freshness
+
+enum ConPawsSnapshotAge {
+  static let staleAfter: TimeInterval = 30 * 60
+
+  /// When the phone made `snapshot`, or nil when it holds no conventions:
+  /// with no plan there is no age to show or go stale. Every rule below
+  /// starts here, so none can treat the empty snapshot differently.
+  static func generatedDate(of snapshot: ConPawsSnapshot) -> Date? {
+    guard !snapshot.conventions.isEmpty else { return nil }
+    return Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000)
+  }
+
+  /// The moment `snapshot` turns stale, or nil when it never does: a week
+  /// after the phone made it while the screen only counts down to a
+  /// convention (`countdownStaleAfter`), half an hour after otherwise.
+  ///
+  /// The one rule the Watch app, the complication's entries and the timeline
+  /// that places those entries all read. When each kept its own copy, a change
+  /// to one could put the stale symbol at a moment with no timeline entry, and
+  /// the face stayed wrong until the next snapshot.
+  static func staleDate(of snapshot: ConPawsSnapshot, countingDown: Bool = false) -> Date? {
+    generatedDate(of: snapshot)?.addingTimeInterval(countingDown ? countdownStaleAfter : staleAfter)
+  }
+
+  static func isStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
+    staleDate(of: snapshot).map { now >= $0 } ?? false
+  }
+
+  /// How old a plan may be before a convention countdown, in the Watch app
+  /// or on the complication, says so. Both show a name, a date and a
+  /// countdown worked out on the watch, and in the weeks before a convention
+  /// the phone app is rarely opened, so the thirty-minute rule flagged a
+  /// correct countdown on nearly every glance and taught the wearer to ignore
+  /// the flag that matters during the convention. A week still flags a plan
+  /// the phone may have changed since.
+  static let countdownStaleAfter: TimeInterval = 7 * 86_400
+
+  /// Whether the Watch app's convention countdown flags its plan as old.
+  static func isCountdownStale(_ snapshot: ConPawsSnapshot, now: Date) -> Bool {
+    staleDate(of: snapshot, countingDown: true).map { now >= $0 } ?? false
+  }
+
+  /// How long ago the phone made the plan, as "45 min. ago" in `locale`.
+  /// Only the Watch app says this: it redraws every minute, while a
+  /// complication entry would keep the age it was drawn with.
+  static func updatedText(since generatedAt: Date, now: Date, locale: Locale) -> String {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.locale = locale
+    formatter.unitsStyle = .short
+    return formatter.localizedString(for: generatedAt, relativeTo: now)
   }
 }
 
@@ -313,21 +421,42 @@ enum ConPawsSnapshotStore {
     let mainBundle = bundle
       .replacingOccurrences(of: ".watchkitapp.widgets", with: "")
       .replacingOccurrences(of: ".watchkitapp", with: "")
-      .replacingOccurrences(of: ".widgets", with: "")
     return "group.\(mainBundle)"
   }
 
   static func load() -> ConPawsSnapshot {
-    guard
-      let defaults = UserDefaults(suiteName: appGroupIdentifier()),
-      let json = defaults.string(forKey: snapshotKey),
-      let data = json.data(using: .utf8),
+    snapshot(
+      fromStored: UserDefaults(suiteName: appGroupIdentifier())?.string(forKey: snapshotKey)
+    )
+  }
+
+  /// The stored snapshot, or the empty one when nothing is stored or this
+  /// binary cannot render what is. A payload it cannot render, say from a
+  /// newer app, still names the language the wearer chose in the app, and
+  /// the empty state keeps that rather than the watch's.
+  static func snapshot(
+    fromStored json: String?,
+    preferredLanguages: [String] = Locale.preferredLanguages
+  ) -> ConPawsSnapshot {
+    let device = ConPawsSnapshot.deviceLocaleIdentifier(preferredLanguages: preferredLanguages)
+    guard let data = json?.data(using: .utf8) else {
+      return .empty(localeIdentifier: device)
+    }
+    if
       let snapshot = try? JSONDecoder().decode(ConPawsSnapshot.self, from: data),
       supportedSchemaVersions.contains(snapshot.schemaVersion)
-    else {
-      return .empty
+    {
+      return snapshot
     }
-    return snapshot
+    let stored = (try? JSONDecoder().decode(StoredLanguage.self, from: data))?
+      .localeIdentifier
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    return .empty(localeIdentifier: stored.flatMap { $0.isEmpty ? nil : $0 } ?? device)
+  }
+
+  /// Just the language of a stored payload, for one that will not decode whole.
+  private struct StoredLanguage: Decodable {
+    let localeIdentifier: String
   }
 
   static func save(json: String) -> Bool {
@@ -341,17 +470,5 @@ enum ConPawsSnapshotStore {
     }
     defaults.set(json, forKey: snapshotKey)
     return true
-  }
-
-  static func appURL(conventionID: String? = nil) -> URL? {
-    let bundle = appGroupIdentifier().replacingOccurrences(of: "group.", with: "")
-    let scheme = bundle.hasSuffix(".dev") ? "conpaws-dev" : "conpaws"
-    var components = URLComponents()
-    components.scheme = scheme
-    components.host = conventionID == nil ? "" : "schedule"
-    if let conventionID {
-      components.queryItems = [URLQueryItem(name: "conventionId", value: conventionID)]
-    }
-    return components.url
   }
 }

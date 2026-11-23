@@ -65,6 +65,71 @@ struct ScheduleStateTests {
     }
   }
 
+  /// A saved meet-up the evening before day one ran behind "Starts tomorrow"
+  /// from its reminder to its end: the countdown only gave way at the
+  /// convention's own start.
+  @Test func aSavedPanelRunningBeforeTheFirstDayIsShownNotTheCountdown() {
+    let meetUp = event("meet-up", from: now.addingTimeInterval(-1_800), until: now.addingTimeInterval(1_800))
+    let saved = convention([meetUp], startsAt: now.addingTimeInterval(6 * 3_600))
+    let result = resolveAutomatically(snapshot(saved), at: now)
+    if case .currentOnly(_, let running) = result { #expect(running.id == "meet-up") }
+    else { Issue.record("expected the running panel, got \(result)") }
+  }
+
+  /// The countdown runs until the earliest of the convention's start, its
+  /// first saved panel's start and that panel's reminder, in seconds from
+  /// the convention's start. The panel starts `panelStart` seconds from it.
+  @Test(arguments: [
+    (-7_200, nil, -7_200),
+    (-7_200, 0, -7_200),
+    (-7_200, 30, -9_000),
+    (3_600, nil, 0),
+    (3_600, 30, 0),
+    // A reminder that fires before the doors open ends the countdown then.
+    (900, 60, -2_700),
+  ] as [(TimeInterval, Int?, TimeInterval)])
+  func theCountdownEndsWhenTheFirstSavedPanelIsDue(
+    panelStart: TimeInterval,
+    reminderMinutes: Int?,
+    countdownEnd: TimeInterval
+  ) {
+    let start = now.addingTimeInterval(86_400)
+    let panel = event(
+      "first",
+      from: start.addingTimeInterval(panelStart),
+      until: start.addingTimeInterval(panelStart + 3_600),
+      reminderMinutes: reminderMinutes
+    )
+    let saved = convention([panel], startsAt: start, endsAt: start.addingTimeInterval(3 * 86_400))
+    let end = start.addingTimeInterval(countdownEnd)
+    #expect(ConPawsScheduleResolver.countdownEnd(of: saved) == end)
+
+    let before = resolveAutomatically(snapshot(saved), at: end.addingTimeInterval(-1))
+    if case .countdown = before {} else { Issue.record("expected the countdown, got \(before)") }
+    let after = resolveAutomatically(snapshot(saved), at: end)
+    switch after {
+    case .next(_, nil, let upcoming): #expect(upcoming.id == "first")
+    case .currentOnly(_, let running): #expect(running.id == "first")
+    default: Issue.record("expected the first panel, got \(after)")
+    }
+  }
+
+  /// Only the first panel's reminder counts: the Watch's leave countdown
+  /// follows the panel that starts next, not a later one with a longer
+  /// reminder.
+  @Test func aLaterPanelsEarlierReminderDoesNotEndTheCountdown() {
+    let start = now.addingTimeInterval(86_400)
+    let first = event("first", from: start.addingTimeInterval(-3_600), reminderMinutes: 10)
+    let later = event("later", from: start.addingTimeInterval(-1_800), reminderMinutes: 120)
+    let saved = convention([later, first], startsAt: start)
+    #expect(ConPawsScheduleResolver.countdownEnd(of: saved) == start.addingTimeInterval(-4_200))
+  }
+
+  @Test func aConventionWithoutPanelsCountsDownToItsStart() {
+    let start = now.addingTimeInterval(86_400)
+    #expect(ConPawsScheduleResolver.countdownEnd(of: convention([], startsAt: start)) == start)
+  }
+
   @Test func reminderWindowIncludesItsBoundary() {
     let upcoming = event("upcoming", from: now.addingTimeInterval(600), reminderMinutes: 10)
     #expect(!ConPawsScheduleResolver.isInReminderWindow(upcoming, now: now.addingTimeInterval(-1)))
@@ -176,6 +241,70 @@ struct ScheduleStateTests {
     else { #expect(Bool(false)) }
   }
 
+  /// The phone sends a convention's end as the midnight after its last day,
+  /// so a closing-night panel can run past it. With the next convention
+  /// already saved, the Watch still follows the running panel until it ends.
+  @Test func aPanelRunningPastTheEndKeepsItsConventionUntilThePanelEnds() {
+    let end = now
+    let closing = event("closing", from: end.addingTimeInterval(-3_600), until: end.addingTimeInterval(2_700))
+    let first = convention(
+      [closing],
+      startsAt: end.addingTimeInterval(-3 * 86_400),
+      id: "first",
+      endsAt: end
+    )
+    let next = convention(
+      [],
+      startsAt: end.addingTimeInterval(26 * 86_400),
+      id: "next",
+      endsAt: end.addingTimeInterval(29 * 86_400)
+    )
+    let value = snapshot([first, next])
+
+    let during = resolveAutomatically(value, at: end.addingTimeInterval(60))
+    if case .currentOnly(let shown, let running) = during {
+      #expect(shown.id == "first")
+      #expect(running.id == "closing")
+    } else { Issue.record("expected the running panel, got \(during)") }
+
+    let after = resolveAutomatically(value, at: end.addingTimeInterval(2_700.001))
+    if case .countdown(let shown) = after { #expect(shown.id == "next") }
+    else { Issue.record("expected the next convention's countdown, got \(after)") }
+  }
+
+  /// Seconds after the convention's end at which it stops counting as active,
+  /// for one saved panel from `start` to `end` (nil: none, or no end time).
+  @Test(arguments: [
+    (nil, nil, 0),
+    (-7_200, -3_600, 0),
+    (-3_600, 2_700, 2_700),
+    (-1_800, nil, 1_800),
+    // A bad end time holds the convention a day from the panel's start at most.
+    (-3_600, 30 * 86_400, 82_800),
+    // A panel saved for after the convention still counts until it ends.
+    (2 * 86_400, 2 * 86_400 + 3_600, 2 * 86_400 + 3_600),
+  ] as [(TimeInterval?, TimeInterval?, TimeInterval)])
+  func lastActiveMomentFollowsTheLatestSavedPanelsEnd(
+    start: TimeInterval?,
+    end: TimeInterval?,
+    expected: TimeInterval
+  ) {
+    let events = start.map { start in
+      [event("panel", from: now.addingTimeInterval(start), until: end.map { now.addingTimeInterval($0) })]
+    } ?? []
+    let saved = convention(events, endsAt: now)
+    #expect(
+      ConPawsScheduleResolver.lastActiveMs(of: saved)
+        == now.addingTimeInterval(expected).timeIntervalSince1970 * 1_000
+    )
+  }
+
+  private func resolveAutomatically(_ snapshot: ConPawsSnapshot, at moment: Date) -> ConPawsScheduleState {
+    ConPawsScheduleResolver.resolve(
+      snapshot: snapshot, selectedConventionID: nil, skipCountdown: false, now: moment
+    )
+  }
+
   private func resolve(_ events: [ConPawsEventSnapshot]) -> ConPawsScheduleState {
     let saved = convention(events)
     return ConPawsScheduleResolver.resolve(
@@ -248,26 +377,6 @@ struct ScheduleStateTests {
   }
 }
 
-struct SnapshotAgeTests {
-  @Test func freshAtTwentyNineMinutesFiftyNineSeconds() {
-    let now = Date(timeIntervalSince1970: 1_800_000_000)
-    let generatedAtMs = now.addingTimeInterval(-1_799).timeIntervalSince1970 * 1_000
-    #expect(!ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now))
-  }
-
-  @Test func staleAtThirtyMinutes() {
-    let now = Date(timeIntervalSince1970: 1_800_000_000)
-    let generatedAtMs = now.addingTimeInterval(-1_800).timeIntervalSince1970 * 1_000
-    #expect(ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now))
-  }
-
-  @Test func futureStampedSnapshotIsFresh() {
-    let now = Date(timeIntervalSince1970: 1_800_000_000)
-    let generatedAtMs = now.addingTimeInterval(60).timeIntervalSince1970 * 1_000
-    #expect(!ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now))
-  }
-}
-
 struct StringsPlaceholderParityTests {
   @Test func formatPlaceholdersMatchEnglishAcrossLanguages() {
     let english = placeholders(in: ConPawsStrings.table(for: .en))
@@ -286,22 +395,47 @@ struct StringsPlaceholderParityTests {
     }
   }
 
+  /// Every countdown template must carry its number: "Stunden" without "%@"
+  /// would draw "In Stunden" and pass every other check.
+  @Test(arguments: ConPawsLanguage.allCases)
+  func everyPluralTemplateCarriesOneNumber(language: ConPawsLanguage) {
+    for (name, value) in pluralTemplates(in: ConPawsStrings.table(for: language)) {
+      #expect(placeholderCounts(in: value) == ["%@": 1], "\(language.rawValue) \(name): \(value)")
+    }
+  }
+
+  /// Format strings by field, and each plural template as "hoursUnit.one" and
+  /// so on, so the English comparison covers the units too.
   private func placeholders(in strings: ConPawsStrings) -> [String: [String: Int]] {
-    Mirror(reflecting: strings).children.reduce(into: [:]) { result, child in
-      guard
-        let name = child.label,
-        let value = child.value as? String
-      else { return }
-      let expression = try! NSRegularExpression(pattern: "%[0-9]+\\$@|%@")
-      let matches = expression.matches(
-        in: value,
-        range: NSRange(value.startIndex..., in: value)
-      ).compactMap { match in
-        Range(match.range, in: value).map { String(value[$0]) }
-      }
-      if !matches.isEmpty {
-        result[name] = Dictionary(matches.map { ($0, 1) }, uniquingKeysWith: +)
+    let fields = Mirror(reflecting: strings).children.compactMap { child -> (String, String)? in
+      guard let name = child.label, let value = child.value as? String else { return nil }
+      return (name, value)
+    }
+    return (fields + pluralTemplates(in: strings)).reduce(into: [:]) { result, field in
+      let counts = placeholderCounts(in: field.1)
+      if !counts.isEmpty { result[field.0] = counts }
+    }
+  }
+
+  /// The six templates of every `ConPawsPluralUnit` field.
+  private func pluralTemplates(in strings: ConPawsStrings) -> [(String, String)] {
+    Mirror(reflecting: strings).children.flatMap { child -> [(String, String)] in
+      guard let name = child.label, let unit = child.value as? ConPawsPluralUnit else { return [] }
+      return Mirror(reflecting: unit).children.compactMap { form in
+        guard let formName = form.label, let template = form.value as? String else { return nil }
+        return ("\(name).\(formName)", template)
       }
     }
+  }
+
+  private func placeholderCounts(in value: String) -> [String: Int] {
+    let expression = try! NSRegularExpression(pattern: "%[0-9]+\\$@|%@")
+    let matches = expression.matches(
+      in: value,
+      range: NSRange(value.startIndex..., in: value)
+    ).compactMap { match in
+      Range(match.range, in: value).map { String(value[$0]) }
+    }
+    return Dictionary(matches.map { ($0, 1) }, uniquingKeysWith: +)
   }
 }

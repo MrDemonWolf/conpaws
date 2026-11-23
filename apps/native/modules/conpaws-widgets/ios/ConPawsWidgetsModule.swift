@@ -42,6 +42,13 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
   private var shouldTransferLatest = false
   /// Read and written on `queue`.
   private var isActivated = false
+  /// Read and written on `queue`. Set when iOS deactivates the session to
+  /// switch to another Watch: the activation that follows reaches a Watch
+  /// that has none of what the old one was sent.
+  private var needsResendAfterSwitch = false
+  /// Read and written on `queue`. Whether the active Watch had the app
+  /// installed when last seen; nil until the session first activates.
+  private var couldReceive: Bool?
 
   /// Main thread only. Set by the module once JS exists, so nil on a launch
   /// with no scene, where nothing could apply a command until the next open.
@@ -121,6 +128,30 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
     }
   }
 
+  /// Queues the last published schedule, context and transfer, for a Watch
+  /// that has none of it: the newly active one after a switch, or a Watch app
+  /// just installed or reinstalled. A sent context is forgotten above, so
+  /// nothing else would reach it until the phone app next publishes. Runs on
+  /// `queue`. The stored JSON keeps its own `generatedAtMs`, so the Watch's
+  /// stale footer stays honest and its newer-wins check still turns away a
+  /// schedule older than one it holds.
+  private func resendLastSnapshot() {
+    if latestJSON == nil { latestJSON = Self.storedSnapshot() }
+    if latestJSON != nil { shouldTransferLatest = true }
+  }
+
+  /// The JSON `publishSnapshot` last stored, which is exactly what it last
+  /// handed to `publish`, or nil when there is none this binary can render.
+  private static func storedSnapshot() -> String? {
+    guard
+      let json = commandDefaults()?.string(forKey: conPawsSnapshotKey),
+      let object = try? JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
+      let schemaVersion = object["schemaVersion"] as? Int,
+      ConPawsWidgetsModule.supportedSchemaVersions.contains(schemaVersion)
+    else { return nil }
+    return json
+  }
+
   func session(
     _ session: WCSession,
     activationDidCompleteWith activationState: WCSessionActivationState,
@@ -133,6 +164,14 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
       return
     }
     queue.async {
+      // Not on the launch activation: the Watch may already hold this
+      // schedule, and a transfer each launch would spend the day's
+      // complication budget.
+      if self.needsResendAfterSwitch {
+        self.needsResendAfterSwitch = false
+        self.resendLastSnapshot()
+      }
+      self.couldReceive = session.isPaired && session.isWatchAppInstalled
       self.flushIfActivated(session)
     }
   }
@@ -140,11 +179,24 @@ private final class ConPawsWatchBridge: NSObject, WCSessionDelegate {
   func sessionDidBecomeInactive(_ session: WCSession) {}
 
   func sessionDidDeactivate(_ session: WCSession) {
-    session.activate()
+    // iOS deactivates the session to switch to another Watch; activating
+    // again reaches the new one. The flag is set on `queue` first, so the
+    // activation's flush, queued after it, sees it.
+    queue.async {
+      self.needsResendAfterSwitch = true
+      session.activate()
+    }
   }
 
   func sessionWatchStateDidChange(_ session: WCSession) {
     queue.async {
+      // Only a Watch app that has just arrived needs the schedule again. A
+      // complication switched on or off is a watch-state change too.
+      if session.activationState == .activated {
+        let canReceive = session.isPaired && session.isWatchAppInstalled
+        if canReceive, self.couldReceive == false { self.resendLastSnapshot() }
+        self.couldReceive = canReceive
+      }
       self.flushIfActivated(session)
     }
   }
@@ -324,8 +376,9 @@ public class ConPawsWidgetsModule: Module {
   ///
   /// Duplicated from `ConPawsSnapshotStore.supportedSchemaVersions` because
   /// this module compiles as a pod, on the other side of a target boundary
-  /// from `_shared`. Keep the two in step.
-  private static let supportedSchemaVersions = 1...2
+  /// from `_shared`. Keep the two in step. The Watch bridge checks the stored
+  /// snapshot against it too before sending it again.
+  fileprivate static let supportedSchemaVersions = 1...2
 
   private var watchBridge: ConPawsWatchBridge { .shared }
 

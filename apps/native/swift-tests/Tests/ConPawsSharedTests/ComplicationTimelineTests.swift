@@ -75,6 +75,24 @@ struct ComplicationTimelineTests {
     #expect(atStart.relevantUntil == local(21, 14, 30))
   }
 
+  /// The phone sends a convention's start as midnight in its zone, from the
+  /// date alone. Raising the card from 23:30 to 00:30 the night before day
+  /// one showed nothing but a countdown turning over; saved panels raise it
+  /// when it matters.
+  @Test func aConventionsMidnightStartDoesNotRaiseTheCard() {
+    let value = snapshot(
+      conventions: [convention("con", from: local(22, 0), until: local(24, 18))],
+      generatedAt: local(21, 22)
+    )
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: local(21, 23))
+    let aroundMidnight = plan.filter { $0.date >= local(21, 23, 30) && $0.date <= local(22, 0, 30) }
+    #expect(aroundMidnight.contains { $0.date == local(22, 0) })
+    #expect(aroundMidnight.allSatisfy { $0.relevantUntil == nil })
+    for moment in [local(21, 23, 30), local(21, 23, 59), local(22, 0), local(22, 0, 20)] {
+      #expect(ConPawsComplicationTimeline.relevantUntil(snapshot: value, at: moment) == nil, "raised at \(moment)")
+    }
+  }
+
   @Test func withNothingScheduledTheTimelineStillEnds() {
     let now = local(21, 12)
     let plan = ConPawsComplicationTimeline.plan(snapshot: .empty, now: now)
@@ -89,9 +107,9 @@ struct ComplicationTimelineTests {
   /// the ended convention, and nothing redrew the card for six hours. The
   /// first convention's last hour-long panel starts this many minutes after
   /// its end (nil: no panels): long before, running until the end, so the
-  /// plan stands on the end itself, or starting after it, which keeps the
-  /// convention until that start.
-  @Test(arguments: [nil, -180, -60, 30] as [Int?])
+  /// plan stands on the end itself, or running past the end or starting
+  /// after it, which keeps the convention until that panel ends.
+  @Test(arguments: [nil, -180, -60, -30, 30] as [Int?])
   func theNextConventionTakesOverTheMomentTheFirstOneEnds(panelAfterEnd: Int?) throws {
     let end = local(23, 18)
     let panels = panelAfterEnd.map { minutes in
@@ -102,8 +120,13 @@ struct ComplicationTimelineTests {
     let later = convention("later", from: local(27, 8), until: local(29, 18))
     let value = snapshot(conventions: [first, later], generatedAt: local(23, 16, 59))
     let now = local(23, 17)
-    let takeover = end.addingTimeInterval(TimeInterval(max(panelAfterEnd ?? 0, 0) * 60 + 60))
+    let panelEndAfterEnd = max((panelAfterEnd ?? -60) + 60, 0)
+    let takeover = end.addingTimeInterval(TimeInterval(panelEndAfterEnd * 60 + 60))
     #expect(frame(value, at: takeover).hasPrefix("coming later"))
+    if panelEndAfterEnd > 0 {
+      // The panel's last minute still shows it, not the next countdown.
+      #expect(frame(value, at: takeover.addingTimeInterval(-120)).hasPrefix("current first closing"))
+    }
     let shown = try #require(plannedDates(value, now: now).last { $0 <= takeover })
     #expect(frame(value, at: shown) == frame(value, at: takeover))
     expectNoStaleCard(value, now: now)
@@ -134,6 +157,243 @@ struct ComplicationTimelineTests {
     expectNoStaleCard(value, now: now)
   }
 
+  // MARK: After the convention
+
+  /// Once every saved convention has ended, the card says so. It used to
+  /// read "No more panels today" every day for weeks after the convention,
+  /// or "Add panels on iPhone" for one that was over.
+  @Test(arguments: [true, false])
+  func aConventionThatHasEndedSaysNothingIsUpcoming(withPanels: Bool) throws {
+    let panels = withPanels ? [event("closing", from: local(23, 15), until: local(23, 16))] : []
+    let value = snapshot(
+      conventions: [convention("con", from: local(20, 8), until: local(23, 18), events: panels)],
+      generatedAt: local(23, 12)
+    )
+    let english = ConPawsStrings.resolve("en")
+    let nothingUpcoming = ConPawsComplicationProjection.Status(
+      title: "Nothing upcoming",
+      detail: "Your saved conventions have ended."
+    )
+    for dayAfter in [local(23, 18, 1), local(24, 10), local(30, 23)] {
+      let projection = ConPawsComplicationProjection(snapshot: value, now: dayAfter)
+      #expect(projection.status(strings: english) == nothingUpcoming, "at \(dayAfter)")
+    }
+
+    // The entry the timeline plans at the end already reads that way.
+    let afterEnd = local(23, 18, 1)
+    let shown = try #require(plannedDates(value, now: local(23, 17)).last { $0 <= afterEnd })
+    #expect(frame(value, at: shown) == frame(value, at: afterEnd))
+    expectNoStaleCard(value, now: local(23, 17))
+  }
+
+  /// While the convention runs, its own wording stays.
+  @Test func aRunningConventionKeepsItsOwnStatus() {
+    let english = ConPawsStrings.resolve("en")
+    let finished = snapshot(
+      [event("closing", from: local(23, 9), until: local(23, 10))],
+      generatedAt: local(23, 12)
+    )
+    #expect(
+      ConPawsComplicationProjection(snapshot: finished, now: local(23, 12)).status(strings: english)
+        == .init(title: "No more panels today", detail: "All the panels you picked have ended")
+    )
+    let empty = snapshot([], generatedAt: local(23, 12))
+    #expect(
+      ConPawsComplicationProjection(snapshot: empty, now: local(23, 12)).status(strings: english)
+        == .init(title: "Add panels on iPhone", detail: "No panels picked")
+    )
+  }
+
+  /// A saved panel that starts after the convention's end keeps the
+  /// convention current until that start, as the resolver does.
+  @Test func aPanelAfterTheEndHoldsOffTheEndedCard() {
+    let english = ConPawsStrings.resolve("en")
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(20, 8),
+          until: local(23, 18),
+          events: [event("afterparty", from: local(23, 20), until: local(23, 22))]
+        ),
+      ],
+      generatedAt: local(23, 12)
+    )
+    #expect(ConPawsComplicationProjection(snapshot: value, now: local(23, 21)).status(strings: english) == nil)
+    #expect(
+      ConPawsComplicationProjection(snapshot: value, now: local(23, 22, 30)).status(strings: english)?.title
+        == "Nothing upcoming"
+    )
+  }
+
+  // MARK: Staleness
+
+  /// The timeline places the stale entry where the shared rule says the plan
+  /// turns stale, and the entry drawn there reads stale by the same rule. A
+  /// phone stamp with a fraction of a second must not split the two.
+  @Test(arguments: [0.0, 0.123, 0.999])
+  func timelineStaleBoundaryMatchesTheEntryStaleFlag(fraction: TimeInterval) throws {
+    let generatedAt = local(21, 13, 50).addingTimeInterval(fraction)
+    let value = snapshot(
+      [event("trivia", from: local(21, 15, 30), until: local(21, 16, 30))],
+      generatedAt: generatedAt
+    )
+    let dates = plannedDates(value, now: generatedAt)
+    let boundary = try #require(ConPawsSnapshotAge.staleDate(of: value))
+    #expect(abs(boundary.timeIntervalSince(local(21, 14, 20)) - fraction) < 0.001)
+    let index = try #require(dates.firstIndex(of: boundary))
+    #expect(index > 0)
+    #expect(ConPawsSnapshotAge.isStale(value, now: dates[index - 1]) == false)
+    #expect(ConPawsSnapshotAge.isStale(value, now: dates[index]))
+    expectNoStaleCard(value, now: generatedAt)
+  }
+
+  /// The countdown is worked out on the watch, so, like the Watch app's
+  /// countdown screen, the card flags its plan only after a week, and the
+  /// timeline places the stale entry there rather than half an hour in. The
+  /// half-hour flag under a correct countdown taught the wearer to ignore
+  /// the one that matters during the convention.
+  @Test func aCountdownFlagsItsPlanOnlyAfterAWeek() throws {
+    let generatedAt = local(1, 12)
+    let value = snapshot(
+      conventions: [convention("con", from: local(22, 0), until: local(24, 18))],
+      generatedAt: generatedAt
+    )
+    #expect(plannedDates(value, now: generatedAt).contains(generatedAt.addingTimeInterval(30 * 60)) == false)
+    let week = generatedAt.addingTimeInterval(ConPawsSnapshotAge.countdownStaleAfter)
+    let now = week.addingTimeInterval(-3_600)
+    let dates = plannedDates(value, now: now)
+    let index = try #require(dates.firstIndex(of: week))
+    try #require(index > 0)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: dates[index - 1]) == nil)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: week) != nil)
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// From the handover the plan's half-hour rule applies again, so a plan
+  /// made the day before reads stale from the handover entry on.
+  @Test func anOldPlanReadsStaleFromTheCountdownsHandover() throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("opening", from: local(22, 10), until: local(22, 11))]
+        ),
+      ],
+      generatedAt: local(21, 12)
+    )
+    let now = local(21, 22, 30)
+    #expect(plannedDates(value, now: now).contains(local(22, 0)))
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: local(21, 23, 59)) == nil)
+    #expect(ConPawsComplicationSpeech.staleNotice(value, now: local(22, 0)) != nil)
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// With no convention there is nothing to go stale, so no stale entry.
+  @Test func anEmptySnapshotGetsNoStaleEntry() {
+    let now = local(21, 12)
+    let empty = ConPawsSnapshot(
+      schemaVersion: 2,
+      generatedAtMs: now.addingTimeInterval(-60).timeIntervalSince1970 * 1_000,
+      localeIdentifier: "en",
+      conventions: []
+    )
+    #expect(plannedDates(empty, now: now) == [now, now.addingTimeInterval(ConPawsComplicationTimeline.idleRefresh)])
+  }
+
+  // MARK: Coming up
+
+  /// The pre-convention card steps down at the convention's midnight, then
+  /// hourly, then reads "Starting soon". Each step needs an entry, or the
+  /// card keeps the old wording until the next phone snapshot. Starts 90
+  /// minutes, 5 hours, 30 hours and 3 days out.
+  @Test(arguments: [90, 300, 1_800, 4_320])
+  func comingUpCountdownNeverShowsAStaleLabel(minutesUntilStart: Int) {
+    let now = local(20, 7, 13)
+    let start = now.addingTimeInterval(TimeInterval(minutesUntilStart * 60))
+    let value = snapshot(
+      conventions: [convention("con", from: start, until: start.addingTimeInterval(2 * 86_400))],
+      generatedAt: now
+    )
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// A saved panel the evening before day one ends the countdown when its
+  /// reminder fires, as on the Watch app, and the card switches to the leave
+  /// countdown that minute rather than at the convention's midnight. With
+  /// no reminder it switches at the panel's start.
+  @Test(arguments: [15, nil] as [Int?])
+  func aPanelBeforeTheFirstDayTakesOverFromTheCountdown(reminderMinutes: Int?) throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("meet-up", from: local(21, 19), until: local(21, 20), reminderMinutes: reminderMinutes)]
+        ),
+      ],
+      generatedAt: local(21, 12)
+    )
+    let now = local(21, 12)
+    let handover = reminderMinutes == nil ? local(21, 19) : local(21, 18, 45)
+    #expect(frame(value, at: handover.addingTimeInterval(-60)).hasPrefix("coming con"))
+    let expected = reminderMinutes == nil ? "current con meet-up" : "leave con - meet-up"
+    #expect(frame(value, at: handover).hasPrefix(expected))
+    #expect(frame(value, at: local(21, 19, 30)).hasPrefix("current con meet-up"))
+    #expect(plannedDates(value, now: now).contains(handover))
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// A saved panel before day one raises the card half an hour before it
+  /// starts, as one inside the convention does. The countdown planned only
+  /// its handover, so without a 30- or 60-minute reminder nothing carried
+  /// the raise and the card rose at the reminder or at the start instead.
+  @Test(arguments: [nil, 15] as [Int?])
+  func aPanelBeforeTheFirstDayIsRelevantFromHalfAnHourBefore(reminderMinutes: Int?) throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("meet-up", from: local(21, 19), until: local(21, 20), reminderMinutes: reminderMinutes)]
+        ),
+      ],
+      generatedAt: local(21, 12)
+    )
+    let now = local(21, 12)
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: now)
+    let index = try #require(plan.firstIndex { $0.date == local(21, 18, 30) })
+    #expect(plan[index].relevantUntil == local(21, 19, 30))
+    try #require(index > 0)
+    #expect(plan[index - 1].relevantUntil == nil)
+    expectNoStaleCard(value, now: now)
+  }
+
+  /// The same for a panel just after the convention's midnight: the card
+  /// rises from 23:45, not from the handover at 00:00.
+  @Test func aPanelJustAfterTheFirstMidnightIsRelevantBeforeTheCountdownEnds() throws {
+    let value = snapshot(
+      conventions: [
+        convention(
+          "con",
+          from: local(22, 0),
+          until: local(24, 18),
+          events: [event("late-meet", from: local(22, 0, 15), until: local(22, 1))]
+        ),
+      ],
+      generatedAt: local(21, 20)
+    )
+    let now = local(21, 20)
+    let plan = ConPawsComplicationTimeline.plan(snapshot: value, now: now)
+    let lift = try #require(plan.first { $0.date == local(21, 23, 45) })
+    #expect(lift.relevantUntil == local(22, 0, 45))
+    expectNoStaleCard(value, now: now)
+  }
+
   // MARK: Completeness
 
   @Test(arguments: [0, 13 * 60 + 45, 22 * 60 + 40])
@@ -158,7 +418,8 @@ struct ComplicationTimelineTests {
   }
 
   /// Every minute between two entries reads exactly like the earlier entry:
-  /// what the card would show had it been redrawn then.
+  /// what the card would show had it been redrawn then. So does the last
+  /// second before each next entry, which a minute's step can miss.
   private func expectNoStaleCard(
     _ snapshot: ConPawsSnapshot,
     now: Date,
@@ -179,6 +440,13 @@ struct ComplicationTimelineTests {
       )
       moment.addTimeInterval(60)
     }
+    for (entry, next) in zip(dates, dates.dropFirst()) where next.timeIntervalSince(entry) > 1 {
+      #expect(
+        frame(snapshot, at: next.addingTimeInterval(-1)) == frame(snapshot, at: entry),
+        "stale card just before \(next) from the \(entry) entry",
+        sourceLocation: sourceLocation
+      )
+    }
   }
 
   /// Nov 2026 in Chicago, the convention's own clock.
@@ -194,7 +462,8 @@ struct ComplicationTimelineTests {
   private func frame(_ snapshot: ConPawsSnapshot, at date: Date) -> String {
     let projection = ConPawsComplicationProjection(snapshot: snapshot, now: date)
     let strings = ConPawsStrings.resolve("en")
-    let stale = ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: date)
+    // The flag the card draws: the eyebrow's symbol and the spoken notice.
+    let stale = ConPawsComplicationSpeech.staleNotice(snapshot, now: date) != nil
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = zone
     func day(_ event: ConPawsEventSnapshot) -> Int {
@@ -205,9 +474,18 @@ struct ComplicationTimelineTests {
         to: calendar.startOfDay(for: start)
       ).day ?? 0
     }
+    // The spoken countdown is part of the frame: WidgetKit keeps an entry's
+    // VoiceOver label as long as its pixels.
     let shown: String = switch projection.state {
     case .comingUp(let convention):
-      "coming \(convention.id)"
+      "coming \(convention.id) "
+        + ConPawsCountdown.label(
+          from: date,
+          to: Date(timeIntervalSince1970: convention.startAtMs / 1_000),
+          timeZone: zone,
+          strings: strings
+        )
+        + " / " + ConPawsComplicationSpeech.comingUp(convention, now: date, strings: strings)
     case .leave(let current, let next, let convention):
       "leave \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next)) "
         + ConPawsCountdown.leaveLead(
@@ -215,7 +493,8 @@ struct ComplicationTimelineTests {
           to: Date(timeIntervalSince1970: next.startAtMs / 1_000),
           timeZone: zone,
           strings: strings
-        )
+        ).text
+        + " / " + ConPawsComplicationSpeech.leaveCountdown(from: date, to: next.startDate, strings: strings)
     case .next(let current, let next, let convention):
       "next \(convention.id) \(current?.id ?? "-") \(next.id) +\(day(next))"
     case .current(let event, let convention):
@@ -224,6 +503,8 @@ struct ComplicationTimelineTests {
       "finished \(convention.id)"
     case .noPicks(let convention):
       "no picks \(convention.id)"
+    case .ended(let convention):
+      "ended \(convention.id)"
     case .noConvention:
       "no convention"
     }

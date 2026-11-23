@@ -560,6 +560,49 @@ describe("isolated Expo widget renderers", () => {
     },
   );
 
+  it.each(platforms)(
+    "%s follows a saved panel running past its convention's end until it ends",
+    (platform) => {
+      const data = snapshot();
+      const base = data.conventions[0];
+      const panel = base.events[0];
+      // The end is the midnight after the last day; the closing-night panel
+      // runs past it while the next convention is already saved.
+      const closing = {
+        ...panel,
+        title: "Closing Night Social",
+        startAtMs: NOW - HOUR,
+        endAtMs: NOW + 15 * MINUTE,
+      };
+      data.conventions = [
+        {
+          ...base,
+          id: "first",
+          name: "First Con",
+          startAtMs: NOW - 3 * 86_400_000,
+          endAtMs: NOW - 30 * MINUTE,
+          events: [closing],
+        },
+        {
+          ...base,
+          id: "next",
+          name: "Next Con",
+          startAtMs: NOW + 26 * 86_400_000,
+          endAtMs: NOW + 29 * 86_400_000,
+          events: [],
+        },
+      ];
+      const running = texts(render(platform, { snapshot: data })).join(" ");
+      expect(running).toContain("Closing Night Social");
+      expect(running).not.toContain("Next Con");
+
+      closing.endAtMs = NOW;
+      const ended = texts(render(platform, { snapshot: data })).join(" ");
+      expect(ended).toContain("Next Con");
+      expect(ended).not.toContain("Closing Night Social");
+    },
+  );
+
   it("keeps an ongoing final event and does not invent its missing end", () => {
     const data = snapshot();
     Object.assign(data.conventions[0].events[0], {
@@ -639,6 +682,86 @@ describe("isolated Expo widget renderers", () => {
     const running = render("ios", { snapshot: data }, "accessoryCircular");
     expect(running).toMatchObject({ type: "Gauge", props: { value: 0.25 } });
     expect(texts(running)).toContain("12:45");
+  });
+
+  it("speaks the reminder offset with the bare minute count", () => {
+    // The shared table copies the app's `reminders.minutesBefore`, whose
+    // number stands alone: "5 min before", "За 5 мин". A pluralised count
+    // read "5 minutes min before".
+    const data = snapshot();
+    // Outside the reminder window, so the reminder is still ahead.
+    data.conventions[0].events[0].reminderMinutes = 5;
+    const spoken = spokenLabel(render("ios", { snapshot: data }));
+    expect(spoken).toContain("Reminder at 12:05 · 5 min before");
+    expect(spoken).not.toContain("minutes");
+  });
+
+  // The phone picker and the Watch word these two offsets as phrases, not as
+  // "0 min before" / "60 min before".
+  it.each([
+    {
+      minutes: 0,
+      startAtMs: NOW + 600_000,
+      expected: "Reminder at 12:10 · At event time",
+      wrong: "0 min before",
+    },
+    {
+      minutes: 60,
+      startAtMs: NOW + 7_200_000,
+      expected: "Reminder at 13:00 · 1 hour before",
+      wrong: "60 min",
+    },
+  ])(
+    "speaks a $minutes-minute reminder the way the picker words it",
+    ({ minutes, startAtMs, expected, wrong }) => {
+      const data = snapshot();
+      const event = data.conventions[0].events[0];
+      event.reminderMinutes = minutes;
+      event.startAtMs = startAtMs;
+      event.endAtMs = startAtMs + 3_600_000;
+      const spoken = spokenLabel(render("ios", { snapshot: data }));
+      expect(spoken).toContain(expected);
+      expect(spoken).not.toContain(wrong);
+    },
+  );
+
+  it("speaks the hour-before reminder from the app-language table", () => {
+    const data = snapshot();
+    const event = data.conventions[0].events[0];
+    event.reminderMinutes = 60;
+    event.startAtMs = NOW + 7_200_000;
+    event.endAtMs = NOW + 10_800_000;
+    data.presentation = {
+      appearance: "system",
+      appScheme: "conpaws",
+      palette: {
+        light: {
+          background: "#FFFFFF",
+          foreground: "#000000",
+          secondary: "#333333",
+          accent: "#005575",
+        },
+        dark: {
+          background: "#000000",
+          foreground: "#FFFFFF",
+          secondary: "#CCCCCC",
+          accent: "#18B7F2",
+        },
+      },
+      labels: {
+        next: "Next",
+        current: "Current",
+        noEvents: "None",
+        finished: "Finished",
+      },
+      strings: {
+        language: "de",
+        reminderAtFormat: "Erinnerung um %1$@ · %2$@",
+        hourBefore: "1 Stunde vorher",
+      } as WidgetStrings,
+    };
+    const spoken = spokenLabel(render("ios", { snapshot: data }));
+    expect(spoken).toContain("Erinnerung um 13:00 · 1 Stunde vorher");
   });
 
   it.each(platforms)(

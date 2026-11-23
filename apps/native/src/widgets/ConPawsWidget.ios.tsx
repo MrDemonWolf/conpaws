@@ -103,7 +103,9 @@ export function ConPawsWidgetLayout(
     compactMonthsFormat: "%@mo",
     compactMinutesFormat: "%@ min",
     reminderAtFormat: "Reminder at %1$@ · %2$@",
-    minutesBeforeFormat: "%@ before",
+    minutesBeforeFormat: "%@ min before",
+    hourBefore: "1 hour before",
+    atEventTime: "At event time",
     planLastUpdatedFormat: "Plan last updated here · %@",
     staleHint: "Open ConPaws to update your plan.",
     moreTodayFormat: "+%@ more today",
@@ -234,10 +236,18 @@ export function ConPawsWidgetLayout(
     return event.room?.trim() || event.location?.trim() || "";
   }
   const configuration = environment.configuration;
+  // A saved panel keeps its convention until it ends, as on the Watch
+  // (ConPawsScheduleResolver.lastActiveMs): a closing-night panel often runs
+  // past the end, the midnight after the last day. It counts for a day from
+  // its start at most, so a bad end time cannot hide the next convention.
   const candidates = conventions.filter(
     (convention) =>
       convention.endAtMs >= now ||
-      convention.events.some((event) => event.startAtMs >= now),
+      convention.events.some(
+        (event) =>
+          event.startAtMs >= now ||
+          Math.min(end(event), event.startAtMs + 86_400_000) > now,
+      ),
   );
   const underway = candidates.filter(
     (convention) => convention.startAtMs <= now && convention.events.length > 0,
@@ -419,14 +429,22 @@ export function ConPawsWidgetLayout(
   const [untilBefore, untilAfter] =
     kind === "now" ? around(word("untilCapsFormat")) : ["", ""];
   function reminderLabel(event: WidgetEventSnapshot): string {
-    if (event.reminderMinutes == null) return "";
+    const minutes = event.reminderMinutes;
+    if (minutes == null) return "";
+    // Worded like the phone picker and the Watch: the table copies the app's
+    // `reminders.atTime` and `reminders.hourBefore` for 0 and 60, and
+    // `reminders.minutesBefore`, which takes the bare number ("10 min
+    // before", "За 10 мин"), for the rest.
+    const offset =
+      minutes === 0
+        ? word("atEventTime")
+        : minutes === 60
+          ? word("hourBefore")
+          : format(word("minutesBeforeFormat"), String(minutes));
     return format(
       word("reminderAtFormat"),
-      clock(event.startAtMs - event.reminderMinutes * 60_000),
-      format(
-        word("minutesBeforeFormat"),
-        unit("minutes", event.reminderMinutes),
-      ),
+      clock(event.startAtMs - minutes * 60_000),
+      offset,
     );
   }
   function sentence(...parts: string[]): string {

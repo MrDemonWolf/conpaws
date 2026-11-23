@@ -45,7 +45,7 @@
     <false/>
     <!-- A leave-countdown app that dismisses to the watch face on wrist-down
          defeats its own purpose; opting in keeps the countdown glanceable.
-         content.swift marks only event titles, rooms, age ratings and
+         The Watch views mark only event titles, rooms, age ratings and
          descriptions privacySensitive, so the system redacts those
          wrist-down while the countdown and clock times stay readable, and
          card fills drop when isLuminanceReduced. -->

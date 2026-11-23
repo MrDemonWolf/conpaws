@@ -6,7 +6,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
   /// Raises this card in the Smart Stack around the moments it matters —
-  /// convention and saved-panel starts, reminder or not. Without a relevance
+  /// saved-panel starts, reminder or not. Without a relevance
   /// the stack never surfaces the complication on its own.
   var relevance: TimelineEntryRelevance?
 
@@ -14,57 +14,37 @@ private struct ConPawsWatchEntry: TimelineEntry {
   /// this complication reads the same way the phone screen it mirrors does.
   var strings: ConPawsStrings { snapshot.strings }
 
-  var isStale: Bool {
-    !snapshot.conventions.isEmpty
-      && ConPawsSnapshotAge.isStale(generatedAtMs: snapshot.generatedAtMs, now: date)
-  }
-
   /// The stale sentence VoiceOver appends to every state's label, or nil
   /// while the data is fresh. Visually, staleness is one symbol in the
   /// eyebrow: the two lines it used to add overflowed a three-line card.
   var staleNotice: String? {
-    guard isStale else { return nil }
-    return strings.text(strings.staleA11yFormat, relativeUpdatedText)
+    ConPawsComplicationSpeech.staleNotice(snapshot, now: date)
   }
 
-  var relativeUpdatedText: String {
-    let formatter = RelativeDateTimeFormatter()
-    formatter.locale = snapshot.locale
-    formatter.unitsStyle = .short
-    return formatter.localizedString(
-      for: Date(timeIntervalSince1970: snapshot.generatedAtMs / 1_000),
-      relativeTo: date
-    )
-  }
-
+  /// The gallery's sample: a saved panel 20 minutes out whose reminder has
+  /// fired, so the card shows the leave countdown. It is drawn before any app
+  /// language is known, so it speaks the watch's language, as the empty state
+  /// does, and its panel and room are translated with the headings. Only the
+  /// panel and room are drawn in this state, so nothing else needs words.
   static var preview: ConPawsWatchEntry {
     let now = Date()
+    let localeIdentifier = ConPawsSnapshot.deviceLocaleIdentifier()
+    let strings = ConPawsStrings.resolve(localeIdentifier)
     let convention = ConPawsConventionSnapshot(
       id: "preview-convention",
-      name: "ConPaws Preview Con",
+      name: "ConPaws",
       startAtMs: now.addingTimeInterval(-86_400).timeIntervalSince1970 * 1_000,
       endAtMs: now.addingTimeInterval(86_400).timeIntervalSince1970 * 1_000,
       timeZoneIdentifier: TimeZone.autoupdatingCurrent.identifier,
-      dateRangeLabel: "Today",
+      dateRangeLabel: strings.today,
       events: [
         ConPawsEventSnapshot(
-          id: "preview-current",
-          title: "Opening Ceremonies",
-          startAtMs: now.addingTimeInterval(-1_800).timeIntervalSince1970 * 1_000,
-          endAtMs: now.addingTimeInterval(600).timeIntervalSince1970 * 1_000,
-          location: "Convention Center",
-          room: "Main Ballroom",
-          reminderMinutes: nil,
-          ageRating: nil,
-          summary: nil
-        ),
-        ConPawsEventSnapshot(
           id: "preview-next",
-          title: "Fursuit Meetup",
+          title: strings.previewEventTitle,
           startAtMs: now.addingTimeInterval(1_200).timeIntervalSince1970 * 1_000,
           endAtMs: now.addingTimeInterval(4_800).timeIntervalSince1970 * 1_000,
-          location: "Convention Center",
-          room: "Hall A",
+          location: nil,
+          room: strings.previewRoom,
           reminderMinutes: 30,
           ageRating: nil,
           summary: nil
@@ -77,7 +57,7 @@ private struct ConPawsWatchEntry: TimelineEntry {
       snapshot: ConPawsSnapshot(
         schemaVersion: 2,
         generatedAtMs: now.timeIntervalSince1970 * 1_000,
-        localeIdentifier: Locale.autoupdatingCurrent.identifier,
+        localeIdentifier: localeIdentifier,
         conventions: [convention]
       )
     )
@@ -102,9 +82,9 @@ private struct ConPawsWatchProvider: TimelineProvider {
   ) {
     let snapshot = ConPawsSnapshotStore.load()
     // An entry for every moment the card reads differently, planned in
-    // targets/_shared so swift-tests covers it. Around a convention or saved
-    // panel start the card is at its most useful; the score makes the Smart
-    // Stack rotate it up.
+    // targets/_shared so swift-tests covers it. Around a saved panel's start
+    // the card is at its most useful; the score makes the Smart Stack rotate
+    // it up.
     let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: .now).map { planned in
       ConPawsWatchEntry(
         date: planned.date,
@@ -149,18 +129,21 @@ private struct ConPawsWatchEntryView: View {
         )
       case let .current(event, convention):
         CurrentWidgetView(event: event, convention: convention, strings: entry.strings)
-      case .finished:
-        StatusWidgetView(title: entry.strings.finishedComplication, detail: entry.strings.finishedTitle)
-      case .noPicks:
-        StatusWidgetView(title: entry.strings.noPicksComplication, detail: entry.strings.noPicksTitle)
-      case .noConvention:
-        StatusWidgetView(title: entry.strings.noConventionComplication, detail: entry.strings.openOnIphone)
+      case .finished, .noPicks, .ended, .noConvention:
+        // Worded in targets/_shared, so swift-tests covers which words
+        // each state gets.
+        if let status = schedule.status(strings: entry.strings) {
+          StatusWidgetView(title: status.title, detail: status.detail)
+        }
       }
     }
     // Every state is at most three lines, pinned to the top: centered, an
     // overflowing card clipped its eyebrow, which is the line carrying the
     // countdown.
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    // A tap opens the panel this card names, not whatever screen the Watch
+    // app was last left on.
+    .widgetURL(schedule.link.url)
     .environment(\.locale, entry.snapshot.locale)
     .environment(\.staleNotice, entry.staleNotice)
   }
@@ -182,10 +165,19 @@ private func spokenSummary(_ summary: String, stale: String?) -> String {
 /// Mark + one line of context: the complication's shared first line, matching
 /// the iPhone Lock Screen rectangular grammar. A reminder uses a bell in place
 /// of the brand mark. A stale plan adds a trailing symbol rather than lines.
+///
+/// Translations run long on a 41 mm card, so the title shrinks a little
+/// before anything is cut, and a `count` beside it is never cut at all.
 private struct WatchEyebrow: View {
   @Environment(\.staleNotice) private var staleNotice
   let title: String
+  /// Drawn after the title at full width: the leave countdown's minutes,
+  /// which are the point of that card.
+  var count: String?
   var symbol: String?
+  /// A status card's eyebrow is its message, so it may take a second line
+  /// rather than lose its end. Every other eyebrow is one line.
+  var lineLimit = 1
 
   var body: some View {
     HStack(spacing: 4) {
@@ -197,8 +189,16 @@ private struct WatchEyebrow: View {
         // 16 pt: the compass ring blurs below that.
         ConPawsMark(size: 16)
       }
-      Text(title)
-        .lineLimit(1)
+      HStack(alignment: .firstTextBaseline, spacing: 4) {
+        Text(title)
+          .lineLimit(lineLimit)
+          .minimumScaleFactor(0.8)
+        if let count {
+          Text(count)
+            .lineLimit(1)
+            .layoutPriority(1)
+        }
+      }
       if staleNotice != nil {
         Spacer(minLength: 2)
         Image(systemName: "exclamationmark.arrow.circlepath")
@@ -263,18 +263,7 @@ private struct ComingUpWidgetView: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
       spokenSummary(
-        strings.text(
-          strings.comingUpA11yFormat,
-          convention.name,
-          strings.remaining(
-            WidgetFormat.countdownDuration(
-              from: now,
-              to: convention.startDate,
-              in: convention.timeZone,
-              strings: strings
-            )
-          )
-        ),
+        ConPawsComplicationSpeech.comingUp(convention, now: now, strings: strings),
         stale: staleNotice
       )
     )
@@ -296,7 +285,7 @@ private struct LeaveWidgetView: View {
     // reminder (which has already fired by the time this state exists) are
     // spoken, not drawn.
     VStack(alignment: .leading, spacing: 1) {
-      WatchEyebrow(title: lead, symbol: "bell")
+      WatchEyebrow(title: lead.phrase, count: lead.minutes, symbol: "bell")
         .monospacedDigit()
 
       Text(next.title)
@@ -310,7 +299,7 @@ private struct LeaveWidgetView: View {
     .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
   }
 
-  private var lead: String {
+  private var lead: ConPawsCountdown.LeaveLead {
     ConPawsCountdown.leaveLead(
       from: now,
       to: next.startDate,
@@ -320,7 +309,7 @@ private struct LeaveWidgetView: View {
   }
 
   private var nextTime: String {
-    WidgetFormat.nextEventTime(
+    ConPawsFormat.nextEventTime(
       next.startDate,
       relativeTo: now,
       in: convention,
@@ -334,24 +323,15 @@ private struct LeaveWidgetView: View {
     // children, so `privacySensitive` on them never reaches VoiceOver. Speak
     // only what stays drawn, the lead and the clock time.
     if redactionReasons.contains(.privacy) {
-      return "\(lead), \(nextTime)."
+      return "\(lead.text), \(nextTime)."
     }
-    let countdown = WidgetFormat.countdownDuration(
-      from: now,
-      to: next.startDate,
-      in: convention.timeZone,
+    return ConPawsComplicationSpeech.leave(
+      current: current,
+      next: next,
+      now: now,
+      startTime: nextTime,
       strings: strings
     )
-    if let current {
-      return strings.text(
-        strings.startsWithCurrentA11yFormat,
-        countdown,
-        current.title,
-        next.title,
-        nextTime
-      )
-    }
-    return strings.text(strings.startsA11yFormat, countdown, next.title, nextTime)
   }
 }
 
@@ -382,7 +362,7 @@ private struct NextWidgetView: View {
   }
 
   private var startTime: String {
-    WidgetFormat.nextEventTime(
+    ConPawsFormat.nextEventTime(
       event.startDate,
       relativeTo: now,
       in: convention,
@@ -392,7 +372,7 @@ private struct NextWidgetView: View {
   }
 
   private var accessibilitySummary: String {
-    let reminder = WidgetFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
+    let reminder = ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
       .map { ". \($0)" } ?? ""
     // Redacted: no titles or rooms, as on screen (see LeaveWidgetView).
     if redactionReasons.contains(.privacy) {
@@ -429,7 +409,7 @@ private struct CurrentWidgetView: View {
   }
 
   private var timeRange: String {
-    WidgetFormat.timeRange(event, in: convention, locale: locale)
+    ConPawsFormat.timeRange(event, in: convention, locale: locale)
   }
 
   private var accessibilitySummary: String {
@@ -449,7 +429,10 @@ private struct StatusWidgetView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
-      WatchEyebrow(title: title)
+      // The message comes first and may wrap; the detail fills what is
+      // left. "Panels auf dem iPhone hinzufügen" is wider than the card.
+      WatchEyebrow(title: title, lineLimit: 2)
+        .layoutPriority(1)
       Text(detail)
         .font(.caption)
         .foregroundStyle(.secondary)
@@ -476,6 +459,10 @@ private struct WidgetCountdownView: View {
 struct ConPawsWatchWidget: Widget {
   static let kind = ConPawsWidgetKind.watchComplication
 
+  private static var galleryStrings: ConPawsStrings {
+    .resolve(ConPawsSnapshot.deviceLocaleIdentifier())
+  }
+
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: ConPawsWatchProvider()) { entry in
       ConPawsWatchEntryView(entry: entry)
@@ -484,116 +471,12 @@ struct ConPawsWatchWidget: Widget {
         // falling back silently.
         .containerBackground(Color(.widgetBackground), for: .widget)
     }
-    // System-drawn, like the iPhone widget's gallery entry: the Smart Stack
-    // resolves these against the watch's language, not the app's, so they need
-    // resources rather than the shared string table.
-    .configurationDisplayName("ConPaws Schedule")
-    .description("See your next event, schedule reminder, or convention countdown.")
+    // System-drawn in the face editor and the Smart Stack's add sheet, where
+    // the app's language is not known, so in the watch's. This target has no
+    // string resources, so the words come from the shared table through the
+    // String overloads, which show them as given.
+    .configurationDisplayName(Self.galleryStrings.complicationName)
+    .description(Self.galleryStrings.complicationDescription)
     .supportedFamilies([.accessoryRectangular])
   }
-}
-
-private enum WidgetFormat {
-  static func time(
-    _ date: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale
-  ) -> String {
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.timeStyle = .short
-    return formatter.string(from: date)
-  }
-
-  /// "Reminder at 2:35 PM · 10 min before", from the offset the user chose.
-  static func reminderAt(
-    _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String? {
-    guard let minutes = event.reminderMinutes, minutes >= 0 else { return nil }
-    let reminderDate = event.startDate.addingTimeInterval(-Double(minutes) * 60)
-    return strings.reminderAt(time(reminderDate, in: convention, locale: locale), minutes: minutes)
-  }
-
-  /// "9:00–10:30 AM", or the start alone when the end is unknown. A copy of
-  /// the watch app's WatchFormat.timeRange until both share one formatter.
-  static func timeRange(
-    _ event: ConPawsEventSnapshot,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale
-  ) -> String {
-    guard let end = event.endDate else {
-      return time(event.startDate, in: convention, locale: locale)
-    }
-    return "\(time(event.startDate, in: convention, locale: locale))–\(time(end, in: convention, locale: locale))"
-  }
-
-  static func nextEventTime(
-    _ date: Date,
-    relativeTo now: Date,
-    in convention: ConPawsConventionSnapshot,
-    locale: Locale,
-    strings: ConPawsStrings
-  ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = convention.timeZone
-    let timeLabel = time(date, in: convention, locale: locale)
-    guard !calendar.isDate(date, inSameDayAs: now) else { return timeLabel }
-
-    if
-      let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
-      calendar.isDate(date, inSameDayAs: tomorrow)
-    {
-      return "\(strings.tomorrow) · \(timeLabel)"
-    }
-
-    let formatter = DateFormatter()
-    formatter.locale = locale
-    formatter.timeZone = convention.timeZone
-    formatter.setLocalizedDateFormatFromTemplate("EEEE")
-    return "\(formatter.string(from: date)) · \(timeLabel)"
-  }
-
-
-  /// How long the wait is, spoken as two units.
-  ///
-  /// Deliberately without "remaining" or its equivalents: the caller decides
-  /// whether the duration stands alone or sits inside a longer sentence, and
-  /// several languages phrase "remaining" as a prefix rather than a suffix.
-  static func countdownDuration(
-    from now: Date,
-    to target: Date,
-    in timeZone: TimeZone,
-    strings: ConPawsStrings
-  ) -> String {
-    var calendar = Calendar.autoupdatingCurrent
-    calendar.timeZone = timeZone
-    let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: now, to: target)
-    let months = max(0, parts.month ?? 0)
-    let days = max(0, parts.day ?? 0)
-    let hours = max(0, parts.hour ?? 0)
-    let minutes = max(0, parts.minute ?? 0)
-
-    if target.timeIntervalSince(now) >= 30 * 86_400 {
-      return strings.duration(strings.months(months), strings.days(days))
-    }
-    if target.timeIntervalSince(now) >= 86_400 {
-      return strings.duration(strings.days(days), strings.hours(hours))
-    }
-    return strings.duration(strings.hours(hours), strings.minutes(minutes))
-  }
-}
-
-private extension ConPawsConventionSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date { Date(timeIntervalSince1970: endAtMs / 1_000) }
-  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
-}
-
-private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
-  var endDate: Date? { endAtMs.map { Date(timeIntervalSince1970: $0 / 1_000) } }
 }

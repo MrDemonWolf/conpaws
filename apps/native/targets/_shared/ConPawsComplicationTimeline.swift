@@ -11,37 +11,24 @@ struct ConPawsComplicationProjection {
     case current(ConPawsEventSnapshot, ConPawsConventionSnapshot)
     case finished(ConPawsConventionSnapshot)
     case noPicks(ConPawsConventionSnapshot)
+    /// Every saved convention is over, and the resolver fell back to the
+    /// one that ended last. "No more panels today" and "Add panels on
+    /// iPhone" were wrong on every day after it.
+    case ended(ConPawsConventionSnapshot)
     case noConvention
   }
 
   let now: Date
   let resolved: ConPawsScheduleState
-  let generatedAtMs: Double
+  /// When the snapshot turns stale for the card shown at `now`; nil when it
+  /// never does. A countdown waits a week, the plan's cards half an hour.
+  let staleDate: Date?
   /// Every convention the resolver chose among, not only the one shown.
   let conventions: [ConPawsConventionSnapshot]
 
-  var hasConventions: Bool { !conventions.isEmpty }
-
-  var convention: ConPawsConventionSnapshot? {
-    switch resolved {
-    case .noConvention: nil
-    case .countdown(let value), .finished(let value), .noPicks(let value): value
-    case .next(let value, _, _), .currentOnly(let value, _): value
-    }
-  }
-
-  var activeEvent: ConPawsEventSnapshot? {
-    switch resolved {
-    case .next(_, let current, _): current
-    case .currentOnly(_, let event): event
-    case .noConvention, .countdown, .finished, .noPicks: nil
-    }
-  }
-
-  var nextEvent: ConPawsEventSnapshot? {
-    if case .next(_, _, let upcoming) = resolved { return upcoming }
-    return nil
-  }
+  var convention: ConPawsConventionSnapshot? { resolved.convention }
+  var activeEvent: ConPawsEventSnapshot? { resolved.activeEvent }
+  var nextEvent: ConPawsEventSnapshot? { resolved.nextEvent }
 
   var state: State {
     switch resolved {
@@ -56,9 +43,32 @@ struct ConPawsComplicationProjection {
     case .currentOnly(let convention, let event):
       .current(event, convention)
     case .finished(let convention):
-      .finished(convention)
+      convention.hasPassed(at: now) ? .ended(convention) : .finished(convention)
     case .noPicks(let convention):
-      .noPicks(convention)
+      convention.hasPassed(at: now) ? .ended(convention) : .noPicks(convention)
+    }
+  }
+
+  /// The heading and the line under it on a status card.
+  struct Status: Equatable {
+    let title: String
+    let detail: String
+  }
+
+  /// What a status card says, for the states that draw no panel and no
+  /// countdown; nil for the rest.
+  func status(strings: ConPawsStrings) -> Status? {
+    switch state {
+    case .finished:
+      Status(title: strings.finishedComplication, detail: strings.finishedTitle)
+    case .noPicks:
+      Status(title: strings.noPicksComplication, detail: strings.noPicksTitle)
+    case .ended:
+      Status(title: strings.nothingUpcomingTitle, detail: strings.nothingUpcomingMessage)
+    case .noConvention:
+      Status(title: strings.noConventionComplication, detail: strings.openOnIphone)
+    case .comingUp, .leave, .next, .current:
+      nil
     }
   }
 
@@ -68,7 +78,7 @@ struct ConPawsComplicationProjection {
     switch state {
     case .comingUp(let convention): convention.startDate
     case .leave(_, let upcoming, _): upcoming.startDate
-    case .next, .current, .finished, .noPicks, .noConvention: nil
+    case .next, .current, .finished, .noPicks, .ended, .noConvention: nil
     }
   }
 
@@ -77,13 +87,16 @@ struct ConPawsComplicationProjection {
     return false
   }
 
+  /// Whether the card at `now` flags its plan as possibly out of date.
+  var isStale: Bool {
+    staleDate.map { now >= $0 } ?? false
+  }
+
+  /// The moment the card turns stale, while that is still to come. While
+  /// counting down that is the week's mark; the handover to the plan is an
+  /// entry already, and a plan older than half an hour reads stale there.
   var staleBoundary: Date? {
-    guard hasConventions, !ConPawsSnapshotAge.isStale(generatedAtMs: generatedAtMs, now: now) else {
-      return nil
-    }
-    let date = Date(timeIntervalSince1970: generatedAtMs / 1_000)
-      .addingTimeInterval(ConPawsSnapshotAge.staleAfter)
-    return date > now ? date : nil
+    staleDate.flatMap { $0 > now ? $0 : nil }
   }
 
   /// The next moment the state itself can change, or nil when nothing is
@@ -94,9 +107,16 @@ struct ConPawsComplicationProjection {
     var candidates: [Date] = []
     switch state {
     case .comingUp(let convention):
-      candidates.append(convention.startDate)
-      // An entry for the Smart Stack's relevance to start on.
-      candidates.append(convention.startDate.addingTimeInterval(-lift))
+      // The switch to the plan: the convention's start, or the first saved
+      // panel's start or reminder when that comes first, the moment the
+      // resolver stops counting down. The convention's start raises nothing
+      // in the Smart Stack (it is the date alone, midnight where it happens);
+      // a panel raises the card through `relevantUntil` from half an hour
+      // before it starts, which falls inside the countdown, so each saved
+      // panel's raise is an entry of its own. All of them, not only the
+      // first: a second panel can start within half an hour of the first.
+      candidates.append(ConPawsScheduleResolver.countdownEnd(of: convention))
+      candidates.append(contentsOf: convention.events.map { $0.startDate.addingTimeInterval(-lift) })
     case .leave(let current, let upcoming, let convention),
       .next(let current, let upcoming, let convention):
       candidates.append(upcoming.startDate)
@@ -107,8 +127,7 @@ struct ConPawsComplicationProjection {
       }
       // "Tomorrow · 10:00 AM" turns into "10:00 AM" at the convention's
       // midnight, and nothing else would redraw the card then.
-      var calendar = Calendar.autoupdatingCurrent
-      calendar.timeZone = convention.timeZone
+      let calendar = convention.calendar
       if !calendar.isDate(upcoming.startDate, inSameDayAs: now),
         let midnight = calendar.nextDate(
           after: now,
@@ -120,7 +139,7 @@ struct ConPawsComplicationProjection {
       }
     case .current(let event, _):
       candidates.append(ConPawsScheduleResolver.effectiveEnd(of: event))
-    case .finished, .noPicks, .noConvention:
+    case .finished, .noPicks, .ended, .noConvention:
       break
     }
     // Which convention the card follows can change wherever any of them
@@ -138,7 +157,6 @@ struct ConPawsComplicationProjection {
 
   init(snapshot: ConPawsSnapshot, now: Date) {
     self.now = now
-    generatedAtMs = snapshot.generatedAtMs
     conventions = snapshot.conventions
     resolved = ConPawsScheduleResolver.resolve(
       snapshot: snapshot,
@@ -146,6 +164,10 @@ struct ConPawsComplicationProjection {
       skipCountdown: false,
       now: now
     )
+    // The same rule as the Watch app's countdown screen, so the face does
+    // not flag a countdown the app shows as current.
+    let countingDown = if case .countdown = resolved { true } else { false }
+    staleDate = ConPawsSnapshotAge.staleDate(of: snapshot, countingDown: countingDown)
   }
 }
 
@@ -160,7 +182,7 @@ enum ConPawsComplicationTimeline {
   static let horizon: TimeInterval = 86_400
   /// Enough for a 60-minute leave window's per-minute countdown and more.
   static let maximumEntries = 64
-  /// How long before and after a convention or panel start the Smart Stack
+  /// How long before and after a saved panel's start the Smart Stack
   /// rotates the card up.
   static let relevanceWindow: TimeInterval = 30 * 60
   /// How long a timeline lasts when nothing is scheduled to change.
@@ -221,15 +243,19 @@ enum ConPawsComplicationTimeline {
     }
   }
 
-  /// Half an hour after the latest convention or saved-panel start within half
-  /// an hour of `date`, or nil when there is none. A panel counts whether or
-  /// not it has a reminder: starring one sets none.
+  /// Half an hour after the latest saved-panel start within half an hour of
+  /// `date`, or nil when there is none. A panel counts whether or not it has
+  /// a reminder: starring one sets none.
+  ///
+  /// The convention's own start does not count. The phone sends it from the
+  /// date alone, as midnight in the convention's zone, so it raised the card
+  /// from 23:30 to 00:30 the night before day one to show a countdown
+  /// turning over, and not at all on the way to the venue.
   static func relevantUntil(snapshot: ConPawsSnapshot, at date: Date) -> Date? {
     guard
       let convention = ConPawsComplicationProjection(snapshot: snapshot, now: date).convention
     else { return nil }
-    let starts = [convention.startDate] + convention.events.map(\.startDate)
-    return starts
+    return convention.events.map(\.startDate)
       .filter { start in
         date >= start.addingTimeInterval(-relevanceWindow)
           && date < start.addingTimeInterval(relevanceWindow)
@@ -239,17 +265,21 @@ enum ConPawsComplicationTimeline {
   }
 }
 
+extension ConPawsConventionSnapshot {
+  /// Whether the resolver has stopped counting this convention as active or
+  /// upcoming: past its end, and past the start of any saved panel after
+  /// that. The same test the resolver's own fallback makes, so a panel saved
+  /// for after the closing still holds the convention until it starts.
+  func hasPassed(at now: Date) -> Bool {
+    ConPawsScheduleResolver.lastActiveMs(of: self) < now.timeIntervalSince1970 * 1_000
+  }
+}
+
 private extension ConPawsConventionSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
   /// The first moment the resolver no longer counts this convention as active
   /// or upcoming, a millisecond past the last one: an entry at the end itself
   /// still draws this convention.
   var pastActiveDate: Date {
     Date(timeIntervalSince1970: (ConPawsScheduleResolver.lastActiveMs(of: self) + 1) / 1_000)
   }
-  var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .autoupdatingCurrent }
-}
-
-private extension ConPawsEventSnapshot {
-  var startDate: Date { Date(timeIntervalSince1970: startAtMs / 1_000) }
 }

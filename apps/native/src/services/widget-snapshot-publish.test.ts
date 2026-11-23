@@ -65,6 +65,8 @@ describe("publishWidgetSnapshot", () => {
     getWidgetStrings.mockReturnValueOnce({
       language: "en",
       upNextCaps: "UP NEXT",
+      hourBefore: "1 hour before",
+      atEventTime: "At event time",
       minutesUnit,
       savedCaps: "SAVED",
       watchRemoveFormat: "Remove %@ from your plan",
@@ -75,6 +77,8 @@ describe("publishWidgetSnapshot", () => {
     expect(publishPhoneWidget.mock.calls[0]?.[0].presentation.strings).toEqual({
       language: "en",
       upNextCaps: "UP NEXT",
+      hourBefore: "1 hour before",
+      atEventTime: "At event time",
       minutesUnit,
     });
   });

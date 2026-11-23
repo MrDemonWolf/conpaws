@@ -85,6 +85,34 @@ struct WatchPlanTests {
     #expect(convention(options: nil).optionsThisHour(at: now).isEmpty)
   }
 
+  /// An option with no end counts as an hour long, the same hour the
+  /// resolver gives a saved panel with no end: 59 minutes in, both treat it as
+  /// running, and at 60 neither does.
+  @Test(arguments: [(-59.0, true), (-60, false)])
+  func optionsAndResolverShareTheUnknownEndHour(startMinutes: Double, running: Bool) {
+    #expect(ConPawsScheduleResolver.unknownEndDuration == 3_600)
+    let panel = option("no-end", startMinutes: startMinutes, minutes: nil)
+    #expect(convention(options: [panel]).optionsThisHour(at: now).map(\.id) == (running ? ["no-end"] : []))
+
+    let saved = ConPawsConventionSnapshot(
+      id: "con", name: "Convention",
+      startAtMs: now.addingTimeInterval(-86_400).timeIntervalSince1970 * 1_000,
+      endAtMs: now.addingTimeInterval(86_400).timeIntervalSince1970 * 1_000,
+      timeZoneIdentifier: "UTC", dateRangeLabel: "", events: [panel], options: nil
+    )
+    let state = ConPawsScheduleResolver.resolve(
+      snapshot: ConPawsSnapshot(schemaVersion: 2, generatedAtMs: 0, localeIdentifier: "en", conventions: [saved]),
+      selectedConventionID: "con",
+      skipCountdown: true,
+      now: now
+    )
+    let resolverRunning = switch state {
+    case .currentOnly: true
+    default: false
+    }
+    #expect(resolverRunning == running)
+  }
+
   // MARK: Commands
 
   @Test func commandsCarryTheContractFields() throws {
