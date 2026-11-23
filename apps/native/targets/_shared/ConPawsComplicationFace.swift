@@ -169,6 +169,13 @@ enum ConPawsComplicationFace {
       /// Lines longest first; the face draws the first that fits.
       case text([String])
       case glyph(Glyph)
+
+      /// `candidates` without repeats: on a 24-hour clock a time and its
+      /// digits are the same line.
+      static func lines(_ candidates: [String]) -> Content {
+        var seen: Set<String> = []
+        return .text(candidates.filter { seen.insert($0).inserted })
+      }
     }
 
     enum Label: Equatable, Sendable {
@@ -230,7 +237,7 @@ enum ConPawsComplicationFace {
       let lines = weekday(event.startDate, relativeTo: now, in: convention, locale: locale)
         .map { day in ["\(day) \(time)", "\(day) \(digits)"] } ?? [time, digits]
       return Corner(
-        content: .text(lines),
+        content: .lines(lines),
         label: roomLabel(event, redacted: redacted, fallback: strings.upNextCaps),
         isStale: stale
       )
@@ -239,14 +246,14 @@ enum ConPawsComplicationFace {
       guard let interval = publishedInterval(of: event) else {
         let time = ConPawsFormat.time(event.startDate, in: convention, locale: locale)
         return Corner(
-          content: .text([time, clock(event.startDate, timeZone: zone, locale: locale).digits]),
+          content: .lines([time, clock(event.startDate, timeZone: zone, locale: locale).digits]),
           label: roomLabel(event, redacted: redacted, fallback: strings.compactNow.uppercased(with: locale)),
           isStale: stale
         )
       }
       let end = interval.upperBound
       return Corner(
-        content: .text([
+        content: .lines([
           event.currentTimingLabel(timeZone: zone, locale: locale, strings: strings),
           ConPawsFormat.time(end, in: convention, locale: locale),
           clock(end, timeZone: zone, locale: locale).digits,

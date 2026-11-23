@@ -198,6 +198,22 @@ struct ComplicationFaceTests {
     )
   }
 
+  /// On a 24-hour clock the time has no period to drop, so it is offered
+  /// once, not twice.
+  @Test func cornerOffersEachLineOnce() throws {
+    let german = ConPawsStrings.resolve("de")
+    let next = FaceFixture.projection([talk], at: FaceFixture.local(21, 12))
+    #expect(
+      Face.corner(next, strings: german, locale: FaceFixture.german, redacted: false).content
+        == .text(["16:00"])
+    )
+    let running = FaceFixture.projection([FaceFixture.artJam], at: FaceFixture.local(21, 13, 30))
+    #expect(
+      Face.corner(running, strings: german, locale: FaceFixture.german, redacted: false).content
+        == .text(["BIS 14:30", "14:30"])
+    )
+  }
+
   @Test func cornerKeepsTheDayOfAPanelOnAnotherDay() {
     let card = FaceFixture.projection([sundayBrunch], at: FaceFixture.local(21, 20))
     #expect(
