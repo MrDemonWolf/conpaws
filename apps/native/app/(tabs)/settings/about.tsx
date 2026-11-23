@@ -12,7 +12,7 @@ import { Image, useWindowDimensions, View } from "react-native";
 import { NavigationIndicator } from "@/components/icons";
 import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
 import { Text } from "@/components/ui";
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
+import { FieldRow } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import licenses from "@/generated/open-source-licenses.json";
 import { useOpenLink } from "@/hooks/useOpenLink";
@@ -115,22 +115,22 @@ export default function AboutScreen() {
         ) : null}
 
         <FieldGroup.Section title={t("settings.about.support")}>
-          <ListItem
+          <FieldRow
             leading={<NativeIcon name={HELP_ICON} />}
             supportingText="conpaws.com/support"
             trailing={<ExternalIndicator />}
             onPress={() => openLink("https://conpaws.com/support")}
           >
             {t("settings.about.helpCenter")}
-          </ListItem>
-          <ListItem
+          </FieldRow>
+          <FieldRow
             leading={<NativeIcon name={EMAIL_ICON} />}
             supportingText="legal@conpaws.com"
             trailing={<ExternalIndicator />}
             onPress={() => openLink("mailto:legal@conpaws.com")}
           >
             {t("settings.about.email")}
-          </ListItem>
+          </FieldRow>
           {/* A Discord row lived here. discord.gg/conpaws resolves to "Unknown
               Invite", and a dead link is an App Review rejection risk, so the
               row is gone until there is a permanent invite. Add the row and
@@ -138,18 +138,18 @@ export default function AboutScreen() {
         </FieldGroup.Section>
 
         <FieldGroup.Section title={t("settings.about.resources")}>
-          <ListItem
+          <FieldRow
             leading={<NativeIcon name={WEBSITE_ICON} />}
             supportingText="conpaws.com"
             trailing={<ExternalIndicator />}
             onPress={() => openLink("https://conpaws.com")}
           >
             {t("settings.about.website")}
-          </ListItem>
+          </FieldRow>
         </FieldGroup.Section>
 
         <FieldGroup.Section title={t("settings.about.builtWith")}>
-          <ListItem
+          <FieldRow
             leading={<NativeIcon name={LICENSE_ICON} />}
             supportingText={t("settings.about.licenseDescription", {
               count: licenses.packages.length,
@@ -158,7 +158,7 @@ export default function AboutScreen() {
             onPress={() => router.push("/settings/licenses")}
           >
             {t("settings.legal.openSourceLicenses")}
-          </ListItem>
+          </FieldRow>
           <FieldGroup.SectionFooter>
             <NativeText
               textStyle={{ fontSize: 13 }}

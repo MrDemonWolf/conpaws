@@ -43,6 +43,8 @@ import {
   ScheduleSkeleton,
   Text,
 } from "@/components/ui";
+// Aliased because rows here take literal titles, and Biome's raw-text rule
+// skips ListItem (FieldRow is that same component).
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";

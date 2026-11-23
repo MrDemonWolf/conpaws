@@ -6,6 +6,8 @@ import { Redirect, router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AppState, Linking } from "react-native";
 import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
+// Aliased because rows here take literal titles, and Biome's raw-text rule
+// skips ListItem (FieldRow is that same component).
 import { FieldRow as ListItem } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 import {

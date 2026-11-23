@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { importHelpRows } from "@/components/ImportHelpRows";
 import { SettingsFieldGroupScreen } from "@/components/SettingsFieldGroupScreen";
-import { FieldRow as ListItem } from "@/components/ui/FieldRow";
+import { FieldRow } from "@/components/ui/FieldRow";
 import { NativeText } from "@/components/ui/NativeText";
 
 /**
@@ -20,19 +20,19 @@ export default function GettingStartedScreen() {
         {importHelpRows(t)}
       </FieldGroup.Section>
       <FieldGroup.Section>
-        <ListItem
+        <FieldRow
           supportingText={t("settings.help.findDescription")}
           onPress={() => router.push("/convention/find")}
         >
           {t("settings.help.find")}
-        </ListItem>
-        <ListItem
+        </FieldRow>
+        <FieldRow
           supportingText={t("settings.help.importNowDescription")}
           onPress={() => router.push("/convention/new/import")}
         >
           {t("settings.help.importNow")}
-        </ListItem>
-        <ListItem
+        </FieldRow>
+        <FieldRow
           supportingText={t("settings.help.replayDescription")}
           onPress={() =>
             router.push({
@@ -42,7 +42,7 @@ export default function GettingStartedScreen() {
           }
         >
           {t("settings.help.replay")}
-        </ListItem>
+        </FieldRow>
         <FieldGroup.SectionFooter>
           <NativeText>{t("convention.scheduleHint.body")}</NativeText>
         </FieldGroup.SectionFooter>
