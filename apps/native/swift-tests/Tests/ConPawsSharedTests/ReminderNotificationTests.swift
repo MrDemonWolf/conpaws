@@ -31,6 +31,16 @@ struct ReminderNotificationTests {
     #expect(link == .event(conventionID: "con", eventID: "meetup"))
   }
 
+  /// The category alone is enough: the kind is the phone's own tap handler's
+  /// field, and a reminder filed in the category still opens its panel
+  /// if that field ever changes.
+  @Test func theReminderCategoryAloneNamesItsPanel() {
+    var info = reminder
+    info["kind"] = nil
+    let link = ConPawsReminderNotification.link(categoryIdentifier: "conpaws.reminder", userInfo: info)
+    #expect(link == .event(conventionID: "con", eventID: "meetup"))
+  }
+
   /// The debug menu's test notification, or anything else the app files,
   /// opens no panel.
   @Test func anotherNotificationNamesNoPanel() {
