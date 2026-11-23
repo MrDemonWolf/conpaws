@@ -46,7 +46,11 @@ export default function HowToScreen() {
         method={method}
         finishLabel={t(guide.finishLabel)}
         onFinish={() => {
-          if (tryAcquirePresentationLock(lock)) router.push(guide.destination);
+          if (!tryAcquirePresentationLock(lock)) return;
+          // Leave the Settings tab on Getting started rather than on this last
+          // step, then open Find or Import in the Home tab.
+          router.back();
+          router.push(guide.destination);
         }}
         onClose={() => router.back()}
       />
