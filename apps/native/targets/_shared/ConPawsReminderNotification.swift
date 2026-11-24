@@ -49,3 +49,36 @@ enum ConPawsReminderNotification {
     WatchRoute.pruned([route], against: snapshot) == [route]
   }
 }
+
+/// A tapped reminder waiting, briefly, for a schedule that holds its panel.
+///
+/// A tap can launch the app cold on a saved schedule older than the
+/// reminder: the phone's newer one arrives over WatchConnectivity moments
+/// later. Until then the panel is not there to open, so the tap waits for
+/// it rather than being dropped.
+struct ConPawsPendingReminderTap: Equatable, Sendable {
+  /// Covers a cold launch's WatchConnectivity activation and first delivery,
+  /// and nothing later: a sheet should not appear long after the tap.
+  static let patience: TimeInterval = 10
+
+  enum Outcome: Equatable, Sendable {
+    /// The schedule holds the panel: show it.
+    case open(WatchRoute)
+    /// Not yet, and there is still time for a schedule that holds it.
+    case wait
+    /// Too late to open anything: forget the tap.
+    case drop
+  }
+
+  let link: ConPawsWatchLink
+  let tappedAt: Date
+
+  /// What to do with the tap once `snapshot` is the app's schedule. The clock
+  /// comes first, so a schedule that does arrive, but too late, opens
+  /// nothing either.
+  func outcome(in snapshot: ConPawsSnapshot, now: Date) -> Outcome {
+    guard now.timeIntervalSince(tappedAt) < Self.patience else { return .drop }
+    guard let route = ConPawsReminderNotification.route(for: link, in: snapshot) else { return .wait }
+    return .open(route)
+  }
+}

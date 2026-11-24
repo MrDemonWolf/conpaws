@@ -123,4 +123,72 @@ struct ReminderNotificationTests {
     #expect(ConPawsReminderNotification.keeps(route, in: snapshot))
     #expect(ConPawsReminderNotification.keeps(route, in: .empty(localeIdentifier: "en")) == false)
   }
+
+  // MARK: Waiting for the schedule
+
+  /// Sat 13:50 Chicago, ten minutes before Meetup.
+  private let tappedAt = Date(timeIntervalSince1970: 1_795_290_600)
+
+  /// `snapshot` once the phone has sent the panel "new": a cold launch reads
+  /// the saved schedule, and this one arrives over WatchConnectivity moments
+  /// later.
+  private var arrived: ConPawsSnapshot {
+    let convention = snapshot.conventions[0]
+    let new = ConPawsEventSnapshot(
+      id: "new", title: "New", startAtMs: 1_795_298_400_000, // Sat 16:00
+      endAtMs: nil, location: nil, room: nil, reminderMinutes: 10, ageRating: nil, summary: nil
+    )
+    return ConPawsSnapshot(
+      schemaVersion: snapshot.schemaVersion,
+      generatedAtMs: snapshot.generatedAtMs + 60_000,
+      localeIdentifier: snapshot.localeIdentifier,
+      conventions: [
+        ConPawsConventionSnapshot(
+          id: convention.id,
+          name: convention.name,
+          startAtMs: convention.startAtMs,
+          endAtMs: convention.endAtMs,
+          timeZoneIdentifier: convention.timeZoneIdentifier,
+          dateRangeLabel: convention.dateRangeLabel,
+          events: convention.events + [new],
+          options: nil
+        ),
+      ]
+    )
+  }
+
+  /// The reminder names a panel the saved schedule is too old to hold: it
+  /// opens once the phone's newer schedule arrives.
+  @Test func aTapBeforeItsScheduleArrivesOpensWhenItDoes() {
+    let tap = ConPawsPendingReminderTap(link: .event(conventionID: "con", eventID: "new"), tappedAt: tappedAt)
+    #expect(tap.outcome(in: snapshot, now: tappedAt) == .wait)
+    #expect(tap.outcome(in: arrived, now: tappedAt + 2) == .open(.event(conventionID: "con", eventID: "new")))
+  }
+
+  /// A schedule that arrives long after the tap opens nothing: a sheet should
+  /// not appear over whatever the reader has moved on to.
+  @Test func aTapWhoseScheduleNeverArrivesGivesUp() {
+    let tap = ConPawsPendingReminderTap(link: .event(conventionID: "con", eventID: "new"), tappedAt: tappedAt)
+    let deadline = tappedAt + ConPawsPendingReminderTap.patience
+    #expect(tap.outcome(in: snapshot, now: deadline - 1) == .wait)
+    #expect(tap.outcome(in: snapshot, now: deadline) == .drop)
+    #expect(tap.outcome(in: arrived, now: deadline + 1) == .drop)
+  }
+
+  @Test func aTapForASavedPanelOpensAtOnce() {
+    let tap = ConPawsPendingReminderTap(link: .event(conventionID: "con", eventID: "meetup"), tappedAt: tappedAt)
+    #expect(tap.outcome(in: snapshot, now: tappedAt) == .open(.event(conventionID: "con", eventID: "meetup")))
+  }
+
+  /// Removed on the phone, or in a convention this Watch has not been sent:
+  /// it waits as briefly as any other, then leaves the app where it was.
+  @Test(arguments: [
+    ConPawsWatchLink.event(conventionID: "con", eventID: "gone"),
+    .event(conventionID: "other", eventID: "meetup"),
+  ])
+  func aTapForNoPanelWaitsThenGivesUp(_ link: ConPawsWatchLink) {
+    let tap = ConPawsPendingReminderTap(link: link, tappedAt: tappedAt)
+    #expect(tap.outcome(in: arrived, now: tappedAt) == .wait)
+    #expect(tap.outcome(in: arrived, now: tappedAt + ConPawsPendingReminderTap.patience) == .drop)
+  }
 }
