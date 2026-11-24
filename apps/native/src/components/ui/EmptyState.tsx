@@ -1,7 +1,7 @@
 import { Host, Icon, type IconName, Button as NativeButton } from "@expo/ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "expo-router/react-navigation";
-import { Platform, View } from "react-native";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { useWidthCap } from "@/hooks/useContentWidth";
 import { useResolvedColorScheme } from "@/hooks/useResolvedColorScheme";
 import { EMPTY_STATE_MAX } from "@/lib/content-width";
@@ -46,6 +46,9 @@ export function EmptyState({
   secondaryCtaVariant = "text",
   className,
 }: EmptyStateProps) {
+  const { fontScale } = useWindowDimensions();
+  const stackActions =
+    Platform.OS === "ios" && actionsInline && fontScale > 1.2;
   const { colors } = useTheme();
   const resolvedColorScheme = useResolvedColorScheme();
   // A centred message keeps a readable line length in a wide window. The
@@ -113,9 +116,14 @@ export function EmptyState({
         ) : null}
       </View>
       <View
+        // Expo Host reads matchContents only at mount.
+        key={stackActions ? "stacked" : "intrinsic"}
         className={cn(
           compact ? "items-stretch gap-1 pt-1" : "items-center gap-1",
-          actionsInline && "flex-row flex-wrap justify-center gap-2",
+          stackActions && "w-full items-stretch",
+          actionsInline &&
+            !stackActions &&
+            "flex-row flex-wrap justify-center gap-2",
         )}
       >
         {ctaLabel && onCta ? (
@@ -129,7 +137,7 @@ export function EmptyState({
             <Host
               colorScheme={resolvedColorScheme}
               seedColor={colors.primary}
-              matchContents
+              matchContents={stackActions ? { vertical: true } : true}
             >
               <NativeButton
                 label={ctaLabel}
@@ -150,7 +158,10 @@ export function EmptyState({
         ) : null}
         {secondaryCtaLabel && onSecondaryCta ? (
           Platform.OS === "ios" ? (
-            <Host colorScheme={resolvedColorScheme} matchContents>
+            <Host
+              colorScheme={resolvedColorScheme}
+              matchContents={stackActions ? { vertical: true } : true}
+            >
               <NativeButton
                 label={secondaryCtaLabel}
                 modifiers={IOS_MIN_TAP_TARGET}

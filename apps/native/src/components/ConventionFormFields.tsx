@@ -77,14 +77,20 @@ export function useConventionDateField({
   if (process.env.EXPO_OS === "ios") {
     return {
       row: (
-        <SwiftDatePicker
-          title={title}
-          selection={value}
-          range={{ start: minimumDate }}
-          displayedComponents={["date"]}
-          onDateChange={onChange}
-          modifiers={[datePickerStyle("compact")]}
-        />
+        <Collapsible
+          label={`${title}: ${formatMediumDate(value, locale)}`}
+          isOpen={dialogVisible}
+          onOpenChange={setDialogVisible}
+        >
+          <SwiftDatePicker
+            title={title}
+            selection={value}
+            range={{ start: minimumDate }}
+            displayedComponents={["date"]}
+            onDateChange={onChange}
+            modifiers={[datePickerStyle("graphical")]}
+          />
+        </Collapsible>
       ),
       dialog: null,
     };
