@@ -220,7 +220,7 @@ extension ConPawsTapResultStrings {
     changedOnIphone: "Niet gewijzigd: bewerkt op iPhone",
     cancelled: "Niet toegevoegd: geannuleerd door de conventie",
     offSchedule: "Niet gewijzigd: niet meer op het programma",
-    addOnIphone: "Niet toegevoegd: voeg toe op iPhone",
+    addOnIphone: "Niet toegevoegd: voeg het toe op iPhone",
     tooOld: "Niet gewijzigd: ouder dan een dag",
     failed: "Niet gewijzigd: probeer het opnieuw",
   )
