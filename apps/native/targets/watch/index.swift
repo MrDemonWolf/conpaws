@@ -12,8 +12,7 @@ struct ConPawsWatchApp: App {
 
   var body: some Scene {
     WindowGroup {
-      ContentView(store: store)
-        .showsTappedReminders(from: appDelegate.reminders, store: store)
+      ContentView(store: store, reminders: appDelegate.reminders)
     }
     // A schedule from the phone launches or wakes the app in the background.
     // Without this the app is suspended before it is stored, and the

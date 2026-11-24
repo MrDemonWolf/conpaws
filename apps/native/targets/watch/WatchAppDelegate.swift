@@ -7,7 +7,7 @@ import WatchKit
 /// A panel reminder the phone files shows on the Watch when the phone is
 /// locked or asleep. Tapping it opens this app, which without a delegate came
 /// forward on whatever screen it was last left on. This hands the reminder's
-/// panel to `reminders`, and the scene shows it (see `TappedReminderSheet`).
+/// panel to `reminders`, and `ContentView` pushes it onto its stack.
 ///
 /// It implements no `handle(_:)` for background tasks: one here would take
 /// every task from the scene's `.backgroundTask(.watchConnectivity)` handler,

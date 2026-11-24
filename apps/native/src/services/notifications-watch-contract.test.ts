@@ -29,7 +29,7 @@ const watchReader = read(
 const phone = read("./notifications.ts");
 const app = read("../../targets/watch/index.swift");
 const delegate = read("../../targets/watch/WatchAppDelegate.swift");
-const sheet = read("../../targets/watch/TappedReminderSheet.swift");
+const content = read("../../targets/watch/ContentView.swift");
 
 const swiftConstant = (name: string) =>
   watchReader.match(new RegExp(`static let ${name} = "([^"]+)"`))?.[1];
@@ -52,12 +52,12 @@ describe("reminder notification contract", () => {
     );
   });
 
-  it("has the Watch app hand a tapped reminder to the screen that shows it", () => {
+  it("has the Watch app push a tapped reminder's panel onto its stack", () => {
     expect(app).toContain(
       "@WKApplicationDelegateAdaptor private var appDelegate: WatchAppDelegate",
     );
     expect(app).toContain(
-      ".showsTappedReminders(from: appDelegate.reminders, store: store)",
+      "ContentView(store: store, reminders: appDelegate.reminders)",
     );
     expect(delegate).toContain(
       "UNUserNotificationCenter.current().delegate = self",
@@ -66,7 +66,14 @@ describe("reminder notification contract", () => {
     expect(delegate).toContain("ConPawsReminderNotification.link(");
     // Without it watchOS silences a reminder while the app is frontmost.
     expect(delegate).toContain("willPresent notification: UNNotification");
-    expect(sheet).toContain("ConPawsReminderNotification.route(for: link");
+    // Pushed onto the same path a complication link sets, after waiting
+    // for a cold launch's schedule, not presented over it.
+    expect(watchReader).toContain(
+      "WatchRoute.path(opening: link, in: snapshot)",
+    );
+    expect(content).toContain("ConPawsPendingReminderTap(link: link");
+    expect(content).toMatch(/case \.open\(let opened\):\s*path = opened/);
+    expect(content).not.toContain(".sheet(");
   });
 
   // A delegate `handle(_:)` takes every background task from the scene's

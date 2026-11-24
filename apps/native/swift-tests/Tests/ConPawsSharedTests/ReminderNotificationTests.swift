@@ -97,31 +97,36 @@ struct ReminderNotificationTests {
     ]
   )
 
-  @Test func aTappedReminderOpensItsSavedPanel() {
-    let route = ConPawsReminderNotification.route(
+  /// The same stack a complication link to the panel opens: its screen,
+  /// pushed over the home screen.
+  @Test func aTappedReminderPushesItsSavedPanel() {
+    let path = ConPawsReminderNotification.path(
       for: .event(conventionID: "con", eventID: "meetup"),
       in: snapshot
     )
-    #expect(route == .event(conventionID: "con", eventID: "meetup"))
+    #expect(path == [.event(conventionID: "con", eventID: "meetup")])
   }
 
   /// Removed on the phone, or in a convention this Watch has not been sent:
-  /// the app comes forward where it was rather than on an empty screen.
+  /// the app comes forward where it was rather than on an empty screen, or
+  /// on the home screen a complication link falls back to.
   @Test(arguments: [
     ConPawsWatchLink.event(conventionID: "con", eventID: "gone"),
     .event(conventionID: "other", eventID: "meetup"),
     .home,
   ])
-  func aReminderForNoSavedPanelOpensNothing(_ link: ConPawsWatchLink) {
-    #expect(ConPawsReminderNotification.route(for: link, in: snapshot) == nil)
+  func aReminderForNoSavedPanelPushesNothing(_ link: ConPawsWatchLink) {
+    #expect(ConPawsReminderNotification.path(for: link, in: snapshot) == nil)
   }
 
-  /// The screen closes once a schedule without its panel arrives, as a
-  /// pushed one does.
-  @Test func aReminderScreenStaysOnlyWhileThePlanHoldsItsPanel() {
-    let route = WatchRoute.event(conventionID: "con", eventID: "meetup")
-    #expect(ConPawsReminderNotification.keeps(route, in: snapshot))
-    #expect(ConPawsReminderNotification.keeps(route, in: .empty(localeIdentifier: "en")) == false)
+  /// Pushed, the panel is popped once a schedule without it arrives, by the
+  /// same rule as any other pushed screen.
+  @Test func aReminderScreenIsPoppedOnceThePlanDropsItsPanel() throws {
+    let path = try #require(
+      ConPawsReminderNotification.path(for: .event(conventionID: "con", eventID: "meetup"), in: snapshot)
+    )
+    #expect(WatchRoute.pruned(path, against: snapshot) == path)
+    #expect(WatchRoute.pruned(path, against: .empty(localeIdentifier: "en")).isEmpty)
   }
 
   // MARK: Waiting for the schedule
@@ -158,15 +163,15 @@ struct ReminderNotificationTests {
   }
 
   /// The reminder names a panel the saved schedule is too old to hold: it
-  /// opens once the phone's newer schedule arrives.
+  /// is pushed once the phone's newer schedule arrives.
   @Test func aTapBeforeItsScheduleArrivesOpensWhenItDoes() {
     let tap = ConPawsPendingReminderTap(link: .event(conventionID: "con", eventID: "new"), tappedAt: tappedAt)
     #expect(tap.outcome(in: snapshot, now: tappedAt) == .wait)
-    #expect(tap.outcome(in: arrived, now: tappedAt + 2) == .open(.event(conventionID: "con", eventID: "new")))
+    #expect(tap.outcome(in: arrived, now: tappedAt + 2) == .open([.event(conventionID: "con", eventID: "new")]))
   }
 
-  /// A schedule that arrives long after the tap opens nothing: a sheet should
-  /// not appear over whatever the reader has moved on to.
+  /// A schedule that arrives long after the tap opens nothing: a panel should
+  /// not be pushed over whatever the reader has moved on to.
   @Test func aTapWhoseScheduleNeverArrivesGivesUp() {
     let tap = ConPawsPendingReminderTap(link: .event(conventionID: "con", eventID: "new"), tappedAt: tappedAt)
     let deadline = tappedAt + ConPawsPendingReminderTap.patience
@@ -177,7 +182,7 @@ struct ReminderNotificationTests {
 
   @Test func aTapForASavedPanelOpensAtOnce() {
     let tap = ConPawsPendingReminderTap(link: .event(conventionID: "con", eventID: "meetup"), tappedAt: tappedAt)
-    #expect(tap.outcome(in: snapshot, now: tappedAt) == .open(.event(conventionID: "con", eventID: "meetup")))
+    #expect(tap.outcome(in: snapshot, now: tappedAt) == .open([.event(conventionID: "con", eventID: "meetup")]))
   }
 
   /// Removed on the phone, or in a convention this Watch has not been sent:

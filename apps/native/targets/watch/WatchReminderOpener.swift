@@ -1,7 +1,7 @@
 import Observation
 
 /// The panel a tapped reminder asked to open, passed from the notification
-/// delegate that hears the tap to the scene that shows it.
+/// delegate that hears the tap to the `ContentView` that pushes it.
 @MainActor
 @Observable
 final class WatchReminderOpener {

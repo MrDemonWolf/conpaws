@@ -35,18 +35,14 @@ enum ConPawsReminderNotification {
     return .event(conventionID: conventionID, eventID: eventID)
   }
 
-  /// The screen a tapped reminder shows: its panel's, while the plan holds
-  /// it. A panel removed on the phone, or one in a convention this Watch was
-  /// not sent, shows nothing, so the app comes forward where it was rather
-  /// than on an empty screen.
-  static func route(for link: ConPawsWatchLink, in snapshot: ConPawsSnapshot) -> WatchRoute? {
-    WatchRoute.path(opening: link, in: snapshot).first
-  }
-
-  /// Whether a reminder's screen still has a panel to show once a new
-  /// schedule arrives; the same rule that pops a pushed screen.
-  static func keeps(_ route: WatchRoute, in snapshot: ConPawsSnapshot) -> Bool {
-    WatchRoute.pruned([route], against: snapshot) == [route]
+  /// The stack a tapped reminder pushes: the one a complication link to the
+  /// same panel opens, while the plan holds the panel. A panel removed on the
+  /// phone, or one in a convention this Watch was not sent, pushes nothing,
+  /// so the app comes forward where it was rather than falling back to the
+  /// home screen as a complication link does.
+  static func path(for link: ConPawsWatchLink, in snapshot: ConPawsSnapshot) -> [WatchRoute]? {
+    let path = WatchRoute.path(opening: link, in: snapshot)
+    return path.isEmpty ? nil : path
   }
 }
 
@@ -58,12 +54,12 @@ enum ConPawsReminderNotification {
 /// it rather than being dropped.
 struct ConPawsPendingReminderTap: Equatable, Sendable {
   /// Covers a cold launch's WatchConnectivity activation and first delivery,
-  /// and nothing later: a sheet should not appear long after the tap.
+  /// and nothing later: a panel should not be pushed long after the tap.
   static let patience: TimeInterval = 10
 
   enum Outcome: Equatable, Sendable {
-    /// The schedule holds the panel: show it.
-    case open(WatchRoute)
+    /// The schedule holds the panel: push this path, replacing the stack.
+    case open([WatchRoute])
     /// Not yet, and there is still time for a schedule that holds it.
     case wait
     /// Too late to open anything: forget the tap.
@@ -78,7 +74,7 @@ struct ConPawsPendingReminderTap: Equatable, Sendable {
   /// nothing either.
   func outcome(in snapshot: ConPawsSnapshot, now: Date) -> Outcome {
     guard now.timeIntervalSince(tappedAt) < Self.patience else { return .drop }
-    guard let route = ConPawsReminderNotification.route(for: link, in: snapshot) else { return .wait }
-    return .open(route)
+    guard let path = ConPawsReminderNotification.path(for: link, in: snapshot) else { return .wait }
+    return .open(path)
   }
 }
