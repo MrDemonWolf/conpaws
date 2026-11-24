@@ -355,6 +355,87 @@
     "find": "Mijn conventie vinden",
     "sortAndView": "Sorteren en weergave"
   },
+  "howTo": {
+    "intro": "Drie manieren om het programma van je conventie in ConPaws te krijgen.",
+    "showMe": "Bekijk hoe het werkt",
+    "showMeHint": "Opent een korte stapsgewijze uitleg.",
+    "next": "Volgende",
+    "back": "Terug",
+    "close": "Sluiten",
+    "tryItNow": "Nu proberen",
+    "askTitle": "Vind je geen van deze?",
+    "startTitle": "Klaar om te beginnen?",
+    "find": {
+      "title": "ConPaws-catalogus",
+      "summary": "Je con staat misschien al in ConPaws. Download het programma met een paar tikken.",
+      "steps": {
+        "search": {
+          "title": "Zoek je con",
+          "body": "Zoek in de catalogus op de naam of de stad van je conventie. Voor deze stap heb je een internetverbinding nodig."
+        },
+        "check": {
+          "title": "Bekijk de details",
+          "body": "Tik op je conventie om de data, de locatie en de tijdzone te zien, en of het programma klaar is."
+        },
+        "download": {
+          "title": "Download het programma",
+          "body": "Tik op '{{button}}'. Zodra het is opgeslagen, werkt het programma zonder internetverbinding."
+        },
+        "notListed": {
+          "title": "Nog niet in de lijst?",
+          "body": "Nog niet elke conventie staat in de catalogus. Tik op '{{button}}' om in plaats daarvan een Sched-link of een agendabestand toe te voegen."
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched-link",
+      "summary": "Veel cons publiceren hun programma op Sched. Kopieer het adres en plak het in ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Open de Sched-pagina van je con",
+          "body": "Open het programma van je conventie in je browser. Een Sched-adres eindigt op .sched.com."
+        },
+        "copy": {
+          "title": "Kopieer het adres",
+          "body": "Kopieer het uit de adresbalk of via het deelmenu. Elke pagina van die Sched-site werkt."
+        },
+        "paste": {
+          "title": "Plak het in ConPaws",
+          "body": "Plak het adres in het scherm '{{screen}}' onder '{{field}}' en tik dan op '{{button}}'."
+        },
+        "review": {
+          "title": "Controleer en importeer",
+          "body": "Heeft het programma categorieën? Kies dan de categorieën die je wilt. Controleer de tijdzone en tik dan onderaan op de importknop. ConPaws kan een link later controleren op wijzigingen in het programma."
+        }
+      }
+    },
+    "ics": {
+      "title": "Agendabestand",
+      "summary": "Een .ics-bestand of een webcal://-link van de website van je con? ConPaws leest ze allebei.",
+      "steps": {
+        "find": {
+          "title": "Zoek de agendalink",
+          "body": "Zoek op de website van je conventie naar een link zoals 'Toevoegen aan agenda', 'Agendafeed', 'Abonneren' of 'Exporteren'."
+        },
+        "save": {
+          "title": "Kopieer de link",
+          "body": "Houd de link ingedrukt en kopieer hem. Een webcal://- of .ics-link werkt. Heb je het .ics-bestand al, bewaar het dan op je telefoon voor de volgende stap."
+        },
+        "add": {
+          "title": "Voeg het toe aan ConPaws",
+          "body": "Plak de link in het scherm '{{screen}}' onder '{{field}}' en tik op '{{fetch}}'. Heb je een bestand? Tik op '{{button}}' en kies het."
+        },
+        "review": {
+          "title": "Controleer en importeer",
+          "body": "Heeft het programma categorieën? Kies dan de categorieën die je wilt. Controleer de tijdzone en tik dan onderaan op de importknop. Een bestand werkt zichzelf niet bij, maar ConPaws kan een link later controleren op wijzigingen."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Kopiëren",
+      "addToCalendar": "Toevoegen aan agenda"
+    }
+  },
   "import": {
     "title": "Rooster importeren",
     "source": "Bron",

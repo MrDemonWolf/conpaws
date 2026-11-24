@@ -421,6 +421,87 @@
     },
     "sortAndView": "Rendezés és nézet"
   },
+  "howTo": {
+    "intro": "Háromféleképpen kerülhet a rendezvényed programja a ConPawsba.",
+    "showMe": "Mutasd, hogyan",
+    "showMeHint": "Megnyit egy rövid, lépésenkénti útmutatót.",
+    "next": "Tovább",
+    "back": "Vissza",
+    "close": "Bezárás",
+    "tryItNow": "Kipróbálom",
+    "askTitle": "Egyiket sem találod ezek közül?",
+    "startTitle": "Kezdhetjük?",
+    "find": {
+      "title": "ConPaws-katalógus",
+      "summary": "Lehet, hogy a rendezvényed már szerepel a ConPawsban. Töltsd le a programját néhány koppintással.",
+      "steps": {
+        "search": {
+          "title": "Keresd meg a rendezvényed",
+          "body": "Keress a katalógusban a rendezvény neve vagy városa alapján. Ehhez a lépéshez internetkapcsolat kell."
+        },
+        "check": {
+          "title": "Nézd meg a részleteket",
+          "body": "Koppints a rendezvényre, hogy lásd a dátumokat, a helyszínt és az időzónát, valamint azt, hogy kész-e a program."
+        },
+        "download": {
+          "title": "Töltsd le a programot",
+          "body": "Koppints a(z) „{{button}}” gombra. Mentés után a program internetkapcsolat nélkül is működik."
+        },
+        "notListed": {
+          "title": "Még nem szerepel?",
+          "body": "Még nem minden rendezvény van a katalógusban. Koppints a(z) „{{button}}” gombra, és hozz be helyette egy Sched-linket vagy naptárfájlt."
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched-link",
+      "summary": "Sok con a Scheden teszi közzé a programját. Másold ki a címét, és illeszd be a ConPawsba.",
+      "steps": {
+        "open": {
+          "title": "Nyisd meg a rendezvény Sched-oldalát",
+          "body": "Nyisd meg a rendezvény programját a böngésződben. A Sched-címek végén .sched.com áll."
+        },
+        "copy": {
+          "title": "Másold ki a címet",
+          "body": "Másold ki a címsorból vagy a Megosztás menüből. Az adott Sched-oldal bármelyik lapja megfelel."
+        },
+        "paste": {
+          "title": "Illeszd be a ConPawsba",
+          "body": "A(z) „{{screen}}” képernyőn illeszd be a címet a(z) „{{field}}” mezőbe, majd koppints a(z) „{{button}}” gombra."
+        },
+        "review": {
+          "title": "Ellenőrizd, majd importáld",
+          "body": "Ha a programban vannak kategóriák, válaszd ki azokat, amelyeket szeretnél. Ellenőrizd az időzónát, majd koppints a lenti importálás gombra. A ConPaws később a link alapján ellenőrizni tudja, változott-e a program."
+        }
+      }
+    },
+    "ics": {
+      "title": "Naptárfájl",
+      "summary": "Van egy .ics-fájlod vagy egy webcal://-linked a rendezvény weboldaláról? A ConPaws mindkettőt beolvassa.",
+      "steps": {
+        "find": {
+          "title": "Keresd meg a naptárlinket",
+          "body": "A rendezvény weboldalán keress egy olyan linket, mint a „Hozzáadás a naptárhoz”, „Naptár-feed”, „Feliratkozás” vagy „Exportálás”."
+        },
+        "save": {
+          "title": "Másold ki a linket",
+          "body": "Tartsd lenyomva a linket, és másold ki. A webcal:// és az .ics link is megfelel. Ha már megvan az .ics-fájl, tartsd a telefonodon a következő lépéshez."
+        },
+        "add": {
+          "title": "Add hozzá a ConPawshoz",
+          "body": "A(z) „{{screen}}” képernyőn illeszd be a linket a(z) „{{field}}” mezőbe, és koppints a(z) „{{fetch}}” gombra. Inkább fájlod van? Koppints a(z) „{{button}}” gombra, és válaszd ki."
+        },
+        "review": {
+          "title": "Ellenőrizd, majd importáld",
+          "body": "Ha a programban vannak kategóriák, válaszd ki azokat, amelyeket szeretnél. Ellenőrizd az időzónát, majd koppints a lenti importálás gombra. A fájl magától nem frissül, de a ConPaws később ellenőrizni tudja, változott-e egy link."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Másolás",
+      "addToCalendar": "Hozzáadás a naptárhoz"
+    }
+  },
   "import": {
     "title": "Program importálása",
     "source": "Forrás",

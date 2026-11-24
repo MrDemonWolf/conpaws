@@ -23,6 +23,13 @@ interface ButtonProps {
   accessibilityLabel?: string;
   accessibilityHint?: string;
   testID?: string;
+  /**
+   * Whether a hardware keyboard or D-pad can move focus here (Android).
+   * Leave unset for a real button. A pretend one inside a how-to picture
+   * passes false: hiding it from TalkBack does not take it out of keyboard
+   * focus, because a Pressable is focusable by default.
+   */
+  focusable?: boolean;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -64,6 +71,7 @@ export function Button({
   accessibilityLabel,
   accessibilityHint,
   testID,
+  focusable,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
   const colorScheme = useResolvedColorScheme();
@@ -92,6 +100,7 @@ export function Button({
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       testID={testID}
+      focusable={focusable}
       className={cn(
         // 48 satisfies both minimums: HIG asks 44pt, Material 3 asks 48dp.
         // active: gives every button the iOS press-dim. PRESS_DIM in Row.tsx

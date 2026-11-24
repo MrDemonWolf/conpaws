@@ -355,6 +355,87 @@
     "find": "Encontre sua convenção",
     "sortAndView": "Ordenação e visualização"
   },
+  "howTo": {
+    "intro": "Três jeitos de colocar a programação da sua convenção no ConPaws.",
+    "showMe": "Mostre como",
+    "showMeHint": "Abre um guia curto, passo a passo.",
+    "next": "Próximo",
+    "back": "Voltar",
+    "close": "Fechar",
+    "tryItNow": "Experimentar agora",
+    "askTitle": "Não achou nenhuma dessas?",
+    "startTitle": "Vamos começar?",
+    "find": {
+      "title": "Catálogo do ConPaws",
+      "summary": "Sua convenção talvez já esteja no ConPaws. Baixe a programação com poucos toques.",
+      "steps": {
+        "search": {
+          "title": "Procure sua convenção",
+          "body": "Pesquise no catálogo pelo nome ou pela cidade da sua convenção. Esta etapa precisa de conexão com a internet."
+        },
+        "check": {
+          "title": "Confira os detalhes",
+          "body": "Toque na sua convenção para ver as datas, o local e o fuso horário, e se a programação já está pronta."
+        },
+        "download": {
+          "title": "Baixe a programação",
+          "body": "Toque em \"{{button}}\". Depois de salva, a programação funciona sem conexão com a internet."
+        },
+        "notListed": {
+          "title": "Ainda não está na lista?",
+          "body": "Nem toda convenção está no catálogo ainda. Toque em \"{{button}}\" para trazer um link do Sched ou um arquivo de calendário."
+        }
+      }
+    },
+    "sched": {
+      "title": "Link do Sched",
+      "summary": "Muitas convenções publicam a programação no Sched. Copie o endereço e cole no ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Abra a página do Sched da sua convenção",
+          "body": "Abra a programação da sua convenção no navegador. Um endereço do Sched termina em .sched.com."
+        },
+        "copy": {
+          "title": "Copie o endereço",
+          "body": "Copie pela barra de endereços ou pelo menu Compartilhar. Qualquer página desse site do Sched funciona."
+        },
+        "paste": {
+          "title": "Cole no ConPaws",
+          "body": "Na tela \"{{screen}}\", cole o endereço em \"{{field}}\" e toque em \"{{button}}\"."
+        },
+        "review": {
+          "title": "Confira e importe",
+          "body": "Se a programação tiver categorias, escolha as que quiser. Confira o fuso horário e toque no botão de importar lá embaixo. Depois, o ConPaws pode verificar o link para ver se a programação mudou."
+        }
+      }
+    },
+    "ics": {
+      "title": "Arquivo de calendário",
+      "summary": "Pegou um arquivo .ics ou um link webcal:// no site da sua convenção? O ConPaws lê os dois.",
+      "steps": {
+        "find": {
+          "title": "Encontre o link do calendário",
+          "body": "No site da sua convenção, procure um link como \"Adicionar ao calendário\", \"Feed do calendário\", \"Assinar\" ou \"Exportar\"."
+        },
+        "save": {
+          "title": "Copie o link",
+          "body": "Toque e segure o link e copie. Um link webcal:// ou .ics funciona. Se você já tem o arquivo .ics, deixe no celular para a próxima etapa."
+        },
+        "add": {
+          "title": "Adicione no ConPaws",
+          "body": "Na tela \"{{screen}}\", cole o link em \"{{field}}\" e toque em \"{{fetch}}\". Tem um arquivo? Toque em \"{{button}}\" e escolha o arquivo."
+        },
+        "review": {
+          "title": "Confira e importe",
+          "body": "Se a programação tiver categorias, escolha as que quiser. Confira o fuso horário e toque no botão de importar lá embaixo. Um arquivo não se atualiza sozinho, mas o ConPaws pode verificar mudanças em um link depois."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Copiar",
+      "addToCalendar": "Adicionar ao calendário"
+    }
+  },
   "import": {
     "title": "Importar Programação",
     "source": "Fonte",

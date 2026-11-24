@@ -421,6 +421,87 @@
     },
     "sortAndView": "Sortieren & Ansicht"
   },
+  "howTo": {
+    "intro": "Drei Wege, wie der Zeitplan deiner Convention in ConPaws kommt.",
+    "showMe": "Zeig mir, wie",
+    "showMeHint": "Öffnet eine kurze Schritt-für-Schritt-Anleitung.",
+    "next": "Weiter",
+    "back": "Zurück",
+    "close": "Schließen",
+    "tryItNow": "Jetzt ausprobieren",
+    "askTitle": "Nichts davon gefunden?",
+    "startTitle": "Bereit loszulegen?",
+    "find": {
+      "title": "ConPaws-Katalog",
+      "summary": "Deine Con ist vielleicht schon in ConPaws. Lade ihren Zeitplan mit wenigen Fingertipps herunter.",
+      "steps": {
+        "search": {
+          "title": "Con suchen",
+          "body": "Durchsuche den Katalog nach dem Namen oder der Stadt deiner Convention. Dafür brauchst du eine Internetverbindung."
+        },
+        "check": {
+          "title": "Details prüfen",
+          "body": "Tippe auf deine Convention, um Daten, Veranstaltungsort und Zeitzone zu sehen und ob ihr Zeitplan bereit ist."
+        },
+        "download": {
+          "title": "Zeitplan herunterladen",
+          "body": "Tippe auf „{{button}}“. Sobald er gespeichert ist, funktioniert der Zeitplan auch ohne Internetverbindung."
+        },
+        "notListed": {
+          "title": "Noch nicht dabei?",
+          "body": "Noch ist nicht jede Convention im Katalog. Tippe auf „{{button}}“, um stattdessen einen Sched-Link oder eine Kalenderdatei zu nutzen."
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched-Link",
+      "summary": "Viele Cons veröffentlichen ihren Zeitplan auf Sched. Kopiere die Adresse und füge sie in ConPaws ein.",
+      "steps": {
+        "open": {
+          "title": "Sched-Seite der Con öffnen",
+          "body": "Öffne den Zeitplan deiner Convention im Browser. Eine Sched-Adresse endet auf .sched.com."
+        },
+        "copy": {
+          "title": "Adresse kopieren",
+          "body": "Kopiere sie aus der Adressleiste oder über das Teilen-Menü. Jede Seite dieser Sched-Website funktioniert."
+        },
+        "paste": {
+          "title": "In ConPaws einfügen",
+          "body": "Füge die Adresse auf dem Bildschirm „{{screen}}“ unter „{{field}}“ ein und tippe dann auf „{{button}}“."
+        },
+        "review": {
+          "title": "Prüfen, dann importieren",
+          "body": "Wenn der Zeitplan Kategorien hat, wähle die gewünschten aus. Prüfe die Zeitzone und tippe dann unten auf die Schaltfläche zum Importieren. ConPaws kann einen Link später auf Änderungen am Zeitplan prüfen."
+        }
+      }
+    },
+    "ics": {
+      "title": "Kalenderdatei",
+      "summary": "Hast du eine .ics-Datei oder einen webcal://-Link von der Website deiner Con? ConPaws liest beides.",
+      "steps": {
+        "find": {
+          "title": "Kalenderlink finden",
+          "body": "Suche auf der Website deiner Convention nach einem Link wie „Zum Kalender hinzufügen“, „Kalender-Feed“, „Abonnieren“ oder „Exportieren“."
+        },
+        "save": {
+          "title": "Link kopieren",
+          "body": "Halte den Link gedrückt und kopiere ihn. Ein webcal://- oder .ics-Link funktioniert. Hast du die .ics-Datei schon, behalte sie für den nächsten Schritt auf deinem Handy."
+        },
+        "add": {
+          "title": "Zu ConPaws hinzufügen",
+          "body": "Füge den Link auf dem Bildschirm „{{screen}}“ unter „{{field}}“ ein und tippe auf „{{fetch}}“. Du hast stattdessen eine Datei? Tippe auf „{{button}}“ und wähle sie aus."
+        },
+        "review": {
+          "title": "Prüfen, dann importieren",
+          "body": "Wenn der Zeitplan Kategorien hat, wähle die gewünschten aus. Prüfe die Zeitzone und tippe dann unten auf die Schaltfläche zum Importieren. Eine Datei aktualisiert sich nicht von selbst, aber ConPaws kann einen Link später auf Änderungen prüfen."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Kopieren",
+      "addToCalendar": "Zum Kalender hinzufügen"
+    }
+  },
   "import": {
     "title": "Zeitplan importieren",
     "source": "Quelle",

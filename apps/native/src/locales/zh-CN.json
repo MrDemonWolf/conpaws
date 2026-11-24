@@ -355,6 +355,87 @@
     "find": "查找我的展会",
     "sortAndView": "排序和显示"
   },
+  "howTo": {
+    "intro": "把展会日程导入 ConPaws 的三种方法。",
+    "showMe": "查看步骤",
+    "showMeHint": "打开一份简短的分步指南。",
+    "next": "下一步",
+    "back": "上一步",
+    "close": "关闭",
+    "tryItNow": "立即试试",
+    "askTitle": "这些都找不到？",
+    "startTitle": "准备好了吗？",
+    "find": {
+      "title": "ConPaws 目录",
+      "summary": "你的展会可能已经在 ConPaws 里了。点几下就能下载它的日程。",
+      "steps": {
+        "search": {
+          "title": "搜索你的展会",
+          "body": "在目录中按展会名称或城市搜索。这一步需要联网。"
+        },
+        "check": {
+          "title": "查看详情",
+          "body": "点按你的展会，查看日期、场馆、时区，以及日程是否已准备好。"
+        },
+        "download": {
+          "title": "下载日程",
+          "body": "点按“{{button}}”。保存后，日程无需联网也能使用。"
+        },
+        "notListed": {
+          "title": "还没有收录？",
+          "body": "目录还没有收录所有展会。点按“{{button}}”，改用 Sched 链接或日历文件导入。"
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched 链接",
+      "summary": "很多展会在 Sched 上发布日程。复制它的网址，粘贴到 ConPaws 即可。",
+      "steps": {
+        "open": {
+          "title": "打开展会的 Sched 页面",
+          "body": "在浏览器中打开展会的日程。Sched 网址以 .sched.com 结尾。"
+        },
+        "copy": {
+          "title": "复制网址",
+          "body": "从地址栏或“共享”菜单中复制。该 Sched 网站的任何页面都可以。"
+        },
+        "paste": {
+          "title": "粘贴到 ConPaws",
+          "body": "在“{{screen}}”页面，把网址粘贴到“{{field}}”中，然后点按“{{button}}”。"
+        },
+        "review": {
+          "title": "检查后导入",
+          "body": "如果日程有分类，选择你想要的分类。检查时区，然后点按底部的导入按钮。之后 ConPaws 可以通过链接检查日程是否有变动。"
+        }
+      }
+    },
+    "ics": {
+      "title": "日历文件",
+      "summary": "从展会网站拿到了 .ics 文件或 webcal:// 链接？ConPaws 两种都能读取。",
+      "steps": {
+        "find": {
+          "title": "找到日历链接",
+          "body": "在展会网站上找一个类似“添加到日历”“日历订阅”“订阅”或“导出”的链接。"
+        },
+        "save": {
+          "title": "复制链接",
+          "body": "长按链接并复制。webcal:// 或 .ics 链接都可以。如果你已经有 .ics 文件，请把它保存在手机上，供下一步使用。"
+        },
+        "add": {
+          "title": "添加到 ConPaws",
+          "body": "在“{{screen}}”页面，把链接粘贴到“{{field}}”中，然后点按“{{fetch}}”。手头是文件？点按“{{button}}”并选择它。"
+        },
+        "review": {
+          "title": "检查后导入",
+          "body": "如果日程有分类，选择你想要的分类。检查时区，然后点按底部的导入按钮。文件不会自动更新，但之后 ConPaws 可以通过链接检查变动。"
+        }
+      }
+    },
+    "mock": {
+      "copy": "复制",
+      "addToCalendar": "添加到日历"
+    }
+  },
   "import": {
     "title": "导入日程",
     "source": "来源",

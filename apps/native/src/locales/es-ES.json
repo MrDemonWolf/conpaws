@@ -421,6 +421,87 @@
     },
     "sortAndView": "Orden y vista"
   },
+  "howTo": {
+    "intro": "Tres formas de añadir el programa de tu convención a ConPaws.",
+    "showMe": "Enséñame cómo",
+    "showMeHint": "Abre una breve guía paso a paso.",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "close": "Cerrar",
+    "tryItNow": "Probar ahora",
+    "askTitle": "¿No encuentras ninguna de estas?",
+    "startTitle": "¿Empezamos?",
+    "find": {
+      "title": "Catálogo de ConPaws",
+      "summary": "Puede que tu convención ya esté en ConPaws. Descarga su programa con un par de toques.",
+      "steps": {
+        "search": {
+          "title": "Busca tu convención",
+          "body": "Busca en el catálogo por el nombre o la ciudad de tu convención. Este paso necesita conexión a internet."
+        },
+        "check": {
+          "title": "Revisa los detalles",
+          "body": "Toca tu convención para ver sus fechas, la sede y la zona horaria, y si su programa está listo."
+        },
+        "download": {
+          "title": "Descarga el programa",
+          "body": "Toca «{{button}}». Una vez guardado, el programa funciona sin conexión a internet."
+        },
+        "notListed": {
+          "title": "¿Aún no aparece?",
+          "body": "No todas las convenciones están todavía en el catálogo. Toca «{{button}}» para traer un enlace de Sched o un archivo de calendario."
+        }
+      }
+    },
+    "sched": {
+      "title": "Enlace de Sched",
+      "summary": "Muchas convenciones publican su programa en Sched. Copia su dirección y pégala en ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Abre la página de Sched de tu convención",
+          "body": "Abre el programa de tu convención en el navegador. Una dirección de Sched termina en .sched.com."
+        },
+        "copy": {
+          "title": "Copia la dirección",
+          "body": "Cópiala desde la barra de direcciones o el menú Compartir. Sirve cualquier página de ese sitio de Sched."
+        },
+        "paste": {
+          "title": "Pégala en ConPaws",
+          "body": "En la pantalla «{{screen}}», pega la dirección en «{{field}}» y toca «{{button}}»."
+        },
+        "review": {
+          "title": "Revisa e importa",
+          "body": "Si el programa tiene categorías, elige las que quieras. Revisa la zona horaria y toca el botón de importar de abajo. Más adelante, ConPaws puede comprobar si hay cambios en el programa a través del enlace."
+        }
+      }
+    },
+    "ics": {
+      "title": "Archivo de calendario",
+      "summary": "¿Tienes un archivo .ics o un enlace webcal:// de la web de tu convención? ConPaws lee ambos.",
+      "steps": {
+        "find": {
+          "title": "Busca el enlace del calendario",
+          "body": "En la web de tu convención, busca un enlace como «Añadir al calendario», «Feed de calendario», «Suscribirse» o «Exportar»."
+        },
+        "save": {
+          "title": "Copia el enlace",
+          "body": "Mantén pulsado el enlace y cópialo. Sirve un enlace webcal:// o .ics. Si ya tienes el archivo .ics, guárdalo en el móvil para el siguiente paso."
+        },
+        "add": {
+          "title": "Añádelo a ConPaws",
+          "body": "En la pantalla «{{screen}}», pega el enlace en «{{field}}» y toca «{{fetch}}». ¿Tienes un archivo? Toca «{{button}}» y elígelo."
+        },
+        "review": {
+          "title": "Revisa e importa",
+          "body": "Si el programa tiene categorías, elige las que quieras. Revisa la zona horaria y toca el botón de importar de abajo. Un archivo no se actualiza solo, pero ConPaws puede comprobar más adelante si un enlace ha cambiado."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Copiar",
+      "addToCalendar": "Añadir al calendario"
+    }
+  },
   "import": {
     "title": "Importar Horario",
     "source": "Fuente",

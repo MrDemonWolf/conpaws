@@ -87,6 +87,19 @@ describe("Expo Router convention routes", () => {
     );
   });
 
+  // The help's "Show me how" opens over this form sheet, so it must be a
+  // full-screen modal mounted here rather than a pushed route.
+  it("hosts the import walkthrough in its own modal", () => {
+    const importSource = readFileSync(
+      path.join(conventionRoute, "import.tsx"),
+      "utf8",
+    );
+    expect(importSource).toContain("<HowToModal");
+    // The link field can still hold focus when a help row is tapped, so the
+    // keyboard has to go before the full-screen modal comes up.
+    expect(importSource).toMatch(/Keyboard\.dismiss\(\);\s*setHowTo\(/);
+  });
+
   it("lets the Import button start only one import", () => {
     const importSource = readFileSync(
       path.join(conventionRoute, "import.tsx"),
@@ -313,7 +326,11 @@ describe("iOS native stack headers", () => {
   describe("settings screens hosted in @expo/ui", () => {
     // Real `ScrollView` content: these collapse and blur correctly on their own,
     // and forcing the hosted options on them would be the regression.
-    const REAL_SCROLLVIEW_SCREENS = ["licenses/index", "licenses/[id]"];
+    const REAL_SCROLLVIEW_SCREENS = [
+      "licenses/index",
+      "licenses/[id]",
+      "getting-started",
+    ];
     // Dev-only, behind `Stack.Protected`; they never reach a user.
     const DEVELOPER_SCREENS = ["debug", "ui-system"];
     // Hosted screens that hand UIKit their list's scroll view through
@@ -373,6 +390,23 @@ describe("iOS native stack headers", () => {
         expect(screen).toBeDefined();
         expect(screen?.block).not.toContain("...hostedScreenOptions");
       }
+    });
+
+    // Its cards carry React Native pictures, which cannot sit reliably in an
+    // @expo/ui list, so it left SettingsFieldGroupScreen for a ScrollView that
+    // UIKit can link its large title to.
+    it("renders Getting started as a real ScrollView linked to the bar", () => {
+      const routeSource = readFileSync(
+        path.resolve(
+          __dirname,
+          "../../app/(tabs)/settings/getting-started.tsx",
+        ),
+        "utf8",
+      );
+      expect(routeSource).not.toContain("<Host");
+      expect(routeSource).toContain(
+        'contentInsetAdjustmentBehavior="automatic"',
+      );
     });
 
     it("keeps hostedScreenOptions doing all three things", () => {

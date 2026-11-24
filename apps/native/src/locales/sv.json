@@ -355,6 +355,87 @@
     "find": "Hitta mitt konvent",
     "sortAndView": "Sortering och visning"
   },
+  "howTo": {
+    "intro": "Tre sätt att få in ditt konvents schema i ConPaws.",
+    "showMe": "Visa hur du gör",
+    "showMeHint": "Öppnar en kort steg-för-steg-guide.",
+    "next": "Nästa",
+    "back": "Tillbaka",
+    "close": "Stäng",
+    "tryItNow": "Testa nu",
+    "askTitle": "Hittar du inget av dessa?",
+    "startTitle": "Redo att börja?",
+    "find": {
+      "title": "ConPaws-katalogen",
+      "summary": "Ditt konvent kanske redan finns i ConPaws. Hämta schemat med ett par tryck.",
+      "steps": {
+        "search": {
+          "title": "Sök efter ditt konvent",
+          "body": "Sök i katalogen på konventets namn eller stad. Det här steget kräver en internetanslutning."
+        },
+        "check": {
+          "title": "Kolla detaljerna",
+          "body": "Tryck på ditt konvent för att se datum, plats och tidszon, och om schemat är klart."
+        },
+        "download": {
+          "title": "Hämta schemat",
+          "body": "Tryck på ”{{button}}”. När det är sparat fungerar schemat utan internetanslutning."
+        },
+        "notListed": {
+          "title": "Inte med än?",
+          "body": "Alla konvent finns inte i katalogen än. Tryck på ”{{button}}” för att lägga till en Sched-länk eller en kalenderfil i stället."
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched-länk",
+      "summary": "Många konvent publicerar sitt schema på Sched. Kopiera adressen och klistra in den i ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Öppna konventets Sched-sida",
+          "body": "Öppna konventets schema i webbläsaren. En Sched-adress slutar på .sched.com."
+        },
+        "copy": {
+          "title": "Kopiera adressen",
+          "body": "Kopiera den från adressfältet eller via Dela-menyn. Vilken sida som helst från den Sched-sajten fungerar."
+        },
+        "paste": {
+          "title": "Klistra in den i ConPaws",
+          "body": "På skärmen ”{{screen}}” klistrar du in adressen under ”{{field}}” och trycker sedan på ”{{button}}”."
+        },
+        "review": {
+          "title": "Kontrollera och importera",
+          "body": "Om schemat har kategorier väljer du de du vill ha. Kontrollera tidszonen och tryck sedan på importknappen längst ned. ConPaws kan senare kolla en länk efter ändringar i schemat."
+        }
+      }
+    },
+    "ics": {
+      "title": "Kalenderfil",
+      "summary": "Har du en .ics-fil eller en webcal://-länk från konventets webbplats? ConPaws läser båda.",
+      "steps": {
+        "find": {
+          "title": "Hitta kalenderlänken",
+          "body": "Leta efter en länk som ”Lägg till i kalender”, ”Kalenderflöde”, ”Prenumerera” eller ”Exportera” på konventets webbplats."
+        },
+        "save": {
+          "title": "Kopiera länken",
+          "body": "Håll ned fingret på länken och kopiera den. En webcal://- eller .ics-länk fungerar. Om du redan har .ics-filen sparar du den på telefonen till nästa steg."
+        },
+        "add": {
+          "title": "Lägg till den i ConPaws",
+          "body": "På skärmen ”{{screen}}” klistrar du in länken under ”{{field}}” och trycker på ”{{fetch}}”. Har du en fil i stället? Tryck på ”{{button}}” och välj den."
+        },
+        "review": {
+          "title": "Kontrollera och importera",
+          "body": "Om schemat har kategorier väljer du de du vill ha. Kontrollera tidszonen och tryck sedan på importknappen längst ned. En fil uppdateras inte av sig själv, men ConPaws kan senare kolla en länk efter ändringar."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Kopiera",
+      "addToCalendar": "Lägg till i kalender"
+    }
+  },
   "import": {
     "title": "Importera Schema",
     "source": "Källa",

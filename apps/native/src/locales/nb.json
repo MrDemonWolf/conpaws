@@ -355,6 +355,87 @@
     "find": "Finn konventet mitt",
     "sortAndView": "Sortering og visning"
   },
+  "howTo": {
+    "intro": "Tre måter å få konventets program inn i ConPaws på.",
+    "showMe": "Vis meg hvordan",
+    "showMeHint": "Åpner en kort trinnvis veiledning.",
+    "next": "Neste",
+    "back": "Tilbake",
+    "close": "Lukk",
+    "tryItNow": "Prøv nå",
+    "askTitle": "Finner du ingen av disse?",
+    "startTitle": "Klar til å starte?",
+    "find": {
+      "title": "ConPaws-katalogen",
+      "summary": "Konventet ditt er kanskje allerede i ConPaws. Last ned programmet med et par trykk.",
+      "steps": {
+        "search": {
+          "title": "Søk etter konventet ditt",
+          "body": "Søk i katalogen etter navnet på konventet eller byen. Dette trinnet krever internettilkobling."
+        },
+        "check": {
+          "title": "Sjekk detaljene",
+          "body": "Trykk på konventet for å se datoer, sted og tidssone, og om programmet er klart."
+        },
+        "download": {
+          "title": "Last ned programmet",
+          "body": "Trykk på «{{button}}». Når det er lagret, fungerer programmet uten internettilkobling."
+        },
+        "notListed": {
+          "title": "Ikke med ennå?",
+          "body": "Ikke alle konventer er i katalogen ennå. Trykk på «{{button}}» for å hente inn en Sched-lenke eller en kalenderfil i stedet."
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched-lenke",
+      "summary": "Mange konventer publiserer programmet sitt på Sched. Kopier adressen og lim den inn i ConPaws.",
+      "steps": {
+        "open": {
+          "title": "Åpne Sched-siden til konventet",
+          "body": "Åpne programmet til konventet i nettleseren. En Sched-adresse slutter på .sched.com."
+        },
+        "copy": {
+          "title": "Kopier adressen",
+          "body": "Kopier den fra adressefeltet eller fra Del-menyen. Alle sider fra det Sched-nettstedet fungerer."
+        },
+        "paste": {
+          "title": "Lim den inn i ConPaws",
+          "body": "På skjermen «{{screen}}» limer du inn adressen under «{{field}}» og trykker deretter på «{{button}}»."
+        },
+        "review": {
+          "title": "Sjekk, og importer",
+          "body": "Hvis programmet har kategorier, velger du dem du vil ha. Sjekk tidssonen, og trykk deretter på importknappen nederst. ConPaws kan senere sjekke en lenke for endringer i programmet."
+        }
+      }
+    },
+    "ics": {
+      "title": "Kalenderfil",
+      "summary": "Har du en .ics-fil eller en webcal://-lenke fra nettstedet til konventet? ConPaws leser begge.",
+      "steps": {
+        "find": {
+          "title": "Finn kalenderlenken",
+          "body": "Se etter en lenke som «Legg til i kalender», «Kalenderstrøm», «Abonner» eller «Eksporter» på nettstedet til konventet."
+        },
+        "save": {
+          "title": "Kopier lenken",
+          "body": "Hold inne lenken og kopier den. En webcal://- eller .ics-lenke fungerer. Hvis du allerede har .ics-filen, beholder du den på telefonen til neste trinn."
+        },
+        "add": {
+          "title": "Legg den til i ConPaws",
+          "body": "På skjermen «{{screen}}» limer du inn lenken under «{{field}}» og trykker på «{{fetch}}». Har du en fil i stedet? Trykk på «{{button}}» og velg den."
+        },
+        "review": {
+          "title": "Sjekk, og importer",
+          "body": "Hvis programmet har kategorier, velger du dem du vil ha. Sjekk tidssonen, og trykk deretter på importknappen nederst. En fil oppdaterer seg ikke selv, men ConPaws kan senere sjekke en lenke for endringer."
+        }
+      }
+    },
+    "mock": {
+      "copy": "Kopier",
+      "addToCalendar": "Legg til i kalender"
+    }
+  },
   "import": {
     "title": "Importer program",
     "source": "Kilde",

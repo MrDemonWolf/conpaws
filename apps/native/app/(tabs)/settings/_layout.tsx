@@ -41,7 +41,12 @@ export default function SettingsLayout() {
    * Licenses does not get this treatment on purpose. It is the same kind of
    * pushed screen but its content is a real `ScrollView`, so the large title
    * collapses and the bar blurs correctly, and taking it away would be a
-   * regression.
+   * regression. Getting started has joined it as a real-ScrollView screen,
+   * now that its cards carry React Native pictures.
+   *
+   * The how-to walkthrough uses these options for the same reason as the
+   * hosted screens: its content is a horizontal pager, which offers UIKit no
+   * vertical scroll view to link a large title to.
    *
    * Android is unaffected either way -- it has no large titles and its header
    * is already opaque -- so this only needs to change anything on iOS.
@@ -106,10 +111,13 @@ export default function SettingsLayout() {
       />
       <Stack.Screen
         name="getting-started"
-        options={{
-          title: t("settings.help.gettingStarted"),
-          ...hostedScreenOptions,
-        }}
+        // A real ScrollView, like Licenses: keeps its collapsing large title.
+        options={{ title: t("settings.help.gettingStarted") }}
+      />
+      <Stack.Screen
+        name="how-to/[method]"
+        // The title is the guide's, set by the route at runtime.
+        options={{ ...hostedScreenOptions }}
       />
       <Stack.Screen
         name="about"

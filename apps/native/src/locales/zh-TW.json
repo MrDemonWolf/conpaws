@@ -355,6 +355,87 @@
     "find": "尋找我的展會",
     "sortAndView": "排序與顯示"
   },
+  "howTo": {
+    "intro": "將展會行程表匯入 ConPaws 的三種方式。",
+    "showMe": "查看步驟",
+    "showMeHint": "開啟簡短的逐步指南。",
+    "next": "下一步",
+    "back": "上一步",
+    "close": "關閉",
+    "tryItNow": "立即試試",
+    "askTitle": "這些都找不到？",
+    "startTitle": "準備好了嗎？",
+    "find": {
+      "title": "ConPaws 目錄",
+      "summary": "你的展會可能已經在 ConPaws 裡了。點幾下就能下載它的行程表。",
+      "steps": {
+        "search": {
+          "title": "搜尋你的展會",
+          "body": "在目錄中依展會名稱或城市搜尋。這個步驟需要網路連線。"
+        },
+        "check": {
+          "title": "查看詳細資訊",
+          "body": "點一下你的展會，即可查看日期、場地、時區，以及行程表是否已準備好。"
+        },
+        "download": {
+          "title": "下載行程表",
+          "body": "點一下「{{button}}」。儲存後，行程表不需網路連線也能使用。"
+        },
+        "notListed": {
+          "title": "還沒收錄？",
+          "body": "目錄尚未收錄所有展會。點一下「{{button}}」，改用 Sched 連結或行事曆檔案匯入。"
+        }
+      }
+    },
+    "sched": {
+      "title": "Sched 連結",
+      "summary": "許多展會在 Sched 上發布行程表。複製網址並貼到 ConPaws 即可。",
+      "steps": {
+        "open": {
+          "title": "開啟展會的 Sched 頁面",
+          "body": "在瀏覽器中開啟展會的行程表。Sched 網址的結尾是 .sched.com。"
+        },
+        "copy": {
+          "title": "複製網址",
+          "body": "從網址列或「分享」選單複製。該 Sched 網站的任何頁面都可以。"
+        },
+        "paste": {
+          "title": "貼到 ConPaws",
+          "body": "在「{{screen}}」畫面中，將網址貼到「{{field}}」欄位，然後點一下「{{button}}」。"
+        },
+        "review": {
+          "title": "檢查後匯入",
+          "body": "如果行程表有分類，請選擇你要的分類。檢查時區，然後點一下底部的匯入按鈕。之後 ConPaws 可以透過連結檢查行程表是否有變動。"
+        }
+      }
+    },
+    "ics": {
+      "title": "行事曆檔案",
+      "summary": "從展會網站取得了 .ics 檔案或 webcal:// 連結？ConPaws 兩種都能讀取。",
+      "steps": {
+        "find": {
+          "title": "找到行事曆連結",
+          "body": "在展會網站上尋找類似「加入行事曆」、「行事曆訂閱」、「訂閱」或「匯出」的連結。"
+        },
+        "save": {
+          "title": "複製連結",
+          "body": "按住連結並複製。webcal:// 或 .ics 連結都可以。如果你已經有 .ics 檔案，請把它存在手機上，供下一步使用。"
+        },
+        "add": {
+          "title": "加入 ConPaws",
+          "body": "在「{{screen}}」畫面中，將連結貼到「{{field}}」欄位，然後點一下「{{fetch}}」。手邊是檔案？點一下「{{button}}」並選擇它。"
+        },
+        "review": {
+          "title": "檢查後匯入",
+          "body": "如果行程表有分類，請選擇你要的分類。檢查時區，然後點一下底部的匯入按鈕。檔案不會自動更新，但之後 ConPaws 可以透過連結檢查變動。"
+        }
+      }
+    },
+    "mock": {
+      "copy": "複製",
+      "addToCalendar": "加入行事曆"
+    }
+  },
   "import": {
     "title": "匯入行程表",
     "source": "來源",

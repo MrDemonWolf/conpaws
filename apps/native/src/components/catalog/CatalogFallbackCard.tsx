@@ -7,6 +7,7 @@ export function CatalogFallbackCard({
   createLabel,
   onImport,
   onCreate,
+  focusable,
 }: {
   title: string;
   body: string;
@@ -14,6 +15,8 @@ export function CatalogFallbackCard({
   createLabel: string;
   onImport: () => void;
   onCreate: () => void;
+  /** False only for a pretend card inside a how-to picture. */
+  focusable?: boolean;
 }) {
   return (
     <Card className="mx-4 mt-4 gap-2">
@@ -21,10 +24,20 @@ export function CatalogFallbackCard({
       <Text variant="caption" className="text-muted-foreground">
         {body}
       </Text>
-      <Button onPress={onImport} variant="outline" className="mt-1 w-full">
+      <Button
+        onPress={onImport}
+        variant="outline"
+        className="mt-1 w-full"
+        focusable={focusable}
+      >
         {importLabel}
       </Button>
-      <Button onPress={onCreate} variant="ghost" className="w-full">
+      <Button
+        onPress={onCreate}
+        variant="ghost"
+        className="w-full"
+        focusable={focusable}
+      >
         {createLabel}
       </Button>
     </Card>
