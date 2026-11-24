@@ -121,3 +121,13 @@ describe("convention form footers", () => {
     );
   });
 });
+
+it("uses the same localized date summary on both iOS rows", () => {
+  const ios = between(
+    read("src/components/ConventionFormFields.tsx"),
+    'if (process.env.EXPO_OS === "ios")',
+    "dialog: null",
+  );
+  expect(ios).toContain("formatMediumDate(value, locale)");
+  expect(ios).toContain("range={{ start: minimumDate }}");
+});
