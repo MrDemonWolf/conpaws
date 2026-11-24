@@ -95,6 +95,7 @@ struct PlanActionButton: View {
   }
 }
 
+#if DEBUG
 #Preview("Declined · changed on iPhone") {
   ScrollView {
     PlanActionButton(
@@ -119,3 +120,4 @@ struct PlanActionButton: View {
   }
   .environment(\.dynamicTypeSize, .accessibility3)
 }
+#endif
