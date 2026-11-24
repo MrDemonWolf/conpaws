@@ -9,7 +9,8 @@ import Foundation
 /// widen the shared table every Watch change edits. TapResultStringsTests
 /// holds every language to the full set and to the wrist's width. Where a
 /// language names the convention or the schedule elsewhere in the app, these
-/// use the same word.
+/// use the same word, and they address the wearer as the phone app does in
+/// that language (formal in French, Ukrainian and Russian).
 struct ConPawsTapResultStrings: Sendable {
   let language: ConPawsLanguage
   /// The phone changed the panel after the tap.
@@ -117,7 +118,7 @@ extension ConPawsTapResultStrings {
   private static let ptBR = ConPawsTapResultStrings(
     language: .ptBR,
     changedOnIphone: "Sem alterações: editado no iPhone",
-    cancelled: "Não adicionado: cancelado pelo evento",
+    cancelled: "Não adicionado: cancelado pela convenção",
     offSchedule: "Sem alterações: saiu da programação",
     addOnIphone: "Não adicionado: adicione no iPhone",
     tooOld: "Sem alterações: passou mais de um dia",
@@ -137,7 +138,7 @@ extension ConPawsTapResultStrings {
   private static let ja = ConPawsTapResultStrings(
     language: .ja,
     changedOnIphone: "変更なし：iPhoneで編集済み",
-    cancelled: "追加できません：コンベンションが中止しました",
+    cancelled: "追加できません：コンベンション側で中止されました",
     offSchedule: "変更なし：スケジュールにありません",
     addOnIphone: "追加できません：iPhoneで追加してください",
     tooOld: "変更なし：1日以上前の操作です",
@@ -147,7 +148,7 @@ extension ConPawsTapResultStrings {
   private static let zhTW = ConPawsTapResultStrings(
     language: .zhTW,
     changedOnIphone: "未變更：已在 iPhone 上編輯",
-    cancelled: "未加入：展會已取消",
+    cancelled: "未加入：已被展會取消",
     offSchedule: "未變更：已不在行程中",
     addOnIphone: "未加入：請在 iPhone 上加入",
     tooOld: "未變更：已超過一天",
@@ -157,7 +158,7 @@ extension ConPawsTapResultStrings {
   private static let zhCN = ConPawsTapResultStrings(
     language: .zhCN,
     changedOnIphone: "未更改：已在 iPhone 上编辑",
-    cancelled: "未添加：展会已取消",
+    cancelled: "未添加：已被展会取消",
     offSchedule: "未更改：已不在日程中",
     addOnIphone: "未添加：请在 iPhone 上添加",
     tooOld: "未更改：已超过一天",
@@ -167,7 +168,7 @@ extension ConPawsTapResultStrings {
   private static let ko = ConPawsTapResultStrings(
     language: .ko,
     changedOnIphone: "변경 안 됨: iPhone에서 수정됨",
-    cancelled: "추가 안 됨: 컨벤션이 취소함",
+    cancelled: "추가 안 됨: 컨벤션에서 취소됨",
     offSchedule: "변경 안 됨: 일정에서 제외됨",
     addOnIphone: "추가 안 됨: iPhone에서 추가하세요",
     tooOld: "변경 안 됨: 하루가 지남",
@@ -189,9 +190,9 @@ extension ConPawsTapResultStrings {
     changedOnIphone: "Inchangé : modifié sur l'iPhone",
     cancelled: "Non ajouté : annulé par la convention",
     offSchedule: "Inchangé : retiré du programme",
-    addOnIphone: "Non ajouté : ajoute-le sur l'iPhone",
+    addOnIphone: "Non ajouté : ajoutez-le sur l'iPhone",
     tooOld: "Inchangé : plus d'un jour s'est écoulé",
-    failed: "Inchangé : réessaie",
+    failed: "Inchangé : réessayez",
   )
 
   private static let pl = ConPawsTapResultStrings(
@@ -247,7 +248,7 @@ extension ConPawsTapResultStrings {
   private static let da = ConPawsTapResultStrings(
     language: .da,
     changedOnIphone: "Ikke ændret: redigeret på iPhone",
-    cancelled: "Ikke tilføjet: aflyst af stævnet",
+    cancelled: "Ikke tilføjet: aflyst af konventet",
     offSchedule: "Ikke ændret: ikke længere på programmet",
     addOnIphone: "Ikke tilføjet: tilføj på iPhone",
     tooOld: "Ikke ændret: ældre end et døgn",
@@ -257,7 +258,7 @@ extension ConPawsTapResultStrings {
   private static let nb = ConPawsTapResultStrings(
     language: .nb,
     changedOnIphone: "Ikke endret: redigert på iPhone",
-    cancelled: "Ikke lagt til: avlyst av stevnet",
+    cancelled: "Ikke lagt til: avlyst av konventet",
     offSchedule: "Ikke endret: ute av programmet",
     addOnIphone: "Ikke lagt til: legg til på iPhone",
     tooOld: "Ikke endret: eldre enn ett døgn",
@@ -287,7 +288,7 @@ extension ConPawsTapResultStrings {
   private static let hu = ConPawsTapResultStrings(
     language: .hu,
     changedOnIphone: "Nem változott: iPhone-on szerkesztve",
-    cancelled: "Nincs hozzáadva: a rendezvény törölte",
+    cancelled: "Nincs hozzáadva: a con törölte",
     offSchedule: "Nem változott: lekerült a programról",
     addOnIphone: "Nincs hozzáadva: add hozzá iPhone-on",
     tooOld: "Nem változott: egy napnál régebbi",
@@ -299,9 +300,9 @@ extension ConPawsTapResultStrings {
     changedOnIphone: "Без змін: змінено на iPhone",
     cancelled: "Не додано: організатори скасували",
     offSchedule: "Без змін: немає в розкладі",
-    addOnIphone: "Не додано: додай на iPhone",
+    addOnIphone: "Не додано: додайте на iPhone",
     tooOld: "Без змін: минуло понад добу",
-    failed: "Без змін: спробуй ще раз",
+    failed: "Без змін: спробуйте ще раз",
   )
 
   private static let ru = ConPawsTapResultStrings(
@@ -309,8 +310,8 @@ extension ConPawsTapResultStrings {
     changedOnIphone: "Без изменений: изменено на iPhone",
     cancelled: "Не добавлено: организаторы отменили",
     offSchedule: "Без изменений: нет в расписании",
-    addOnIphone: "Не добавлено: добавь на iPhone",
+    addOnIphone: "Не добавлено: добавьте на iPhone",
     tooOld: "Без изменений: прошло больше суток",
-    failed: "Без изменений: попробуй ещё раз",
+    failed: "Без изменений: попробуйте ещё раз",
   )
 }
