@@ -20,6 +20,9 @@ struct TappedReminderSheet: ViewModifier {
   @ObservedObject var store: WatchScheduleStore
   @Environment(\.scenePhase) private var scenePhase
   @State private var screen: ReminderScreen?
+  /// A tap whose panel the schedule does not hold yet. See
+  /// `ConPawsPendingReminderTap`.
+  @State private var waiting: ConPawsPendingReminderTap?
 
   func body(content: Content) -> some View {
     content
@@ -35,9 +38,11 @@ struct TappedReminderSheet: ViewModifier {
       // view first appears.
       .onChange(of: opener.link, initial: true) {
         guard let link = opener.take() else { return }
-        // A panel the plan no longer holds leaves the app where it was.
-        guard let route = ConPawsReminderNotification.route(for: link, in: store.snapshot) else { return }
-        screen = ReminderScreen(route: route)
+        // A panel the saved schedule does not hold may be in the one the
+        // phone is about to deliver after a cold launch, so it waits briefly
+        // for that, then leaves the app where it was.
+        waiting = ConPawsPendingReminderTap(link: link, tappedAt: .now)
+        resolveWaiting()
       }
       .onChange(of: store.snapshot.generatedAtMs) {
         // Removed on the phone, or from this screen once the phone confirms:
@@ -45,14 +50,33 @@ struct TappedReminderSheet: ViewModifier {
         if let screen, !ConPawsReminderNotification.keeps(screen.route, in: store.snapshot) {
           self.screen = nil
         }
+        resolveWaiting()
       }
       .onChange(of: scenePhase) { _, phase in
         // The reminder's moment has passed once the app leaves the screen.
         // Wrist-down in Always On is `.inactive`, so the countdown stays.
         // Left open, the sheet would also cover the panel a later
         // complication tap opens underneath it.
-        if phase == .background { screen = nil }
+        if phase == .background {
+          screen = nil
+          waiting = nil
+        }
       }
+  }
+
+  /// Opens the waiting tap's panel once the schedule holds it. No timer is
+  /// needed to give up: a schedule arriving after the patience runs out is
+  /// turned away when it arrives.
+  private func resolveWaiting() {
+    switch waiting?.outcome(in: store.snapshot, now: .now) {
+    case .open(let route):
+      screen = ReminderScreen(route: route)
+      waiting = nil
+    case .drop:
+      waiting = nil
+    case .wait, nil:
+      break
+    }
   }
 }
 
