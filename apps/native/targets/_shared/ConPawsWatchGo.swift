@@ -9,9 +9,12 @@ import Foundation
 ///
 /// The window is the complication's leave card's, decided by the same
 /// `ConPawsScheduleResolver.isInReminderWindow` on the same resolved state, so
-/// the face and the app agree to the second about whether it is time to go.
-/// Like the complication, only Up Next counts: a later panel whose longer
-/// reminder has already fired waits until it is Up Next itself.
+/// it opens and closes on the complication's moments to the second. Home
+/// redraws on `TimelineView(.everyMinute)`, so it draws the card on the
+/// minute tick that reaches the opening, and taps the wrist on that tick too:
+/// the card and Double Tap are there when the wrist buzzes. Like the
+/// complication, only Up Next counts: a later panel whose longer reminder has
+/// already fired waits until it is Up Next itself.
 enum WatchGoWindow {
   /// How late after the window opens Home may still tap the wrist.
   ///
@@ -24,7 +27,9 @@ enum WatchGoWindow {
   /// One window's opening, which Home taps the wrist for at most once.
   struct Announcement: Equatable, Sendable {
     let eventID: String
-    let opening: Date
+    /// The minute tick that first draws the Go card: the opening itself when
+    /// it falls on the minute, else up to 59 seconds after it.
+    let tick: Date
   }
 
   /// The panel the Go card is for at `now`: Up Next while its leave window is
@@ -46,16 +51,26 @@ enum WatchGoWindow {
   }
 
   /// The opening Home waits for: Up Next's, whether still to come or already
-  /// passed. A passed one is never on time, so it stays quiet.
+  /// passed, on the tick that draws its card. A passed one is never on time,
+  /// so it stays quiet.
   static func announcement(in state: ConPawsScheduleState) -> Announcement? {
     guard let upcoming = state.nextEvent, let opening = opening(of: upcoming) else { return nil }
-    return Announcement(eventID: upcoming.id, opening: opening)
+    return Announcement(eventID: upcoming.id, tick: firstTick(atOrAfter: opening))
   }
 
-  /// Whether a wake at `now` is the window opening in front of the wearer.
+  /// The first minute tick at or after `date`, where Home's
+  /// `TimelineView(.everyMinute)` draws. The reference date and every current
+  /// time zone offset are whole minutes, so the ticks are whole minutes of
+  /// absolute time.
+  static func firstTick(atOrAfter date: Date) -> Date {
+    let minutes = (date.timeIntervalSinceReferenceDate / 60).rounded(.up)
+    return Date(timeIntervalSinceReferenceDate: minutes * 60)
+  }
+
+  /// Whether a wake at `now` is the Go card appearing in front of the wearer.
   /// A second early still counts, for a clock that settles while Home sleeps.
   static func isOnTime(_ announcement: Announcement, at now: Date) -> Bool {
-    let lateness = now.timeIntervalSince(announcement.opening)
+    let lateness = now.timeIntervalSince(announcement.tick)
     return lateness >= -1 && lateness < announcementTolerance
   }
 }

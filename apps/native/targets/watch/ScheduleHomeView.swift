@@ -6,7 +6,7 @@ struct ScheduleHomeView: View {
   let isUsingSavedSchedule: Bool
   var snapshotDate: Date?
   let strings: ConPawsStrings
-  /// Bumped when Up Next's leave window opens with Home in front, for one
+  /// Bumped on the tick that draws the Go card with Home in front, for one
   /// tap on the wrist.
   @State private var goTaps = 0
   /// The window last tapped for, so coming back to Home seconds after it
@@ -121,13 +121,14 @@ struct ScheduleHomeView: View {
     .sensoryFeedback(.start, trigger: goTaps)
   }
 
-  /// Sleeps until Up Next's leave window opens, then taps the wrist once if
-  /// Home is still in front. Pushing a screen or a new Up Next cancels the
-  /// wait; a wake well after the opening is the app returning or launching
-  /// mid-window and stays quiet. The system plays nothing wrist-down.
+  /// Sleeps until the minute tick that draws Up Next's Go card, then taps the
+  /// wrist once if Home is still in front. Pushing a screen or a new Up Next
+  /// cancels the wait; a wake well after that tick is the app returning or
+  /// launching mid-window and stays quiet. The system plays nothing
+  /// wrist-down.
   private func tapWhenWindowOpens(_ announcement: WatchGoWindow.Announcement?) async {
     guard let announcement else { return }
-    let wait = announcement.opening.timeIntervalSinceNow
+    let wait = announcement.tick.timeIntervalSinceNow
     if wait > 0 {
       // Tight: left to the system, the wake of an hours-long sleep can be
       // coalesced past the seconds `isOnTime` allows.

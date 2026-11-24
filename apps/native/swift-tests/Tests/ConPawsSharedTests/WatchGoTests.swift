@@ -97,12 +97,13 @@ struct WatchGoTests {
 
   // MARK: The haptic
 
-  /// Home waits for Up Next's window to open, wherever that is in the day.
+  /// Home waits for Up Next's window to open, wherever that is in the day. On
+  /// the minute, the tick that draws the Go card is the opening itself.
   @Test func theAnnouncementIsUpNextsOpening() {
     let schedule = WatchScheduleProjection(snapshot: snapshot(dayOne), now: local(20, 9, 10))
     #expect(
       schedule.goAnnouncement
-        == WatchGoWindow.Announcement(eventID: "art-jam", opening: local(20, 9, 50))
+        == WatchGoWindow.Announcement(eventID: "art-jam", tick: local(20, 9, 50))
     )
   }
 
@@ -113,7 +114,7 @@ struct WatchGoTests {
     let schedule = WatchScheduleProjection(snapshot: snapshot(dayOne), now: local(20, 10))
     #expect(schedule.goEvent?.id == "trivia")
     let announcement = try #require(schedule.goAnnouncement)
-    #expect(announcement.opening == local(20, 9, 30))
+    #expect(announcement.tick == local(20, 9, 30))
     #expect(WatchGoWindow.isOnTime(announcement, at: local(20, 10)) == false)
   }
 
@@ -131,6 +132,63 @@ struct WatchGoTests {
     #expect(WatchGoWindow.isOnTime(announcement, at: moment))
   }
 
+  /// Home redraws on the minute, so a panel starting at 10:15:45 shows its Go
+  /// card from 10:11:00, not at the reminder's 10:10:45. The tap waits for
+  /// that tick, so the card and Double Tap are there when the wrist buzzes.
+  @Test func theWristTapLandsOnTheTickThatDrawsTheGoCard() throws {
+    let panel = event("panel", from: local(20, 10, 15, 45), reminderMinutes: 5)
+    let value = snapshot([panel])
+    let announcement = try #require(
+      WatchScheduleProjection(snapshot: value, now: local(20, 10)).goAnnouncement
+    )
+    #expect(announcement.tick == local(20, 10, 11))
+    #expect(isMinuteTick(announcement.tick))
+    #expect(WatchScheduleProjection(snapshot: value, now: announcement.tick).goEvent?.id == "panel")
+    #expect(
+      WatchScheduleProjection(snapshot: value, now: announcement.tick.addingTimeInterval(-60))
+        .goEvent == nil
+    )
+    // On time from the tick itself, not from the reminder's moment.
+    #expect(WatchGoWindow.isOnTime(announcement, at: announcement.tick))
+    #expect(WatchGoWindow.isOnTime(announcement, at: announcement.tick.addingTimeInterval(9)))
+    #expect(
+      WatchGoWindow.isOnTime(announcement, at: announcement.tick.addingTimeInterval(10)) == false
+    )
+  }
+
+  /// Home through the whole day, a minute tick at a time, with every panel
+  /// moved off the whole minute by a few seconds: each opening it waits for
+  /// is a tick that draws that panel's Go card, and the tick before does not.
+  @Test(arguments: [0.0, 1, 30, 59])
+  func everyWristTapLandsOnTheTickThatDrawsItsGoCard(shift: TimeInterval) {
+    let value = snapshot(shifted(dayOne, by: shift))
+    var announced: Set<String> = []
+    var tick = local(19, 18)
+    while tick < local(21, 2) {
+      // What Home sleeps until from this tick: an opening still to come, or
+      // this very tick. A passed one never buzzes.
+      if let announcement = WatchScheduleProjection(snapshot: value, now: tick).goAnnouncement,
+        announcement.tick >= tick
+      {
+        let wake = announcement.tick
+        #expect(isMinuteTick(wake), "\(announcement.eventID) at \(wake)")
+        #expect(
+          WatchScheduleProjection(snapshot: value, now: wake).goEvent?.id == announcement.eventID,
+          "\(announcement.eventID) at \(wake)"
+        )
+        #expect(
+          WatchScheduleProjection(snapshot: value, now: wake.addingTimeInterval(-60)).goEvent?.id
+            != announcement.eventID,
+          "\(announcement.eventID) before \(wake)"
+        )
+        announced.insert(announcement.eventID)
+      }
+      tick = tick.addingTimeInterval(60)
+    }
+    // Trivia's window opens while Art Jam is Up Next, so it never buzzes.
+    #expect(announced == ["eve-meetup", "opening", "art-jam", "on-the-half-minute", "late-show"])
+  }
+
   /// Seconds after the opening. A wake much later than that is an app coming
   /// back from the background or launched mid-window, not a window opening
   /// in front of the wearer, and the iPhone's reminder has had its own tap.
@@ -143,7 +201,7 @@ struct WatchGoTests {
     (60.0, false),
   ])
   func onlyAnOnTimeWakeBuzzes(secondsAfterOpening: TimeInterval, buzzes: Bool) {
-    let announcement = WatchGoWindow.Announcement(eventID: "panel", opening: local(20, 14))
+    let announcement = WatchGoWindow.Announcement(eventID: "panel", tick: local(20, 14))
     #expect(
       WatchGoWindow.isOnTime(
         announcement,
@@ -173,6 +231,31 @@ struct WatchGoTests {
       ),
       event("late-show", from: local(21, 0, 15), until: local(21, 1), reminderMinutes: 45),
     ]
+  }
+
+  /// `events` starting and ending `seconds` later.
+  private func shifted(
+    _ events: [ConPawsEventSnapshot],
+    by seconds: TimeInterval
+  ) -> [ConPawsEventSnapshot] {
+    events.map {
+      ConPawsEventSnapshot(
+        id: $0.id,
+        title: $0.title,
+        startAtMs: $0.startAtMs + seconds * 1_000,
+        endAtMs: $0.endAtMs.map { $0 + seconds * 1_000 },
+        location: $0.location,
+        room: $0.room,
+        reminderMinutes: $0.reminderMinutes,
+        ageRating: $0.ageRating,
+        summary: $0.summary
+      )
+    }
+  }
+
+  /// A moment `TimelineView(.everyMinute)` draws at.
+  private func isMinuteTick(_ date: Date) -> Bool {
+    date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 60) == 0
   }
 
   private func leaveEventID(_ projection: ConPawsComplicationProjection) -> String? {
