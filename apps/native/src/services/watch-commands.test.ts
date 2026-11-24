@@ -644,8 +644,28 @@ describe("the durable queue", () => {
     peekWatchCommands.mockReturnValueOnce([raw]);
     await drainWatchCommands();
     expect(saveEventToPlan).not.toHaveBeenCalled();
-    expect(publishWidgetSnapshot).not.toHaveBeenCalled();
+    // Sent again because the Watch has not seen it handled: say so again.
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
     expect(acknowledgeWatchCommands).toHaveBeenCalledWith([idOf(raw)]);
+  });
+
+  it("republishes for a tap sent again after its snapshot failed, without applying it twice", async () => {
+    row("panel");
+    const raw = command("save", "panel", { sentAtMs: Date.now() });
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    publishWidgetSnapshot.mockRejectedValueOnce(new Error("publish failed"));
+    await drainWatchCommands();
+    expect(saveEventToPlan).toHaveBeenCalledTimes(1);
+    expect(acknowledgeWatchCommands).toHaveBeenCalledWith([idOf(raw)]);
+
+    // The Watch never saw it handled, so it queues the same tap again.
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    await drainWatchCommands();
+
+    expect(saveEventToPlan).toHaveBeenCalledTimes(1);
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(2);
+    expect(acknowledgeWatchCommands).toHaveBeenLastCalledWith([idOf(raw)]);
+    expect(handledWatchCommandIds(Date.now())).toEqual([idOf(raw)]);
   });
 
   it("drops queued entries that do not parse", async () => {

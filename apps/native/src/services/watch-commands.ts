@@ -297,6 +297,8 @@ async function drainOnce(): Promise<void> {
   /** Ids to take off the queue once the snapshot that reflects them is out. */
   const finished = new Set<string>();
   const fresh: WatchCommand[] = [];
+  /** A handled tap sent again: the Watch never saw the snapshot listing it. */
+  let redelivered = false;
   for (const raw of queued) {
     const command = parseWatchCommand(raw);
     if (!command) {
@@ -306,8 +308,10 @@ async function drainOnce(): Promise<void> {
       if (id) finished.add(id);
     } else if (isHandledWatchCommand(command.id)) {
       // Handled by an earlier pass whose acknowledgement did not land, or
-      // delivered twice; its id is already in the published snapshot.
+      // delivered twice. Never applied again, but published again: the
+      // snapshot listing it may have failed or never reached the Watch.
       finished.add(command.id);
+      redelivered = true;
     } else {
       fresh.push(command);
     }
@@ -340,7 +344,7 @@ async function drainOnce(): Promise<void> {
   // Even a batch that changed nothing republishes: the snapshot lists every
   // handled id and its outcome, which is how the Watch learns a tap is done,
   // whether it was applied, was already so or was declined, and why.
-  if (handled.length > 0 || restored > 0) await publish();
+  if (handled.length > 0 || restored > 0 || redelivered) await publish();
   acknowledge([...finished]);
 }
 
