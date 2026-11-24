@@ -6,15 +6,23 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("expo", () => ({ requireOptionalNativeModule: () => null }));
 vi.mock("react-native", () => ({ AppState: { addEventListener: vi.fn() } }));
 vi.mock("@/db/repositories/events", () => ({ getById: vi.fn() }));
+vi.mock("@/db/repositories/conventions", () => ({ getById: vi.fn() }));
+vi.mock("@/lib/reminder-default-storage", () => ({
+  getDefaultReminderMinutes: vi.fn(),
+}));
 vi.mock("./event-schedule", () => ({}));
 vi.mock("./widget-snapshot", () => ({}));
 vi.mock("@/lib/error-reporting", () => ({ reportError: vi.fn() }));
+vi.mock("@react-native-async-storage/async-storage", () => ({
+  default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() },
+}));
 
 const {
   WATCH_COMMAND_EVENT,
   WATCH_COMMAND_MAX_AGE_MS,
   WATCH_COMMAND_MAX_ID_LENGTH,
 } = await import("./watch-commands");
+const { WATCH_COMMAND_OUTCOMES } = await import("./watch-command-receipts");
 
 /**
  * A Watch command crosses three codebases that no compiler checks against
@@ -31,6 +39,9 @@ const module = read(
   "../../modules/conpaws-widgets/ios/ConPawsWidgetsModule.swift",
 );
 const commands = read("./watch-commands.ts");
+const outcomeSource = read(
+  "../../targets/_shared/ConPawsWatchCommandOutcome.swift",
+);
 
 const sharedCommand =
   shared.match(/struct ConPawsWatchCommand[\s\S]*?\n\}/)?.[0] ?? "";
@@ -86,9 +97,47 @@ describe("Watch command contract", () => {
   it("lists handled commands under one key on the phone and the Watch", () => {
     expect(shared).toMatch(/var handledCommandIds: \[String\]\?/);
     expect(read("./watch-snapshot.ts")).toContain(
-      "{ handledCommandIds: [...handledCommandIds] }",
+      "{ handledCommandIds: [...ids] }",
     );
     expect(sharedCommand).toContain("snapshot.handledCommandIds");
+  });
+
+  it("reports each handled command's outcome under one key, in one vocabulary", () => {
+    expect(shared).toMatch(/var commandOutcomes: ConPawsCommandOutcomes\?/);
+    // Carried through the Watch's own re-encode, or the stored copy that the
+    // next launch reads would lose every reason.
+    expect(shared).toMatch(
+      /handledCommandIds: handledCommandIds,\s*commandOutcomes: commandOutcomes\)/,
+    );
+    const snapshot = read("./watch-snapshot.ts");
+    expect(snapshot).toContain("handledCommandIds: [...ids], commandOutcomes:");
+
+    const swiftEnum =
+      outcomeSource.match(
+        /enum ConPawsWatchCommandOutcome: String[^{]*\{([\s\S]*?)\n\}/,
+      )?.[1] ?? "";
+    const swiftOutcomes = [
+      ...swiftEnum.matchAll(/^\s*case (\w+)(?: = "([^"]+)")?\s*$/gm),
+    ].map((match) => match[2] ?? match[1]);
+    expect(swiftOutcomes).toEqual([...WATCH_COMMAND_OUTCOMES]);
+  });
+
+  it("hands the payload to the Watch as JS wrote it, receipts and all", () => {
+    // The pod reads the JSON only to check its schema; the string itself is
+    // what it stores and sends, so a new field needs no change on this side.
+    const publish =
+      module.match(/AsyncFunction\("publishSnapshot"\)[\s\S]*?\n {4}\}/)?.[0] ??
+      "";
+    expect(publish).toContain("defaults.set(json, forKey: key)");
+    expect(publish).toContain("self.watchBridge.publish(json, changed:");
+    // A new receipt is new content, so it also goes as a queued transfer,
+    // which the next snapshot's context cannot overwrite before the Watch
+    // reads it.
+    const content =
+      module.match(/func snapshotContent[\s\S]*?\n {2}\}/)?.[0] ?? "";
+    expect(
+      [...content.matchAll(/removeValue\(forKey: "(\w+)"\)/g)].map((m) => m[1]),
+    ).toEqual(["generatedAtMs"]);
   });
 
   it("starts WatchConnectivity at launch, before React Native", () => {

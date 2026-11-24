@@ -9,9 +9,17 @@ struct EventDetailView: View {
   var planAction: WatchPlanAction?
   /// The panel was just added from this screen; say so once it is confirmed.
   var confirmsSaved = false
+  /// Set when the convention cancelled the panel or stopped listing it: the
+  /// screen marks it and drops everything that treats it as still on.
+  var withdrawnStatus: ConPawsWithdrawnEvent.Status?
 
+  /// Why the last tap here changed nothing, as the phone reported it. Read
+  /// in this body, so Observation redraws only this screen when it changes.
+  private var tapFeedback: WatchTapFeedback { .shared }
+
+  /// Never for a withdrawn panel, which did not happen.
   private var hasEnded: Bool {
-    ConPawsScheduleResolver.effectiveEnd(of: event) <= now
+    withdrawnStatus == nil && ConPawsScheduleResolver.effectiveEnd(of: event) <= now
   }
 
   var body: some View {
@@ -20,6 +28,7 @@ struct EventDetailView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 8) {
         Text(event.title)
+          .strikethrough(withdrawnStatus != nil)
           .font(.headline)
           .fixedSize(horizontal: false, vertical: true)
           .privacySensitive()
@@ -27,7 +36,11 @@ struct EventDetailView: View {
 
         savedConfirmation
 
-        status
+        if let withdrawnStatus {
+          withdrawnMark(withdrawnStatus)
+        } else {
+          status
+        }
 
         if let rating = event.ageRating {
           Text(rating)
@@ -63,8 +76,9 @@ struct EventDetailView: View {
         }
 
         // The Home card's rule: only while it is still to come. Kept after it
-        // fired, it read as a reminder still coming on a running panel.
-        if let reminder = ConPawsFormat.upcomingReminderAt(
+        // fired, it read as a reminder still coming on a running panel. None
+        // for a withdrawn panel, whose notification the phone has cancelled.
+        if withdrawnStatus == nil, let reminder = ConPawsFormat.upcomingReminderAt(
           event, now: now, in: convention, locale: locale, strings: strings
         ) {
           Label {
@@ -91,8 +105,13 @@ struct EventDetailView: View {
         }
 
         if let planAction {
-          PlanActionButton(action: planAction, eventTitle: event.title, strings: strings)
-            .padding(.top, 6)
+          PlanActionButton(
+            action: planAction,
+            eventTitle: event.title,
+            decline: tapFeedback.decline(for: event.id, action: planAction.commandAction, at: now),
+            strings: strings
+          )
+          .padding(.top, 6)
         }
       }
       .font(.callout)
@@ -119,6 +138,19 @@ struct EventDetailView: View {
       .font(.caption.bold())
       .foregroundStyle(Color.accentColor)
     }
+  }
+
+  /// "Cancelled" or "Off the schedule", in the phone's words, in place of the
+  /// running or countdown line: there is nothing to count down to. Not
+  /// `privacySensitive`, like the clock: it does not say which panel.
+  private func withdrawnMark(_ status: ConPawsWithdrawnEvent.Status) -> some View {
+    Label {
+      Text(strings.withdrawnStrings.label(for: status))
+    } icon: {
+      Image(systemName: "xmark.circle.fill")
+        .accessibilityHidden(true)
+    }
+    .font(.caption.bold())
   }
 
   /// Running, about to start, or later today -- in the words the Home cards

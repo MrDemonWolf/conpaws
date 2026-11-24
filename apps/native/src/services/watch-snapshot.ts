@@ -1,5 +1,6 @@
 import type { ConventionEvent } from "@/db/schema";
-import { hasVisit } from "@/lib/drop-in-visit";
+import { conventionDayKey } from "@/lib/convention-time";
+import { hasVisit, plannedEvent } from "@/lib/drop-in-visit";
 import { decodeHtmlEntities } from "@/lib/ical-text";
 import {
   HOUR_MS,
@@ -7,6 +8,10 @@ import {
   isDropInEvent,
   matchesHourSlot,
 } from "@/lib/schedule-browse";
+import {
+  type WatchCommandOutcome,
+  watchCommandOutcomes,
+} from "./watch-command-receipts";
 import type {
   WidgetConventionSnapshot,
   WidgetEventSnapshot,
@@ -15,11 +20,12 @@ import type {
 
 /**
  * What the Watch gets on top of the widget snapshot: a short plain-text
- * description for each event, the unsaved events it may offer to add, and
- * the ids of the Watch commands the phone has finished with.
+ * description for each event, the unsaved events it may offer to add, the
+ * saved events the convention withdrew, and the ids of the Watch commands the
+ * phone has finished with, each with what the phone did with it.
  *
  * iOS only. Android stores the same payload for its boundary timer, which has
- * no use for either, and the phone widgets are published from the original
+ * no use for any of it, and the phone widgets are published from the original
  * snapshot object, which this never touches. Everything added is optional on
  * the Swift side, so the schema version stays 2 and older payloads decode.
  */
@@ -48,12 +54,30 @@ export const WATCH_LONGEST_COUNTED_PANEL_MS = 24 * HOUR_MS;
 
 export type WatchEventSnapshot = WidgetEventSnapshot & { summary?: string };
 
+/** What the convention's feed did: cancelled it, or stopped listing it. */
+export type WatchWithdrawnStatus = NonNullable<ConventionEvent["feedStatus"]>;
+
+/**
+ * A saved panel the convention's feed cancelled or stopped listing, as the
+ * Watch shows it: struck through and labelled, never as a live panel.
+ * Decoded by `ConPawsWithdrawnEvent` in targets/_shared/ConPawsSnapshot.swift.
+ */
+export type WatchWithdrawnSnapshot = WidgetEventSnapshot & {
+  status: WatchWithdrawnStatus;
+};
+
 export type WatchConventionSnapshot = Omit<
   WidgetConventionSnapshot,
   "events"
 > & {
   events: WatchEventSnapshot[];
   options?: WatchEventSnapshot[];
+  /**
+   * A list of its own, not rows in `events`: a Watch build from before it
+   * existed reads every row of `events` as a live panel and would count a
+   * cancelled one as Up Next. Older builds ignore this key.
+   */
+  withdrawn?: WatchWithdrawnSnapshot[];
 };
 
 /** Tags that separate words; every other tag is removed without a space. */
@@ -181,6 +205,69 @@ export function selectWatchOptions(
 }
 
 /**
+ * The saved panels the convention's feed has cancelled or stopped listing,
+ * for the Watch to show struck through rather than drop without a word: on
+ * the day, a panel that vanishes reads as a mis-tap, and its room is still
+ * where the wearer would walk. The phone widget and the Watch's Up Next,
+ * Happening Now and complication keep leaving them out (`eventSnapshot` in
+ * widget-snapshot.ts): they read only `events`.
+ *
+ * Saved as the plan counts it (`plannedEvent`: a drop-in only with a visit,
+ * at the visit's times). No reminder, because the phone cancels a withdrawn
+ * panel's notification, and no description, to stay small. Only what the
+ * Watch can still show: panels yet to end, and those that ended today in the
+ * convention's zone, which its Today list includes. Soonest first, then by
+ * title.
+ */
+export function selectWatchWithdrawn(
+  events: readonly ConventionEvent[],
+  nowMs: number,
+  timeZone: string,
+  toEvent: (event: ConventionEvent) => WidgetEventSnapshot | null,
+): WatchWithdrawnSnapshot[] {
+  const today = conventionDay(nowMs, timeZone);
+  return events
+    .flatMap((source): WatchWithdrawnSnapshot[] => {
+      const status = source.feedStatus;
+      if (status === null) return [];
+      const planned = plannedEvent(source);
+      if (!planned.isInSchedule) return [];
+      const converted = toEvent(planned);
+      if (!converted) return [];
+      const event = { ...converted, reminderMinutes: null };
+      if (
+        hasEnded(event, nowMs) &&
+        conventionDay(event.startAtMs, timeZone) !== today
+      )
+        return [];
+      return [{ ...event, status }];
+    })
+    .sort(
+      (left, right) =>
+        left.startAtMs - right.startAtMs ||
+        left.title.localeCompare(right.title),
+    );
+}
+
+/** The convention-local day of an instant; the UTC day in an unknown zone. */
+function conventionDay(ms: number, timeZone: string): string {
+  try {
+    return conventionDayKey(new Date(ms), timeZone);
+  } catch {
+    return new Date(ms).toISOString().slice(0, 10);
+  }
+}
+
+/** `convention` listing `withdrawn`, or without the key when it is empty. */
+function withWithdrawn(
+  convention: WatchConventionSnapshot,
+  withdrawn: readonly WatchWithdrawnSnapshot[],
+): WatchConventionSnapshot {
+  const { withdrawn: _previous, ...rest } = convention;
+  return withdrawn.length > 0 ? { ...rest, withdrawn: [...withdrawn] } : rest;
+}
+
+/**
  * The starts of the convention-local hours from the one holding `fromMs` up
  * to `toMs`. An unknown zone falls back to UTC hours, which only moves where
  * the shares are cut.
@@ -293,7 +380,11 @@ export interface WatchExtrasOptions {
   /** `process.env.EXPO_OS`; anything but "ios" gets today's payload. */
   os: string | undefined;
   nowMs: number;
-  /** Converts an unsaved row the way saved rows are converted for the widget. */
+  /**
+   * Converts a row the way saved rows are converted for the widget, without
+   * its reminder: for the unsaved options, and for the saved panels the
+   * convention withdrew, whose notification the phone has cancelled.
+   */
   toOption: (event: ConventionEvent) => WidgetEventSnapshot | null;
   /**
    * Watch commands the phone has finished with, whatever the outcome. The
@@ -302,7 +393,36 @@ export interface WatchExtrasOptions {
    * every step of the size guard: it is small and nothing else replaces it.
    */
   handledCommandIds?: readonly string[];
+  /**
+   * What the phone did with each of `handledCommandIds`, so the Watch can say
+   * why a tap changed nothing ("Not changed: edited on iPhone", "Not added:
+   * the convention cancelled it"). Sent beside the ids, never instead of them: a Watch from
+   * before this field reads only the ids. Entries for ids not listed are left
+   * out. Defaults to the receipts in watch-command-receipts.ts, which is
+   * where the ids come from too. Kept at every step of the size guard, like
+   * the ids: at most 50 short entries.
+   */
+  commandOutcomes?: Readonly<Record<string, WatchCommandOutcome>>;
   maxBytes?: number;
+}
+
+/** The handled ids and, for those that have one, their outcomes. */
+function handledReceipts(
+  ids: readonly string[],
+  outcomes: Readonly<Record<string, WatchCommandOutcome>>,
+): {
+  handledCommandIds?: string[];
+  commandOutcomes?: Record<string, WatchCommandOutcome>;
+} {
+  if (ids.length === 0) return {};
+  const listed: Record<string, WatchCommandOutcome> = {};
+  for (const id of ids) {
+    const outcome = Object.hasOwn(outcomes, id) ? outcomes[id] : undefined;
+    if (outcome) listed[id] = outcome;
+  }
+  return Object.keys(listed).length > 0
+    ? { handledCommandIds: [...ids], commandOutcomes: listed }
+    : { handledCommandIds: [...ids] };
 }
 
 /**
@@ -317,15 +437,18 @@ export interface WatchExtrasOptions {
  *
  * A convention past its end gets no options, and descriptions only for its
  * saved panels that have yet to end: the Watch keeps showing one of those
- * until it finishes. Once they have all ended it gets nothing extra.
+ * until it finishes. Once they have all ended it gets nothing extra but the
+ * withdrawn panels from its last day that the Today list can still show.
  *
  * When that is still too large it gives things up in order of how little
  * they are missed, across every convention alike: option descriptions, then
- * descriptions of saved panels that have ended, then the latest-starting
- * options, then every description, including those of a convention past its
- * end. At worst the result is the payload the Watch received before any of
- * this existed, less the conventions it can no longer show, plus the ids of
- * the commands the phone has handled.
+ * descriptions of saved panels that have ended, then the withdrawn panels
+ * that have ended, then the latest-starting options, then every description,
+ * including those of a convention past its end, and last the withdrawn
+ * panels still to come. At worst the result is the payload the Watch
+ * received before any of this existed, less the conventions it can no longer
+ * show, plus the ids of the commands the phone has handled and their
+ * outcomes.
  */
 export function withWatchExtras(
   snapshot: WidgetSnapshot,
@@ -335,15 +458,13 @@ export function withWatchExtras(
     nowMs,
     toOption,
     handledCommandIds = [],
+    commandOutcomes = watchCommandOutcomes(handledCommandIds),
     maxBytes = WATCH_PAYLOAD_MAX_BYTES,
   }: WatchExtrasOptions,
 ): string {
   const base = { ...snapshot, presentation: undefined };
   if (os !== "ios") return JSON.stringify(base);
-  const handled =
-    handledCommandIds.length > 0
-      ? { handledCommandIds: [...handledCommandIds] }
-      : {};
+  const handled = handledReceipts(handledCommandIds, commandOutcomes);
 
   let conventions: WatchConventionSnapshot[] = watchReachableConventions(
     snapshot.conventions,
@@ -353,22 +474,31 @@ export function withWatchExtras(
     const descriptions = new Map(
       source.map((event) => [event.id, event.description]),
     );
+    const withdrawn = selectWatchWithdrawn(
+      source,
+      nowMs,
+      convention.timeZoneIdentifier,
+      toOption,
+    );
     // Past its end a convention offers nothing to add: the Watch lists
     // options only between its start and end. It still shows a saved panel
     // that has yet to end, running past the end or starting after it, until
     // that panel finishes (`watchLastActiveMs`), so those keep their
     // descriptions. Ended ones, which the size guard gives up early on any
     // convention, are left off to save room, so once every panel is over
-    // the convention carries nothing extra.
+    // the convention carries nothing extra but the day's withdrawn panels.
     if (convention.endAtMs <= nowMs) {
-      return {
-        ...convention,
-        events: convention.events.map((event) =>
-          hasEnded(event, nowMs)
-            ? event
-            : withSummary(event, descriptions.get(event.id)),
-        ),
-      };
+      return withWithdrawn(
+        {
+          ...convention,
+          events: convention.events.map((event) =>
+            hasEnded(event, nowMs)
+              ? event
+              : withSummary(event, descriptions.get(event.id)),
+          ),
+        },
+        withdrawn,
+      );
     }
     const events = convention.events.map((event) =>
       withSummary(event, descriptions.get(event.id)),
@@ -381,9 +511,12 @@ export function withWatchExtras(
       const option = toOption(event);
       return option ? [withSummary(option, event.description)] : [];
     });
-    return options.length > 0
-      ? { ...convention, events, options }
-      : { ...convention, events };
+    return withWithdrawn(
+      options.length > 0
+        ? { ...convention, events, options }
+        : { ...convention, events },
+      withdrawn,
+    );
   });
 
   const serialize = () => JSON.stringify({ ...base, ...handled, conventions });
@@ -405,6 +538,19 @@ export function withWatchExtras(
       hasEnded(event, nowMs) ? withoutSummary(event) : event,
     ),
   }));
+  json = serialize();
+  if (overBy() <= 0) return json;
+
+  // A withdrawn panel that is over only strikes a line through what already
+  // happened today; every option is still to come.
+  conventions = conventions.map((convention) =>
+    convention.withdrawn
+      ? withWithdrawn(
+          convention,
+          convention.withdrawn.filter((event) => !hasEnded(event, nowMs)),
+        )
+      : convention,
+  );
   json = serialize();
 
   // Latest start first across every convention: the Watch shows the current
@@ -441,5 +587,12 @@ export function withWatchExtras(
     ...convention,
     events: convention.events.map(withoutSummary),
   }));
+  json = serialize();
+  if (overBy() <= 0) return json;
+
+  // Last, the withdrawn panels still to come: each is one short row, and it
+  // is what keeps the wearer from walking to an empty room. Without them the
+  // Watch drops the panel unmarked, as it did before they were sent.
+  conventions = conventions.map((convention) => withWithdrawn(convention, []));
   return serialize();
 }

@@ -1,9 +1,13 @@
 import * as eventsRepo from "@/db/repositories/events";
 import type { ConventionEvent } from "@/db/schema";
-import { hasVisit } from "@/lib/drop-in-visit";
+import { hasVisit, plannedEvent } from "@/lib/drop-in-visit";
 import { reportError } from "@/lib/error-reporting";
 import { removeDropInVisit } from "./drop-in-visit";
-import { cancelEventReminder, withReminderLock } from "./notifications";
+import {
+  cancelEventReminder,
+  scheduleEventReminder,
+  withReminderLock,
+} from "./notifications";
 import { stopTrackingIfAffected } from "./tracked-event";
 
 /**
@@ -31,9 +35,64 @@ export async function stopTrackingUnsaved(
   }
 }
 
-/** Marks the event saved. No reminder is set; the user picks one later. */
-export async function saveEventToPlan(event: ConventionEvent): Promise<void> {
-  await eventsRepo.update(event.id, { isInSchedule: true });
+export interface SaveEventOptions {
+  /**
+   * A lead time to arm with the save, or null for none. The star passes none:
+   * the user picks one later from a picker that suggests the Settings default.
+   * A Watch tap cannot show that picker, so it passes the default itself.
+   */
+  reminderMinutes?: number | null;
+}
+
+/**
+ * Marks the event saved, with the reminder `reminderMinutes` asks for when it
+ * can fire: notifications are already allowed (this never asks) and the time
+ * is still ahead. Otherwise, or when arming it fails, the event is saved
+ * without one, as the star saves it. A reminder the row already has is the
+ * user's own choice and stays; the reconcile keeps it armed.
+ */
+export async function saveEventToPlan(
+  event: ConventionEvent,
+  { reminderMinutes = null }: SaveEventOptions = {},
+): Promise<void> {
+  if (reminderMinutes === null || event.reminderMinutes !== null) {
+    await eventsRepo.update(event.id, { isInSchedule: true });
+    return;
+  }
+  // One step against the reminder reconcile, which would otherwise cancel the
+  // new request as stale from a read taken before the row recorded it.
+  await withReminderLock(async () => {
+    let armed = false;
+    try {
+      armed =
+        (await scheduleEventReminder(
+          {
+            id: event.id,
+            title: event.title,
+            startTime: plannedEvent(event).startTime,
+            room: event.room ?? event.location,
+            conventionId: event.conventionId,
+          },
+          reminderMinutes,
+          { requestPermission: false },
+        )) !== null;
+    } catch (error) {
+      reportError(error, { scope: "eventSchedule.defaultReminder" });
+    }
+    try {
+      // Recorded only once the OS holds it, so the row never shows a reminder
+      // that will not arrive.
+      await eventsRepo.update(
+        event.id,
+        armed
+          ? { isInSchedule: true, reminderMinutes }
+          : { isInSchedule: true },
+      );
+    } catch (error) {
+      if (armed) await cancelEventReminder(event.id);
+      throw error;
+    }
+  });
 }
 
 /**

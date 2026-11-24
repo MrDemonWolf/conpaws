@@ -6,8 +6,22 @@ struct ScheduleHomeView: View {
   let isUsingSavedSchedule: Bool
   var snapshotDate: Date?
   let strings: ConPawsStrings
+  /// Bumped on the tick that draws the Go card with Home in front, for one
+  /// tap on the wrist.
+  @State private var goTaps = 0
+  /// The window last tapped for, so coming back to Home seconds after it
+  /// opened does not tap again.
+  @State private var announcedGo: WatchGoWindow.Announcement?
+  /// Home is the screen on top: the only time Double Tap opens the Go card.
+  @State private var isOnTop = false
 
   var body: some View {
+    let goEvent = schedule.goEvent
+    let goAnnouncement = schedule.goAnnouncement
+    // Withdrawn panels included, so a day whose saved panels were all
+    // cancelled still reaches Today, where they show struck through.
+    let todayCount = schedule.todayRows.count
+
     ScrollView {
       LazyVStack(alignment: .leading, spacing: WatchMetrics.cardSpacing) {
         if let convention = schedule.convention {
@@ -17,6 +31,12 @@ struct ScheduleHomeView: View {
           // at the very bottom, under the Today row, as two overlapping lines.
           if case .finished = schedule.state {
             FinishedStatusView(convention: convention, now: schedule.now, strings: strings)
+          }
+
+          // Time to go: Up Next moves above the running panel, as the Go
+          // card, for as long as the complication shows its leave countdown.
+          if let goEvent {
+            goCard(goEvent, in: convention)
           }
 
           if let current = schedule.activeEvent {
@@ -36,7 +56,7 @@ struct ScheduleHomeView: View {
             }
           }
 
-          if let next = schedule.nextEvent {
+          if let next = schedule.nextEvent, goEvent == nil {
             nextHero(next, in: convention)
           }
 
@@ -66,9 +86,11 @@ struct ScheduleHomeView: View {
 
           // Hidden on a day with no picks rather than offering "Today 0" and
           // an empty screen behind it.
-          if !schedule.todayEvents.isEmpty {
-            TodayLinkRow(count: schedule.todayEvents.count, strings: strings)
+          if todayCount > 0 {
+            TodayLinkRow(count: todayCount, strings: strings)
           }
+
+          WithdrawnNoticeRow(schedule: schedule, strings: strings)
 
           OtherOptionsSection(
             convention: convention,
@@ -87,7 +109,7 @@ struct ScheduleHomeView: View {
     }
     .navigationTitle(strings.scheduleTitle)
     .toolbar {
-      if !schedule.todayEvents.isEmpty {
+      if todayCount > 0 {
         ToolbarItem(placement: .topBarTrailing) {
           NavigationLink(value: WatchRoute.today) {
             Label(strings.today, systemImage: "list.bullet")
@@ -95,6 +117,36 @@ struct ScheduleHomeView: View {
         }
       }
     }
+    .onAppear { isOnTop = true }
+    .onDisappear { isOnTop = false }
+    // One id per window opening, so the minute tick never restarts the wait.
+    .task(id: goAnnouncement) {
+      await tapWhenWindowOpens(goAnnouncement)
+    }
+    .sensoryFeedback(.start, trigger: goTaps)
+  }
+
+  /// Sleeps until the minute tick that draws Up Next's Go card, then taps the
+  /// wrist once if Home is still in front. Pushing a screen or a new Up Next
+  /// cancels the wait; a wake well after that tick is the app returning or
+  /// launching mid-window and stays quiet. The system plays nothing
+  /// wrist-down.
+  private func tapWhenWindowOpens(_ announcement: WatchGoWindow.Announcement?) async {
+    guard let announcement else { return }
+    let wait = announcement.tick.timeIntervalSinceNow
+    if wait > 0 {
+      // Tight: left to the system, the wake of an hours-long sleep can be
+      // coalesced past the seconds `isOnTime` allows.
+      guard
+        (try? await Task.sleep(for: .seconds(wait), tolerance: .seconds(1))) != nil
+      else { return }
+    }
+    // Read after the sleep, where it is current.
+    guard announcement != announcedGo, WatchGoWindow.isOnTime(announcement, at: .now) else {
+      return
+    }
+    announcedGo = announcement
+    goTaps += 1
   }
 
   private func header(_ convention: ConPawsConventionSnapshot) -> some View {
@@ -115,6 +167,34 @@ struct ScheduleHomeView: View {
       }
     }
     .padding(.horizontal, WatchMetrics.cardInset)
+  }
+
+  private func goCard(
+    _ next: ConPawsEventSnapshot,
+    in convention: ConPawsConventionSnapshot
+  ) -> some View {
+    // The Up Next card's rule. Every reminder the app offers is an hour or
+    // less, so this is a timer; a longer lead from elsewhere reads the
+    // ladder under UP NEXT rather than "STARTS IN In 2 hours".
+    let showsTimer = ConPawsCountdown.showsLiveTimer(
+      from: schedule.now,
+      to: next.startDate,
+      within: ConPawsCountdown.eventTimerWindow
+    )
+    return GoCard(
+      eyebrow: showsTimer ? strings.startsInCaps : strings.upNextCaps,
+      event: next,
+      conventionID: convention.id,
+      opensOnDoubleTap: isOnTop
+    ) {
+      AdaptiveCountdownView(
+        target: next.startDate,
+        now: schedule.now,
+        timeZone: convention.timeZone,
+        showsTimer: showsTimer,
+        strings: strings
+      )
+    }
   }
 
   private func nextHero(

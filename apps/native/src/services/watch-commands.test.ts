@@ -3,13 +3,27 @@ import type { ConventionEvent } from "@/db/schema";
 
 const rows = new Map<string, ConventionEvent>();
 const getById = vi.fn(async (id: string) => rows.get(id));
-const saveEventToPlan = vi.fn(async (event: ConventionEvent) => {
-  rows.set(event.id, {
-    ...event,
-    isInSchedule: true,
-    updatedAt: new Date(clock).toISOString(),
-  });
-});
+const saveEventToPlan = vi.fn(
+  async (
+    event: ConventionEvent,
+    options: { reminderMinutes?: number | null } = {},
+  ) => {
+    rows.set(event.id, {
+      ...event,
+      isInSchedule: true,
+      reminderMinutes: options.reminderMinutes ?? event.reminderMinutes,
+      updatedAt: new Date(clock).toISOString(),
+    });
+  },
+);
+const getDefaultReminderMinutes = vi.fn(
+  async (): Promise<number | null> => null,
+);
+const archivedConventionIds = new Set<string>();
+const getConventionById = vi.fn(async (id: string) => ({
+  id,
+  archivedAt: archivedConventionIds.has(id) ? "2026-09-01T00:00:00.000Z" : null,
+}));
 const removeEventFromPlan = vi.fn(async (event: ConventionEvent) => {
   rows.set(event.id, {
     ...event,
@@ -26,6 +40,16 @@ const listeners = new Map<string, () => void>();
 const removeListener = vi.fn();
 const appStateListeners: Array<(state: string) => void> = [];
 const removeAppState = vi.fn();
+const storedItems = new Map<string, string>();
+const asyncStorage = {
+  getItem: vi.fn(async (key: string) => storedItems.get(key) ?? null),
+  setItem: vi.fn(async (key: string, value: string) => {
+    storedItems.set(key, value);
+  }),
+  removeItem: vi.fn(async (key: string) => {
+    storedItems.delete(key);
+  }),
+};
 
 vi.mock("expo", () => ({
   requireOptionalNativeModule: () => ({
@@ -46,9 +70,18 @@ vi.mock("react-native", () => ({
   },
 }));
 vi.mock("@/db/repositories/events", () => ({ getById }));
+vi.mock("@/db/repositories/conventions", () => ({
+  getById: getConventionById,
+}));
+vi.mock("@/lib/reminder-default-storage", () => ({
+  getDefaultReminderMinutes,
+}));
 vi.mock("./event-schedule", () => ({ saveEventToPlan, removeEventFromPlan }));
 vi.mock("./widget-snapshot", () => ({ publishWidgetSnapshot }));
 vi.mock("@/lib/error-reporting", () => ({ reportError }));
+vi.mock("@react-native-async-storage/async-storage", () => ({
+  default: asyncStorage,
+}));
 
 const {
   applyWatchCommands,
@@ -64,7 +97,10 @@ const {
   recordHandledWatchCommands,
   resetHandledWatchCommands,
   WATCH_HANDLED_COMMANDS_LIMIT,
+  watchCommandOutcomes,
 } = await import("./watch-command-receipts");
+const { resetStoredWatchCommandReceipts, WATCH_COMMAND_RECEIPTS_KEY } =
+  await import("./watch-command-receipt-storage");
 
 const NOW = Date.parse("2026-09-04T15:00:00Z");
 let clock = NOW;
@@ -123,7 +159,11 @@ beforeEach(() => {
   clock = NOW;
   vi.clearAllMocks();
   resetHandledWatchCommands();
+  resetStoredWatchCommandReceipts();
+  storedItems.clear();
   peekWatchCommands.mockReset().mockReturnValue([]);
+  getDefaultReminderMinutes.mockReset().mockResolvedValue(null);
+  archivedConventionIds.clear();
 });
 
 afterEach(() => {
@@ -178,12 +218,72 @@ describe("rowUpdatedAtMs", () => {
 });
 
 describe("applyWatchCommands", () => {
-  it("saves an unsaved panel without a reminder", async () => {
+  it("saves an unsaved panel without a reminder when Settings has no default", async () => {
     const event = row("panel");
     const result = await applyWatchCommands([command("save", "panel")], NOW);
-    expect(saveEventToPlan).toHaveBeenCalledWith(event);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
     expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
     expect(result.changedConventionIds).toEqual(["con-1"]);
+  });
+
+  // The star leaves the reminder to the picker, which suggests the Settings
+  // default. A wrist tap cannot show that picker, so it gets the default.
+  it("gives a panel saved from the wrist the Settings default reminder", async () => {
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    const event = row("panel");
+    await applyWatchCommands([command("save", "panel")], NOW);
+    expect(getDefaultReminderMinutes).toHaveBeenCalled();
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: 15,
+    });
+  });
+
+  it("gives an archived convention's panel no reminder", async () => {
+    // Archive keeps reminders off until the convention comes back.
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    archivedConventionIds.add("con-1");
+    const event = row("panel");
+    await applyWatchCommands([command("save", "panel")], NOW);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
+  });
+
+  it("still saves, without a reminder, when the default cannot be read", async () => {
+    getDefaultReminderMinutes.mockRejectedValue(new Error("storage"));
+    const event = row("panel");
+    const result = await applyWatchCommands([command("save", "panel")], NOW);
+    expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
+  });
+
+  it("still saves, without a reminder, when the convention cannot be read", async () => {
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    getConventionById.mockRejectedValueOnce(new Error("database is locked"));
+    const event = row("panel");
+    const result = await applyWatchCommands([command("save", "panel")], NOW);
+    expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
+    expect(saveEventToPlan).toHaveBeenCalledWith(event, {
+      reminderMinutes: null,
+    });
+    expect(reportError).toHaveBeenCalledWith(expect.any(Error), {
+      scope: "watchCommands.defaultReminder",
+    });
+  });
+
+  it("reads no default for a remove or a declined save", async () => {
+    getDefaultReminderMinutes.mockResolvedValue(15);
+    row("saved", { isInSchedule: true });
+    row("cancelled", { feedStatus: "cancelled" });
+    await applyWatchCommands(
+      [command("remove", "saved"), command("save", "cancelled")],
+      NOW,
+    );
+    expect(getDefaultReminderMinutes).not.toHaveBeenCalled();
   });
 
   it("removes a saved panel the way the phone's star does", async () => {
@@ -315,12 +415,41 @@ describe("applyWatchCommands", () => {
       ],
       NOW,
     );
+    // The Watch says which: a drop-in needs the phone, a withdrawn panel
+    // is the convention's doing.
     expect(result.outcomes.map((entry) => entry.outcome)).toEqual([
       "not-allowed",
-      "not-allowed",
-      "not-allowed",
+      "cancelled",
+      "removed",
     ]);
     expect(saveEventToPlan).not.toHaveBeenCalled();
+  });
+
+  it("blames the convention, not the phone, for a withdrawal after the tap", async () => {
+    // The feed refresh that marks a panel cancelled also stamps the row, so
+    // the phone-wins rule alone would call this "changed on iPhone".
+    row("cancelled", {
+      feedStatus: "cancelled",
+      updatedAt: new Date(NOW - 30_000).toISOString(),
+    });
+    const result = await applyWatchCommands(
+      [command("save", "cancelled", { sentAtMs: NOW - 60_000 })],
+      NOW,
+    );
+    expect(result.outcomes.map((entry) => entry.outcome)).toEqual([
+      "cancelled",
+    ]);
+    expect(saveEventToPlan).not.toHaveBeenCalled();
+  });
+
+  it("still removes a saved panel the convention withdrew", async () => {
+    row("withdrawn", { isInSchedule: true, feedStatus: "removed" });
+    const result = await applyWatchCommands(
+      [command("remove", "withdrawn")],
+      NOW,
+    );
+    expect(result.outcomes.map((entry) => entry.outcome)).toEqual(["applied"]);
+    expect(removeEventFromPlan).toHaveBeenCalledTimes(1);
   });
 
   it("applies in the order the Watch sent, not the order received", async () => {
@@ -508,12 +637,35 @@ describe("the durable queue", () => {
   it("acknowledges again, without applying, a command an earlier pass handled", async () => {
     row("panel");
     const raw = command("save", "panel", { sentAtMs: Date.now() });
-    recordHandledWatchCommands([idOf(raw)], Date.now());
+    recordHandledWatchCommands(
+      [{ id: idOf(raw), outcome: "applied" }],
+      Date.now(),
+    );
     peekWatchCommands.mockReturnValueOnce([raw]);
     await drainWatchCommands();
     expect(saveEventToPlan).not.toHaveBeenCalled();
-    expect(publishWidgetSnapshot).not.toHaveBeenCalled();
+    // Sent again because the Watch has not seen it handled: say so again.
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
     expect(acknowledgeWatchCommands).toHaveBeenCalledWith([idOf(raw)]);
+  });
+
+  it("republishes for a tap sent again after its snapshot failed, without applying it twice", async () => {
+    row("panel");
+    const raw = command("save", "panel", { sentAtMs: Date.now() });
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    publishWidgetSnapshot.mockRejectedValueOnce(new Error("publish failed"));
+    await drainWatchCommands();
+    expect(saveEventToPlan).toHaveBeenCalledTimes(1);
+    expect(acknowledgeWatchCommands).toHaveBeenCalledWith([idOf(raw)]);
+
+    // The Watch never saw it handled, so it queues the same tap again.
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    await drainWatchCommands();
+
+    expect(saveEventToPlan).toHaveBeenCalledTimes(1);
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(2);
+    expect(acknowledgeWatchCommands).toHaveBeenLastCalledWith([idOf(raw)]);
+    expect(handledWatchCommandIds(Date.now())).toEqual([idOf(raw)]);
   });
 
   it("drops queued entries that do not parse", async () => {
@@ -527,18 +679,114 @@ describe("the durable queue", () => {
   });
 
   it("remembers a day of handled ids, newest last, and at most the queue's cap", () => {
-    recordHandledWatchCommands(["old"], NOW - WATCH_COMMAND_MAX_AGE_MS - 1);
-    recordHandledWatchCommands(["kept"], NOW - 60_000);
+    const receipt = (id: string) => ({ id, outcome: "applied" as const });
+    recordHandledWatchCommands(
+      [receipt("old")],
+      NOW - WATCH_COMMAND_MAX_AGE_MS - 1,
+    );
+    recordHandledWatchCommands([receipt("kept")], NOW - 60_000);
     expect(handledWatchCommandIds(NOW)).toEqual(["kept"]);
 
     const many = Array.from(
       { length: WATCH_HANDLED_COMMANDS_LIMIT + 5 },
       (_, index) => `cmd-many-${index}`,
     );
-    recordHandledWatchCommands(many, NOW);
+    recordHandledWatchCommands(many.map(receipt), NOW);
     const ids = handledWatchCommandIds(NOW);
     expect(ids).toHaveLength(WATCH_HANDLED_COMMANDS_LIMIT);
     expect(ids.at(-1)).toBe(many.at(-1));
     expect(ids).not.toContain("kept");
+  });
+
+  it("records what happened to each handled command", async () => {
+    row("dealers", {
+      startTime: new Date(Date.now() - 60 * 60_000).toISOString(),
+      endTime: new Date(Date.now() + 7 * 60 * 60_000).toISOString(),
+    });
+    row("panel");
+    const declined = command("save", "dealers", { sentAtMs: Date.now() });
+    const applied = command("save", "panel", { sentAtMs: Date.now() });
+    peekWatchCommands.mockReturnValueOnce([declined, applied]);
+    await drainWatchCommands();
+
+    expect(watchCommandOutcomes([idOf(declined), idOf(applied)])).toEqual({
+      [idOf(declined)]: "not-allowed",
+      [idOf(applied)]: "applied",
+    });
+  });
+
+  it("stores the receipts before publishing the snapshot that lists them", async () => {
+    row("panel");
+    const raw = command("save", "panel", { sentAtMs: Date.now() });
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    await drainWatchCommands();
+
+    const stored = JSON.parse(
+      storedItems.get(WATCH_COMMAND_RECEIPTS_KEY) ?? "[]",
+    );
+    expect(stored).toEqual([
+      { id: idOf(raw), outcome: "applied", handledAtMs: expect.any(Number) },
+    ]);
+    expect(asyncStorage.setItem.mock.invocationCallOrder[0]).toBeLessThan(
+      publishWidgetSnapshot.mock.invocationCallOrder[0] ?? 0,
+    );
+  });
+
+  it("lists a declined tap again after the phone app restarts", async () => {
+    // The snapshot that carried the receipt may never have reached the
+    // Watch: a newer one replaces it before the Watch is back in range.
+    row("cancelled", { feedStatus: "cancelled" });
+    const raw = command("save", "cancelled", { sentAtMs: Date.now() });
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    await drainWatchCommands();
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(1);
+
+    // A new process: nothing in memory, the queue already acknowledged.
+    resetHandledWatchCommands();
+    resetStoredWatchCommandReceipts();
+    await drainWatchCommands();
+
+    expect(handledWatchCommandIds(Date.now())).toEqual([idOf(raw)]);
+    expect(watchCommandOutcomes([idOf(raw)])).toEqual({
+      [idOf(raw)]: "cancelled",
+    });
+    // Republished once for the restored receipt, and not on every drain.
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(2);
+    await drainWatchCommands();
+    expect(publishWidgetSnapshot).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not apply again a tap a previous process handled", async () => {
+    // Delivered twice, the second copy after a restart.
+    row("panel");
+    const raw = command("save", "panel", { sentAtMs: Date.now() });
+    storedItems.set(
+      WATCH_COMMAND_RECEIPTS_KEY,
+      JSON.stringify([
+        { id: idOf(raw), outcome: "superseded", handledAtMs: Date.now() },
+      ]),
+    );
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    await drainWatchCommands();
+
+    expect(saveEventToPlan).not.toHaveBeenCalled();
+    expect(acknowledgeWatchCommands).toHaveBeenCalledWith([idOf(raw)]);
+    expect(watchCommandOutcomes([idOf(raw)])).toEqual({
+      [idOf(raw)]: "superseded",
+    });
+  });
+
+  it("still applies taps when the stored receipts cannot be read", async () => {
+    row("panel");
+    storedItems.set(WATCH_COMMAND_RECEIPTS_KEY, "{");
+    const raw = command("save", "panel", { sentAtMs: Date.now() });
+    peekWatchCommands.mockReturnValueOnce([raw]);
+    await drainWatchCommands();
+
+    expect(rows.get("panel")?.isInSchedule).toBe(true);
+    expect(reportError).toHaveBeenCalledWith(expect.any(SyntaxError), {
+      scope: "watchCommands.restoreReceipts",
+    });
+    expect(acknowledgeWatchCommands).toHaveBeenCalledWith([idOf(raw)]);
   });
 });

@@ -15,6 +15,10 @@ const native = vi.hoisted(() => {
     tick,
     pending: new Set<string>(),
     row: null as ConventionEvent | null,
+    permission: "granted",
+    permissionRequests: 0,
+    /** While set, the OS's list of pending requests waits for it. */
+    scheduledListGate: null as Promise<void> | null,
   };
 });
 
@@ -25,13 +29,17 @@ vi.mock("expo-notifications", () => ({
   },
   getAllScheduledNotificationsAsync: async () => {
     await native.tick();
+    if (native.scheduledListGate) await native.scheduledListGate;
     return [...native.pending].map((identifier) => ({ identifier }));
   },
   getPermissionsAsync: async () => {
     await native.tick();
+    return { status: native.permission, canAskAgain: true };
+  },
+  requestPermissionsAsync: async () => {
+    native.permissionRequests += 1;
     return { status: "granted" };
   },
-  requestPermissionsAsync: async () => ({ status: "granted" }),
   scheduleNotificationAsync: async ({ identifier }: { identifier: string }) => {
     await native.tick();
     native.pending.add(identifier);
@@ -78,7 +86,9 @@ vi.mock("./tracked-event", () => ({
 }));
 vi.mock("@/lib/error-reporting", () => ({ reportError: () => undefined }));
 
-const { removeEventFromPlan } = await import("./event-schedule");
+const { removeEventFromPlan, saveEventToPlan } = await import(
+  "./event-schedule"
+);
 const { reconcileEventReminders } = await import("./notifications");
 
 const MINUTE = 60_000;
@@ -124,6 +134,9 @@ function dropInVisitRow(): ConventionEvent {
 beforeEach(() => {
   native.pending.clear();
   native.row = null;
+  native.permission = "granted";
+  native.permissionRequests = 0;
+  native.scheduledListGate = null;
 });
 
 describe.each([
@@ -164,5 +177,98 @@ describe.each([
       reminderMinutes: null,
     });
     expect(native.pending.has("reminder-event-1")).toBe(false);
+  });
+});
+
+describe("a Watch save with the default reminder", () => {
+  /** An unsaved panel an hour away, as a Watch tap finds it. */
+  function unsavedRow(overrides: Partial<ConventionEvent> = {}) {
+    return savedRow({
+      isInSchedule: false,
+      reminderMinutes: null,
+      ...overrides,
+    });
+  }
+
+  it("arms the reminder and records it when notifications are allowed", async () => {
+    native.row = unsavedRow();
+    await saveEventToPlan({ ...native.row }, { reminderMinutes: 15 });
+    expect(native.row).toMatchObject({
+      isInSchedule: true,
+      reminderMinutes: 15,
+    });
+    expect(native.pending.has("reminder-event-1")).toBe(true);
+    expect(native.permissionRequests).toBe(0);
+  });
+
+  it.each(["undetermined", "denied"])(
+    "saves without a reminder, and never asks, when permission is %s",
+    async (permission) => {
+      native.permission = permission;
+      native.row = unsavedRow();
+      await saveEventToPlan({ ...native.row }, { reminderMinutes: 15 });
+      expect(native.row).toMatchObject({
+        isInSchedule: true,
+        reminderMinutes: null,
+      });
+      expect(native.pending.size).toBe(0);
+      expect(native.permissionRequests).toBe(0);
+    },
+  );
+
+  it("saves without a reminder when its time has already passed", async () => {
+    // Starts in ten minutes, so a reminder 15 minutes before is gone.
+    native.row = unsavedRow({
+      startTime: new Date(Date.now() + 10 * MINUTE).toISOString(),
+    });
+    await saveEventToPlan({ ...native.row }, { reminderMinutes: 15 });
+    expect(native.row).toMatchObject({
+      isInSchedule: true,
+      reminderMinutes: null,
+    });
+    expect(native.pending.size).toBe(0);
+  });
+
+  /**
+   * The reconcile's list of OS requests comes back late, as over a busy
+   * bridge: it read the rows before the save recorded its reminder, so
+   * unlocked it would find the new request in that list and cancel it as
+   * stale, leaving a row that promises a reminder the OS no longer holds.
+   */
+  async function raceTheReconcile(order: "reconcile first" | "save first") {
+    native.row = unsavedRow();
+    const event = { ...native.row };
+    let release: () => void = () => undefined;
+    native.scheduledListGate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const save = () => saveEventToPlan(event, { reminderMinutes: 15 });
+    // Array elements start left to right, so this is the order they begin.
+    const running =
+      order === "reconcile first"
+        ? [reconcileEventReminders(), save()]
+        : [save(), reconcileEventReminders()];
+    // Room for every native step of the save to land if nothing holds it.
+    for (let step = 0; step < 10; step += 1) await native.tick();
+    release();
+    await Promise.all(running);
+  }
+
+  it("keeps the reminder armed when the reconcile started first", async () => {
+    await raceTheReconcile("reconcile first");
+    expect(native.row).toMatchObject({
+      isInSchedule: true,
+      reminderMinutes: 15,
+    });
+    expect(native.pending.has("reminder-event-1")).toBe(true);
+  });
+
+  it("keeps the reminder armed when the save started first", async () => {
+    await raceTheReconcile("save first");
+    expect(native.row).toMatchObject({
+      isInSchedule: true,
+      reminderMinutes: 15,
+    });
+    expect(native.pending.has("reminder-event-1")).toBe(true);
   });
 });

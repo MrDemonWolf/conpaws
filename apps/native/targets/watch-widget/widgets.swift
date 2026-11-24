@@ -2,12 +2,13 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-private struct ConPawsWatchEntry: TimelineEntry {
+struct ConPawsWatchEntry: TimelineEntry {
   let date: Date
   let snapshot: ConPawsSnapshot
-  /// Raises this card in the Smart Stack around the moments it matters —
-  /// saved-panel starts, reminder or not. Without a relevance
-  /// the stack never surfaces the complication on its own.
+  /// Half an hour either side of a saved panel's start, reminder or not.
+  /// On watchOS 10 these scores are the Smart Stack's only clue; watchOS 11
+  /// and later also gather the provider's `relevance()` clues, and Apple's
+  /// guide asks for both.
   var relevance: TimelineEntryRelevance?
 
   /// The app's language, not the watch's. The snapshot carries it precisely so
@@ -81,11 +82,12 @@ private struct ConPawsWatchProvider: TimelineProvider {
     completion: @escaping (Timeline<ConPawsWatchEntry>) -> Void
   ) {
     let snapshot = ConPawsSnapshotStore.load()
+    let now = Date.now
     // An entry for every moment the card reads differently, planned in
     // targets/_shared so swift-tests covers it. Around a saved panel's start
-    // the card is at its most useful; the score makes the Smart Stack rotate
-    // it up.
-    let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: .now).map { planned in
+    // the card is at its most useful; on watchOS 10 the score is what makes
+    // the Smart Stack rotate it up.
+    let entries = ConPawsComplicationTimeline.plan(snapshot: snapshot, now: now).map { planned in
       ConPawsWatchEntry(
         date: planned.date,
         snapshot: snapshot,
@@ -94,15 +96,56 @@ private struct ConPawsWatchProvider: TimelineProvider {
         }
       )
     }
+    // A new snapshot reloads this timeline, so here is where changed clues
+    // are noticed. watchOS 10 has no clues to change.
+    if #available(watchOS 11.0, *) {
+      ConPawsWatchRelevance.refreshIfChanged(snapshot: snapshot, now: now)
+    }
     completion(Timeline(entries: entries, policy: .atEnd))
+  }
+
+  /// When the Smart Stack should raise the card on watchOS 11 and later,
+  /// which gather relevance clues through this callback: around each saved
+  /// panel's start and on the convention's first morning.
+  @available(watchOS 11.0, *)
+  func relevance() async -> WidgetRelevance<Void> {
+    ConPawsWatchRelevance.current()
   }
 }
 
 private struct ConPawsWatchEntryView: View {
+  @Environment(\.widgetFamily) private var family
   let entry: ConPawsWatchEntry
 
   var body: some View {
     let schedule = ConPawsComplicationProjection(snapshot: entry.snapshot, now: entry.date)
+    Group {
+      switch family {
+      case .accessoryCircular:
+        CircularComplicationView(projection: schedule, strings: entry.strings, staleNotice: entry.staleNotice)
+      case .accessoryCorner:
+        CornerComplicationView(projection: schedule, strings: entry.strings, staleNotice: entry.staleNotice)
+      case .accessoryInline:
+        InlineComplicationView(projection: schedule, strings: entry.strings, staleNotice: entry.staleNotice)
+      default:
+        RectangularWidgetView(schedule: schedule, entry: entry)
+      }
+    }
+    // A tap opens the panel this card names, not whatever screen the Watch
+    // app was last left on, from every family.
+    .widgetURL(schedule.link.url)
+    .environment(\.locale, entry.snapshot.locale)
+    .environment(\.staleNotice, entry.staleNotice)
+  }
+}
+
+/// The rectangular card, the Smart Stack's and the larger faces' slot: an
+/// eyebrow and two lines for each state.
+private struct RectangularWidgetView: View {
+  let schedule: ConPawsComplicationProjection
+  let entry: ConPawsWatchEntry
+
+  var body: some View {
     Group {
       switch schedule.state {
       case let .comingUp(convention):
@@ -141,11 +184,6 @@ private struct ConPawsWatchEntryView: View {
     // overflowing card clipped its eyebrow, which is the line carrying the
     // countdown.
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    // A tap opens the panel this card names, not whatever screen the Watch
-    // app was last left on.
-    .widgetURL(schedule.link.url)
-    .environment(\.locale, entry.snapshot.locale)
-    .environment(\.staleNotice, entry.staleNotice)
   }
 }
 
@@ -153,13 +191,6 @@ private extension EnvironmentValues {
   /// The complication's stale sentence, or nil while the data is fresh. The
   /// eyebrow draws a symbol for it and each state appends it to its label.
   @Entry var staleNotice: String? = nil
-}
-
-/// A state's VoiceOver summary with the stale sentence after it.
-private func spokenSummary(_ summary: String, stale: String?) -> String {
-  guard let stale else { return summary }
-  let endsSentence = summary.last.map { ".。!?！？".contains($0) } ?? true
-  return endsSentence ? "\(summary) \(stale)" : "\(summary). \(stale)"
 }
 
 /// Mark + one line of context: the complication's shared first line, matching
@@ -262,7 +293,7 @@ private struct ComingUpWidgetView: View {
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
-      spokenSummary(
+      ConPawsComplicationSpeech.withStale(
         ConPawsComplicationSpeech.comingUp(convention, now: now, strings: strings),
         stale: staleNotice
       )
@@ -296,7 +327,7 @@ private struct LeaveWidgetView: View {
       WidgetDetailLine(time: nextTime, place: next.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+    .accessibilityLabel(ConPawsComplicationSpeech.withStale(accessibilitySummary, stale: staleNotice))
   }
 
   private var lead: ConPawsCountdown.LeaveLead {
@@ -323,7 +354,7 @@ private struct LeaveWidgetView: View {
     // children, so `privacySensitive` on them never reaches VoiceOver. Speak
     // only what stays drawn, the lead and the clock time.
     if redactionReasons.contains(.privacy) {
-      return "\(lead.text), \(nextTime)."
+      return ConPawsComplicationSpeech.leaveRedacted(lead: lead, startTime: nextTime)
     }
     return ConPawsComplicationSpeech.leave(
       current: current,
@@ -358,7 +389,7 @@ private struct NextWidgetView: View {
       WidgetDetailLine(time: startTime, place: event.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+    .accessibilityLabel(ConPawsComplicationSpeech.withStale(accessibilitySummary, stale: staleNotice))
   }
 
   private var startTime: String {
@@ -372,16 +403,15 @@ private struct NextWidgetView: View {
   }
 
   private var accessibilitySummary: String {
-    let reminder = ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings)
-      .map { ". \($0)" } ?? ""
     // Redacted: no titles or rooms, as on screen (see LeaveWidgetView).
-    if redactionReasons.contains(.privacy) {
-      return "\(strings.upNextCaps), \(startTime)\(reminder)."
-    }
-    let next = strings.text(strings.nextEventA11yFormat, event.title, startTime)
-    let currentText = current.map { "\(strings.happeningNowCaps), \($0.title). " } ?? ""
-    let place = event.place.map { ", \($0)" } ?? ""
-    return "\(currentText)\(next)\(place)\(reminder)."
+    ConPawsComplicationSpeech.next(
+      current: current,
+      event: event,
+      startTime: startTime,
+      reminder: ConPawsFormat.reminderAt(event, in: convention, locale: locale, strings: strings),
+      redacted: redactionReasons.contains(.privacy),
+      strings: strings
+    )
   }
 }
 
@@ -405,7 +435,7 @@ private struct CurrentWidgetView: View {
       WidgetDetailLine(time: timeRange, place: event.shortPlace)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary(accessibilitySummary, stale: staleNotice))
+    .accessibilityLabel(ConPawsComplicationSpeech.withStale(accessibilitySummary, stale: staleNotice))
   }
 
   private var timeRange: String {
@@ -414,11 +444,12 @@ private struct CurrentWidgetView: View {
 
   private var accessibilitySummary: String {
     // Redacted: no title or room, as on screen (see LeaveWidgetView).
-    if redactionReasons.contains(.privacy) {
-      return "\(strings.happeningNowCaps), \(timeRange). \(strings.noLaterSavedEventsShort)."
-    }
-    let place = event.place.map { ", \($0)" } ?? ""
-    return "\(strings.happeningNowCaps), \(event.title), \(timeRange)\(place). \(strings.noLaterSavedEventsShort)."
+    ConPawsComplicationSpeech.current(
+      event,
+      timeRange: timeRange,
+      redacted: redactionReasons.contains(.privacy),
+      strings: strings
+    )
   }
 }
 
@@ -439,7 +470,12 @@ private struct StatusWidgetView: View {
         .lineLimit(2)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(spokenSummary("\(title), \(detail)", stale: staleNotice))
+    .accessibilityLabel(
+      ConPawsComplicationSpeech.withStale(
+        ConPawsComplicationSpeech.status(.init(title: title, detail: detail)),
+        stale: staleNotice
+      )
+    )
   }
 }
 
@@ -477,6 +513,9 @@ struct ConPawsWatchWidget: Widget {
     // String overloads, which show them as given.
     .configurationDisplayName(Self.galleryStrings.complicationName)
     .description(Self.galleryStrings.complicationDescription)
-    .supportedFamilies([.accessoryRectangular])
+    // Every face's slot: the rectangular card, and a slice of it sized for
+    // the circles of Infograph and Modular Compact, the corners of Infograph
+    // and Wayfinder, and the inline line above the time or along the dial.
+    .supportedFamilies([.accessoryRectangular, .accessoryCircular, .accessoryCorner, .accessoryInline])
   }
 }

@@ -237,9 +237,22 @@ enum ConPawsComplicationTimeline {
       cursor = next
     }
     dates.insert(end)
+    // watchOS 10 reads only these entries' scores, so each stretch of the
+    // convention's first morning starts an entry that raises the card, as
+    // the `relevance()` clues do on later releases.
+    let mornings = ConPawsComplicationRelevance.plan(snapshot: snapshot)
+      .filter { $0.kind == .conventionStart }
+      .map(\.interval)
+    for morning in mornings where morning.start > now && morning.start < end {
+      dates.insert(morning.start)
+    }
 
     return dates.filter { $0 <= end }.sorted().prefix(limit).map { date in
-      Entry(date: date, relevantUntil: relevantUntil(snapshot: snapshot, at: date))
+      let morningUntil = mornings.first { $0.start <= date && date < $0.end }?.end
+      return Entry(
+        date: date,
+        relevantUntil: [relevantUntil(snapshot: snapshot, at: date), morningUntil].compactMap(\.self).max()
+      )
     }
   }
 
@@ -250,7 +263,8 @@ enum ConPawsComplicationTimeline {
   /// The convention's own start does not count. The phone sends it from the
   /// date alone, as midnight in the convention's zone, so it raised the card
   /// from 23:30 to 00:30 the night before day one to show a countdown
-  /// turning over, and not at all on the way to the venue.
+  /// turning over, and not at all on the way to the venue. `plan` raises the
+  /// first morning instead (see `ConPawsComplicationRelevance`).
   static func relevantUntil(snapshot: ConPawsSnapshot, at date: Date) -> Date? {
     guard
       let convention = ConPawsComplicationProjection(snapshot: snapshot, now: date).convention

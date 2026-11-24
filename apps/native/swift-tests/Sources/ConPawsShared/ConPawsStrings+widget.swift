@@ -1,0 +1,1 @@
+../../../targets/_shared/ConPawsStrings+widget.swift

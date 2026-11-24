@@ -80,6 +80,69 @@ enum ConPawsCountdown {
     }
   }
 
+  /// The same ladder as a number and the compact format it reads in ("3"
+  /// with "%@d"), for the faces too small for words: a circle stacks the
+  /// number over its unit, a corner writes them in one curved line.
+  ///
+  /// The final hour is "<1" hour, not minutes: nothing redraws it in that
+  /// hour, the same rule `label` follows with "Starting soon". `today` and
+  /// `tomorrow` are both a day: both are at least 24 hours out, and `today`
+  /// arises only when a lengthened DST day keeps that on one calendar date.
+  /// Nil once the wait is over, where no face shows a count.
+  static func compactParts(
+    from: Date,
+    to: Date,
+    timeZone: TimeZone,
+    strings: ConPawsStrings
+  ) -> (value: String, format: String)? {
+    switch remaining(from: from, to: to, timeZone: timeZone) {
+    case .now: nil
+    case .soon: ("<1", strings.compactHoursFormat)
+    case .hours(let hours): (String(hours), strings.compactHoursFormat)
+    case .today, .tomorrow: ("1", strings.compactDaysFormat)
+    case .days(let days): (String(days), strings.compactDaysFormat)
+    case .months(let months): (String(months), strings.compactMonthsFormat)
+    }
+  }
+
+  /// The leave countdown as a number and its compact format: whole minutes
+  /// in the final hour, which the timeline redraws every minute, and whole
+  /// hours above it, where it redraws hourly.
+  static func leaveParts(from: Date, to: Date, strings: ConPawsStrings) -> (value: String, format: String) {
+    if let minutes = leaveMinutes(from: from, to: to) {
+      return (String(minutes), strings.compactMinutesFormat)
+    }
+    return (String(Int(to.timeIntervalSince(from) / 3_600)), strings.compactHoursFormat)
+  }
+
+  /// The stretch before a convention that a countdown ring is scaled to.
+  ///
+  /// The final week rather than the whole wait: a ring that barely moves for
+  /// two months reads as broken, and the week before is the stretch worth
+  /// glancing at. Further out the ring is empty and the number carries it.
+  static let ringWindow: TimeInterval = 7 * 86_400
+
+  /// How full a convention countdown's ring is, from 0 a week out to 1 at
+  /// the start. It redraws only at the entries `changePoints` places, daily
+  /// beyond a day and hourly inside one, so it steps rather than sweeps, the
+  /// way the number beside it does.
+  static func ringProgress(from: Date, to: Date) -> Double {
+    fill(remaining: to.timeIntervalSince(from), window: ringWindow)
+  }
+
+  /// How full the leave window's ring is, from 0 when the reminder fires to
+  /// 1 at the start. The window is minutes wide and the timeline redraws it
+  /// every minute (`leaveChangePoints`), so it moves visibly.
+  static func leaveProgress(from: Date, to: Date, windowMinutes: Int) -> Double {
+    fill(remaining: to.timeIntervalSince(from), window: TimeInterval(max(1, windowMinutes) * 60))
+  }
+
+  private static func fill(remaining: TimeInterval, window: TimeInterval) -> Double {
+    if remaining <= 0 { return 1 }
+    if remaining >= window { return 0 }
+    return 1 - remaining / window
+  }
+
   /// The leave window's countdown, "Starts in 18 min": whole minutes inside
   /// the final hour, the shared ladder above it.
   ///

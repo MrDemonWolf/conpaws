@@ -24,6 +24,9 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// `ConPawsPendingCommands`.
   @Published private(set) var pendingCommands: [String: PendingWatchCommand] = [:]
 
+  /// What became of settled taps, for the plan buttons and the haptics.
+  private var tapFeedback: WatchTapFeedback { .shared }
+
   /// The complication's stale rule for the plan's screens, so the app and
   /// the face flag the same moment. The countdown screen reads the slower
   /// `isCountdownStale`, as the complication's countdown does.
@@ -39,7 +42,8 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   private override init() {
     super.init()
     pendingCommands = ConPawsPendingCommands.load()
-    settlePendingCommands(against: snapshot, now: Date())
+    // Kept for the buttons, but no buzz: nothing on screen asked yet.
+    settlePendingCommands(against: snapshot, now: Date(), tellsWearer: false)
     guard WCSession.isSupported() else { return }
     WCSession.default.delegate = self
     WCSession.default.activate()
@@ -86,7 +90,8 @@ final class WatchScheduleStore: NSObject, ObservableObject {
 
   /// Asks the phone to save or remove an event. The UI shows it as waiting
   /// until a snapshot from the phone shows the change, which is the only
-  /// confirmation there is: the phone may also decline it.
+  /// confirmation there is: the phone may also decline it, and the snapshot
+  /// then says why.
   func send(
     _ action: ConPawsWatchCommand.Action,
     event: ConPawsEventSnapshot,
@@ -94,6 +99,7 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   ) {
     let command = ConPawsWatchCommand(action: action, eventID: event.id, conventionID: convention.id)
     guard command.isValid else { return }
+    tapFeedback.forget(event.id)
     updatePendingCommands(ConPawsPendingCommands.adding(command, to: pendingCommands))
     deliver(command)
   }
@@ -155,15 +161,29 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   }
 
   /// Drops what `snapshot` shows as done or lists as handled, and what the
-  /// phone would now ignore as too old.
-  private func settlePendingCommands(against snapshot: ConPawsSnapshot, now: Date) {
-    updatePendingCommands(ConPawsPendingCommands.settled(pendingCommands, by: snapshot, at: now))
+  /// phone would now ignore as too old, and records what became of each.
+  /// Recorded first, so a button that stops waiting already has its reason.
+  private func settlePendingCommands(
+    against snapshot: ConPawsSnapshot,
+    now: Date,
+    tellsWearer: Bool = true
+  ) {
+    let settlement = ConPawsPendingCommands.settling(pendingCommands, by: snapshot, at: now)
+    tapFeedback.record(
+      settlement.results, of: pendingCommands, at: now, strings: snapshot.strings, tellsWearer: tellsWearer
+    )
+    updatePendingCommands(settlement.pending)
   }
 
-  /// Drops what a snapshot too old to show lists as handled; see
-  /// `ConPawsPendingCommands.settled(_:byReceiptsIn:)`.
-  private func settlePendingCommands(byReceiptsIn snapshot: ConPawsSnapshot) {
-    updatePendingCommands(ConPawsPendingCommands.settled(pendingCommands, byReceiptsIn: snapshot))
+  /// Drops what a snapshot too old to show lists as handled, judging each
+  /// against the schedule on screen; see
+  /// `ConPawsPendingCommands.settling(_:byReceiptsIn:shown:)`.
+  private func settlePendingCommands(byReceiptsIn receipts: ConPawsSnapshot) {
+    let settlement = ConPawsPendingCommands.settling(pendingCommands, byReceiptsIn: receipts, shown: snapshot)
+    tapFeedback.record(
+      settlement.results, of: pendingCommands, at: Date(), strings: snapshot.strings, tellsWearer: true
+    )
+    updatePendingCommands(settlement.pending)
   }
 
   /// Publishes and stores `updated`, unless nothing changed.
@@ -234,6 +254,12 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     DispatchQueue.main.async { [weak self] in
       self?.snapshot = candidate
       WidgetCenter.shared.reloadTimelines(ofKind: ConPawsWidgetKind.watchComplication)
+      // The timeline refreshes the Smart Stack's clues only when it runs,
+      // which a complication on no face never does; asking here re-reads
+      // them for the stack either way.
+      if #available(watchOS 11.0, *) {
+        WidgetCenter.shared.invalidateRelevance(ofKind: ConPawsWidgetKind.watchComplication)
+      }
       self?.settlePendingCommands(against: candidate, now: Date())
     }
   }

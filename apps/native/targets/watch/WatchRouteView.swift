@@ -25,6 +25,8 @@ struct WatchRouteView: View {
             strings: snapshot.strings,
             planAction: planAction(.remove, found.event, found.convention, now: context.date)
           )
+        } else if let found = snapshot.withdrawnEvent(id: eventID, in: conventionID) {
+          withdrawnDetail(found.withdrawn, in: found.convention, snapshot: snapshot, now: context.date)
         }
       case .option(let conventionID, let eventID):
         if let found = snapshot.event(id: eventID, in: conventionID) {
@@ -45,9 +47,32 @@ struct WatchRouteView: View {
             strings: snapshot.strings,
             planAction: planAction(.add, found.event, found.convention, now: context.date)
           )
+        } else if let found = snapshot.withdrawnEvent(id: eventID, in: conventionID) {
+          // Added from here, then withdrawn by the convention.
+          withdrawnDetail(found.withdrawn, in: found.convention, snapshot: snapshot, now: context.date)
         }
       }
     }
+  }
+
+  /// A saved panel the convention withdrew: marked, and offering only to
+  /// remove it, never to add it.
+  private func withdrawnDetail(
+    _ withdrawn: ConPawsWithdrawnEvent,
+    in convention: ConPawsConventionSnapshot,
+    snapshot: ConPawsSnapshot,
+    now: Date
+  ) -> some View {
+    EventDetailView(
+      event: withdrawn.event,
+      convention: convention,
+      now: now,
+      strings: snapshot.strings,
+      planAction: planAction(.remove, withdrawn.event, convention, now: now),
+      // The stored snapshot holds only rows with a known status; any
+      // withdrawal is at least off the schedule.
+      withdrawnStatus: withdrawn.status ?? .removed
+    )
   }
 
   private func planAction(

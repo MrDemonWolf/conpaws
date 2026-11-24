@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ConventionEvent } from "@/db/schema";
 import {
+  recordHandledWatchCommands,
+  resetHandledWatchCommands,
+  type WatchCommandOutcome,
+} from "./watch-command-receipts";
+import {
   plainTextSummary,
   selectWatchOptions,
   utf8ByteLength,
@@ -431,6 +436,51 @@ describe("withWatchExtras", () => {
     ).not.toHaveProperty("handledCommandIds");
   });
 
+  it("says what the phone did with each handled command, on iOS only", () => {
+    const snapshot = savedSnapshot(rows);
+    const events = new Map([["con-1", rows]]);
+    const sent = (
+      os: string,
+      commandOutcomes?: Record<string, WatchCommandOutcome>,
+    ) =>
+      JSON.parse(
+        withWatchExtras(snapshot, events, {
+          os,
+          nowMs: NOW,
+          toOption,
+          handledCommandIds: ["cmd-1", "cmd-2"],
+          commandOutcomes,
+        }),
+      );
+    // Only for the ids it lists: an outcome without its id settles nothing.
+    expect(
+      sent("ios", {
+        "cmd-1": "superseded",
+        "cmd-2": "applied",
+        "cmd-3": "failed",
+      }).commandOutcomes,
+    ).toEqual({ "cmd-1": "superseded", "cmd-2": "applied" });
+    expect(sent("ios", {})).not.toHaveProperty("commandOutcomes");
+    expect(sent("android", { "cmd-1": "failed" })).not.toHaveProperty(
+      "commandOutcomes",
+    );
+  });
+
+  it("reads the outcomes from the phone's receipts by default", () => {
+    resetHandledWatchCommands();
+    recordHandledWatchCommands([{ id: "cmd-9", outcome: "cancelled" }], NOW);
+    const json = JSON.parse(
+      withWatchExtras(savedSnapshot(rows), new Map([["con-1", rows]]), {
+        os: "ios",
+        nowMs: NOW,
+        toOption,
+        handledCommandIds: ["cmd-9"],
+      }),
+    );
+    resetHandledWatchCommands();
+    expect(json.commandOutcomes).toEqual({ "cmd-9": "cancelled" });
+  });
+
   describe("a convention past its end", () => {
     /** The same convention, ended half an hour ago. */
     const over = (saved: readonly ConventionEvent[]): WidgetSnapshot => {
@@ -753,7 +803,7 @@ describe("withWatchExtras", () => {
       expect(sent(1_000)).toBe(sent(undefined, "android"));
     });
 
-    it("keeps the handled command ids however much else goes", () => {
+    it("keeps the handled command ids and outcomes however much else goes", () => {
       const json = withWatchExtras(
         savedSnapshot(large),
         new Map([["con-1", large]]),
@@ -762,10 +812,14 @@ describe("withWatchExtras", () => {
           nowMs: NOW,
           toOption,
           handledCommandIds: ["cmd-1"],
+          commandOutcomes: { "cmd-1": "not-allowed" },
           maxBytes: 1_000,
         },
       );
       expect(JSON.parse(json).handledCommandIds).toEqual(["cmd-1"]);
+      expect(JSON.parse(json).commandOutcomes).toEqual({
+        "cmd-1": "not-allowed",
+      });
     });
 
     it("measures non-ASCII text by the bytes the phone sends", () => {
@@ -821,6 +875,257 @@ describe("withWatchExtras", () => {
         { os: "android", nowMs: NOW, toOption },
       );
       expect(build(1_000)).toBe(plain);
+    });
+  });
+});
+
+/**
+ * Saved panels the convention's feed cancelled or stopped listing. The phone
+ * widget and the Watch's live lists leave them out; the Watch gets them in a
+ * list of their own so it can show them struck through instead of dropping
+ * them without a word.
+ */
+describe("withWatchExtras withdrawn panels", () => {
+  // NOW is 10:20 in Chicago, so the convention's day began 620 minutes ago.
+  const rows = [
+    row("live", 30, { isInSchedule: true }),
+    row("cancelled", 60, {
+      isInSchedule: true,
+      feedStatus: "cancelled",
+      reminderMinutes: 15,
+      description: "<p>Not happening.</p>",
+    }),
+    row("removed", 120, { isInSchedule: true, feedStatus: "removed" }),
+    row("running", -20, { isInSchedule: true, feedStatus: "cancelled" }),
+    row("over-today", -300, { isInSchedule: true, feedStatus: "cancelled" }),
+    // 22:40-23:40 yesterday, convention time.
+    row("over-yesterday", -700, {
+      isInSchedule: true,
+      feedStatus: "cancelled",
+    }),
+    // 23:30 yesterday to 01:00 today: Today lists panels by their start.
+    row("past-midnight", -650, {
+      isInSchedule: true,
+      feedStatus: "removed",
+      durationMinutes: 90,
+    }),
+    row("not-saved", 45, { feedStatus: "cancelled" }),
+    row("drop-in-visit", -120, {
+      isInSchedule: true,
+      feedStatus: "cancelled",
+      durationMinutes: 8 * 60,
+      visitStartTime: new Date(NOW + 90 * MINUTE).toISOString(),
+      visitEndTime: new Date(NOW + 120 * MINUTE).toISOString(),
+    }),
+    row("drop-in-without-visit", -120, {
+      isInSchedule: true,
+      feedStatus: "cancelled",
+      durationMinutes: 8 * 60,
+    }),
+  ];
+  /** The phone widget's snapshot: `eventSnapshot` drops marked rows. */
+  const live = savedSnapshot(rows.filter((event) => event.feedStatus === null));
+  /** Keeps whatever reminder the row holds, to show the payload drops it. */
+  const keepingReminder = (event: ConventionEvent) => {
+    const converted = toOption(event);
+    return (
+      converted && { ...converted, reminderMinutes: event.reminderMinutes }
+    );
+  };
+  const send = (os = "ios") =>
+    withWatchExtras(live, new Map([["con-1", rows]]), {
+      os,
+      nowMs: NOW,
+      toOption: keepingReminder,
+    });
+
+  it("sends them marked, in a list of their own", () => {
+    const [convention] = parse(send()).conventions;
+    expect(convention?.events.map((event) => event.id)).toEqual(["live"]);
+    expect(
+      convention?.withdrawn?.map((event) => [event.id, event.status]),
+    ).toEqual([
+      ["over-today", "cancelled"],
+      ["running", "cancelled"],
+      ["cancelled", "cancelled"],
+      ["drop-in-visit", "cancelled"],
+      ["removed", "removed"],
+    ]);
+  });
+
+  it("carries the planned times, no reminder and no description", () => {
+    const withdrawn = parse(send()).conventions[0]?.withdrawn ?? [];
+    expect(withdrawn.find((event) => event.id === "drop-in-visit")).toEqual(
+      expect.objectContaining({
+        startAtMs: NOW + 90 * MINUTE,
+        endAtMs: NOW + 120 * MINUTE,
+      }),
+    );
+    const cancelled = withdrawn.find((event) => event.id === "cancelled");
+    expect(cancelled?.reminderMinutes).toBeNull();
+    expect(cancelled).not.toHaveProperty("summary");
+    expect(cancelled).toEqual(
+      expect.objectContaining({ title: "cancelled", room: "Hall A" }),
+    );
+  });
+
+  it("leaves Android's payload and the phone widget's snapshot alone", () => {
+    const before = JSON.stringify(live);
+    send();
+    expect(JSON.stringify(live)).toBe(before);
+    expect(send("android")).toBe(
+      JSON.stringify({ ...live, presentation: undefined }),
+    );
+  });
+
+  it("leaves the list off a convention with nothing withdrawn", () => {
+    const saved = [row("saved", 30, { isInSchedule: true })];
+    const [convention] = parse(
+      withWatchExtras(savedSnapshot(saved), new Map([["con-1", saved]]), {
+        os: "ios",
+        nowMs: NOW,
+        toOption,
+      }),
+    ).conventions;
+    expect(convention).not.toHaveProperty("withdrawn");
+  });
+
+  it("still sends what the Watch can show for a convention past its end", () => {
+    const over = {
+      ...live,
+      conventions: live.conventions.map((convention) => ({
+        ...convention,
+        endAtMs: NOW - 30 * MINUTE,
+      })),
+    };
+    const [convention] = parse(
+      withWatchExtras(over, new Map([["con-1", rows]]), {
+        os: "ios",
+        nowMs: NOW,
+        toOption,
+      }),
+    ).conventions;
+    expect(convention?.withdrawn?.map((event) => event.id)).toEqual([
+      "over-today",
+      "running",
+      "cancelled",
+      "drop-in-visit",
+      "removed",
+    ]);
+    expect(convention).not.toHaveProperty("options");
+  });
+
+  describe("size guard", () => {
+    const long = (label: string) => `${label} ${"description ".repeat(40)}`;
+    const large = [
+      ...Array.from({ length: 120 }, (_, index) =>
+        row(`saved-${index}`, (index - 40) * 45, {
+          isInSchedule: true,
+          title: `Saved panel number ${index} with a long title`,
+          description: long(`saved ${index}`),
+        }),
+      ),
+      ...Array.from({ length: 30 }, (_, index) =>
+        row(`option-${String(index).padStart(2, "0")}`, index * 10, {
+          title: `Option panel number ${index} with a long title`,
+          description: long(`option ${index}`),
+        }),
+      ),
+      // Ten over earlier today, ten still to come.
+      ...Array.from({ length: 20 }, (_, index) =>
+        row(`withdrawn-${String(index).padStart(2, "0")}`, (index - 11) * 30, {
+          isInSchedule: true,
+          feedStatus: index % 2 === 0 ? "cancelled" : "removed",
+          title: `Withdrawn panel number ${index} with a long title`,
+          description: long(`withdrawn ${index}`),
+        }),
+      ),
+    ];
+    const snapshot = savedSnapshot(
+      large.filter((event) => event.feedStatus === null),
+    );
+    const build = (maxBytes?: number) =>
+      withWatchExtras(snapshot, new Map([["con-1", large]]), {
+        os: "ios",
+        nowMs: NOW,
+        toOption,
+        maxBytes,
+      });
+    const unbounded = parse(build(Number.POSITIVE_INFINITY));
+    const ended = (event: WidgetEventSnapshot) =>
+      (event.endAtMs ?? event.startAtMs + HOUR) <= NOW;
+    const upcomingIds = (unbounded.conventions[0]?.withdrawn ?? [])
+      .filter((event) => !ended(event))
+      .map((event) => event.id);
+
+    /** The payload once option summaries and ended panels' summaries go. */
+    const afterEndedSummaries = (() => {
+      const payload = parse(build(Number.POSITIVE_INFINITY));
+      for (const convention of payload.conventions) {
+        for (const option of convention.options ?? []) delete option.summary;
+        for (const event of convention.events)
+          if (ended(event)) delete event.summary;
+      }
+      return utf8ByteLength(JSON.stringify(payload));
+    })();
+
+    it("sends both kinds when there is room", () => {
+      const withdrawn = unbounded.conventions[0]?.withdrawn ?? [];
+      expect(withdrawn).toHaveLength(20);
+      expect(upcomingIds).toHaveLength(10);
+    });
+
+    it("gives up the ones that are over after ended panels' summaries", () => {
+      const kept = parse(build(afterEndedSummaries)).conventions[0];
+      expect(kept?.withdrawn).toHaveLength(20);
+
+      const trimmed = parse(build(afterEndedSummaries - 1)).conventions[0];
+      expect(trimmed?.withdrawn?.map((event) => event.id)).toEqual(upcomingIds);
+      // Before any option.
+      expect(trimmed?.options).toHaveLength(WATCH_OPTIONS_LIMIT);
+    });
+
+    it("keeps the ones still to come through every option and description", () => {
+      const fitted = build();
+      expect(utf8ByteLength(fitted)).toBeLessThanOrEqual(
+        WATCH_PAYLOAD_MAX_BYTES,
+      );
+      const [convention] = parse(fitted).conventions;
+      expect(convention?.withdrawn?.map((event) => event.id)).toEqual(
+        upcomingIds,
+      );
+      expect(convention?.options?.length ?? 0).toBeLessThan(
+        WATCH_OPTIONS_LIMIT,
+      );
+
+      // Every option and description gone, and still too large: only then.
+      const bare = parse(build(Number.POSITIVE_INFINITY));
+      for (const convention of bare.conventions) {
+        delete convention.options;
+        for (const event of convention.events) delete event.summary;
+        convention.withdrawn = convention.withdrawn?.filter(
+          (event) => !ended(event),
+        );
+      }
+      const lastStep = utf8ByteLength(JSON.stringify(bare));
+      expect(
+        parse(build(lastStep)).conventions[0]?.withdrawn?.map(
+          (event) => event.id,
+        ),
+      ).toEqual(upcomingIds);
+      expect(parse(build(lastStep - 1)).conventions[0]).not.toHaveProperty(
+        "withdrawn",
+      );
+    });
+
+    it("falls back to the plain snapshot when nothing else fits", () => {
+      expect(build(1_000)).toBe(
+        withWatchExtras(snapshot, new Map([["con-1", large]]), {
+          os: "android",
+          nowMs: NOW,
+          toOption,
+        }),
+      );
     });
   });
 });
