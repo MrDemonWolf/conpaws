@@ -254,6 +254,12 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     DispatchQueue.main.async { [weak self] in
       self?.snapshot = candidate
       WidgetCenter.shared.reloadTimelines(ofKind: ConPawsWidgetKind.watchComplication)
+      // The timeline refreshes the Smart Stack's clues only when it runs,
+      // which a complication on no face never does; asking here re-reads
+      // them for the stack either way.
+      if #available(watchOS 11.0, *) {
+        WidgetCenter.shared.invalidateRelevance(ofKind: ConPawsWidgetKind.watchComplication)
+      }
       self?.settlePendingCommands(against: candidate, now: Date())
     }
   }
