@@ -44,7 +44,8 @@ final class WatchTapFeedback {
   /// and only while the app is in front, also plays one haptic for the lot,
   /// failure if any tap was declined and success if they all landed, and
   /// has VoiceOver read one decline's reason: the screen that showed the
-  /// button may already be gone, closed by the same snapshot.
+  /// button may already be gone, closed by the same snapshot. A day-old tap
+  /// stays quiet (see `ConPawsWatchTapLog.haptic(for:)`).
   ///
   /// The haptic does nothing in the background or wrist-down anyway; the
   /// check also keeps a spoken line from arriving long after the tap, when

@@ -124,16 +124,22 @@ enum ConPawsWatchTapLog {
   /// One haptic for everything a snapshot settled: failure if any tap was
   /// declined, since that is the one the wearer must act on, success if
   /// they all landed, and none for nothing.
+  ///
+  /// A tap more than a day old counts for neither. The wearer has long
+  /// stopped waiting on it, so a buzz hours later would say nothing; its
+  /// reason still shows under the button.
   static func haptic(for results: some Collection<ConPawsWatchTapResult>) -> Haptic? {
-    if results.contains(where: { $0 != .landed }) { return .failure }
-    return results.isEmpty ? nil : .success
+    let current = results.filter { $0 != .declined(.tooOld) }
+    if current.contains(where: { $0 != .landed }) { return .failure }
+    return current.isEmpty ? nil : .success
   }
 
   /// The decline VoiceOver announces for a snapshot's results: one, the
   /// first by event id so the choice is stable, or nil when none declined.
+  /// Never a day-old tap, for the reason `haptic(for:)` gives.
   static func announcedDecline(in results: [String: ConPawsWatchTapResult]) -> ConPawsWatchTapDecline? {
     results.sorted { $0.key < $1.key }.lazy.compactMap { _, result in
-      if case .declined(let decline) = result { decline } else { nil }
+      if case .declined(let decline) = result, decline != .tooOld { decline } else { nil }
     }.first
   }
 }

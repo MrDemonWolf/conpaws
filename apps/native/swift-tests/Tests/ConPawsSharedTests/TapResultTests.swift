@@ -170,6 +170,10 @@ struct TapResultTests {
     ([.landed, .landed], .success),
     ([.declined(.cancelled)], .failure),
     ([.landed, .declined(.unknown)], .failure),
+    // A day-old tap is no longer one the wearer is waiting on: its reason
+    // shows under the button, but a buzz hours later would say nothing.
+    ([.declined(.tooOld)], nil),
+    ([.declined(.tooOld), .landed], .success),
   ])
   func oneBuzzPerSnapshotAndADeclineWins(results: [ConPawsWatchTapResult], haptic: ConPawsWatchTapLog.Haptic?) {
     #expect(ConPawsWatchTapLog.haptic(for: results) == haptic)
@@ -181,6 +185,8 @@ struct TapResultTests {
     ]
     #expect(ConPawsWatchTapLog.announcedDecline(in: results) == .cancelled)
     #expect(ConPawsWatchTapLog.announcedDecline(in: ["c": .landed]) == nil)
+    #expect(ConPawsWatchTapLog.announcedDecline(in: ["a": .declined(.tooOld), "b": .declined(.failed)]) == .failed)
+    #expect(ConPawsWatchTapLog.announcedDecline(in: ["a": .declined(.tooOld)]) == nil)
   }
 
   // MARK: Fixtures
