@@ -395,8 +395,8 @@ export interface WatchExtrasOptions {
   handledCommandIds?: readonly string[];
   /**
    * What the phone did with each of `handledCommandIds`, so the Watch can say
-   * why a tap changed nothing ("Changed on iPhone", "Cancelled by the
-   * convention"). Sent beside the ids, never instead of them: a Watch from
+   * why a tap changed nothing ("Not changed: edited on iPhone", "Not added:
+   * the convention cancelled it"). Sent beside the ids, never instead of them: a Watch from
    * before this field reads only the ids. Entries for ids not listed are left
    * out. Defaults to the receipts in watch-command-receipts.ts, which is
    * where the ids come from too. Kept at every step of the size guard, like
