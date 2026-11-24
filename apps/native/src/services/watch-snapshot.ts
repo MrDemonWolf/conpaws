@@ -406,6 +406,25 @@ export interface WatchExtrasOptions {
   maxBytes?: number;
 }
 
+/** The handled ids and, for those that have one, their outcomes. */
+function handledReceipts(
+  ids: readonly string[],
+  outcomes: Readonly<Record<string, WatchCommandOutcome>>,
+): {
+  handledCommandIds?: string[];
+  commandOutcomes?: Record<string, WatchCommandOutcome>;
+} {
+  if (ids.length === 0) return {};
+  const listed: Record<string, WatchCommandOutcome> = {};
+  for (const id of ids) {
+    const outcome = Object.hasOwn(outcomes, id) ? outcomes[id] : undefined;
+    if (outcome) listed[id] = outcome;
+  }
+  return Object.keys(listed).length > 0
+    ? { handledCommandIds: [...ids], commandOutcomes: listed }
+    : { handledCommandIds: [...ids] };
+}
+
 /**
  * The JSON handed to the native module's `publishSnapshot`: the snapshot
  * without its phone presentation, plus the Watch extras on iOS.
@@ -431,25 +450,6 @@ export interface WatchExtrasOptions {
  * show, plus the ids of the commands the phone has handled and their
  * outcomes.
  */
-/** The handled ids and, for those that have one, their outcomes. */
-function handledReceipts(
-  ids: readonly string[],
-  outcomes: Readonly<Record<string, WatchCommandOutcome>>,
-): {
-  handledCommandIds?: string[];
-  commandOutcomes?: Record<string, WatchCommandOutcome>;
-} {
-  if (ids.length === 0) return {};
-  const listed: Record<string, WatchCommandOutcome> = {};
-  for (const id of ids) {
-    const outcome = Object.hasOwn(outcomes, id) ? outcomes[id] : undefined;
-    if (outcome) listed[id] = outcome;
-  }
-  return Object.keys(listed).length > 0
-    ? { handledCommandIds: [...ids], commandOutcomes: listed }
-    : { handledCommandIds: [...ids] };
-}
-
 export function withWatchExtras(
   snapshot: WidgetSnapshot,
   eventsByConvention: ReadonlyMap<string, readonly ConventionEvent[]>,
