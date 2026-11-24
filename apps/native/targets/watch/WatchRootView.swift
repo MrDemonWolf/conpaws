@@ -45,7 +45,9 @@ struct WatchRootView: View {
     case .noPicks(let convention):
       // An empty plan is when adding from the wrist matters most -- removing
       // the last saved panel here lands on this screen -- so the hour's
-      // options stay offered under the empty state rather than vanish.
+      // options stay offered under the empty state rather than vanish. So do
+      // saved panels the convention withdrew: with every one withdrawn the
+      // plan has nothing live, and this is the only screen left to reach them.
       let options = convention.optionsThisHour(at: now)
       if schedule.isOverWithoutPicks {
         EmptyScheduleView(
@@ -53,7 +55,7 @@ struct WatchRootView: View {
           message: strings.nothingUpcomingMessage,
           systemImage: "checkmark.circle"
         )
-      } else if options.isEmpty {
+      } else if options.isEmpty, !schedule.hasWithdrawnToShow {
         EmptyScheduleView(
           title: strings.noPicksTitle,
           message: strings.noPicksWatchMessage
@@ -61,8 +63,8 @@ struct WatchRootView: View {
       } else {
         NoPicksOptionsView(
           convention: convention,
+          schedule: schedule,
           options: options,
-          now: now,
           isUsingSavedSchedule: isUsingSavedSchedule,
           snapshotDate: snapshotDate,
           strings: strings

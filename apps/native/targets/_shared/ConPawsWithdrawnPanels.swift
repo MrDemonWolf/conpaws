@@ -75,4 +75,11 @@ extension WatchScheduleProjection {
     guard let convention, let soonest = upcomingWithdrawn.first else { return nil }
     return .event(conventionID: convention.id, eventID: soonest.id)
   }
+
+  /// Whether the Home notice or Today has a withdrawn saved panel to lead
+  /// to. The no-picks screen asks: with every saved panel withdrawn nothing
+  /// is live, and that screen would otherwise hide them all.
+  var hasWithdrawnToShow: Bool {
+    !upcomingWithdrawn.isEmpty || todayRows.contains { $0.status != nil }
+  }
 }

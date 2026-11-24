@@ -229,6 +229,46 @@ struct WithdrawnPanelTests {
     #expect(none.withdrawnNoticeRoute == nil)
   }
 
+  // MARK: No picks left
+
+  /// Every saved panel withdrawn leaves no live pick, so the Watch lands on
+  /// its no-picks screen, which must still lead to them.
+  @Test func aPlanWithOnlyWithdrawnPanelsStillHasThemToShow() {
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(convention(saved: [], withdrawn: [withdrawn("art", from: 1_795_366_800)])),
+      now: now
+    )
+    guard case .noPicks = schedule.state else {
+      Issue.record("expected noPicks, got \(schedule.state)")
+      return
+    }
+    #expect(schedule.hasWithdrawnToShow)
+  }
+
+  /// Over, but still on Today's list.
+  @Test func aPanelWithdrawnEarlierTodayIsStillShown() {
+    let schedule = WatchScheduleProjection(
+      snapshot: snapshot(convention(saved: [], withdrawn: [withdrawn("over", from: 1_795_276_800)])),
+      now: now
+    )
+    #expect(schedule.upcomingWithdrawn.isEmpty)
+    #expect(schedule.hasWithdrawnToShow)
+  }
+
+  /// Neither on Today nor still to come: nothing on the wrist leads there.
+  @Test func aPanelWithdrawnOnAnEarlierDayIsNotShown() {
+    let yesterday = WatchScheduleProjection(
+      snapshot: snapshot(convention(saved: [], withdrawn: [withdrawn("yesterday", from: 1_795_208_400)])),
+      now: now
+    )
+    #expect(!yesterday.hasWithdrawnToShow)
+    let none = WatchScheduleProjection(
+      snapshot: snapshot(convention(saved: [], withdrawn: nil)),
+      now: now
+    )
+    #expect(!none.hasWithdrawnToShow)
+  }
+
   // MARK: Screens
 
   /// A detail screen whose panel the convention withdraws stays, and shows it

@@ -1,11 +1,11 @@
 import SwiftUI
 
-/// No saved panels yet, but some running this hour: the empty state's title,
-/// then the options to add from.
+/// No live saved panels, but something to tap: the empty state's title, then
+/// the saved panels the convention withdrew and the options to add from.
 struct NoPicksOptionsView: View {
   let convention: ConPawsConventionSnapshot
+  let schedule: WatchScheduleProjection
   let options: [ConPawsEventSnapshot]
-  let now: Date
   let isUsingSavedSchedule: Bool
   var snapshotDate: Date?
   let strings: ConPawsStrings
@@ -22,10 +22,28 @@ struct NoPicksOptionsView: View {
           .padding(.horizontal, 6)
           .accessibilityAddTraits(.isHeader)
 
+        // Nothing to add here, so the phone is still the way to pick.
+        if options.isEmpty {
+          Text(strings.noPicksWatchMessage)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 6)
+        }
+
+        // Withdrawn panels only, on this screen: struck through on Today.
+        let todayCount = schedule.todayRows.count
+        if todayCount > 0 {
+          TodayLinkRow(count: todayCount, strings: strings)
+        }
+
+        WithdrawnNoticeRow(schedule: schedule, strings: strings)
+
         OtherOptionsSection(convention: convention, options: options, strings: strings)
 
         if isUsingSavedSchedule {
-          SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate, now: now)
+          SavedScheduleLabel(strings: strings, snapshotDate: snapshotDate, now: schedule.now)
             .padding(.horizontal, WatchMetrics.cardInset)
         }
       }

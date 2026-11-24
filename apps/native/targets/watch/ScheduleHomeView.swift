@@ -18,6 +18,9 @@ struct ScheduleHomeView: View {
   var body: some View {
     let goEvent = schedule.goEvent
     let goAnnouncement = schedule.goAnnouncement
+    // Withdrawn panels included, so a day whose saved panels were all
+    // cancelled still reaches Today, where they show struck through.
+    let todayCount = schedule.todayRows.count
 
     ScrollView {
       LazyVStack(alignment: .leading, spacing: WatchMetrics.cardSpacing) {
@@ -83,9 +86,11 @@ struct ScheduleHomeView: View {
 
           // Hidden on a day with no picks rather than offering "Today 0" and
           // an empty screen behind it.
-          if !schedule.todayEvents.isEmpty {
-            TodayLinkRow(count: schedule.todayEvents.count, strings: strings)
+          if todayCount > 0 {
+            TodayLinkRow(count: todayCount, strings: strings)
           }
+
+          WithdrawnNoticeRow(schedule: schedule, strings: strings)
 
           OtherOptionsSection(
             convention: convention,
@@ -104,7 +109,7 @@ struct ScheduleHomeView: View {
     }
     .navigationTitle(strings.scheduleTitle)
     .toolbar {
-      if !schedule.todayEvents.isEmpty {
+      if todayCount > 0 {
         ToolbarItem(placement: .topBarTrailing) {
           NavigationLink(value: WatchRoute.today) {
             Label(strings.today, systemImage: "list.bullet")
