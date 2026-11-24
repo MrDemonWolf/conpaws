@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
+#if DEBUG
 // One preview per family, each stepping through the same states: the leave
 // countdown (the gallery's sample), up next, a running panel, a stale plan,
 // the countdown to a convention and no plan. Wrist-down redaction and tinted
@@ -125,3 +126,4 @@ private extension ConPawsWatchEntry {
     )
   }
 }
+#endif
