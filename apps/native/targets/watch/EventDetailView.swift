@@ -108,7 +108,7 @@ struct EventDetailView: View {
           PlanActionButton(
             action: planAction,
             eventTitle: event.title,
-            decline: tapFeedback.decline(for: event.id, at: now),
+            decline: tapFeedback.decline(for: event.id, action: planAction.commandAction, at: now),
             strings: strings
           )
           .padding(.top, 6)

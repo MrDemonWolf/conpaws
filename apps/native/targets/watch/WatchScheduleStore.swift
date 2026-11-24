@@ -169,7 +169,9 @@ final class WatchScheduleStore: NSObject, ObservableObject {
     tellsWearer: Bool = true
   ) {
     let settlement = ConPawsPendingCommands.settling(pendingCommands, by: snapshot, at: now)
-    tapFeedback.record(settlement.results, at: now, strings: snapshot.strings, tellsWearer: tellsWearer)
+    tapFeedback.record(
+      settlement.results, of: pendingCommands, at: now, strings: snapshot.strings, tellsWearer: tellsWearer
+    )
     updatePendingCommands(settlement.pending)
   }
 
@@ -178,7 +180,9 @@ final class WatchScheduleStore: NSObject, ObservableObject {
   /// `ConPawsPendingCommands.settling(_:byReceiptsIn:shown:)`.
   private func settlePendingCommands(byReceiptsIn receipts: ConPawsSnapshot) {
     let settlement = ConPawsPendingCommands.settling(pendingCommands, byReceiptsIn: receipts, shown: snapshot)
-    tapFeedback.record(settlement.results, at: Date(), strings: snapshot.strings, tellsWearer: true)
+    tapFeedback.record(
+      settlement.results, of: pendingCommands, at: Date(), strings: snapshot.strings, tellsWearer: true
+    )
     updatePendingCommands(settlement.pending)
   }
 

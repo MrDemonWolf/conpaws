@@ -73,6 +73,10 @@ extension ConPawsWatchCommand {
 enum ConPawsWatchTapLog {
   struct Entry: Hashable, Sendable {
     let result: ConPawsWatchTapResult
+    /// What the tap asked for. Its reason holds only under the button that
+    /// would send it again: once the phone changes the panel the other way,
+    /// the screen offers the opposite action and the reason no longer fits.
+    let action: ConPawsWatchCommand.Action
     let settledAt: Date
   }
 
@@ -89,16 +93,20 @@ enum ConPawsWatchTapLog {
   /// describe a plan the phone has changed since.
   static let shownFor: TimeInterval = 10 * 60
 
-  /// `results`, settled at `now`, in place of anything earlier on their
-  /// events, without entries no longer shown.
+  /// `results`, from settling `pending` at `now`, in place of anything
+  /// earlier on their events, without entries no longer shown. A result
+  /// whose tap `pending` does not hold is left out: it cannot say which
+  /// button it belongs under.
   static func recording(
     _ results: [String: ConPawsWatchTapResult],
+    of pending: ConPawsPendingCommands.Table,
     at now: Date,
     in table: Table
   ) -> Table {
     var updated = table.filter { _, entry in now.timeIntervalSince(entry.settledAt) < shownFor }
     for (eventID, result) in results {
-      updated[eventID] = Entry(result: result, settledAt: now)
+      guard let action = pending[eventID]?.command.action else { continue }
+      updated[eventID] = Entry(result: result, action: action, settledAt: now)
     }
     return updated
   }
@@ -110,11 +118,19 @@ enum ConPawsWatchTapLog {
     return updated
   }
 
-  /// Why the last tap on `eventID` changed nothing, while that is still worth
-  /// saying; nil after a landing, or once `shownFor` has passed.
-  static func decline(for eventID: String, in table: Table, at now: Date) -> ConPawsWatchTapDecline? {
+  /// Why the last tap on `eventID` changed nothing, for the button that
+  /// sends `action`, while that is still worth saying; nil after a landing,
+  /// under the opposite button (the phone has changed the panel since), or
+  /// once `shownFor` has passed.
+  static func decline(
+    for eventID: String,
+    action: ConPawsWatchCommand.Action,
+    in table: Table,
+    at now: Date
+  ) -> ConPawsWatchTapDecline? {
     guard
       let entry = table[eventID],
+      entry.action == action,
       case .declined(let decline) = entry.result,
       now.timeIntervalSince(entry.settledAt) < shownFor
     else { return nil }

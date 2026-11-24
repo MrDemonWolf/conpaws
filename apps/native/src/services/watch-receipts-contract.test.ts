@@ -51,7 +51,11 @@ describe("what the Watch says about a settled tap", () => {
 
   it("records each result before the button stops waiting", () => {
     for (const settle of settles) {
-      const recorded = settle.indexOf("tapFeedback.record(settlement.results");
+      // With the table it settled, before it is replaced: that table is
+      // what says which button each reason belongs under.
+      const recorded = settle.search(
+        /tapFeedback\.record\(\s*settlement\.results, of: pendingCommands,/,
+      );
       const updated = settle.indexOf(
         "updatePendingCommands(settlement.pending)",
       );
@@ -84,7 +88,11 @@ describe("what the Watch says about a settled tap", () => {
 
   it("shows the reason under the button from the shared log", () => {
     const detail = watch("EventDetailView.swift");
-    expect(detail).toContain("tapFeedback.decline(for: event.id, at: now)");
+    // Only under the button the declined tap was for: once the phone has
+    // changed the panel the other way, the reason no longer fits.
+    expect(detail).toContain(
+      "tapFeedback.decline(for: event.id, action: planAction.commandAction, at: now)",
+    );
     expect(watch("PlanActionButton.swift")).toContain(
       "strings.declineText(decline)",
     );

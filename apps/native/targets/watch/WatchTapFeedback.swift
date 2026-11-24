@@ -28,10 +28,14 @@ final class WatchTapFeedback {
     self.log = log
   }
 
-  /// Why the last tap on `eventID` changed nothing, while that is still worth
-  /// saying.
-  func decline(for eventID: String, at now: Date) -> ConPawsWatchTapDecline? {
-    ConPawsWatchTapLog.decline(for: eventID, in: log, at: now)
+  /// Why the last tap on `eventID` changed nothing, for the button that
+  /// sends `action`, while that is still worth saying.
+  func decline(
+    for eventID: String,
+    action: ConPawsWatchCommand.Action,
+    at now: Date
+  ) -> ConPawsWatchTapDecline? {
+    ConPawsWatchTapLog.decline(for: eventID, action: action, in: log, at: now)
   }
 
   /// A new tap on `eventID` starts a new wait, so its old reason goes.
@@ -40,7 +44,8 @@ final class WatchTapFeedback {
     log = ConPawsWatchTapLog.forgetting(eventID, in: log)
   }
 
-  /// Keeps what a snapshot settled, keyed by event id. With `tellsWearer`,
+  /// Keeps what a snapshot settled out of `pending`, keyed by event id, with
+  /// the action each tap asked for. With `tellsWearer`,
   /// and only while the app is in front, also plays one haptic for the lot,
   /// failure if any tap was declined and success if they all landed, and
   /// has VoiceOver read one decline's reason: the screen that showed the
@@ -52,12 +57,13 @@ final class WatchTapFeedback {
   /// the app is next opened.
   func record(
     _ results: [String: ConPawsWatchTapResult],
+    of pending: ConPawsPendingCommands.Table,
     at now: Date,
     strings: ConPawsStrings,
     tellsWearer: Bool
   ) {
     guard !results.isEmpty else { return }
-    log = ConPawsWatchTapLog.recording(results, at: now, in: log)
+    log = ConPawsWatchTapLog.recording(results, of: pending, at: now, in: log)
     guard tellsWearer, WKApplication.shared().applicationState == .active else { return }
     switch ConPawsWatchTapLog.haptic(for: results.values) {
     case .success: WKInterfaceDevice.current().play(.success)

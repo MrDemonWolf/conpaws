@@ -134,32 +134,58 @@ struct TapResultTests {
   // MARK: What stays under the button
 
   @Test func aDeclineShowsUnderItsButtonForTenMinutes() {
+    let taps = table(command(.remove, event: "evt", id: "c1"), command(.save, event: "saved", id: "c2"))
     let log = ConPawsWatchTapLog.recording(
-      ["evt": .declined(.changedOnIphone), "saved": .landed], at: now, in: [:]
+      ["evt": .declined(.changedOnIphone), "saved": .landed], of: taps, at: now, in: [:]
     )
-    #expect(ConPawsWatchTapLog.decline(for: "evt", in: log, at: now) == .changedOnIphone)
+    #expect(ConPawsWatchTapLog.decline(for: "evt", action: .remove, in: log, at: now) == .changedOnIphone)
     #expect(
-      ConPawsWatchTapLog.decline(for: "evt", in: log, at: now.addingTimeInterval(ConPawsWatchTapLog.shownFor - 1))
-        == .changedOnIphone
+      ConPawsWatchTapLog.decline(
+        for: "evt", action: .remove, in: log, at: now.addingTimeInterval(ConPawsWatchTapLog.shownFor - 1)
+      ) == .changedOnIphone
     )
-    #expect(ConPawsWatchTapLog.decline(for: "evt", in: log, at: now.addingTimeInterval(ConPawsWatchTapLog.shownFor)) == nil)
+    #expect(
+      ConPawsWatchTapLog.decline(
+        for: "evt", action: .remove, in: log, at: now.addingTimeInterval(ConPawsWatchTapLog.shownFor)
+      ) == nil
+    )
     // A tap that landed shows its change, not a line.
-    #expect(ConPawsWatchTapLog.decline(for: "saved", in: log, at: now) == nil)
-    #expect(ConPawsWatchTapLog.decline(for: "other", in: log, at: now) == nil)
+    #expect(ConPawsWatchTapLog.decline(for: "saved", action: .save, in: log, at: now) == nil)
+    #expect(ConPawsWatchTapLog.decline(for: "saved", action: .remove, in: log, at: now) == nil)
+    #expect(ConPawsWatchTapLog.decline(for: "other", action: .save, in: log, at: now) == nil)
+  }
+
+  @Test func aReasonShowsOnlyUnderTheButtonItWasFor() {
+    // Add on a drop-in is declined, and the wearer does as told: adds it on
+    // the iPhone. The same screen now offers Remove, and "Not added" under
+    // it would contradict the "Saved" above it.
+    let taps = table(command(.save, event: "evt", id: "c1"))
+    let log = ConPawsWatchTapLog.recording(["evt": .declined(.addOnIphone)], of: taps, at: now, in: [:])
+    #expect(ConPawsWatchTapLog.decline(for: "evt", action: .save, in: log, at: now) == .addOnIphone)
+    #expect(ConPawsWatchTapLog.decline(for: "evt", action: .remove, in: log, at: now) == nil)
+  }
+
+  @Test func aResultWithoutItsTapIsNotRecorded() {
+    // Every result comes from settling `pending`; one that does not cannot
+    // say which button it belongs under.
+    let log = ConPawsWatchTapLog.recording(["evt": .declined(.failed)], of: [:], at: now, in: [:])
+    #expect(log.isEmpty)
   }
 
   @Test func aNewTapOrANewerResultReplacesTheReason() {
-    var log = ConPawsWatchTapLog.recording(["evt": .declined(.failed)], at: now, in: [:])
+    let taps = table(command(.save, event: "evt", id: "c1"))
+    var log = ConPawsWatchTapLog.recording(["evt": .declined(.failed)], of: taps, at: now, in: [:])
     #expect(ConPawsWatchTapLog.forgetting("evt", in: log).isEmpty)
 
-    log = ConPawsWatchTapLog.recording(["evt": .landed], at: now.addingTimeInterval(5), in: log)
-    #expect(ConPawsWatchTapLog.decline(for: "evt", in: log, at: now.addingTimeInterval(5)) == nil)
+    log = ConPawsWatchTapLog.recording(["evt": .landed], of: taps, at: now.addingTimeInterval(5), in: log)
+    #expect(ConPawsWatchTapLog.decline(for: "evt", action: .save, in: log, at: now.addingTimeInterval(5)) == nil)
   }
 
   @Test func recordingDropsReasonsNoLongerShown() {
-    let old = ConPawsWatchTapLog.recording(["old": .declined(.tooOld)], at: now, in: [:])
+    let taps = table(command(.save, event: "old", id: "c1"), command(.save, event: "new", id: "c2"))
+    let old = ConPawsWatchTapLog.recording(["old": .declined(.tooOld)], of: taps, at: now, in: [:])
     let log = ConPawsWatchTapLog.recording(
-      ["new": .declined(.failed)], at: now.addingTimeInterval(ConPawsWatchTapLog.shownFor), in: old
+      ["new": .declined(.failed)], of: taps, at: now.addingTimeInterval(ConPawsWatchTapLog.shownFor), in: old
     )
     #expect(Set(log.keys) == ["new"])
   }
