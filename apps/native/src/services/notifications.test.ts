@@ -48,7 +48,8 @@ vi.mock("expo-notifications", () => ({
     TIME_INTERVAL: "timeInterval",
   },
 }));
-vi.mock("react-native", () => ({ Platform: { OS: "ios" } }));
+const platformMock = vi.hoisted(() => ({ OS: "ios" as "ios" | "android" }));
+vi.mock("react-native", () => ({ Platform: platformMock }));
 vi.mock("@/db/repositories/events", () => eventRepoMocks);
 vi.mock("@/db/repositories/conventions", () => conventionRepoMocks);
 vi.mock("i18next", () => ({ default: i18nMock }));
@@ -411,6 +412,89 @@ describe("startup reminder reconciliation", () => {
         }),
       }),
     );
+  });
+});
+
+describe("how a reminder is filed", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-17T12:00:00.000Z"));
+    vi.clearAllMocks();
+    platformMock.OS = "ios";
+    i18nMock.isInitialized = false;
+    notificationMocks.cancelScheduledNotificationAsync.mockResolvedValue(
+      undefined,
+    );
+    notificationMocks.getAllScheduledNotificationsAsync.mockResolvedValue([]);
+    notificationMocks.getPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    notificationMocks.scheduleNotificationAsync.mockImplementation(
+      async ({ identifier }: { identifier: string }) => identifier,
+    );
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([]);
+    conventionRepoMocks.getAll.mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    platformMock.OS = "ios";
+    vi.useRealTimers();
+  });
+
+  const filedContent = () =>
+    notificationMocks.scheduleNotificationAsync.mock.lastCall?.[0].content;
+
+  // A reminder the wearer set is the one notification a Focus in a panel
+  // room must not hold back. The category and the ids let the Watch open
+  // the panel when the reminder is tapped there.
+  const wristReady = {
+    interruptionLevel: "timeSensitive",
+    categoryIdentifier: "conpaws.reminder",
+    threadIdentifier: "convention-1",
+    data: {
+      kind: "event-reminder",
+      eventId: "event-1",
+      conventionId: "convention-1",
+    },
+  };
+
+  it("files an iOS reminder Time Sensitive, in the reminder category and its convention's thread", async () => {
+    await scheduleEventReminder(reminderEvent(), 15);
+
+    expect(filedContent()).toMatchObject(wristReady);
+  });
+
+  it("files reminders re-armed at launch the same way", async () => {
+    eventRepoMocks.getAllWithReminders.mockResolvedValue([reminderEvent()]);
+
+    await reconcileEventReminders();
+
+    expect(filedContent()).toMatchObject(wristReady);
+  });
+
+  it("leaves the thread out when the reminder names no convention", async () => {
+    await scheduleEventReminder({ ...reminderEvent(), conventionId: null }, 15);
+
+    expect(filedContent()).toMatchObject({
+      interruptionLevel: "timeSensitive",
+      categoryIdentifier: "conpaws.reminder",
+    });
+    expect(filedContent()).not.toHaveProperty("threadIdentifier");
+  });
+
+  // Android has no Time Sensitive level, and expo-notifications turns a
+  // thread into a notification group with a summary of its own there: a
+  // change nobody has checked on a device yet.
+  it("leaves Android reminders as they were", async () => {
+    platformMock.OS = "android";
+
+    await scheduleEventReminder(reminderEvent(), 15);
+
+    const content = filedContent();
+    expect(content).toMatchObject({ data: wristReady.data });
+    expect(content).not.toHaveProperty("interruptionLevel");
+    expect(content).not.toHaveProperty("categoryIdentifier");
+    expect(content).not.toHaveProperty("threadIdentifier");
   });
 });
 

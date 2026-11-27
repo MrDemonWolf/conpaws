@@ -128,6 +128,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: getBundleId(),
     entitlements: {
       "com.apple.security.application-groups": [`group.${getBundleId()}`],
+      // Panel reminders are filed Time Sensitive (src/services/notifications.ts)
+      // so a Focus does not hold them back. Signing needs the Time Sensitive
+      // Notifications capability on each variant's App ID in the developer
+      // portal; without it no provisioning profile includes this entitlement.
+      // Only the iPhone app: the Watch and widget targets copy the App Group
+      // alone, and the Watch files no notifications of its own.
+      "com.apple.developer.usernotifications.time-sensitive": true,
     },
     infoPlist: {
       // Which variant produced this binary, readable from the built artifact.

@@ -9,6 +9,15 @@ const REMINDER_CHANNEL_ID = "event-reminders";
 const REMINDER_IDENTIFIER_PREFIX = "reminder-";
 const TEST_NOTIFICATION_IDENTIFIER_PREFIX = "developer-test-";
 
+/**
+ * What marks a notification as a panel reminder. The phone's tap handler
+ * (app/_layout.tsx) reads the kind; the Watch app reads both, from its own
+ * copies in `targets/_shared/ConPawsReminderNotification.swift`, which
+ * `notifications-watch-contract.test.ts` holds to these.
+ */
+export const REMINDER_CATEGORY_IDENTIFIER = "conpaws.reminder";
+export const REMINDER_NOTIFICATION_KIND = "event-reminder";
+
 // iOS keeps only the 64 soonest pending local notifications and silently
 // discards the rest, so leave headroom for the developer test notification.
 const MAX_PENDING_REMINDERS = 60;
@@ -177,6 +186,36 @@ function reminderNotificationContent(
 }
 
 /**
+ * How iOS delivers a reminder, beyond its words.
+ *
+ * - Time Sensitive: a reminder is the one alert the wearer asked for, at the
+ *   moment it matters, and a Focus set for a panel room or a line would
+ *   otherwise hold it until the Focus ends. It needs the
+ *   `com.apple.developer.usernotifications.time-sensitive` entitlement
+ *   (app.config.ts), and people can still turn it off for this app or for a
+ *   Focus.
+ * - The category marks it as a reminder wherever iOS shows it, the Watch
+ *   included. It carries no actions, so iOS needs no registered category for
+ *   it: an unregistered one only means no custom buttons.
+ * - The thread groups a convention's reminders together in Notification
+ *   Center and on the Watch.
+ *
+ * Android gets none of these: it has no Time Sensitive level, and
+ * expo-notifications turns a thread into a notification group with a summary
+ * of its own there, a change that has not been checked on a device.
+ */
+function reminderDelivery(
+  conventionId: string | null | undefined,
+): Partial<ExpoNotifications.NotificationContentInput> {
+  if (Platform.OS !== "ios") return {};
+  return {
+    interruptionLevel: "timeSensitive",
+    categoryIdentifier: REMINDER_CATEGORY_IDENTIFIER,
+    ...(conventionId ? { threadIdentifier: conventionId } : {}),
+  };
+}
+
+/**
  * Files the OS request only. The caller owns cancelling any previous request,
  * checking permission and preparing the Android channel, so a batch can do each
  * of those once instead of once per reminder.
@@ -197,10 +236,12 @@ async function scheduleReminderRequest(
     identifier: notificationId,
     content: {
       ...reminderNotificationContent(event, minutesBefore, override),
+      ...reminderDelivery(event.conventionId),
       sound: true,
-      // Carried so a tap can open the event instead of wherever the app was.
+      // Carried so a tap can open the event instead of wherever the app was,
+      // on the phone and, through ConPawsReminderNotification, on the Watch.
       data: {
-        kind: "event-reminder",
+        kind: REMINDER_NOTIFICATION_KIND,
         eventId: event.id,
         conventionId: event.conventionId ?? null,
       },
