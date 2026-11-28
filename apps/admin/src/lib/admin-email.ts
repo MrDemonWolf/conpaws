@@ -26,13 +26,25 @@ const senderNotice =
 function layout(title: string, body: string) {
   return `<!doctype html>
 <html lang="en">
-<body style="margin:0;padding:24px;background:#f5f7fb;color:#091533;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-<div style="max-width:480px;margin:0 auto;padding:32px;background:#ffffff;border-radius:16px">
-<p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#075985">ConPaws Admin</p>
-<h1 style="margin:0 0 20px;font-size:22px;line-height:30px">${escapeHtml(title)}</h1>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(title)} · ConPaws Admin</title>
+</head>
+<body style="margin:0;background:#f5f7fb;color:#091533;font-family:Arial,Helvetica,sans-serif">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f7fb">
+<tr><td align="center" style="padding:32px 16px">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:480px;background:#ffffff;border:1px solid #dbe3ee;border-radius:16px">
+<tr><td align="left" style="padding:28px">
+<img src="https://admin.conpaws.com/pwa-icon-192.png" alt="" width="48" height="48" style="display:block;border:0;border-radius:12px;margin:0 0 12px">
+<p style="margin:0 0 20px;font-size:14px;line-height:20px;font-weight:700;color:#075985">ConPaws Admin</p>
+<h1 style="margin:0 0 16px;font-size:26px;line-height:32px">${escapeHtml(title)}</h1>
 ${body}
-<p style="margin:16px 0 0;font-size:13px;line-height:20px;color:#475569">${escapeHtml(senderNotice)}</p>
-</div>
+<p style="margin:24px 0 0;border-top:1px solid #dbe3ee;padding-top:16px;font-size:13px;line-height:20px;color:#475569">This sending address is not monitored. For help, email <a href="mailto:support@conpaws.com" style="color:#075985">support@conpaws.com</a>.</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
 </body>
 </html>`;
 }
@@ -45,7 +57,7 @@ export function signInCodeEmail(to: string, code: string): AdminEmail {
     "Didn't ask for this? You can ignore this email. Nobody can sign in without the code.";
   return {
     to,
-    subject: `Your ConPaws Admin code: ${formatted}`,
+    subject: "Your ConPaws Admin sign-in code",
     text: [
       "Your ConPaws Admin sign-in code:",
       "",
@@ -60,7 +72,7 @@ export function signInCodeEmail(to: string, code: string): AdminEmail {
     html: layout(
       "Your sign-in code",
       [
-        `<p style="margin:0 0 20px;font-size:32px;line-height:40px;font-weight:700;letter-spacing:4px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">${formatted}</p>`,
+        `<p style="margin:0 0 16px;padding:12px 16px;border:1px solid #c8e6f6;border-radius:10px;background:#f0f9ff;font-size:28px;line-height:36px;font-weight:700;letter-spacing:2px;font-family:Menlo,Consolas,monospace">${escapeHtml(formatted)}</p>`,
         `<p ${paragraph}>${escapeHtml(expiry)}</p>`,
         `<p ${paragraph}>${escapeHtml(ignore)}</p>`,
       ].join("\n"),

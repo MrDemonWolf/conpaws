@@ -23,13 +23,32 @@ const robotoMono = Roboto_Mono({
   weight: ["400", "500"],
 });
 
+const adminName = "ConPaws Admin";
+const description =
+  "Private convention catalog and schedule publishing workspace.";
+const shareImage = "/admin-share.png";
+
 export const metadata: Metadata = {
-  applicationName: "ConPaws Admin",
+  metadataBase: new URL("https://admin.conpaws.com"),
+  applicationName: adminName,
   title: {
-    default: "ConPaws Admin",
+    default: adminName,
     template: "%s · ConPaws Admin",
   },
-  description: "Private convention catalog and schedule publishing workspace.",
+  description,
+  openGraph: {
+    type: "website",
+    siteName: adminName,
+    title: adminName,
+    description,
+    images: [{ url: shareImage, width: 1200, height: 630, alt: adminName }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: adminName,
+    description,
+    images: [{ url: shareImage, alt: adminName }],
+  },
   robots: { index: false, follow: false, noarchive: true },
   icons: {
     apple: [
