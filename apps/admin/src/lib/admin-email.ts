@@ -20,6 +20,9 @@ function escapeHtml(value: string) {
 
 const paragraph = 'style="margin:0 0 16px;font-size:15px;line-height:24px"';
 
+const senderNotice =
+  "This sending address is not monitored. For help, email support@conpaws.com.";
+
 function layout(title: string, body: string) {
   return `<!doctype html>
 <html lang="en">
@@ -28,6 +31,7 @@ function layout(title: string, body: string) {
 <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#075985">ConPaws Admin</p>
 <h1 style="margin:0 0 20px;font-size:22px;line-height:30px">${escapeHtml(title)}</h1>
 ${body}
+<p style="margin:16px 0 0;font-size:13px;line-height:20px;color:#475569">${escapeHtml(senderNotice)}</p>
 </div>
 </body>
 </html>`;
@@ -50,6 +54,8 @@ export function signInCodeEmail(to: string, code: string): AdminEmail {
       expiry,
       "",
       ignore,
+      "",
+      senderNotice,
     ].join("\n"),
     html: layout(
       "Your sign-in code",
@@ -88,7 +94,7 @@ export function inviteEmail(input: {
   return {
     to: input.to,
     subject: "You're invited to ConPaws Admin",
-    text: [intro, "", how, "", link, "", expiry].join("\n"),
+    text: [intro, "", how, "", link, "", expiry, "", senderNotice].join("\n"),
     html: layout(
       "You're invited",
       [
@@ -120,6 +126,7 @@ export async function sendAdminEmail(env: AdminBindings, message: AdminEmail) {
     await env.ADMIN_EMAIL.send({
       from: { name: "ConPaws Admin", email: from },
       to: message.to,
+      replyTo: "support@conpaws.com",
       subject: message.subject,
       text: message.text,
       html: message.html,
