@@ -39,6 +39,7 @@ const routes = {
   "/conventions": "ConPaws Preview Con",
   "/activity": "Activity history",
   "/team": "Team",
+  "/account": "Display name",
   "/sign-in?error=email": "Sign in",
 };
 
@@ -55,7 +56,10 @@ for (const [path, expectedText] of Object.entries(routes)) {
 const landing = await fetch(new URL("/", origin), { redirect: "manual" });
 assert.equal(landing.status, 307);
 assert.equal(landing.headers.get("location"), "/conventions");
-assert((await get("/conventions")).body.includes("ConPaws Preview Con"));
+assert.match(
+  (await get("/conventions")).body,
+  /<title>Conventions · ConPaws Admin<\/title>/,
+);
 assert.match((await get("/robots.txt")).body, /Disallow:\s*\//);
 
 const signIn = await get("/sign-in");
