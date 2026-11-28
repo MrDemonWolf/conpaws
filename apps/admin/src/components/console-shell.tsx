@@ -10,16 +10,14 @@ import { Icon } from "./icons";
 import { InstallAppButton, PwaRuntime } from "./pwa-client";
 
 const links = [
-  { href: "/", label: "Overview", icon: "grid" as const },
   { href: "/conventions", label: "Conventions", icon: "calendar" as const },
+  { href: "/overview", label: "Overview", icon: "grid" as const },
   { href: "/team", label: "Team", icon: "users" as const },
   { href: "/activity", label: "Activity", icon: "activity" as const },
 ] as const;
 
 function isCurrent(pathname: string, href: string) {
-  return href === "/"
-    ? pathname === "/"
-    : pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function NavItem({ href, label, icon }: (typeof links)[number]) {
@@ -29,7 +27,7 @@ function NavItem({ href, label, icon }: (typeof links)[number]) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1 text-[10px] font-semibold leading-none transition md:flex-row md:justify-center md:gap-2 md:px-3 md:text-xs lg:text-sm ${active ? "bg-sky-50 text-[#091533] ring-1 ring-sky-100" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1 text-[10px] font-semibold leading-none transition md:flex-row md:justify-center md:gap-2 md:px-3 md:text-xs lg:justify-start lg:px-3 lg:text-sm ${active ? "bg-sky-50 text-[#091533] ring-1 ring-sky-100" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
     >
       <Icon name={icon} className="size-4 shrink-0 md:size-[17px]" />
       <span className="truncate">{label}</span>
@@ -75,13 +73,29 @@ export function ConsoleShell({
   const pathname = usePathname();
   const menu = useDismissableMenu();
   return (
-    <div className="min-h-screen bg-[#f5f7fb]">
+    <div className="min-h-screen bg-[#f5f7fb] lg:pl-56">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-slate-200 bg-white px-4 py-5 lg:flex">
+        <Link
+          href="/conventions"
+          className="mb-8 flex items-center gap-3 rounded-lg px-2 font-display font-bold text-[#091533]"
+        >
+          <span className="grid size-9 place-items-center rounded-xl bg-[#091533] text-[#0faced]">
+            <CompassPaw className="size-6" />
+          </span>
+          ConPaws Admin
+        </Link>
+        <nav aria-label="Main navigation" className="grid gap-1">
+          {links.map((item) => (
+            <NavItem key={item.href} {...item} />
+          ))}
+        </nav>
+      </aside>
       <header className="admin-header sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-[1360px] items-center gap-2 px-4 sm:gap-3 sm:px-6 lg:gap-6 lg:px-10">
           <Link
-            href="/"
+            href="/conventions"
             aria-label="ConPaws Admin workspace"
-            className="flex shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-sky-200"
+            className="flex shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-sky-200 lg:hidden"
           >
             <span className="grid size-9 place-items-center rounded-xl bg-[#091533] text-[#0faced]">
               <CompassPaw className="size-6" />
@@ -93,15 +107,6 @@ export function ConsoleShell({
               Admin
             </span>
           </Link>
-
-          <nav
-            aria-label="Main navigation"
-            className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
-          >
-            {links.map((item) => (
-              <NavItem key={item.href} {...item} />
-            ))}
-          </nav>
 
           <InstallAppButton />
 

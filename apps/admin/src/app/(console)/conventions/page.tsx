@@ -47,9 +47,8 @@ export default async function ConventionsPage({
         <Banner tone="error">{adminErrorMessage(params.error)}</Banner>
       ) : null}
       <PageHeading
-        eyebrow="Catalog"
         title="Conventions"
-        description="Keep the directory verified. Drafts remain private until you publish a schedule revision."
+        description="Manage the conventions and schedules available in ConPaws."
         action={
           <Button href="/conventions/new">
             <Icon name="plus" className="size-4" /> Add convention
@@ -241,10 +240,6 @@ export default async function ConventionsPage({
           </>
         )}
       </Surface>
-      <p className="mt-4 text-xs leading-5 text-slate-500">
-        Convention records are manually curated in this first release. Feed
-        import and automatic conflict detection are not enabled yet.
-      </p>
     </>
   );
 }
