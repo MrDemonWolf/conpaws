@@ -15,6 +15,7 @@ export const adminSetup = sqliteTable("admin_setup", {
 
 export const adminMembers = sqliteTable("admin_members", {
   email: text("email").primaryKey(),
+  displayName: text("display_name"),
   role: text("role", { enum: ["owner", "editor"] }).notNull(),
   status: text("status", { enum: ["active", "disabled"] })
     .notNull()

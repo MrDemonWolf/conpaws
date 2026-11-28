@@ -78,6 +78,7 @@ describe("the admin gate", () => {
       status: "authorized",
       session: {
         email: "editor@example.com",
+        displayName: null,
         role: "editor",
         verifiedAt: expect.any(Number),
       },

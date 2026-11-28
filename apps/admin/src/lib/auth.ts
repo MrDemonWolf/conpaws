@@ -8,6 +8,7 @@ export type { AdminRole } from "./sign-in";
 
 export interface AdminSession {
   email: string;
+  displayName: string | null;
   role: AdminRole;
   /** When this browser last entered a code; gates team changes. */
   verifiedAt: number;
@@ -40,14 +41,25 @@ async function localDevelopmentGate(
     .bind(email, now)
     .run();
   const member = await database
-    .prepare("SELECT role, status FROM admin_members WHERE email = ?1")
+    .prepare(
+      "SELECT role, status, display_name AS displayName FROM admin_members WHERE email = ?1",
+    )
     .bind(email)
-    .first<{ role: AdminRole; status: "active" | "disabled" }>();
+    .first<{
+      role: AdminRole;
+      status: "active" | "disabled";
+      displayName: string | null;
+    }>();
   if (!member) return { status: "not-provisioned", email };
   if (member.status !== "active") return { status: "disabled", email };
   return {
     status: "authorized",
-    session: { email, role: member.role, verifiedAt: now },
+    session: {
+      email,
+      displayName: member.displayName,
+      role: member.role,
+      verifiedAt: now,
+    },
   };
 }
 
@@ -84,6 +96,7 @@ export async function getAdminGate(): Promise<AdminGate> {
       status: "authorized",
       session: {
         email: session.email,
+        displayName: session.displayName,
         role: session.role,
         verifiedAt: session.verifiedAt,
       },

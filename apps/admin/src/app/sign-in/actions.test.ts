@@ -29,6 +29,7 @@ vi.mock("@opennextjs/cloudflare", () => ({
 
 import { getAdminGate } from "../../lib/auth";
 import { startSession } from "../../lib/sign-in";
+import { saveDisplayName } from "../(console)/account/actions";
 import {
   requestSignInCode,
   signOut,
@@ -207,7 +208,9 @@ describe("entering the code", () => {
       await redirectOf(() => verifySignInCode(form({ code: "invalid" }))),
     ).toBe("/sign-in/code?error=format");
     expect(catalog.rows("SELECT * FROM admin_setup")).toEqual([]);
-    expect(await redirectOf(() => verifySignInCode(form({ code })))).toBe("/");
+    expect(await redirectOf(() => verifySignInCode(form({ code })))).toBe(
+      "/account?setup=1",
+    );
     expect(await getAdminGate()).toMatchObject({
       status: "authorized",
       session: { email: "first@example.com", role: "owner" },
@@ -223,7 +226,7 @@ describe("entering the code", () => {
     await askForCode("member@example.com");
     await expect(
       redirectOf(() => verifySignInCode(form({ code: lastCode() }))),
-    ).resolves.toBe("/");
+    ).resolves.toBe("/account?setup=1");
 
     const session = state.writes.get(SESSION);
     expect(session?.options).toEqual({
@@ -247,6 +250,27 @@ describe("entering the code", () => {
     });
     await expect(
       redirectOf(() => verifySignInCode(form({ code: lastCode() }))),
+    ).resolves.toBe("/account?setup=1&next=%2Fconventions%3Fstatus%3Ddraft");
+    await expect(
+      redirectOf(() =>
+        saveDisplayName(
+          form({
+            displayName: "  River  ",
+            setup: "1",
+            next: "/conventions?status=draft",
+          }),
+        ),
+      ),
+    ).resolves.toBe("/conventions?status=draft");
+    await expect(getAdminGate()).resolves.toMatchObject({
+      status: "authorized",
+      session: { displayName: "River" },
+    });
+    await askForCode("member@example.com", {
+      next: "/conventions?status=draft",
+    });
+    await expect(
+      redirectOf(() => verifySignInCode(form({ code: lastCode() }))),
     ).resolves.toBe("/conventions?status=draft");
 
     for (const next of [
@@ -264,7 +288,7 @@ describe("entering the code", () => {
       await expect(
         redirectOf(() => verifySignInCode(form({ code: lastCode() }))),
         next,
-      ).resolves.toBe("/");
+      ).resolves.toBe("/account?setup=1");
     }
   });
 
@@ -363,7 +387,7 @@ describe("entering the code", () => {
     expect(send).toHaveBeenCalledOnce();
     await expect(
       redirectOf(() => verifySignInCode(form({ code }))),
-    ).resolves.toBe("/");
+    ).resolves.toBe("/account?setup=1");
   });
 });
 
@@ -456,11 +480,61 @@ describe("local development", () => {
     const code = printed.match(/\d{4}-\d{4}/)?.[0] ?? "";
     await expect(
       redirectOf(() => verifySignInCode(form({ code }))),
-    ).resolves.toBe("/");
+    ).resolves.toBe("/account?setup=1");
     // Plain-HTTP localhost gets cookies without the Secure-only prefix.
     expect(state.jar.has("conpaws_admin_session")).toBe(true);
     expect(state.writes.get("conpaws_admin_session")?.options).toMatchObject({
       secure: false,
     });
+  });
+});
+
+describe("saving a display name", () => {
+  beforeEach(() => setup());
+
+  it("requires an active session and only updates the signed-in account", async () => {
+    addMember(catalog, "member@example.com");
+    addMember(catalog, "other@example.com");
+    await expect(
+      redirectOf(() => saveDisplayName(form({ displayName: "Someone" }))),
+    ).resolves.toBe("/sign-in");
+
+    const token = await startSession({
+      database: catalog.database,
+      email: "member@example.com",
+      now: Date.now(),
+    });
+    state.jar.set(SESSION, token as string);
+    await expect(
+      redirectOf(() =>
+        saveDisplayName(form({ displayName: " ", setup: "1", next: "/team" })),
+      ),
+    ).resolves.toBe("/account?error=name&setup=1&next=%2Fteam");
+    await expect(
+      redirectOf(() =>
+        saveDisplayName(
+          form({
+            displayName: "North Star",
+            email: "other@example.com",
+            next: "//outside.example",
+          }),
+        ),
+      ),
+    ).resolves.toBe("/account?saved=1");
+    expect(
+      catalog.rows(
+        "SELECT email, display_name FROM admin_members ORDER BY email",
+      ),
+    ).toEqual([
+      { email: "member@example.com", display_name: "North Star" },
+      { email: "other@example.com", display_name: null },
+    ]);
+
+    catalog.exec(
+      "UPDATE admin_members SET status = 'disabled' WHERE email = 'member@example.com'",
+    );
+    await expect(
+      saveDisplayName(form({ displayName: "Blocked" })),
+    ).rejects.toThrow("Admin access denied: disabled");
   });
 });

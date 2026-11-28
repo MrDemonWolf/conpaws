@@ -432,7 +432,7 @@ describe("letting a verified address in", () => {
         email: "owner@example.com",
         now: T0,
       }),
-    ).resolves.toEqual({ status: "member", role: "owner" });
+    ).resolves.toEqual({ status: "member", role: "owner", displayName: null });
   });
 
   it("turns a live invite into a membership, once, and records it", async () => {
@@ -449,7 +449,7 @@ describe("letting a verified address in", () => {
         email: "new@example.com",
         now: T0,
       }),
-    ).resolves.toEqual({ status: "member", role: "owner" });
+    ).resolves.toEqual({ status: "member", role: "owner", displayName: null });
     expect(
       catalog.rows("SELECT email, role, status, created_by FROM admin_members"),
     ).toEqual([
@@ -532,6 +532,7 @@ describe("sessions", () => {
     await expect(readSession(catalog.database, token, T0 + 1)).resolves.toEqual(
       {
         email: "member@example.com",
+        displayName: null,
         verifiedAt: T0,
         expiresAt: T0 + SIGN_IN_POLICY.sessionLifetimeMs,
         role: "editor",
@@ -690,7 +691,7 @@ describe("first-owner setup", () => {
         email: "first@example.com",
         now: T0,
       }),
-    ).toEqual({ status: "member", role: "owner" });
+    ).toEqual({ status: "member", role: "owner", displayName: null });
     expect(await isOwnerSetupOpen(catalog.database)).toBe(false);
     expect(catalog.rows("SELECT action FROM audit_log")).toEqual([
       { action: "admin.setup-completed" },
