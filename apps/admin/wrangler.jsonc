@@ -28,14 +28,14 @@
     }
   ],
   "vars": {
-    "ADMIN_EMAIL_FROM": "admin@conpaws.com"
+    "ADMIN_EMAIL_FROM": "no-reply@conpaws.com"
   },
   // Local email is not delivered; the local runtime also prints each sign-in
   // code in the dev server log.
   "send_email": [
     {
       "name": "ADMIN_EMAIL",
-      "allowed_sender_addresses": ["admin@conpaws.com"]
+      "allowed_sender_addresses": ["no-reply@conpaws.com"]
     }
   ],
   "ratelimits": [
