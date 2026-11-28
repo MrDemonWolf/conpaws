@@ -257,7 +257,8 @@ export default async function OverviewPage() {
                       {entry.summary}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      {entry.actorEmail} <span className="mx-1">·</span>{" "}
+                      {entry.actorDisplayName ?? entry.actorEmail}{" "}
+                      <span className="mx-1">·</span>{" "}
                       {formatMoment(entry.createdAt)}
                     </p>
                   </li>
