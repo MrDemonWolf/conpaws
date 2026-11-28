@@ -1,4 +1,14 @@
-import { and, asc, count, desc, eq, like, ne, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  like,
+  ne,
+  or,
+} from "drizzle-orm";
 import {
   adminInvites,
   adminMembers,
@@ -31,8 +41,12 @@ export async function getDashboardData() {
         .where(eq(adminMembers.status, "active")),
       // Overview lists changes; sign-ins stay on the Activity screen.
       db
-        .select()
+        .select({
+          ...getTableColumns(auditLog),
+          actorDisplayName: adminMembers.displayName,
+        })
         .from(auditLog)
+        .leftJoin(adminMembers, eq(auditLog.actorEmail, adminMembers.email))
         .where(ne(auditLog.action, "admin.signed-in"))
         .orderBy(desc(auditLog.createdAt))
         .limit(6),
@@ -136,8 +150,12 @@ export async function getInvites() {
 
 export async function getRecentActivity() {
   return (await getCatalogDb())
-    .select()
+    .select({
+      ...getTableColumns(auditLog),
+      actorDisplayName: adminMembers.displayName,
+    })
     .from(auditLog)
+    .leftJoin(adminMembers, eq(auditLog.actorEmail, adminMembers.email))
     .orderBy(desc(auditLog.createdAt))
     .limit(100);
 }

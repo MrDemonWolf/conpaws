@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ConPaws Admin",
     short_name: "ConPaws",
     description: "Manage verified conventions and publish schedule updates.",
-    start_url: "/",
+    start_url: "/conventions",
     scope: "/",
     display: "standalone",
     background_color: "#f5f7fb",

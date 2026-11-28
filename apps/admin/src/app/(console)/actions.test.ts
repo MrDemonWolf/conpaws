@@ -93,7 +93,7 @@ describe("team changes", () => {
     bindingsMock.mockResolvedValue({
       ADMIN_RUNTIME_ENV: "production",
       ADMIN_PUBLIC_URL: "https://admin.conpaws.com",
-      ADMIN_EMAIL_FROM: "admin@conpaws.com",
+      ADMIN_EMAIL_FROM: "no-reply@conpaws.com",
       ADMIN_EMAIL: { send },
     });
   });

@@ -118,7 +118,7 @@ export async function createConvention(formData: FormData) {
     redirect("/conventions/new?error=slug");
   }
 
-  revalidatePath("/");
+  revalidatePath("/overview");
   revalidatePath("/conventions");
   redirect(`/conventions/${id}`);
 }
@@ -197,7 +197,7 @@ export async function updateConvention(formData: FormData) {
   ]);
   if (result[0]?.meta.changes !== 1)
     redirect(`/conventions/${id}?error=conflict`);
-  revalidatePath("/");
+  revalidatePath("/overview");
   revalidatePath("/conventions");
   revalidatePath(`/conventions/${id}`);
   redirect(`/conventions/${id}?saved=details`);
@@ -285,7 +285,7 @@ export async function createScheduleEvent(formData: FormData) {
     redirect(`/conventions/${conventionId}?error=conflict`);
   }
   revalidatePath(`/conventions/${conventionId}`);
-  revalidatePath("/");
+  revalidatePath("/overview");
   redirect(`/conventions/${conventionId}?saved=session`);
 }
 
@@ -392,7 +392,7 @@ export async function updateScheduleEvent(formData: FormData) {
     redirect(`/conventions/${conventionId}?error=conflict`);
   }
   revalidatePath(`/conventions/${conventionId}`);
-  revalidatePath("/");
+  revalidatePath("/overview");
   redirect(`/conventions/${conventionId}?saved=session`);
 }
 
@@ -562,7 +562,7 @@ export async function publishConvention(formData: FormData) {
   if (results[2]?.meta.changes !== 1) {
     redirect(`/conventions/${id}?error=conflict`);
   }
-  revalidatePath("/");
+  revalidatePath("/overview");
   revalidatePath("/conventions");
   revalidatePath(`/conventions/${id}`);
   redirect(`/conventions/${id}?published=${nextRevision}`);
@@ -787,7 +787,7 @@ export async function restoreRevision(formData: FormData) {
   if (results[2]?.meta.changes !== 1) {
     redirect(`/conventions/${id}?error=restore-conflict`);
   }
-  revalidatePath("/");
+  revalidatePath("/overview");
   revalidatePath("/conventions");
   revalidatePath(`/conventions/${id}`);
   redirect(`/conventions/${id}?restored=${nextRevision}`);
@@ -868,7 +868,7 @@ export async function inviteAdmin(formData: FormData) {
   const sent = await sendInvite({
     email,
     role,
-    invitedBy: actor.email,
+    invitedBy: actor.displayName ?? "A ConPaws admin",
     expiresAt,
   });
   revalidatePath("/team");
@@ -905,7 +905,7 @@ export async function resendAdminInvite(formData: FormData) {
   const sent = await sendInvite({
     email,
     role: invite.role,
-    invitedBy: actor.email,
+    invitedBy: actor.displayName ?? "A ConPaws admin",
     expiresAt,
   });
   revalidatePath("/team");

@@ -273,7 +273,7 @@ export async function checkSignInCode(input: {
 }
 
 export type Admission =
-  | { status: "member"; role: AdminRole }
+  | { status: "member"; role: AdminRole; displayName: string | null }
   | { status: "disabled" | "not-invited" };
 
 /**
@@ -338,12 +338,22 @@ export async function admitMember(input: {
   ]);
 
   const member = await database
-    .prepare("SELECT role, status FROM admin_members WHERE email = ?1")
+    .prepare(
+      "SELECT role, status, display_name AS displayName FROM admin_members WHERE email = ?1",
+    )
     .bind(email)
-    .first<{ role: AdminRole; status: "active" | "disabled" }>();
+    .first<{
+      role: AdminRole;
+      status: "active" | "disabled";
+      displayName: string | null;
+    }>();
   if (!member) return { status: "not-invited" };
   if (member.status !== "active") return { status: "disabled" };
-  return { status: "member", role: member.role };
+  return {
+    status: "member",
+    role: member.role,
+    displayName: member.displayName,
+  };
 }
 
 /**
@@ -404,6 +414,7 @@ export async function startSession(input: {
 
 export interface StoredSession {
   email: string;
+  displayName: string | null;
   verifiedAt: number;
   expiresAt: number;
   role: AdminRole | null;
@@ -419,7 +430,8 @@ export async function readSession(
   return database
     .prepare(
       `SELECT s.email AS email, s.verified_at AS verifiedAt,
-              s.expires_at AS expiresAt, m.role AS role, m.status AS status
+              s.expires_at AS expiresAt, m.role AS role, m.status AS status,
+              m.display_name AS displayName
        FROM admin_sessions s
        LEFT JOIN admin_members m ON m.email = s.email
        WHERE s.token_hash = ?1 AND s.expires_at > ?2`,

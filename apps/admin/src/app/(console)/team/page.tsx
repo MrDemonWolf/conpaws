@@ -138,6 +138,9 @@ export default async function TeamPage({
                       <input type="hidden" name="email" value={member.email} />
                       <div className="min-w-0 pb-1">
                         <p className="break-all text-sm font-semibold text-[#091533]">
+                          {member.displayName || "Team member"}
+                        </p>
+                        <p className="break-all text-xs text-slate-500">
                           {member.email}
                         </p>
                         <p className="mt-1 text-xs text-slate-500">

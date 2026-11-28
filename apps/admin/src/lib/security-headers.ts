@@ -28,5 +28,6 @@ export function adminSecurityHeaders(environment = process.env.NODE_ENV) {
     },
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "X-Frame-Options", value: "DENY" },
+    { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
   ];
 }

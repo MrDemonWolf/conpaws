@@ -41,8 +41,10 @@ export default async function ActivityPage() {
                     {entry.summary}
                   </p>
                   <p className="mt-1 break-all text-xs text-slate-500">
-                    {entry.actorEmail} <span className="mx-1">·</span>{" "}
-                    {entry.action}
+                    {entry.actorDisplayName
+                      ? `${entry.actorDisplayName} (${entry.actorEmail})`
+                      : entry.actorEmail}{" "}
+                    <span className="mx-1">·</span> {entry.action}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-600 sm:justify-end">

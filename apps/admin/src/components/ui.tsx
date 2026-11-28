@@ -264,6 +264,7 @@ export function Banner({
   }[tone];
   return (
     <div
+      role={tone === "error" ? "alert" : "status"}
       className={`mb-5 rounded-lg border px-4 py-3 text-sm leading-6 ${styles}`}
     >
       {children}

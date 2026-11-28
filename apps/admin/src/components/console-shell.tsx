@@ -10,16 +10,14 @@ import { Icon } from "./icons";
 import { InstallAppButton, PwaRuntime } from "./pwa-client";
 
 const links = [
-  { href: "/", label: "Overview", icon: "grid" as const },
   { href: "/conventions", label: "Conventions", icon: "calendar" as const },
+  { href: "/overview", label: "Overview", icon: "grid" as const },
   { href: "/team", label: "Team", icon: "users" as const },
   { href: "/activity", label: "Activity", icon: "activity" as const },
 ] as const;
 
 function isCurrent(pathname: string, href: string) {
-  return href === "/"
-    ? pathname === "/"
-    : pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function NavItem({ href, label, icon }: (typeof links)[number]) {
@@ -29,7 +27,7 @@ function NavItem({ href, label, icon }: (typeof links)[number]) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1 text-[10px] font-semibold leading-none transition md:flex-row md:justify-center md:gap-2 md:px-3 md:text-xs lg:text-sm ${active ? "bg-sky-50 text-[#091533] ring-1 ring-sky-100" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1 text-[10px] font-semibold leading-none transition md:flex-row md:justify-center md:gap-2 md:px-3 md:text-xs lg:justify-start lg:px-3 lg:text-sm ${active ? "bg-sky-50 text-[#091533] ring-1 ring-sky-100" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
     >
       <Icon name={icon} className="size-4 shrink-0 md:size-[17px]" />
       <span className="truncate">{label}</span>
@@ -74,14 +72,37 @@ export function ConsoleShell({
 }) {
   const pathname = usePathname();
   const menu = useDismissableMenu();
+  const accountName = session.displayName ?? "Account";
   return (
-    <div className="min-h-screen bg-[#f5f7fb]">
+    <div className="min-h-screen bg-[#f5f7fb] lg:pl-56">
+      <a
+        href="#admin-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3"
+      >
+        Skip to content
+      </a>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col overflow-y-auto border-r border-slate-200 bg-white px-4 py-5 lg:flex">
+        <Link
+          href="/conventions"
+          className="mb-8 flex items-center gap-3 rounded-lg px-2 font-display font-bold text-[#091533]"
+        >
+          <span className="grid size-9 place-items-center rounded-xl bg-[#091533] text-[#0faced]">
+            <CompassPaw className="size-6" />
+          </span>
+          ConPaws Admin
+        </Link>
+        <nav aria-label="Main navigation" className="grid gap-1">
+          {links.map((item) => (
+            <NavItem key={item.href} {...item} />
+          ))}
+        </nav>
+      </aside>
       <header className="admin-header sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-[1360px] items-center gap-2 px-4 sm:gap-3 sm:px-6 lg:gap-6 lg:px-10">
           <Link
-            href="/"
+            href="/conventions"
             aria-label="ConPaws Admin workspace"
-            className="flex shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-sky-200"
+            className="flex shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-sky-200 lg:hidden"
           >
             <span className="grid size-9 place-items-center rounded-xl bg-[#091533] text-[#0faced]">
               <CompassPaw className="size-6" />
@@ -94,15 +115,6 @@ export function ConsoleShell({
             </span>
           </Link>
 
-          <nav
-            aria-label="Main navigation"
-            className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
-          >
-            {links.map((item) => (
-              <NavItem key={item.href} {...item} />
-            ))}
-          </nav>
-
           <InstallAppButton />
 
           <details
@@ -112,18 +124,18 @@ export function ConsoleShell({
             className="relative ml-auto shrink-0"
           >
             <summary
-              aria-label={`Account: ${session.email}, ${session.role}`}
+              aria-label={`Account: ${accountName}, ${session.role}`}
               className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl px-1.5 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 sm:gap-3 [&::-webkit-details-marker]:hidden"
             >
               <span
                 aria-hidden="true"
                 className="grid size-8 place-items-center rounded-full bg-sky-100 font-display text-xs font-bold text-[#091533]"
               >
-                {session.email.slice(0, 1).toUpperCase()}
+                {Array.from(accountName)[0]?.toUpperCase()}
               </span>
               <span className="hidden min-w-0 text-left lg:block">
                 <span className="block max-w-40 truncate text-xs font-semibold text-slate-800">
-                  {session.email}
+                  {accountName}
                 </span>
                 <span className="mt-0.5 block text-[10px] capitalize text-slate-500">
                   {session.role}
@@ -135,11 +147,20 @@ export function ConsoleShell({
             </summary>
             <div className="absolute right-0 z-30 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
               <p className="break-all px-3 pt-2 text-sm font-semibold text-[#091533]">
-                {session.email}
+                {accountName}
               </p>
               <p className="px-3 pb-2 text-xs capitalize text-slate-500">
                 {session.role}
               </p>
+              <p className="break-all px-3 pb-2 text-xs text-slate-600">
+                {session.email}
+              </p>
+              <Link
+                href="/account"
+                className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:bg-slate-100"
+              >
+                Account settings
+              </Link>
               <form action={signOut}>
                 <button
                   type="submit"
@@ -163,7 +184,11 @@ export function ConsoleShell({
 
       <PwaRuntime />
 
-      <main className="admin-main mx-auto w-full max-w-[1360px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <main
+        id="admin-content"
+        tabIndex={-1}
+        className="admin-main mx-auto w-full max-w-[1360px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10"
+      >
         {children}
         <footer className="mt-12 border-t border-slate-200 py-5 text-xs text-slate-500">
           ConPaws Admin <span className="mx-1.5">·</span> Published catalog

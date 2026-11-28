@@ -193,6 +193,11 @@ export async function verifySignInCode(formData: FormData) {
     token,
     cookieOptions(env, SIGN_IN_POLICY.sessionLifetimeMs / 1000),
   );
+  if (!admission.displayName) {
+    const search = new URLSearchParams({ setup: "1" });
+    if (attempt.next) search.set("next", attempt.next);
+    redirect(`/account?${search}`);
+  }
   redirect((attempt.next ?? "/") as Route);
 }
 

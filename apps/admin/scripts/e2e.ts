@@ -32,13 +32,19 @@ function assertSecurityHeaders(response: Response, path: string) {
   assert.equal(response.headers.get("x-content-type-options"), "nosniff", path);
   assert.equal(response.headers.get("x-frame-options"), "DENY", path);
   assert.equal(response.headers.get("x-powered-by"), null, path);
+  assert.equal(
+    response.headers.get("x-robots-tag"),
+    "noindex, nofollow, noarchive",
+    path,
+  );
 }
 
 const routes = {
-  "/": "ConPaws Preview Con",
+  "/overview": "Overview",
   "/conventions": "ConPaws Preview Con",
   "/activity": "Activity history",
   "/team": "Team",
+  "/account": "Display name",
   "/sign-in?error=email": "Sign in",
 };
 
@@ -52,12 +58,37 @@ for (const [path, expectedText] of Object.entries(routes)) {
   assertSecurityHeaders(response, path);
 }
 
-assert((await get("/")).body.includes("ConPaws Preview Con"));
-assert((await get("/conventions")).body.includes("ConPaws Preview Con"));
-assert.match((await get("/robots.txt")).body, /Disallow:\s*\//);
+const landing = await fetch(new URL("/", origin), { redirect: "manual" });
+assert.equal(landing.status, 307);
+assert.equal(landing.headers.get("location"), "/conventions");
+assert.match(
+  (await get("/conventions")).body,
+  /<title>Conventions · ConPaws Admin<\/title>/,
+);
+assert.match((await get("/robots.txt")).body, /Allow:\s*\//);
+
+const signIn = await get("/sign-in");
+assert.match(
+  signIn.body,
+  /name="robots" content="noindex, nofollow, noarchive"/,
+);
+assert.match(
+  signIn.body,
+  /property="og:image" content="https:\/\/admin\.conpaws\.com\/admin-share\.png"/,
+);
+for (const asset of ["/favicon.ico", "/admin-share.png"]) {
+  const response = await fetch(new URL(asset, origin));
+  assert.equal(response.status, 200, asset);
+  assert.equal(
+    response.headers.get("x-robots-tag"),
+    "noindex, nofollow, noarchive",
+    asset,
+  );
+}
 
 const manifest = JSON.parse((await get("/manifest.webmanifest")).body);
 assert.equal(manifest.name, "ConPaws Admin");
+assert.equal(manifest.start_url, "/conventions");
 assert.match((await get("/offline.html")).body, /offline/i);
 assert.match((await get("/sw.js")).body, /conpaws-admin-offline/);
 
