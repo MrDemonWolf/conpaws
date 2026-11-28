@@ -53,7 +53,7 @@ function setup(env: Record<string, unknown> = {}) {
     CATALOG_DB: catalog.database,
     ADMIN_RUNTIME_ENV: "production",
     ADMIN_AUTH_SECRET: "k".repeat(64),
-    ADMIN_EMAIL_FROM: "admin@conpaws.com",
+    ADMIN_EMAIL_FROM: "no-reply@conpaws.com",
     ADMIN_EMAIL: { send },
     ADMIN_SIGN_IN_LIMITER: { limit },
     ...env,
@@ -98,7 +98,8 @@ describe("asking for a code", () => {
     expect(send).toHaveBeenCalledOnce();
     expect(send.mock.calls[0]?.[0]).toMatchObject({
       to: "member@example.com",
-      from: { email: "admin@conpaws.com" },
+      from: { name: "ConPaws Admin", email: "no-reply@conpaws.com" },
+      replyTo: "support@conpaws.com",
     });
   });
 

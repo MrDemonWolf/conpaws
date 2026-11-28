@@ -120,6 +120,7 @@ export async function sendAdminEmail(env: AdminBindings, message: AdminEmail) {
     await env.ADMIN_EMAIL.send({
       from: { name: "ConPaws Admin", email: from },
       to: message.to,
+      replyTo: "support@conpaws.com",
       subject: message.subject,
       text: message.text,
       html: message.html,

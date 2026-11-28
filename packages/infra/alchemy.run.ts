@@ -404,7 +404,7 @@ export const reconciler = await Worker("reconciler", {
  * already deployed.
  */
 const ADMIN_ORIGIN = "https://admin.conpaws.com";
-const ADMIN_EMAIL_FROM = "admin@conpaws.com";
+const ADMIN_EMAIL_FROM = "no-reply@conpaws.com";
 const adminAuthSecret = alchemy.secret(
   createHmac("sha256", env.ALCHEMY_PASSWORD)
     .update("conpaws-admin-sign-in-code-key-v1")
