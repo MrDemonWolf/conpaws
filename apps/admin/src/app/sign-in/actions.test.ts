@@ -489,6 +489,8 @@ describe("local development", () => {
   });
 });
 
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
 describe("saving a display name", () => {
   beforeEach(() => setup());
 
@@ -529,6 +531,11 @@ describe("saving a display name", () => {
       { email: "member@example.com", display_name: "North Star" },
       { email: "other@example.com", display_name: null },
     ]);
+    expect(
+      catalog.rows(
+        "SELECT actor_email FROM audit_log WHERE action = 'admin.display-name-changed'",
+      ),
+    ).toEqual([{ actor_email: "member@example.com" }]);
 
     catalog.exec(
       "UPDATE admin_members SET status = 'disabled' WHERE email = 'member@example.com'",

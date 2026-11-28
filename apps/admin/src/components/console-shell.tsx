@@ -75,7 +75,13 @@ export function ConsoleShell({
   const accountName = session.displayName ?? "Account";
   return (
     <div className="min-h-screen bg-[#f5f7fb] lg:pl-56">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-slate-200 bg-white px-4 py-5 lg:flex">
+      <a
+        href="#admin-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3"
+      >
+        Skip to content
+      </a>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col overflow-y-auto border-r border-slate-200 bg-white px-4 py-5 lg:flex">
         <Link
           href="/conventions"
           className="mb-8 flex items-center gap-3 rounded-lg px-2 font-display font-bold text-[#091533]"
@@ -146,6 +152,9 @@ export function ConsoleShell({
               <p className="px-3 pb-2 text-xs capitalize text-slate-500">
                 {session.role}
               </p>
+              <p className="break-all px-3 pb-2 text-xs text-slate-600">
+                {session.email}
+              </p>
               <Link
                 href="/account"
                 className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:bg-slate-100"
@@ -175,7 +184,11 @@ export function ConsoleShell({
 
       <PwaRuntime />
 
-      <main className="admin-main mx-auto w-full max-w-[1360px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <main
+        id="admin-content"
+        tabIndex={-1}
+        className="admin-main mx-auto w-full max-w-[1360px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10"
+      >
         {children}
         <footer className="mt-12 border-t border-slate-200 py-5 text-xs text-slate-500">
           ConPaws Admin <span className="mx-1.5">·</span> Published catalog

@@ -32,6 +32,11 @@ function assertSecurityHeaders(response: Response, path: string) {
   assert.equal(response.headers.get("x-content-type-options"), "nosniff", path);
   assert.equal(response.headers.get("x-frame-options"), "DENY", path);
   assert.equal(response.headers.get("x-powered-by"), null, path);
+  assert.equal(
+    response.headers.get("x-robots-tag"),
+    "noindex, nofollow, noarchive",
+    path,
+  );
 }
 
 const routes = {
@@ -60,7 +65,7 @@ assert.match(
   (await get("/conventions")).body,
   /<title>Conventions · ConPaws Admin<\/title>/,
 );
-assert.match((await get("/robots.txt")).body, /Disallow:\s*\//);
+assert.match((await get("/robots.txt")).body, /Allow:\s*\//);
 
 const signIn = await get("/sign-in");
 assert.match(
@@ -74,10 +79,16 @@ assert.match(
 for (const asset of ["/favicon.ico", "/admin-share.png"]) {
   const response = await fetch(new URL(asset, origin));
   assert.equal(response.status, 200, asset);
+  assert.equal(
+    response.headers.get("x-robots-tag"),
+    "noindex, nofollow, noarchive",
+    asset,
+  );
 }
 
 const manifest = JSON.parse((await get("/manifest.webmanifest")).body);
 assert.equal(manifest.name, "ConPaws Admin");
+assert.equal(manifest.start_url, "/conventions");
 assert.match((await get("/offline.html")).body, /offline/i);
 assert.match((await get("/sw.js")).body, /conpaws-admin-offline/);
 

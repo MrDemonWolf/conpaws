@@ -257,7 +257,9 @@ export default async function OverviewPage() {
                       {entry.summary}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      {entry.actorDisplayName ?? entry.actorEmail}{" "}
+                      {entry.actorDisplayName
+                        ? `${entry.actorDisplayName} (${entry.actorEmail})`
+                        : entry.actorEmail}{" "}
                       <span className="mx-1">·</span>{" "}
                       {formatMoment(entry.createdAt)}
                     </p>
