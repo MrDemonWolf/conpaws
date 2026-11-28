@@ -72,6 +72,7 @@ export function ConsoleShell({
 }) {
   const pathname = usePathname();
   const menu = useDismissableMenu();
+  const accountName = session.displayName ?? "Account";
   return (
     <div className="min-h-screen bg-[#f5f7fb] lg:pl-56">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-slate-200 bg-white px-4 py-5 lg:flex">
@@ -117,18 +118,18 @@ export function ConsoleShell({
             className="relative ml-auto shrink-0"
           >
             <summary
-              aria-label={`Account: ${session.email}, ${session.role}`}
+              aria-label={`Account: ${accountName}, ${session.role}`}
               className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl px-1.5 outline-none focus-visible:ring-4 focus-visible:ring-sky-200 sm:gap-3 [&::-webkit-details-marker]:hidden"
             >
               <span
                 aria-hidden="true"
                 className="grid size-8 place-items-center rounded-full bg-sky-100 font-display text-xs font-bold text-[#091533]"
               >
-                {session.email.slice(0, 1).toUpperCase()}
+                {Array.from(accountName)[0]?.toUpperCase()}
               </span>
               <span className="hidden min-w-0 text-left lg:block">
                 <span className="block max-w-40 truncate text-xs font-semibold text-slate-800">
-                  {session.email}
+                  {accountName}
                 </span>
                 <span className="mt-0.5 block text-[10px] capitalize text-slate-500">
                   {session.role}
@@ -140,11 +141,17 @@ export function ConsoleShell({
             </summary>
             <div className="absolute right-0 z-30 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
               <p className="break-all px-3 pt-2 text-sm font-semibold text-[#091533]">
-                {session.email}
+                {accountName}
               </p>
               <p className="px-3 pb-2 text-xs capitalize text-slate-500">
                 {session.role}
               </p>
+              <Link
+                href="/account"
+                className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:bg-slate-100"
+              >
+                Account settings
+              </Link>
               <form action={signOut}>
                 <button
                   type="submit"
