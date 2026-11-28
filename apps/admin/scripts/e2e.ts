@@ -35,7 +35,7 @@ function assertSecurityHeaders(response: Response, path: string) {
 }
 
 const routes = {
-  "/": "ConPaws Preview Con",
+  "/overview": "Overview",
   "/conventions": "ConPaws Preview Con",
   "/activity": "Activity history",
   "/team": "Team",
@@ -52,9 +52,25 @@ for (const [path, expectedText] of Object.entries(routes)) {
   assertSecurityHeaders(response, path);
 }
 
-assert((await get("/")).body.includes("ConPaws Preview Con"));
+const landing = await fetch(new URL("/", origin), { redirect: "manual" });
+assert.equal(landing.status, 307);
+assert.equal(landing.headers.get("location"), "/conventions");
 assert((await get("/conventions")).body.includes("ConPaws Preview Con"));
 assert.match((await get("/robots.txt")).body, /Disallow:\s*\//);
+
+const signIn = await get("/sign-in");
+assert.match(
+  signIn.body,
+  /name="robots" content="noindex, nofollow, noarchive"/,
+);
+assert.match(
+  signIn.body,
+  /property="og:image" content="https:\/\/admin\.conpaws\.com\/admin-share\.png"/,
+);
+for (const asset of ["/favicon.ico", "/admin-share.png"]) {
+  const response = await fetch(new URL(asset, origin));
+  assert.equal(response.status, 200, asset);
+}
 
 const manifest = JSON.parse((await get("/manifest.webmanifest")).body);
 assert.equal(manifest.name, "ConPaws Admin");
